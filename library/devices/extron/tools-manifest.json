@@ -1,0 +1,39 @@
+{
+  "api_name": "extron",
+  "base_url": "https://www.extron.com",
+  "description": "Every Extron spec sheet and user manual, browsable and searchable offline with revision tracking no other Extron tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": ""
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "literature_index",
+      "description": "Fetch the alphabetical literature index for a letter. Optional: id (default: All), tabid (default: 5), defaultLang (default: true).",
+      "method": "GET",
+      "path": "/technology/literature.aspx",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Alphabetical index letter (A-Z, 0-9, or All)"
+        },
+        {
+          "name": "tabid",
+          "type": "int",
+          "location": "query",
+          "description": "Literature library tab (5 = literature)"
+        },
+        {
+          "name": "defaultLang",
+          "type": "bool",
+          "location": "query",
+          "description": "Request the default English language view"
+        }
+      ]
+    }
+  ]
+}

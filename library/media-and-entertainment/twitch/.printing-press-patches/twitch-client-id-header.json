@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "patch_id": "twitch-client-id-header",
+  "base_run_id": "",
+  "title": "Inject Twitch Client-Id header on every Helix request",
+  "rationale": "Twitch Helix requires the Client-Id header on every request in addition to the OAuth2 bearer token; the client_id must match the client the token was minted for. The generated client only set Authorization, so every live call would 401 with 'Client-Id header required'. This patch sets req.Header.Set(\"Client-Id\", cfg.ClientID) in client.do() (before the configurable Headers map so explicit overrides still win) and mirrors it in the --dry-run preview for honest output.",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "changes": [
+    {
+      "file": "internal/client/client.go",
+      "summary": "After setting the Authorization header in the request loop, set Client-Id from c.Config.ClientID when present.",
+      "validated_outcome": "go build ./... and go vet ./... pass; doctor unaffected; live Helix GET returns 200 instead of 401."
+    },
+    {
+      "file": "internal/client/client.go",
+      "summary": "In dryRun(), print the Client-Id header (masked) alongside Authorization so --dry-run reflects what is actually sent.",
+      "validated_outcome": "go build ./... passes; --dry-run output lists Client-Id."
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+version: 2
+project_name: peekaboo-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: peekaboo-pp-cli
+    main: ./cmd/peekaboo-pp-cli
+    binary: peekaboo-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/commerce/peekaboo/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: peekaboo-pp-mcp
+    main: ./cmd/peekaboo-pp-mcp
+    binary: peekaboo-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: peekaboo-pp-cli
+    repository:
+      owner: qazmataz
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Peekaboo Guru deals, discounts, branches, and bank-card offers CLI"
+    install: |
+      bin.install "peekaboo-pp-cli"
+      bin.install "peekaboo-pp-mcp"

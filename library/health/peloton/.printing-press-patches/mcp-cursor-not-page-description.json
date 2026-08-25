@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "mcp-cursor-not-page-description",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "classes_catalog, classes_search, and workouts_list's MCP tool descriptions (internal/mcp/tools.go) list \"page (default: 0)\" as an optional parameter, but the actual declared parameter (mcpPageConfig{CursorParam: \"page\"} translates to) is \"cursor\" -- an opaque MCP-level pagination token, not a raw page number. Fixed the description text on all three tools (the same stale pattern, not just the one the finding named) to say \"cursor\" instead. Any future regen touching these three tool descriptions must keep them referring to the declared \"cursor\" parameter, not the internal upstream \"page\" wire name it maps to.",
+  "reason": "MINOR #9 from a live post-fix verification sweep, named for classes_search specifically (\"page (default: 0)\" but the declared param is cursor); grep confirmed the identical stale text also appears verbatim in classes_catalog and workouts_list, the same root cause (a hand-authored description string not updated when the parameter was renamed to the MCP-wide opaque \"cursor\" convention), so fixed all three rather than leaving two of them broken.",
+  "files": [
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green (verify_skill.py does not cover MCP tool description strings, only CLI source, so this is a targeted text fix with no functional surface to test beyond compilation)."
+}

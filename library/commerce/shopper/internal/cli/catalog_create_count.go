@@ -20,39 +20,23 @@ func newCatalogCreateCountCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:         "count",
-		Short:       "Count catalog products matching a search query",
-		Example:     "  shopper-pp-cli catalog count",
+		Use:         "create-count",
+		Short:       "Count products matching a search query and optional filters",
+		Example:     "  shopper-pp-cli catalog create-count",
 		Annotations: map[string]string{"pp:endpoint": "catalog.create_count", "pp:method": "POST", "pp:path": "/catalog/search/count"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Bare invocation of a command with required input prints help
-			// instead of pflag's terse "required flag not set" error. Optional-
-			// only read commands fall through so a bare call still executes.
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
-				return cmd.Help()
-			}
 			if !stdinBody {
-				if !cmd.Flags().Changed("brands") && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "brands")
-				}
-				if !cmd.Flags().Changed("metadata") && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "metadata")
-				}
-				if !cmd.Flags().Changed("types") && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "types")
-				}
 			}
+			path := "/catalog/search/count"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/catalog/search/count"
 			params := map[string]string{}
-			if flagQuery != "" {
-				params["query"] = fmt.Sprintf("%v", flagQuery)
+			if cmd.Flags().Changed("query") || flagQuery != "" {
+				params["query"] = formatCLIParamValue(flagQuery)
 			}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -64,27 +48,40 @@ func newCatalogCreateCountCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
-				if bodyBrands != "" {
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if cmd.Flags().Changed("brands") || bodyBrands != "" {
 					var parsedBrands any
 					if err := json.Unmarshal([]byte(bodyBrands), &parsedBrands); err != nil {
 						return fmt.Errorf("parsing --brands JSON: %w", err)
 					}
-					body["brands"] = parsedBrands
+					asArray, ok := parsedBrands.([]any)
+					if !ok {
+						return fmt.Errorf("--brands must be a JSON array, got JSON %T", parsedBrands)
+					}
+					bodyMap["brands"] = asArray
 				}
-				if bodyMetadata != "" {
+				if cmd.Flags().Changed("metadata") || bodyMetadata != "" {
 					var parsedMetadata any
 					if err := json.Unmarshal([]byte(bodyMetadata), &parsedMetadata); err != nil {
 						return fmt.Errorf("parsing --metadata JSON: %w", err)
 					}
-					body["metadata"] = parsedMetadata
+					asArray, ok := parsedMetadata.([]any)
+					if !ok {
+						return fmt.Errorf("--metadata must be a JSON array, got JSON %T", parsedMetadata)
+					}
+					bodyMap["metadata"] = asArray
 				}
-				if bodyTypes != "" {
+				if cmd.Flags().Changed("types") || bodyTypes != "" {
 					var parsedTypes any
 					if err := json.Unmarshal([]byte(bodyTypes), &parsedTypes); err != nil {
 						return fmt.Errorf("parsing --types JSON: %w", err)
 					}
-					body["types"] = parsedTypes
+					asArray, ok := parsedTypes.([]any)
+					if !ok {
+						return fmt.Errorf("--types must be a JSON array, got JSON %T", parsedTypes)
+					}
+					bodyMap["types"] = asArray
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
@@ -154,6 +151,9 @@ func newCatalogCreateCountCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -192,14 +192,26 @@ func newCatalogCreateCountCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)
 				if err != nil {
 					return err
 				}
-				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+				resultKey := "data"
+				if flags.agent {
+					resultKey = "results"
+				}
+				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
+				if err != nil {
+					return err
+				}
+				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
@@ -223,10 +235,10 @@ func newCatalogCreateCountCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&flagQuery, "query", "", "")
-	cmd.Flags().StringVar(&bodyBrands, "brands", "", "")
-	cmd.Flags().StringVar(&bodyMetadata, "metadata", "", "")
-	cmd.Flags().StringVar(&bodyTypes, "types", "", "")
+	cmd.Flags().StringVar(&flagQuery, "query", "", "Search query")
+	cmd.Flags().StringVar(&bodyBrands, "brands", "", "Brand filter list")
+	cmd.Flags().StringVar(&bodyMetadata, "metadata", "", "Metadata filter list")
+	cmd.Flags().StringVar(&bodyTypes, "types", "", "Product type filter list")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

@@ -1,0 +1,511 @@
+{
+  "api_name": "peekaboo",
+  "base_url": "https://peekaboo.guru/api",
+  "description": "Every Peekaboo deal, branch, and bank-card offer from the terminal — plus city-wide deal ranking, bank-card reverse lookup, and bulk branch map-link export the Peekaboo site has no button for.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {PEEKABOO_TOKEN}",
+    "env_vars": [
+      "PEEKABOO_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "PEEKABOO_TOKEN",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+    },
+    {
+      "name": "Origin",
+      "value": "https://peekaboo.guru"
+    }
+  ],
+  "tools": [
+    {
+      "name": "amenities_list",
+      "description": "List amenities for a merchant. Required: entity-id, country (default: Pakistan), limit (default: 50), offset (default: 0). Returns array of Amenity.",
+      "method": "POST",
+      "path": "/v6/entity/amenities",
+      "params": [
+        {
+          "name": "entity-id",
+          "wire_name": "entityId",
+          "type": "int",
+          "location": "body",
+          "description": "Merchant/entity id",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "Country name",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Max amenities",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Pagination offset",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "branches_list",
+      "description": "List all branches of a merchant with latitude/longitude for map directions. Required: entityId, city, country (default: Pakistan), entity, lat, long. Optional: language (default: en), limit (default: 100), offset (default: 0). Returns array of Branch.",
+      "method": "GET",
+      "path": "/v5/entity/{entityId}/branch/_all",
+      "params": [
+        {
+          "name": "entityId",
+          "type": "string",
+          "location": "path",
+          "description": "Merchant/entity id",
+          "required": true
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "location": "query",
+          "description": "City name",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Country name",
+          "required": true
+        },
+        {
+          "name": "entity",
+          "type": "string",
+          "location": "query",
+          "description": "Merchant name (used for SEO slug in query)",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language code"
+        },
+        {
+          "name": "lat",
+          "type": "float",
+          "location": "query",
+          "description": "City latitude",
+          "required": true
+        },
+        {
+          "name": "long",
+          "type": "float",
+          "location": "query",
+          "description": "City longitude",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max branches"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        }
+      ]
+    },
+    {
+      "name": "brands_list",
+      "description": "List brands and card-deal sources in a city. Required: country (default: Pakistan), city, limit (default: 20), offset (default: 0), latitude, longitude. Returns array of Brand.",
+      "method": "POST",
+      "path": "/v6/sourceEntities",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "Country name",
+          "required": true
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "location": "body",
+          "description": "City name",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Max brands to return",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Pagination offset",
+          "required": true
+        },
+        {
+          "name": "latitude",
+          "type": "float",
+          "location": "body",
+          "description": "City latitude",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "float",
+          "location": "body",
+          "description": "City longitude",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cards_list",
+      "description": "List the banks/card sources that offer deals at a merchant. Required: entityId, city, country (default: Pakistan), entity, lat, long. Optional: language (default: en), limit (default: 100), offset (default: 0). Returns array of CardSource.",
+      "method": "GET",
+      "path": "/v5/entity/{entityId}/branch/_all/sourceEntities/_all",
+      "params": [
+        {
+          "name": "entityId",
+          "type": "string",
+          "location": "path",
+          "description": "Merchant/entity id",
+          "required": true
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "location": "query",
+          "description": "City name",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Country name",
+          "required": true
+        },
+        {
+          "name": "entity",
+          "type": "string",
+          "location": "query",
+          "description": "Merchant name",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language code"
+        },
+        {
+          "name": "lat",
+          "type": "float",
+          "location": "query",
+          "description": "City latitude",
+          "required": true
+        },
+        {
+          "name": "long",
+          "type": "float",
+          "location": "query",
+          "description": "City longitude",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max card sources"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        }
+      ]
+    },
+    {
+      "name": "categories_list",
+      "description": "List deal categories for a city. Required: language (default: en), country (default: Pakistan), city, lat, long. Returns array of Category.",
+      "method": "POST",
+      "path": "/v7/category",
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "Language code",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "Country name",
+          "required": true
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "location": "body",
+          "description": "City name (e.g. Lahore)",
+          "required": true
+        },
+        {
+          "name": "lat",
+          "type": "float",
+          "location": "body",
+          "description": "City latitude",
+          "required": true
+        },
+        {
+          "name": "long",
+          "type": "float",
+          "location": "body",
+          "description": "City longitude",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deals_list",
+      "description": "List deals/offers for a merchant, including bank-card offers. Required: target-entity-id, city, country (default: Pakistan), lat, long, language (default: en), offset (default: 0), limit (default: 100), associatedDeals (default: true), card (default: All). Returns array of Deal.",
+      "method": "POST",
+      "path": "/v8/entity/deals",
+      "params": [
+        {
+          "name": "target-entity-id",
+          "wire_name": "targetEntityId",
+          "type": "int",
+          "location": "body",
+          "description": "Merchant/entity id to list deals for",
+          "required": true
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "location": "body",
+          "description": "City name",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "Country name",
+          "required": true
+        },
+        {
+          "name": "lat",
+          "type": "float",
+          "location": "body",
+          "description": "City latitude",
+          "required": true
+        },
+        {
+          "name": "long",
+          "type": "float",
+          "location": "body",
+          "description": "City longitude",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "Language code",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Pagination offset",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Max deals to return",
+          "required": true
+        },
+        {
+          "name": "associatedDeals",
+          "type": "string",
+          "location": "body",
+          "description": "Include associated (bank-card) deals: 'true' or 'false'",
+          "required": true
+        },
+        {
+          "name": "card",
+          "type": "string",
+          "location": "body",
+          "description": "Filter to a specific card, or All",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "locations_list",
+      "description": "List cities/locations Peekaboo covers. Public: works without auth. Required: limit (default: 100), offset (default: 0). Returns array of Location.",
+      "method": "POST",
+      "path": "/v5/locations",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Max locations to return",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Pagination offset",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "places_detail",
+      "description": "Get full detail for a merchant (social, menu, gallery, rating, stats). Required: entity-id, city, country (default: Pakistan), lat, long, language (default: en). Returns the new EntityDetail.",
+      "method": "POST",
+      "path": "/v8/entity/detail",
+      "params": [
+        {
+          "name": "entity-id",
+          "wire_name": "entityId",
+          "type": "string",
+          "location": "body",
+          "description": "Merchant/entity id",
+          "required": true
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "location": "body",
+          "description": "City name",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "Country name",
+          "required": true
+        },
+        {
+          "name": "lat",
+          "type": "float",
+          "location": "body",
+          "description": "City latitude",
+          "required": true
+        },
+        {
+          "name": "long",
+          "type": "float",
+          "location": "body",
+          "description": "City longitude",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "Language code",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "places_list",
+      "description": "List merchants offering deals in a city and category. Required: country (default: Pakistan), city, category, limit (default: 20), offset (default: 0), latitude, longitude. Returns array of Entity.",
+      "method": "POST",
+      "path": "/v8/entities",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "Country name",
+          "required": true
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "location": "body",
+          "description": "City name",
+          "required": true
+        },
+        {
+          "name": "category",
+          "type": "int",
+          "location": "body",
+          "description": "Category id (1=Food, see categories list)",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Max merchants to return",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Pagination offset",
+          "required": true
+        },
+        {
+          "name": "latitude",
+          "type": "float",
+          "location": "body",
+          "description": "City latitude",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "float",
+          "location": "body",
+          "description": "City longitude",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

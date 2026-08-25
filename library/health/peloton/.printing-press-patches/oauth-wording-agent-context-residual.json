@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "oauth-wording-agent-context-residual",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Both auth-mode identifier strings for this CLI -- internal/mcp/tools.go's context tool (\"auth\":{\"type\":...}) and internal/cli/agent_context.go's buildAgentContext (authMode, feeding the peloton-pp-cli agent-context command's own auth.mode field) -- must say \"session_login\", never any OAuth-flavored term (\"oauth2_refresh\" or similar). Peloton has no OAuth flow at all: POST /auth/login once with PELOTON_OAUTH_USERNAME/PASSWORD, then persist the resulting session. Any future regen or edit to either auth-mode string must preserve this and keep both files' values identical, since they describe the same underlying auth mechanism through two different front doors (MCP context tool vs. CLI agent-context command).",
+  "reason": "MINOR #4b from a second live post-fix verification sweep: an earlier pass (mcp-context-tool-accurate-content.json) fixed the env_var descriptions in tools.go's context tool but missed the literal \"type\": \"oauth2_refresh\" value itself, and never checked agent_context.go's own authMode, which had the identical residual. Any OAuth-flavored wording here specifically caused a documented multi-hour dead-end debugging a nonexistent external OAuth provisioning service earlier in this project's history (see peloton-managed-oauth.json / doctor-persisted-credential-detection.json).",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/cli/agent_context.go",
+    "internal/cli/agent_context_test.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. New test TestAgentContextAuthModeAvoidsOAuthWording asserts agent-context's Auth.Mode == \"session_login\"; TestHandleContextDescribesPelotonNotCRM extended to assert the MCP context tool's JSON never contains the substring \"oauth2_refresh\"."
+}

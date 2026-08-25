@@ -15,14 +15,14 @@ func newActivityLogsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagEvents string
 	var flagStartTime float64
 	var flagEndTime float64
-	var flagLimit float64
+	var flagLimit int
 	var flagOrder string
 	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "activity-logs",
 		Short:       "Returns a list of activity log events",
-		Long:        "Shortcut for 'activity-logs get'. Returns a list of activity log events",
+		Long:        "Returns a list of activity log events",
 		Example:     "  figma-pp-cli activity-logs",
 		Annotations: map[string]string{"pp:endpoint": "activity-logs.get", "pp:method": "GET", "pp:path": "/v1/activity_logs", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -36,7 +36,7 @@ func newActivityLogsPromotedCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validOrder {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "order", flagOrder, allowedOrder)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagOrder, "order", allowedOrder)
 				}
 			}
 			c, err := flags.newClient()
@@ -45,22 +45,22 @@ func newActivityLogsPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/activity_logs"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "activity-logs", path, map[string]string{
-				"events":     fmt.Sprintf("%v", flagEvents),
-				"start_time": fmt.Sprintf("%v", flagStartTime),
-				"end_time":   fmt.Sprintf("%v", flagEndTime),
-				"limit":      fmt.Sprintf("%v", flagLimit),
-				"order":      fmt.Sprintf("%v", flagOrder),
-			}, nil, flagAll, "", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "activity-logs", path, map[string]string{
+				"events":     formatCLIParamValue(flagEvents),
+				"start_time": formatCLIParamValue(flagStartTime),
+				"end_time":   formatCLIParamValue(flagEndTime),
+				"limit":      formatCLIParamValue(flagLimit),
+				"order":      formatCLIParamValue(flagOrder),
+			}, nil, flagAll, "", "cursor", "limit", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
-			// Print provenance to stderr
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				if json.Unmarshal(data, &countItems) != nil {
 					// Single object, not an array
@@ -68,14 +68,12 @@ func newActivityLogsPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// CSV bypasses JSON pipe path so --csv works when piped
-			if flags.csv {
-				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-			}
 			// For JSON output, wrap with provenance envelope. --select wins over
 			// --compact when both are set; --compact only runs when no explicit
-			// fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// fields were requested. Explicit format flags (--csv, --quiet, --plain)
+			// opt out of the auto-JSON path so piped consumers that asked for a
+			// non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -103,10 +101,10 @@ func newActivityLogsPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagEvents, "events", "", "Event type(s) to include in the response. Can have multiple values separated by comma. All events are returned by...")
+	cmd.Flags().StringVar(&flagEvents, "events", "", "Event type(s) to include in the response. Can have multiple values separated by comma.")
 	cmd.Flags().Float64Var(&flagStartTime, "start-time", 0.0, "Unix timestamp of the least recent event to include. This param defaults to one year ago if unspecified.")
 	cmd.Flags().Float64Var(&flagEndTime, "end-time", 0.0, "Unix timestamp of the most recent event to include. This param defaults to the current timestamp if unspecified.")
-	cmd.Flags().Float64Var(&flagLimit, "limit", 0.0, "Maximum number of events to return. This param defaults to 1000 if unspecified.")
+	cmd.Flags().IntVar(&flagLimit, "limit", 0, "Maximum number of events to return. This param defaults to 1000 if unspecified.")
 	cmd.Flags().StringVar(&flagOrder, "order", "asc", "Event order by timestamp. This param can be either 'asc' (default) or 'desc'. (one of: asc, desc)")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 

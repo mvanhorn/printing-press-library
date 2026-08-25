@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "009-greenhouse-creator-attribution",
+  "applied_at": "2026-08-14",
+  "base_run_id": "greenhouse-job-board-2026-07-19",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Restores the creator byline and NOTICE attribution to @veltri-23, matching the .printing-press.json creator handle, after the 6317437b6 publish-process pass reverted the earlier 4b80c3048 alignment back to @mvanhorn. All canonical attribution surfaces (manifest creator, README byline, NOTICE) now name the same GitHub account.",
+  "reason": "Greptile finding on PR #1669: the published package attributed the CLI to two different GitHub accounts (manifest creator veltri-23 vs byline/NOTICE mvanhorn). Regenerated publish-process output reintroduced the split after 4b80c3048 fixed it.",
+  "files": ["README.md", "NOTICE"],
+  "validated_outcome": "README byline and NOTICE both name @veltri-23 (Hunter Veltri); manifest creator unchanged (veltri-23).",
+  "upstream_issue": null
+}

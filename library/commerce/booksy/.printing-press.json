@@ -1,0 +1,123 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-18T16:23:38.80115958Z",
+  "printing_press_version": "4.30.3",
+  "api_name": "booksy",
+  "display_name": "Booksy",
+  "cli_name": "booksy-pp-cli",
+  "creator": {
+    "name": "Max Tomago",
+    "handle": "milloni"
+  },
+  "printer": "milloni",
+  "printer_name": "Max Tomago",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:d03ee6da7c6063747dc526654c48db2a2d49cd6491cf04f4c847686e1aff5520",
+  "run_id": "20260818-170717-f70dff69",
+  "category": "commerce",
+  "description": "Book a haircut in Poland from the terminal — search barbers, compare prices and reviews, check open slots, and book, with a dry-run-by-default booking guard.",
+  "mcp_binary": "booksy-pp-mcp",
+  "mcp_tool_count": 8,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Guided haircut booking",
+      "command": "book",
+      "description": "Book an appointment end to end — it previews the exact service, staffer, time, and price first, and only sends the real booking when you pass --confirm."
+    },
+    {
+      "name": "Open slots",
+      "command": "availability",
+      "description": "List open time slots for a service at a business over a date range, grouped by day. No login required."
+    },
+    {
+      "name": "Services table",
+      "command": "services",
+      "description": "Flatten a business profile into a clean table of bookable services with price, duration, and the service-variant id you pass to book."
+    },
+    {
+      "name": "Soonest slot",
+      "command": "earliest",
+      "description": "Find the single earliest open slot for a service across a date window in one call."
+    },
+    {
+      "name": "Compare barbers",
+      "command": "compare",
+      "description": "Compare several businesses side by side on rating, review count, and cheapest matching service price — from the local cache."
+    },
+    {
+      "name": "Cheapest haircut nearby",
+      "command": "cheapest",
+      "description": "Scan search results in a city and rank businesses by the cheapest service matching your query (e.g. haircut), with rating alongside price."
+    },
+    {
+      "name": "Cancel appointment",
+      "command": "cancel",
+      "description": "Cancel one of your Booksy appointments by id — previews the appointment first and only cancels with --confirm."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Guided haircut booking",
+      "command": "book",
+      "description": "Book an appointment end to end — it previews the exact service, staffer, time, and price first, and only sends the real booking when you pass --confirm."
+    },
+    {
+      "name": "Open slots",
+      "command": "availability",
+      "description": "List open time slots for a service at a business over a date range, grouped by day. No login required."
+    },
+    {
+      "name": "Services table",
+      "command": "services",
+      "description": "Flatten a business profile into a clean table of bookable services with price, duration, and the service-variant id you pass to book."
+    },
+    {
+      "name": "Soonest slot",
+      "command": "earliest",
+      "description": "Find the single earliest open slot for a service across a date window in one call."
+    },
+    {
+      "name": "Compare barbers",
+      "command": "compare",
+      "description": "Compare several businesses side by side on rating, review count, and cheapest matching service price — from the local cache."
+    },
+    {
+      "name": "Cheapest haircut nearby",
+      "command": "cheapest",
+      "description": "Scan search results in a city and rank businesses by the cheapest service matching your query (e.g. haircut), with rating alongside price."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 37,
+    "total": 37,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 93,
+      "grade": "A (1 of 25 dimensions unverified: live_api_verification)",
+      "total": 93
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

@@ -41,5 +41,6 @@
   ],
   "category": "project-management",
   "printer": "neektza",
-  "printer_name": "Nikica Jokic"
+  "printer_name": "Nikica Jokic",
+  "description": "Jira Cloud platform REST API documentation"
 }

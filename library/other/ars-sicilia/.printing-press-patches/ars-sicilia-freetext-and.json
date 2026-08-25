@@ -1,0 +1,6 @@
+{ "schema_version":2, "id":"ars-sicilia-freetext-and", "applied_at":"2026-06-28",
+  "base_run_id":"20260528-181840", "base_printing_press_version":"4.18.0",
+  "summary":"La ricerca testuale multi-parola (--testo) viene unita con l'operatore AND (E) invece di restare adiacenza/frase ISIS; se l'utente usa gia' operatori booleani o parentesi, passa verbatim.",
+  "reason":"ISIS senza operatore assume ADJ: '--testo \"obiezione di coscienza\"' dava 0; togliendo una parola cambiavano i risultati. Con AND la free-text si comporta come un utente si aspetta (tutte le parole presenti).",
+  "files":["internal/icaroclient/query.go"],
+  "validated_outcome":"'obiezione di coscienza' 0->1; operatori espliciti (NOT/OR) e parola singola invariati." }

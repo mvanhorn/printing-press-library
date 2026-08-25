@@ -1,0 +1,267 @@
+{
+  "api_name": "techtwitter",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "sferik/x-cli",
+      "url": "https://github.com/sferik/x-cli",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "public-clis/twitter-cli",
+      "url": "https://github.com/public-clis/twitter-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hay/twitter-cli",
+      "url": "https://github.com/hay/twitter-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Infatoshi/x-cli",
+      "url": "https://github.com/Infatoshi/x-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-14T22:17:01Z",
+  "novel_features": [
+    {
+      "name": "What changed since last sync",
+      "command": "since",
+      "description": "See only the tweets curated or newly hot since your last sync, instead of re-reading the whole stream.",
+      "rationale": "Requires a persisted local sync cursor; the API has no \"delta since timestamp\" call.",
+      "example": "techtwitter-pp-cli since 24h --agent",
+      "why_it_matters": "Reach for this to answer \"what did I miss\" without re-fetching or re-scanning the full corpus.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Topic momentum over time",
+      "command": "momentum",
+      "description": "Show which topics are rising, falling, or newly appearing across the heatmap snapshots stored on each sync.",
+      "rationale": "Requires historical heatmap snapshots accumulated locally; the live heatmap is a single snapshot.",
+      "example": "techtwitter-pp-cli momentum --window 7d --json",
+      "why_it_matters": "Use this when the question is about change over time, which no single API call can answer.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Emerging-narrative detector",
+      "command": "narrative",
+      "description": "Surface keywords that newly emerged or accelerated versus prior snapshots, grounded in supporting stored tweets.",
+      "rationale": "Requires diffing keyword sets across stored snapshots; the live narrative-alert is only a snapshot.",
+      "example": "techtwitter-pp-cli narrative --json",
+      "why_it_matters": "Pick this over a one-shot narrative pull when you want what is *newly* emerging, not just what is currently large.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Author engagement leaderboard",
+      "command": "author-rank",
+      "description": "Rank authors by accumulated stored engagement over a window, each with their best curated tweet.",
+      "rationale": "Requires per-author engagement summed across stored syncs plus each author's best stored tweet.",
+      "example": "techtwitter-pp-cli author-rank --window 7d --limit 10 --json",
+      "why_it_matters": "Use this for a leaderboard that compounds as you sync, not the API's one-shot day winner.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Time travel by date",
+      "command": "time-travel",
+      "description": "Show the curated tweets for a specific date (YYYY-MM-DD, today, yesterday, or latest), live or fully offline from the local store.",
+      "rationale": "Ports the homepage Time Travel panel and serves it from the local mirror, so any past day is browsable without re-fetching.",
+      "example": "techtwitter-pp-cli time-travel 2026-06-07 --limit 10 --json",
+      "why_it_matters": "Use this to pull the snapshot of what tech Twitter was saying on a given day, with no live call once synced.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Offline composed digest",
+      "command": "digest",
+      "description": "Assemble a read-list from the local store for a window: top tweets, recent articles, and top authors.",
+      "rationale": "Requires cross-entity local composition; the API has no single endpoint that returns this blend.",
+      "example": "techtwitter-pp-cli digest --window 24h --agent",
+      "why_it_matters": "Reach for this to hand an agent a cited, single-shot \"what's happening in tech\" rollup with zero extra calls.",
+      "group": "Agent-native evidence, offline"
+    },
+    {
+      "name": "Offline cited evidence bundle",
+      "command": "evidence",
+      "description": "Build an evidence bundle mirroring the agent-context kinds from local SQLite, with canonical-URL citations and no network.",
+      "rationale": "Mirrors the 6 agent-context kinds but assembles from the local store, so it works fully offline.",
+      "example": "techtwitter-pp-cli evidence read-list --agent --select evidence.title,evidence.canonicalUrl",
+      "why_it_matters": "Use this when an agent needs cited evidence but you want it grounded in the local mirror with no upstream call.",
+      "group": "Agent-native evidence, offline"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "What changed since last sync",
+      "command": "since",
+      "description": "See only the tweets curated or newly hot since your last sync, instead of re-reading the whole stream.",
+      "rationale": "Requires a persisted local sync cursor; the API has no \"delta since timestamp\" call.",
+      "example": "techtwitter-pp-cli since 24h --agent",
+      "why_it_matters": "Reach for this to answer \"what did I miss\" without re-fetching or re-scanning the full corpus.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Topic momentum over time",
+      "command": "momentum",
+      "description": "Show which topics are rising, falling, or newly appearing across the heatmap snapshots stored on each sync.",
+      "rationale": "Requires historical heatmap snapshots accumulated locally; the live heatmap is a single snapshot.",
+      "example": "techtwitter-pp-cli momentum --window 7d --json",
+      "why_it_matters": "Use this when the question is about change over time, which no single API call can answer.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Emerging-narrative detector",
+      "command": "narrative",
+      "description": "Surface keywords that newly emerged or accelerated versus prior snapshots, grounded in supporting stored tweets.",
+      "rationale": "Requires diffing keyword sets across stored snapshots; the live narrative-alert is only a snapshot.",
+      "example": "techtwitter-pp-cli narrative --json",
+      "why_it_matters": "Pick this over a one-shot narrative pull when you want what is *newly* emerging, not just what is currently large.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Author engagement leaderboard",
+      "command": "author-rank",
+      "description": "Rank authors by accumulated stored engagement over a window, each with their best curated tweet.",
+      "rationale": "Requires per-author engagement summed across stored syncs plus each author's best stored tweet.",
+      "example": "techtwitter-pp-cli author-rank --window 7d --limit 10 --json",
+      "why_it_matters": "Use this for a leaderboard that compounds as you sync, not the API's one-shot day winner.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Time travel by date",
+      "command": "time-travel",
+      "description": "Show the curated tweets for a specific date (YYYY-MM-DD, today, yesterday, or latest), live or fully offline from the local store.",
+      "rationale": "Ports the homepage Time Travel panel and serves it from the local mirror, so any past day is browsable without re-fetching.",
+      "example": "techtwitter-pp-cli time-travel 2026-06-07 --limit 10 --json",
+      "why_it_matters": "Use this to pull the snapshot of what tech Twitter was saying on a given day, with no live call once synced.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Offline composed digest",
+      "command": "digest",
+      "description": "Assemble a read-list from the local store for a window: top tweets, recent articles, and top authors.",
+      "rationale": "Requires cross-entity local composition; the API has no single endpoint that returns this blend.",
+      "example": "techtwitter-pp-cli digest --window 24h --agent",
+      "why_it_matters": "Reach for this to hand an agent a cited, single-shot \"what's happening in tech\" rollup with zero extra calls.",
+      "group": "Agent-native evidence, offline"
+    },
+    {
+      "name": "Offline cited evidence bundle",
+      "command": "evidence",
+      "description": "Build an evidence bundle mirroring the agent-context kinds from local SQLite, with canonical-URL citations and no network.",
+      "rationale": "Mirrors the 6 agent-context kinds but assembles from the local store, so it works fully offline.",
+      "example": "techtwitter-pp-cli evidence read-list --agent --select evidence.title,evidence.canonicalUrl",
+      "why_it_matters": "Use this when an agent needs cited evidence but you want it grounded in the local mirror with no upstream call.",
+      "group": "Agent-native evidence, offline"
+    }
+  ],
+  "narrative": {
+    "display_name": "Tech Twitter",
+    "headline": "Every Tech Twitter read endpoint, plus an offline-searchable local mirror and cited evidence bundles no other tool has.",
+    "value_prop": "Tech Twitter curates, dedupes, summarizes, and quality-scores the high-signal slice of tech X. This CLI turns that into a local SQLite mirror you can full-text search offline, and adds commands that only a compounding store can answer: what changed since your last sync, topic momentum over time, emerging narratives, time travel to any past day, and offline cited evidence bundles for agents.",
+    "quickstart": [
+      {
+        "command": "techtwitter-pp-cli doctor --dry-run",
+        "comment": "Confirm the CLI and its reachability config before anything else."
+      },
+      {
+        "command": "techtwitter-pp-cli sync",
+        "comment": "Pull the curated stream into the local SQLite mirror."
+      },
+      {
+        "command": "techtwitter-pp-cli search \"agents\"",
+        "comment": "Full-text search the curated corpus offline."
+      },
+      {
+        "command": "techtwitter-pp-cli tweets trending --limit 5 --json",
+        "comment": "Pull the live ranked trending stream as JSON."
+      },
+      {
+        "command": "techtwitter-pp-cli digest --window 24h --agent",
+        "comment": "Compose an offline read-list for the last 24 hours."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "403 Forbidden from the API",
+        "fix": "The CLI must send a browser-shaped User-Agent; bare scraper UAs are blocked on all non-machine paths. The default client already does this — only override --user-agent with a browser string."
+      },
+      {
+        "symptom": "A command redirects or returns the homepage",
+        "fix": "That endpoint is auth-gated and out of scope for the public CLI. Use the documented public commands (search, trending, latest, author, topic, articles, products, agent context)."
+      },
+      {
+        "symptom": "Offline commands return nothing",
+        "fix": "Run techtwitter-pp-cli sync first to populate the local mirror; since/momentum/digest read from stored data."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or user needs cited, structured evidence from Tech Twitter's curated tech-discourse corpus, when you want offline full-text search over a deduped quality-scored stream instead of the raw X firehose, or when the question is about change over time (what's new, what's gaining momentum, what narrative is emerging) that a single stateless API call cannot answer.",
+    "anti_triggers": [
+      "Posting, liking, bookmarking, or otherwise writing to X/Twitter — this CLI is read-only over Tech Twitter's curated corpus, not an X client.",
+      "Fetching arbitrary tweets straight from X — only tweets Tech Twitter has curated are available.",
+      "Account, billing, sponsor, or submission flows on techtwitter.com — those are auth-gated and out of scope."
+    ],
+    "recipes": [
+      {
+        "title": "Cited what-changed evidence for an agent",
+        "command": "techtwitter-pp-cli agent --kind what-changed --agent --select evidence.title,evidence.canonicalUrl,evidence.qualityScore",
+        "explanation": "Pulls a cited evidence bundle and narrows the deeply nested response to just title, citation URL, and quality score so an agent isn't flooded with media and metric fields."
+      },
+      {
+        "title": "Daily tech standup, offline",
+        "command": "techtwitter-pp-cli digest --window 24h --agent",
+        "explanation": "Composes a read-list of top tweets, recent articles, and top authors for the last day from the local mirror, agent-formatted with citations."
+      },
+      {
+        "title": "What is newly emerging",
+        "command": "techtwitter-pp-cli narrative --json",
+        "explanation": "Diffs stored heatmap snapshots to surface keywords that just emerged or accelerated, each grounded in supporting stored tweets."
+      },
+      {
+        "title": "Search the curated corpus offline",
+        "command": "techtwitter-pp-cli search \"agentic coding\" --json --limit 10",
+        "explanation": "Full-text searches the synced local store with no network call, returning quality-scored curated tweets as JSON."
+      },
+      {
+        "title": "Track a topic's momentum",
+        "command": "techtwitter-pp-cli momentum --window 7d --json",
+        "explanation": "Shows which topics are rising, falling, or newly appearing across the snapshots stored over the last week of syncs."
+      }
+    ],
+    "trigger_phrases": [
+      "what changed in tech twitter",
+      "what's trending in tech",
+      "give me a tech digest",
+      "what narrative is emerging in AI",
+      "search tech twitter for",
+      "use techtwitter",
+      "run techtwitter"
+    ]
+  }
+}

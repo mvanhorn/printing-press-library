@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "id": "scrub-api-key-from-errors",
+  "applied_at": "2026-07-12T14:40:00Z",
+  "base_run_id": "clinical-trials-pr-1356",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Redact API keys/tokens from transport-layer error strings and RateLimitError.URL",
+  "reason": "Secondary-source HTTP clients (OpenFDA, PubMed, OpenAlex) embed api_key query params in URLs. When requests fail, source.go's error handlers exposed these keys in logs. Central scrubURL() helper now redacts sensitive params (api_key, apikey, api-key, key, token, access_token, auth) across all 7 error sites.",
+  "files": [
+    {
+      "path": "library/health/clinical-trials/internal/source/source.go",
+      "description": "Added scrubURL() helper (lines 215–222); applied at decodeInto (line 54) and 6 sites in do() (lines 71, 77, 85, 95, 115, 122). Ensures API keys never escape transport layer to logs.",
+      "change_type": "modify"
+    }
+  ]
+}

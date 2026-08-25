@@ -5,6 +5,111 @@ package cli
 
 import "testing"
 
-func TestNovelCommissioneDossierCommandTODO(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for commissione dossier")
+// I due archivi del dossier identificano le commissioni in modo diverso: /bd/
+// per codice o per frammento della denominazione, l'ISIS dei pareri per
+// ordinale a lettere. Questi casi pinnano la traduzione: prima il termine
+// grezzo andava a entrambi e metà sezioni restava sempre vuota.
+func TestResolveDossierCommissione(t *testing.T) {
+	cases := []struct {
+		name     string
+		arg      string
+		wantBD   map[string]string
+		wantISIS string
+	}{
+		{
+			name:     "codice numerico: /bd/ per codcom, pareri per ordinale",
+			arg:      "6",
+			wantBD:   map[string]string{"codcom": "6"},
+			wantISIS: "SESTA",
+		},
+		{
+			name:     "ordinale: tradotto in codice per /bd/",
+			arg:      "SESTA",
+			wantBD:   map[string]string{"codcom": "6"},
+			wantISIS: "SESTA",
+		},
+		{
+			name:     "ordinale minuscolo",
+			arg:      "prima",
+			wantBD:   map[string]string{"codcom": "1"},
+			wantISIS: "PRIMA",
+		},
+		{
+			name:     "denominazione: passa invariata a entrambi",
+			arg:      "Servizi Sociali e Sanitari",
+			wantBD:   map[string]string{"commissione": "Servizi Sociali e Sanitari"},
+			wantISIS: "Servizi Sociali e Sanitari",
+		},
+		{
+			// Le speciali non hanno un codice 1-6: la denominazione è l'unica via.
+			name:     "commissione speciale",
+			arg:      "inchiesta e vigilanza",
+			wantBD:   map[string]string{"commissione": "inchiesta e vigilanza"},
+			wantISIS: "inchiesta e vigilanza",
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			gotBD, gotISIS := resolveDossierCommissione(tc.arg)
+			if len(gotBD) != len(tc.wantBD) {
+				t.Fatalf("bdParams = %v, want %v", gotBD, tc.wantBD)
+			}
+			for k, want := range tc.wantBD {
+				if gotBD[k] != want {
+					t.Errorf("bdParams[%q] = %q, want %q", k, gotBD[k], want)
+				}
+			}
+			if gotISIS != tc.wantISIS {
+				t.Errorf("isisName = %q, want %q", gotISIS, tc.wantISIS)
+			}
+		})
+	}
+}
+
+func TestCommissioneCodice(t *testing.T) {
+	cases := map[string]string{
+		"PRIMA":   "1",
+		"SECONDA": "2",
+		"TERZA":   "3",
+		"QUARTA":  "4",
+		"QUINTA":  "5",
+		"SESTA":   "6",
+		"  sesta": "6",
+		"SETTIMA": "",
+		"":        "",
+		// Una denominazione non è un ordinale: deve restare al nome, non
+		// finire per sbaglio su un codice.
+		"Servizi Sociali e Sanitari": "",
+	}
+	for in, want := range cases {
+		if got := commissioneCodice(in); got != want {
+			t.Errorf("commissioneCodice(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
+
+// commissioneCodice e commissioneOrdinale devono restare l'una l'inversa
+// dell'altra: il dossier le usa in coppia per tradurre tra i due archivi.
+func TestCommissioneCodiceOrdinaleRoundTrip(t *testing.T) {
+	for _, code := range []string{"1", "2", "3", "4", "5", "6"} {
+		name := commissioneOrdinale(code)
+		if name == "" {
+			t.Fatalf("commissioneOrdinale(%q) vuoto", code)
+		}
+		if got := commissioneCodice(name); got != code {
+			t.Errorf("round trip %q -> %q -> %q, want %q", code, name, got, code)
+		}
+	}
+}
+
+func TestCopyParams(t *testing.T) {
+	src := map[string]string{"codcom": "6"}
+	got := copyParams(src)
+	got["legisl"] = "18"
+	if _, leaked := src["legisl"]; leaked {
+		t.Error("copyParams non isola: la sorgente è stata modificata")
+	}
+	if got["codcom"] != "6" {
+		t.Errorf("copyParams ha perso una chiave: %v", got)
+	}
 }

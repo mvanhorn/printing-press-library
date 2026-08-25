@@ -1,0 +1,51 @@
+version: 2
+project_name: synology-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: synology-pp-cli
+    main: ./cmd/synology-pp-cli
+    binary: synology-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/devices/synology/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: synology-pp-mcp
+    main: ./cmd/synology-pp-mcp
+    binary: synology-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: synology-pp-cli
+    repository:
+      owner: smoochy
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Query and operate Synology DSM NAS units - system health, storage, SMART, shares, users"
+    install: |
+      bin.install "synology-pp-cli"
+      bin.install "synology-pp-mcp"

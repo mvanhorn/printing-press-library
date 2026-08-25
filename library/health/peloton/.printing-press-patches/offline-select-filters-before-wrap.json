@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "offline-select-filters-before-wrap",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "printOffline (internal/cli/offline.go) must apply --select/--compact to its inner value BEFORE wrapping it into the standard {\"meta\":...,\"data\":...} offline envelope, not after. Applying filtering to the already-wrapped envelope looks for the requested field names among the envelope's own top-level keys (meta/data) instead of the real fields inside \"data\", silently returning {} for any legitimate field name -- affecting every offline_* command, not just one. Live single-fetch commands (e.g. workouts_performance.go) already filter before wrapping their own provenance envelope; printOffline now matches that order. Implementation: printOutputWithFlagsMeta (internal/cli/helpers.go) was split into itself (applies select/compact, then delegates) plus a new printOutputWithFlagsMetaFiltered tail half (everything after filtering: --agent wrap, --quiet/--csv/--plain/json output) that printOffline calls directly after filtering its own inner value. Any future regen must keep printOffline routed through printOutputWithFlagsMetaFiltered, not printJSONFiltered/printOutputWithFlagsMeta directly, or the double-wrap bug returns.",
+  "reason": "SIGNIFICANT #3 from a second live post-fix verification sweep against the rebuilt server: `offline_performance --select duration,summaries` returned {} despite both fields being confirmed present in the stored record. Root-caused by reading printOffline (wraps first, filters after) against workouts_performance.go's live-command pattern (filters first, wraps after) and reproduced live before fixing.",
+  "files": [
+    "internal/cli/offline.go",
+    "internal/cli/helpers.go",
+    "internal/cli/offline_test.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. New test TestOfflineSelectFiltersThePayloadNotTheEnvelope confirms --select keeps only the requested field(s) and drops others. Live-verified against the user's real account: `offline performance <id> --select duration,summaries` now returns exactly those two fields instead of {}."
+}

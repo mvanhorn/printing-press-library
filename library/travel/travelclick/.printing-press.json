@@ -1,0 +1,54 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-21T03:09:41.511743Z",
+  "printing_press_version": "4.30.3",
+  "api_name": "travelclick",
+  "cli_name": "travelclick-pp-cli",
+  "creator": {
+    "handle": "enlewof",
+    "name": "Allen Lew"
+  },
+  "owner": "enlewof",
+  "printer": "enlewof",
+  "printer_name": "Allen Lew",
+  "run_id": "20260820-153504-d88b22af",
+  "category": "travel",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Multi-hotel rate compare",
+      "command": "rates compare",
+      "description": "Check several boutique hotels for the same dates in one call, ranked by lowest fee-inclusive total."
+    },
+    {
+      "name": "Cheapest night across saved hotels",
+      "command": "rates cheapest-night",
+      "description": "Scan several hotels' calendars at once and return the single best hotel+date combination."
+    },
+    {
+      "name": "Saved hotel aliases",
+      "command": "hotels alias list",
+      "description": "Give a memorable name to a TravelClick hotel ID instead of memorizing a 6-digit number."
+    },
+    {
+      "name": "Rate-snapshot price-drift history",
+      "command": "analytics price-drift",
+      "description": "Track how a hotel's rates move over time from your own saved search history."
+    },
+    {
+      "name": "Rate-code check across saved hotels",
+      "command": "codes check-all",
+      "description": "Test one corporate or group code against every saved hotel at once."
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "patch_id": "boardgamegeek-guild-members-extraction",
+  "base_run_id": "20260618-160601",
+  "title": "Extract guild member records from two-level XML wrapper (Greptile P1, re-review)",
+  "rationale": "guild --all --members 1 returned wrapper objects instead of member records and ran to the 100-page cap. BGG nests guild members two levels deep: {\"guild\":{\"members\":{\"@count\":\"N\",\"member\":[...]}}}. The previous extractPaginatedItems/loneChildObject path returned the whole members wrapper as a single item per page, and paginationTotalFromEnvelope only checked one level for @total (and didn't recognize @count), so the inferred page size was 1, the total stayed 0, and the full-page heuristic advanced until the 100-page safety cap, surfacing wrapper objects rather than members.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/pagination_page_test.go"
+  ],
+  "changes": [
+    {
+      "file": "internal/cli/helpers.go",
+      "summary": "extractArrayItems now unwraps a named collection field whose value is an XML wrapper object (e.g. members -> {@count, member:[...]}) via the new repeatedElementFromWrapper helper, returning individual member records (array, or a lone object for the BadgerFish single-item collapse). paginationTotalFromEnvelope now searches nested objects (depth-bounded) and totalFromAttributes recognizes @count, so guild's members/@count is used as the exact total.",
+      "validated_outcome": "go build/vet/test pass; guild --all --members 1 collects all members and stops at @count instead of the 100-page cap; plays pagination unchanged."
+    },
+    {
+      "file": "internal/cli/pagination_page_test.go",
+      "summary": "Added TestPaginatedGetGuildMembersWalksAllPages (two-level wrapper, member records not wrapper objects, stops at @count), TestExtractPaginatedItemsGuildWrapper (multi + single-member collapse), TestPaginationTotalNestedCount (@count nested extraction).",
+      "validated_outcome": "go test -count=1 ./internal/cli/ passes including the new guild tests."
+    }
+  ]
+}

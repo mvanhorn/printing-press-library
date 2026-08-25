@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "soar-flysoar-price-source",
+  "applied_at": "2026-07-05",
+  "base_run_id": "2026-05-02T22:09:06.820184Z",
+  "base_printing_press_version": "3.6.0",
+  "upstream_issue": "",
+  "files": [
+    "internal/soar/soar.go",
+    "internal/soar/soar_test.go",
+    "internal/cli/soar.go",
+    "internal/cli/primary.go"
+  ],
+  "summary": "Add FlySoar.ai as a third hand-written flight price source (the `soar` command) alongside Google Flights and Kayak, backed by FlySoar's anonymous Duffel-powered SSE search endpoint, plus a booking handoff (iMessage agent + web deep link) since FlySoar exposes no anonymous booking API.",
+  "reason": "FlySoar (https://flysoar.ai) is a Duffel-backed metasearch with fares from aggregated NDC + GDS content that frequently differ from Google Flights for the same itinerary, so it is a genuine second price opinion. It has no OpenAPI spec, so this is hand-written like internal/gflights and internal/kayak rather than generated. The backend POSTs to /api/search/stream and must consume a Server-Sent Events stream of Duffel offer objects (not a single JSON body); it also gates requests on browser-like Origin/Referer/User-Agent headers — a stdlib default User-Agent gets a 403. A regen must re-establish all three: the SSE consumption, the header gating, and the Duffel offer normalization. Booking is deliberately handoff-only: FlySoar's purchase path (/api/agent-book) requires an authenticated account, saved payment method, and SMS identity verification, so `soar` composes a natural-language request and points at FlySoar's iMessage agent (sms:+14156299322, captured from the live site — a moving target) and the web app rather than automating a purchase.",
+  "validated_outcome": "go build ./...; go vet ./...; go test ./internal/soar/ ./internal/cli/ all pass. Live SEA->DEN 2026-09-21 returned 96 economy offers (cheapest $94.98 nonstop) and 92 first-class offers (cheapest DL2543 First $309.40 nonstop); round-trip JFK->LHR business returned 1475 offers with slice_count 2. Offers normalize to the same leg/itinerary shape as `flights`, dedupe identical itineraries to the cheapest fare, and sort cheapest-first. The envelope carries a `search_url` deep link (https://flysoar.ai/flights/<o>/<d>/<YYMMDD>[/<retYYMMDD>]/?cabin=<c>&trip=<oneway|roundtrip>) for browser booking handoff. Auto-exposed as an MCP tool via cobratree with the mcp:read-only annotation. NOTE: deliberately no --currency flag — FlySoar's anonymous endpoint ignores the requested currency and always returns USD (verified live: LHR->CDG with currency=GBP/EUR still priced USD), so prices and query.currency are always USD. mcp_tool_count in the manifest is intentionally left at its generation-time spec-derived value (58); the live MCP surface is 85 tools because every hand-added primary command (flights, dates, explore, longhaul, assess, and now soar) is cobratree-exposed but none has ever bumped that field."
+}

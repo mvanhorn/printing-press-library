@@ -1,0 +1,299 @@
+{
+  "api_name": "finra",
+  "base_url": "https://api.finra.org",
+  "description": "Every FINRA Query API dataset, plus local trend detection and batch registration checks no other FINRA tool offers.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "oauth2",
+    "header": "Authorization",
+    "format": "Bearer {FINRA_CLIENT_ID}",
+    "env_vars": [
+      "FINRA_CLIENT_ID",
+      "FINRA_CLIENT_SECRET"
+    ],
+    "env_var_specs": [
+      {
+        "name": "FINRA_CLIENT_ID",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "FINRA_CLIENT_SECRET",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "async_get",
+      "description": "Poll the status and results of an async data request. Required: group, name, requestId. Returns the DatasetRecord.",
+      "method": "GET",
+      "path": "/async-requests/group/{group}/name/{name}/{requestId}",
+      "params": [
+        {
+          "name": "group",
+          "type": "string",
+          "location": "path",
+          "description": "Dataset group",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Dataset name within the group",
+          "required": true
+        },
+        {
+          "name": "requestId",
+          "type": "string",
+          "location": "path",
+          "description": "Async request ID returned when the job was submitted",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "catalog_list",
+      "description": "List all available datasets, optionally filtered by group or name. Optional: group, name. Returns array of Dataset.",
+      "method": "GET",
+      "path": "/datasets",
+      "params": [
+        {
+          "name": "group",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by dataset group (e.g. OTCMarket, FixedIncomeMarket, firm, registration, finra)"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by dataset name within a group"
+        }
+      ]
+    },
+    {
+      "name": "data_get",
+      "description": "Get a single dataset record by its primary ID (only for datasets where supportsGetById is true — check via 'catalog list'). Required: group, name, id. Returns the DatasetRecord.",
+      "method": "GET",
+      "path": "/data/group/{group}/name/{name}/id/{id}",
+      "params": [
+        {
+          "name": "group",
+          "type": "string",
+          "location": "path",
+          "description": "Dataset group",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Dataset name within the group",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Primary ID of the record (e.g. CRD number for registration datasets)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_list",
+      "description": "List/filter dataset records via query parameters. Required: group, name. Optional: fields, sort, offset (default: 0) (plus 3 more). Returns array of DatasetRecord.",
+      "method": "GET",
+      "path": "/data/group/{group}/name/{name}",
+      "params": [
+        {
+          "name": "group",
+          "type": "string",
+          "location": "path",
+          "description": "Dataset group (e.g. OTCMarket, FixedIncomeMarket, firm, registration, finra) — confirm exact casing via 'catalog list'",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Dataset name within the group — confirm exact spelling via 'catalog list'",
+          "required": true
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-delimited list of field names to retrieve; default is all fields"
+        },
+        {
+          "name": "sort",
+          "wire_name": "sortFields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-delimited sort fields, prefix with - for descending. Requires an EQUAL filter on every partition field (see 'metadata get')."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset (max 500000)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max records to return (sync max 5000)"
+        },
+        {
+          "name": "delimiter",
+          "type": "string",
+          "location": "query",
+          "description": "Field delimiter for text/plain responses"
+        },
+        {
+          "name": "quote-values",
+          "wire_name": "quoteValues",
+          "type": "bool",
+          "location": "query",
+          "description": "Quote string values in text/plain responses"
+        }
+      ]
+    },
+    {
+      "name": "data_query",
+      "description": "Filter dataset records via a JSON request body (richer filtering than 'data list'). Required: group, name. Optional: fields, compareFilters, dateRangeFilters (plus 7 more). Returns array of DatasetRecord.",
+      "method": "POST",
+      "path": "/data/group/{group}/name/{name}",
+      "params": [
+        {
+          "name": "group",
+          "type": "string",
+          "location": "path",
+          "description": "Dataset group",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Dataset name within the group",
+          "required": true
+        },
+        {
+          "name": "fields",
+          "type": "array",
+          "location": "body",
+          "description": "Field names to retrieve; default is all fields"
+        },
+        {
+          "name": "compareFilters",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of {fieldName, fieldValue, compareType} objects. compareType is one of EQUAL, NOT_EQUAL, GREATER, LESSER, GTE, LTE."
+        },
+        {
+          "name": "dateRangeFilters",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of {fieldName, startDate, endDate} objects. Dates are YYYY-MM-DD or YYYY-MM-DD HH:mm:ss.SSS."
+        },
+        {
+          "name": "domainFilters",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of {fieldName, values: [...]} objects"
+        },
+        {
+          "name": "orFilters",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of OR-grouped compareFilters/domainFilters objects"
+        },
+        {
+          "name": "sortFields",
+          "type": "array",
+          "location": "body",
+          "description": "Sort fields, prefix with - for descending. Requires an EQUAL compareFilter on every partition field."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Max records to return (sync max 5000, async max 100000)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Pagination offset (max 500000 sync)"
+        },
+        {
+          "name": "quoteValues",
+          "type": "bool",
+          "location": "body",
+          "description": "Quote string values in text/plain responses"
+        },
+        {
+          "name": "async",
+          "type": "bool",
+          "location": "body",
+          "description": "Run as an async job for bulk extracts (\u003e5000 records); poll via 'async get'"
+        }
+      ]
+    },
+    {
+      "name": "metadata_get",
+      "description": "Get field list, types, and partition fields for a dataset. Required: group, name. Returns the DatasetMetaData.",
+      "method": "GET",
+      "path": "/metadata/group/{group}/name/{name}",
+      "params": [
+        {
+          "name": "group",
+          "type": "string",
+          "location": "path",
+          "description": "Dataset group (e.g. OTCMarket, FixedIncomeMarket, firm, registration, finra)",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Dataset name within the group",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "partitions_list",
+      "description": "List available partition values for a dataset, used for incremental sync. Required: group, name. Returns the PartitionAvailabilityResponse.",
+      "method": "GET",
+      "path": "/partitions/group/{group}/name/{name}",
+      "params": [
+        {
+          "name": "group",
+          "type": "string",
+          "location": "path",
+          "description": "Dataset group",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Dataset name within the group",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

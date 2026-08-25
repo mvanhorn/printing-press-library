@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "ridewithgps-tail-api-path",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260616-213832-c533c1eb",
+  "base_printing_press_version": "4.24.0",
+  "summary": "tail resolves the real /api/v1/<resource>.json path via syncResourcePath() and validates the resource up front.",
+  "reason": "Generated tail built the path as '/'+resource, hitting the RideWithGPS web HTML page instead of the JSON API (invalid JSON, exit 0 on bad resource). RideWithGPS API paths require the /api/v1 prefix and .json suffix.",
+  "files": [
+    "internal/cli/tail.go"
+  ],
+  "validated_outcome": "Live dogfood: tail --resource routes returns valid NDJSON; tail <unknown> exits non-zero. 136/136."
+}

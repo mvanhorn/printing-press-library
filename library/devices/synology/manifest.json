@@ -1,0 +1,66 @@
+{
+  "manifest_version": "0.3",
+  "name": "synology-pp-mcp",
+  "display_name": "Synology",
+  "version": "4.29.0",
+  "description": "Query and operate Synology DSM NAS units - system health, storage, SMART, shares, users",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/synology-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/synology-pp-mcp",
+      "args": [],
+      "env": {
+        "SYNOLOGY_ACCOUNT": "${user_config.synology_account}",
+        "SYNOLOGY_DEVICE_ID": "${user_config.synology_device_id}",
+        "SYNOLOGY_DEVICE_NAME": "${user_config.synology_device_name}",
+        "SYNOLOGY_OTP_CODE": "${user_config.synology_otp_code}",
+        "SYNOLOGY_PASSWORD": "${user_config.synology_password}"
+      }
+    }
+  },
+  "user_config": {
+    "synology_account": {
+      "type": "string",
+      "title": "SYNOLOGY_ACCOUNT",
+      "description": "Optional. Sets SYNOLOGY_ACCOUNT for the Synology MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true
+    },
+    "synology_device_id": {
+      "type": "string",
+      "title": "SYNOLOGY_DEVICE_ID",
+      "description": "Optional. Sets SYNOLOGY_DEVICE_ID for the Synology MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true
+    },
+    "synology_device_name": {
+      "type": "string",
+      "title": "SYNOLOGY_DEVICE_NAME",
+      "description": "Optional. Sets SYNOLOGY_DEVICE_NAME for the Synology MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true
+    },
+    "synology_otp_code": {
+      "type": "string",
+      "title": "SYNOLOGY_OTP_CODE",
+      "description": "Optional. Sets SYNOLOGY_OTP_CODE for the Synology MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true
+    },
+    "synology_password": {
+      "type": "string",
+      "title": "SYNOLOGY_PASSWORD",
+      "description": "Optional. Sets SYNOLOGY_PASSWORD for the Synology MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

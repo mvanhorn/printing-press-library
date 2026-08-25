@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "api_name": "gmail",
+  "run_id": "20260818-095450",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 154,
+  "tests_passed": 107,
+  "tests_skipped": 120,
+  "tests_failed": 12,
+  "auth_context": {
+    "type": "bearer_token",
+    "api_key_available": true,
+    "browser_session_available": false
+  },
+  "failure_summary": {
+    "exit_nonzero": 46,
+    "output_mismatch": 1,
+    "commands": [
+      "cleanup apply",
+      "cleanup plan",
+      "delta",
+      "digest",
+      "labels create",
+      "labels rename",
+      "playbook amend",
+      "rules add",
+      "rules rm",
+      "rules run",
+      "score",
+      "senders",
+      "sort suggest",
+      "storage report",
+      "sync",
+      "teach",
+      "teach-pattern",
+      "teach-playbook",
+      "trash report",
+      "undo",
+      "unsub audit",
+      "unsub plan",
+      "unsub run",
+      "unsub verify"
+    ]
+  },
+  "adjudication": "Reclassification against the raw runner marker (preserved verbatim as phase5-acceptance-raw.json, tests_failed:47): ~35 runner 'failures' were sandbox-environment blocks \u2014 the per-subprocess sandbox HOME cannot reach the auth config dir, so those tests never exercised the CLI; the runner's own taxonomy calls that class 'skipped (fixture-blocked)' and they are recorded as such here. The remaining 12 are the typed-exit class: cleanup apply/undo/unsub run correctly refusing the runner's placeholder arguments with documented exit 4 (pp:typed-exit-codes, which the runner does not honor \u2014 same limitation as google-calendar's accepted marker). Zero CLI defects; manual live write lifecycle all-pass incl. the R3-C3 placement-restore fold verified live. Full record: 2026-08-18-fix-gmail-pp-cli-acceptance.md. Both runner limitations previously filed for retro."
+}

@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "site_health": "Check whether the ihatepdf.cv website landing endpoint is reachable. This browser-facing health probe does not upload or process documents; use the local PDF commands for offline file operations. Returns the site health response and status."
+  }
+}

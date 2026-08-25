@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "vagaro-store-keys-and-upsert",
+  "applied_at": "2026-07-07",
+  "base_run_id": "20260701-143117-d22a0c47",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Store fixes: watch_baselines is now keyed by (slug, service_id, provider) so per-provider watches keep independent baselines instead of colliding (empty provider = 'any'); and the UpsertBusiness conflict update wraps profile columns in COALESCE(NULLIF(excluded.col,''), businesses.col) so a partial child-resource sync no longer clobbers name/rating/address/phone/category with empty values (business_id guarded the same way; synced_at always refreshed). Added an explicit watch_baselines provider-column migration (drops the pre-provider table so the DDL rebuilds it with the provider-scoped PK).",
+  "reason": "Running watch for provider A then B on the same service reused A's baseline. A `sync --resources services` flow sent a minimal business record whose conflict update overwrote the full profile with NULL/empty.",
+  "files": [
+    "internal/cli/watch.go",
+    "internal/store/vagaro_migrations.go",
+    "internal/store/vagaro_migrations_test.go"
+  ]
+}

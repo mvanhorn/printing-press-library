@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "claim-aware-stance-polarity-and-claim-relevance-gate",
+  "applied_at": "2026-07-15",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Heuristic stance must be scored relative to the claim's asserted direction — a HARM-asserting claim ('X causes Y') counts a paper reporting the harm as supporting and a benefit/no-effect paper as refuting, detected via RE2-safe claim-direction cues plus claim-token window re-inspection (never lookahead), with ambiguous claims falling back to the claim-agnostic baseline; and consensus must drop works whose title/topic share no non-stopword content token with the claim before any scoring.",
+  "reason": "ClassifyStance ignored the claim entirely, so benefit-oriented cues inverted HARM-asserting claims ('less weight gain' scored as if it confirmed 'sweeteners cause weight gain'), and the unfiltered OpenAlex result set let topically irrelevant papers (crop-genetics 'improved yield' under a coffee/alertness claim) enter the consensus score as supporting evidence.",
+  "files": [
+    "internal/scengine/stance.go",
+    "internal/cli/consensus.go",
+    "internal/cli/scwork.go"
+  ],
+  "validated_outcome": "Table-driven tests: under 'artificial sweeteners cause weight gain', 'less weight gain than sugar' classifies refuting and 'greater weight gain' supporting; 'caffeine improved alertness' stays supporting under its benefit claim; ambiguous claims byte-match the empty-claim baseline; relevantToClaim drops the crop-genetics title while keeping title- and topic-overlapping works."
+}

@@ -1,0 +1,13 @@
+version: 2
+
+builds:
+  - id: air-quality-pp-cli
+    main: ./cmd/air-quality-pp-cli
+    binary: air-quality-pp-cli
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64

@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-08-22T05:18:53.490935Z",
+  "cli_dir": "\u003ccli-dir\u003e/ihatepdf-cv-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles"
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-08-22T05:18:53.490936Z"
+  }
+}

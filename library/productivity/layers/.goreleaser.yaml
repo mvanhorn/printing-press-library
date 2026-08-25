@@ -1,0 +1,51 @@
+version: 2
+project_name: layers-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: layers-pp-cli
+    main: ./cmd/layers-pp-cli
+    binary: layers-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/layers/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: layers-pp-mcp
+    main: ./cmd/layers-pp-mcp
+    binary: layers-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: layers-pp-cli
+    repository:
+      owner: edu-cruz
+      name: homebrew-tap
+    homepage: "https://github.com/educrvz/layers-digital-cli"
+    description: "School announcements, agenda events, account context, and a private local search surface in one agent-ready CLI."
+    install: |
+      bin.install "layers-pp-cli"
+      bin.install "layers-pp-mcp"

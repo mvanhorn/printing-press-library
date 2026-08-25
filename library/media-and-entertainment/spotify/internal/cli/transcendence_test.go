@@ -10,6 +10,7 @@
 package cli
 
 import (
+	"context"
 	"database/sql"
 	"net/http"
 	"net/http/httptest"
@@ -393,11 +394,11 @@ func TestT10DiscoverViaPlaylists_CooccurrenceCount(t *testing.T) {
 	c := newTestClient(t, server.URL)
 	// Replicate the body of newDiscoverViaPlaylistsCmd's RunE logic minus the
 	// flag parsing, using the same helper paths.
-	_, err := c.Get("/artists/SEED", nil)
+	_, err := c.Get(context.Background(), "/artists/SEED", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	searchData, _ := c.Get("/search", map[string]string{"q": "Seed Artist", "type": "playlist", "limit": "20"})
+	searchData, _ := c.Get(context.Background(), "/search", map[string]string{"q": "Seed Artist", "type": "playlist", "limit": "20"})
 	var s struct {
 		Playlists struct {
 			Items []struct {
@@ -408,7 +409,7 @@ func TestT10DiscoverViaPlaylists_CooccurrenceCount(t *testing.T) {
 	mustUnmarshal(t, searchData, &s)
 	counts := map[string]int{}
 	for _, pl := range s.Playlists.Items {
-		items, _ := c.Get("/playlists/"+pl.ID+"/tracks", map[string]string{"limit": "100"})
+		items, _ := c.Get(context.Background(), "/playlists/"+pl.ID+"/tracks", map[string]string{"limit": "100"})
 		var p struct {
 			Items []struct {
 				Track struct {

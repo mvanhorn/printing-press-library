@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "forkable-meal-modifiers-and-json",
+  "applied_at": "2026-07-21",
+  "base_run_id": "20260717-100008-2c197495",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Add repeatable --modifier <modifierId>:<optionId> flag (builds selectionsHash) and fix --replace-piece to accept UUID string piece ids; emit valid JSON on dry-run/preview paths under --json/--agent.",
+  "reason": "Items with a required modifier (e.g. Choose Protein) are rejected by the API without selectionsHash; Forkable piece ids are UUID strings not integers; and the dry-run/preview paths printed prose under --json, breaking agents and the dogfood json_fidelity check.",
+  "files": ["internal/cli/forkable_orders.go"],
+  "validated_outcome": "meal set-all --json --dry-run now emits valid JSON ({dry_run:true,...}); burrito order with --modifier 16:10 placed successfully live."
+}

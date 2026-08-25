@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "vagaro-slot-wallclock-and-fallback",
+  "applied_at": "2026-07-07",
+  "base_run_id": "20260701-143117-d22a0c47",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Slot matching correctness: --at is parsed in a fixed neutral (UTC) frame and slotOpen compares year/month/day/hour/minute as naive wall-clock against Vagaro's business-local slot labels, so a slot matches regardless of the caller's zone; and the HTML-fragment fallback in ExtractSlots now stamps the known query date (and provider when a single one was requested) onto extracted slots so callers require a date match instead of matching a clock label on any day. slotOpen is now provider-aware: a group attributed to a different provider is never matched for the requested provider.",
+  "reason": "--at is documented business-local wall-clock but was compared as an absolute instant; the dateless HTML fallback let book/slotOpen match '10:00 AM' from the wrong day or provider.",
+  "files": [
+    "internal/cli/book.go",
+    "internal/cli/book_behavior_test.go",
+    "internal/vagaro/endpoints.go",
+    "internal/vagaro/parse.go"
+  ]
+}

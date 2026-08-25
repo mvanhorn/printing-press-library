@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "forkable-meal-write-surface",
+  "applied_at": "2026-07-21",
+  "base_run_id": "20260717-100008-2c197495",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Add meal-management write commands (meal set/set-all/confirm/skip, reorder) wrapping Forkable's replacePiece/replaceAllPieces/confirmDelivery/removeDelivery GraphQL mutations.",
+  "reason": "Forkable auto-selects meals and has no placeOrder mutation; the read-only generated CLI could not set, confirm, or skip a meal. Mutations discovered statically from the forkable.com SPA bundle. All commands are dry-run by default, mutate only with --confirm, and short-circuit under PRINTING_PRESS_VERIFY=1.",
+  "files": ["internal/cli/forkable_orders.go", "internal/cli/root.go"],
+  "validated_outcome": "Placed a real order live (Loaded Burrito Box + Beef Bulgogi protein on delivery 1219483); replacePiece returned errors:null and the selection verified on read-back."
+}

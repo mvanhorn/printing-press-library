@@ -1,0 +1,60 @@
+{
+  "schema_version": 2,
+  "id": "remove-hollow-coverage-novel-features",
+  "applied_at": "2026-08-19",
+  "base_run_id": "20260812-144651-60addfc5",
+  "base_printing_press_version": "unstamped (pre-4.28.0, no .printing-press.json in this tree)",
+  "summary": "Removed 2 more novel commands -- reports validate and approvals list -- neither for a functional defect (both work correctly; confirmed live 2026-08-17) but because the publish packaging gate requires genuine live-data coverage for every tracked novel feature, and this test tenant cannot supply the required fixtures: reports validate needs a real report id (satisfiable by creating a throwaway real report, which the user chose not to do rather than mutate real data just to satisfy a scorer), and approvals list needs a real pending approval routed to this account from another employee's report (not satisfiable in this tenant at all, since that requires organizational data this account does not control). Removing approvals list also removed the entire approvals parent command group, since list was its only subcommand.",
+  "reason": "publish package (cli-printing-press) enforces a 'hollow coverage' check on any command tracked in the manifest's novel_features: a dogfood status of skip (blocked-fixture) or a controlled-error pass (the command never actually reached the live API) both count as hollow, and packaging refuses with 'phase5 acceptance has hollow coverage for: ...' listing the offending commands, with no override flag. This surfaced only after restoring research.json (see unify-browser-auth-sessions.json's sibling investigation) since the check is keyed off novel_features entries, and reports validate/approvals list were both tracked there. User chose removal over generating fixture data for either.",
+  "files": [
+    "internal/cli/approvals.go",
+    "internal/cli/approvals_list.go",
+    "internal/cli/approvals_list_test.go",
+    "internal/cli/reports_validate.go",
+    "internal/cli/reports_validate_test.go",
+    "internal/cli/root.go",
+    "internal/cli/reports.go",
+    "internal/cli/which.go",
+    "internal/cli/expenses_apply_rules.go"
+  ],
+  "changes": [
+    {
+      "file": "internal/cli/approvals.go",
+      "description": "Deleted -- the entire approvals parent command group (list was its only subcommand)."
+    },
+    {
+      "file": "internal/cli/approvals_list.go",
+      "description": "Deleted -- implemented approvals list."
+    },
+    {
+      "file": "internal/cli/approvals_list_test.go",
+      "description": "Deleted."
+    },
+    {
+      "file": "internal/cli/reports_validate.go",
+      "description": "Deleted -- implemented reports validate."
+    },
+    {
+      "file": "internal/cli/reports_validate_test.go",
+      "description": "Deleted."
+    },
+    {
+      "file": "internal/cli/root.go",
+      "description": "Removed the addNovelCommandIfAbsent(rootCmd, newNovelApprovalsCmd(flags)) registration. Rewrote the root Short/Long/Highlights text: with reports validate and approvals list gone, the only remaining original highlight was expenses scan-duplicates, so added flights search and hotels search to the Highlights block rather than ship a visibly thin one-item list -- both are genuinely novel, verified capabilities that predate this removal but were never added to this specific text."
+    },
+    {
+      "file": "internal/cli/reports.go",
+      "description": "Removed the addNovelCommandIfAbsent(cmd, newNovelReportsValidateCmd(flags)) registration; create/get/list/submit/update kept."
+    },
+    {
+      "file": "internal/cli/which.go",
+      "description": "Removed the 'reports validate' and 'approvals list' entries from whichIndex, leaving only 'expenses scan-duplicates'."
+    },
+    {
+      "file": "internal/cli/expenses_apply_rules.go",
+      "description": "Reconstructed the expenseRule/expenseRulesConfig types (originally defined in reports_validate.go, shared by this file) since this is now the type's only user. Also fixed this file's own help text, which referenced the now-removed 'reports validate' command as a suggested first step; repointed to --dry-run."
+    }
+  ],
+  "validated_outcome": "go build, go vet ./..., and go test ./... all clean. Re-ran the full publish Step 4.5 live gate (--level full, --research-dir pointed at the now-fully-synced research.json): 280 tests, 0 failures, exit 0, phase5-acceptance.json status: pass. publish package's hollow-coverage gate confirmed clear of both commands on the next attempt.",
+  "upstream_issue": null
+}

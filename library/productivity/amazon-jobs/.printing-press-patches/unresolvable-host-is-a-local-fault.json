@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "id": "unresolvable-host-is-a-local-fault",
+  "applied_at": "2026-07-25",
+  "base_run_id": "20260725-041142-9944f727",
+  "base_printing_press_version": "4.29.0",
+  "summary": "A name the resolver has already refused must fail fast and be reported as a local DNS fault with the base-URL escape hatch — never as an API outage, and never retried on the transient-failure schedule.",
+  "reason": "amazon.jobs is a zone that consumer routers, split-DNS, and VPN profiles refuse more often than most API hosts, so unresolvable-host is a routine failure for this CLI rather than an exotic one. The generic transport treated it as a transient network blip: three exponential retries, then a bare 'unreachable' verdict from doctor. That combination reads as an upstream outage and sends users debugging the CLI, their arguments, or their auth instead of their resolver. Keep the fast fail, the DNS-specific doctor verdict, and the documented AMAZON_JOBS_BASE_URL override together — they are one remedy.",
+  "files": [
+    "internal/client/client.go",
+    "internal/cli/doctor.go",
+    "internal/cli/find.go",
+    "internal/cli/amazonjobs_common.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Against a guaranteed-NXDOMAIN host the command now errors in ~0s with no 'retrying in' lines (previously ~7s of backoff), and doctor reports the resolver fault plus remediation while still classifying as FAIL.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Generated HTTP client should not retry permanent DNS failures (NXDOMAIN / refused) on the transient-network backoff schedule.",
+      "reason": "internal/client/client.go is generated framework shared by every printed CLI, so the isPermanentDNSFailure predicate belongs in the client template rather than in this one CLI. Local patch lands first because the defect is user-visible here today; a template fix should supersede it.",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/3796"
+    }
+  ],
+  "findings_addressed": [
+    "F5",
+    "F6",
+    "F7",
+    "F8"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "idempotency_key": "EXAMPLE-REQUEST-CHECK-ONLY",
+  "source_id": "EXAMPLE_SOURCE_ID",
+  "amount_money": {
+    "amount": 100,
+    "currency": "USD"
+  }
+}

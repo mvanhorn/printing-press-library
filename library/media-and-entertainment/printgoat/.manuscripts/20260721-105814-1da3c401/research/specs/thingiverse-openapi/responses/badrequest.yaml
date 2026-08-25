@@ -1,0 +1,9 @@
+description: Server cannot or will not process the request due to something that is perceived to be a client error
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Bad Request

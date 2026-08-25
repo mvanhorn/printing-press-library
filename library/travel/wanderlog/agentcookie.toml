@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "wanderlog-pp-cli"
+display_name = "Wanderlog"
+description = "Clone shared Wanderlog plans into editable trips, then mine guides and places for agent-ready planning."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/wanderlog-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+WANDERLOG_COOKIE = true

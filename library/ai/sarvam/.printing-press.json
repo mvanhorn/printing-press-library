@@ -1,0 +1,67 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-14T12:37:00.917216Z",
+  "printing_press_version": "4.30.2",
+  "api_name": "sarvam",
+  "cli_name": "sarvam-pp-cli",
+  "printer": "SomSamantray",
+  "printer_name": "Som Samantray",
+  "spec_path": "sarvam-openapi.yaml",
+  "run_id": "20260814-164825-7ec4499e",
+  "category": "ai",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Voice auditioning",
+      "command": "voices preview",
+      "description": "Generate one sample sentence across every TTS speaker and hear them all side by side"
+    },
+    {
+      "name": "Conversation resume",
+      "command": "chat resume",
+      "description": "Continue a past chat thread from local history with full context"
+    },
+    {
+      "name": "Batch job retry",
+      "command": "stt-job retry",
+      "description": "Re-run only the failed files of a batch STT job with one command"
+    },
+    {
+      "name": "Pronunciation spot-check",
+      "command": "pron-check",
+      "description": "Verify a term's TTS pronunciation via a speech round-trip (TTS then STT)"
+    },
+    {
+      "name": "Subtitle export",
+      "command": "subs",
+      "description": "Emit .srt/.vtt subtitles from timestamped transcriptions in local history"
+    },
+    {
+      "name": "Extraction schema library",
+      "command": "docai schema list",
+      "description": "Save, list, and diff doc-ai extraction schemas locally"
+    },
+    {
+      "name": "Folder extraction run",
+      "command": "docai batch",
+      "description": "Run a saved extraction schema over a folder of documents with job pacing"
+    },
+    {
+      "name": "Batch job report",
+      "command": "stt-job report",
+      "description": "Per-file digest of a batch STT job with typed exit codes for cron alerting"
+    }
+  ],
+  "display_name": "Sarvam AI",
+  "description": "Every Sarvam AI model on your terminal \u2014 translate, speak, transcribe, chat, and extract documents in 22 Indian languages, with a local history that compounds"
+}

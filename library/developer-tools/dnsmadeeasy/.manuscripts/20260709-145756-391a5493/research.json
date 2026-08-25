@@ -1,0 +1,275 @@
+{
+  "api_name": "dnsmadeeasy",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "kigster/dnsmadeeasy (dme)",
+      "url": "https://github.com/kigster/dnsmadeeasy",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 33,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "DNSMadeEasy/dme-go-client",
+      "url": "https://github.com/DNSMadeEasy/dme-go-client",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "jswank/dnsme",
+      "url": "https://github.com/jswank/dnsme",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mhenderson-so/godnsmadeeasy",
+      "url": "https://github.com/mhenderson-so/godnsmadeeasy",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "john-k/dnsmadeeasy",
+      "url": "https://github.com/john-k/dnsmadeeasy",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "soniah/dnsmadeeasy",
+      "url": "https://github.com/soniah/dnsmadeeasy",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-09T07:09:28Z",
+  "novel_features": [
+    {
+      "name": "Cross-zone value provenance",
+      "command": "where-used",
+      "description": "Find every zone and record whose value or CNAME/MX/ANAME target matches an IP, hostname, or string across your entire account.",
+      "rationale": "Requires a local SQLite join across every zone's records; the DNS Made Easy API is one-zone-at-a-time and rate-limited, so no single call can answer it.",
+      "example": "dnsmadeeasy-pp-cli where-used 52.10.4.7 --agent",
+      "why_it_matters": "Pick this before an IP migration or decommission to see everywhere a value still appears, instead of paginating every zone by hand.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Snapshot drift detection",
+      "command": "drift",
+      "description": "Diff the two most recent local sync snapshots and report which records were added, changed, or removed.",
+      "rationale": "The API has no diff or history; drift only exists because every sync snapshots records into the local store.",
+      "example": "dnsmadeeasy-pp-cli drift --agent",
+      "why_it_matters": "Use for post-deploy verification that only intended records changed, or to catch out-of-band edits the API would never surface.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Zone export (BIND/JSON)",
+      "command": "export",
+      "description": "Serialize a zone's records from the local mirror to a standards-compliant BIND zone file or JSON, with no API call.",
+      "rationale": "Reads entirely from the local mirror, so exports are instant and don't spend rate-limit budget.",
+      "example": "dnsmadeeasy-pp-cli export example.com --format bind",
+      "why_it_matters": "Reach for this to back up a zone, hand off to another provider, or review a full zone as one document.",
+      "group": "Migration and backup"
+    },
+    {
+      "name": "DNS-hygiene audit",
+      "command": "health",
+      "description": "Audit every zone for dangling CNAMEs, out-of-range TTLs, zones missing SPF/DMARC/CAA, and duplicate or conflicting records.",
+      "rationale": "Runs mechanical rule checks across the whole-account local mirror; no incumbent keeps all zones queryable in one place.",
+      "example": "dnsmadeeasy-pp-cli health --agent",
+      "why_it_matters": "Run before a cutover or as a periodic sweep to surface takeover risk and mail-security gaps across every zone at once.",
+      "group": "Cross-zone insight"
+    },
+    {
+      "name": "Cross-zone bulk record change",
+      "command": "bulk-apply",
+      "description": "Select records by value and type across all zones locally, preview the plan, then apply the change via the real multi-record update endpoint per affected zone.",
+      "rationale": "Target selection is a local SQLite query across every zone; the API can only update one zone at a time and is rate-limited.",
+      "example": "dnsmadeeasy-pp-cli bulk-apply --match 52.10.4.7 --set 52.10.4.9 --type A --dry-run",
+      "why_it_matters": "Use for IP migrations that touch many zones; --dry-run shows exactly what will change before any write.",
+      "group": "Cross-zone insight"
+    },
+    {
+      "name": "Stale ACME challenge cleanup",
+      "command": "acme-purge",
+      "description": "Find _acme-challenge TXT records across all zones and delete stale or orphaned ones via the real multi-record delete endpoint.",
+      "rationale": "Only possible because the local mirror lets you filter challenge records across the whole account before deleting.",
+      "example": "dnsmadeeasy-pp-cli acme-purge --older-than 24h --dry-run",
+      "why_it_matters": "Run after certificate automation to clean up the challenge records lego/ACME clients leave behind, account-wide.",
+      "group": "Migration and backup"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-zone value provenance",
+      "command": "where-used",
+      "description": "Find every zone and record whose value or CNAME/MX/ANAME target matches an IP, hostname, or string across your entire account.",
+      "rationale": "Requires a local SQLite join across every zone's records; the DNS Made Easy API is one-zone-at-a-time and rate-limited, so no single call can answer it.",
+      "example": "dnsmadeeasy-pp-cli where-used 52.10.4.7 --agent",
+      "why_it_matters": "Pick this before an IP migration or decommission to see everywhere a value still appears, instead of paginating every zone by hand.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Snapshot drift detection",
+      "command": "drift",
+      "description": "Diff the two most recent local sync snapshots and report which records were added, changed, or removed.",
+      "rationale": "The API has no diff or history; drift only exists because every sync snapshots records into the local store.",
+      "example": "dnsmadeeasy-pp-cli drift --agent",
+      "why_it_matters": "Use for post-deploy verification that only intended records changed, or to catch out-of-band edits the API would never surface.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Zone export (BIND/JSON)",
+      "command": "export",
+      "description": "Serialize a zone's records from the local mirror to a standards-compliant BIND zone file or JSON, with no API call.",
+      "rationale": "Reads entirely from the local mirror, so exports are instant and don't spend rate-limit budget.",
+      "example": "dnsmadeeasy-pp-cli export example.com --format bind",
+      "why_it_matters": "Reach for this to back up a zone, hand off to another provider, or review a full zone as one document.",
+      "group": "Migration and backup"
+    },
+    {
+      "name": "DNS-hygiene audit",
+      "command": "health",
+      "description": "Audit every zone for dangling CNAMEs, out-of-range TTLs, zones missing SPF/DMARC/CAA, and duplicate or conflicting records.",
+      "rationale": "Runs mechanical rule checks across the whole-account local mirror; no incumbent keeps all zones queryable in one place.",
+      "example": "dnsmadeeasy-pp-cli health --agent",
+      "why_it_matters": "Run before a cutover or as a periodic sweep to surface takeover risk and mail-security gaps across every zone at once.",
+      "group": "Cross-zone insight"
+    },
+    {
+      "name": "Cross-zone bulk record change",
+      "command": "bulk-apply",
+      "description": "Select records by value and type across all zones locally, preview the plan, then apply the change via the real multi-record update endpoint per affected zone.",
+      "rationale": "Target selection is a local SQLite query across every zone; the API can only update one zone at a time and is rate-limited.",
+      "example": "dnsmadeeasy-pp-cli bulk-apply --match 52.10.4.7 --set 52.10.4.9 --type A --dry-run",
+      "why_it_matters": "Use for IP migrations that touch many zones; --dry-run shows exactly what will change before any write.",
+      "group": "Cross-zone insight"
+    },
+    {
+      "name": "Stale ACME challenge cleanup",
+      "command": "acme-purge",
+      "description": "Find _acme-challenge TXT records across all zones and delete stale or orphaned ones via the real multi-record delete endpoint.",
+      "rationale": "Only possible because the local mirror lets you filter challenge records across the whole account before deleting.",
+      "example": "dnsmadeeasy-pp-cli acme-purge --older-than 24h --dry-run",
+      "why_it_matters": "Run after certificate automation to clean up the challenge records lego/ACME clients leave behind, account-wide.",
+      "group": "Migration and backup"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "DNSMADEEASY_API_KEY"
+  },
+  "narrative": {
+    "display_name": "DNS Made Easy",
+    "headline": "Every DNS Made Easy operation, plus a local record store that makes cross-zone search, drift detection, and 'where is this IP used' instant and offline.",
+    "value_prop": "A single Go binary for the DNS Made Easy V2.0 API: managed and secondary DNS, records, templates, folders, and failover — all with agent-native --json/--select output. Once synced, a local SQLite mirror of your whole account powers commands no incumbent has: where-used across every zone, drift between snapshots, BIND export, and dry-run bulk changes.",
+    "auth_narrative": "DNS Made Easy signs every request with HMAC-SHA1. You need two values from the control panel (Config → API Keys): an API Key and a Secret Key. Set DNSMADEEASY_API_KEY and DNSMADEEASY_API_SECRET (or run 'dnsmadeeasy-pp-cli auth set-token'). The CLI computes the x-dnsme-hmac / x-dnsme-requestDate signature for you on every call. A sandbox account (api.sandbox.dnsmadeeasy.com) is available for safe testing.",
+    "quickstart": [
+      {
+        "command": "dnsmadeeasy-pp-cli doctor --dry-run",
+        "comment": "Check credentials and API reachability before anything else."
+      },
+      {
+        "command": "dnsmadeeasy-pp-cli domains list",
+        "comment": "List every managed zone on the account."
+      },
+      {
+        "command": "dnsmadeeasy-pp-cli sync-records",
+        "comment": "Mirror every zone's records into the local store (the framework 'sync' cannot mirror hierarchical records)."
+      },
+      {
+        "command": "dnsmadeeasy-pp-cli where-used 52.10.4.7 --agent",
+        "comment": "Find every record across all zones pointing at an IP."
+      },
+      {
+        "command": "dnsmadeeasy-pp-cli health --agent",
+        "comment": "Audit all zones for dangling CNAMEs, TTL issues, and missing mail-security records."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 or signature errors on every call",
+        "fix": "Re-check DNSMADEEASY_API_KEY and DNSMADEEASY_API_SECRET; run 'dnsmadeeasy-pp-cli doctor'. The secret signs the request date, so a wrong secret fails all calls."
+      },
+      {
+        "symptom": "HTTP 429 / rate limited",
+        "fix": "DNS Made Easy allows ~150 requests per 5 minutes. Use 'sync' once then query the local store; the CLI honors x-dnsme-requestsRemaining and backs off."
+      },
+      {
+        "symptom": "where-used / drift return nothing",
+        "fix": "Run 'dnsmadeeasy-pp-cli sync-records' first; these commands read the local mirror."
+      }
+    ],
+    "when_to_use": "Use this CLI to manage DNS Made Easy zones and records from scripts or agents, and especially to answer account-wide questions the web UI and thin API wrappers can't: where an IP or hostname is used across every zone, what changed since the last sync, and which zones fail DNS hygiene. It is ideal for IP migrations, ACME cleanup, backups, and post-deploy verification.",
+    "anti_triggers": [
+      "Do not use this CLI to register or buy domain names — DNS Made Easy hosts DNS, it is not a registrar.",
+      "Do not use it to manage DNS at other providers (Cloudflare, Route 53, Namecheap) — it only speaks the DNS Made Easy API.",
+      "Do not use it as a live resolver or dig replacement — it manages authoritative records, it does not perform recursive lookups."
+    ],
+    "recipes": [
+      {
+        "title": "Plan an IP migration safely",
+        "command": "dnsmadeeasy-pp-cli where-used 52.10.4.7 --agent --select zone,name,type",
+        "explanation": "See every affected record across all zones before changing anything."
+      },
+      {
+        "title": "Apply the migration across zones",
+        "command": "dnsmadeeasy-pp-cli bulk-apply --match 52.10.4.7 --set 52.10.4.9 --type A --dry-run",
+        "explanation": "Preview the multi-zone change; drop --dry-run to apply via updateMulti."
+      },
+      {
+        "title": "Back up a zone to BIND",
+        "command": "dnsmadeeasy-pp-cli export example.com --format bind",
+        "explanation": "Produce a standards zone file from the local mirror for backup or handoff."
+      },
+      {
+        "title": "Review what changed after a deploy",
+        "command": "dnsmadeeasy-pp-cli drift --agent",
+        "explanation": "Diff the two latest sync snapshots to confirm only intended records changed."
+      },
+      {
+        "title": "Search records offline",
+        "command": "dnsmadeeasy-pp-cli search mail --type records --agent --select zone,name,value",
+        "explanation": "Full-text search across every synced record without hitting the API."
+      }
+    ],
+    "trigger_phrases": [
+      "where is this IP used in DNS Made Easy",
+      "export my DNS Made Easy zone",
+      "what DNS records changed",
+      "bulk update DNS records across zones",
+      "audit my DNS zones",
+      "use dnsmadeeasy",
+      "run dnsmadeeasy"
+    ]
+  }
+}

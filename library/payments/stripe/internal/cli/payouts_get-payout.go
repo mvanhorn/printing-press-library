@@ -29,10 +29,12 @@ func newPayoutsGetPayoutCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/payouts/{payout}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("payout is required\nUsage: %s <%s>", cmd.CommandPath(), "payout"))
 			}
-			path = replacePathParam(path, "payout", args[1])
+			path = replacePathParam(path, "payout", args[0])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

@@ -1,0 +1,314 @@
+openapi: 3.0.3
+info:
+  title: crates.io Registry API
+  version: "1.0.0"
+  description: Read-only endpoints for crates.io ecosystem intelligence.
+servers:
+  - url: https://crates.io
+paths:
+  /api/v1/crates:
+    get:
+      operationId: searchCrates
+      summary: Search crates
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [alpha, downloads, recent-downloads, recent-updates, newly-added]
+      responses:
+        "200":
+          description: Search results.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResponse"
+  /api/v1/crates/{crate_name}:
+    get:
+      operationId: getCrate
+      summary: Get crate metadata
+      parameters:
+        - $ref: "#/components/parameters/CrateName"
+      responses:
+        "200":
+          description: Crate metadata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrateResponse"
+  /api/v1/crates/{crate_name}/versions:
+    get:
+      operationId: listCrateVersions
+      summary: List crate versions
+      parameters:
+        - $ref: "#/components/parameters/CrateName"
+      responses:
+        "200":
+          description: Version list.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VersionsResponse"
+  /api/v1/crates/{crate_name}/{version}/dependencies:
+    get:
+      operationId: listVersionDependencies
+      summary: List dependencies for a crate version
+      parameters:
+        - $ref: "#/components/parameters/CrateName"
+        - name: version
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Dependency list.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DependenciesResponse"
+  /api/v1/crates/{crate_name}/owners:
+    get:
+      operationId: listCrateOwners
+      summary: List crate owners
+      parameters:
+        - $ref: "#/components/parameters/CrateName"
+      responses:
+        "200":
+          description: Owner list.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OwnersResponse"
+  /api/v1/crates/{crate_name}/reverse_dependencies:
+    get:
+      operationId: listReverseDependencies
+      summary: List crates depending on this crate
+      parameters:
+        - $ref: "#/components/parameters/CrateName"
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        "200":
+          description: Reverse dependencies.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReverseDependenciesResponse"
+  /api/v1/crates/{crate_name}/downloads:
+    get:
+      operationId: getCrateDownloads
+      summary: Get recent crate download counts
+      parameters:
+        - $ref: "#/components/parameters/CrateName"
+      responses:
+        "200":
+          description: Download time series.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DownloadsResponse"
+components:
+  parameters:
+    CrateName:
+      name: crate_name
+      in: path
+      required: true
+      schema:
+        type: string
+  schemas:
+    SearchResponse:
+      type: object
+      properties:
+        crates:
+          type: array
+          items:
+            $ref: "#/components/schemas/CrateSummary"
+        meta:
+          $ref: "#/components/schemas/Meta"
+    CrateResponse:
+      type: object
+      properties:
+        crate:
+          $ref: "#/components/schemas/CrateDetail"
+        versions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Version"
+        keywords:
+          type: array
+          items:
+            $ref: "#/components/schemas/NamedItem"
+        categories:
+          type: array
+          items:
+            $ref: "#/components/schemas/NamedItem"
+    VersionsResponse:
+      type: object
+      properties:
+        versions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Version"
+    DependenciesResponse:
+      type: object
+      properties:
+        dependencies:
+          type: array
+          items:
+            $ref: "#/components/schemas/Dependency"
+    OwnersResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/Owner"
+    ReverseDependenciesResponse:
+      type: object
+      properties:
+        dependencies:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReverseDependency"
+        meta:
+          $ref: "#/components/schemas/Meta"
+    DownloadsResponse:
+      type: object
+      properties:
+        version_downloads:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        meta:
+          type: object
+          additionalProperties: true
+    CrateSummary:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        max_version:
+          type: string
+        description:
+          type: string
+        downloads:
+          type: integer
+        recent_downloads:
+          type: integer
+    CrateDetail:
+      allOf:
+        - $ref: "#/components/schemas/CrateSummary"
+        - type: object
+          additionalProperties: true
+    Version:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: integer
+        num:
+          type: string
+        crate:
+          type: string
+        downloads:
+          type: integer
+        yanked:
+          type: boolean
+        created_at:
+          type: string
+        updated_at:
+          type: string
+    Dependency:
+      type: object
+      additionalProperties: true
+      properties:
+        crate_id:
+          type: string
+        req:
+          type: string
+        kind:
+          type: string
+        optional:
+          type: boolean
+        default_features:
+          type: boolean
+        features:
+          type: array
+          items:
+            type: string
+    ReverseDependency:
+      type: object
+      additionalProperties: true
+      properties:
+        crate_id:
+          type: string
+        version_id:
+          type: integer
+        req:
+          type: string
+    Owner:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: integer
+        login:
+          type: string
+        name:
+          type: string
+        avatar:
+          type: string
+        url:
+          type: string
+    NamedItem:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+        keyword:
+          type: string
+        category:
+          type: string
+        crates_cnt:
+          type: integer
+    Meta:
+      type: object
+      additionalProperties: true
+      properties:
+        total:
+          type: integer

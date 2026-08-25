@@ -1,0 +1,64 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-07-11T14:16:55Z",
+  "elapsed_ms": 18074,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-11T14:16:55Z",
+      "elapsed_ms": 10987,
+      "command": "<home>/repo/ppbambu/cli-printing-press verify --dir <home>/printing-press/.runstate/ppbambu-9615f3f1/runs/20260711-063302-c519dd7c/working/bambu-pp-cli --write-manifest <home>/printing-press/.runstate/ppbambu-9615f3f1/runs/20260711-063302-c519dd7c/working/bambu-pp-cli/.printing-press.json --spec <home>/printing-press/.runstate/ppbambu-9615f3f1/runs/20260711-063302-c519dd7c/bambu-spec.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-11T14:17:06Z",
+      "elapsed_ms": 195,
+      "command": "<home>/repo/ppbambu/cli-printing-press validate-narrative --strict --full-examples --research <home>/printing-press/.runstate/ppbambu-9615f3f1/runs/20260711-063302-c519dd7c/research.json --binary <home>/printing-press/.runstate/ppbambu-9615f3f1/runs/20260711-063302-c519dd7c/working/bambu-pp-cli/bambu-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-11T14:17:06Z",
+      "elapsed_ms": 1262,
+      "command": "<home>/repo/ppbambu/cli-printing-press dogfood --dir <home>/printing-press/.runstate/ppbambu-9615f3f1/runs/20260711-063302-c519dd7c/working/bambu-pp-cli --spec <home>/printing-press/.runstate/ppbambu-9615f3f1/runs/20260711-063302-c519dd7c/bambu-spec.yaml --research-dir <home>/printing-press/.runstate/ppbambu-9615f3f1/runs/20260711-063302-c519dd7c"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-11T14:17:07Z",
+      "elapsed_ms": 13,
+      "command": "<home>/repo/ppbambu/cli-printing-press workflow-verify --dir <home>/printing-press/.runstate/ppbambu-9615f3f1/runs/20260711-063302-c519dd7c/working/bambu-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-11T14:17:07Z",
+      "elapsed_ms": 23,
+      "command": "<home>/repo/ppbambu/cli-printing-press apify-audit --dir <home>/printing-press/.runstate/ppbambu-9615f3f1/runs/20260711-063302-c519dd7c/working/bambu-pp-cli --research-dir <home>/printing-press/.runstate/ppbambu-9615f3f1/runs/20260711-063302-c519dd7c"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-11T14:17:07Z",
+      "elapsed_ms": 2210,
+      "command": "<home>/repo/ppbambu/cli-printing-press verify-skill --dir <home>/printing-press/.runstate/ppbambu-9615f3f1/runs/20260711-063302-c519dd7c/working/bambu-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-11T14:17:09Z",
+      "elapsed_ms": 3381,
+      "command": "<home>/repo/ppbambu/cli-printing-press scorecard --dir <home>/printing-press/.runstate/ppbambu-9615f3f1/runs/20260711-063302-c519dd7c/working/bambu-pp-cli --write-manifest <home>/printing-press/.runstate/ppbambu-9615f3f1/runs/20260711-063302-c519dd7c/working/bambu-pp-cli/.printing-press.json --research-dir <home>/printing-press/.runstate/ppbambu-9615f3f1/runs/20260711-063302-c519dd7c --spec <home>/printing-press/.runstate/ppbambu-9615f3f1/runs/20260711-063302-c519dd7c/bambu-spec.yaml --live-check"
+    }
+  ]
+}

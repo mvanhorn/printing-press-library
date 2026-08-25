@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-novita-leggi-per-legge",
+  "applied_at": "2026-08-21",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "Collapse the leggi archive's per-article rows into one row per law in `novita`, and stop `legge cronologia` from suggesting --anno when --anno was already given.",
+  "reason": "Two findings from the 2026-08-21 news-agent run, both verified live. (1) Archive 201 indexes one row per ARTICLE, so `novita --since 30d --archivi leggi` reported `conteggio: 7` for what was a single law (L.R. 14/2026, icaDocId 167-173): a reader takes 7 to mean seven laws. `collapseLeggi` already did this aggregation for `leggi cerca` and was simply not called here. Source-lag fields (`ultimo_record_fonte`, `ritardo_fonte_giorni`) stay computed on the raw rows, and the row now carries `articoli_trovati` plus both names for the law: `atto` (`L.R. 14`), the label it is cited by, and `numero` (`14`), the value passed to `--numero` — the archive's own Numero field is empty, which is why `--select numero` found nothing. (2) `legge cronologia 18 21 --anno 2026` exited 3 with 'aggiungi --anno per disambiguare', advice for a case that was not the one at hand: L.R. 21/2026 was promulgated on 4 August while the leggi archive still ended on 22 July. The error now branches on --anno and names the two real causes, pointing at `novita --archivi leggi` for the frontier instead of probing it here (the leggi archive is served oldest-first, so a one-row probe would print January as the archive's frontier). A third reported finding — `ddl iter 18 6030` showing an assignment dated before the presentation — was measured and rejected as a defect: 0 of 8 sampled non-stralcio bills show it, and among stralci only 6030 and 8030, both starting on 13 January 2026, the day the Aula carved the stralci out and routed them to the competent committee. The ordering is correct, so it gets a sentence in `note` and NOT the `anomalia` marker, whose meaning is 'as the source states it, this cannot be true'.",
+  "files": [
+    "internal/cli/novita.go",
+    "internal/cli/novita_test.go",
+    "internal/cli/legge_cronologia.go",
+    "internal/cli/legge_cronologia_test.go",
+    "internal/cli/ddl_iter.go",
+    "internal/cli/ddl_iter_test.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "`novita --since 30d --archivi leggi` goes from `conteggio: 7` (seven article rows of one law) to `conteggio: 1` with `articoli_trovati: 7`, `atto: \"L.R. 14\"` and `numero: \"14\"`, source lag unchanged (2026-07-22, 30 days); `--dal 2026-01-01` returns 14 laws, matching `leggi cerca --legisl 18 --anno 2026`; ddl/resoconti/sommari counts in the same run unchanged (3/5/23). `legge cronologia 18 21 --anno 2026` still exits 3 but names the archive lag and the ddl route, while `legge cronologia 18 999` (no --anno) keeps the original disambiguation hint and `legge cronologia 18 26 --anno 2024` still returns its 21 events with 2 anomalia. `ddl iter 18 6030` carries the stralcio note (and keeps it under `--select data,fase`), `ddl iter 18 1030` and `18 4991` do not. `go test ./...`, `go vet ./...` and `gofmt -l` clean. Terminal rendering checked on a pty, not only in JSON: the stralcio note prints under the title on `ddl iter 18 6030`, and the previously blank act column now reads `L.R. 14`. The truncation guard was proven end-to-end by rebuilding with novitaLimiteAnno lowered to 20 (note emitted, count drops to 1) and then restored; at the real cap it does not fire, since `--dal 2024-01-01` yields 70 laws over three years, an order of magnitude below 1000 rows per year.",
+  "upstream_issue": null
+}

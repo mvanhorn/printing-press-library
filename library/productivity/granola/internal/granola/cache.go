@@ -172,6 +172,65 @@ type DocumentListMetadata struct {
 	Members              []DocPerson     `json:"members,omitempty"`
 	Rules                json.RawMessage `json:"rules,omitempty"`
 	IsFavourited         bool            `json:"is_favourited,omitempty"`
+
+	// PATCH(api-catalog-refresh): Documents is the membership the internal
+	// API returns inline on every list, which the desktop cache keeps in a
+	// separate documentLists map instead. Without this field the folder
+	// refresh would need a second per-folder call the API does not offer,
+	// and `folder` commands on a migrated install would list folders that
+	// appear to contain nothing.
+	//
+	// It stays empty on the cache path, where documentLists is authoritative.
+	Documents DocumentListEntries `json:"documents,omitempty"`
+}
+
+// DocumentListEntry is one membership row inside a document list's
+// `documents` array.
+type DocumentListEntry struct {
+	ID         string `json:"id,omitempty"`
+	DocumentID string `json:"document_id,omitempty"`
+}
+
+// MeetingID returns the document this entry points at. The array elements are
+// objects rather than bare ids: a join row names the document in document_id
+// while an expanded document names itself in id, so document_id wins whenever
+// both are present — on a join row `id` is the edge's own key, not a meeting.
+func (e DocumentListEntry) MeetingID() string {
+	if e.DocumentID != "" {
+		return e.DocumentID
+	}
+	return e.ID
+}
+
+// DocumentListEntries decodes the `documents` array, tolerating both the
+// array-of-objects the internal API returns and an array of bare ids.
+//
+// UnmarshalJSON deliberately never returns an error. This type is reached
+// through DocumentListMetadata, which LoadCache decodes as one map in a single
+// json.Unmarshal whose error it discards — and a custom unmarshaler's error,
+// unlike a field type mismatch, aborts the whole decode rather than being
+// accumulated. One folder carrying an unexpected `documents` shape would
+// therefore drop every folder decoded after it. An unknown shape yields no
+// membership instead, which is the same outcome as the field being absent.
+type DocumentListEntries []DocumentListEntry
+
+func (d *DocumentListEntries) UnmarshalJSON(b []byte) error {
+	var objs []DocumentListEntry
+	if err := json.Unmarshal(b, &objs); err == nil {
+		*d = objs
+		return nil
+	}
+	var ids []string
+	if err := json.Unmarshal(b, &ids); err == nil {
+		out := make(DocumentListEntries, 0, len(ids))
+		for _, id := range ids {
+			out = append(out, DocumentListEntry{ID: id})
+		}
+		*d = out
+		return nil
+	}
+	*d = nil
+	return nil
 }
 
 // ListRule is one rule in the listRules engine. The cache stores them as
@@ -325,10 +384,7 @@ func LoadCache(path string) (*Cache, error) {
 	if encrypted {
 		plain, err := safestorage.Decrypt(raw)
 		if err != nil {
-			if errors.Is(err, safestorage.ErrKeyUnavailable) {
-				return nil, fmt.Errorf("reading encrypted cache %s: Keychain access unavailable (sign into Granola desktop or run `granola-pp-cli sync` to authorize Keychain access): %w", path, err)
-			}
-			return nil, fmt.Errorf("reading encrypted cache %s: %w", path, err)
+			return nil, wrapEncryptedCacheError(path, err)
 		}
 		defer safestorage.ZeroBytes(plain)
 		raw = plain
@@ -464,6 +520,37 @@ func LoadCache(path string) (*Cache, error) {
 	}
 
 	return c, nil
+}
+
+// PATCH(dek-migration): the "sign into Granola desktop or run sync to
+// authorize Keychain access" remediation is unreachable on an install
+// where Granola has moved the DEK into its entitlement-gated Keychain
+// group - no amount of signing in or re-running sync produces a key we
+// are allowed to read. Branch on the narrower classification first and
+// pass safestorage's message through untouched, appending only the one
+// fact safestorage cannot know: how much data the local store already
+// covers.
+func wrapEncryptedCacheError(path string, err error) error {
+	if errors.Is(err, safestorage.ErrSchemeMigrated) {
+		return fmt.Errorf("reading encrypted cache %s: %w %s", path, err, lastSuccessfulSyncNote())
+	}
+	if errors.Is(err, safestorage.ErrKeyUnavailable) {
+		return fmt.Errorf("reading encrypted cache %s: Keychain access unavailable (sign into Granola desktop or run `granola-pp-cli sync` to authorize Keychain access): %w", path, err)
+	}
+	return fmt.Errorf("reading encrypted cache %s: %w", path, err)
+}
+
+// lastSuccessfulSyncNote names the date of the last sync that decrypted
+// successfully, so the migrated-scheme error tells the user how current
+// the readable data is. safestorage cannot read this itself: this package
+// imports safestorage, so the reverse direction is an import cycle. The
+// date is therefore surfaced here at the caller layer.
+func lastSuccessfulSyncNote() string {
+	state, err := ReadSyncState()
+	if err != nil || state.LastDecryptStatus != DecryptStatusOK || state.LastSyncAt.IsZero() {
+		return "Last successful sync: none recorded on this machine."
+	}
+	return fmt.Sprintf("Last successful sync: %s.", state.LastSyncAt.Format("2006-01-02"))
 }
 
 // unwrapStringifiedJSON re-parses a json.RawMessage when its contents are

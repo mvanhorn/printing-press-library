@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "peloton-session-cookie-auth",
+  "applied_at": "2026-08-13",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Peloton's legacy REST surface (/api/me, workout performance_graph, and likely others) checks a peloton_session_id cookie from POST {base_url}/auth/login, not the Auth0 bearer token minted by the existing managed-OAuth flow. Any future regen must attach both credentials at the single client hook every command shares, not special-case individual endpoints.",
+  "reason": "The managed-OAuth patch (see peloton-managed-oauth.json) covers only the Auth0 bearer, which catalog/list endpoints (workouts, classes) accept but /api/me and performance_graph reject with HTTP 401 {\"error_code\":3020,\"Not logged in\"}. Two independent earlier submissions (PR #323, #344, both closed/unmerged) also found Auth0-bearer sufficient for catalog reads, so the bearer flow was kept rather than replaced -- this patch adds the missing session-cookie login alongside it instead of removing working behavior. Session login is best-effort/non-fatal: when bootstrap creds or a cached session aren't available yet, the transport behaves exactly as it did before this patch (bearer-only) rather than failing commands that don't need the cookie.",
+  "files": [
+    "internal/cli/peloton_oauth.go",
+    "internal/cli/peloton_oauth_test.go"
+  ],
+  "validated_outcome": "go build/vet/test all pass; new tests cover cookie attachment from a cached session, fresh /auth/login bootstrap (both JSON-body and Set-Cookie response shapes), non-fatal skip when no session credentials are available, and a regression guard confirming a routine bearer-token refresh no longer silently drops an already-cached session_id from the persisted bundle."
+}

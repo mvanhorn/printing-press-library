@@ -1,0 +1,962 @@
+{
+  "api_name": "ridewithgps",
+  "base_url": "https://ridewithgps.com",
+  "description": "Your whole Ride with GPS library, offline — bulk export, gear mileage, and ride analytics no other tool ships.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "x-rwgps-api-key",
+    "in": "header",
+    "env_vars": [
+      "RIDEWITHGPS_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "RIDEWITHGPS_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "auth_tokens_create",
+      "description": "Creates a new authentication token for API access using user credentials. Required: user. Returns the new AuthTokensCreateResponse.",
+      "method": "POST",
+      "path": "/api/v1/auth_tokens.json",
+      "params": [
+        {
+          "name": "user-email",
+          "wire_name": "user.email",
+          "type": "string",
+          "location": "body",
+          "description": "User email address",
+          "required": true
+        },
+        {
+          "name": "user-password",
+          "wire_name": "user.password",
+          "type": "string",
+          "location": "body",
+          "description": "User password",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_get",
+      "description": "Returns detailed information about a specific collection. Required: id. Optional: privacy_code.",
+      "method": "GET",
+      "path": "/api/v1/collections/{id}.json",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Collection ID",
+          "required": true
+        },
+        {
+          "name": "privacy_code",
+          "type": "string",
+          "location": "query",
+          "description": "Privacy code for the non public asset"
+        }
+      ]
+    },
+    {
+      "name": "collections_get-pinned",
+      "description": "Fetch the single collection the authenticated user has pinned. Takes no parameters; returns 404 if nothing is pinned. Returns the collection object (id, name, visibility, description) together with the arrays of route and trip summaries it contains. Use this for the one pinned collection; list all of the user's collections via the collections list tool instead.",
+      "method": "GET",
+      "path": "/api/v1/collections/pinned.json",
+      "params": []
+    },
+    {
+      "name": "collections_list",
+      "description": "Returns a paginated list of collections for the authenticated user. Supports filtering by `name` and `visibility`. Optional: page (default: 1), page_size (default: 20), name (plus 1 more).",
+      "method": "GET",
+      "path": "/api/v1/collections.json",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page (20-200)"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by name (partial match)"
+        },
+        {
+          "name": "visibility",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by visibility"
+        }
+      ]
+    },
+    {
+      "name": "events_create",
+      "description": "Creates a new event for the authenticated user. **Note**: The `organizers`, `logo`, and `banner` fields are supported only for organization-owned events. They are not supported for user-owned events. **Multipart uploads**: To upload logo and banner images, send a request with `Content-Type: multipart/form-data` using the following fields: - `event[name]` - Event name - `event[description]` - Event description - `event[logo]` - Logo image (binary) - `event[banner]` - Banner image (binary) - etc. Required: event. Returns the new EventsCreateResponse.",
+      "method": "POST",
+      "path": "/api/v1/events.json",
+      "params": [
+        {
+          "name": "event-banner",
+          "wire_name": "event.banner",
+          "type": "string",
+          "location": "body",
+          "description": "Banner"
+        },
+        {
+          "name": "event-description",
+          "wire_name": "event.description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "event-end-date",
+          "wire_name": "event.end_date",
+          "type": "string",
+          "location": "body",
+          "description": "End date"
+        },
+        {
+          "name": "event-end-time",
+          "wire_name": "event.end_time",
+          "type": "string",
+          "location": "body",
+          "description": "End time"
+        },
+        {
+          "name": "event-lat",
+          "wire_name": "event.lat",
+          "type": "float",
+          "location": "body",
+          "description": "Latitude"
+        },
+        {
+          "name": "event-lng",
+          "wire_name": "event.lng",
+          "type": "float",
+          "location": "body",
+          "description": "Longitude"
+        },
+        {
+          "name": "event-location",
+          "wire_name": "event.location",
+          "type": "string",
+          "location": "body",
+          "description": "Location"
+        },
+        {
+          "name": "event-logo",
+          "wire_name": "event.logo",
+          "type": "string",
+          "location": "body",
+          "description": "Logo"
+        },
+        {
+          "name": "event-name",
+          "wire_name": "event.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "event-organizers",
+          "wire_name": "event.organizers",
+          "type": "array",
+          "location": "body",
+          "description": "Organizers"
+        },
+        {
+          "name": "event-start-date",
+          "wire_name": "event.start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Start date"
+        },
+        {
+          "name": "event-start-time",
+          "wire_name": "event.start_time",
+          "type": "string",
+          "location": "body",
+          "description": "Start time"
+        },
+        {
+          "name": "event-time-zone",
+          "wire_name": "event.time_zone",
+          "type": "string",
+          "location": "body",
+          "description": "Time zone"
+        },
+        {
+          "name": "event-visibility",
+          "wire_name": "event.visibility",
+          "type": "string",
+          "location": "body",
+          "description": "Visibility"
+        }
+      ]
+    },
+    {
+      "name": "events_delete",
+      "description": "Deletes an event owned by the authenticated user. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/events/{id}.json",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_get",
+      "description": "Returns detailed information about a specific event. Required: id. Optional: privacy_code.",
+      "method": "GET",
+      "path": "/api/v1/events/{id}.json",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "privacy_code",
+          "type": "string",
+          "location": "query",
+          "description": "Privacy code for the non public asset"
+        }
+      ]
+    },
+    {
+      "name": "events_list",
+      "description": "Returns a paginated list of events accessible to the authenticated user. Supports filtering by `name` and `visibility`. Optional: page (default: 1), page_size (default: 20), name (plus 1 more).",
+      "method": "GET",
+      "path": "/api/v1/events.json",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page (20-200)"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by name (partial match)"
+        },
+        {
+          "name": "visibility",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by visibility"
+        }
+      ]
+    },
+    {
+      "name": "events_update",
+      "description": "Updates an existing event owned by the authenticated user. **Note**: The `organizers`, `logo`, and `banner` fields are supported only for organization-owned events. They are not supported for user-owned events. **Multipart uploads**: To upload logo and banner images, send a request with `Content-Type: multipart/form-data` using the following fields: - `event[name]` - Event name - `event[description]` - Event description - `event[logo]` - Logo image (binary) - `event[banner]` - Banner image (binary) - etc. Required: id, event. Returns the updated EventsUpdateResponse.",
+      "method": "PUT",
+      "path": "/api/v1/events/{id}.json",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "event-banner",
+          "wire_name": "event.banner",
+          "type": "string",
+          "location": "body",
+          "description": "Banner"
+        },
+        {
+          "name": "event-description",
+          "wire_name": "event.description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "event-end-date",
+          "wire_name": "event.end_date",
+          "type": "string",
+          "location": "body",
+          "description": "End date"
+        },
+        {
+          "name": "event-end-time",
+          "wire_name": "event.end_time",
+          "type": "string",
+          "location": "body",
+          "description": "End time"
+        },
+        {
+          "name": "event-lat",
+          "wire_name": "event.lat",
+          "type": "float",
+          "location": "body",
+          "description": "Latitude"
+        },
+        {
+          "name": "event-lng",
+          "wire_name": "event.lng",
+          "type": "float",
+          "location": "body",
+          "description": "Longitude"
+        },
+        {
+          "name": "event-location",
+          "wire_name": "event.location",
+          "type": "string",
+          "location": "body",
+          "description": "Location"
+        },
+        {
+          "name": "event-logo",
+          "wire_name": "event.logo",
+          "type": "string",
+          "location": "body",
+          "description": "Logo"
+        },
+        {
+          "name": "event-name",
+          "wire_name": "event.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "event-organizers",
+          "wire_name": "event.organizers",
+          "type": "array",
+          "location": "body",
+          "description": "Organizers"
+        },
+        {
+          "name": "event-start-date",
+          "wire_name": "event.start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Start date"
+        },
+        {
+          "name": "event-start-time",
+          "wire_name": "event.start_time",
+          "type": "string",
+          "location": "body",
+          "description": "Start time"
+        },
+        {
+          "name": "event-time-zone",
+          "wire_name": "event.time_zone",
+          "type": "string",
+          "location": "body",
+          "description": "Time zone"
+        },
+        {
+          "name": "event-visibility",
+          "wire_name": "event.visibility",
+          "type": "string",
+          "location": "body",
+          "description": "Visibility"
+        }
+      ]
+    },
+    {
+      "name": "members_get-club",
+      "description": "Returns detailed information about a specific club member. Required: id.",
+      "method": "GET",
+      "path": "/api/v1/members/{id}.json",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Club Member ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "members_list-club",
+      "description": "Returns a paginated list of members for the authenticated organization account. This endpoint is only available to organization accounts. Supports filtering by `name` and `email`. Optional: page (default: 1), page_size (default: 20), name (plus 1 more).",
+      "method": "GET",
+      "path": "/api/v1/members.json",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page (20-200)"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by name (partial match)"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by email (partial match)"
+        }
+      ]
+    },
+    {
+      "name": "members_update-club",
+      "description": "Updates a club member's permissions and status. Available attributes: - `active`: Whether the member is active - `admin`: Whether the member is an admin (grants all permissions) - `manages_routes`: Permission to manage routes - `manages_members`: Permission to manage members - `manages_billing`: Permission to manage billing. Required: id. Optional: member. Returns the updated MembersUpdateClubResponse.",
+      "method": "PUT",
+      "path": "/api/v1/members/{id}.json",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Club Member ID",
+          "required": true
+        },
+        {
+          "name": "member-active",
+          "wire_name": "member.active",
+          "type": "bool",
+          "location": "body",
+          "description": "Active"
+        },
+        {
+          "name": "member-admin",
+          "wire_name": "member.admin",
+          "type": "bool",
+          "location": "body",
+          "description": "Admin"
+        },
+        {
+          "name": "member-manages-billing",
+          "wire_name": "member.manages_billing",
+          "type": "bool",
+          "location": "body",
+          "description": "Manages billing"
+        },
+        {
+          "name": "member-manages-members",
+          "wire_name": "member.manages_members",
+          "type": "bool",
+          "location": "body",
+          "description": "Manages members"
+        },
+        {
+          "name": "member-manages-routes",
+          "wire_name": "member.manages_routes",
+          "type": "bool",
+          "location": "body",
+          "description": "Manages routes"
+        }
+      ]
+    },
+    {
+      "name": "points_of_interest_associate-point-of-interest-with-route",
+      "description": "Associates a point of interest with a specific route **Note**: This endpoint is available for organizations only. Required: id, route_id.",
+      "method": "POST",
+      "path": "/api/v1/points_of_interest/{id}/routes/{route_id}.json",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "route_id",
+          "type": "int",
+          "location": "path",
+          "description": "Route id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "points_of_interest_create-point-of-interest",
+      "description": "Create a new point of interest in the authenticated organization's library. **Note**: This endpoint is available for organizations only. Optional: event. Returns the new PointsOfInterestCreatePointOfInterestResponse.",
+      "method": "POST",
+      "path": "/api/v1/points_of_interest.json",
+      "params": [
+        {
+          "name": "event-description",
+          "wire_name": "event.description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "event-lat",
+          "wire_name": "event.lat",
+          "type": "float",
+          "location": "body",
+          "description": "Latitude"
+        },
+        {
+          "name": "event-lng",
+          "wire_name": "event.lng",
+          "type": "float",
+          "location": "body",
+          "description": "Longitude"
+        },
+        {
+          "name": "event-name",
+          "wire_name": "event.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "event-poi-type",
+          "wire_name": "event.poi_type",
+          "type": "string",
+          "location": "body",
+          "description": "Poi type"
+        },
+        {
+          "name": "event-url",
+          "wire_name": "event.url",
+          "type": "string",
+          "location": "body",
+          "description": "Url"
+        }
+      ]
+    },
+    {
+      "name": "points_of_interest_delete-point-of-interest",
+      "description": "Deletes a point of interest owned by the authenticated organization. **Note**: This endpoint is available for organizations only. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/points_of_interest/{id}.json",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "points_of_interest_disassociate-point-of-interest-from-route",
+      "description": "Removes the association between a point of interest and a specific route **Note**: This endpoint is available for organizations only. Required: id, route_id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/points_of_interest/{id}/routes/{route_id}.json",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "route_id",
+          "type": "int",
+          "location": "path",
+          "description": "Route id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "points_of_interest_get-point-of-interest",
+      "description": "Returns detailed information about a specific point of interest. **Note**: This endpoint is available for organizations only. Required: id.",
+      "method": "GET",
+      "path": "/api/v1/points_of_interest/{id}.json",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "points_of_interest_list",
+      "description": "Returns a paginated list of points of interest for the authenticated organization. **Note**: This endpoint is available for organizations only. Optional: page (default: 1), page_size (default: 20).",
+      "method": "GET",
+      "path": "/api/v1/points_of_interest.json",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page (20-200)"
+        }
+      ]
+    },
+    {
+      "name": "points_of_interest_update-point-of-interest",
+      "description": "Updates an existing point of interest in the authenticated organization's library. **Note**: This endpoint is available for organizations only. Required: id. Optional: event. Returns the updated PointsOfInterestUpdatePointOfInterestResponse.",
+      "method": "PUT",
+      "path": "/api/v1/points_of_interest/{id}.json",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "event-description",
+          "wire_name": "event.description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "event-lat",
+          "wire_name": "event.lat",
+          "type": "float",
+          "location": "body",
+          "description": "Latitude"
+        },
+        {
+          "name": "event-lng",
+          "wire_name": "event.lng",
+          "type": "float",
+          "location": "body",
+          "description": "Longitude"
+        },
+        {
+          "name": "event-name",
+          "wire_name": "event.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "event-poi-type",
+          "wire_name": "event.poi_type",
+          "type": "string",
+          "location": "body",
+          "description": "Poi type"
+        },
+        {
+          "name": "event-url",
+          "wire_name": "event.url",
+          "type": "string",
+          "location": "body",
+          "description": "Url"
+        }
+      ]
+    },
+    {
+      "name": "routes_delete",
+      "description": "Deletes a route owned by the authenticated user. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/routes/{id}.json",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Route ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "routes_get",
+      "description": "Returns detailed information about a specific route. Required: id. Optional: privacy_code.",
+      "method": "GET",
+      "path": "/api/v1/routes/{id}.json",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Route ID",
+          "required": true
+        },
+        {
+          "name": "privacy_code",
+          "type": "string",
+          "location": "query",
+          "description": "Privacy code for the non public asset"
+        }
+      ]
+    },
+    {
+      "name": "routes_get-polyline",
+      "description": "Returns an encoded polyline string for the specified route. The polyline is a simplified representation of the route geometry, suitable for displaying on a map. Required: id. Optional: privacy_code.",
+      "method": "GET",
+      "path": "/api/v1/routes/{id}/polyline.json",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Route ID",
+          "required": true
+        },
+        {
+          "name": "privacy_code",
+          "type": "string",
+          "location": "query",
+          "description": "Privacy code for the non public asset"
+        }
+      ]
+    },
+    {
+      "name": "routes_list",
+      "description": "Returns a paginated list of routes for the authenticated user. Supports filtering by `name`, `visibility`, `distance_min`, `distance_max`, `elevation_gain_min`, `elevation_gain_max` and `archived` status. Optional: page (default: 1), page_size (default: 20), name (plus 6 more).",
+      "method": "GET",
+      "path": "/api/v1/routes.json",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page (20-200)"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by name (partial match)"
+        },
+        {
+          "name": "visibility",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by visibility"
+        },
+        {
+          "name": "distance_min",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum distance in meters"
+        },
+        {
+          "name": "distance_max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum distance in meters"
+        },
+        {
+          "name": "elevation_gain_min",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum elevation gain in meters"
+        },
+        {
+          "name": "elevation_gain_max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum elevation gain in meters"
+        },
+        {
+          "name": "archived",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by archived status"
+        }
+      ]
+    },
+    {
+      "name": "sync-json_get-sync-info",
+      "description": "Returns a list of items (routes and/or trips) that the user has interacted with since the given datetime. The sync endpoint is convenient to maintain a remote copy of a user's library of trips and/or routes. ### Actions Items can have the following actions: * `created` - The user created the item * `updated` - The user updated the item * `deleted` - The user deleted the item * `added` - The user added the item to the specified collection (e.g., pinned) * `removed` - The user removed the item from the specified collection For `added` and `removed` actions, `collection` is the target collection where the action was taken. It is currently always the collection of pinned items for the authenticated user, but we might expose other collections in the future. ### Sync Workflow This endpoint is optimized for performance (we use a similar setup for syncing our own mobile apps), and can return the entire library for the user by using a `since` value well in the past (for example `1970-01-01`). The following workflow is suitable to maintain your copy of a user's library: 1. When the user finalizes the OAuth workflow, get the current content of their library at `GET https://ridewithgps.com/api/v1/sync.json?since=1970-01-01` 2. Download and integrate in your system every item in the response and store the value of the `meta.rwgps_datetime` key in the response 3. Upon reception of a webhook for the user, get and integrate the items that have changed from a new sync request at `GET https://ridewithgps.com/api/v1/sync.json?since=[rwgps_datetime]`. Store the new value of `meta.rwgps_datetime` for the next sync request. Doing a sync request on webhook reception instead of processing the items in the body of the webhook leads to the same result and provides a recovery mechanism for previous webhooks that might have failed because of network or systems availability issues. Required: since. Optional: assets.",
+      "method": "GET",
+      "path": "/api/v1/sync.json",
+      "params": [
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 8601 datetime string for last sync. Use 1970-01-01 for initial sync to get entire library.",
+          "required": true
+        },
+        {
+          "name": "assets",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of asset types to return (routes, trips). Defaults to your API client setting."
+        }
+      ]
+    },
+    {
+      "name": "trips_delete",
+      "description": "Deletes a trip owned by the authenticated user. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/trips/{id}.json",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Trip ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "trips_get",
+      "description": "Returns detailed information about a specific trip. Required: id. Optional: privacy_code.",
+      "method": "GET",
+      "path": "/api/v1/trips/{id}.json",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Trip ID",
+          "required": true
+        },
+        {
+          "name": "privacy_code",
+          "type": "string",
+          "location": "query",
+          "description": "Privacy code for the non public asset"
+        }
+      ]
+    },
+    {
+      "name": "trips_get-polyline",
+      "description": "Returns an encoded polyline string for the specified trip. The polyline is a simplified representation of the trip geometry, suitable for displaying on a map. Required: id. Optional: privacy_code.",
+      "method": "GET",
+      "path": "/api/v1/trips/{id}/polyline.json",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Trip ID",
+          "required": true
+        },
+        {
+          "name": "privacy_code",
+          "type": "string",
+          "location": "query",
+          "description": "Privacy code for the non public asset"
+        }
+      ]
+    },
+    {
+      "name": "trips_list",
+      "description": "Returns a paginated list of trips for the authenticated user. Supports filtering by `name`, `visibility`, `distance_min`, `distance_max`, `elevation_gain_min`, `elevation_gain_max` and `stationary`. Optional: page (default: 1), page_size (default: 20), name (plus 6 more).",
+      "method": "GET",
+      "path": "/api/v1/trips.json",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page (20-200)"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by name (partial match)"
+        },
+        {
+          "name": "visibility",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by visibility"
+        },
+        {
+          "name": "distance_min",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum distance in meters"
+        },
+        {
+          "name": "distance_max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum distance in meters"
+        },
+        {
+          "name": "elevation_gain_min",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum elevation gain in meters"
+        },
+        {
+          "name": "elevation_gain_max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum elevation gain in meters"
+        },
+        {
+          "name": "stationary",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by stationary status"
+        }
+      ]
+    },
+    {
+      "name": "users_get-current",
+      "description": "Fetch the profile of the account the API token belongs to (the whoami call). Takes no parameters. Returns the user object with id, name, and created/updated timestamps. Call this first to confirm which account is authenticated and to obtain the user id that other endpoints reference.",
+      "method": "GET",
+      "path": "/api/v1/users/current.json",
+      "params": []
+    }
+  ]
+}

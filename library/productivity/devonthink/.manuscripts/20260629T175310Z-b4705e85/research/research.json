@@ -1,0 +1,214 @@
+{
+  "api_name": "devonthink",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "DEVONthink official MCP server",
+      "url": "https://www.devontechnologies.com/blog/20260526-devonthink-mcp-server",
+      "language": "Swift",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 59,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Rowdy/DEVONthink-ai-maintenance",
+      "url": "https://github.com/Rowdy/DEVONthink-ai-maintenance",
+      "language": "Codex plugin",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "Official MCP is a local agent tool surface, not a shell-native CLI with stable --agent, --select, profiles, delivery sinks, and Unix pipelines.",
+    "Maintenance workflows need a stable read-only inventory/search contract without making workflow policy part of the core CLI.",
+    "DEVONthink is local-only and personal-data-bearing, so public live dogfood cannot safely publish real record names or database contents."
+  ],
+  "patterns": [
+    "Wrap official local MCP tools instead of directly manipulating DEVONthink database packages.",
+    "Keep DEVONthink access local to this Mac or the user's own LAN.",
+    "Expose read-only scopes and inventory for downstream maintenance plugins while keeping action workflow policy outside the CLI."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-29T17:53:10Z",
+  "novel_features": [
+    {
+      "name": "Smart Group scoped search",
+      "command": "records search",
+      "description": "Scope a normal DEVONthink query to a Smart Group by UUID, exact name, or DEVONthink path while preserving normal search output.",
+      "rationale": "Combines human-friendly Smart Group names with agent-safe JSON envelopes and explicit scope metadata.",
+      "example": "devonthink-pp-cli records search \"tags:waiting/rueckerstattung\" --smart-group \"Offene Rückerstattungen\" --agent --select uuid,name,item_link,tags,databaseName",
+      "why_it_matters": "Use this when a downstream tool needs a stable dynamic search scope without treating Smart Groups as workflow policy.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Context pack",
+      "command": "context pack",
+      "description": "Build a compact evidence packet from records, selections, highlights, links, and related items.",
+      "rationale": "Requires local DEVONthink structure plus token-budgeted output shaping for agent handoff.",
+      "example": "devonthink-pp-cli context pack --query \"project alpha\" --token-budget 6000 --agent",
+      "why_it_matters": "Use this when an agent needs enough DEVONthink context to reason without dumping whole documents.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Privacy audit",
+      "command": "privacy audit",
+      "description": "Preview database scope, content-size budget, and cloud/MCP exposure before a handoff.",
+      "rationale": "Applies local-first DEVONthink safety checks before content leaves the machine.",
+      "example": "devonthink-pp-cli privacy audit --query \"kind:pdf\" --agent",
+      "why_it_matters": "Use this before exporting or sharing DEVONthink-derived context with another tool.",
+      "group": "Local safety"
+    },
+    {
+      "name": "Batch planning ledger",
+      "command": "batch plan",
+      "description": "Stage multi-record edits as validated dry-run plans before applying them.",
+      "rationale": "Separates planning, proof, and apply state for safer local automation.",
+      "example": "devonthink-pp-cli batch plan --dry-run --agent",
+      "why_it_matters": "Use this when a script needs reviewable intent before any DEVONthink mutation.",
+      "group": "Local safety"
+    },
+    {
+      "name": "Maintenance inventory export",
+      "command": "inventory export",
+      "description": "Export DEVONthink databases, groups, tags, and document metadata for maintenance plugins.",
+      "rationale": "Provides a stable downstream contract without embedding maintenance policy in the CLI.",
+      "example": "devonthink-pp-cli inventory export --format maintenance --query \"kind:document\" --limit 500 --agent --select databases,documents",
+      "why_it_matters": "Use this when structure-audit or inbox-triage tooling needs a stable local inventory contract.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Knowledge graph audit",
+      "command": "graph audit",
+      "description": "Detect orphans, broken links, unresolved wiki links, weak hubs, and tag-only clusters.",
+      "rationale": "Requires merging DEVONthink item links, wiki links, mentions, tags, parents, and local mirror edges.",
+      "example": "devonthink-pp-cli graph audit --limit 50 --agent",
+      "why_it_matters": "Use this when DEVONthink should behave like a maintained knowledge graph instead of a folder pile.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "MCP passthrough",
+      "command": "mcp call",
+      "description": "Call DEVONthink's official local MCP tools from scripts when the local MCP server is enabled.",
+      "rationale": "Keeps new official MCP tools reachable before the CLI has promoted commands for them.",
+      "example": "devonthink-pp-cli mcp call search_records --args '{\"query\":\"kind:pdf\",\"limit\":5}' --agent",
+      "why_it_matters": "Use this when the official MCP exposes a new read tool before the CLI adds a first-class command.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Smart Group scoped search",
+      "command": "records search",
+      "description": "Scope a normal DEVONthink query to a Smart Group by UUID, exact name, or DEVONthink path while preserving normal search output.",
+      "rationale": "Combines human-friendly Smart Group names with agent-safe JSON envelopes and explicit scope metadata.",
+      "example": "devonthink-pp-cli records search \"tags:waiting/rueckerstattung\" --smart-group \"Offene Rückerstattungen\" --agent --select uuid,name,item_link,tags,databaseName",
+      "why_it_matters": "Use this when a downstream tool needs a stable dynamic search scope without treating Smart Groups as workflow policy.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Context pack",
+      "command": "context pack",
+      "description": "Build a compact evidence packet from records, selections, highlights, links, and related items.",
+      "rationale": "Requires local DEVONthink structure plus token-budgeted output shaping for agent handoff.",
+      "example": "devonthink-pp-cli context pack --query \"project alpha\" --token-budget 6000 --agent",
+      "why_it_matters": "Use this when an agent needs enough DEVONthink context to reason without dumping whole documents.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Privacy audit",
+      "command": "privacy audit",
+      "description": "Preview database scope, content-size budget, and cloud/MCP exposure before a handoff.",
+      "rationale": "Applies local-first DEVONthink safety checks before content leaves the machine.",
+      "example": "devonthink-pp-cli privacy audit --query \"kind:pdf\" --agent",
+      "why_it_matters": "Use this before exporting or sharing DEVONthink-derived context with another tool.",
+      "group": "Local safety"
+    },
+    {
+      "name": "Batch planning ledger",
+      "command": "batch plan",
+      "description": "Stage multi-record edits as validated dry-run plans before applying them.",
+      "rationale": "Separates planning, proof, and apply state for safer local automation.",
+      "example": "devonthink-pp-cli batch plan --dry-run --agent",
+      "why_it_matters": "Use this when a script needs reviewable intent before any DEVONthink mutation.",
+      "group": "Local safety"
+    },
+    {
+      "name": "Maintenance inventory export",
+      "command": "inventory export",
+      "description": "Export DEVONthink databases, groups, tags, and document metadata for maintenance plugins.",
+      "rationale": "Provides a stable downstream contract without embedding maintenance policy in the CLI.",
+      "example": "devonthink-pp-cli inventory export --format maintenance --query \"kind:document\" --limit 500 --agent --select databases,documents",
+      "why_it_matters": "Use this when structure-audit or inbox-triage tooling needs a stable local inventory contract.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Knowledge graph audit",
+      "command": "graph audit",
+      "description": "Detect orphans, broken links, unresolved wiki links, weak hubs, and tag-only clusters.",
+      "rationale": "Requires merging DEVONthink item links, wiki links, mentions, tags, parents, and local mirror edges.",
+      "example": "devonthink-pp-cli graph audit --limit 50 --agent",
+      "why_it_matters": "Use this when DEVONthink should behave like a maintained knowledge graph instead of a folder pile.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "MCP passthrough",
+      "command": "mcp call",
+      "description": "Call DEVONthink's official local MCP tools from scripts when the local MCP server is enabled.",
+      "rationale": "Keeps new official MCP tools reachable before the CLI has promoted commands for them.",
+      "example": "devonthink-pp-cli mcp call search_records --args '{\"query\":\"kind:pdf\",\"limit\":5}' --agent",
+      "why_it_matters": "Use this when the official MCP exposes a new read tool before the CLI adds a first-class command.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "DEVONthink",
+    "headline": "Local-first DEVONthink automation with safer shell workflows than raw AppleScript or MCP alone.",
+    "value_prop": "Use DEVONthink as the local source of truth while giving agents and scripts stable, compact CLI output. The CLI wraps the official local MCP surface, adds search scopes, inventory export, context packing, local mirrors, and safety-oriented workflow primitives.",
+    "quickstart": [
+      {
+        "command": "devonthink-pp-cli runtime doctor --json",
+        "comment": "Check local runtime readiness without touching DEVONthink content."
+      },
+      {
+        "command": "devonthink-pp-cli records search \"kind:pdf\" --limit 5 --agent --select uuid,name,item_link",
+        "comment": "Find records while keeping agent output compact."
+      },
+      {
+        "command": "devonthink-pp-cli selection snapshot --agent",
+        "comment": "Capture the current GUI selection as a repeatable workflow seed."
+      }
+    ],
+    "when_to_use": "Use this CLI for local DEVONthink inventory, scoped record search, context packs, and read-only maintenance handoffs. It is designed for this Mac or the user's own LAN, not internet-hosted DEVONthink access.",
+    "anti_triggers": [
+      "Do not use this CLI to access DEVONthink over the public internet.",
+      "Do not treat Smart Groups as action workflow policy; they are search scopes only.",
+      "Do not directly edit files inside DEVONthink database packages."
+    ],
+    "recipes": [
+      {
+        "title": "Search within a Smart Group",
+        "command": "devonthink-pp-cli records search \"tags:waiting/rueckerstattung\" --smart-group \"Offene Rückerstattungen\" --agent --select uuid,name,item_link,tags,databaseName",
+        "explanation": "Scopes a normal query to a Smart Group and returns normal search rows plus meta.scope."
+      },
+      {
+        "title": "Feed the maintenance plugin",
+        "command": "devonthink-pp-cli inventory export --format maintenance --query \"kind:document\" --limit 500 --agent --select databases.name,documents.name,documents.tags",
+        "explanation": "Produces stable inventory JSON for structure-audit and inbox-triage workflows."
+      }
+    ],
+    "trigger_phrases": [
+      "search DEVONthink",
+      "scope DEVONthink search to a Smart Group",
+      "export DEVONthink maintenance inventory",
+      "build a DEVONthink context pack",
+      "use devonthink"
+    ]
+  }
+}

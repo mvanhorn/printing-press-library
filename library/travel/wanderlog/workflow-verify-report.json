@@ -1,0 +1,58 @@
+{
+  "dir": "\u003ccli-dir\u003e/wanderlog",
+  "workflows": [
+    {
+      "name": "Read a shared Wanderlog plan and rehearse copying it",
+      "primary": true,
+      "steps": [
+        {
+          "command": "plan preview --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent",
+          "status": "pass",
+          "output": "{\n  \"applied\": false,\n  \"apply_requested\": false,\n  \"blocks\": 9,\n  \"command\": \"plan preview\",\n  \"day_sections\": 0,\n  \"dry_run\": true,\n  \"geo_id\": 90759,\n  \"note_blocks\": 1,\n  \"operations\": [\n    \"read source plan only\"\n  ],\n  \"place_blocks\": 7,\n  \"resources\": [\n    \"ancestors\",\n    \"currencyRatesUSD\",\n    \"defaultPlacesListsGeo\",\n    \"distancesBetweenPlaces\",\n    \"distancesBetweenPlacesError\",\n    \"exploreCarouselItems\",\n    \"flightUpdates\",\n    \"geo\",\n    \"geos\",\n    \"hotelDeals\",\n    \"liveFlightUpdates\",\n    \"nearby\",\n    \"placeMetadata\",\n    \"sectionRecommendations\",\n    \"stopPolylines\",\n    \"tipsOnLoadResources\",\n    \"topPlace\"\n  ],\n  \"sections\": 8,\n  \"source_key\": \"naertjcoixqrgrfc\",\n  \"source_title\": \"Morocco Travel Guide\",\n  \"source_url\": \"https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared\",\n  \"title\": \"Morocco Travel Guide (copy)\"\n}\n",
+          "extracted": {
+            "plan_key": "naertjcoixqrgrfc"
+          }
+        },
+        {
+          "command": "plan outline --target-key ${plan_key} --agent",
+          "status": "pass",
+          "output": "{\n  \"block_count\": 9,\n  \"section_count\": 8,\n  \"sections\": [\n    {\n      \"block_count\": 0,\n      \"blocks\": [],\n      \"has_hotel\": false,\n      \"heading\": \"General tips\",\n      \"section_id\": 265196127,\n      \"section_index\": 0\n    },\n    {\n      \"block_count\": 2,\n      \"blocks\": [],\n      \"has_hotel\": false,\n      \"heading\": \"Arrival in Casablanca\",\n      \"section_id\": 317961187,\n      \"section_index\": 1\n    },\n    {\n      \"block_count\": 1,\n      \"blocks\": [],\n      \"has_hotel\": false,\n      \"section_id\": 286303345,\n      \"section_index\": 2\n    },\n    {\n      \"block_count\": 2,\n      \"blocks\": [],\n      \"has_hotel\": false,\n      \"section_id\": 169331243,\n      \"section_index\": 3\n    },\n    {\n      \"block_count\": 1,\n      \"blocks\": [],\n      \"has_hotel\": false,\n      \"section_id\": 910979885,\n      \"section_index\": 4\n    },\n    {\n      \"block_count\": 1,\n      \"blocks\": [],\n      \"has_hotel\": false,\n      \"section_id\": 503116084,\n      \"section_index\": 5\n    },\n    {\n      \"block_count\": 1,\n      \"blocks\": [],\n      \"has_hotel\": false,\n      \"section_id\": 45385574,\n      \"section_index\": 6\n    },\n    {\n      \"block_count\": 1,\n      \"blocks\": [],\n      \"has_hotel\": false,\n      \"section_id\": 835621085,\n      \"section_index\": 7\n    }\n  ],\n  \"target_key\": \"naertjcoixqrgrfc\",\n  \"title\": \"Morocco Travel Guide\"\n}\n"
+        },
+        {
+          "command": "plan inspect --target-key ${plan_key} --check=counts,unformatted,lodging-coverage,closed-places,text-vs-schedule --agent",
+          "status": "pass",
+          "output": "{\n  \"block_count\": 9,\n  \"checks\": {\n    \"closed_places\": [],\n    \"counts\": {\n      \"hotel\": 0,\n      \"note\": 1,\n      \"place\": 7,\n      \"sections\": 8\n    },\n    \"days_missing_hotel\": [],\n    \"text_vs_schedule\": [],\n    \"unformatted_block_ids\": []\n  },\n  \"section_count\": 8,\n  \"target_key\": \"naertjcoixqrgrfc\",\n  \"title\": \"Morocco Travel Guide\"\n}\n"
+        },
+        {
+          "command": "plan clone --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --dry-run --agent",
+          "status": "pass",
+          "output": "{\n  \"applied\": false,\n  \"apply_requested\": false,\n  \"blocks\": 9,\n  \"command\": \"plan clone\",\n  \"day_sections\": 0,\n  \"dry_run\": true,\n  \"geo_id\": 90759,\n  \"note_blocks\": 1,\n  \"operations\": [\n    \"fetch source plan\",\n    \"create target trip\",\n    \"replace target itinerary via ShareDB\"\n  ],\n  \"place_blocks\": 7,\n  \"resources\": [\n    \"ancestors\",\n    \"currencyRatesUSD\",\n    \"defaultPlacesListsGeo\",\n    \"distancesBetweenPlaces\",\n    \"distancesBetweenPlacesError\",\n    \"exploreCarouselItems\",\n    \"flightUpdates\",\n    \"geo\",\n    \"geos\",\n    \"hotelDeals\",\n    \"liveFlightUpdates\",\n    \"nearby\",\n    \"placeMetadata\",\n    \"sectionRecommendations\",\n    \"stopPolylines\",\n    \"tipsOnLoadResources\",\n    \"topPlace\"\n  ],\n  \"sections\": 8,\n  \"source_key\": \"naertjcoixqrgrfc\",\n  \"source_title\": \"Morocco Travel Guide\",\n  \"source_url\": \"https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared\",\n  \"title\": \"Morocco Travel Guide (copy)\",\n  \"warnings\": [\n    \"global --dry-run set: no trip will be created\"\n  ]\n}\n"
+        },
+        {
+          "command": "plan fill --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --target-key YOUR_TRIP_KEY --dry-run --agent",
+          "status": "pass",
+          "output": "{\n  \"applied\": false,\n  \"apply_requested\": false,\n  \"blocks\": 9,\n  \"command\": \"plan fill\",\n  \"day_sections\": 0,\n  \"dry_run\": true,\n  \"geo_id\": 90759,\n  \"mode\": \"replace-sections\",\n  \"note_blocks\": 1,\n  \"operations\": [\n    \"fetch source plan\",\n    \"fetch target trip\",\n    \"replace target itinerary via ShareDB\"\n  ],\n  \"place_blocks\": 7,\n  \"resources\": [\n    \"ancestors\",\n    \"currencyRatesUSD\",\n    \"defaultPlacesListsGeo\",\n    \"distancesBetweenPlaces\",\n    \"distancesBetweenPlacesError\",\n    \"exploreCarouselItems\",\n    \"flightUpdates\",\n    \"geo\",\n    \"geos\",\n    \"hotelDeals\",\n    \"liveFlightUpdates\",\n    \"nearby\",\n    \"placeMetadata\",\n    \"sectionRecommendations\",\n    \"stopPolylines\",\n    \"tipsOnLoadResources\",\n    \"topPlace\"\n  ],\n  \"sections\": 8,\n  \"source_key\": \"naertjcoixqrgrfc\",\n  \"source_title\": \"Morocco Travel Guide\",\n  \"source_url\": \"https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared\",\n  \"target_key\": \"YOUR_TRIP_KEY\",\n  \"title\": \"Morocco Travel Guide (copy)\",\n  \"warnings\": [\n    \"global --dry-run set: no sections will be replaced on the target trip\"\n  ]\n}\n"
+        }
+      ],
+      "verdict": "workflow-pass"
+    },
+    {
+      "name": "Discover a capability and check CLI health",
+      "primary": false,
+      "steps": [
+        {
+          "command": "which lodging",
+          "status": "pass",
+          "output": "{\n  \"matches\": [\n    {\n      \"entry\": {\n        \"command\": \"lodging search\",\n        \"description\": \"Search Wanderlog's lodging aggregator across Airbnb, Expedia, Google, and Kayak for a geo and date range, and return compact candidates carrying price, rating, coordinates, and booking URL. Also: search hotels, find a place to stay, compare stays.\",\n        \"group\": \"Plan reading and inspection\",\n        \"why_it_matters\": \"Use this to find candidates before committing to one — it answers “where could we stay?”, which `plan reservation add` does not. Feed a chosen offer straight into `plan reservation add --kind lodging --lodging-offer-json '\\u003coffer\\u003e'`, which is how stays with no Google place id become native lodging blocks. `lodging` is hidden from `--help` but callable by name. The example narrows to one source and a single night so it returns quickly; --sources defaults to airbnb,expedia,google,kayak when you omit it.\"\n      },\n      \"score\": 12\n    },\n    {\n      \"entry\": {\n        \"command\": \"plan inspect\",\n        \"description\": \"Inspect a slim itinerary outline and, with `--check`, report counts, unformatted notes, lodging coverage, closed places, and text-vs-schedule mismatches. Also: verify an itinerary after edits.\",\n        \"group\": \"Plan reading and inspection\",\n        \"why_it_matters\": \"Run `--check` after a batch of writes to confirm the plan is still consistent before handing it back to the user.\"\n      },\n      \"score\": 7\n    },\n    {\n      \"entry\": {\n        \"command\": \"plan block rename\",\n        \"description\": \"Rename the display name on an existing place or lodging block. Also: rename a place or hotel, change a display name.\",\n        \"group\": \"Agentic plan editing\",\n        \"why_it_matters\": \"Use this after a bad geocode instead of `plan block set-field place.name`, which does not update the rendered stop label.\"\n      },\n      \"score\": 7\n    }\n  ]\n}\n"
+        },
+        {
+          "command": "doctor --agent",
+          "status": "pass",
+          "output": "{\n  \"agentcookie\": \"not detected (optional)\",\n  \"api\": \"reachable\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"env:WANDERLOG_COOKIE\",\n  \"base_url\": \"https://wanderlog.com\",\n  \"binary\": \"wanderlog-pp-cli\",\n  \"binary_dir\": \"/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T\",\n  \"binary_note\": \"the binary is wanderlog-pp-cli, not wanderlog\",\n  \"cache\": {\n    \"db_path\": \"/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/printing-press-subprocess-430814717/.local/share/wanderlog-pp-cli/data.db\",\n    \"hint\": \"Database not created yet; run 'wanderlog-pp-cli sync' to hydrate.\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/printing-press-subprocess-430814717/.config/wanderlog-pp-cli/config.toml\",\n  \"credentials\": \"valid\",\n  \"env_vars\": \"OK 1/1 available\",\n  \"path\": \"ok\",\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"2026.8.1\"\n}\n"
+        }
+      ],
+      "verdict": "workflow-pass"
+    }
+  ],
+  "verdict": "workflow-pass"
+}

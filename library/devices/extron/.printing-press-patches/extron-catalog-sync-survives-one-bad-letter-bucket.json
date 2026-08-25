@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "extron-catalog-sync-survives-one-bad-letter-bucket",
+  "applied_at": "2026-08-24",
+  "base_run_id": "20260811-011552-d999fbbe",
+  "base_printing_press_version": "4.30.1",
+  "summary": "The corpus builder is a multi-bucket crawl, so a bucket is a unit of failure, not the run: retry a failed letter, skip it, keep the rest, and record the partial catalog. Because upserts commit as they go, a bucket's document total must be distinct URLs across every attempt \u2014 the largest attempt loses what only an earlier one reached, and the sum double-counts re-upserts. sync_state describes the whole catalog, so a --letters run must read its total from the store and must neither claim completeness nor downgrade a catalog it did not survey. Its per-request budget and its whole-crawl budget are separate knobs, and it must do real work when invoked with no flags.",
+  "reason": "extron.com only exposes literature one alphabetical bucket at a time, so building the catalog means 36 sequential fetches against a WAF that intermittently stalls. Treating any single bucket error as fatal threw away the other 35; binding the whole crawl to the per-request --timeout made a --full walk unfinishable at any timeout value; and a generated no-argument guard made bare `catalog sync` print help instead of syncing, so following the docs literally produced an empty store. Retry-then-skip then makes `catalog sync --letters <failed>` the recovery path, which exposed two accounting defects that doctor and the partial-catalog hint both read: per-attempt max counting underreported the rows on disk, and a narrowed invocation overwrote the store-wide sync_state with its own scope.",
+  "files": [
+    "internal/cli/catalog_sync.go",
+    "internal/cli/catalog_sync_test.go"
+  ],
+  "validated_outcome": "catalog_sync_test.go fails against each prior behavior (aborted crawl, help-instead-of-sync, count 4 where 6 rows were committed, sync_state 1 where 3 rows were stored, cursor downgraded and cursor falsely 'full') and passes after. Live: a letters=D run then a letters=Q run leaves sync_state at 98/partial against 98 actual rows; the prior code recorded 37.",
+  "findings_addressed": [
+    "F1",
+    "F2",
+    "F3"
+  ]
+}

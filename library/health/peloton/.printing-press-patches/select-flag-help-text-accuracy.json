@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "select-flag-help-text-accuracy",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "The --select persistent flag's help text (internal/cli/root.go) must stay in sync with printOfflineWithCaveats' actual current behavior: most offline commands expose fields directly at the top level, only offline_workout nests under detail/history, and caveats always survives --select regardless of what else is requested. Any future change to which offline commands nest their output, or to what survives projection unconditionally, must update this string in the same change -- it's the first thing an agent reads before guessing a --select path.",
+  "reason": "The help text still described the pre-round-7 behavior (\"required for offline commands, whose output nests under a wrapper key (detail/history/result)\") after round 7's flatten fix and round 8's caveats-survive-select fix had already made most of that description inaccurate -- a round-9 report flagged it as actively misleading, since it would send a caller looking for a result wrapper that no longer exists on 5 of 6 affected commands.",
+  "files": [
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. No test asserts the literal help string (none existed before either); reviewed by eye against the actual current behavior of offlineIDCmd, newOfflineIntervalsCmd, newOfflineWorkoutCmd, and printOffline's caveats handling."
+}

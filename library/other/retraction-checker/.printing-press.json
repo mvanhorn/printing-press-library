@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-03T09:32:56.179691Z",
+  "printing_press_version": "4.25.0",
+  "api_name": "retraction-checker",
+  "display_name": "Retraction Checker",
+  "cli_name": "retraction-checker-pp-cli",
+  "creator": {
+    "handle": "laci141",
+    "name": "laci141"
+  },
+  "owner": "laci141",
+  "printer": "laci141",
+  "printer_name": "laci141",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:cfe96d62abb26981fe806f89f495fec6536d33c6294a70c90f1f1084bff19d3e",
+  "run_id": "20260702-090842-5bac53b7",
+  "category": "other",
+  "description": "Check whether a paper is retracted, why, and what the current research says now — keyless, over Crossref and OpenAlex.",
+  "mcp_binary": "retraction-checker-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Retraction check",
+      "command": "check",
+      "description": "Tell whether a paper (by DOI or PMID) has been retracted, when, why, and where the notice is."
+    },
+    {
+      "name": "Bibliography scan",
+      "command": "scan",
+      "description": "Batch-check a reading list or .bib file and flag every retracted entry."
+    },
+    {
+      "name": "Superseding research",
+      "command": "superseded",
+      "description": "For a retracted or older paper, find related more-recent research on the same topic, ranked by citation count."
+    },
+    {
+      "name": "Retraction watch",
+      "command": "watch",
+      "description": "Monitor a topic or reading list for newly-announced retractions since the last run."
+    }
+  ]
+}

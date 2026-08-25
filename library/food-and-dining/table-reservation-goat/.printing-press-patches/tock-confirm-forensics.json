@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "tock-confirm-forensics",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260712-223206",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Preserve privacy-safe Tock confirm-path forensics across trusted click delivery, redirect-generation-aware network outcomes, retry recovery, target validity, alerts, and payment iframe presence without adding another submission attempt.",
+  "reason": "A Tock checkout can remain on confirm-purchase without revealing whether the trusted click reached the tagged control, whether the form POST was emitted, or whether the one allowed retry dispatched. A reprint must retain target-session Network instrumentation, canonical failure evidence, and the existing single-retry and receipt-deadline safety ceilings.",
+  "files": [
+    "internal/source/tock/chrome_book.go",
+    "internal/source/tock/chrome_book_test.go"
+  ],
+  "validated_outcome": "Fixtures guard redirect-generation POST status correlation, loading-failure isolation, click-beacon delivery and lifetime, typed retry outcomes and counters, target/probe validity, canonical alert privacy, payment iframe presence, and the existing modal/retry behavior."
+}

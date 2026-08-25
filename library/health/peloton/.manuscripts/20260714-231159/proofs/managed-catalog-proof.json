@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "proof_type": "managed_oauth_catalog_read",
+  "result": "pass",
+  "provider_calls": {
+    "oauth_bootstrap": 1,
+    "catalog_get": 1,
+    "retries": 0
+  },
+  "catalog_request": {
+    "method": "GET",
+    "path": "/api/v2/ride/archived",
+    "page": 0,
+    "limit": 1,
+    "content_format": "audio,video",
+    "authentication": "managed bearer",
+    "response_class": "2xx",
+    "parsed_results": "at_least_one"
+  },
+  "privacy": {
+    "credential_values_emitted": false,
+    "token_values_emitted": false,
+    "response_body_emitted": false,
+    "private_locator_emitted": false
+  }
+}

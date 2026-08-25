@@ -24,8 +24,10 @@ type Config struct {
 	ClientID      string            `toml:"client_id"`
 	ClientSecret  string            `toml:"client_secret"`
 	Path          string            `toml:"-"`
-	FigmaOauth2   string            `toml:"oauth2"`
-	FigmaPAT      string            `toml:"pat,omitempty"`
+	envOverrides  map[string]bool   `toml:"-"`
+	fileConfig    *Config           `toml:"-"`
+	FigmaApiToken string            `toml:"api_token"`
+	FigmaApiKey   string            `toml:"api_key"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -52,18 +54,28 @@ func Load(configPath string) (*Config, error) {
 		}
 	}
 
+	cfg.snapshotFileConfig()
+
 	// Env var overrides
-	if v := os.Getenv("FIGMA_OAUTH2"); v != "" {
-		cfg.FigmaOauth2 = v
-		cfg.AuthSource = "env:FIGMA_OAUTH2"
+	if v := os.Getenv("FIGMA_ACCESS_TOKEN"); v != "" {
+		cfg.AccessToken = v
+		cfg.markEnvOverride("AccessToken")
+		if cfg.AuthSource == "" {
+			cfg.AuthSource = "env:FIGMA_ACCESS_TOKEN"
+		}
 	}
-	// PATCH: pat-auth-wiring (records this hand-edit in .printing-press-patches.json)
-	// PAT via X-Figma-Token (Figma's primary auth for personal use)
-	for _, name := range []string{"FIGMA_ACCESS_TOKEN", "FIGMA_API_TOKEN", "FIGMA_API_KEY"} {
-		if v := os.Getenv(name); v != "" && cfg.FigmaPAT == "" {
-			cfg.FigmaPAT = v
-			cfg.AuthSource = "env:" + name
-			break
+	if v := os.Getenv("FIGMA_API_TOKEN"); v != "" {
+		cfg.FigmaApiToken = v
+		cfg.markEnvOverride("FigmaApiToken")
+		if cfg.AuthSource == "" {
+			cfg.AuthSource = "env:FIGMA_API_TOKEN"
+		}
+	}
+	if v := os.Getenv("FIGMA_API_KEY"); v != "" {
+		cfg.FigmaApiKey = v
+		cfg.markEnvOverride("FigmaApiKey")
+		if cfg.AuthSource == "" {
+			cfg.AuthSource = "env:FIGMA_API_KEY"
 		}
 	}
 
@@ -78,8 +90,26 @@ func Load(configPath string) (*Config, error) {
 	if cfg.AuthSource == "" && (cfg.AuthHeaderVal != "" || cfg.AccessToken != "") {
 		cfg.AuthSource = "config"
 	}
-	if cfg.AuthSource == "" && cfg.FigmaOauth2 != "" {
+	if cfg.AuthSource == "" && cfg.FigmaApiToken != "" {
 		cfg.AuthSource = "config"
+	}
+	if cfg.AuthSource == "" && cfg.FigmaApiKey != "" {
+		cfg.AuthSource = "config"
+	}
+
+	// Soft agentcookie integration: if the agentcookie daemon manages this
+	// CLI's secrets, it writes a marker file alongside the config file. When
+	// the marker is present AND credentials came from the config (not from a
+	// direct env var override that wins above), upgrade AuthSource to
+	// "agentcookie" so doctor / auth-status can surface the bus state. When
+	// the marker is absent, behavior is identical to pre-agentcookie: no
+	// import, no network, no error. agentcookie itself is never imported
+	// here — the contract is purely on-disk.
+	if cfg.AuthSource == "config" {
+		marker := filepath.Join(filepath.Dir(cfg.Path), ".agentcookie-managed")
+		if _, err := os.Stat(marker); err == nil {
+			cfg.AuthSource = "agentcookie"
+		}
 	}
 
 	// Base URL override (used by printing-press verify to point at mock/test servers)
@@ -90,25 +120,28 @@ func Load(configPath string) (*Config, error) {
 }
 
 func (c *Config) AuthHeader() string {
+	// Environment credentials override persisted values. Keep this order in
+	// sync with Load's AuthSource selection so status reports what is sent.
+	if c.envOverrides["AccessToken"] && c.AccessToken != "" {
+		return c.AccessToken
+	}
+	if c.envOverrides["FigmaApiToken"] && c.FigmaApiToken != "" {
+		return c.FigmaApiToken
+	}
+	if c.envOverrides["FigmaApiKey"] && c.FigmaApiKey != "" {
+		return c.FigmaApiKey
+	}
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
 	}
-	// Personal Access Token wins for Figma — it's the primary auth shape and works
-	// with /v1/files, /v1/comments, etc. OAuth Bearer is required for /v1/me and
-	// /v1/activity_logs but rare in practice. The "X-Figma-Token: " prefix is a
-	// signal to the client to route this to the X-Figma-Token header, not
-	// Authorization: Bearer.
-	if c.FigmaPAT != "" {
-		return "X-Figma-Token: " + c.FigmaPAT
-	}
-	// Env-var token wins over file-stored AccessToken (env > config convention).
-	if c.FigmaOauth2 != "" {
-		c.AuthSource = "env:FIGMA_OAUTH2"
-		return "Bearer " + c.FigmaOauth2
-	}
 	if c.AccessToken != "" {
-		c.AuthSource = "oauth2"
-		return "Bearer " + c.AccessToken
+		return c.AccessToken
+	}
+	if c.FigmaApiToken != "" {
+		return c.FigmaApiToken
+	}
+	if c.FigmaApiKey != "" {
+		return c.FigmaApiKey
 	}
 	return ""
 }
@@ -132,14 +165,148 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 	c.AccessToken = accessToken
 	c.RefreshToken = refreshToken
 	c.TokenExpiry = expiry
+	delete(c.envOverrides, "ClientID")
+	delete(c.envOverrides, "ClientSecret")
+	delete(c.envOverrides, "AccessToken")
+	delete(c.envOverrides, "RefreshToken")
+	delete(c.envOverrides, "TokenExpiry")
+	c.updateFileConfigField("ClientID")
+	c.updateFileConfigField("ClientSecret")
+	c.updateFileConfigField("AccessToken")
+	c.updateFileConfigField("RefreshToken")
+	c.updateFileConfigField("TokenExpiry")
+	return c.save()
+}
+
+// SaveCredential persists a single API credential to the field that
+// AuthHeader() consults for api_key auth. Writing to AccessToken (the
+// bearer slot) would silently no-op since AuthHeader() reads the env-var-
+// derived field, not AccessToken, when Auth.Type == "api_key".
+//
+// The clears precede the assignment so a canonical env-var whose placeholder
+// collides with a builtin tag (e.g. an env var named XXX_ACCESS_TOKEN
+// resolving to the AccessToken field) ends up holding the new token.
+func (c *Config) SaveCredential(token string) error {
+	c.AuthHeaderVal = ""
+	c.AccessToken = ""
+	// Pair each builtin-field zeroing with an envOverrides delete, like
+	// ClearTokens/SaveBearerToken: if an env var's placeholder collides with the
+	// AuthHeaderVal/AccessToken builtin tag, the override would otherwise survive
+	// and configForSave would restore the stale on-disk value instead of "".
+	delete(c.envOverrides, "AuthHeaderVal")
+	delete(c.envOverrides, "AccessToken")
+	c.updateFileConfigField("AuthHeaderVal")
+	c.updateFileConfigField("AccessToken")
+	c.AccessToken = token
+	delete(c.envOverrides, "AccessToken")
+	c.updateFileConfigField("AccessToken")
 	return c.save()
 }
 
 func (c *Config) ClearTokens() error {
+	// AuthHeader() falls back to the env-var-derived fields when AuthHeaderVal
+	// and AccessToken are empty, so dropping the working credential requires
+	// zeroing every emitted credential field, not just the OAuth trio.
+	// ClientID/ClientSecret persist to disk via SaveTokens for the oauth2
+	// and oauth2-cc flows, so logout must wipe them too; otherwise
+	// `auth login` can re-mint a new access token unattended.
+	c.AuthHeaderVal = ""
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	c.ClientID = ""
+	c.ClientSecret = ""
+	delete(c.envOverrides, "AuthHeaderVal")
+	delete(c.envOverrides, "AccessToken")
+	delete(c.envOverrides, "RefreshToken")
+	delete(c.envOverrides, "TokenExpiry")
+	delete(c.envOverrides, "ClientID")
+	delete(c.envOverrides, "ClientSecret")
+	c.updateFileConfigField("AuthHeaderVal")
+	c.updateFileConfigField("AccessToken")
+	c.updateFileConfigField("RefreshToken")
+	c.updateFileConfigField("TokenExpiry")
+	c.updateFileConfigField("ClientID")
+	c.updateFileConfigField("ClientSecret")
+	c.FigmaApiToken = ""
+	delete(c.envOverrides, "FigmaApiToken")
+	c.FigmaApiKey = ""
+	delete(c.envOverrides, "FigmaApiKey")
 	return c.save()
+}
+
+func (c *Config) markEnvOverride(field string) {
+	if c.envOverrides == nil {
+		c.envOverrides = map[string]bool{}
+	}
+	c.envOverrides[field] = true
+}
+
+// cloneStringMap returns an independent copy of m (nil stays nil). The fileConfig
+// snapshot must not share reference-type map fields (such as Headers) with the
+// live config, or a later mutation to one would silently track in the other.
+func cloneStringMap(m map[string]string) map[string]string {
+	if m == nil {
+		return nil
+	}
+	out := make(map[string]string, len(m))
+	for k, v := range m {
+		out[k] = v
+	}
+	return out
+}
+
+func (c *Config) snapshotFileConfig() {
+	snapshot := *c
+	snapshot.envOverrides = nil
+	snapshot.fileConfig = nil
+	// *c is a shallow copy: map fields are reference types, so the snapshot would
+	// share them with c and silently track later mutations, defeating the
+	// isolation this snapshot exists to provide. Clone them.
+	snapshot.Headers = cloneStringMap(c.Headers)
+	c.fileConfig = &snapshot
+}
+
+func (c *Config) configForSave() Config {
+	out := *c
+	if c.fileConfig != nil {
+		if c.envOverrides["AccessToken"] {
+			out.AccessToken = c.fileConfig.AccessToken
+		}
+		if c.envOverrides["FigmaApiToken"] {
+			out.FigmaApiToken = c.fileConfig.FigmaApiToken
+		}
+		if c.envOverrides["FigmaApiKey"] {
+			out.FigmaApiKey = c.fileConfig.FigmaApiKey
+		}
+	}
+	out.envOverrides = nil
+	out.fileConfig = nil
+	return out
+}
+
+func (c *Config) updateFileConfigField(field string) {
+	if c.fileConfig == nil || c.envOverrides[field] {
+		return
+	}
+	switch field {
+	case "AuthHeaderVal":
+		c.fileConfig.AuthHeaderVal = c.AuthHeaderVal
+	case "AccessToken":
+		c.fileConfig.AccessToken = c.AccessToken
+	case "RefreshToken":
+		c.fileConfig.RefreshToken = c.RefreshToken
+	case "TokenExpiry":
+		c.fileConfig.TokenExpiry = c.TokenExpiry
+	case "ClientID":
+		c.fileConfig.ClientID = c.ClientID
+	case "ClientSecret":
+		c.fileConfig.ClientSecret = c.ClientSecret
+	case "FigmaApiToken":
+		c.fileConfig.FigmaApiToken = c.FigmaApiToken
+	case "FigmaApiKey":
+		c.fileConfig.FigmaApiKey = c.FigmaApiKey
+	}
 }
 
 func (c *Config) save() error {
@@ -147,11 +314,22 @@ func (c *Config) save() error {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return fmt.Errorf("creating config dir: %w", err)
 	}
-	data, err := toml.Marshal(c)
+	persisted := c.configForSave()
+	data, err := toml.Marshal(persisted)
 	if err != nil {
 		return fmt.Errorf("marshaling config: %w", err)
 	}
-	return os.WriteFile(c.Path, data, 0o600)
+	if err := os.WriteFile(c.Path, data, 0o600); err != nil {
+		return err
+	}
+	c.fileConfig = &persisted
+	c.fileConfig.envOverrides = nil
+	c.fileConfig.fileConfig = nil
+	// persisted shares its map fields with c (configForSave shallow-copies *c),
+	// so isolate the stored fileConfig the same way snapshotFileConfig does;
+	// otherwise later mutations to c's maps leak into the on-disk snapshot.
+	c.fileConfig.Headers = cloneStringMap(c.fileConfig.Headers)
+	return nil
 }
 
 // Ensure strings import is used

@@ -16,16 +16,36 @@ import (
 	"github.com/mark3labs/mcp-go/server"
 )
 
-func shellOutToCLI(cliPath func() (string, error), commandPath []string) server.ToolHandlerFunc {
+func shellOutToCLI(cliPath func() (string, error), commandPath []string, positionalNames []string) server.ToolHandlerFunc {
 	lookupPath, lookupErr := cliPath()
 	prefixArgs := append([]string{}, commandPath...)
+	// Build a set for O(1) lookup when filtering flags.
+	positionalSet := make(map[string]bool, len(positionalNames))
+	for _, p := range positionalNames {
+		positionalSet[p] = true
+	}
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		if lookupErr != nil {
 			return mcplib.NewToolResultError(fmt.Sprintf("companion CLI binary not found: %v\nTried sibling lookup, YAHOO_FINANCE_CLI_PATH env var, and PATH.", lookupErr)), nil
 		}
 		args := req.GetArguments()
 		finalArgs := append([]string{}, prefixArgs...)
-		finalArgs = append(finalArgs, cliArgsFromMCP(args)...)
+		// Add flag args first, skipping keys that are positional params.
+		finalArgs = append(finalArgs, cliArgsFromMCPFiltered(args, positionalSet)...)
+		// Append positional values in declared order (bare, no -- prefix).
+		// Reject flag-like values so an MCP client cannot inject CLI flags
+		// through positional parameters (same guard as the "args" field).
+		for _, name := range positionalNames {
+			v, _ := args[name].(string)
+			if strings.TrimSpace(v) == "" {
+				return mcplib.NewToolResultError(fmt.Sprintf("positional parameter %q is required but was empty or missing", name)), nil
+			}
+			if strings.HasPrefix(v, "-") {
+				return mcplib.NewToolResultError(fmt.Sprintf("flag-like argument %q not allowed for positional parameter %q; pass a plain value instead", v, name)), nil
+			}
+			finalArgs = append(finalArgs, v)
+		}
+		// Legacy free-form "args" field for commands with no named positionals.
 		if raw, _ := args["args"].(string); strings.TrimSpace(raw) != "" {
 			tokens := SplitShellArgs(raw)
 			for _, t := range tokens {
@@ -59,10 +79,13 @@ var blockedRootFlags = map[string]bool{
 	"token":    true,
 }
 
-func cliArgsFromMCP(args map[string]any) []string {
+// cliArgsFromMCPFiltered converts MCP arguments to CLI --flag value pairs,
+// skipping keys in the skip set (used to exclude positional arg names that
+// must be passed as bare values, not flags).
+func cliArgsFromMCPFiltered(args map[string]any, skip map[string]bool) []string {
 	keys := make([]string, 0, len(args))
 	for k := range args {
-		if !blockedRootFlags[k] {
+		if !blockedRootFlags[k] && !skip[k] {
 			keys = append(keys, k)
 		}
 	}

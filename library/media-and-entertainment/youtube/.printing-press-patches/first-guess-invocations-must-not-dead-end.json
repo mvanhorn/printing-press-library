@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "first-guess-invocations-must-not-dead-end",
+  "applied_at": "2026-07-30",
+  "base_run_id": "20260515-050804",
+  "base_printing_press_version": "4.2.2",
+  "summary": "An agent's natural first invocation must reach a useful outcome: missing API key surfaces an actionable auth error (not a buried Google 403 with exit 0), non-English-only videos auto-fall back to the sole available caption track when --lang is defaulted, transcripts render as markdown/text without hand-rolled converters, and the conventional names (top-level `search`, --limit) resolve.",
+  "reason": "Dogfood session 2026-07-06: search never succeeded because the raw 403 was buried per-term with exit 0; the transcript command hard-failed on an Italian-only video until manually retried with --lang it, after which the user hand-rolled a JSON-to-markdown converter; `search` and --limit were both guessed first and dead-ended.",
+  "files": [
+    "internal/cli/search_bulk.go",
+    "internal/cli/videos_transcript.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "No-key search exits 4 with the remediation hint; it-only video EX0Kz0SpqFs transcribes with default flags (fallback noted on stderr) and renders --format markdown/text; a second default-lang run serves from cache — normal rows with zero requests, fallback alias rows after a single track-list revalidation that upgrades to requested-language captions published later (and degrades to the cache offline); explicit --lang en still exits 5 and never accepts the alias row; --limit and top-level `search` work. The `search` alias is mcp:hidden so the MCP tool surface is unchanged.",
+  "patch_count": 3,
+  "findings_addressed": ["F1", "F2", "F3", "F4", "F5"]
+}

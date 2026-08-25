@@ -1,0 +1,60 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-30T04:44:33.7460661Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "cookunity",
+  "display_name": "CookUnity",
+  "cli_name": "cookunity-pp-cli",
+  "creator": {
+    "handle": "gcole326",
+    "name": "Greg Cole"
+  },
+  "owner": "gcole326",
+  "printer": "gcole326",
+  "printer_name": "Greg Cole",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:4529083895737e3c7d49413a51b481816c2c97f716e4e5978f75ffd28bee5ac6",
+  "run_id": "20260729-213315-cab6f4f7",
+  "category": "food-and-dining",
+  "description": "Mirror CookUnity's full weekly menu into a local database so you can plan meals offline — filter by macros, diet, and budget, and diff the menu week over week, none of which the web app can do.",
+  "mcp_binary": "cookunity-pp-mcp",
+  "mcp_tool_count": 3,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "COOKUNITY_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Macro-constrained meal planner",
+      "command": "plan",
+      "description": "Auto-build a set of meals that collectively hit your protein, calorie, budget, and diet targets — offline, in one command."
+    },
+    {
+      "name": "Week-over-week menu drift",
+      "command": "drift",
+      "description": "See exactly which meals were added, removed, or repriced between two weekly menus."
+    },
+    {
+      "name": "Best-value leaderboard",
+      "command": "value",
+      "description": "Rank meals by nutritional value per dollar (protein-per-dollar, calories-per-dollar) computed from the local mirror."
+    },
+    {
+      "name": "Favorites on this week's menu",
+      "command": "favorites",
+      "description": "Show which of your favorited meals are actually on the current week's menu."
+    },
+    {
+      "name": "Meal comparison",
+      "command": "compare",
+      "description": "Side-by-side macro, price, chef, and allergen comparison of two or more meals."
+    },
+    {
+      "name": "Chef roster analytics",
+      "command": "chefs",
+      "description": "Leaderboard of chefs by dish count, average rating, average price, and cuisines on the current menu."
+    }
+  ]
+}

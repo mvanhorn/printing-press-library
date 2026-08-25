@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "synology-smart-device-path-flag",
+  "applied_at": "2026-08-24",
+  "base_run_id": "20260824-135140",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Document that `storage smart --device` takes a device path such as `/dev/sda`, not a disk id.",
+  "reason": "DSM answers error 117 for a bare disk id, and the generated flag description gave the caller no way to know that. The value the command wants is the device path that `storage disks` already reports.",
+  "files": [
+    "spec.yaml"
+  ],
+  "validated_outcome": "`storage smart --device /dev/sda` returns SMART attributes against a live DS415+."
+}

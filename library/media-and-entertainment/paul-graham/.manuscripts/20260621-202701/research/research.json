@@ -1,0 +1,12 @@
+{
+  "source_url": "https://www.paulgraham.com/articles.html",
+  "rss_url": "https://www.paulgraham.com/rss.html",
+  "auth_type": "none",
+  "api_shape": "static-html",
+  "native_commands": ["latest", "list", "search", "read", "links", "random"],
+  "notes": [
+    "articles.html returned HTTP 200 and is the canonical full essay index.",
+    "rss.html exists but is not used as the canonical source.",
+    "Essay pages are static HTML and can be parsed into readable text by selecting the primary content cell."
+  ]
+}

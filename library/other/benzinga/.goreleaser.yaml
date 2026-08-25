@@ -1,0 +1,51 @@
+version: 2
+project_name: benzinga-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: benzinga-pp-cli
+    main: ./cmd/benzinga-pp-cli
+    binary: benzinga-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/benzinga/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: benzinga-pp-mcp
+    main: ./cmd/benzinga-pp-mcp
+    binary: benzinga-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: benzinga-pp-cli
+    repository:
+      owner: waveriderai
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Benzinga calendar, news, fundamentals, and signal endpoint as a typed command — plus an offline SQLite store, full-text search, cross-entity queries, and the first Benzinga MCP server."
+    install: |
+      bin.install "benzinga-pp-cli"
+      bin.install "benzinga-pp-mcp"

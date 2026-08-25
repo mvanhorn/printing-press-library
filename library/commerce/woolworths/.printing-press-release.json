@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "woolworths",
+  "cli_name": "woolworths-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-25T09:17:49Z",
+  "source_commit": "a76e493201851fbff785446ae81e9a08c44fcba9",
+  "printing_press_version": "4.31.1",
+  "run_id": "20260823-194004-c3040891",
+  "changes": [
+    {
+      "title": "feat(woolworths): add woolworths",
+      "pr": 1802,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1802",
+      "commit": "a76e493201851fbff785446ae81e9a08c44fcba9"
+    }
+  ]
+}

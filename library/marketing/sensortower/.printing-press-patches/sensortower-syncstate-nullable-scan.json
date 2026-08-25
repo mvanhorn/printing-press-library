@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "sensortower-syncstate-nullable-scan",
+  "applied_at": "2026-07-17",
+  "base_run_id": "20260717-030012-35521069",
+  "base_printing_press_version": "4.29.0",
+  "summary": "GetSyncState COALESCEs nullable sync_state columns and scans last_synced_at via sql.NullTime.",
+  "reason": "Generated store.go scanned last_cursor/last_synced_at/total_count into bare string/time.Time/int; a NULL column errors 'converting NULL to string is unsupported', and every caller discards the error, silently forcing a re-sync from page 1. This is a generator-template defect (filed as a retro candidate).",
+  "files": ["internal/store/store.go"],
+  "validated_outcome": "go build + go vet clean; store package tests pass; pre-fix GetSyncState errored on a NULL last_cursor with count=0.",
+  "upstream_issue": ""
+}

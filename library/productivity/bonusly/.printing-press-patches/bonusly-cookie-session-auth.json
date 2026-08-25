@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "bonusly-cookie-session-auth",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260810-153232-4e95f81e",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Add `auth login --chrome/--browser/--profile/--cookies-file` for browser-session cookie auth, alongside the existing bearer-token `auth set-token` path.",
+  "reason": "Bonusly's confirmed REST API is bearer-token auth via Settings -> API Keys, but not every account can self-serve that token. Ported the Chrome-cookie-extraction pattern from the sibling forkable-pp-cli (pycookiecheat-based: Chrome profile discovery across release channels, cookie-DB inspection, --cookies-file escape hatch) so those accounts can authenticate via a captured browser session instead. New `CookieVal` credential field is fully independent of the existing `AccessToken`/`BonuslyApiToken` bearer path -- AuthHeader() is untouched, so token-based auth has zero regression risk. A new net/http.CookieJar-seeding hook in internal/client (bonusly_cookiejar.go) attaches the captured session to every request via Go's stdlib cookie handling rather than a hand-set Cookie header.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/client/bonusly_cookiejar.go",
+    "internal/client/client.go",
+    "internal/cliutil/credentials.go",
+    "internal/config/config.go"
+  ],
+  "validated_outcome": "Live-tested against the real API after a one-time interactive macOS Keychain approval for `auth login --chrome`: `users me --json` and `recognition received --receiver-email ... --json` both returned `meta.source: \"live\"` with correct data, including receiver_email matching against multi-receiver group bonuses.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Generic cookie-session auth support in the generator/machine for CLIs whose auth_type is bearer_token but whose target account cannot self-serve a token",
+      "reason": "This patch hand-ports forkable-pp-cli's cookie-extraction machinery per-CLI rather than the generator emitting it from a shared template; the two implementations will drift if either is amended independently."
+    }
+  ]
+}

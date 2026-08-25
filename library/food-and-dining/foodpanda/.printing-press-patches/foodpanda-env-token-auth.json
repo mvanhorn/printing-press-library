@@ -1,0 +1,14 @@
+{
+  "id": "foodpanda-env-token-auth",
+  "summary": "Add FOODPANDA_TOKEN so the customer-scoped commands work without a desktop Chrome profile.",
+  "reason": "config.go documented an env-var session path in AuthHeader() and CookieCredential() that no os.Getenv ever implemented, so 'home' and 'addresses' were unreachable from CI, containers and agent sandboxes.",
+  "files": [
+    "internal/config/config.go",
+    "README.md"
+  ],
+  "validated_outcome": "go test ./... (13/13 packages); flag surfaces in --help; live dogfood full 108/108.",
+  "schema_version": 2,
+  "applied_at": "2026-08-20",
+  "base_run_id": "20260808-044349-820894b7",
+  "base_printing_press_version": "4.30.1"
+}

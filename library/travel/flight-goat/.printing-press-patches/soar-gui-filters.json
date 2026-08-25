@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "soar-gui-filters",
+  "applied_at": "2026-07-08",
+  "base_run_id": "2026-05-02T22:09:06.820184Z",
+  "base_printing_press_version": "3.6.0",
+  "upstream_issue": "",
+  "files": [
+    "internal/soar/soar.go",
+    "internal/cli/soar.go"
+  ],
+  "summary": "Expose FlySoar's stops and airlines GUI filters on the `soar` command (--stops, --airlines): filter the returned itineraries, echo the constraints in the booking request, and encode them into the deep link.",
+  "reason": "FlySoar's web search URL carries the same GUI filters the site UI offers — `stops` is a comma-separated SET of allowed stop counts (stops=0 is nonstop-only, stops=1,2 is one/two-stop) and `airlines` is a comma-separated IATA whitelist (airlines=DL,UA). Commas are URL-encoded as %2C. To make the CLI construct URLs for those GUI features and keep its own results consistent with what the link opens, --stops/--airlines both client-side filter the normalized offers (the stream endpoint returns the unfiltered set) and are written into search_url and the iMessage booking request. Stops is a set, not a max, so it is modeled as []int rather than the max-stops semantics of the Google Flights `flights` command. The stops filter applies per direction (per slice) to match FlySoar: a round trip with one connection each way passes --stops 1 even though its total stop count is 2, so Flight carries per-slice SliceStops and the filter checks every slice.",
+  "validated_outcome": "go build/vet, go test ./internal/soar/, and verify_skill pass. Dry-run builds https://flysoar.ai/flights/dca/iah/260923/?airlines=DL%2CUA&cabin=first&stops=0%2C1&trip=oneway matching the live GUI URL. Live DCA->IAH 2026-09-23 --stops 0 --airlines UA returned 7 offers with zero violating the filter (all nonstop, all UA), query echoed stops=[0]/airlines=[UA], and the booking request read 'DCA -> IAH on 2026-09-23, first class, nonstop, on UA'."
+}

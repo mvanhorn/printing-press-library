@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-portlet-dalla-pagina",
+  "applied_at": "2026-08-22",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "L'handshake legge dalla pagina del form l'URL action e l'id della portlet, oltre al token p_auth gia' letto. buildSearchURL usa quell'action come base e il namespace letto per i campi; VerificaAppello costruisce il proprio endpoint con lo stesso namespace, facendo un handshake se non ne ha ancora fatto uno. Le costanti portletID/portletPrefix restano come fallback. L'action letta viene ripulita dall'escape HTML dei separatori: il portale oggi li scrive nudi, ma un attributo puo' scriverli come &amp;, e in quel caso la query si parserebbe in chiavi 'amp;p_p_lifecycle'.",
+  "reason": "L'id della portlet contiene un _INSTANCE_<hash> che il portale puo' cambiare a un redeploy: era hardcodato in una costante e compariva in ogni richiesta di ricerca e nella verifica appello, quindi un rinomino avrebbe azzerato le ricerche senza errore diagnosticabile ('nessun risultato'). La pagina del form, che l'handshake gia' scarica, dichiara sia l'id sia l'action; l'action porta insieme p_p_id, p_p_lifecycle e p_auth, quindi replicarla verbatim copre anche un rinomino degli altri due parametri.",
+  "files": [
+    "internal/gaclient/client.go",
+    "internal/gaclient/appeal.go",
+    "internal/gaclient/parse_test.go"
+  ],
+  "validated_outcome": "Ricerca live invariata: --testo 'silenzio assenso' --anno 2019 --limit 5 restituisce 5 risultati su 5 del 2019 (il filtro DataYearItem resta server-side); --sede cds e appeal-chain --testo 'project financing' --sede roma funzionanti. Test TestParseFormLeggeIstanzaDallaPagina: con un _INSTANCE_ diverso i campi usano il namespace della pagina; senza form si ricade sulle costanti. Il test usa un'action con separatori escapati e verifica che p_p_lifecycle, p_p_state e p_p_mode sopravvivano e che nessuna chiave contenga 'amp;'."
+}

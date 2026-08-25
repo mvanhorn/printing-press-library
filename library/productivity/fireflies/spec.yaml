@@ -61,10 +61,10 @@ type Query {
 
 type Mutation {
   """Update a meeting title"""
-  updateMeetingTitle(id: String!, title: String!): MutationResult
+  updateMeetingTitle(input: UpdateMeetingTitleInput!): Transcript
 
   """Update meeting privacy"""
-  updateMeetingPrivacy(id: String!, privacy: String!): MutationResult
+  updateMeetingPrivacy(input: UpdateMeetingPrivacyInput!): Transcript
 
   """Update meeting channel/folder"""
   updateMeetingChannel(id: String!, channel_id: String!): MutationResult
@@ -378,6 +378,16 @@ input AttendeeInput {
   displayName: String
   email: String
   phoneNumber: String
+}
+
+input UpdateMeetingTitleInput {
+  id: String!
+  title: String!
+}
+
+input UpdateMeetingPrivacyInput {
+  id: String!
+  privacy: String!
 }
 
 scalar DateTime

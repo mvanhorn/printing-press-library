@@ -15,7 +15,10 @@ func newUserCmd(flags *rootFlags) *cobra.Command {
 
 	cmd.AddCommand(newUserGetSelfCmd(flags))
 	cmd.AddCommand(newUserListEmailAliasesCmd(flags))
+	cmd.AddCommand(newUserListAccessProgramsCmd(flags))
 	cmd.AddCommand(newUserListInvitationsCmd(flags))
+	cmd.AddCommand(newUserListMembersCmd(flags))
+	cmd.AddCommand(newUserListRevokedMembersCmd(flags))
 	cmd.AddCommand(newUserListReportsCmd(flags))
 	return cmd
 }

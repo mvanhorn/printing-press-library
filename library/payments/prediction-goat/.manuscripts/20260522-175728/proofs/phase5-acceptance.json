@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "prediction-goat",
+  "run_id": "20260522-175728",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 196,
+  "tests_passed": 196,
+  "tests_skipped": 107,
+  "auth_context": {
+    "type": "none"
+  }
+}

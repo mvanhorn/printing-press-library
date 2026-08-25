@@ -17,7 +17,7 @@ func newProjectsCyclesTransferWorkItemsCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:         "transfer-work-items <cycle_id> <project_id>",
+		Use:         "transfer-work-items <project_id> <cycle_id>",
 		Short:       "Move incomplete work items from the current cycle to a new target cycle.",
 		Example:     "  plane-pp-cli projects cycles transfer-work-items 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 --new-cycle-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "cycles.transfer-work-items", "pp:method": "POST", "pp:path": "/projects/{project_id}/cycles/{cycle_id}/transfer-issues/"},
@@ -25,30 +25,56 @@ func newProjectsCyclesTransferWorkItemsCmd(flags *rootFlags) *cobra.Command {
 			// Bare invocation of a command with required input prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only read commands fall through so a bare call still executes.
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <project_id> <cycle_id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <project_id> <cycle_id>"))
 			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("new-cycle-id") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "new-cycle-id")
 				}
 			}
+			path := "/projects/{project_id}/cycles/{cycle_id}/transfer-issues/"
+			if len(args) < 2 || args[1] == "" {
+				return usageErr(fmt.Errorf("cycle_id is required\nUsage: %s <%s>", cmd.CommandPath(), "cycle_id"))
+			}
+			path = replacePathParam(path, "cycle_id", args[1])
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("project_id is required\nUsage: %s <%s>", cmd.CommandPath(), "project_id"))
+			}
+			path = replacePathParam(path, "project_id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/projects/{project_id}/cycles/{cycle_id}/transfer-issues/"
-			path = replacePathParam(path, "cycle_id", args[0])
-			if len(args) < 2 {
-				return usageErr(fmt.Errorf("project_id is required\nUsage: %s <%s>", cmd.CommandPath(), "project_id"))
-			}
-			path = replacePathParam(path, "project_id", args[1])
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -60,9 +86,10 @@ func newProjectsCyclesTransferWorkItemsCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				if bodyNewCycleId != "" {
-					body["new_cycle_id"] = bodyNewCycleId
+					bodyMap["new_cycle_id"] = bodyNewCycleId
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
@@ -132,6 +159,9 @@ func newProjectsCyclesTransferWorkItemsCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -170,7 +200,11 @@ func newProjectsCyclesTransferWorkItemsCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

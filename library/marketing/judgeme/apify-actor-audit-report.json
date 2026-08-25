@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/judgeme-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260729-224012-eda553b7",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

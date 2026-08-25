@@ -9,8 +9,11 @@ import (
 
 func newAirportsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "airports",
-		Short: "Manage airports",
+		Use:         "airports",
+		Short:       "Manage airports command groups",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newAirportsGetCmd(flags))

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "productive",
+  "run_id": "20260704-155923-ab89631d",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 342,
+  "tests_passed": 342,
+  "tests_skipped": 90,
+  "auth_context": {
+    "type": "api_key"
+  }
+}

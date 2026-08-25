@@ -1,0 +1,172 @@
+{
+  "api_name": "twitch",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "twitchdev/twitch-cli",
+      "url": "https://github.com/twitchdev/twitch-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 677,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "tmijs/tmi.js",
+      "url": "https://github.com/tmijs/tmi.js",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 1600,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "TwitchLib/TwitchLib",
+      "url": "https://github.com/TwitchLib/TwitchLib",
+      "language": "C#",
+      "install_method": "",
+      "stars": 884,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "TwitchIO/TwitchIO",
+      "url": "https://github.com/TwitchIO/TwitchIO",
+      "language": "Python",
+      "install_method": "",
+      "stars": 881,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "twurple/twurple",
+      "url": "https://github.com/twurple/twurple",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 741,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "nicklaw5/helix",
+      "url": "https://github.com/nicklaw5/helix",
+      "language": "Go",
+      "install_method": "",
+      "stars": 273,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "twitch-rs/twitch_api",
+      "url": "https://github.com/twitch-rs/twitch_api",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 183,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": true
+    }
+  ],
+  "gaps": [
+    "User-scope sync resources: The default sync set covers app-token-viable resources (games-top, streams, content-classification-labels, chat-emotes-global, eventsub-subscriptions). Resources requiring a user OAuth token or a broadcaster_id/user_id parameter (clips, videos, users, followers, analytics reports) stay reachable via --resources but are not synced by default.",
+    "Search live fallback: search resolves against the local synced corpus; with an empty store it falls back to a live category lookup rather than failing, but rich cross-resource search requires a prior sync."
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-20T15:14:17Z",
+  "novel_features": [
+    {
+      "name": "Local SQLite Sync",
+      "command": "sync",
+      "description": "Mirror Twitch Helix data (top games, live streams, global emotes, content labels) into a local SQLite store for offline search and analysis",
+      "rationale": "No Twitch tool persists data; every library and the official twitch-cli is a stateless live passthrough that forgets each response"
+    },
+    {
+      "name": "Full-Text Search",
+      "command": "search",
+      "description": "Full-text search across locally synced Twitch records",
+      "rationale": "Requires the local SQLite index; impossible with the stateless API wrappers (nicklaw5/helix, twurple, TwitchIO) that hold no durable corpus"
+    },
+    {
+      "name": "Local Analytics",
+      "command": "analytics",
+      "description": "Group-by and count aggregation over locally synced Twitch data without re-hitting the rate-limited API",
+      "rationale": "Offline aggregation is absent from every alternative; consumers of the existing libraries must hand-roll it against live responses"
+    },
+    {
+      "name": "Compound Workflows",
+      "command": "workflow",
+      "description": "Chain multiple Helix operations into one agent-friendly command",
+      "rationale": "Combines several API calls behind a single invocation; the official twitch-cli api command is a one-shot passthrough with no composition"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Local SQLite Sync",
+      "command": "sync",
+      "description": "Mirror Twitch Helix data (top games, live streams, global emotes, content labels) into a local SQLite store for offline search and analysis",
+      "rationale": "No Twitch tool persists data; every library and the official twitch-cli is a stateless live passthrough that forgets each response"
+    },
+    {
+      "name": "Full-Text Search",
+      "command": "search",
+      "description": "Full-text search across locally synced Twitch records",
+      "rationale": "Requires the local SQLite index; impossible with the stateless API wrappers (nicklaw5/helix, twurple, TwitchIO) that hold no durable corpus"
+    },
+    {
+      "name": "Local Analytics",
+      "command": "analytics",
+      "description": "Group-by and count aggregation over locally synced Twitch data without re-hitting the rate-limited API",
+      "rationale": "Offline aggregation is absent from every alternative; consumers of the existing libraries must hand-roll it against live responses"
+    },
+    {
+      "name": "Compound Workflows",
+      "command": "workflow",
+      "description": "Chain multiple Helix operations into one agent-friendly command",
+      "rationale": "Combines several API calls behind a single invocation; the official twitch-cli api command is a one-shot passthrough with no composition"
+    }
+  ],
+  "narrative": {
+    "quickstart": [
+      {
+        "command": "twitch-pp-cli games get-top --json"
+      },
+      {
+        "command": "twitch-pp-cli streams get --json"
+      },
+      {
+        "command": "twitch-pp-cli sync --resources games-top,streams --json"
+      },
+      {
+        "command": "twitch-pp-cli doctor"
+      }
+    ],
+    "recipes": [
+      {
+        "title": "Aggregate live streams by game",
+        "command": "twitch-pp-cli analytics --type streams --group-by game_name --limit 10 --json"
+      },
+      {
+        "title": "List Twitch content classification labels",
+        "command": "twitch-pp-cli content-classification-labels get --json"
+      },
+      {
+        "title": "Search synced Twitch data",
+        "command": "twitch-pp-cli search fortnite --json"
+      }
+    ]
+  }
+}

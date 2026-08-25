@@ -1,0 +1,426 @@
+{
+  "api_name": "wanderlog",
+  "base_url": "https://wanderlog.com",
+  "description": "Clone shared Wanderlog plans into editable trips, then mine guides and places for agent-ready planning.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Cookie",
+    "format": "{WANDERLOG_COOKIE}",
+    "env_vars": [
+      "WANDERLOG_COOKIE"
+    ],
+    "env_var_specs": [
+      {
+        "name": "WANDERLOG_COOKIE",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (compatible; wanderlog-pp-cli/0.1; +https://wanderlog.com)"
+    },
+    {
+      "name": "Accept-Language",
+      "value": "en"
+    }
+  ],
+  "tools": [
+    {
+      "name": "account_me",
+      "description": "Get the current Wanderlog account for WANDERLOG_COOKIE. Returns the GenericObject. (requires API key)",
+      "method": "GET",
+      "path": "/api/user",
+      "params": []
+    },
+    {
+      "name": "geos_autocomplete",
+      "description": "Search destinations by name. Required: query. Returns array of Geo.",
+      "method": "GET",
+      "path": "/api/geo/autocomplete/{query}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "path",
+          "description": "Destination search text, for example Paris",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "geos_good_guides",
+      "description": "List destinations known to have good public guides. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/api/geo/geosWithGoodGuides",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "guides_comments",
+      "description": "List comments for a public trip or guide key. Required: trip_key. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/api/tripPlans/{trip_key}/comments",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "trip_key",
+          "type": "string",
+          "location": "path",
+          "description": "Trip or guide key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "guides_distinction",
+      "description": "Get distinction metadata for a public trip or guide key. Required: trip_key. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/api/tripPlans/{trip_key}/distinction",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "trip_key",
+          "type": "string",
+          "location": "path",
+          "description": "Trip or guide key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "guides_get",
+      "description": "Get a public guide or shared trip by view key. Required: view_key. Optional: client-schema-version (default: 2). Returns the TripPlanResponse.",
+      "method": "GET",
+      "path": "/api/tripPlans/{view_key}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "view_key",
+          "type": "string",
+          "location": "path",
+          "description": "Public guide or shared trip key",
+          "required": true
+        },
+        {
+          "name": "client-schema-version",
+          "wire_name": "clientSchemaVersion",
+          "type": "int",
+          "location": "query",
+          "description": "Wanderlog client schema version"
+        }
+      ]
+    },
+    {
+      "name": "guides_list_for_geo",
+      "description": "List public guides for a destination geo id. Required: geo_id. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/api/tripPlans/browse/guides/{geo_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "geo_id",
+          "type": "string",
+          "location": "path",
+          "description": "Wanderlog geo id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pages_explore",
+      "description": "Fetch a destination explore page. Required: geo_id, slug.",
+      "method": "GET",
+      "path": "/explore/{geo_id}/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "geo_id",
+          "type": "string",
+          "location": "path",
+          "description": "Wanderlog geo id",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Destination slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pages_geo_category_page",
+      "description": "Fetch a public geo category list page. Required: geo_category_id, slug.",
+      "method": "GET",
+      "path": "/list/geoCategory/{geo_category_id}/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "geo_category_id",
+          "type": "string",
+          "location": "path",
+          "description": "Geo category id",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "List page slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pages_shared_view",
+      "description": "Fetch a public shared itinerary page. Required: view_key, slug.",
+      "method": "GET",
+      "path": "/view/{view_key}/{slug}/shared",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "view_key",
+          "type": "string",
+          "location": "path",
+          "description": "Public shared view key",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Shared view slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "place_lists_geo_category",
+      "description": "Get places in a destination category list. Required: geo_category_id. Optional: include-related-pages-data (default: true). Returns the GenericObject.",
+      "method": "GET",
+      "path": "/api/placesList/geoCategory/{geo_category_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "geo_category_id",
+          "type": "string",
+          "location": "path",
+          "description": "Geo category id",
+          "required": true
+        },
+        {
+          "name": "include-related-pages-data",
+          "wire_name": "includeRelatedPagesData",
+          "type": "bool",
+          "location": "query",
+          "description": "Include related page data"
+        }
+      ]
+    },
+    {
+      "name": "places_autocomplete",
+      "description": "Search places with Wanderlog's Places API autocomplete request envelope. Required: request. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/api/placesAPI/autocomplete/v2",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "request",
+          "type": "string",
+          "location": "query",
+          "description": "JSON request envelope with input, sessiontoken, optional location, radius, and language",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "places_card",
+      "description": "Get rich place details and card data. Required: place-id. Optional: language (default: en). Returns the PlaceDetailsResponse.",
+      "method": "GET",
+      "path": "/api/placesAPI/getPlaceDetailsAndCardData",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "place-id",
+          "wire_name": "placeId",
+          "type": "string",
+          "location": "query",
+          "description": "Place id",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language code"
+        }
+      ]
+    },
+    {
+      "name": "places_details",
+      "description": "Get details for a Google/Wanderlog place id. Required: place-id. Optional: language (default: en). Returns the PlaceDetailsResponse.",
+      "method": "GET",
+      "path": "/api/placesAPI/getPlaceDetails/v2",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "place-id",
+          "wire_name": "placeId",
+          "type": "string",
+          "location": "query",
+          "description": "Place id",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language code"
+        }
+      ]
+    },
+    {
+      "name": "session_get",
+      "description": "Get current anonymous session preferences. Returns the SessionStoreResponse.",
+      "method": "GET",
+      "path": "/api/sessionStore",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "trips_create",
+      "description": "Create a Wanderlog trip for the authenticated account. Required: geo-ids. Optional: title, start-date, end-date (plus 6 more). Returns the new GenericObject. (requires API key)",
+      "method": "POST",
+      "path": "/api/tripPlans",
+      "params": [
+        {
+          "name": "geo-ids",
+          "wire_name": "geoIds",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of Wanderlog geo ids",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Trip title"
+        },
+        {
+          "name": "start-date",
+          "wire_name": "startDate",
+          "type": "string",
+          "location": "body",
+          "description": "Trip start date"
+        },
+        {
+          "name": "end-date",
+          "wire_name": "endDate",
+          "type": "string",
+          "location": "body",
+          "description": "Trip end date"
+        },
+        {
+          "name": "privacy",
+          "type": "string",
+          "location": "body",
+          "description": "Trip privacy"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Trip type"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "Trip language"
+        },
+        {
+          "name": "initial-maps-place-ids",
+          "wire_name": "initialMapsPlaceIds",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of initial map place ids"
+        },
+        {
+          "name": "initial-email-id",
+          "wire_name": "initialEmailId",
+          "type": "string",
+          "location": "body",
+          "description": "Initial email id"
+        },
+        {
+          "name": "is-map-embed",
+          "wire_name": "isMapEmbed",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the trip is for a map embed"
+        }
+      ]
+    },
+    {
+      "name": "trips_delete",
+      "description": "Delete an authenticated Wanderlog trip. Required: trip_key. Returns the GenericObject. Destructive. (requires API key)",
+      "method": "DELETE",
+      "path": "/api/tripPlans/{trip_key}",
+      "params": [
+        {
+          "name": "trip_key",
+          "type": "string",
+          "location": "path",
+          "description": "Trip key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "trips_get",
+      "description": "Get an authenticated trip with resources. Required: trip_key. Optional: client-schema-version (default: 2), register-view (default: true). Returns the TripPlanResponse. (requires API key)",
+      "method": "GET",
+      "path": "/api/tripPlans/{trip_key}",
+      "params": [
+        {
+          "name": "trip_key",
+          "type": "string",
+          "location": "path",
+          "description": "Trip key",
+          "required": true
+        },
+        {
+          "name": "client-schema-version",
+          "wire_name": "clientSchemaVersion",
+          "type": "int",
+          "location": "query",
+          "description": "Wanderlog client schema version"
+        },
+        {
+          "name": "register-view",
+          "wire_name": "registerView",
+          "type": "bool",
+          "location": "query",
+          "description": "Register a view while fetching"
+        }
+      ]
+    },
+    {
+      "name": "trips_home",
+      "description": "List home trips for the authenticated Wanderlog account. Returns the GenericObject. (requires API key)",
+      "method": "GET",
+      "path": "/api/tripPlans/home",
+      "params": []
+    }
+  ]
+}

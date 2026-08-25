@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "woolworths-akamai-cold-start-warm",
+  "applied_at": "2026-08-24",
+  "base_run_id": "20260823-194004-c3040891",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Warm the Akamai cookie jar once per cold profile before the first POST.",
+  "reason": "Akamai does not reject an unwarmed POST with an error: it resets the HTTP/2 stream with INTERNAL_ERROR and the HTTP/1.1 fallback then hangs to timeout. Measured cold 'products search' = 47s and exit 5; after one GET of /shop = 0.9s. The generated client has no post-construction hook, so the one-line call has to live inside client.New.",
+  "files": ["internal/client/woolworths_warm.go", "internal/client/client.go"],
+  "validated_outcome": "Cold profile: products search 47s/exit5 -> 1.4s/exit0. Warm profile unaffected (warm short-circuits on a non-empty jar). Host-guarded to woolworths.com.au so httptest servers are untouched.",
+  "upstream_issue": null
+}

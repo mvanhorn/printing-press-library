@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "synology-skill-shell-safe-query",
+  "applied_at": "2026-08-24",
+  "base_run_id": "20260824-135140",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Write every user-controlled string to a file and read it into a variable with command substitution before passing it to `recall`, `teach`, `teach-playbook`, `playbook amend` or `learnings forget`, in `SKILL.md`, `AGENTS.md` and the generated command help.",
+  "reason": "The generated learning-loop templates interpolate the user's question straight into a Bash command line. An agent following them literally with a question containing backticks, `$(...)` or a quote would execute that text as shell syntax on the operator's machine. A single-quoted variable assignment is not enough: a single quote inside the question terminates it. A heredoc with a quoted delimiter is not enough either: a question containing a line equal to the delimiter ends the body and restores command execution. The fix is to keep the question out of the command text entirely - write it verbatim to a file with the agent's file-writing tool, which involves no shell, then read that file in with `QUERY=$(cat ...)`. The shell never parses the file's bytes as syntax, so there is no boundary left for the question to escape. The same treatment applies to `--add-note` and to the `learnings forget` query. `internal/learn/protocol.go` carries the same rule, because `RecallFirstProtocol` is the runtime payload both `agent-context` and the MCP context tool serialize, so an agent that never reads the docs still receives the safe form.",
+  "files": [
+    "SKILL.md",
+    "AGENTS.md",
+    "internal/cli/teach.go",
+    "internal/cli/teach_playbook.go",
+    "internal/learn/protocol.go"
+  ],
+  "coverage_impact": "Documentation and help text only; no command surface, flag or runtime behaviour changed. The `teach`, `recall`, `learnings forget`, `teach-playbook` and `playbook amend` help examples now reference `$QUERY` and `$NOTE` rather than inline placeholders, so they are read as templates rather than executed verbatim.",
+  "validated_outcome": "Both binaries build clean and `go vet ./internal/cli` is silent."
+}

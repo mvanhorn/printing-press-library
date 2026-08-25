@@ -1,0 +1,117 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-02T21:51:50.425401Z",
+  "printing_press_version": "4.30.0",
+  "api_name": "crestron",
+  "display_name": "Crestron",
+  "cli_name": "crestron-pp-cli",
+  "creator": {
+    "handle": "Drummerms",
+    "name": "drummerms"
+  },
+  "owner": "drummerms",
+  "printer": "Drummerms",
+  "printer_name": "drummerms",
+  "spec_path": "crestron-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:2e01fefa62b9638eed3367a647bf089e84841ad9b49df167aff52f376388515c",
+  "run_id": "20260802-132209-30c5fe35",
+  "category": "devices",
+  "description": "Every Crestron product, spec sheet, and firmware release — searchable offline, with fleet-wide currency checks the website cannot do.",
+  "mcp_binary": "crestron-pp-mcp",
+  "mcp_tool_count": 13,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Fleet firmware status",
+      "command": "fleet status",
+      "description": "Check every model in your installed fleet against current firmware in one command."
+    },
+    {
+      "name": "Release-note full-text search",
+      "command": "search",
+      "description": "Search every firmware release note and change log at once for a term."
+    },
+    {
+      "name": "Release-note diff",
+      "command": "firmware diff",
+      "description": "Show what changed between two firmware versions for a model."
+    },
+    {
+      "name": "Submittal package builder",
+      "command": "submittal",
+      "description": "Download every documentation asset for a list of models into per-model folders with a coverage report."
+    },
+    {
+      "name": "Lifecycle and replacement trace",
+      "command": "lifecycle",
+      "description": "Report whether a model is still sellable and trace its replacement chain."
+    },
+    {
+      "name": "Spec table comparison",
+      "command": "specs compare",
+      "description": "Compare two models field by field across the full specification table."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Fleet firmware status",
+      "command": "fleet status",
+      "description": "Check every model in your installed fleet against current firmware in one command."
+    },
+    {
+      "name": "Release-note full-text search",
+      "command": "search",
+      "description": "Search every firmware release note and change log at once for a term."
+    },
+    {
+      "name": "Release-note diff",
+      "command": "firmware diff",
+      "description": "Show what changed between two firmware versions for a model."
+    },
+    {
+      "name": "Submittal package builder",
+      "command": "submittal",
+      "description": "Download every documentation asset for a list of models into per-model folders with a coverage report."
+    },
+    {
+      "name": "Lifecycle and replacement trace",
+      "command": "lifecycle",
+      "description": "Report whether a model is still sellable and trace its replacement chain."
+    },
+    {
+      "name": "Spec table comparison",
+      "command": "specs compare",
+      "description": "Compare two models field by field across the full specification table."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 97.72727272727273,
+    "passed": 43,
+    "total": 44,
+    "failed": 1,
+    "verdict": "WARN"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 83,
+      "grade": "A",
+      "total": 83
+    }
+  }
+}

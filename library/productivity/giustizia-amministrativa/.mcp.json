@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "giustizia-amministrativa": {
+      "command": "./bin/giustizia-amministrativa-pp-mcp",
+      "args": []
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "api_name": "lever",
+  "base_url": "https://api.lever.co/v0",
+  "description": "Public Lever postings API (https://api.lever.co/v0/postings). Every Lever customer exposes an open job board at api.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "postings_get",
+      "description": "Retrieve a single posting. Required: company, posting_id. Optional: mode (default: json). Returns the Posting.",
+      "method": "GET",
+      "path": "/postings/{company}/{posting_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "company",
+          "type": "string",
+          "location": "path",
+          "description": "Company slug (the Lever board identifier)",
+          "required": true
+        },
+        {
+          "name": "posting_id",
+          "type": "string",
+          "location": "path",
+          "description": "Posting id (UUID)",
+          "required": true
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Mode"
+        }
+      ]
+    },
+    {
+      "name": "postings_list",
+      "description": "List all open postings for a company. Required: company. Optional: mode (default: json), limit (default: 100), offset (default: 0). Returns array of Posting.",
+      "method": "GET",
+      "path": "/postings/{company}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "company",
+          "type": "string",
+          "location": "path",
+          "description": "Company slug (the Lever board identifier)",
+          "required": true
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Mode"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    }
+  ]
+}

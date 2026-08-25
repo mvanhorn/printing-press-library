@@ -127,6 +127,22 @@ func parseItemsSpec(spec string) ([]store.OrderItem, error) {
 	return items, nil
 }
 
+// validateCartForPlacement fails closed on a cart that the order endpoints
+// would reject: a non-numeric/zero restid (slug never resolved) or a cart with
+// no priced items (menu resolution failed). Catching these locally turns a
+// silent server 500 into a clear, actionable error before any money moves.
+func validateCartForPlacement(restID string, items []store.OrderItem) error {
+	if n, _ := strconv.Atoi(strings.TrimSpace(restID)); n == 0 {
+		return usageErr(fmt.Errorf("restid did not resolve to a numeric id (got %q); re-run `orders plan` for this restaurant", restID))
+	}
+	for _, it := range items {
+		if it.Price > 0 {
+			return nil
+		}
+	}
+	return usageErr(fmt.Errorf("cart has no priced items; menu price resolution failed"))
+}
+
 func subtotalForItems(items []store.OrderItem) float64 {
 	var subtotal float64
 	for _, item := range items {

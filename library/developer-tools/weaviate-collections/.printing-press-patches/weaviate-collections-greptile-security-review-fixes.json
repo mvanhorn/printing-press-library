@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "weaviate-collections-greptile-security-review-fixes",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-100645-wvc1",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Fixed three issues from the PR's Greptile security review: unauthenticated MCP HTTP transport, a snapshot-label timestamp collision, and plaintext-argv token input.",
+  "reason": "Greptile scored the PR 0/5 and flagged: (1) the generated MCP HTTP transport had no ingress authentication, letting any network caller invoke destructive tools (collection/tenant delete) using the server's own credentials; (2) unlabeled schema snapshots used second-resolution timestamps, so two snapshots within the same second silently overwrote each other; (3) `auth set-token <token>` required the token as a positional argument, exposing it via process list and shell history. Fixed the HTTP transport to require a WEAVIATE_COLLECTIONS_MCP_TOKEN bearer token (checked with constant-time comparison) and default to loopback-only binding; switched the snapshot default label to nanosecond resolution; made `auth set-token` accept the token via stdin (recommended) while keeping the positional form for backward compatibility.",
+  "files": ["cmd/weaviate-collections-pp-mcp/main.go", "internal/cli/schema_snapshot.go", "internal/cli/auth.go", "internal/cli/doctor.go", "SKILL.md"],
+  "validated_outcome": "Confirmed: `--transport http` without WEAVIATE_COLLECTIONS_MCP_TOKEN now refuses to start (exit 2); `auth set-token` works via both stdin piping and the legacy positional form; go build/go vet clean.",
+  "upstream_issue": ""
+}

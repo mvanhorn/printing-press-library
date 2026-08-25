@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "woolworths-feedback-example",
+  "applied_at": "2026-08-24",
+  "base_run_id": "20260823-194004-c3040891",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Add an Examples block to the generated 'feedback' parent command.",
+  "reason": "The generated feedback parent ships no Example, which fails dogfood's help check with 'missing Examples section'. Generator gap, not specific to this API.",
+  "files": ["internal/cli/feedback.go"],
+  "validated_outcome": "Live dogfood full matrix went from 125/126 to 126/126.",
+  "upstream_issue": null
+}

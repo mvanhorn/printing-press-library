@@ -1,0 +1,328 @@
+{
+  "api_name": "aol-puglia",
+  "base_url": "https://sanita.puglia.it/AlboOnline/ao",
+  "description": "API per l'Albo Pretorio Online della Sanità Pugliese.\nAccesso pubblico (bandi e concorsi) tramite OAuth2 client_credentials.\n13 aziende sanitarie pugliesi disponibili.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "AOL_PUGLIA_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "AOL_PUGLIA_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "atti_download-allegato",
+      "description": "Restituisce il contenuto dell'allegato come base64 con il nome originale del file. L'allegato ID è disponibile nel campo listaAllegati di ogni atto. Required: id. Returns the AllegatoResponse.",
+      "method": "GET",
+      "path": "/atti/getAllegatoAtto/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID dell'allegato",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "atti_get-atto",
+      "description": "Restituisce il dettaglio completo di un singolo atto inclusa la lista allegati. Required: id. Returns the AttoResponse.",
+      "method": "GET",
+      "path": "/atti/getAtto/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID dell'atto",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "atti_get-trasparenza",
+      "description": "Restituisce le sezioni di trasparenza disponibili per l'azienda. Required: azienda. Returns array of TrasparenzaEntry.",
+      "method": "GET",
+      "path": "/atti/getTrasparenzaAzienda/{azienda}",
+      "params": [
+        {
+          "name": "azienda",
+          "type": "string",
+          "location": "path",
+          "description": "Nome dell'azienda sanitaria",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "atti_search",
+      "description": "Ricerca paginata degli atti pubblicati. Senza autenticazione utente sono visibili solo bandi e concorsi (logged=false). Supporta filtri per data, proponente, oggetto, CIG. Required: azienda, logged, numElementi, page, tipoItem. Optional: annoRepertorio, dataAdozioneAl, dataAdozioneDal (plus 8 more). Returns array of Atto.",
+      "method": "POST",
+      "path": "/atti/getListaAttiPaginata",
+      "params": [
+        {
+          "name": "annoRepertorio",
+          "type": "int",
+          "location": "body",
+          "description": "Anno repertorio"
+        },
+        {
+          "name": "azienda",
+          "type": "string",
+          "location": "body",
+          "description": "Nome dell'azienda sanitaria. Valori: 'ASL Bari', 'ASL Foggia', 'ASL BT', 'ASL Taranto', 'ASL Brindisi', 'ASL Lecce', 'ARESS', 'ARES', 'Azienda Ospedaliera Ospedali Riuniti - Foggia', 'I.R.C.C.S. 'S. De Bellis' - Castellana Grotte', 'I.R.C.C.S Ospedale Oncologico 'G. Paolo II' - Bari', 'Azienda Ospedaliero Universitaria Consorziale Policlinico', 'Sanitaservice ASL BR'",
+          "required": true
+        },
+        {
+          "name": "dataAdozioneAl",
+          "type": "string",
+          "location": "body",
+          "description": "Filtro data adozione a (ISO 8601)"
+        },
+        {
+          "name": "dataAdozioneDal",
+          "type": "string",
+          "location": "body",
+          "description": "Filtro data adozione da (ISO 8601)"
+        },
+        {
+          "name": "dataScadenzaAl",
+          "type": "string",
+          "location": "body",
+          "description": "Data scadenza al"
+        },
+        {
+          "name": "dataScadenzaDal",
+          "type": "string",
+          "location": "body",
+          "description": "Data scadenza dal"
+        },
+        {
+          "name": "logged",
+          "type": "bool",
+          "location": "body",
+          "description": "Sempre false per accesso pubblico",
+          "required": true
+        },
+        {
+          "name": "numElementi",
+          "type": "int",
+          "location": "body",
+          "description": "Elementi per pagina",
+          "required": true
+        },
+        {
+          "name": "numero",
+          "type": "int",
+          "location": "body",
+          "description": "Numero atto"
+        },
+        {
+          "name": "numeroRepertorio",
+          "type": "int",
+          "location": "body",
+          "description": "Numero repertorio"
+        },
+        {
+          "name": "oggetto",
+          "type": "string",
+          "location": "body",
+          "description": "Testo libero da cercare nell'oggetto"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "body",
+          "description": "Numero pagina (0-indexed)",
+          "required": true
+        },
+        {
+          "name": "proponenteSelezionato",
+          "type": "string",
+          "location": "body",
+          "description": "Codice proponente (es. 'AGT')"
+        },
+        {
+          "name": "statoAtto",
+          "type": "string",
+          "location": "body",
+          "description": "Stato atto. Inviare null quando logged=false."
+        },
+        {
+          "name": "tipoDocumentazione",
+          "type": "string",
+          "location": "body",
+          "description": "Tipo documentazione"
+        },
+        {
+          "name": "tipoItem",
+          "type": "string",
+          "location": "body",
+          "description": "Tipo documento. Senza login solo bando e concorso sono visibili.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "config_get-configurazione-item",
+      "description": "Restituisce la configurazione di durata pubblicazione e proroga per ogni tipo di atto dell'azienda. Required: azienda. Returns array of ConfigItemEntry.",
+      "method": "GET",
+      "path": "/config/getConfigurazioneItem/{azienda}",
+      "params": [
+        {
+          "name": "azienda",
+          "type": "string",
+          "location": "path",
+          "description": "Azienda",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "config_list-proponenti",
+      "description": "Restituisce tutti i proponenti configurati per l'azienda e il tipo di documento. Required: azienda, tipoItem (default: bando). Returns array of Proponente.",
+      "method": "GET",
+      "path": "/config/getProponenti/{azienda}/{tipoItem}",
+      "params": [
+        {
+          "name": "azienda",
+          "type": "string",
+          "location": "path",
+          "description": "Nome dell'azienda sanitaria",
+          "required": true
+        },
+        {
+          "name": "tipoItem",
+          "type": "string",
+          "location": "path",
+          "description": "Tipo documento",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "config_list-proponenti-attivi",
+      "description": "Come getProponenti ma filtra solo i proponenti con attivo=true. Required: azienda, tipoItem (default: bando). Returns array of Proponente.",
+      "method": "GET",
+      "path": "/config/getProponentiAttivi/{azienda}/{tipoItem}",
+      "params": [
+        {
+          "name": "azienda",
+          "type": "string",
+          "location": "path",
+          "description": "Azienda",
+          "required": true
+        },
+        {
+          "name": "tipoItem",
+          "type": "string",
+          "location": "path",
+          "description": "Tipo item",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fileexport_export-to-csv",
+      "description": "Esporta i risultati di una ricerca come file CSV. Accetta gli stessi parametri di getListaAttiPaginata (senza page/numElementi). Required: azienda, logged, tipoItem. Optional: annoRepertorio, dataAdozioneAl, dataAdozioneDal (plus 7 more). Returns the new FileexportExportToCsvResponse.",
+      "method": "POST",
+      "path": "/fileexport/exportToCSV",
+      "params": [
+        {
+          "name": "annoRepertorio",
+          "type": "int",
+          "location": "body",
+          "description": "Anno repertorio"
+        },
+        {
+          "name": "azienda",
+          "type": "string",
+          "location": "body",
+          "description": "Azienda",
+          "required": true
+        },
+        {
+          "name": "dataAdozioneAl",
+          "type": "string",
+          "location": "body",
+          "description": "Data adozione al"
+        },
+        {
+          "name": "dataAdozioneDal",
+          "type": "string",
+          "location": "body",
+          "description": "Data adozione dal"
+        },
+        {
+          "name": "dataScadenzaAl",
+          "type": "string",
+          "location": "body",
+          "description": "Data scadenza al"
+        },
+        {
+          "name": "dataScadenzaDal",
+          "type": "string",
+          "location": "body",
+          "description": "Data scadenza dal"
+        },
+        {
+          "name": "logged",
+          "type": "bool",
+          "location": "body",
+          "description": "Logged",
+          "required": true
+        },
+        {
+          "name": "numero",
+          "type": "int",
+          "location": "body",
+          "description": "Numero"
+        },
+        {
+          "name": "numeroRepertorio",
+          "type": "int",
+          "location": "body",
+          "description": "Numero repertorio"
+        },
+        {
+          "name": "oggetto",
+          "type": "string",
+          "location": "body",
+          "description": "Oggetto"
+        },
+        {
+          "name": "proponenteSelezionato",
+          "type": "string",
+          "location": "body",
+          "description": "Proponente selezionato"
+        },
+        {
+          "name": "statoAtto",
+          "type": "string",
+          "location": "body",
+          "description": "Stato atto"
+        },
+        {
+          "name": "tipoItem",
+          "type": "string",
+          "location": "body",
+          "description": "Tipo item",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

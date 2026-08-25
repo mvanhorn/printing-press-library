@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "google-trends-novel-command-examples",
+  "applied_at": "2026-07-13",
+  "base_run_id": "20260713-105453-29114a9d",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Fixed the 7 hand-written novel commands' Example fields to be full runnable command lines matching the generated commands' convention, instead of bare argument fragments.",
+  "reason": "The 7 novel commands (trends changes/geo-gap/history-search/opportunities/seasonality/stale/trending-at) had Cobra Example fields like \"coffee --since 7d --agent\" -- bare argument fragments -- instead of the established convention \"  google-trends-pp-cli trends <subcommand> <args>\" used by every generated command. Live dogfood's example-extractor couldn't find a runnable command line in these, failing all 7 with 'missing runnable example'.",
+  "files": [
+    "internal/cli/trends_changes.go",
+    "internal/cli/trends_geo_gap.go",
+    "internal/cli/trends_history_search.go",
+    "internal/cli/trends_opportunities.go",
+    "internal/cli/trends_seasonality.go",
+    "internal/cli/trends_stale.go",
+    "internal/cli/trends_trending_at.go"
+  ],
+  "validated_outcome": "Live dogfood: all 7 'missing runnable example' failures cleared after this fix.",
+  "upstream_issue": null
+}

@@ -1,0 +1,305 @@
+name: rundown
+description: "Search and rank the AI workflows shared in The Rundown University community"
+version: "0.1.0"
+base_url: "https://app.therundown.ai/api/community"
+health_check_path: "/tools"
+category: ai
+
+required_headers:
+  - name: User-Agent
+    value: "rundown-pp-cli/0.1.0 (+https://printingpress.dev)"
+  - name: Accept
+    value: "application/json"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/rundown-pp-cli/config.toml"
+
+cache:
+  enabled: true
+  stale_after: 24h
+
+resources:
+  posts:
+    description: "Community workflow posts"
+    endpoints:
+      list:
+        method: GET
+        # The `?sort=new` baseline is deliberate and load-bearing. The syncer
+        # builds its query params from scratch and never applies a param's
+        # `default`, so without this the server falls back to its own default
+        # (`recommended`) — which silently returns 250 of 288 posts, losing 13%
+        # of the corpus with no error. A query string in the path survives
+        # because the client seeds from req.URL.Query() before overlaying
+        # params, and the --sort flag still overrides it.
+        path: "/posts?sort=new"
+        description: "List community workflow posts with server-side filters"
+        example: "  rundown-pp-cli posts --sort top --limit 20"
+        happy_args: "--limit=5"
+        params:
+          - name: sort
+            type: string
+            required: false
+            default: "new"
+            description: "Ranking: new (default, complete + stable paging), top, or recommended. Note: recommended is personalised and omits ~13% of posts, so it is a poor choice for sync."
+            enum: ["recommended", "top", "new"]
+          - name: type
+            type: string
+            required: false
+            description: "Post type: workflow, question, or win"
+            enum: ["workflow", "question", "win"]
+          - name: q
+            flag_name: query
+            aliases: ["q"]
+            type: string
+            required: false
+            description: "Free-text search across titles and bodies (server-side, semantic)"
+          - name: tag
+            type: string
+            required: false
+            description: "Filter to a single tag slug, e.g. aimemory"
+          - name: tool
+            type: string
+            required: false
+            description: "Filter to workflows using a tool slug, e.g. claude-code (see: rundown-pp-cli tools)"
+          - name: industry
+            type: string
+            required: false
+            description: "Filter to an industry slug, e.g. software-technology"
+          - name: limit
+            type: int
+            required: false
+            default: 20
+            description: "Results per page (server caps at 50)"
+          - name: cursor
+            type: string
+            required: false
+            description: "Opaque pagination cursor from a previous response"
+        response:
+          type: array
+          item: Post
+        response_path: posts
+        pagination:
+          type: cursor
+          cursor_field: "nextCursor"
+          has_more_field: "nextCursor"
+
+  comments:
+    description: "Discussion threads attached to workflow posts"
+    endpoints:
+      list:
+        method: GET
+        path: "/posts/{post_id}/comments"
+        description: "List comments on a workflow post"
+        example: "  rundown-pp-cli comments 89da5324-f822-4a4b-a30e-b33cfac60a95"
+        happy_args: "post_id=89da5324-f822-4a4b-a30e-b33cfac60a95"
+        params:
+          - name: post_id
+            type: string
+            required: true
+            positional: true
+            description: "Post UUID"
+          - name: cursor
+            type: string
+            required: false
+            description: "Opaque pagination cursor"
+        response:
+          type: array
+          item: Comment
+        response_path: comments
+        pagination:
+          type: cursor
+          cursor_field: "nextCursor"
+          has_more_field: "nextCursor"
+
+  tools:
+    description: "Catalogue of AI tools referenced by community workflows"
+    endpoints:
+      list:
+        method: GET
+        path: "/tools"
+        description: "List every tool slug the community can tag a workflow with"
+        example: "  rundown-pp-cli tools"
+        response:
+          type: array
+          item: Tool
+        response_path: tools
+
+  leaderboard:
+    description: "Weekly community contributor leaderboard"
+    endpoints:
+      list:
+        method: GET
+        path: "/leaderboard"
+        description: "This week's top contributors by points (server always returns the weekly window)"
+        example: "  rundown-pp-cli leaderboard"
+        response:
+          type: array
+          item: LeaderboardEntry
+        response_path: entries
+
+types:
+  Post:
+    fields:
+      - name: id
+        type: string
+      - name: type
+        type: string
+      - name: title
+        type: string
+      - name: body
+        type: string
+      - name: upvoteCount
+        type: int
+      - name: commentCount
+        type: int
+      - name: createdAt
+        type: string
+      - name: tags
+        type: string
+      - name: tools
+        type: string
+      - name: industries
+        type: string
+      - name: author
+        type: string
+      - name: media
+        type: string
+      - name: newsletterFeature
+        type: string
+
+  Comment:
+    fields:
+      - name: id
+        type: string
+      - name: postId
+        type: string
+      - name: parentCommentId
+        type: string
+      - name: body
+        type: string
+      - name: upvoteCount
+        type: int
+      - name: createdAt
+        type: string
+      - name: author
+        type: string
+
+  Tool:
+    fields:
+      - name: slug
+        type: string
+      - name: name
+        type: string
+      - name: iconUrl
+        type: string
+
+  LeaderboardEntry:
+    fields:
+      - name: rank
+        type: int
+      - name: points
+        type: int
+      - name: author
+        type: string
+
+learn:
+  stopwords:
+    - workflow
+    - rundown
+  synonyms:
+    "most recent": "latest"
+    "best rated": "top"
+    "highest rated": "top"
+    "most upvoted": "top"
+    "this week": "7d"
+    "last week": "7d"
+    "this month": "30d"
+  entity_lookup_seeds:
+    tool:
+      - canonical: claude-code
+        aliases: ["claude code", "cc", "claudecode"]
+      - canonical: chatgpt
+        aliases: ["chat gpt", "gpt", "openai chat"]
+      - canonical: claude
+        aliases: ["anthropic claude"]
+      - canonical: claude-cowork
+        aliases: ["cowork", "claude co-work"]
+      - canonical: codex
+        aliases: ["openai codex"]
+      - canonical: gemini
+        aliases: ["google gemini", "bard"]
+      - canonical: cursor
+        aliases: ["cursor ide", "cursor editor"]
+      - canonical: n8n
+        aliases: ["n 8 n"]
+      - canonical: make-com
+        aliases: ["make", "make.com", "integromat"]
+      - canonical: google-sheets
+        aliases: ["sheets", "google sheet", "spreadsheet"]
+      - canonical: google-drive
+        aliases: ["drive", "gdrive"]
+      - canonical: notion
+        aliases: ["notion so"]
+      - canonical: gmail
+        aliases: ["google mail", "email"]
+      - canonical: google-calendar
+        aliases: ["gcal", "calendar"]
+      - canonical: elevenlabs
+        aliases: ["eleven labs", "11labs"]
+      - canonical: notebooklm
+        aliases: ["notebook lm", "google notebooklm"]
+      - canonical: perplexity
+        aliases: ["perplexity ai"]
+      - canonical: lovable
+        aliases: ["loveable"]
+      - canonical: github
+        aliases: ["git hub"]
+      - canonical: slack
+        aliases: ["slack workspace"]
+    industry:
+      - canonical: software-technology
+        aliases: ["software", "tech", "technology", "engineering"]
+      - canonical: advertising-marketing
+        aliases: ["marketing", "advertising", "ads", "growth"]
+      - canonical: financial-services
+        aliases: ["finance", "fintech", "banking"]
+      - canonical: healthcare-life-sciences
+        aliases: ["healthcare", "health", "medical", "life sciences"]
+      - canonical: education-training
+        aliases: ["education", "teaching", "training", "edtech"]
+      - canonical: human-resources-recruiting
+        aliases: ["hr", "recruiting", "recruitment", "hiring", "talent"]
+      - canonical: legal
+        aliases: ["law", "legal services"]
+      - canonical: real-estate-construction
+        aliases: ["real estate", "property", "construction"]
+      - canonical: retail-ecommerce
+        aliases: ["retail", "ecommerce", "e-commerce", "shopping"]
+      - canonical: media-entertainment
+        aliases: ["media", "entertainment", "content"]
+      - canonical: professional-services
+        aliases: ["consulting", "professional services", "agency"]
+      - canonical: personal-lifestyle
+        aliases: ["personal", "lifestyle", "life admin"]
+      - canonical: nonprofit-social-impact
+        aliases: ["nonprofit", "charity", "social impact", "ngo"]
+      - canonical: manufacturing-supply-chain
+        aliases: ["manufacturing", "supply chain", "logistics ops"]
+      - canonical: transportation-logistics
+        aliases: ["transportation", "logistics", "shipping"]
+      - canonical: hospitality-travel
+        aliases: ["hospitality", "travel", "hotels"]
+      - canonical: sports-fitness
+        aliases: ["sports", "fitness", "training gym"]
+      - canonical: agriculture-food
+        aliases: ["agriculture", "food", "farming"]
+      - canonical: energy-utilities
+        aliases: ["energy", "utilities", "power"]
+      - canonical: government-public-sector
+        aliases: ["government", "public sector", "gov"]
+      - canonical: cross-industry
+        aliases: ["general", "any industry", "cross industry"]

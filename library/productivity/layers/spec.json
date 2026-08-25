@@ -1,0 +1,1185 @@
+{
+  "name": "layers",
+  "description": "Combined CLI for multiple API services",
+  "version": "0.1.0",
+  "base_url": "https://api.layers.digital",
+  "creator": {
+    "handle": "educrvz",
+    "name": "Edu Cruz"
+  },
+  "owner": "edu-cruz",
+  "owner_name": "Edu Cruz",
+  "printer": "educrvz",
+  "printer_name": "Edu Cruz",
+  "spec_source": "sniffed",
+  "http_transport": "standard",
+  "health_check_path": "/v1/me",
+  "website_url": "https://api.layers.digital",
+  "category": "productivity",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {token}",
+    "env_vars": [
+      "LAYERS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "LAYERS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true
+      }
+    ],
+    "verify_path": "/v1/me"
+  },
+  "config": {
+    "format": "toml",
+    "path": "~/.config/layers-pp-cli/config.toml"
+  },
+  "resources": {
+    "communities": {
+      "description": "Operations on search",
+      "endpoints": {
+        "list_search": {
+          "method": "GET",
+          "path": "/v2/communities/search",
+          "description": "GET /v2/communities/search",
+          "params": [
+            {
+              "default": null,
+              "description": "",
+              "fields": [],
+              "name": "community",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "",
+              "fields": [],
+              "name": "limit",
+              "positional": false,
+              "required": false,
+              "type": "integer"
+            },
+            {
+              "default": null,
+              "description": "",
+              "fields": [],
+              "name": "skip",
+              "positional": false,
+              "required": false,
+              "type": "integer"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "search"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        }
+      }
+    },
+    "context": {
+      "description": "Operations on context",
+      "endpoints": {
+        "list_context": {
+          "method": "GET",
+          "path": "/v1/context",
+          "description": "GET /v1/context",
+          "params": [
+            {
+              "default": null,
+              "description": "",
+              "fields": [],
+              "name": "platform",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "",
+              "fields": [],
+              "name": "version",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "context"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        }
+      }
+    },
+    "home": {
+      "description": "Operations on discover",
+      "endpoints": {
+        "list_discover": {
+          "method": "GET",
+          "path": "/v1/home/discover",
+          "description": "GET /v1/home/discover",
+          "params": [
+            {
+              "default": null,
+              "description": "",
+              "fields": [],
+              "name": "version",
+              "positional": false,
+              "required": false,
+              "type": "integer"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "discover"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        },
+        "list_layers_agenda": {
+          "method": "GET",
+          "path": "/v1/home/getHomeInfo/layers-agenda",
+          "description": "GET /v1/home/getHomeInfo/layers-agenda",
+          "params": [
+            {
+              "default": null,
+              "description": "",
+              "fields": [],
+              "name": "version",
+              "positional": false,
+              "required": false,
+              "type": "integer"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "layers_agenda"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        },
+        "list_layers_atendimentos": {
+          "method": "GET",
+          "path": "/v1/home/getHomeInfo/layers-atendimentos",
+          "description": "GET /v1/home/getHomeInfo/layers-atendimentos",
+          "params": [
+            {
+              "default": null,
+              "description": "",
+              "fields": [],
+              "name": "version",
+              "positional": false,
+              "required": false,
+              "type": "integer"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "layers_atendimentos"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        },
+        "list_layers_comunicados": {
+          "method": "GET",
+          "path": "/v1/home/getHomeInfo/layers-comunicados",
+          "description": "GET /v1/home/getHomeInfo/layers-comunicados",
+          "params": [
+            {
+              "default": null,
+              "description": "",
+              "fields": [],
+              "name": "version",
+              "positional": false,
+              "required": false,
+              "type": "integer"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "layers_comunicados"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        }
+      }
+    },
+    "me": {
+      "description": "Operations on me",
+      "base_url": "https://agenda-api.layers.digital",
+      "endpoints": {
+        "list_me": {
+          "method": "GET",
+          "path": "/v1/me",
+          "description": "GET /v1/me",
+          "params": [
+            {
+              "default": null,
+              "description": "",
+              "fields": [],
+              "name": "community",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "",
+              "fields": [],
+              "name": "userId",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "array",
+            "item": "MeAgenda"
+          },
+          "pagination": null,
+          "response_path": "agendas"
+        }
+      }
+    },
+    "media": {
+      "description": "Operations on icon",
+      "endpoints": {
+        "list_icon": {
+          "method": "GET",
+          "path": "/v1/media/app/layers-comunicados/icon",
+          "description": "GET /v1/media/app/layers-comunicados/icon",
+          "params": [],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "icon"
+          },
+          "pagination": null
+        },
+        "list_icon_2": {
+          "method": "GET",
+          "path": "/v1/media/app/layers-agenda/icon",
+          "description": "GET /v1/media/app/layers-agenda/icon",
+          "params": [],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "icon"
+          },
+          "pagination": null
+        },
+        "list_icon_3": {
+          "method": "GET",
+          "path": "/v1/media/app/layers-atendimentos/icon",
+          "description": "GET /v1/media/app/layers-atendimentos/icon",
+          "params": [],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "icon"
+          },
+          "pagination": null
+        }
+      }
+    },
+    "notification-badge": {
+      "description": "Operations on notification-badge",
+      "endpoints": {
+        "list_notification_badge": {
+          "method": "GET",
+          "path": "/v2/notification-badge",
+          "description": "GET /v2/notification-badge",
+          "params": [],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "notification_badge"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        }
+      }
+    },
+    "post-delivery": {
+      "description": "Operations on paginate",
+      "base_url": "https://agenda-api.layers.digital",
+      "endpoints": {
+        "create_paginate": {
+          "method": "POST",
+          "path": "/api/v2/post-delivery/paginate",
+          "base_url": "https://comunicados-api.layers.digital",
+          "description": "POST /api/v2/post-delivery/paginate",
+          "params": [
+            {
+              "default": null,
+              "description": "",
+              "fields": [],
+              "name": "community",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "",
+              "fields": [],
+              "name": "userId",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "body": [
+            {
+              "default": null,
+              "description": "",
+              "fields": [],
+              "name": "batchSize",
+              "positional": false,
+              "required": true,
+              "type": "integer"
+            },
+            {
+              "default": null,
+              "description": "",
+              "fields": [],
+              "name": "filters",
+              "positional": false,
+              "required": true,
+              "type": "object"
+            },
+            {
+              "default": null,
+              "description": "",
+              "fields": [],
+              "name": "next",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "request_content_type": "application/json",
+          "response": {
+            "type": "array",
+            "item": "PaginateHit"
+          },
+          "pagination": null,
+          "response_path": "hits"
+        }
+      }
+    },
+    "preferences": {
+      "description": "Operations on preferences",
+      "endpoints": {
+        "list_preferences": {
+          "method": "GET",
+          "path": "/v2/preferences",
+          "description": "GET /v2/preferences",
+          "params": [],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "preferences"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        },
+        "update_preferences": {
+          "method": "PUT",
+          "path": "/v2/preferences",
+          "description": "PUT /v2/preferences",
+          "params": [],
+          "body": [
+            {
+              "default": null,
+              "description": "",
+              "fields": [
+                {
+                  "default": null,
+                  "description": "",
+                  "fields": [
+                    {
+                      "default": null,
+                      "description": "",
+                      "fields": [],
+                      "name": "baselineAt",
+                      "positional": false,
+                      "required": true,
+                      "type": "integer"
+                    },
+                    {
+                      "default": null,
+                      "description": "",
+                      "fields": [],
+                      "name": "portals",
+                      "positional": false,
+                      "required": true,
+                      "type": "object"
+                    }
+                  ],
+                  "name": "apps.launcherUsage",
+                  "positional": false,
+                  "required": true,
+                  "type": "object"
+                }
+              ],
+              "name": "user",
+              "positional": false,
+              "required": true,
+              "type": "object"
+            }
+          ],
+          "request_content_type": "application/json",
+          "response": {
+            "type": "object",
+            "item": "preferences"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        }
+      }
+    },
+    "sso": {
+      "description": "Operations on me",
+      "endpoints": {
+        "list_me": {
+          "method": "GET",
+          "path": "/v1/sso/account/me",
+          "description": "GET /v1/sso/account/me",
+          "params": [],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "me"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        }
+      }
+    },
+    "view": {
+      "description": "Operations on sync",
+      "base_url": "https://agenda-api.layers.digital",
+      "endpoints": {
+        "create_sync": {
+          "method": "POST",
+          "path": "/v1/view/events/sync",
+          "description": "POST /v1/view/events/sync",
+          "params": [
+            {
+              "default": null,
+              "description": "",
+              "fields": [],
+              "name": "community",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "",
+              "fields": [],
+              "name": "userId",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "body": [
+            {
+              "default": null,
+              "description": "",
+              "fields": [],
+              "name": "months",
+              "positional": false,
+              "required": true,
+              "type": "array"
+            },
+            {
+              "default": null,
+              "description": "",
+              "fields": [],
+              "format": "date-time",
+              "name": "since",
+              "positional": false,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "request_content_type": "application/json",
+          "response": {
+            "type": "array",
+            "item": "SyncHit"
+          },
+          "pagination": null,
+          "response_path": "hits"
+        }
+      }
+    }
+  },
+  "types": {
+    "ApprovedBy": {
+      "fields": [
+        {
+          "name": "email",
+          "type": "string",
+          "format": "email"
+        },
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "roles",
+          "type": "array"
+        }
+      ]
+    },
+    "Author": {
+      "fields": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "userId",
+          "type": "string"
+        }
+      ]
+    },
+    "Author2": {
+      "fields": [
+        {
+          "name": "email",
+          "type": "string",
+          "format": "email"
+        },
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "roles",
+          "type": "array"
+        }
+      ]
+    },
+    "Category": {
+      "fields": [
+        {
+          "name": "color",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "slug",
+          "type": "string"
+        }
+      ]
+    },
+    "Category2": {
+      "fields": [
+        {
+          "name": "__v",
+          "type": "integer"
+        },
+        {
+          "name": "_id",
+          "type": "string"
+        },
+        {
+          "name": "active",
+          "type": "bool"
+        },
+        {
+          "name": "color",
+          "type": "string"
+        },
+        {
+          "name": "community",
+          "type": "string"
+        },
+        {
+          "name": "createdAt",
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "name": "default",
+          "type": "bool"
+        },
+        {
+          "name": "defaultRoles",
+          "type": "array"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "slug",
+          "type": "string"
+        },
+        {
+          "name": "updatedAt",
+          "type": "string",
+          "format": "date-time"
+        }
+      ]
+    },
+    "Channel": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    "Conference": {
+      "fields": [
+        {
+          "name": "platform",
+          "type": "string"
+        }
+      ]
+    },
+    "CoverImage": {
+      "fields": [
+        {
+          "name": "_id",
+          "type": "string"
+        },
+        {
+          "name": "height",
+          "type": "integer"
+        },
+        {
+          "name": "mime",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "size",
+          "type": "integer"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "format": "url"
+        },
+        {
+          "name": "width",
+          "type": "integer"
+        }
+      ]
+    },
+    "End": {
+      "fields": [
+        {
+          "name": "dateTime",
+          "type": "string",
+          "format": "date-time"
+        }
+      ]
+    },
+    "Image": {
+      "fields": [
+        {
+          "name": "_id",
+          "type": "string"
+        },
+        {
+          "name": "height",
+          "type": "integer"
+        },
+        {
+          "name": "mime",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "size",
+          "type": "integer"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "format": "url"
+        },
+        {
+          "name": "width",
+          "type": "integer"
+        }
+      ]
+    },
+    "Item": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "tags",
+          "type": "array"
+        },
+        {
+          "name": "title",
+          "type": "string"
+        }
+      ]
+    },
+    "MeAgenda": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "items",
+          "type": "[]ref:Item"
+        },
+        {
+          "name": "tags",
+          "type": "array"
+        },
+        {
+          "name": "title",
+          "type": "string"
+        }
+      ]
+    },
+    "Notifications": {
+      "fields": [
+        {
+          "name": "_id",
+          "type": "string"
+        },
+        {
+          "name": "count",
+          "type": "integer"
+        },
+        {
+          "name": "history",
+          "type": "array"
+        },
+        {
+          "name": "lastSentAt",
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "name": "lastSentBy",
+          "type": "string"
+        },
+        {
+          "name": "maxCount",
+          "type": "integer"
+        }
+      ]
+    },
+    "PaginateHit": {
+      "fields": [
+        {
+          "name": "__v",
+          "type": "integer"
+        },
+        {
+          "name": "_id",
+          "type": "string"
+        },
+        {
+          "name": "active",
+          "type": "bool"
+        },
+        {
+          "name": "allowTickets",
+          "type": "bool"
+        },
+        {
+          "name": "approved",
+          "type": "bool"
+        },
+        {
+          "name": "approvedAt",
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "name": "approvedBy",
+          "type": "ref:ApprovedBy"
+        },
+        {
+          "name": "attachments",
+          "type": "array"
+        },
+        {
+          "name": "author",
+          "type": "ref:Author2"
+        },
+        {
+          "name": "category",
+          "type": "ref:Category2"
+        },
+        {
+          "name": "channel",
+          "type": "ref:Channel",
+          "omit_empty": true
+        },
+        {
+          "name": "community",
+          "type": "string"
+        },
+        {
+          "name": "coverImage",
+          "type": "ref:CoverImage",
+          "omit_empty": true
+        },
+        {
+          "name": "createChildrenPostLock",
+          "type": "bool"
+        },
+        {
+          "name": "createdAt",
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "generatedByLIA",
+          "type": "bool"
+        },
+        {
+          "name": "hasAttachments",
+          "type": "bool"
+        },
+        {
+          "name": "hasImages",
+          "type": "bool"
+        },
+        {
+          "name": "images",
+          "type": "[]ref:Image",
+          "omit_empty": true
+        },
+        {
+          "name": "isGroupAdmin",
+          "type": "bool"
+        },
+        {
+          "name": "isParent",
+          "type": "bool"
+        },
+        {
+          "name": "kind",
+          "type": "string"
+        },
+        {
+          "name": "mailMergeEnabled",
+          "type": "bool"
+        },
+        {
+          "name": "needsPostAnswer",
+          "type": "bool"
+        },
+        {
+          "name": "normalizedTitle",
+          "type": "string"
+        },
+        {
+          "name": "notifications",
+          "type": "ref:Notifications"
+        },
+        {
+          "name": "notifyChannels",
+          "type": "array"
+        },
+        {
+          "name": "postAnswers",
+          "type": "array"
+        },
+        {
+          "name": "postRead",
+          "type": "ref:PostRead"
+        },
+        {
+          "name": "published",
+          "type": "bool"
+        },
+        {
+          "name": "publishedAt",
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "name": "scheduled",
+          "type": "bool"
+        },
+        {
+          "name": "scheduledAt",
+          "type": "string",
+          "omit_empty": true,
+          "format": "date-time"
+        },
+        {
+          "name": "targets",
+          "type": "ref:Targets2"
+        },
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "titleSearch",
+          "type": "string"
+        },
+        {
+          "name": "updatedAt",
+          "type": "string",
+          "format": "date-time"
+        }
+      ]
+    },
+    "PostRead": {
+      "fields": [
+        {
+          "name": "_id",
+          "type": "string"
+        },
+        {
+          "name": "active",
+          "type": "bool"
+        },
+        {
+          "name": "community",
+          "type": "string"
+        },
+        {
+          "name": "createdAt",
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "name": "customFields",
+          "type": "object"
+        },
+        {
+          "name": "isGroupAdmin",
+          "type": "bool"
+        },
+        {
+          "name": "kind",
+          "type": "string"
+        },
+        {
+          "name": "postId",
+          "type": "string"
+        },
+        {
+          "name": "postanswers",
+          "type": "array"
+        },
+        {
+          "name": "readAt",
+          "type": "string",
+          "omit_empty": true,
+          "format": "date-time"
+        },
+        {
+          "name": "reportanswers",
+          "type": "array"
+        },
+        {
+          "name": "updatedAt",
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "name": "user",
+          "type": "object"
+        }
+      ]
+    },
+    "Start": {
+      "fields": [
+        {
+          "name": "dateTime",
+          "type": "string",
+          "format": "date-time"
+        }
+      ]
+    },
+    "SyncHit": {
+      "fields": [
+        {
+          "name": "active",
+          "type": "bool"
+        },
+        {
+          "name": "approved",
+          "type": "bool"
+        },
+        {
+          "name": "attachments",
+          "type": "array"
+        },
+        {
+          "name": "author",
+          "type": "ref:Author"
+        },
+        {
+          "name": "category",
+          "type": "ref:Category"
+        },
+        {
+          "name": "comunicadosPostId",
+          "type": "string"
+        },
+        {
+          "name": "conference",
+          "type": "ref:Conference"
+        },
+        {
+          "name": "createdAt",
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "name": "end",
+          "type": "ref:End"
+        },
+        {
+          "name": "iCalendar",
+          "type": "object"
+        },
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "isRecurring",
+          "type": "bool"
+        },
+        {
+          "name": "months",
+          "type": "array"
+        },
+        {
+          "name": "start",
+          "type": "ref:Start"
+        },
+        {
+          "name": "targets",
+          "type": "ref:Targets"
+        },
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "updatedAt",
+          "type": "string",
+          "format": "date-time"
+        }
+      ]
+    },
+    "Targets": {
+      "fields": [
+        {
+          "name": "roles",
+          "type": "array"
+        },
+        {
+          "name": "tags",
+          "type": "array"
+        }
+      ]
+    },
+    "Targets2": {
+      "fields": [
+        {
+          "name": "roles",
+          "type": "array"
+        },
+        {
+          "name": "tags",
+          "type": "array"
+        },
+        {
+          "name": "topics",
+          "type": "array"
+        }
+      ]
+    }
+  },
+  "cache": {},
+  "share": {},
+  "learn": {
+    "enabled": true
+  },
+  "mcp": {
+    "transport": [
+      "stdio"
+    ]
+  },
+  "throttling": {},
+  "streaming": {}
+}

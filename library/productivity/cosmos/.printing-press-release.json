@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "cosmos",
+  "cli_name": "cosmos-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-22T09:13:12Z",
+  "source_commit": "9f7e961a743a2b3f99c92a58a630baa590b45238",
+  "printing_press_version": "4.30.0",
+  "run_id": "20260801-232017-c67b1670",
+  "changes": [
+    {
+      "title": "feat(cosmos): add cosmos",
+      "pr": 1784,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1784",
+      "commit": "9f7e961a743a2b3f99c92a58a630baa590b45238"
+    }
+  ]
+}

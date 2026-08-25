@@ -1,0 +1,17 @@
+{
+  "api_name": "concur",
+  "base_url": "https://www-us2.api.concursolutions.com",
+  "description": "Every expense-report and travel workflow Concur's web app offers, plus policy validation, approval triage, and duplicate detection no Concur tool has -- filed through the same session your browser already uses.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": "concursolutions.com",
+    "cookies": [
+      "JWT",
+      "_csrf"
+    ]
+  },
+  "required_headers": [],
+  "tools": []
+}

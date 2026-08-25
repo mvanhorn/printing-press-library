@@ -1,0 +1,282 @@
+{
+  "api_name": "isitagentready",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "searchstack-aeo",
+      "url": "https://github.com/alexpospekhov/searchstack-aeo",
+      "language": "Python",
+      "install_method": "",
+      "stars": 86,
+      "last_updated": "",
+      "command_count": 22,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "llms-txt-hub",
+      "url": "https://github.com/thedaviddias/llms-txt-hub",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 860,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "geoskills",
+      "url": "https://github.com/Cognitic-Labs/geoskills",
+      "language": "Markdown",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "geo-optimizer-skill",
+      "url": "https://github.com/Auriti-Labs/geo-optimizer-skill",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "isagentready-skills",
+      "url": "https://github.com/BartWaardenburg/isagentready-skills",
+      "language": "Markdown",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "makeitagentready.com",
+      "url": "https://github.com/thejahid/makeitagentready.com",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "siteaudit-mcp",
+      "url": "https://github.com/vdalhambra/siteaudit-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-22T12:20:00Z",
+  "novel_features": [
+    {
+      "name": "CI readiness gate",
+      "command": "gate",
+      "description": "Fail a build when a site drops below a target readiness level or when a previously-passing check regresses.",
+      "rationale": "Needs a locally-stored baseline to define 'regressed against last scan' and to tell a target siteError apart from a real readiness drop; the stateless web UI has neither.",
+      "example": "isitagentready-pp-cli gate https://isitagentready.com --min-level 3",
+      "why_it_matters": "Reach for this in CI when you want a deterministic exit code, not a brittle grep of the JSON.",
+      "group": "Ship it without regressing"
+    },
+    {
+      "name": "Cross-site open-advice backlog",
+      "command": "open-advice",
+      "description": "List every still-failing check across all your scanned sites with its fix prompt, so you see exactly what is left to do.",
+      "rationale": "Joins the newest stored scan per site and keeps only checks still failing; no single scan call knows your whole estate or which advice you already actioned.",
+      "example": "isitagentready-pp-cli open-advice --agent",
+      "why_it_matters": "Reach for this to answer 'what fixes are still open across all my sites' in one command.",
+      "group": "Ship it without regressing"
+    },
+    {
+      "name": "Score-over-time history",
+      "command": "history",
+      "description": "Show a site's readiness level across every past scan and flag which checks flipped pass/fail between scans.",
+      "rationale": "Requires a local time series of scans; the scan API and web UI are stateless and have no history endpoint.",
+      "example": "isitagentready-pp-cli history https://example.com --agent",
+      "why_it_matters": "Reach for this to confirm a fix actually landed and to catch silent regressions.",
+      "group": "Track readiness over time"
+    },
+    {
+      "name": "Two-scan regression diff",
+      "command": "diff",
+      "description": "Diff two scans of a site (default: the latest two) into a per-check regressed/fixed/unchanged table plus the level delta.",
+      "rationale": "Pairwise transition tables require two stored scans to compare; the API returns one snapshot at a time.",
+      "example": "isitagentready-pp-cli diff https://example.com",
+      "why_it_matters": "Reach for this to see precisely what changed between two points in time, not just the new score.",
+      "group": "Track readiness over time"
+    },
+    {
+      "name": "Competitor standards matrix",
+      "command": "compare",
+      "description": "Scan several sites and print a check-by-check matrix of which agent standards each one implements, plus each site's level.",
+      "rationale": "A side-by-side matrix needs results from multiple sites at once; the web UI scans one URL with no comparison.",
+      "example": "isitagentready-pp-cli compare https://example.com https://isitagentready.com",
+      "why_it_matters": "Reach for this to see exactly which standards a competitor implemented that you have not.",
+      "group": "Across many sites"
+    },
+    {
+      "name": "Portfolio batch scan",
+      "command": "batch",
+      "description": "Scan a list of URLs from a file or stdin, persist each, and print a leaderboard ranked by level or failing-check count.",
+      "rationale": "Multi-target scan, persistence, and ranking are a local-store loop over the single-target API; the web UI takes one URL per session.",
+      "example": "isitagentready-pp-cli batch urls.txt --rank failing --csv",
+      "why_it_matters": "Reach for this to triage a whole web estate worst-first instead of scanning sites one browser tab at a time.",
+      "group": "Across many sites"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "CI readiness gate",
+      "command": "gate",
+      "description": "Fail a build when a site drops below a target readiness level or when a previously-passing check regresses.",
+      "rationale": "Needs a locally-stored baseline to define 'regressed against last scan' and to tell a target siteError apart from a real readiness drop; the stateless web UI has neither.",
+      "example": "isitagentready-pp-cli gate https://isitagentready.com --min-level 3",
+      "why_it_matters": "Reach for this in CI when you want a deterministic exit code, not a brittle grep of the JSON.",
+      "group": "Ship it without regressing"
+    },
+    {
+      "name": "Cross-site open-advice backlog",
+      "command": "open-advice",
+      "description": "List every still-failing check across all your scanned sites with its fix prompt, so you see exactly what is left to do.",
+      "rationale": "Joins the newest stored scan per site and keeps only checks still failing; no single scan call knows your whole estate or which advice you already actioned.",
+      "example": "isitagentready-pp-cli open-advice --agent",
+      "why_it_matters": "Reach for this to answer 'what fixes are still open across all my sites' in one command.",
+      "group": "Ship it without regressing"
+    },
+    {
+      "name": "Score-over-time history",
+      "command": "history",
+      "description": "Show a site's readiness level across every past scan and flag which checks flipped pass/fail between scans.",
+      "rationale": "Requires a local time series of scans; the scan API and web UI are stateless and have no history endpoint.",
+      "example": "isitagentready-pp-cli history https://example.com --agent",
+      "why_it_matters": "Reach for this to confirm a fix actually landed and to catch silent regressions.",
+      "group": "Track readiness over time"
+    },
+    {
+      "name": "Two-scan regression diff",
+      "command": "diff",
+      "description": "Diff two scans of a site (default: the latest two) into a per-check regressed/fixed/unchanged table plus the level delta.",
+      "rationale": "Pairwise transition tables require two stored scans to compare; the API returns one snapshot at a time.",
+      "example": "isitagentready-pp-cli diff https://example.com",
+      "why_it_matters": "Reach for this to see precisely what changed between two points in time, not just the new score.",
+      "group": "Track readiness over time"
+    },
+    {
+      "name": "Competitor standards matrix",
+      "command": "compare",
+      "description": "Scan several sites and print a check-by-check matrix of which agent standards each one implements, plus each site's level.",
+      "rationale": "A side-by-side matrix needs results from multiple sites at once; the web UI scans one URL with no comparison.",
+      "example": "isitagentready-pp-cli compare https://example.com https://isitagentready.com",
+      "why_it_matters": "Reach for this to see exactly which standards a competitor implemented that you have not.",
+      "group": "Across many sites"
+    },
+    {
+      "name": "Portfolio batch scan",
+      "command": "batch",
+      "description": "Scan a list of URLs from a file or stdin, persist each, and print a leaderboard ranked by level or failing-check count.",
+      "rationale": "Multi-target scan, persistence, and ranking are a local-store loop over the single-target API; the web UI takes one URL per session.",
+      "example": "isitagentready-pp-cli batch urls.txt --rank failing --csv",
+      "why_it_matters": "Reach for this to triage a whole web estate worst-first instead of scanning sites one browser tab at a time.",
+      "group": "Across many sites"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Is It Agent Ready",
+    "headline": "The terminal scanner for AI-agent readiness: every check the web tool runs, plus copy-paste fixes, CI gating, scan history, and a local store the web UI has no answer for.",
+    "value_prop": "isitagentready.com gives you a one-shot score in a browser tab with no memory. This CLI turns it into a repeatable loop: check any site, get the prioritized fixes with advice, gate it in CI, diff it over time, compare it to competitors, and batch-scan a whole portfolio, with every scan stored locally so history and open-advice tell you exactly what changed and what is still unfixed.",
+    "auth_narrative": "No API key or login required. The scan endpoint is public and read-only, so every command works out of the box.",
+    "quickstart": [
+      {
+        "command": "isitagentready-pp-cli doctor --dry-run",
+        "comment": "Confirm the scanner API is reachable before your first scan."
+      },
+      {
+        "command": "isitagentready-pp-cli check https://example.com",
+        "comment": "Scan a site: prints the readiness level and per-category summary, and stores the scan locally."
+      },
+      {
+        "command": "isitagentready-pp-cli advice https://example.com",
+        "comment": "The headline: prioritized, copy-paste fixes to reach the next readiness level."
+      },
+      {
+        "command": "isitagentready-pp-cli gate https://example.com --min-level 3",
+        "comment": "Use in CI: exits non-zero if the site is below level 3."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Scan returns a siteError block instead of checks",
+        "fix": "The TARGET site was unreachable (403/timeout), not the scanner. Confirm the URL loads in a browser; the scanner could not fetch it."
+      },
+      {
+        "symptom": "advice, history, or open-advice prints nothing",
+        "fix": "Run isitagentready-pp-cli check \u003curl\u003e first; those commands read the local scan store."
+      },
+      {
+        "symptom": "A scan takes 5 to 8 seconds",
+        "fix": "Normal: the scanner runs many live probes per scan. Use batch to scan many sites in one command."
+      }
+    ],
+    "when_to_use": "Reach for this when you need to check or improve how ready a website is for AI agents: scanning a site for robots.txt, llms.txt, MCP, OAuth, and commerce-protocol readiness, getting copy-paste fixes to raise its level, gating a deploy on readiness, tracking a site's score over time, or comparing several sites. It is ideal inside a coding agent that will then apply the fixes it surfaces.",
+    "anti_triggers": [
+      "Generating an llms.txt or robots.txt file from scratch (this CLI scans and advises; it does not author those files for you).",
+      "Tracking whether ChatGPT or Perplexity cite your brand (that is AI-visibility tracking, a different product).",
+      "General SEO keyword-ranking or backlink audits.",
+      "Fetching a page's content as markdown for an agent to read (that is the markdown-negotiation feature on the target site, not this scanner)."
+    ],
+    "recipes": [
+      {
+        "title": "Get the copy-paste fixes for a site",
+        "command": "isitagentready-pp-cli advice https://example.com --copy",
+        "explanation": "Prints every next-level fix prompt as one pasteable block, ready to drop into a coding agent."
+      },
+      {
+        "title": "See what is still unfixed across all your sites",
+        "command": "isitagentready-pp-cli open-advice --agent",
+        "explanation": "Cross-site backlog of every check still failing, with its fix prompt, from your local scan history."
+      },
+      {
+        "title": "Narrow a verbose scan to just the checks you care about",
+        "command": "isitagentready-pp-cli report https://example.com --agent --only-failing --select checks.discovery.mcpServerCard.status,checks.discovery.mcpServerCard.message",
+        "explanation": "A full scan is large and deeply nested; --select pulls just the dotted fields you want so an agent does not parse tens of KB."
+      },
+      {
+        "title": "Gate a deploy on readiness",
+        "command": "isitagentready-pp-cli gate https://example.com --min-level 3 --no-regress",
+        "explanation": "Exits non-zero if the site is below level 3 or any previously-passing check regressed; safe for CI."
+      },
+      {
+        "title": "Compare against a competitor",
+        "command": "isitagentready-pp-cli compare https://example.com https://isitagentready.com",
+        "explanation": "Prints a per-standard matrix of which agent-readiness checks each site implements."
+      }
+    ],
+    "trigger_phrases": [
+      "scan my site for agent readiness",
+      "is my site agent-ready",
+      "what's my agent readiness level",
+      "how do I make my site ready for AI agents",
+      "fix my site for AI agents",
+      "check llms.txt and MCP discovery on this site",
+      "use isitagentready",
+      "run isitagentready"
+    ]
+  }
+}

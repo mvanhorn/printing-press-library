@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "scrape-commands-persist-listings-and-snapshots",
+  "applied_at": "2026-06-13",
+  "base_run_id": "2026-05-03T06:03:12.15145Z",
+  "base_printing_press_version": "3.6.1",
+  "summary": "Every scrape command (airbnb_listing search/get, cheapest, compare, plan, watch check) persists what it fetched into the local store, best-effort: UpsertAirbnbListing + UpsertHostRecord for the listing and host, and InsertPriceSnapshot only when a real positive price came back. Persistence is a side-effect that must never alter the live result or surface an error.",
+  "reason": "The scrape commands printed typed results but persisted nothing, so the store-backed readers (host portfolio, wishlist diff) and InsertPriceSnapshot/UpsertHostRecord stayed orphaned with zero callers. Airbnb SSR sometimes returns cards with no stable id (UpsertAirbnbListing rejects empty id) and frequently no bookable total for the given dates (total -> 0). A regen must keep persistence best-effort (swallow store-open/write errors, skip empty-id cards) and keep the price>0 snapshot guard so an unavailable price never becomes a phantom $0 row polluting price history.",
+  "files": [
+    "internal/cli/persist.go",
+    "internal/cli/rental_logic.go",
+    "internal/cli/airbnb_listing_search.go",
+    "internal/cli/airbnb_listing_get.go",
+    "internal/cli/cheapest.go",
+    "internal/cli/compare.go",
+    "internal/cli/plan.go",
+    "internal/cli/persist_test.go"
+  ],
+  "validated_outcome": "go build/vet green; persist_test asserts a listing row lands, an empty-id card is skipped without error, and a price snapshot is written only for a positive total.",
+  "upstream_issue": ""
+}

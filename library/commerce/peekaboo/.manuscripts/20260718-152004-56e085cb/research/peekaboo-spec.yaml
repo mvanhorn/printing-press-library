@@ -1,0 +1,609 @@
+name: peekaboo
+description: "Peekaboo Guru deals, discounts, branches, and bank-card offers CLI"
+version: "0.1.0"
+base_url: "https://peekaboo.guru/api"
+category: commerce
+health_check_path: "/v5/locations"
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+  - name: Origin
+    value: "https://peekaboo.guru"
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  env_vars:
+    - PEEKABOO_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/peekaboo-pp-cli/config.toml"
+
+learn:
+  synonyms:
+    "restaurant": "food"
+    "eatery": "food"
+    "offers": "deals"
+    "discounts": "deals"
+    "outlets": "branches"
+    "locations": "branches"
+  entity_lookup_seeds:
+    category:
+      - canonical: Food
+        aliases: [food, restaurants, eat, dining]
+      - canonical: Lifestyle
+        aliases: [lifestyle]
+      - canonical: Health
+        aliases: [health, medical]
+      - canonical: Entertainment
+        aliases: [entertainment, fun]
+      - canonical: Grocery
+        aliases: [grocery, groceries]
+      - canonical: Hotels
+        aliases: [hotels, hotel, stay]
+    city:
+      - canonical: Lahore
+        aliases: [lahore, lhr]
+      - canonical: Karachi
+        aliases: [karachi, khi]
+      - canonical: Islamabad
+        aliases: [islamabad, isb]
+      - canonical: Rawalpindi
+        aliases: [rawalpindi, pindi]
+      - canonical: Faisalabad
+        aliases: [faisalabad]
+
+resources:
+  locations:
+    description: "Cities and locations Peekaboo covers (each with coordinates and merchant count)"
+    endpoints:
+      list:
+        method: POST
+        path: "/v5/locations"
+        description: "List cities/locations Peekaboo covers. Public: works without auth."
+        example: "  peekaboo-pp-cli locations list --limit 20"
+        happy_args: "--limit=20"
+        body:
+          - name: limit
+            type: int
+            required: true
+            default: 100
+            description: "Max locations to return"
+          - name: offset
+            type: int
+            required: true
+            default: 0
+            description: "Pagination offset"
+        response:
+          type: array
+          item: Location
+        response_path: locations
+
+  categories:
+    description: "Deal categories (Food, Lifestyle, Health, ...)"
+    endpoints:
+      list:
+        method: POST
+        path: "/v7/category"
+        description: "List deal categories for a city."
+        example: "  peekaboo-pp-cli categories list --city Lahore --country Pakistan --lat 31.5546 --long 74.3572"
+        happy_args: "--city=Lahore;--country=Pakistan;--lat=31.5546;--long=74.3572"
+        body:
+          - name: language
+            type: string
+            required: true
+            default: "en"
+            description: "Language code"
+          - name: country
+            type: string
+            required: true
+            default: "Pakistan"
+            description: "Country name"
+          - name: city
+            type: string
+            required: true
+            description: "City name (e.g. Lahore)"
+          - name: lat
+            type: float
+            required: true
+            description: "City latitude"
+          - name: long
+            type: float
+            required: true
+            description: "City longitude"
+        response:
+          type: array
+          item: Category
+
+  places:
+    description: "Merchants/places offering deals in a city+category"
+    endpoints:
+      list:
+        method: POST
+        path: "/v8/entities"
+        description: "List merchants offering deals in a city and category."
+        example: "  peekaboo-pp-cli places list --city Lahore --country Pakistan --category 1 --latitude 31.5546 --longitude 74.3572 --limit 20"
+        happy_args: "--city=Lahore;--country=Pakistan;--category=1;--latitude=31.5546;--longitude=74.3572;--limit=20"
+        body:
+          - name: country
+            type: string
+            required: true
+            default: "Pakistan"
+            description: "Country name"
+          - name: city
+            type: string
+            required: true
+            description: "City name"
+          - name: category
+            type: int
+            required: true
+            description: "Category id (1=Food, see categories list)"
+          - name: limit
+            type: int
+            required: true
+            default: 20
+            description: "Max merchants to return"
+          - name: offset
+            type: int
+            required: true
+            default: 0
+            description: "Pagination offset"
+          - name: latitude
+            type: float
+            required: true
+            description: "City latitude"
+          - name: longitude
+            type: float
+            required: true
+            description: "City longitude"
+        response:
+          type: array
+          item: Entity
+        response_path: entities
+      detail:
+        method: POST
+        path: "/v8/entity/detail"
+        description: "Get full detail for a merchant (social, menu, gallery, rating, stats)."
+        example: "  peekaboo-pp-cli places detail --entityId 13 --city Lahore --country Pakistan --lat 31.5546 --long 74.3572"
+        happy_args: "--entity-id=13;--city=Lahore;--country=Pakistan;--lat=31.5546;--long=74.3572"
+        body:
+          - name: entity-id
+            body_name: entityId
+            type: string
+            required: true
+            description: "Merchant/entity id"
+          - name: city
+            type: string
+            required: true
+            description: "City name"
+          - name: country
+            type: string
+            required: true
+            default: "Pakistan"
+            description: "Country name"
+          - name: lat
+            type: float
+            required: true
+            description: "City latitude"
+          - name: long
+            type: float
+            required: true
+            description: "City longitude"
+          - name: language
+            type: string
+            required: true
+            default: "en"
+            description: "Language code"
+        response:
+          type: object
+          item: EntityDetail
+
+  branches:
+    description: "Physical branches of a merchant, each with coordinates for directions"
+    endpoints:
+      list:
+        method: GET
+        path: "/v5/entity/{entityId}/branch/_all"
+        description: "List all branches of a merchant with latitude/longitude for map directions."
+        example: "  peekaboo-pp-cli branches list 13 --city Lahore --country Pakistan --entity Kababjees --lat 31.5546 --long 74.3572"
+        happy_args: "entityId=13;--city=Lahore;--country=Pakistan;--entity=Kababjees;--lat=31.5546;--long=74.3572"
+        params:
+          - name: entityId
+            type: string
+            required: true
+            positional: true
+            description: "Merchant/entity id"
+          - name: city
+            type: string
+            required: true
+            description: "City name"
+          - name: country
+            type: string
+            required: true
+            default: "Pakistan"
+            description: "Country name"
+          - name: entity
+            type: string
+            required: true
+            description: "Merchant name (used for SEO slug in query)"
+          - name: language
+            type: string
+            default: "en"
+            description: "Language code"
+          - name: lat
+            type: float
+            required: true
+            description: "City latitude"
+          - name: long
+            type: float
+            required: true
+            description: "City longitude"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max branches"
+          - name: offset
+            type: int
+            default: 0
+            description: "Pagination offset"
+        response:
+          type: array
+          item: Branch
+        response_path: branches
+
+  deals:
+    description: "Deals/offers for a merchant (title, discount %, validity)"
+    endpoints:
+      list:
+        method: POST
+        path: "/v8/entity/deals"
+        description: "List deals/offers for a merchant, including bank-card offers."
+        example: "  peekaboo-pp-cli deals list --targetEntityId 13 --city Lahore --country Pakistan --lat 31.5546 --long 74.3572"
+        happy_args: "--target-entity-id=13;--city=Lahore;--country=Pakistan;--lat=31.5546;--long=74.3572"
+        body:
+          - name: target-entity-id
+            body_name: targetEntityId
+            type: int
+            required: true
+            description: "Merchant/entity id to list deals for"
+          - name: city
+            type: string
+            required: true
+            description: "City name"
+          - name: country
+            type: string
+            required: true
+            default: "Pakistan"
+            description: "Country name"
+          - name: lat
+            type: float
+            required: true
+            description: "City latitude"
+          - name: long
+            type: float
+            required: true
+            description: "City longitude"
+          - name: language
+            type: string
+            required: true
+            default: "en"
+            description: "Language code"
+          - name: offset
+            type: int
+            required: true
+            default: 0
+            description: "Pagination offset"
+          - name: limit
+            type: int
+            required: true
+            default: 100
+            description: "Max deals to return"
+          - name: associatedDeals
+            type: string
+            required: true
+            default: "true"
+            description: "Include associated (bank-card) deals: \"true\" or \"false\""
+          - name: card
+            type: string
+            required: true
+            default: "All"
+            description: "Filter to a specific card, or All"
+        response:
+          type: array
+          item: Deal
+        response_path: deals
+
+  cards:
+    description: "Bank/card sources offering deals at a merchant"
+    endpoints:
+      list:
+        method: GET
+        path: "/v5/entity/{entityId}/branch/_all/sourceEntities/_all"
+        description: "List the banks/card sources that offer deals at a merchant."
+        example: "  peekaboo-pp-cli cards list 13 --city Lahore --country Pakistan --entity Kababjees --lat 31.5546 --long 74.3572"
+        happy_args: "entityId=13;--city=Lahore;--country=Pakistan;--entity=Kababjees;--lat=31.5546;--long=74.3572"
+        params:
+          - name: entityId
+            type: string
+            required: true
+            positional: true
+            description: "Merchant/entity id"
+          - name: city
+            type: string
+            required: true
+            description: "City name"
+          - name: country
+            type: string
+            required: true
+            default: "Pakistan"
+            description: "Country name"
+          - name: entity
+            type: string
+            required: true
+            description: "Merchant name"
+          - name: language
+            type: string
+            default: "en"
+            description: "Language code"
+          - name: lat
+            type: float
+            required: true
+            description: "City latitude"
+          - name: long
+            type: float
+            required: true
+            description: "City longitude"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max card sources"
+          - name: offset
+            type: int
+            default: 0
+            description: "Pagination offset"
+        response:
+          type: array
+          item: CardSource
+
+  brands:
+    description: "Brands and bank-card sources offering deals in a city"
+    endpoints:
+      list:
+        method: POST
+        path: "/v6/sourceEntities"
+        description: "List brands and card-deal sources in a city."
+        example: "  peekaboo-pp-cli brands list --city Lahore --country Pakistan --latitude 31.5546 --longitude 74.3572 --limit 20"
+        happy_args: "--city=Lahore;--country=Pakistan;--latitude=31.5546;--longitude=74.3572;--limit=20"
+        body:
+          - name: country
+            type: string
+            required: true
+            default: "Pakistan"
+            description: "Country name"
+          - name: city
+            type: string
+            required: true
+            description: "City name"
+          - name: limit
+            type: int
+            required: true
+            default: 20
+            description: "Max brands to return"
+          - name: offset
+            type: int
+            required: true
+            default: 0
+            description: "Pagination offset"
+          - name: latitude
+            type: float
+            required: true
+            description: "City latitude"
+          - name: longitude
+            type: float
+            required: true
+            description: "City longitude"
+        response:
+          type: array
+          item: Brand
+
+  amenities:
+    description: "Amenities offered by a merchant (dine-in, delivery, ...)"
+    endpoints:
+      list:
+        method: POST
+        path: "/v6/entity/amenities"
+        description: "List amenities for a merchant."
+        example: "  peekaboo-pp-cli amenities list --entityId 13 --country Pakistan --limit 50"
+        happy_args: "--entity-id=13;--country=Pakistan;--limit=50"
+        body:
+          - name: entity-id
+            body_name: entityId
+            type: int
+            required: true
+            description: "Merchant/entity id"
+          - name: country
+            type: string
+            required: true
+            default: "Pakistan"
+            description: "Country name"
+          - name: limit
+            type: int
+            required: true
+            default: 50
+            description: "Max amenities"
+          - name: offset
+            type: int
+            required: true
+            default: 0
+            description: "Pagination offset"
+        response:
+          type: array
+          item: Amenity
+
+types:
+  Location:
+    fields:
+      - name: id
+        type: int
+      - name: city
+        type: string
+      - name: country
+        type: string
+      - name: latitude
+        type: float
+      - name: longitude
+        type: float
+      - name: timezone
+        type: string
+      - name: image
+        type: string
+      - name: entityCount
+        type: int
+  Category:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: scope
+        type: string
+      - name: logo
+        type: string
+      - name: image
+        type: string
+      - name: discount
+        type: int
+      - name: dealCount
+        type: int
+  Entity:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: slug
+        type: string
+      - name: package
+        type: string
+      - name: description
+        type: string
+      - name: rating
+        type: float
+      - name: sourceEntityId
+        type: int
+      - name: online
+        type: bool
+      - name: openNow
+        type: bool
+  Branch:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: city
+        type: string
+      - name: country
+        type: string
+      - name: address
+        type: string
+      - name: latitude
+        type: float
+      - name: longitude
+        type: float
+      - name: distance
+        type: string
+      - name: timings
+        type: string
+      - name: locationId
+        type: int
+      - name: contactNumber
+        type: string
+      - name: branchOpenNow
+        type: string
+      - name: isVerified
+        type: int
+  Deal:
+    fields:
+      - name: dealId
+        type: int
+      - name: title
+        type: string
+      - name: percentageValue
+        type: int
+      - name: startDate
+        type: string
+      - name: endDate
+        type: string
+      - name: orderType
+        type: string
+      - name: description
+        type: string
+      - name: targetEntityId
+        type: int
+      - name: targetEntityName
+        type: string
+      - name: sourceEntityId
+        type: int
+      - name: sourceEntityName
+        type: string
+      - name: poweredBy
+        type: string
+  CardSource:
+    fields:
+      - name: id
+        type: int
+      - name: sourceEntityId
+        type: int
+      - name: entityName
+        type: string
+      - name: description
+        type: string
+      - name: dealCount
+        type: int
+      - name: maxDiscount
+        type: int
+      - name: logo
+        type: string
+  Brand:
+    fields:
+      - name: id
+        type: int
+      - name: sourceEntityId
+        type: int
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: keywords
+        type: string
+      - name: logo
+        type: string
+  Amenity:
+    fields:
+      - name: amenityId
+        type: int
+      - name: amenityName
+        type: string
+      - name: image
+        type: string
+      - name: isMenu
+        type: int
+  EntityDetail:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: slug
+        type: string
+      - name: package
+        type: string
+      - name: description
+        type: string
+      - name: rating
+        type: float
+      - name: keywords
+        type: string

@@ -9,9 +9,10 @@ import (
 
 func newAdminsAwayCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "away",
-		Short: "Update away for admins",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "away",
+		Short:       "Update away for admins",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newAdminsAwaySetAdminCmd(flags))

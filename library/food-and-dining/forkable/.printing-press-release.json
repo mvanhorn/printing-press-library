@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "forkable",
+  "cli_name": "forkable-pp-cli",
+  "version": "2026.8.4",
+  "released_at": "2026-08-21T08:29:25Z",
+  "source_commit": "c8f05ea0f30474bafd6488e47c019f223d88e9f4",
+  "printing_press_version": "4.28.0",
+  "run_id": "20260717-100008-2c197495",
+  "changes": [
+    {
+      "title": "fix(forkable): document stale query defaults and required --replace-piece",
+      "pr": 1704,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1704",
+      "commit": "c8f05ea0f30474bafd6488e47c019f223d88e9f4"
+    }
+  ]
+}

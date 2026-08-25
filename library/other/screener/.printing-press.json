@@ -1,0 +1,124 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-14T09:04:07.413385Z",
+  "printing_press_version": "4.30.2",
+  "api_name": "screener",
+  "display_name": "Screener.in",
+  "cli_name": "screener-pp-cli",
+  "contributors": [
+    {
+      "handle": "SomSamantray",
+      "name": "Som Samantray"
+    }
+  ],
+  "printer": "SomSamantray",
+  "printer_name": "Som Samantray",
+  "spec_path": "screener-spec.yaml",
+  "run_id": "20260814-101839-1498209c",
+  "category": "other",
+  "auth_type": "cookie",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Company compare",
+      "command": "compare",
+      "description": "See two to four companies' fundamentals side by side (valuation, margins, growth, insider activity) without tab-switching."
+    },
+    {
+      "name": "Quarterly trend",
+      "command": "qtrend",
+      "description": "Spot whether a company's quarterly profit/sales growth is accelerating or deteriorating, with YOY change and margin drift computed automatically."
+    },
+    {
+      "name": "Screen overlap",
+      "command": "overlap",
+      "description": "Find companies that appear in two or more stock screens in one command, replacing spreadsheet dedup."
+    },
+    {
+      "name": "Screen rank",
+      "command": "rank",
+      "description": "Re-score a screen's companies with a composite of fundamentals (P/E, ROCE, growth), sorted by what matters to you."
+    },
+    {
+      "name": "Insider flow",
+      "command": "insider-flow",
+      "description": "Answer 'who is net buying the most this month?' with per-company insider buy/sell aggregation."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Company compare",
+      "command": "compare",
+      "description": "See two to four companies' fundamentals side by side (valuation, margins, growth, insider activity) without tab-switching.",
+      "rationale": "No single Screener.in endpoint returns a cross-company comparison; the side-by-side view requires joining the local financials and trades mirror.",
+      "example": "screener-pp-cli compare TCS HDFCBANK --agent",
+      "why_it_matters": "Pick this when an agent needs to decide between candidate stocks on comparable fundamentals instead of fetching pages one at a time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Quarterly trend",
+      "command": "qtrend",
+      "description": "Spot whether a company's quarterly profit/sales growth is accelerating or deteriorating, with YOY change and margin drift computed automatically.",
+      "rationale": "Screener.in renders a wide raw HTML table; the YOY-change and consecutive-decline flags require local computation over the synced quarterly table.",
+      "example": "screener-pp-cli qtrend INFY --quarters 8 --agent",
+      "why_it_matters": "Pick this when an agent needs the trend shape of a company's earnings, not just the latest quarter's raw numbers.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Screen overlap",
+      "command": "overlap",
+      "description": "Find companies that appear in two or more stock screens in one command, replacing spreadsheet dedup.",
+      "rationale": "Screens are separate paginated HTML tables; intersecting them by symbol is a cross-screen join no single page provides.",
+      "example": "screener-pp-cli overlap 1 the-bull-cartel 59 magic-formula --agent",
+      "why_it_matters": "Pick this when an agent needs the intersection of multiple screening strategies to find high-conviction candidates.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Screen rank",
+      "command": "rank",
+      "description": "Re-score a screen's companies with a composite of fundamentals (P/E, ROCE, growth), sorted by what matters to you.",
+      "rationale": "Joining screen membership with cached fundamentals produces a composite rank no endpoint provides.",
+      "example": "screener-pp-cli rank 1 the-bull-cartel --by roce --agent",
+      "why_it_matters": "Pick this when an agent should prioritize within a screen by fundamentals or insider conviction rather than the default table order.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Insider flow",
+      "command": "insider-flow",
+      "description": "Answer 'who is net buying the most this month?' with per-company insider buy/sell aggregation.",
+      "rationale": "The insider-trades endpoint returns chronological rows; net per-company flows require local aggregation over the synced trades table.",
+      "example": "screener-pp-cli insider-flow --since 30d --top 10 --agent",
+      "why_it_matters": "Pick this when an agent needs insider conviction ranked by net value, not a raw list of individual trades.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 97.87,
+    "passed": 46,
+    "total": 47,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 90,
+      "grade": "A",
+      "total": 90
+    },
+    "unverified_dimensions": []
+  },
+  "mcp_binary": "screener-pp-mcp",
+  "mcp_tool_count": 11,
+  "mcp_public_tool_count": 11,
+  "mcp_ready": "partial"
+}

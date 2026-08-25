@@ -22,23 +22,37 @@ func newCustomObjectInstancesCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "create <custom_object_type_identifier>",
 		Short:       "Create or update a custom object instance",
-		Example:     "  intercom-pp-cli custom-object-instances create example-value",
+		Example:     "  intercom-pp-cli custom-object-instances create Order",
 		Annotations: map[string]string{"pp:endpoint": "custom-object-instances.create", "pp:method": "POST", "pp:path": "/custom_object_instances/{custom_object_type_identifier}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <custom_object_type_identifier>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <custom_object_type_identifier>"))
 			}
 			if !stdinBody {
 			}
+			path := "/custom_object_instances/{custom_object_type_identifier}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("custom_object_type_identifier is required\nUsage: %s <%s>", cmd.CommandPath(), "custom_object_type_identifier"))
+			}
+			path = replacePathParam(path, "custom_object_type_identifier", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/custom_object_instances/{custom_object_type_identifier}"
-			path = replacePathParam(path, "custom_object_type_identifier", args[0])
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -50,22 +64,27 @@ func newCustomObjectInstancesCreateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				if bodyCustomAttributes != "" {
 					var parsedCustomAttributes any
 					if err := json.Unmarshal([]byte(bodyCustomAttributes), &parsedCustomAttributes); err != nil {
 						return fmt.Errorf("parsing --custom-attributes JSON: %w", err)
 					}
-					body["custom_attributes"] = parsedCustomAttributes
+					asMap, ok := parsedCustomAttributes.(map[string]any)
+					if !ok {
+						return fmt.Errorf("--custom-attributes must be a JSON object, got JSON %T", parsedCustomAttributes)
+					}
+					bodyMap["custom_attributes"] = asMap
 				}
 				if bodyExternalCreatedAt != 0 {
-					body["external_created_at"] = bodyExternalCreatedAt
+					bodyMap["external_created_at"] = bodyExternalCreatedAt
 				}
 				if bodyExternalId != "" {
-					body["external_id"] = bodyExternalId
+					bodyMap["external_id"] = bodyExternalId
 				}
 				if bodyExternalUpdatedAt != 0 {
-					body["external_updated_at"] = bodyExternalUpdatedAt
+					bodyMap["external_updated_at"] = bodyExternalUpdatedAt
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
@@ -135,6 +154,9 @@ func newCustomObjectInstancesCreateCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -173,7 +195,11 @@ func newCustomObjectInstancesCreateCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

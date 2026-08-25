@@ -1,0 +1,22 @@
+# Build artifacts
+bin/
+*.exe
+*.exe~
+
+# Local dev state
+.manuscripts/
+.printing-press-patches/
+.printing-press-pii-polish.json
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Go
+*.test
+*.out
+coverage.txt

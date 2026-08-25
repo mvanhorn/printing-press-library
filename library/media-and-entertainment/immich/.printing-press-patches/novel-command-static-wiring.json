@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "novel-command-static-wiring",
+  "applied_at": "2026-07-21",
+  "base_run_id": "20260721-133855-89f4eb09",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Keep Immich personal-library workflows statically discoverable and conservative: command wiring matches runtime help, every destructive selection requires reviewed evidence, and partial transfers remain safely retryable without losing assets or duplicating collections.",
+  "reason": "The extension hook hid valid command edges from the shipped verifier, while review found safety gaps around inferred duplicate keepers, partial uploads and album assignment (including watch retries and duplicate asset UUID recovery), stale duplicate evidence, and malformed, partially mapped, or partially applied collection migration.",
+  "files": [
+    "internal/cli/duplicates.go",
+    "internal/cli/people.go",
+    "internal/cli/memories.go",
+    "internal/cli/stacks.go",
+    "internal/cli/import.go",
+    "internal/cli/personal_library_rituals.go",
+    "internal/cli/personal_library_rituals_test.go"
+  ],
+  "validated_outcome": "verify_skill.py --strict resolves the novel command paths; focused regression tests cover evidence-locked suggested and explicit duplicate keepers, committed IDs retained across metadata and album-assignment failures, failed upload batches remaining pending, UUID-based duplicate retry, and idempotent collection migration resuming after a destination failure without duplicate albums or tags."
+}

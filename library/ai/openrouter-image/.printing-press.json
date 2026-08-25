@@ -1,0 +1,62 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-03T21:39:15.7959215Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "openrouter-image",
+  "display_name": "OpenRouter Images",
+  "cli_name": "openrouter-image-pp-cli",
+  "creator": {
+    "handle": "neal-kyle",
+    "name": "Kyle Neal"
+  },
+  "owner": "neal-kyle",
+  "printer": "neal-kyle",
+  "printer_name": "Kyle Neal",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:d6c9999e70d01e0ab028dcf8398966f21ff75293abaa69cee670f6815cce895f",
+  "run_id": "20260803-205427-851f4b39",
+  "category": "ai",
+  "description": "Every image model on OpenRouter, one key: generate, rank, estimate, and batch with a local cost ledger.",
+  "mcp_binary": "openrouter-image-pp-mcp",
+  "mcp_tool_count": 96,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_preference": "apiKey",
+  "auth_env_vars": [
+    "OPENROUTER_IMAGE_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Capability+budget model ranker",
+      "command": "models rank",
+      "description": "Rank every image model+provider combo cheapest-first under your capability and budget constraints."
+    },
+    {
+      "name": "Budget-gated batch run",
+      "command": "batch",
+      "description": "Run many generations from a CSV with a hard USD budget: estimate first, abort before any spend if over, then execute and log each cost."
+    },
+    {
+      "name": "Pre-spend cost estimate",
+      "command": "cost-estimate",
+      "description": "Estimate USD cost of a generation before spending credits, computed offline from synced per-endpoint pricing."
+    },
+    {
+      "name": "Deterministic re-generation",
+      "command": "regenerate",
+      "description": "Re-run a past generation with its exact stored parameters (model, seed, resolution, quality, references)."
+    },
+    {
+      "name": "Catalog change diff",
+      "command": "models diff",
+      "description": "See newly added, retired, and price-changed image models between syncs so pinned pipelines never break silently."
+    },
+    {
+      "name": "Weekly spend digest",
+      "command": "usage digest",
+      "description": "Period-over-period spend and volume summary: images generated, USD spent, top models, cost per image vs the prior window."
+    }
+  ]
+}

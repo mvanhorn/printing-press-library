@@ -1,0 +1,66 @@
+# Snipd — hand-authored internal spec for cli-printing-press
+# Provenance: reverse-engineered 2026-07-13 from the sanctioned Snipd "Obsidian export" API,
+# probed read-only against the author's own account. Evidence base + reference implementations:
+#   ../experiment/pull_corpus.py   (the export flow: metadata -> POST export-episode-snips -> ZIP of MD)
+#   ../experiment/parse_corpus.py  (labelled-delimiter MD -> normalized episodes + snips + FTS5)
+#   ../experiment/corpus_harness.py (FTS/SQL retrieval patterns, recall 1.00)
+#   ../specs/storage-substrate-decision.md (why SQLite-native beats an Outliner substrate)
+#
+# ARCHITECTURE NOTE (important): Snipd has no public REST resource API. Full snip content is only
+# reachable through ONE sanctioned path — POST /obsidian/export-episode-snips, which takes a
+# labelled-delimiter TEMPLATE body and returns a ZIP of server-rendered markdown (NOT JSON). The
+# generator's typed-endpoint path cannot model that (complex template body, ZIP response), so it is
+# NOT declared as a generated endpoint. Only the central GET /obsidian/fetch-export-metadata is
+# modeled as a generated typed endpoint (a clean JSON GET: what episodes exist / are new upstream).
+#
+# The headline commands — sync / search / quote / synthesize / filter / aggregate — are hand-built
+# NOVEL commands (Phase 3) over a hand-built local SQLite store (typed episodes + snips + FTS5),
+# exactly like Medium v2 and Substack Reader's keyless reader layers. The generated chassis provides
+# config/auth (Bearer), client, store/sql/doctor scaffold, cobratree MCP mirror, and README/SKILL
+# skeleton; the corpus + retrieval is layered on top.
+
+name: snipd
+description: "Read your own Snipd podcast snips as a local, full-text-searchable corpus — search, quote, filter, and synthesize across every AI note, quote, and transcript from the command line."
+version: "0.1.0"
+base_url: "https://api.snipd.com/v1/public/api"
+health_check_path: "/obsidian/fetch-export-metadata"
+category: media-and-entertainment
+
+# The Snipd export API ALWAYS requires the account Bearer token (no anonymous tier). The token is
+# obtained by pairing the CLI from the Snipd mobile app; users set SNIPD_TOKEN (or a config token).
+# Read-only, own account, never redistributed.
+auth:
+  type: bearer_token
+  header: Authorization
+  in: header
+  env_vars:
+    - SNIPD_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/snipd-pp-cli/config.toml"
+
+resources:
+  catalog:
+    description: "The upstream export catalog — which of your episodes are available to pull, and what changed"
+    endpoints:
+      list:
+        method: GET
+        path: "/obsidian/fetch-export-metadata"
+        description: "List your episodes available for export (ids, snip counts, batches). Pass updated_after for an incremental view of what changed."
+        params:
+          - name: updated_after
+            type: string
+            required: false
+            description: "ISO-8601 timestamp; only surface episodes updated after this (incremental sync cursor)"
+        response:
+          type: object
+          item: ExportMetadata
+
+types:
+  ExportMetadata:
+    fields:
+      - name: episode_batch_count
+        type: int
+      - name: episode_batches
+        type: array

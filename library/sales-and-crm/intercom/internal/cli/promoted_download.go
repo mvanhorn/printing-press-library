@@ -14,9 +14,10 @@ import (
 func newDownloadPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "download <job_identifier>",
-		Short:       "When a job has a status of complete, and thus a filled download_url",
-		Long:        "When a job has a status of complete, and thus a filled download_url",
+		Use:   "download <job_identifier>",
+		Short: "When a job has a status of complete, and thus a filled download_url",
+		Long:  "When a job has a status of complete, and thus a filled download_url",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
 		Example:     "  intercom-pp-cli download example-value",
 		Annotations: map[string]string{"pp:endpoint": "download.data-export", "pp:method": "GET", "pp:path": "/download/content/data/{job_identifier}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -26,7 +27,7 @@ func newDownloadPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/download/content/data/{job_identifier}"
-			if len(args) < 1 {
+			if len(args) < 1 || args[0] == "" {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.
 				if flags.asJSON {
@@ -41,14 +42,10 @@ func newDownloadPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 			path = replacePathParam(path, "job_identifier", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "download", false, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "download", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -92,7 +89,7 @@ func newDownloadPromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 

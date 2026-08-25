@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "simplefin-pp-cli"
+display_name = "SimpleFIN"
+description = "Pull every bank, card, and brokerage account through SimpleFIN into a local SQLite ledger — with net worth, cash flow, recurring-charge detection, and holdings gain/loss no single bank app can show."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/simplefin-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+SIMPLEFIN_ACCESS_URL = true

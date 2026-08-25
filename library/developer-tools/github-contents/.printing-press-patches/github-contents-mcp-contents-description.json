@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "github-contents-mcp-contents-description",
+  "applied_at": "2026-07-10",
+  "base_run_id": "20260710-125244-1a986992",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Corrected the contents tool description to reference the real sibling tool names (trees_get/blobs_get) instead of nonexistent 'trees get'/'blobs get' CLI paths.",
+  "reason": "The spec description propagated CLI argv syntax into the MCP tool list where those command paths do not exist; agents following it would call missing tools.",
+  "files": ["internal/mcp/tools.go"],
+  "validated_outcome": "Phase 4.9 docs audit finding closed; verify-skill green."
+}

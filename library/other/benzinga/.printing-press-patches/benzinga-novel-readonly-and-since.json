@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "benzinga-novel-readonly-and-since",
+  "applied_at": "2026-07-04",
+  "base_run_id": "20260627-034058-2c1f9c5c",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Open the local store read-only for the read-only novel commands, and drop unparseable-timestamp rows from the watch/why time-window filter.",
+  "reason": "Two correctness fixes for the hand-built novel commands. (1) novelStore opened via OpenWithContext (read-write, runs WAL migration, holds the write lock) even though all six novel commands are mcp:read-only and only SELECT; switching to OpenReadOnlyContext enforces the contract at the driver level and lets a concurrent `sync` proceed without blocking on a read session. (2) watch/why filtered with `!when.IsZero() && when.Before(cutoff)`, so rows whose timestamp does not parse (zero time) bypassed the always-active --since/--window cutoff and surfaced as if recent; they are now skipped, since a 'what changed since X' digest must not present unplaceable rows as in-window. catalysts already drops zero-time rows (d.Before(today)) so it was not affected. A regen must keep read-only novel opens read-only and keep zero-time rows out of the windowed filter.",
+  "files": [
+    "internal/cli/novel_shared.go",
+    "internal/cli/watch.go",
+    "internal/cli/why.go"
+  ],
+  "validated_outcome": "why/watch run read-only against a 1.6GB synced mirror (exit 0, results returned, sync-state hint still read); go build/vet/test pass. Addresses the two Greptile P2 findings on PR #1406."
+}

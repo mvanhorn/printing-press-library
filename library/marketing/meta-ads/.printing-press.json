@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "generated_at": "2026-05-28T07:18:02.014013Z",
   "printing_press_version": "4.18.1",
   "api_name": "meta-ads",
@@ -63,6 +63,12 @@
       "name": "Account Inventory Roll-up",
       "command": "inventory",
       "description": "Group every ad in an account by effective_status, surface ads where configured status='ACTIVE' but effective_status='WITH_ISSUES' or 'DISAPPROVED'."
+    }
+  ],
+  "contributors": [
+    {
+      "handle": "bobeglz",
+      "name": "bobeglz"
     }
   ]
 }

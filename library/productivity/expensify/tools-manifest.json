@@ -1,0 +1,937 @@
+{
+  "api_name": "expensify",
+  "base_url": "https://www.expensify.com/api",
+  "description": "File expenses and submit reports to Expensify from the command line",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "ExpensifyToken {authToken}",
+    "in": "header",
+    "env_vars": [
+      "EXPENSIFY_AUTH_TOKEN",
+      "EXPENSIFY_PARTNER_USER_ID",
+      "EXPENSIFY_PARTNER_USER_SECRET"
+    ],
+    "env_var_specs": [
+      {
+        "name": "EXPENSIFY_AUTH_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "EXPENSIFY_PARTNER_USER_ID",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "EXPENSIFY_PARTNER_USER_SECRET",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://www.expensify.com/tools/integrations/",
+    "cookie_domain": ".expensify.com",
+    "cookies": [
+      "authToken",
+      "email"
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "admin_cards_list",
+      "description": "List domain cards (Domain Cards Getter). Required: domain. Returns array of DomainCard.",
+      "method": "POST",
+      "path": "/Integration-Server/ExpensifyIntegrations",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "Corporate domain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_cards_owners",
+      "description": "List card owners (Card Owner Data). Required: domain. Returns array of CardOwner.",
+      "method": "POST",
+      "path": "/Integration-Server/ExpensifyIntegrations",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "Corporate domain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_employee_add",
+      "description": "Add an employee to a policy (Advanced Employee Updater). Required: policyID, email. Optional: role, approver. Returns the new Employee.",
+      "method": "POST",
+      "path": "/Integration-Server/ExpensifyIntegrations",
+      "params": [
+        {
+          "name": "policyID",
+          "type": "string",
+          "location": "body",
+          "description": "Policy ID",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Employee email",
+          "required": true
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "body",
+          "description": "Role"
+        },
+        {
+          "name": "approver",
+          "type": "string",
+          "location": "body",
+          "description": "Approver's email"
+        }
+      ]
+    },
+    {
+      "name": "admin_employee_remove",
+      "description": "Remove an employee from a policy. Required: policyID, email. Returns the new Employee.",
+      "method": "POST",
+      "path": "/Integration-Server/ExpensifyIntegrations",
+      "params": [
+        {
+          "name": "policyID",
+          "type": "string",
+          "location": "body",
+          "description": "Policy ID",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Employee email",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_employee_update",
+      "description": "Update an employee (Advanced Employee Updater). Required: policyID, email. Optional: role, approver. Returns the new Employee.",
+      "method": "POST",
+      "path": "/Integration-Server/ExpensifyIntegrations",
+      "params": [
+        {
+          "name": "policyID",
+          "type": "string",
+          "location": "body",
+          "description": "Policy ID",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Employee email",
+          "required": true
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "body",
+          "description": "New role"
+        },
+        {
+          "name": "approver",
+          "type": "string",
+          "location": "body",
+          "description": "New approver email"
+        }
+      ]
+    },
+    {
+      "name": "admin_policy_get",
+      "description": "Get a policy's full config (Policy Getter). Required: policyID. Returns the new Policy.",
+      "method": "POST",
+      "path": "/Integration-Server/ExpensifyIntegrations",
+      "params": [
+        {
+          "name": "policyID",
+          "type": "string",
+          "location": "body",
+          "description": "Policy ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_policy_list",
+      "description": "List all policies you admin (Policy List Getter). Returns array of Policy.",
+      "method": "POST",
+      "path": "/Integration-Server/ExpensifyIntegrations",
+      "params": []
+    },
+    {
+      "name": "admin_policy_new",
+      "description": "Create a new policy (Policy Creator). Required: type, name. Returns the new Policy.",
+      "method": "POST",
+      "path": "/Integration-Server/ExpensifyIntegrations",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Policy type",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Policy name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_policy_set_categories",
+      "description": "Update categories for a policy from YAML. Required: policyID, file. Returns the new Policy.",
+      "method": "POST",
+      "path": "/Integration-Server/ExpensifyIntegrations",
+      "params": [
+        {
+          "name": "policyID",
+          "type": "string",
+          "location": "body",
+          "description": "Policy ID",
+          "required": true
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "Path to YAML file with categories",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_policy_set_fields",
+      "description": "Update report fields for a policy. Required: policyID, file. Returns the new Policy.",
+      "method": "POST",
+      "path": "/Integration-Server/ExpensifyIntegrations",
+      "params": [
+        {
+          "name": "policyID",
+          "type": "string",
+          "location": "body",
+          "description": "Policy ID",
+          "required": true
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "Path to YAML file with report fields",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_policy_set_tags",
+      "description": "Update tags for a policy from YAML. Required: policyID, file. Returns the new Policy.",
+      "method": "POST",
+      "path": "/Integration-Server/ExpensifyIntegrations",
+      "params": [
+        {
+          "name": "policyID",
+          "type": "string",
+          "location": "body",
+          "description": "Policy ID",
+          "required": true
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "Path to YAML file with tags",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_report_set_status",
+      "description": "Force a report status transition (Report Status Updater). Required: reportID, status. Returns the new Report.",
+      "method": "POST",
+      "path": "/Integration-Server/ExpensifyIntegrations",
+      "params": [
+        {
+          "name": "reportID",
+          "type": "string",
+          "location": "body",
+          "description": "Report ID",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "New status",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_rules_new",
+      "description": "Create an expense rule (Expense Rules Creator). Required: policyID, pattern. Optional: category, tag. Returns the new ExpenseRule.",
+      "method": "POST",
+      "path": "/Integration-Server/ExpensifyIntegrations",
+      "params": [
+        {
+          "name": "policyID",
+          "type": "string",
+          "location": "body",
+          "description": "Policy ID",
+          "required": true
+        },
+        {
+          "name": "pattern",
+          "type": "string",
+          "location": "body",
+          "description": "Merchant name pattern to match",
+          "required": true
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "body",
+          "description": "Auto-applied category"
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "body",
+          "description": "Auto-applied tag"
+        }
+      ]
+    },
+    {
+      "name": "admin_rules_update",
+      "description": "Update an expense rule. Required: ruleID. Optional: pattern, category. Returns the new ExpenseRule.",
+      "method": "POST",
+      "path": "/Integration-Server/ExpensifyIntegrations",
+      "params": [
+        {
+          "name": "ruleID",
+          "type": "string",
+          "location": "body",
+          "description": "Rule ID",
+          "required": true
+        },
+        {
+          "name": "pattern",
+          "type": "string",
+          "location": "body",
+          "description": "New pattern"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "body",
+          "description": "New category"
+        }
+      ]
+    },
+    {
+      "name": "admin_tag_approvers_set",
+      "description": "Set tag approvers (Tag Approvers Updater). Required: policyID, tag, email. Returns the new Policy.",
+      "method": "POST",
+      "path": "/Integration-Server/ExpensifyIntegrations",
+      "params": [
+        {
+          "name": "policyID",
+          "type": "string",
+          "location": "body",
+          "description": "Policy ID",
+          "required": true
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "body",
+          "description": "Tag name",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Approver email",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "category_list",
+      "description": "List categories for a workspace. Required: policyID. Returns array of Category.",
+      "method": "POST",
+      "path": "/OpenPolicyCategoriesPage",
+      "params": [
+        {
+          "name": "policyID",
+          "type": "string",
+          "location": "body",
+          "description": "Workspace ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "expense_attach",
+      "description": "Attach or replace a receipt on an expense. Required: transactionID, receipt_path. Returns the new Expense.",
+      "method": "POST",
+      "path": "/ReplaceReceipt",
+      "params": [
+        {
+          "name": "transactionID",
+          "type": "string",
+          "location": "body",
+          "description": "Expense transaction ID",
+          "required": true
+        },
+        {
+          "name": "receipt_path",
+          "type": "string",
+          "location": "body",
+          "description": "Local path to a receipt image (jpg, png, pdf)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "expense_create",
+      "description": "Create a new expense. Required: amount, merchant. Optional: category, tag, date (plus 5 more). Returns the new Expense.",
+      "method": "POST",
+      "path": "/RequestMoney",
+      "params": [
+        {
+          "name": "amount",
+          "type": "int",
+          "location": "body",
+          "description": "Amount in cents (e.g. 4250 for $42.50)",
+          "required": true
+        },
+        {
+          "name": "merchant",
+          "type": "string",
+          "location": "body",
+          "description": "Merchant name",
+          "required": true
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "body",
+          "description": "Expense category"
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "body",
+          "description": "Expense tag"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "Expense date (YYYY-MM-DD, default today)"
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "Optional comment or description"
+        },
+        {
+          "name": "policyID",
+          "type": "string",
+          "location": "body",
+          "description": "Workspace to bill this expense to"
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 4217 currency code"
+        },
+        {
+          "name": "billable",
+          "type": "bool",
+          "location": "body",
+          "description": "Mark as billable to a client"
+        },
+        {
+          "name": "reimbursable",
+          "type": "bool",
+          "location": "body",
+          "description": "Reimbursable by employer"
+        }
+      ]
+    },
+    {
+      "name": "expense_delete",
+      "description": "Delete an expense. Required: transactionID. Returns the new Expense.",
+      "method": "POST",
+      "path": "/DeleteMoneyRequest",
+      "params": [
+        {
+          "name": "transactionID",
+          "type": "string",
+          "location": "body",
+          "description": "Expense transaction ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "expense_edit",
+      "description": "Edit an existing expense. Required: transactionID. Optional: amount, merchant, category (plus 3 more). Returns the new Expense.",
+      "method": "POST",
+      "path": "/EditMoneyRequest",
+      "params": [
+        {
+          "name": "transactionID",
+          "type": "string",
+          "location": "body",
+          "description": "Expense transaction ID",
+          "required": true
+        },
+        {
+          "name": "amount",
+          "type": "int",
+          "location": "body",
+          "description": "New amount in cents"
+        },
+        {
+          "name": "merchant",
+          "type": "string",
+          "location": "body",
+          "description": "New merchant name"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "body",
+          "description": "New category"
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "body",
+          "description": "New tag"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "New date (YYYY-MM-DD)"
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "New comment"
+        }
+      ]
+    },
+    {
+      "name": "expense_get",
+      "description": "Get expense detail by transaction ID. Required: transactionID. Returns the new Expense.",
+      "method": "POST",
+      "path": "/OpenReport",
+      "params": [
+        {
+          "name": "transactionID",
+          "type": "string",
+          "location": "body",
+          "description": "Expense transaction ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "expense_list",
+      "description": "List your expenses with filters. Optional: hash, policyID, status. Returns array of Expense.",
+      "method": "POST",
+      "path": "/Search",
+      "params": [
+        {
+          "name": "hash",
+          "type": "string",
+          "location": "body",
+          "description": "Search query hash (auto-built from filters)"
+        },
+        {
+          "name": "policyID",
+          "type": "string",
+          "location": "body",
+          "description": "Filter to a specific workspace"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by status (draft, submitted, approved)"
+        }
+      ]
+    },
+    {
+      "name": "export_resource_download",
+      "description": "Download a previously generated export file. Required: fileName. Returns the new ExportFile.",
+      "method": "POST",
+      "path": "/Integration-Server/ExpensifyIntegrations",
+      "params": [
+        {
+          "name": "fileName",
+          "type": "string",
+          "location": "body",
+          "description": "Export filename returned by `export run`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "export_resource_run",
+      "description": "Export reports via Report Exporter (Integration Server). Required: template. Optional: since, until, policyID (plus 1 more). Returns the new ExportJob.",
+      "method": "POST",
+      "path": "/Integration-Server/ExpensifyIntegrations",
+      "params": [
+        {
+          "name": "template",
+          "type": "string",
+          "location": "body",
+          "description": "Export template name (netsuite, qbo, xero, sage, csv, json)",
+          "required": true
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "location": "body",
+          "description": "Earliest report date (YYYY-MM-DD)"
+        },
+        {
+          "name": "until",
+          "type": "string",
+          "location": "body",
+          "description": "Latest report date (YYYY-MM-DD)"
+        },
+        {
+          "name": "policyID",
+          "type": "string",
+          "location": "body",
+          "description": "Limit to one workspace"
+        },
+        {
+          "name": "markAsExported",
+          "type": "string",
+          "location": "body",
+          "description": "Label to mark exports (e.g. 'NetSuite 2026-04'); idempotent cursor"
+        }
+      ]
+    },
+    {
+      "name": "me_get",
+      "description": "Get current user profile. Returns the new User.",
+      "method": "POST",
+      "path": "/OpenPublicProfile",
+      "params": []
+    },
+    {
+      "name": "recon_export",
+      "description": "Export reconciliation data for a domain. Required: domain. Optional: since, until. Returns the new ReconExport.",
+      "method": "POST",
+      "path": "/Integration-Server/ExpensifyIntegrations",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "Corporate domain (e.g. mycompany.com)",
+          "required": true
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "location": "body",
+          "description": "Earliest date (YYYY-MM-DD)"
+        },
+        {
+          "name": "until",
+          "type": "string",
+          "location": "body",
+          "description": "Latest date (YYYY-MM-DD)"
+        }
+      ]
+    },
+    {
+      "name": "report_add",
+      "description": "Add expenses to a report. Required: reportID, transactionIDs. Returns the new Report.",
+      "method": "POST",
+      "path": "/AddExpensesToReport",
+      "params": [
+        {
+          "name": "reportID",
+          "type": "string",
+          "location": "body",
+          "description": "Target report ID",
+          "required": true
+        },
+        {
+          "name": "transactionIDs",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated expense transaction IDs",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "report_approve",
+      "description": "Approve a report (manager action). Required: reportID. Returns the new Report.",
+      "method": "POST",
+      "path": "/ApproveMoneyRequest",
+      "params": [
+        {
+          "name": "reportID",
+          "type": "string",
+          "location": "body",
+          "description": "Report ID to approve",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "report_comment",
+      "description": "Add a comment to a report thread. Required: reportID, text. Returns the new Report.",
+      "method": "POST",
+      "path": "/AddComment",
+      "params": [
+        {
+          "name": "reportID",
+          "type": "string",
+          "location": "body",
+          "description": "Report ID",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Comment text",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "report_create",
+      "description": "Create a new report. Required: title, policyID. Optional: notes. Returns the new Report.",
+      "method": "POST",
+      "path": "/CreateReport",
+      "params": [
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Report title",
+          "required": true
+        },
+        {
+          "name": "policyID",
+          "type": "string",
+          "location": "body",
+          "description": "Workspace ID",
+          "required": true
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Report description"
+        }
+      ]
+    },
+    {
+      "name": "report_delete",
+      "description": "Delete a draft report. Required: reportID. Returns the new Report.",
+      "method": "POST",
+      "path": "/DeleteReport",
+      "params": [
+        {
+          "name": "reportID",
+          "type": "string",
+          "location": "body",
+          "description": "Report ID to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "report_get",
+      "description": "Get report detail. Required: reportID. Returns the new Report.",
+      "method": "POST",
+      "path": "/OpenReport",
+      "params": [
+        {
+          "name": "reportID",
+          "type": "string",
+          "location": "body",
+          "description": "Report ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "report_list",
+      "description": "List your reports. Optional: policyID, status, since (plus 1 more). Returns array of Report.",
+      "method": "POST",
+      "path": "/Search",
+      "params": [
+        {
+          "name": "policyID",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by workspace"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by status"
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "location": "body",
+          "description": "Earliest report date (YYYY-MM-DD)"
+        },
+        {
+          "name": "until",
+          "type": "string",
+          "location": "body",
+          "description": "Latest report date (YYYY-MM-DD)"
+        }
+      ]
+    },
+    {
+      "name": "report_pay",
+      "description": "Mark a report as reimbursed. Required: reportID. Optional: method. Returns the new Report.",
+      "method": "POST",
+      "path": "/PayMoneyRequest",
+      "params": [
+        {
+          "name": "reportID",
+          "type": "string",
+          "location": "body",
+          "description": "Report ID",
+          "required": true
+        },
+        {
+          "name": "method",
+          "type": "string",
+          "location": "body",
+          "description": "Payment method label"
+        }
+      ]
+    },
+    {
+      "name": "report_reopen",
+      "description": "Reopen a submitted report back to draft. Required: reportID. Returns the new Report.",
+      "method": "POST",
+      "path": "/ReopenReport",
+      "params": [
+        {
+          "name": "reportID",
+          "type": "string",
+          "location": "body",
+          "description": "Report ID to reopen",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "report_submit",
+      "description": "Submit a report for approval. Required: reportID. Optional: note. Returns the new Report.",
+      "method": "POST",
+      "path": "/SubmitReport",
+      "params": [
+        {
+          "name": "reportID",
+          "type": "string",
+          "location": "body",
+          "description": "Report ID to submit",
+          "required": true
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Note to approver"
+        }
+      ]
+    },
+    {
+      "name": "tag_list",
+      "description": "List tags for a workspace. Required: policyID. Returns array of Tag.",
+      "method": "POST",
+      "path": "/OpenPolicyTagsPage",
+      "params": [
+        {
+          "name": "policyID",
+          "type": "string",
+          "location": "body",
+          "description": "Workspace ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspace_get",
+      "description": "Get workspace detail. Required: policyID. Returns the new Workspace.",
+      "method": "POST",
+      "path": "/OpenPolicyMoreFeaturesPage",
+      "params": [
+        {
+          "name": "policyID",
+          "type": "string",
+          "location": "body",
+          "description": "Workspace ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspace_list",
+      "description": "List workspaces accessible to your account. Returns array of Workspace.",
+      "method": "POST",
+      "path": "/ReconnectApp",
+      "params": []
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "wanderlog-agent-output-inspect",
+  "applied_at": "2026-08-23",
+  "base_run_id": "20260619-000132-cc275322",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Terse mutation JSON, file deliver without stdout, smaller dated-day outlines, plan votes, and history without ops by default.",
+  "reason": "Agents swallowed stderr because mutation payloads were huge, and collaborator place picks live on upvotedBy not comments.",
+  "files": [
+    "internal/cli/plan_edit.go",
+    "internal/cli/root.go",
+    "internal/cli/deliver.go",
+    "internal/cli/plan_outline.go",
+    "internal/cli/plan_votes.go",
+    "internal/cli/plan.go",
+    "internal/cli/plan_history.go"
+  ],
+  "validated_outcome": "go test ./internal/cli passed; live plan outline dated-days ~21KB vs 1MB trips get."
+}

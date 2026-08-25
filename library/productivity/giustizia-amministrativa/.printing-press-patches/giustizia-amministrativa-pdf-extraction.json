@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-pdf-extraction",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "I provvedimenti pubblicati in PDF (13,1% dello store) sono ora leggibili. Tre interventi: normalizeDocURL e DocURL non riscrivono piu' /visualizza/ in /visualizzah2/ per i PDF (era la riscrittura a rompere l'accesso); il nuovo Client.Document scarica il documento e, se e' un PDF, ne estrae lo strato di testo con github.com/ledongthuc/pdf (Go puro, nessun binario esterno); i chiamanti (get, corpus build, massime) usano Document e non passano al convertitore HTML un testo gia' in chiaro. La nota 'testo non estraibile' resta come fallback per i PDF davvero senza strato di testo, e non viene piu' salvata nello store al posto del testo.",
+  "reason": "Il difetto stava in un presupposto scritto nel commento di normalizeDocURL: che /visualizza/ e /visualizzah2/ servissero 'lo stesso documento pubblico'. E' vero solo per l'HTML. visualizzah2 rende il documento come pagina evidenziata e su un PDF risponde con 159 byte di 'net::ERR_ABORTED'; il portale nei propri risultati fornisce gia' l'URL /visualizza/ funzionante, ed eravamo noi a riscriverlo rompendolo. Conseguenza: una sentenza su otto risultava priva di testo, e l'URL che indicavamo come ripiego ('scarica l'originale') puntava all'endpoint che da' errore. Nel test con un agente esterno tre candidate sono uscite dal corpus per questo motivo e non per ragioni giuridiche, e una era il secondo risultato per rilevanza della ricerca. I PDF del portale hanno un vero strato di testo (verificato su 6 documenti fra TAR e Consiglio di Stato, 5.847-32.042 caratteri ciascuno), quindi il buco era chiudibile del tutto e non solo dichiarabile.",
+  "files": [
+    "internal/gaclient/parse.go",
+    "internal/gaclient/client.go",
+    "internal/cli/ga_core.go",
+    "internal/cli/corpus_build.go",
+    "internal/cli/massime.go",
+    "go.mod"
+  ],
+  "validated_outcome": "Le tre sentenze prima irrecuperabili: ECLI:IT:CDS:2026:3396SENT 54.234 caratteri (data 30/04/2026), 6055SENT 32.771 (24/07/2026), 4297SENT 63.169 (27/05/2026), tutte con testo_non_estraibile assente. corpus build sulle stesse: file da 33-64 KB su disco invece di 307 byte. La data di deposito viene ora estratta anche dai PDF, dove prima mancava. Dipendenza fissata a github.com/ledongthuc/pdf v0.0.0-20250511090121-5959a4027728 (432 KB, licenza BSD dei Go Authors, Go puro: nessun requisito aggiuntivo su Windows). go build/vet/test verdi."
+}

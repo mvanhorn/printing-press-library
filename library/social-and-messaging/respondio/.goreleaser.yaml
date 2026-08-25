@@ -1,0 +1,51 @@
+version: 2
+project_name: respondio-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: respondio-pp-cli
+    main: ./cmd/respondio-pp-cli
+    binary: respondio-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/social-and-messaging/respondio/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: respondio-pp-mcp
+    main: ./cmd/respondio-pp-mcp
+    binary: respondio-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: respondio-pp-cli
+    repository:
+      owner: bobeglz
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Respond.io feature, plus an offline mirror and SQL that answers inbox questions no single API call can."
+    install: |
+      bin.install "respondio-pp-cli"
+      bin.install "respondio-pp-mcp"

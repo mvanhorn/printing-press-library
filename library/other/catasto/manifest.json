@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "catasto-pp-mcp",
+  "display_name": "Catasto",
+  "version": "4.8.0",
+  "description": "The free, single-binary Italian cadastre CLI — converts between cadastral references and GPS, online or offline, with agent-native JSON.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/catasto-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/catasto-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

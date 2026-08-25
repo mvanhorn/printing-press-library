@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "etsy-seller-dashboard",
+  "cli_name": "etsy-seller-dashboard-pp-cli",
+  "version": "2026.8.2",
+  "released_at": "2026-08-21T08:29:25Z",
+  "source_commit": "948566a1a3201bef916e09e4a1b4e0426cef4292",
+  "printing_press_version": "4.29.0",
+  "run_id": "20260725-212952-c7905991",
+  "changes": [
+    {
+      "title": "feat(etsy-seller-dashboard): add etsy-seller-dashboard",
+      "pr": 1609,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1609",
+      "commit": "948566a1a3201bef916e09e4a1b4e0426cef4292"
+    }
+  ]
+}

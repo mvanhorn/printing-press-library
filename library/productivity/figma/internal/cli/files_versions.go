@@ -9,8 +9,10 @@ import (
 
 func newFilesVersionsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "versions",
-		Short: "Manage versions",
+		Use:         "versions",
+		Short:       "Get versions for files",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newFilesVersionsGetFileCmd(flags))

@@ -1,0 +1,111 @@
+{
+  "dir": "\u003ccli-dir\u003e/wanderlog",
+  "spec_path": "\u003ccli-dir\u003e/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 24,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 65,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": false,
+    "detail": "sync uses domain-specific Upsert methods; search methods not found; 1 domain tables found; defaultSyncResources empty (sync command is a no-op)"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 123,
+      "registered": 123
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "total_steps": 7,
+      "mapped_steps": 2,
+      "unmapped_steps": [
+        "plan clone --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --dry-run --agent",
+        "plan fill --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --target-key YOUR_TRIP_KEY --dry-run --agent",
+        "plan inspect --target-key ${plan_key} --check=counts,unformatted,lodging-coverage,closed-places,text-vs-schedule --agent",
+        "plan outline --target-key ${plan_key} --agent",
+        "plan preview --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent"
+      ],
+      "detail": "2/7 workflow steps mapped to commands"
+    }
+  },
+  "novel_features_check": {
+    "planned": 34,
+    "found": 34
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 34,
+    "exempted_via_store": 2,
+    "exempted_via_client_directive": 29
+  },
+  "description_drift_check": {
+    "expected": "Clone shared Wanderlog plans into editable trips, then mine guides and places for agent-ready planning."
+  },
+  "source_client_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 56
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 56
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "defaultSyncResources empty: sync command is a runtime no-op; store-dependent novel commands have no advertised population path",
+    "5 unmapped workflow steps: plan clone --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --dry-run --agent, plan fill --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --target-key YOUR_TRIP_KEY --dry-run --agent, plan inspect --target-key ${plan_key} --check=counts,unformatted,lodging-coverage,closed-places,text-vs-schedule --agent, plan outline --target-key ${plan_key} --agent, plan preview --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent"
+  ]
+}

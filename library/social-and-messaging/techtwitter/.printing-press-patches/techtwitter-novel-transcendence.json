@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "techtwitter-novel-transcendence",
+  "applied_at": "2026-06-14",
+  "base_run_id": "20260614-151701-381d1e6b",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Hand-authored the 7 transcendence commands plus shared helpers and a snapshot store schema.",
+  "reason": "Generator stubs the novel commands; the offline store-backed logic (since/momentum/narrative/author-rank/time-travel/digest/evidence) and the topic_snapshots/cli_state tables that power momentum and narrative over time are hand-built.",
+  "files": ["internal/cli/since.go", "internal/cli/momentum.go", "internal/cli/narrative.go", "internal/cli/author_rank.go", "internal/cli/time_travel.go", "internal/cli/digest.go", "internal/cli/evidence.go", "internal/cli/techtwitter_helpers.go", "internal/cli/techtwitter_snapshots.go", "internal/cli/techtwitter_helpers_test.go", "internal/store/extras.go"],
+  "validated_outcome": "All 7 resolve as Cobra commands; momentum/narrative compute deltas vs a prior snapshot; full live dogfood 101/101."
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-documento-pagina-errore",
+  "applied_at": "2026-08-22",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Client.Document riconosce la pagina di errore del sottodominio mdp e restituisce un errore parlante invece del suo corpo. Il controllo (isErrorPage) si basa sul body: cio' che comincia per <?xml, <GA o %PDF- e' un documento vero, il resto viene confrontato con i marcatori della pagina di errore del portale. Client.Meta usa lo stesso controllo. I marcatori del provvedimento (class=\"corpo\", REG.PROV, REG.RIC) vengono controllati per primi, cosi' una sentenza che parla di una pagina web irraggiungibile non viene scambiata per la pagina di errore.",
+  "reason": "Un nomeFile o un nrg non piu' validi non producono un 404: il portale risponde HTTP 200 con la propria pagina '404 - Pagina non trovata'. Quel corpo passava intatto dentro HTMLToMarkdown e ne usciva un documento di 136 caratteri ('Il documento che stai cercando non esiste o e' stato rimosso'), non vuoto e quindi non intercettato dal controllo sul testo assente: veniva salvato nello store, esportato da corpus build, letto da massime e citato come se fosse il provvedimento. I percorsi raggiungibili erano tre: le righe salvate prima del fix sull'endpoint dei PDF, corpus build e massime.",
+  "files": [
+    "internal/gaclient/parse.go",
+    "internal/gaclient/client.go",
+    "internal/gaclient/parse_test.go",
+    "README.md"
+  ],
+  "validated_outcome": "get --sede tar_rm --nrg 202515938 --file 209914259_01.html (nomeFile inesistente) esce 5 con 'documento non disponibile: il portale ha risposto con la propria pagina di errore', dove prima restituiva un documento di 136 caratteri. Lo stesso get sul nomeFile valido resta invariato (front matter con data_deposito 14/08/2026 e testo integrale). Test TestIsErrorPage: pagina di errore riconosciuta, XML/PDF/HTML del documento no. Il test copre anche il caso opposto: un documento del portale che cita \"Pagina non trovata\" nel proprio testo non viene rifiutato."
+}

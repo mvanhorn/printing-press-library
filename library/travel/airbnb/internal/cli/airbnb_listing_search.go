@@ -62,6 +62,17 @@ func newAirbnbListingSearchCmd(flags *rootFlags) *cobra.Command {
 				return classifyAPIError(err)
 			}
 			_ = flagAll
+			// PATCH: best-effort persist each scraped search-result listing into
+			// the local store so it compounds for host portfolio / sync /
+			// match. Cards lacking a stable id are skipped inside
+			// persistAirbnbListing; store errors are swallowed and never
+			// degrade the live search result.
+			if db := openScrapeStore(cmd.Context()); db != nil {
+				defer db.Close()
+				for i := range results {
+					persistAirbnbListing(db, &results[i])
+				}
+			}
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"results": results, "pagination": pagination}, flags)
 		},
 	}

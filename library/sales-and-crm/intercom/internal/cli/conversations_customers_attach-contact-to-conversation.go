@@ -21,23 +21,37 @@ func newConversationsCustomersAttachContactToConversationCmd(flags *rootFlags) *
 		Use:         "attach-contact-to-conversation <id>",
 		Aliases:     []string{"create"},
 		Short:       "You can add participants who are contacts to a conversation, on behalf of either another contact or an admin.",
-		Example:     "  intercom-pp-cli conversations customers attach-contact-to-conversation 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  intercom-pp-cli conversations customers attach-contact-to-conversation 123",
 		Annotations: map[string]string{"pp:endpoint": "customers.attach-contact-to-conversation", "pp:method": "POST", "pp:path": "/conversations/{id}/customers"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <id>"))
 			}
 			if !stdinBody {
 			}
+			path := "/conversations/{id}/customers"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+			}
+			path = replacePathParam(path, "id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/conversations/{id}/customers"
-			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -49,16 +63,21 @@ func newConversationsCustomersAttachContactToConversationCmd(flags *rootFlags) *
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				if bodyAdminId != "" {
-					body["admin_id"] = bodyAdminId
+					bodyMap["admin_id"] = bodyAdminId
 				}
 				if bodyCustomer != "" {
-					var parsedCustomer any
-					if err := json.Unmarshal([]byte(bodyCustomer), &parsedCustomer); err != nil {
-						return fmt.Errorf("parsing --customer JSON: %w", err)
+					if looksLikeJSONComposite(bodyCustomer) {
+						var parsedCustomer any
+						if err := json.Unmarshal([]byte(bodyCustomer), &parsedCustomer); err != nil {
+							return fmt.Errorf("parsing --customer JSON: %w", err)
+						}
+						bodyMap["customer"] = parsedCustomer
+					} else {
+						bodyMap["customer"] = bodyCustomer
 					}
-					body["customer"] = parsedCustomer
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
@@ -128,6 +147,9 @@ func newConversationsCustomersAttachContactToConversationCmd(flags *rootFlags) *
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -166,7 +188,11 @@ func newConversationsCustomersAttachContactToConversationCmd(flags *rootFlags) *
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

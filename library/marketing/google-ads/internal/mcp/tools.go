@@ -107,14 +107,29 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 		case "GET":
 			data, err = c.Get(path, params)
 		case "POST":
-			body, _ := json.Marshal(args)
-			data, _, err = c.Post(path, body)
+			bodyMap := make(map[string]any, len(args))
+			for k, v := range args {
+				if !pathParams[k] {
+					bodyMap[k] = v
+				}
+			}
+			data, _, err = c.Post(path, bodyMap)
 		case "PUT":
-			body, _ := json.Marshal(args)
-			data, _, err = c.Put(path, body)
+			bodyMap := make(map[string]any, len(args))
+			for k, v := range args {
+				if !pathParams[k] {
+					bodyMap[k] = v
+				}
+			}
+			data, _, err = c.Put(path, bodyMap)
 		case "PATCH":
-			body, _ := json.Marshal(args)
-			data, _, err = c.Patch(path, body)
+			bodyMap := make(map[string]any, len(args))
+			for k, v := range args {
+				if !pathParams[k] {
+					bodyMap[k] = v
+				}
+			}
+			data, _, err = c.Patch(path, bodyMap)
 		case "DELETE":
 			data, _, err = c.Delete(path)
 		default:

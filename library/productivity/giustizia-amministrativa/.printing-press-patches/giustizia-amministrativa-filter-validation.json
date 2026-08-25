@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-filter-validation",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Search rifiuta con un errore esplicito i valori non riconosciuti di sede e tipo, invece di lasciarli passare. validSede accetta sia lo slug della CLI sia l'etichetta del portale; validTipo distingue 'nessun filtro' da 'valore ignoto', cosa che mapTipo non poteva fare restituendo la stringa vuota per entrambi.",
+  "reason": "Trovato da un avvocato che provava lo strumento e ha sondato con una sede inventata. mapSede inoltrava al portale qualunque valore non in tabella ('Accept an already-correct portal value as-is'), quindi sede='pippo' produceva {count:0, items:[]}: un refuso nel nome di una citta' si legge come 'non esiste giurisprudenza in materia presso quel TAR', che per chi prepara un atto e' una conclusione sbagliata presa con fiducia. mapTipo era il caso speculare: restituendo la stringa vuota sia per 'nessun filtro' sia per un valore ignoto, un tipo inesistente faceva cadere il filtro e tornavano provvedimenti di ogni genere mentre il chiamante credeva di averne chiesto uno solo. Stessa famiglia di difetti affrontata tutto il giorno: il silenzio al posto dell'errore.",
+  "files": [
+    "internal/gaclient/client.go"
+  ],
+  "validated_outcome": "sede='pippo' -> Error: sede \"pippo\" non riconosciuta: usa roma, milano, napoli, consiglio-di-stato, cgars e altre 27 (una per ogni TAR). tipo='inventato' -> Error: tipo \"inventato\" non riconosciuto: usa sentenza, ordinanza, decreto, parere, plenaria o generale. sede='milano' e sede='Milano' continuano a funzionare entrambe. go build/vet/test verdi."
+}

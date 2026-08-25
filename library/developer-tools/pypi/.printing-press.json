@@ -37,5 +37,6 @@
       "command": "rss newest-packages",
       "description": "Watch newest PyPI packages through the RSS API for ecosystem discovery."
     }
-  ]
+  ],
+  "description": "PyPI JSON API. Look up Python package metadata, versions, release files, and vulnerability data. Browse recent updates and newest packages via RSS feeds. No authentication required — all endpoints are public."
 }

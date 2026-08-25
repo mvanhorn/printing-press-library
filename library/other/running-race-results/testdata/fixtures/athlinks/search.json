@@ -1,0 +1,141 @@
+{
+  "_meta": {
+    "endpoint": "GET https://reignite-api.athlinks.com/event/{eventId}/results/search?from=0&limit=20&term={bib_or_name}",
+    "captured_url": "https://reignite-api.athlinks.com/event/1094411/results/search?from=0&limit=20&term=8420",
+    "event": "Paraguay Multisport Challenge 2024 (masterEventId=390468, eventId=1094411)",
+    "auth": "Authorization: Bearer <token> required",
+    "note": "Returns athletes whose bib starts with the term string (fuzzy prefix match). First result is the exact bib=8420 match."
+  },
+  "data": [
+    {
+      "age": 36,
+      "azp": "ctlive",
+      "azpEntryId": 70078023,
+      "azpEventId": 83293,
+      "azpTeamEntryId": null,
+      "bib": "8420",
+      "displayName": "SAMPLE RUNNER",
+      "entryType": "IND",
+      "eventCourseId": 2530164,
+      "gender": "M",
+      "team": null
+    },
+    {
+      "age": 40,
+      "azp": "ctlive",
+      "azpEntryId": 70078054,
+      "azpEventId": 83293,
+      "azpTeamEntryId": null,
+      "bib": "8429",
+      "displayName": "SAMPLE RUNNER N",
+      "entryType": "IND",
+      "eventCourseId": 2530536,
+      "gender": "F",
+      "team": null
+    },
+    {
+      "age": 35,
+      "azp": "ctlive",
+      "azpEntryId": 70078029,
+      "azpEventId": 83293,
+      "azpTeamEntryId": null,
+      "bib": "8426",
+      "displayName": "SAMPLE RUNNER G",
+      "entryType": "IND",
+      "eventCourseId": 2530164,
+      "gender": "F",
+      "team": null
+    },
+    {
+      "age": 41,
+      "azp": "ctlive",
+      "azpEntryId": 70078055,
+      "azpEventId": 83293,
+      "azpTeamEntryId": null,
+      "bib": "8422",
+      "displayName": "SAMPLE RUNNER O",
+      "entryType": "IND",
+      "eventCourseId": 2530592,
+      "gender": "M",
+      "team": null
+    },
+    {
+      "age": 53,
+      "azp": "ctlive",
+      "azpEntryId": 70078042,
+      "azpEventId": 83293,
+      "azpTeamEntryId": null,
+      "bib": "8424",
+      "displayName": "SAMPLE RUNNER P",
+      "entryType": "IND",
+      "eventCourseId": 2530536,
+      "gender": "F",
+      "team": null
+    },
+    {
+      "age": 31,
+      "azp": "ctlive",
+      "azpEntryId": 70078046,
+      "azpEventId": 83293,
+      "azpTeamEntryId": null,
+      "bib": "8428",
+      "displayName": "SAMPLE RUNNER Q",
+      "entryType": "IND",
+      "eventCourseId": 2530536,
+      "gender": "F",
+      "team": null
+    },
+    {
+      "age": 31,
+      "azp": "ctlive",
+      "azpEntryId": 70078036,
+      "azpEventId": 83293,
+      "azpTeamEntryId": null,
+      "bib": "8423",
+      "displayName": "SAMPLE RUNNER R",
+      "entryType": "IND",
+      "eventCourseId": 2530537,
+      "gender": "F",
+      "team": null
+    },
+    {
+      "age": 31,
+      "azp": "ctlive",
+      "azpEntryId": 70078021,
+      "azpEventId": 83293,
+      "azpTeamEntryId": null,
+      "bib": "8425",
+      "displayName": "SAMPLE RUNNER S",
+      "entryType": "IND",
+      "eventCourseId": 2530536,
+      "gender": "M",
+      "team": null
+    },
+    {
+      "age": 24,
+      "azp": "ctlive",
+      "azpEntryId": 70078039,
+      "azpEventId": 83293,
+      "azpTeamEntryId": null,
+      "bib": "8427",
+      "displayName": "SAMPLE RUNNER T",
+      "entryType": "IND",
+      "eventCourseId": 2530592,
+      "gender": "M",
+      "team": null
+    },
+    {
+      "age": 48,
+      "azp": "ctlive",
+      "azpEntryId": 70078050,
+      "azpEventId": 83293,
+      "azpTeamEntryId": null,
+      "bib": "8421",
+      "displayName": "SAMPLE RUNNER D",
+      "entryType": "IND",
+      "eventCourseId": 2530164,
+      "gender": "M",
+      "team": null
+    }
+  ]
+}

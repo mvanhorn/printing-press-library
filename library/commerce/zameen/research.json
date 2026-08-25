@@ -1,0 +1,238 @@
+{
+  "api_name": "zameen",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "homehunt",
+      "url": "https://github.com/afspies/homehunt",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "zameen-com-scrapper",
+      "url": "https://github.com/IIvexII/zameen-com-scrapper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 6,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "zameen.com-scraper",
+      "url": "https://github.com/osmanrkhan/zameen.com-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "zameen-scraper",
+      "url": "https://github.com/aliraheel626/zameen-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-24T18:20:00Z",
+  "novel_features": [
+    {
+      "name": "Saved-search cross-run diff",
+      "command": "watch",
+      "description": "Re-run a saved search and see exactly which listings are new and which dropped in price since last time.",
+      "rationale": "Only possible because every run's results are snapshotted in a local SQLite store and diffed across runs — Zameen has no API and no alerts.",
+      "example": "zameen-pp-cli watch dha-homes --city Islamabad --purpose buy --type Homes --area DHA_Defence --agent",
+      "why_it_matters": "Reach for this to monitor a market over time instead of re-eyeballing search pages; it answers 'what changed since yesterday?' which no single fetch can.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Area price research",
+      "command": "comps",
+      "description": "Median price, price-per-Marla, and inventory count for an area or society, computed from your synced listings.",
+      "rationale": "Aggregates the local store by the location hierarchy with Marla-normalized math; no Zameen call returns area medians.",
+      "example": "zameen-pp-cli comps --city Lahore --area DHA_Defence --agent --select area,median_price,median_price_per_marla,count",
+      "why_it_matters": "Use for area-level comps sheets and market rollups before a pitch or an offer.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Below-market plot-file detector",
+      "command": "deals",
+      "description": "Ranks scanned listings by how far under the area's price-per-Marla they sit and flags below-market files.",
+      "rationale": "Joins each listing's computed price-per-Marla to the area median across the scanned set — a cross-entity comparison no page shows.",
+      "example": "zameen-pp-cli deals --city Islamabad --area DHA_Defence --type Plots --agent",
+      "why_it_matters": "Reach for this to surface underpriced plot files in Pakistan's plot-flipping market before another dealer grabs them.",
+      "group": "Deal-finding"
+    },
+    {
+      "name": "Days-on-market / aging inventory",
+      "command": "aging",
+      "description": "Lists the longest-standing inventory by days-on-market, derived from each listing's update timestamp.",
+      "rationale": "Computes age from unix timestamps in local SQLite — negotiation leverage the listing page never surfaces.",
+      "example": "zameen-pp-cli aging --city Islamabad --days 90 --agent",
+      "why_it_matters": "Use to find sellers likely to negotiate — inventory that has sat on the market longest.",
+      "group": "Deal-finding"
+    },
+    {
+      "name": "Agency inventory leaderboard",
+      "command": "agencies",
+      "description": "Ranks agencies by listing count and median asking price in an area, from your synced listings.",
+      "rationale": "Joins listings to their agency and rolls up locally — a supply-side view no single Zameen page exposes.",
+      "example": "zameen-pp-cli agencies --city Karachi --agent",
+      "why_it_matters": "Use to see who dominates supply in a society before choosing an agent or gauging market concentration.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Saved-search cross-run diff",
+      "command": "watch",
+      "description": "Re-run a saved search and see exactly which listings are new and which dropped in price since last time.",
+      "rationale": "Only possible because every run's results are snapshotted in a local SQLite store and diffed across runs — Zameen has no API and no alerts.",
+      "example": "zameen-pp-cli watch dha-homes --city Islamabad --purpose buy --type Homes --area DHA_Defence --agent",
+      "why_it_matters": "Reach for this to monitor a market over time instead of re-eyeballing search pages; it answers 'what changed since yesterday?' which no single fetch can.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Area price research",
+      "command": "comps",
+      "description": "Median price, price-per-Marla, and inventory count for an area or society, computed from your synced listings.",
+      "rationale": "Aggregates the local store by the location hierarchy with Marla-normalized math; no Zameen call returns area medians.",
+      "example": "zameen-pp-cli comps --city Lahore --area DHA_Defence --agent --select area,median_price,median_price_per_marla,count",
+      "why_it_matters": "Use for area-level comps sheets and market rollups before a pitch or an offer.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Below-market plot-file detector",
+      "command": "deals",
+      "description": "Ranks scanned listings by how far under the area's price-per-Marla they sit and flags below-market files.",
+      "rationale": "Joins each listing's computed price-per-Marla to the area median across the scanned set — a cross-entity comparison no page shows.",
+      "example": "zameen-pp-cli deals --city Islamabad --area DHA_Defence --type Plots --agent",
+      "why_it_matters": "Reach for this to surface underpriced plot files in Pakistan's plot-flipping market before another dealer grabs them.",
+      "group": "Deal-finding"
+    },
+    {
+      "name": "Days-on-market / aging inventory",
+      "command": "aging",
+      "description": "Lists the longest-standing inventory by days-on-market, derived from each listing's update timestamp.",
+      "rationale": "Computes age from unix timestamps in local SQLite — negotiation leverage the listing page never surfaces.",
+      "example": "zameen-pp-cli aging --city Islamabad --days 90 --agent",
+      "why_it_matters": "Use to find sellers likely to negotiate — inventory that has sat on the market longest.",
+      "group": "Deal-finding"
+    },
+    {
+      "name": "Agency inventory leaderboard",
+      "command": "agencies",
+      "description": "Ranks agencies by listing count and median asking price in an area, from your synced listings.",
+      "rationale": "Joins listings to their agency and rolls up locally — a supply-side view no single Zameen page exposes.",
+      "example": "zameen-pp-cli agencies --city Karachi --agent",
+      "why_it_matters": "Use to see who dominates supply in a society before choosing an agent or gauging market concentration.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Zameen",
+    "headline": "Search Zameen.com property listings from your terminal — real filters, an offline SQLite mirror, saved-search monitoring, and price-drop alerts no scraper offers.",
+    "value_prop": "Zameen.com has no API and no alerts, so investors and agents refresh the same search pages by hand every day. This CLI searches with real filters (price, beds, area in Marla/Kanal, city/area), mirrors results into a local SQLite store, and diffs runs to surface new listings and price drops. Built-in `comps`, `deals`, and `aging` turn that store into area medians, below-market plot-file detection, and days-on-market leverage.",
+    "auth_narrative": "No account or API key needed. Zameen's public search is served as standard HTTP; the CLI reads listing data straight from the server-rendered search pages.",
+    "quickstart": [
+      {
+        "command": "zameen-pp-cli doctor",
+        "comment": "Confirm Zameen is reachable and the local store is ready — no auth required."
+      },
+      {
+        "command": "zameen-pp-cli find --city Islamabad --purpose buy --type Homes --min-beds 3 --max-price 30000000",
+        "comment": "Search 3+ bed homes for sale in Islamabad under 3 crore."
+      },
+      {
+        "command": "zameen-pp-cli pull --city Islamabad --purpose buy --type Homes --max-pages 5",
+        "comment": "Mirror the first 5 pages into the local store so offline search, comps, and diffing work."
+      },
+      {
+        "command": "zameen-pp-cli comps --city Islamabad --area DHA_Defence",
+        "comment": "Area price research: median price and price-per-Marla from your synced listings."
+      },
+      {
+        "command": "zameen-pp-cli watch dha-homes --city Islamabad --purpose buy --type Homes --area DHA_Defence",
+        "comment": "Save this search and, on each re-run, see new listings and price drops since last time."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "find returns 0 results for a city name",
+        "fix": "Use a Zameen location slug with its numeric id (e.g. Islamabad-3, Lahore_DHA_Defence-9), or one of the known cities: Islamabad, Lahore, Karachi, Rawalpindi, Faisalabad, Multan."
+      },
+      {
+        "symptom": "comps / deals / watch say the store is empty",
+        "fix": "Run zameen-pp-cli pull --city \u003cc\u003e --purpose \u003cbuy|rent\u003e --type \u003cHomes|Plots|Commercial\u003e --max-pages \u003cn\u003e first to populate the local mirror."
+      },
+      {
+        "symptom": "scan seems capped and misses matches",
+        "fix": "Raise --max-scan-pages (find) or --max-pages (pull); Zameen filters are applied client-side, so more pages are scanned to find matches."
+      },
+      {
+        "symptom": "HTTP 403 or challenge page from Zameen",
+        "fix": "The CLI already sends a browser User-Agent; if it persists you are likely rate-limited — wait and retry, or lower --max-pages."
+      }
+    ],
+    "when_to_use": "Use this CLI to search and monitor Pakistan property listings from a terminal or an agent: parametric search across buy/rent, homes/plots/commercial; keeping a local SQLite mirror for offline comps, deals, and aging; and tracking a saved search over time for new listings and price drops. It is strongest for market research, deal-hunting (below-market plot files, aging inventory), and area comps.",
+    "anti_triggers": [
+      "Do not use this CLI to post, edit, or delete listings — it is read-only over Zameen's public search.",
+      "Do not use it to access a Zameen account, favorites, or saved alerts — it uses no login and touches no account data.",
+      "Do not use it for property portals outside Pakistan (Zillow, Rightmove, Bayut) — it is Zameen-specific.",
+      "Do not use it as a legal source of truth for prices or ownership — listing data is asking prices from public pages."
+    ],
+    "recipes": [
+      {
+        "title": "Search homes for sale under budget",
+        "command": "zameen-pp-cli find --city Islamabad --purpose buy --type Homes --min-beds 3 --max-price 30000000 --sort price-asc",
+        "explanation": "Three-plus-bed homes for sale in Islamabad under 3 crore, cheapest first."
+      },
+      {
+        "title": "Bulk-export a search to CSV",
+        "command": "zameen-pp-cli find --city Lahore --purpose rent --type Homes --max-scan-pages 10 --csv \u003e lahore-rentals.csv",
+        "explanation": "Scan up to 10 pages of Lahore rentals and write a CSV for a spreadsheet."
+      },
+      {
+        "title": "Find below-market plot files",
+        "command": "zameen-pp-cli deals --city Islamabad --area DHA_Defence --type Plots --agent",
+        "explanation": "Rank DHA Islamabad plot files by how far under the area price-per-Marla they sit, as structured output for an agent."
+      },
+      {
+        "title": "Narrow a verbose listing payload for an agent",
+        "command": "zameen-pp-cli find --city Karachi --purpose buy --type Homes --agent --select external_id,title,price,area_marla,beds,location",
+        "explanation": "Return only the fields an agent needs from each listing instead of the full record, keeping context small."
+      },
+      {
+        "title": "Monitor a saved search for changes",
+        "command": "zameen-pp-cli watch dha-homes --city Islamabad --purpose buy --type Homes --area DHA_Defence",
+        "explanation": "On each run, diff against the last snapshot to show new listings and price drops."
+      }
+    ],
+    "trigger_phrases": [
+      "search zameen for houses in Islamabad",
+      "find plots in DHA Lahore",
+      "price drops on my saved zameen search",
+      "cheapest 3 bed apartment for rent in Karachi",
+      "below market plot files in Bahria",
+      "use zameen",
+      "run zameen"
+    ]
+  }
+}

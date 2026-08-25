@@ -10,9 +10,8 @@ import (
 func newDeliveryCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "delivery",
-		Short:       "Manage delivery command groups",
-		Hidden:      true,
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Short:       "Delivery schedule: upcoming delivery date, edit-lock window, and reschedule calendar",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:api-resource": "true", "pp:typed-exit-codes": "0,2"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "airhint-poll-error-overwrite",
+  "applied_at": "2026-06-18",
+  "base_run_id": "20260617-221742-db6c3453",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Preserve real poll-loop error in predict-sweep and compare-routes.",
+  "reason": "When GetNoCache fails during search-result polling, the error was already stored in r.Error/res.Error before breaking out of the loop. The subsequent empty-flights guard overwrote it with a generic 'no flights found' message, making API/network failures indistinguishable from genuine no-availability results. Added an empty-string guard so the root-cause error is preserved.",
+  "files": ["internal/cli/workflow_transcendence.go"],
+  "validated_outcome": "A poll-phase network or API error surfaces as the real error string; 'no flights found' is only emitted when no error occurred and the result is genuinely empty.",
+  "upstream_issue": null
+}

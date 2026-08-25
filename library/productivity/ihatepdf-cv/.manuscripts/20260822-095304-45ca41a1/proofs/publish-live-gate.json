@@ -1,0 +1,1913 @@
+{
+  "dir": "/Users/apple/printing-press/.publish-repo-workspace-0b5cfea6/library/productivity/ihatepdf-cv",
+  "binary": "/var/folders/4c/4s9qrz4s335f5whj7y427ns00000gn/T/ihatepdf-cv-pp-cli-dogfood-956230852",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 106,
+  "passed": 106,
+  "failed": 0,
+  "skipped": 87,
+  "unverified": 87,
+  "pass_rate": 100,
+  "commands": [
+    "api",
+    "catalog index",
+    "catalog search",
+    "catalog status",
+    "doctor",
+    "encrypt",
+    "export",
+    "extract-text",
+    "feedback",
+    "feedback list",
+    "fingerprint",
+    "images-to-pdf",
+    "import",
+    "inspect",
+    "learnings candidates",
+    "learnings confirm",
+    "learnings forget",
+    "learnings list",
+    "learnings purge",
+    "learnings reject",
+    "learnings stats",
+    "merge",
+    "merge-pdf",
+    "playbook amend",
+    "playbook list",
+    "privacy-scan",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "recall",
+    "rotate",
+    "search",
+    "split",
+    "tail",
+    "teach",
+    "teach-lookup",
+    "teach-pattern",
+    "teach-playbook",
+    "text-to-pdf",
+    "which",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  ihatepdf-cv-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  ihatepdf-cv-pp-cli api\n\n  # Show methods for a specific interface\n  ihatepdf-cv-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"interface\" at depth 0"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"interface\" at depth 0"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'ihatepdf-cv-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "catalog index",
+      "kind": "help",
+      "args": [
+        "catalog",
+        "index",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Index PDF files by path, page count, hash, and extracted text.\n\nUsage:\n  ihatepdf-cv-pp-cli catalog index [paths...] [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli catalog index ./reports --recursive --agent\n  ihatepdf-cv-pp-cli catalog index report.pdf --db ./catalog.db --json\n\nFlags:\n      --db string   SQLite catalog path\n  -h, --help        help for index\n      --recursive   walk nested directories\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "catalog index",
+      "kind": "happy_path",
+      "args": [
+        "catalog",
+        "index",
+        "testdata",
+        "--recursive",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"db\": \"/var/folders/4c/4s9qrz4s335f5whj7y427ns00000gn/T/printing-press-subprocess-3848983860/.local/share/ihatepdf-cv-pp-cli/data.db\",\n    \"indexed\": 1,\n    \"operation\": \"catalog-index\",\n    \"source\": \"local-file\"\n  }\n}\n"
+    },
+    {
+      "command": "catalog index",
+      "kind": "json_fidelity",
+      "args": [
+        "catalog",
+        "index",
+        "testdata",
+        "--recursive",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"db\": \"/var/folders/4c/4s9qrz4s335f5whj7y427ns00000gn/T/printing-press-subprocess-3848983860/.local/share/ihatepdf-cv-pp-cli/data.db\",\n    \"indexed\": 1,\n    \"operation\": \"catalog-index\",\n    \"source\": \"local-file\"\n  }\n}\n"
+    },
+    {
+      "command": "catalog index",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "catalog search",
+      "kind": "help",
+      "args": [
+        "catalog",
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search indexed PDF paths and extracted text from the local catalog.\n\nUsage:\n  ihatepdf-cv-pp-cli catalog search [query] [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli catalog search invoice --limit 20 --agent\n\nFlags:\n      --db string   SQLite catalog path\n  -h, --help        help for search\n      --limit int   maximum matches (default 50)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "catalog search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "catalog search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "catalog search",
+      "kind": "error_path",
+      "args": [
+        "catalog",
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"query\": \"__printing_press_invalid__\",\n  \"results\": null,\n  \"source\": \"local-file\"\n}\n"
+    },
+    {
+      "command": "catalog status",
+      "kind": "help",
+      "args": [
+        "catalog",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Report indexed PDF count and last local catalog update.\n\nUsage:\n  ihatepdf-cv-pp-cli catalog status [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli catalog status --agent\n\nFlags:\n      --db string   SQLite catalog path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "catalog status",
+      "kind": "happy_path",
+      "args": [
+        "catalog",
+        "status",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"count\": 1,\n    \"last_indexed\": \"2026-08-22T08:19:58Z\",\n    \"resource\": \"pdf_catalog\",\n    \"source\": \"local-file\"\n  }\n}\n"
+    },
+    {
+      "command": "catalog status",
+      "kind": "json_fidelity",
+      "args": [
+        "catalog",
+        "status",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"count\": 1,\n    \"last_indexed\": \"2026-08-22T08:19:58Z\",\n    \"resource\": \"pdf_catalog\",\n    \"source\": \"local-file\"\n  }\n}\n"
+    },
+    {
+      "command": "catalog status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  ihatepdf-cv-pp-cli doctor [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli doctor\n  ihatepdf-cv-pp-cli doctor --json\n  ihatepdf-cv-pp-cli doctor --fail-on warn\n  ihatepdf-cv-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  OK Cache: map[age_seconds:0 checked_at:2026-08-22T08:19:58Z fresh:true source:local stale_after_seconds:1800 status:fresh]\n  config_path: /var/folders/4c/4s9qrz4s335f5whj7y427ns00000gn/T/printing-press-subprocess-3848983860/.config/ihatepdf-cv-pp-cli/config.toml\n  base_url: https://www.ihatepdf.cv\n  version: 0.0.0-dev\n  Paths:\n    config: /var/folders/4c/4s9qrz4s335f5whj7y427ns00000gn/T/printing-press-subprocess-3848983860/.config/ihatepdf-cv-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/4c/4s9qrz4s335f5whj7y427ns00000gn/T/printing-press-subprocess-3848983860/.local/share/ihatepdf-cv-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/4c/4s9qrz4s335f5whj7y427ns00000gn/T/printing-press-subprocess-3848983860/.local/state/ihatepdf-cv-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/4c/4s9qrz4s335f5whj7y427ns00000gn/T/printing-press-subprocess-3848983860/.cache/ihatepdf-cv-pp-cli (XDG_CACHE_HOME)\nGET https://www.ihatepdf.cv/\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://www.ihatepdf.cv\",\n  \"cache\": {\n    \"age_seconds\": 0,\n    \"checked_at\": \"2026-08-22T08:19:58Z\",\n    \"fresh\": true,\n    \"source\": \"local\",\n    \"stale_after_seconds\": 1800,\n    \"status\": \"fresh\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/4c/4s9qrz4s335f5whj7y427ns00000gn/T/printing-press-subprocess-3848983860/.config/ihatepdf-cv-pp-cli/config.toml\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/4c/4s9qrz4s335f5whj7y427ns00000gn/T/printing-press-subprocess-3848983860/.cache/ihatepdf-cv-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/4c/4s9qrz4s335f5whj7y427ns00000gn/T/printing-press-subprocess-3848983860/.config/ihatepdf-cv-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/4c/4s9qrz4s335f5whj7y427ns00000gn/T/printing-press-subprocess-3848983860/.local/share/ihatepdf-cv-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/4c/4s9qrz4s335f5whj7y427ns00000gn/T/printing-press-subprocess-3848983860/.local/state/ihatepdf-cv-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"0.0.0-dev\"\n}\nGET https://www.ihatepdf.cv/\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "encrypt",
+      "kind": "help",
+      "args": [
+        "encrypt",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Password-protect a PDF locally with AES encryption.\n\nUsage:\n  ihatepdf-cv-pp-cli encrypt [input.pdf] [flags]\n\nExamples:\n  IHATEPDF_CV_PASSWORD=secret ihatepdf-cv-pp-cli encrypt report.pdf --output locked.pdf --json\n\nFlags:\n  -h, --help              help for encrypt\n      --output string     output PDF path\n      --password string   encryption password (prefer IHATEPDF_CV_PASSWORD)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "encrypt",
+      "kind": "happy_path",
+      "args": [
+        "encrypt",
+        "testdata/fixture.pdf",
+        "--output",
+        "verify-encrypted.pdf",
+        "--password",
+        "test-password",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "dry-run: would run encrypt PDF; no changes made\n"
+    },
+    {
+      "command": "encrypt",
+      "kind": "json_fidelity",
+      "args": [
+        "encrypt",
+        "testdata/fixture.pdf",
+        "--password",
+        "test-password",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"encrypt PDF\",\"would\":\"run encrypt PDF; no changes made\"}\n"
+    },
+    {
+      "command": "encrypt",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "encrypt",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "export",
+      "kind": "help",
+      "args": [
+        "export",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Export a local PDF inspection manifest with pages, metadata, and hashes.\n\nUsage:\n  ihatepdf-cv-pp-cli export [files...] [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli export reports/*.pdf --output manifest.json --agent\n\nFlags:\n  -h, --help            help for export\n      --output string   JSON manifest output path\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "export",
+      "kind": "happy_path",
+      "args": [
+        "export",
+        "testdata/fixture.pdf",
+        "--output",
+        "verify-manifest.json",
+        "--agent",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"export PDF inspection manifest\",\"would\":\"run export PDF inspection manifest; no changes made\"}\n"
+    },
+    {
+      "command": "export",
+      "kind": "json_fidelity",
+      "args": [
+        "export",
+        "testdata/fixture.pdf",
+        "--agent",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"export PDF inspection manifest\",\"would\":\"run export PDF inspection manifest; no changes made\"}\n"
+    },
+    {
+      "command": "export",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "export",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "extract-text",
+      "kind": "help",
+      "args": [
+        "extract-text",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Extract readable PDF text to stdout or a file.\n\nUsage:\n  ihatepdf-cv-pp-cli extract-text [input.pdf] [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli extract-text report.pdf --json\n  cat report.pdf | ihatepdf-cv-pp-cli extract-text --stdin --agent\n\nFlags:\n  -h, --help            help for extract-text\n      --output string   optional text output path\n      --stdin           read PDF bytes from stdin\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "extract-text",
+      "kind": "happy_path",
+      "args": [
+        "extract-text",
+        "testdata/fixture.pdf",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"characters\": 41,\n  \"output\": \"\",\n  \"path\": \"testdata/fixture.pdf\",\n  \"text\": \"fixture text for offline PDF verification\"\n}\n"
+    },
+    {
+      "command": "extract-text",
+      "kind": "json_fidelity",
+      "args": [
+        "extract-text",
+        "testdata/fixture.pdf",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"characters\": 41,\n  \"output\": \"\",\n  \"path\": \"testdata/fixture.pdf\",\n  \"text\": \"fixture text for offline PDF verification\"\n}\n"
+    },
+    {
+      "command": "extract-text",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Feedback is captured locally first in the CLI data directory's feedback.jsonl.\nWhen `IHATEPDF_CV_FEEDBACK_ENDPOINT` is set and either --send is\npassed or `IHATEPDF_CV_FEEDBACK_AUTO_SEND=true`, the entry is\nPOSTed as JSON after the local write.\n\nWrite what surprised you or tripped you up, not a bug report. The\nloop is: agent notices friction -\u003e one invocation -\u003e captured -\u003e the\nmaintainer sees it.\n\nUsage:\n  ihatepdf-cv-pp-cli feedback [text] [flags]\n  ihatepdf-cv-pp-cli feedback [command]\n\nExamples:\n  ihatepdf-cv-pp-cli feedback \"the merge command saved me time\"\n  ihatepdf-cv-pp-cli feedback --stdin\n\nAvailable Commands:\n  list        List recent feedback entries\n\nFlags:\n  -h, --help    help for feedback\n      --send    POST to the configured feedback endpoint in addition to local write\n      --stdin   Read feedback body from stdin rather than arguments\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n\nUse \"ihatepdf-cv-pp-cli feedback [command] --help\" for more information about a command.\n"
+    },
+    {
+      "command": "feedback",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"text\" at depth 0"
+    },
+    {
+      "command": "feedback",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"text\" at depth 0"
+    },
+    {
+      "command": "feedback",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "feedback",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"text\" at depth 0"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  ihatepdf-cv-pp-cli feedback list [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli feedback list\n  ihatepdf-cv-pp-cli feedback list --limit 5\n  ihatepdf-cv-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "fingerprint",
+      "kind": "help",
+      "args": [
+        "fingerprint",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fingerprint local files; returns labeled SHA-256, SHA-1, and MD5 hashes.\n\nUsage:\n  ihatepdf-cv-pp-cli fingerprint [files...] [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli fingerprint report.pdf --json\n  echo artifact | ihatepdf-cv-pp-cli fingerprint --stdin --agent\n\nFlags:\n  -h, --help    help for fingerprint\n      --stdin   fingerprint bytes read from stdin\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "fingerprint",
+      "kind": "happy_path",
+      "args": [
+        "fingerprint",
+        "testdata/fixture.pdf",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 1,\n  \"files\": [\n    {\n      \"path\": \"testdata/fixture.pdf\",\n      \"size\": 1140,\n      \"md5\": \"262e66f268c021085fe939aacbc11da6\",\n      \"sha1\": \"9b76e45468f97e1ae025beba1e9a39b853b64f22\",\n      \"sha256\": \"d5348c4fcfeabac5cdc6f9b46b49859c10377445a16da61dc943cd8a067bf5f6\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "fingerprint",
+      "kind": "json_fidelity",
+      "args": [
+        "fingerprint",
+        "testdata/fixture.pdf",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 1,\n  \"files\": [\n    {\n      \"path\": \"testdata/fixture.pdf\",\n      \"size\": 1140,\n      \"md5\": \"262e66f268c021085fe939aacbc11da6\",\n      \"sha1\": \"9b76e45468f97e1ae025beba1e9a39b853b64f22\",\n      \"sha256\": \"d5348c4fcfeabac5cdc6f9b46b49859c10377445a16da61dc943cd8a067bf5f6\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "fingerprint",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "images-to-pdf",
+      "kind": "help",
+      "args": [
+        "images-to-pdf",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Convert JPG and PNG images to a local PDF.\n\nUsage:\n  ihatepdf-cv-pp-cli images-to-pdf [images...] [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli images-to-pdf scan-1.png scan-2.jpg --output scans.pdf --json\n\nFlags:\n  -h, --help            help for images-to-pdf\n      --output string   output PDF path\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "images-to-pdf",
+      "kind": "happy_path",
+      "args": [
+        "images-to-pdf",
+        "testdata/fixture.png",
+        "scan-2.jpg",
+        "--output",
+        "verify-images.pdf",
+        "--json",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"convert images to PDF\",\"would\":\"run convert images to PDF; no changes made\"}\n"
+    },
+    {
+      "command": "images-to-pdf",
+      "kind": "json_fidelity",
+      "args": [
+        "images-to-pdf",
+        "testdata/fixture.png",
+        "scan-2.jpg",
+        "--json",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"convert images to PDF\",\"would\":\"run convert images to PDF; no changes made\"}\n"
+    },
+    {
+      "command": "images-to-pdf",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "images-to-pdf",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import local PDFs into the searchable catalog without uploading them.\n\nUsage:\n  ihatepdf-cv-pp-cli import [paths...] [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli import ./reports --recursive --agent\n\nFlags:\n      --db string   SQLite catalog path\n  -h, --help        help for import\n      --recursive   walk nested directories\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": [
+        "import",
+        "testdata",
+        "--recursive",
+        "--agent",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"index local PDF catalog\",\"would\":\"run index local PDF catalog; no changes made\"}\n"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": [
+        "import",
+        "testdata",
+        "--recursive",
+        "--agent",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"index local PDF catalog\",\"would\":\"run index local PDF catalog; no changes made\"}\n"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "inspect",
+      "kind": "help",
+      "args": [
+        "inspect",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Inspect local PDF structure and metadata; returns page count, hints, and hashes.\n\nUsage:\n  ihatepdf-cv-pp-cli inspect [input.pdf] [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli inspect report.pdf --json\n\nFlags:\n  -h, --help   help for inspect\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "inspect",
+      "kind": "happy_path",
+      "args": [
+        "inspect",
+        "testdata/fixture.pdf",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"path\": \"testdata/fixture.pdf\",\n  \"size\": 1140,\n  \"pages\": 1,\n  \"valid\": true,\n  \"metadata_hints\": [\n    \"/Producer\"\n  ],\n  \"hashes\": {\n    \"path\": \"testdata/fixture.pdf\",\n    \"size\": 1140,\n    \"md5\": \"262e66f268c021085fe939aacbc11da6\",\n    \"sha1\": \"9b76e45468f97e1ae025beba1e9a39b853b64f22\",\n    \"sha256\": \"d5348c4fcfeabac5cdc6f9b46b49859c10377445a16da61dc943cd8a067bf5f6\"\n  }\n}\n"
+    },
+    {
+      "command": "inspect",
+      "kind": "json_fidelity",
+      "args": [
+        "inspect",
+        "testdata/fixture.pdf",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"path\": \"testdata/fixture.pdf\",\n  \"size\": 1140,\n  \"pages\": 1,\n  \"valid\": true,\n  \"metadata_hints\": [\n    \"/Producer\"\n  ],\n  \"hashes\": {\n    \"path\": \"testdata/fixture.pdf\",\n    \"size\": 1140,\n    \"md5\": \"262e66f268c021085fe939aacbc11da6\",\n    \"sha1\": \"9b76e45468f97e1ae025beba1e9a39b853b64f22\",\n    \"sha256\": \"d5348c4fcfeabac5cdc6f9b46b49859c10377445a16da61dc943cd8a067bf5f6\"\n  }\n}\n"
+    },
+    {
+      "command": "inspect",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "candidates",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Lists rows from the learn_candidates table: corrections and playbook\nshapes the CLI derived from observed usage. Candidates are quarantined\nuntil an explicit 'learnings confirm \u003cid\u003e' materializes them; they never\nalter command behavior or recall's verified results on their own.\n\nUsage:\n  ihatepdf-cv-pp-cli learnings candidates [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli learnings candidates\n  ihatepdf-cv-pp-cli learnings candidates --class flag_alias\n  ihatepdf-cv-pp-cli learnings candidates --status rejected\n\nFlags:\n      --class string    Filter by class (flag_alias | playbook_candidate)\n      --db string       SQLite database file path (default: resolved data directory data.db)\n  -h, --help            help for candidates\n      --limit int       Maximum rows to return (default: capped)\n      --status string   Filter by status (open | confirmed | rejected | expired; empty for all) (default \"open\")\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "candidates"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "candidates",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "confirm",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Promotes one open candidate into the verified knowledge tables.\n\nThe full candidate payload is printed before anything is written, so\nthe caller always sees exactly what is being blessed. Materialization\nis per class:\n\n  playbook_candidate  upserts a playbook row for the candidate's query\n                      family (confidence 2, the same floor as a teach)\n  flag_alias          appends a timestamped [amend ...] correction note\n                      to the query family's playbook notes\n\nUsage errors (unknown id, non-open status) exit 2.\n\nUsage:\n  ihatepdf-cv-pp-cli learnings confirm \u003cid\u003e [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli learnings confirm 3\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for confirm\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "forget",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Removes rows from the search_learnings table so a bad teach can be\nundone without dropping the whole DB.\n\nRequires at least one of --resource, --action, or --all.\n\nUsage:\n  ihatepdf-cv-pp-cli learnings forget \u003cquery\u003e [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli learnings forget \"\u003cquestion\u003e\" --resource \u003cid\u003e\n  ihatepdf-cv-pp-cli learnings forget \"\u003cquestion\u003e\" --all\n\nFlags:\n      --action string     Delete only rules with this action (boost | hide | alias_of)\n      --all               Delete every rule for the supplied query\n      --db string         SQLite database file path (default: resolved data directory data.db)\n  -h, --help              help for forget\n      --resource string   Delete only the rule for this resource_id\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "learnings list",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recorded learnings with query, source, confidence, and warning filters\n\nUsage:\n  ihatepdf-cv-pp-cli learnings list [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli learnings list --agent\n  ihatepdf-cv-pp-cli learnings list --query \"\u003csubstring\u003e\"\n  ihatepdf-cv-pp-cli learnings list --warnings --agent\n\nFlags:\n      --action string        Filter by action (boost | hide | alias_of)\n      --db string            SQLite database file path (default: resolved data directory data.db)\n  -h, --help                 help for list\n      --limit int            Maximum rows to return (default 200)\n      --min-confidence int   Filter by minimum confidence\n      --query string         Filter by normalized query substring\n      --resource string      Filter by resource_id\n      --source string        Filter by source (taught | manual-forget)\n      --warnings             Return teach-time warnings from teach.log instead of stored learning rows\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "purge",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Deletes expired and confirmed candidate rows. Materialized artifacts\n(playbook rows, correction notes) are untouched. Rejected rows are kept\nby default because they tombstone their derivation signatures; pass\n--tombstones to remove them too, which re-allows derivation of those\nsignatures. Open rows are never purged.\n\nOpen rows past the unseen TTL are swept to expired first, so a single\npurge also clears stale candidates nobody judged.\n\nUsage:\n  ihatepdf-cv-pp-cli learnings purge [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli learnings purge\n  ihatepdf-cv-pp-cli learnings purge --tombstones\n\nFlags:\n      --db string    SQLite database file path (default: resolved data directory data.db)\n  -h, --help         help for purge\n      --tombstones   Also delete rejected rows (re-allows derivation of their signatures)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "purge",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "dry-run: would run learnings purge; no changes made\n"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "purge",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"learnings purge\",\"would\":\"run learnings purge; no changes made\"}\n"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "reject",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Marks a candidate rejected. The rejected row stays as a tombstone on\nits derivation signature: the identical observation never re-derives a\ncandidate, and recall never resurfaces it.\n\nRejecting a CONFIRMED playbook_candidate tombstones the candidate but\nleaves the playbook row in place; repair the guidance with\n'playbook amend' if needed. A confirmed flag_alias cannot be rejected:\nits correction note already lives in the family playbook, so repair the\nguidance with 'playbook amend' instead.\n\nUsage errors (unknown id, no-reject-path candidates) exit 2.\n\nUsage:\n  ihatepdf-cv-pp-cli learnings reject \u003cid\u003e [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli learnings reject 3\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for reject\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"id\""
+    },
+    {
+      "command": "learnings reject",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"id\""
+    },
+    {
+      "command": "learnings reject",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"id\""
+    },
+    {
+      "command": "learnings stats",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "stats",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Aggregates the local learn_events table into the loop's headline\nmetrics:\n\n  recall_hit_rate           recall hits / (hits + misses)\n  teach_to_reuse            fraction of taught learnings later seen in a\n                            recall hit (joined by learning row id, with a\n                            query-family fallback for older rows)\n  playbook_resolution_rate  playbook hits not followed by an amend on the\n                            same query family\n  candidates_confirmed/rejected  judgment counts on auto-captured candidates\n\nRates are null until their denominator is non-zero. Everything is\nlocal-only: events never leave this machine.\n\nUsage:\n  ihatepdf-cv-pp-cli learnings stats [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli learnings stats\n  ihatepdf-cv-pp-cli learnings stats --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for stats\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "stats"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"recall_hit_rate\": null,\n  \"recall_hits\": 0,\n  \"recall_misses\": 0,\n  \"teach_to_reuse\": null,\n  \"taught_rows\": 0,\n  \"reused_rows\": 0,\n  \"playbook_resolution_rate\": null,\n  \"playbook_hits\": 0,\n  \"playbook_hits_amended\": 0,\n  \"candidates_confirmed\": 0,\n  \"candidates_rejected\": 0,\n  \"event_counts\": {},\n  \"events_pruned\": 0\n}\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "stats",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"recall_hit_rate\": null,\n  \"recall_hits\": 0,\n  \"recall_misses\": 0,\n  \"teach_to_reuse\": null,\n  \"taught_rows\": 0,\n  \"reused_rows\": 0,\n  \"playbook_resolution_rate\": null,\n  \"playbook_hits\": 0,\n  \"playbook_hits_amended\": 0,\n  \"candidates_confirmed\": 0,\n  \"candidates_rejected\": 0,\n  \"event_counts\": {},\n  \"events_pruned\": 0\n}\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "merge",
+      "kind": "help",
+      "args": [
+        "merge",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Combine PDFs in explicit order without uploading them.\n\nUsage:\n  ihatepdf-cv-pp-cli merge [files...] [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli merge cover.pdf appendix.pdf --output packet.pdf --json\n\nFlags:\n      --divider-page    insert a divider page between input PDFs\n  -h, --help            help for merge\n      --output string   output PDF path (never overwrites an existing file)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "merge",
+      "kind": "happy_path",
+      "args": [
+        "merge",
+        "testdata/fixture.pdf",
+        "testdata/fixture.pdf",
+        "--output",
+        "verify-merge.pdf",
+        "--json",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"merge PDFs\",\"would\":\"run merge PDFs; no changes made\"}\n"
+    },
+    {
+      "command": "merge",
+      "kind": "json_fidelity",
+      "args": [
+        "merge",
+        "testdata/fixture.pdf",
+        "testdata/fixture.pdf",
+        "--json",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"merge PDFs\",\"would\":\"run merge PDFs; no changes made\"}\n"
+    },
+    {
+      "command": "merge",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "merge",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "merge-pdf",
+      "kind": "help",
+      "args": [
+        "merge-pdf",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check the ihatepdf.cv website\n\nUsage:\n  ihatepdf-cv-pp-cli merge-pdf [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli merge-pdf\n\nFlags:\n  -h, --help   help for merge-pdf\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "merge-pdf",
+      "kind": "happy_path",
+      "args": [
+        "merge-pdf"
+      ],
+      "status": "pass",
+      "output_sample": "\u003c!DOCTYPE html\u003e\n\u003chtml lang=\"en\" prefix=\"og: http://ogp.me/ns#\"\u003e\n\u003chead\u003e\n  \u003cmeta charset=\"UTF-8\"\u003e\n  \u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"\u003e\n  \u003cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"\u003e\n\n  \u003clink rel=\"preconnect\"   href=\"https://unpkg.com\"            crossorigin\u003e\n  \u003clink rel=\"preconnect\"   href=\"https://cdn.jsdelivr.net\"     crossorigin\u003e\n  \u003clink rel=\"preconnect\"   href=\"https://cdnjs.cloudflare.com\" crossorigin\u003e\n  \u003clink rel=\"dns-prefetch\" href=\"https://unpkg.com\"\u003e\n  \u003clink rel=\"dns-prefetch\" href=\"https://cdn.jsdelivr.net\"\u003e\n  \u003clink rel=\"dns-prefetch\" href=\"https://cdnjs.cloudflare.com\"\u003e\n  \u003cmeta name=\"msvalidate.01\" content=\"B0C521BA1A0E8DE6DD3BBB8AE344084C\" /\u003e\n\n  \u003c!-- ═══════════════════════════════════════════════════════════════\n       PRIMARY META\n       ═══════════════════════════════════════════════════════════════ --\u003e\n  \u003ctitle\u003eMerge PDF Files Free Online — Combine PDFs, No Upload, No Watermark\u003c/title\u003e\n  \u003cmeta name=\"title\" content=\"Merge PDF Files Free Online — Combine PDFs, No Upload, No Watermark\"\u003e\n  \u003cmeta name=\"description\" content=\"Combine multiple PDFs into one file free — drag to reorder, merge instantly, download. No upload to any server, no watermark, no sign-up. Works offline.\"\u003e\n\n  \u003cmeta name=\"keywords\" content=\"merge pdf online free, combine pdfs into one, merge pdfs no upload, combine pdf files free, merge multiple pdf files online free, join pdfs, merge pdfs no sign up, pdf merger free, merge pdf without uploading, how to merge pdf files free\"\u003e\n\n  \u003cmeta name=\"author\"    content=\"ihatepdf\"\u003e\n  \u003cmeta name=\"creator\"   content=\"ihatepdf\"\u003e\n  \u003cmeta name=\"publisher\" content=\"ihatepdf\"\u003e\n  \u003cmeta name=\"copyright\" content=\"© 2026 ihatepdf. All rights reserved.\"\u003e\n\n  \u003c!-- ═══════════════════════════════════════════════════════════════\n       PWA / MOBILE\n       ═══════════════════════════════════════════════════════════════ --\u003e\n  \u003cmeta name=\"mobile-web-app-capable\"                content=\"yes\"\u003e\n  \u003cmeta name=\"apple-mobile-web-app-capable\"          content=\"yes\"\u003e\n  \u003cmeta name=\"apple-mobile-web-app-status-bar-style\" content=\"black-translucent\"\u003e\n  \u003cmeta name=\"apple-mobile-web-app-title\"            content=\"ihatepdf\"\u003e\n  \u003cmeta name=\"application-name\"                      content=\"ihatepdf\"\u003e\n  \u003cmeta name=\"format-detection\"                      content=\"telephone=no\"\u003e\n  \u003cmeta name=\"theme-color\"                           content=\"#2563eb\"\u003e\n  \u003cmeta name=\"msapplication-TileColor\"               content=\"#2563eb\"\u003e\n  \u003cmeta name=\"msapplication-navbutton-color\"         content=\"#2563eb\"\u003e\n\n  \u003c!-- ═══════════════════════════════════════════════════════════════\n       CRAWL DIRECTIVES\n       ═══════════════════════════════════════════════════════════════ --\u003e\n  \u003cmeta name=\"robots\"        content=\"index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1\"\u003e\n  \u003cmeta name=\"googlebot\"     content=\"index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1\"\u003e\n  \u003cmeta name=\"bingbot\"       content=\"index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1\"\u003e\n  \u003cmeta name=\"revisit-after\" content=\"7 days\"\u003e\n  \u003cmeta name=\"rating\"        content=\"general\"\u003e\n  \u003cmeta name=\"distribution\"  content=\"global\"\u003e\n  \u003cmeta http-equiv=\"X-Content-Type-Options\" content=\"nosniff\"\u003e\n  \u003cmeta name=\"referrer\"      content=\"no-referrer…[truncated]"
+    },
+    {
+      "command": "merge-pdf",
+      "kind": "json_fidelity",
+      "args": [
+        "merge-pdf",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"body\": \"\\u003c!DOCTYPE html\\u003e\\n\\u003chtml lang=\\\"en\\\" prefix=\\\"og: http://ogp.me/ns#\\\"\\u003e\\n\\u003chead\\u003e\\n  \\u003cmeta charset=\\\"UTF-8\\\"\\u003e\\n  \\u003cmeta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1.0\\\"\\u003e\\n  \\u003cmeta http-equiv=\\\"X-UA-Compatible\\\" content=\\\"IE=edge\\\"\\u003e\\n\\n  \\u003clink rel=\\\"preconnect\\\"   href=\\\"https://unpkg.com\\\"            crossorigin\\u003e\\n  \\u003clink rel=\\\"preconnect\\\"   href=\\\"https://cdn.jsdelivr.net\\\"     crossorigin\\u003e\\n  \\u003clink rel=\\\"preconnect\\\"   href=\\\"https://cdnjs.cloudflare.com\\\" crossorigin\\u003e\\n  \\u003clink rel=\\\"dns-prefetch\\\" href=\\\"https://unpkg.com\\\"\\u003e\\n  \\u003clink rel=\\\"dns-prefetch\\\" href=\\\"https://cdn.jsdelivr.net\\\"\\u003e\\n  \\u003clink rel=\\\"dns-prefetch\\\" href=\\\"https://cdnjs.cloudflare.com\\\"\\u003e\\n  \\u003cmeta name=\\\"msvalidate.01\\\" content=\\\"B0C521BA1A0E8DE6DD3BBB8AE344084C\\\" /\\u003e\\n\\n  \\u003c!-- ═══════════════════════════════════════════════════════════════\\n       PRIMARY META\\n       ═══════════════════════════════════════════════════════════════ --\\u003e\\n  \\u003ctitle\\u003eMerge PDF Files Free Online — Combine PDFs, No Upload, No Watermark\\u003c/title\\u003e\\n  \\u003cmeta name=\\\"title\\\" content=\\\"Merge PDF Files Free Online — Combine PDFs, No Upload, No Watermark\\\"\\u003e\\n  \\u003cmeta name=\\\"description\\\" content=\\\"Combine multiple PDFs into one file free — drag to reorder, merge instantly, download. No upload to any server, no watermark, no sign-up. Works offline.\\\"\\u003e\\n\\n  \\u003cmeta name=\\\"keywords\\\" content=\\\"merge pdf online free, combine pdfs into one, merge pdfs no upload, combine pdf files free, merge multiple pdf files online free, join pdfs, merge pdfs no sign up, pdf merger free, merge pdf without uploading, how to merge pdf files free\\\"\\u003e\\n\\n  \\u003cmeta name=\\\"author\\\"    content=\\\"ihatepdf\\\"\\u003e\\n  \\u003cmeta name=\\\"creator\\\"   content=\\\"ihatepdf\\\"\\u003e\\n  \\u003cmeta name=\\\"publisher\\\" content=\\\"ihatepdf\\\"\\u003e\\n  \\u003cmeta name=\\\"copyright\\\" content=\\\"© 2026 ihatepdf. All rights reserved.\\\"\\u003e\\n\\n  \\u003c!-- ═══════════════════════════════════════════════════════════════\\n       PWA / MOBILE\\n       ═══════════════════════════════════════════════════════════════ --\\u003e\\n  \\u003cmeta name=\\\"mobile-web-app-capable\\\"                content=\\\"yes\\\"\\u003e\\n  \\u003cmeta name=\\\"apple-mobile-web-app-capable\\\"          content=\\\"yes\\\"\\u003e\\n  \\u003cmeta name=\\\"apple-mobile-web-app-status-bar-style\\\" content=\\\"black-translucent\\\"\\u003e\\n  \\u003cmeta name=\\\"apple-mobile-web-app-title\\\"            content=\\\"ihatepdf\\\"\\u003e\\n  \\u003cmeta name=\\\"application-name\\\"                      content=\\\"ihatepdf\\\"\\u003e\\n  \\u003cmeta name=\\\"format-detection\\\"                      content=\\\"telephone=no\\\"\\u003e\\n  \\u003cmeta name=\\\"theme-color\\\"                           content=\\\"#2563eb\\\"\\u003e\\n  \\u003cmeta name=\\\"msapplication-TileColor\\\"               content=\\\"#2563eb\\\"\\u003e\\n  \\u003cmeta name=\\\"msapplication-navbutton-color\\\"         content=\\\"#2563eb\\\"\\u003e\\n\\n  \\u003c!-- ═══════════════════════════════════════════════════════════════\\n       CRAWL DIRECTIVES\\n       ═══════════════════════════════════════════════════════════════ --\\u003e\\n  \\u003cmeta name=\\\"robots\\\"        content=\\\"index, follow, max-image-preview:large, max-snippet:-1,…[truncated]"
+    },
+    {
+      "command": "merge-pdf",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "help",
+      "args": [
+        "playbook",
+        "amend",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Appends a timestamped note to the matching family's playbook notes_text.\nIf no playbook exists for the family yet, creates a notes-only one.\n\nDesigned for agents to fire when their debug-protocol response\nidentifies a concrete correction worth persisting (a workaround, an\nundocumented endpoint shape, a stale field name, observed schema\ndrift). Same fire-and-forget posture as teach: silent on success,\nerrors to teach.log, safe to background with \u0026.\n\nDisabling: pass --no-learn or set IHATEPDF_CV_NO_LEARN=true.\n\nUsage:\n  ihatepdf-cv-pp-cli playbook amend [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli playbook amend --query \"\u003cexact recall query\u003e\" --add-note \"summary endpoint envelope: data lives at .results.header, not .header\"\n\nFlags:\n      --add-note string   The note text to append to the family's playbook (required)\n      --db string         Database path (default: standard cache location)\n  -h, --help              help for amend\n      --query string      The exact recall query whose family should be amended (required)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "happy_path",
+      "args": [
+        "playbook",
+        "amend",
+        "--query",
+        "\u003cexact recall query\u003e",
+        "--add-note",
+        "summary endpoint envelope: data lives at .results.header, not .header",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "dry-run: would run playbook amend; no changes made\n"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "json_fidelity",
+      "args": [
+        "playbook",
+        "amend",
+        "--query",
+        "\u003cexact recall query\u003e",
+        "--add-note",
+        "summary endpoint envelope: data lives at .results.header, not .header",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"playbook amend\",\"would\":\"run playbook amend; no changes made\"}\n"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "playbook list",
+      "kind": "help",
+      "args": [
+        "playbook",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List stored playbooks (query_family, content presence, last observed)\n\nUsage:\n  ihatepdf-cv-pp-cli playbook list [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli playbook list --agent\n\nFlags:\n      --db string   Database path (default: standard cache location)\n  -h, --help        help for list\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "playbook list",
+      "kind": "happy_path",
+      "args": [
+        "playbook",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "playbook list",
+      "kind": "json_fidelity",
+      "args": [
+        "playbook",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "playbook list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "privacy-scan",
+      "kind": "help",
+      "args": [
+        "privacy-scan",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Scan local PDF content and metadata; returns classified risk findings and hints.\n\nUsage:\n  ihatepdf-cv-pp-cli privacy-scan [input.pdf] [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli privacy-scan report.pdf --agent\n\nFlags:\n  -h, --help   help for privacy-scan\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "privacy-scan",
+      "kind": "happy_path",
+      "args": [
+        "privacy-scan",
+        "testdata/fixture.pdf",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"findings\": [],\n    \"metadata_hints\": [\n      \"/Producer\"\n    ],\n    \"path\": \"testdata/fixture.pdf\",\n    \"risk_count\": 0\n  }\n}\n"
+    },
+    {
+      "command": "privacy-scan",
+      "kind": "json_fidelity",
+      "args": [
+        "privacy-scan",
+        "testdata/fixture.pdf",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"findings\": [],\n    \"metadata_hints\": [\n      \"/Producer\"\n    ],\n    \"path\": \"testdata/fixture.pdf\",\n    \"risk_count\": 0\n  }\n}\n"
+    },
+    {
+      "command": "privacy-scan",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  ihatepdf-cv-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli profile delete my-defaults --yes\n  ihatepdf-cv-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  ihatepdf-cv-pp-cli profile list [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli profile list\n  ihatepdf-cv-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile, --config, and --home, which are never\ncaptured: they control profile/config resolution and would never apply).\n\nUsage:\n  ihatepdf-cv-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli profile save my-defaults --json --compact\n  ihatepdf-cv-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  ihatepdf-cv-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli profile show my-defaults\n  ihatepdf-cv-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  ihatepdf-cv-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli profile use my-defaults\n  ihatepdf-cv-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "recall",
+      "kind": "help",
+      "args": [
+        "recall",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Returns prior learnings matching the supplied query by token-set\noverlap (Jaccard \u003e= 0.6) plus entity-aware validation. The LLM should\ncall this FIRST when starting work on a new user question; if\nfound=true AND results[0].entity_match == \"exact\" AND confidence \u003e= 2,\nthe LLM can skip discovery and go straight to live fetch for the\nreturned resource IDs.\n\nEmpty match returns {\"found\": false, \"results\": []} with exit 0 — this\nis an information query, not a not-found error.\n\nDisabling: IHATEPDF_CV_NO_LEARN=true returns the empty shape even\nwhen learnings exist.\n\nUsage:\n  ihatepdf-cv-pp-cli recall \u003cquery\u003e [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli recall \"\u003cquestion\u003e\" --agent\n  ihatepdf-cv-pp-cli recall \"\u003cquestion\u003e\" --agent --min-confidence 2\n\nFlags:\n      --db string            SQLite database file path (default: resolved data directory data.db)\n      --debug-mismatches     Include cross-entity mismatches in the envelope under mismatches[]\n  -h, --help                 help for recall\n      --limit int            Maximum number of learnings to return (default 10)\n      --min-confidence int   Minimum confidence to include in results (default 1)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "recall",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "recall",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "recall",
+      "kind": "error_path",
+      "args": [
+        "recall",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"found\": false,\n  \"query\": \"__printing_press_invalid__\",\n  \"normalized\": \"__printing_press_invalid__\",\n  \"query_entities\": [],\n  \"results\": [],\n  \"warnings\": [\n    \"no_learnings_for_query_family\"\n  ]\n}\n"
+    },
+    {
+      "command": "rotate",
+      "kind": "help",
+      "args": null,
+      "status": "skip",
+      "reason": "destructive-at-auth"
+    },
+    {
+      "command": "rotate",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "destructive-at-auth"
+    },
+    {
+      "command": "rotate",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "destructive-at-auth"
+    },
+    {
+      "command": "rotate",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "destructive-at-auth"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Searches literal PDF text locally without uploading files. Provide one or more PDF paths; scanned or compressed text may require OCR before it can be found.\n\nUsage:\n  ihatepdf-cv-pp-cli search [query] [files...] [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli search \"invoice\" reports/*.pdf --agent\n  ihatepdf-cv-pp-cli search \"customer id\" report.pdf --context 2 --json\n  echo invoice | ihatepdf-cv-pp-cli search --stdin report.pdf --agent\n\nFlags:\n      --catalog string   search an indexed SQLite catalog instead of direct PDF paths\n      --context int      include this many neighboring text lines in each snippet\n  -h, --help             help for search\n      --ignore-case      match query without case sensitivity\n      --stdin            read the search query from stdin\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": [
+        "search",
+        "fixture",
+        "testdata/fixture.pdf",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"count\": 1,\n    \"matches\": [\n      {\n        \"line\": 1,\n        \"path\": \"testdata/fixture.pdf\",\n        \"snippet\": \"fixture text for offline PDF verification\"\n      }\n    ],\n    \"query\": \"fixture\"\n  }\n}\n"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": [
+        "search",
+        "fixture",
+        "testdata/fixture.pdf",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"count\": 1,\n    \"matches\": [\n      {\n        \"line\": 1,\n        \"path\": \"testdata/fixture.pdf\",\n        \"snippet\": \"fixture text for offline PDF verification\"\n      }\n    ],\n    \"query\": \"fixture\"\n  }\n}\n"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: provide a query and at least one PDF path\n"
+    },
+    {
+      "command": "split",
+      "kind": "help",
+      "args": [
+        "split",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Split a PDF into deterministic page-group files.\n\nUsage:\n  ihatepdf-cv-pp-cli split [input.pdf] [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli split report.pdf --span 1 --output-dir pages --json\n\nFlags:\n  -h, --help                help for split\n      --output-dir string   directory for split PDFs\n      --span int            pages per output PDF (default 1)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "split",
+      "kind": "happy_path",
+      "args": [
+        "split",
+        "testdata/fixture.pdf",
+        "--span",
+        "1",
+        "--output-dir",
+        "verify-split",
+        "--json",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"split PDF\",\"would\":\"run split PDF; no changes made\"}\n"
+    },
+    {
+      "command": "split",
+      "kind": "json_fidelity",
+      "args": [
+        "split",
+        "testdata/fixture.pdf",
+        "--span",
+        "1",
+        "--output-dir",
+        "verify-split",
+        "--json",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"split PDF\",\"would\":\"run split PDF; no changes made\"}\n"
+    },
+    {
+      "command": "split",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "split",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "tail",
+      "kind": "help",
+      "args": [
+        "tail",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show the last extracted text lines from a local PDF.\n\nUsage:\n  ihatepdf-cv-pp-cli tail [input.pdf] [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli tail report.pdf --lines 20 --agent\n\nFlags:\n  -h, --help        help for tail\n      --lines int   number of extracted text lines to return (default 20)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "tail",
+      "kind": "happy_path",
+      "args": [
+        "tail",
+        "testdata/fixture.pdf",
+        "--lines",
+        "20",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"count\": 1,\n    \"lines\": [\n      \"fixture text for offline PDF verification\"\n    ],\n    \"path\": \"testdata/fixture.pdf\",\n    \"source\": \"local-file\"\n  }\n}\n"
+    },
+    {
+      "command": "tail",
+      "kind": "json_fidelity",
+      "args": [
+        "tail",
+        "testdata/fixture.pdf",
+        "--lines",
+        "20",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"count\": 1,\n    \"lines\": [\n      \"fixture text for offline PDF verification\"\n    ],\n    \"path\": \"testdata/fixture.pdf\",\n    \"source\": \"local-file\"\n  }\n}\n"
+    },
+    {
+      "command": "tail",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach",
+      "kind": "help",
+      "args": [
+        "teach",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Record one or more \"this query -\u003e this resource\" mappings so the next\nquery that matches surfaces the right resources without re-running discovery.\n\nThis command is designed to be backgrounded by an LLM right before it\nemits the user-facing response: silent on success, errors only to\nthe CLI state directory's teach.log, safe to fire-and-forget.\n\nDisabling: pass --no-learn or set IHATEPDF_CV_NO_LEARN=true.\n\nUsage:\n  ihatepdf-cv-pp-cli teach [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli teach --query \"\u003cquestion\u003e\" --resource-type \u003ctype\u003e --resource \u003cid\u003e --resource \u003cid\u003e \u0026\n\nFlags:\n      --db string                    SQLite database file path (default: resolved data directory data.db)\n  -h, --help                         help for teach\n      --no-validate                  Suppress teach-time resource-shape validation (warnings to teach.log)\n      --notes string                 Optional free-form note recorded in the audit log\n      --playbook-file string         Optional path to a JSON playbook recording the CLI choreography for this query family\n      --playbook-json string         Optional inline JSON playbook (mutually exclusive with --playbook-file; for agents without filesystem access)\n      --playbook-notes string        Optional inline gotchas/workarounds for this query family (stored alongside the playbook)\n      --playbook-notes-file string   Optional path to a markdown file with playbook notes\n      --query string                 User's original natural-language question (required)\n      --quiet                        Silent on success (default true — designed for background invocation) (default true)\n      --resource strings             Resource ID — repeat for multiple (required)\n      --resource-type string         Resource type (required; e.g. matches a row in the local resources table)\n      --venue string                 Optional venue scope tag stored with the learning\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "teach",
+      "kind": "happy_path",
+      "args": [
+        "teach",
+        "--query",
+        "\u003cquestion\u003e",
+        "--resource-type",
+        "\u003ctype\u003e",
+        "--resource",
+        "\u003cid\u003e",
+        "--resource",
+        "\u003cid\u003e",
+        "\u0026",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "dry-run: would run teach; no changes made\n"
+    },
+    {
+      "command": "teach",
+      "kind": "json_fidelity",
+      "args": [
+        "teach",
+        "--query",
+        "\u003cquestion\u003e",
+        "--resource-type",
+        "\u003ctype\u003e",
+        "--resource",
+        "\u003cid\u003e",
+        "--resource",
+        "\u003cid\u003e",
+        "\u0026",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"teach\",\"would\":\"run teach; no changes made\"}\n"
+    },
+    {
+      "command": "teach",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "help",
+      "args": [
+        "teach-lookup",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Adds one row to entity_lookups. Used by the recall path's pattern\nengine to substitute values for canonical names at substitution time.\nComputed kinds (lowercase, uppercase, kebab-case, capitalize-first, slug)\ncannot be taught — they are derived from the canonical input.\n\nUsage:\n  ihatepdf-cv-pp-cli teach-lookup [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli teach-lookup --kind country --canonical \"United States\" --value USA\n\nFlags:\n      --canonical string   Canonical entity name (required)\n      --db string          SQLite database file path (default: resolved data directory data.db)\n  -h, --help               help for teach-lookup\n      --kind string        Entity kind, e.g. country, team (required, must not be a computed kind)\n      --value string       Value/alias that should resolve to the canonical (required)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "happy_path",
+      "args": [
+        "teach-lookup",
+        "--kind",
+        "country",
+        "--canonical",
+        "United States",
+        "--value",
+        "USA",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "dry-run: would run teach-lookup; no changes made\n"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "json_fidelity",
+      "args": [
+        "teach-lookup",
+        "--kind",
+        "country",
+        "--canonical",
+        "United States",
+        "--value",
+        "USA",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"teach-lookup\",\"would\":\"run teach-lookup; no changes made\"}\n"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "help",
+      "args": [
+        "teach-pattern",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Adds one row to search_patterns. The recall path uses patterns to\nsubstitute live query entities into a resource template, so a pattern\nwith query_template=\"items in {entity}\" and\nresource_template=\"GROUP-{entity:category}\" generalizes one teach into\na whole family.\n\nUsage:\n  ihatepdf-cv-pp-cli teach-pattern [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli teach-pattern --query-template \"items in {entity}\" --resource-template \"GROUP-{entity:category}\" --resource-type \"items\" --entity-kind \"category\" --strategy substitute\n\nFlags:\n      --db string                  SQLite database file path (default: resolved data directory data.db)\n      --entity-kind string         Entity kind name registered in entity_lookups (required)\n  -h, --help                       help for teach-pattern\n      --query-template string      Query template with {entity} placeholder (required)\n      --resource-template string   Resource template with typed entity slot, e.g. PREFIX-{entity:country} (required)\n      --resource-type string       Resource type for substituted IDs (required)\n      --strategy string            Substitution strategy: substitute | substitute-then-search-prefix (default substitute)\n      --venue string               Optional venue scope tag\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "happy_path",
+      "args": [
+        "teach-pattern",
+        "--query-template",
+        "items in {entity}",
+        "--resource-template",
+        "GROUP-{entity:category}",
+        "--resource-type",
+        "items",
+        "--entity-kind",
+        "category",
+        "--strategy",
+        "substitute",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "dry-run: would run teach-pattern; no changes made\n"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "json_fidelity",
+      "args": [
+        "teach-pattern",
+        "--query-template",
+        "items in {entity}",
+        "--resource-template",
+        "GROUP-{entity:category}",
+        "--resource-type",
+        "items",
+        "--entity-kind",
+        "category",
+        "--strategy",
+        "substitute",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"teach-pattern\",\"would\":\"run teach-pattern; no changes made\"}\n"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "help",
+      "args": [
+        "teach-playbook",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Stores a structured CLI command sequence (with entity slots) and/or\nfree-form gotchas/workarounds, keyed on the structural query family.\nThe recall path surfaces this whenever a future query of the same\nfamily fires, so the agent can replay the choreography and read the\nnotes verbatim.\n\nAt least one of --playbook-json/--playbook-file and --notes/--notes-file\nmust be set. --playbook-json takes the playbook body inline so MCP-only\nagents can record playbooks without a file on disk.\n\nUsage:\n  ihatepdf-cv-pp-cli teach-playbook [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli teach-playbook --query \"\u003cquestion that anchors the family\u003e\" --playbook-file ~/playbooks/recipe.json --notes-file ~/playbooks/recipe-notes.md\n\nFlags:\n      --db string              Database path (default: standard cache location)\n  -h, --help                   help for teach-playbook\n      --notes string           Free-text notes (gotchas, workarounds) -- mutually exclusive with --notes-file\n      --notes-file string      Path to a markdown file with the notes\n      --playbook-file string   Path to a JSON file with the playbook (steps, entity_slots, expected_tool_calls)\n      --playbook-json string   Inline playbook JSON (steps, entity_slots, expected_tool_calls) -- mutually exclusive with --playbook-file\n      --query string           Example query that anchors the family (required)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "file fixture required: --playbook-file ~/playbooks/recipe.json"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "file fixture required: --playbook-file ~/playbooks/recipe.json"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "text-to-pdf",
+      "kind": "help",
+      "args": [
+        "text-to-pdf",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Render plain text or Markdown into a local PDF.\n\nUsage:\n  ihatepdf-cv-pp-cli text-to-pdf [input.txt] [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli text-to-pdf notes.md --output notes.pdf --json\n  echo '# Notes' | ihatepdf-cv-pp-cli text-to-pdf --stdin --output notes.pdf --agent\n\nFlags:\n  -h, --help            help for text-to-pdf\n      --output string   output PDF path\n      --stdin           read text from stdin\n      --title string    PDF title metadata\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "text-to-pdf",
+      "kind": "happy_path",
+      "args": [
+        "text-to-pdf",
+        "testdata/fixture.txt",
+        "--output",
+        "verify-text.pdf",
+        "--json",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"convert text to PDF\",\"would\":\"run convert text to PDF; no changes made\"}\n"
+    },
+    {
+      "command": "text-to-pdf",
+      "kind": "json_fidelity",
+      "args": [
+        "text-to-pdf",
+        "testdata/fixture.txt",
+        "--json",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"convert text to PDF\",\"would\":\"run convert text to PDF; no changes made\"}\n"
+    },
+    {
+      "command": "text-to-pdf",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "text-to-pdf",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  ihatepdf-cv-pp-cli which [query] [flags]\n\nExamples:\n  ihatepdf-cv-pp-cli which \"stale tickets\"\n  ihatepdf-cv-pp-cli which \"bottleneck\"\n  ihatepdf-cv-pp-cli which --limit 1 \"send message\"\n  ihatepdf-cv-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  ihatepdf-cv-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  ihatepdf-cv-pp-cli workflow status\n\n  # Show status as JSON\n  ihatepdf-cv-pp-cli workflow status --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ihatepdf-cv-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  pdf_catalog                    1 items\n\n  Total: 1 items\n  Store: /var/folders/4c/4s9qrz4s335f5whj7y427ns00000gn/T/printing-press-subprocess-3848983860/.local/share/ihatepdf-cv-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"pdf_catalog\": 1\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-08-22T08:19:58.093307Z"
+}

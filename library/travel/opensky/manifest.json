@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "opensky-pp-mcp",
+  "display_name": "Opensky Network",
+  "version": "1.0.0",
+  "description": "Public OpenSky Network API (https://opensky-network.org/api).",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/opensky-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/opensky-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "wahoo-review-hardening",
+  "applied_at": "2026-07-20",
+  "base_run_id": "20260614-180711-c042d702",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Keep time-windowed workout analysis date-safe, bound OAuth callback shutdown, and surface optional-input database read failures.",
+  "reason": "Undated workouts cannot be assigned to a requested time window, callback handlers must not keep the local OAuth server alive indefinitely, and SQLite iteration errors must not be mistaken for absent optional data.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/auth_test.go",
+    "internal/cli/backup.go",
+    "internal/cli/digest.go",
+    "internal/cli/digest_test.go",
+    "internal/cli/ftp_history.go",
+    "internal/cli/load.go",
+    "internal/cli/wahoo_analysis.go"
+  ],
+  "validated_outcome": "Digest and backup windows exclude undated workouts; OAuth callback shutdown releases its listener even with an active handler; power-zone and user-profile query failures reach command callers."
+}

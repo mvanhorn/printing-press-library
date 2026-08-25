@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-bd-commissione-filter",
+  "applied_at": "2026-08-06",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "Filtro --commissione/--codcom su sommari e convocazioni via backend /bd/. parseSelectOptions(body, selectID) estrae le <option> del <select> commissioni; resolveCommissioneIDs risolve il nome (substring) o il codcom (1-6 -> numero romano I..VI) negli id, filtrando per legislatura perche' gli id commissione sono per-legislatura (es. 'I - Affari Istituzionali' = 116 in leg 18, 1 in leg 13). runCerca NON applica normalizeParams (specifico di Icaro) agli archivi /bd/, cosi' i parametri arrivano grezzi a searchBD. La spec sommari dichiara ora anche commissioneMode \"or\" (cioe' \"$S$Icommissione_id=or\"): il <select> e' renderizzato senza attributo `multiple`, ma il backend accetta lo stesso una lista di id purche' le si dichiari il modo.",
+  "reason": "Su /bd/ il filtro commissione richiede un id numerico per-legislatura, non un nome/ordinale: senza risoluzione, --commissione/--codcom sarebbero ignorati. La generalizzazione riusa il meccanismo dei <select> (comune a oratori e commissioni). Rilievo P1 di Greptile sulla PR 1574, valido nella posizione e sbagliato nel meccanismo: segnalava «risultati silenziosamente incompleti senza che Truncated venga impostato» su una ricerca con range di date a cavallo di piu' legislature. Il difetto reale e' un hard error e non serve nessun range: senza --legisl la commissione risolve a un id per legislatura — la IV ne ha nove nel <select> di sommari, 95 opzioni in tutto — e mandare quella lista a un campo che il form dichiara singolo fa rispondere 500 al backend. `commissioni sommari --commissione QUARTA` falliva sempre, anche senza --data. convocazioni non era toccato: il suo campo e' multi-select e dichiarava gia' il modo \"or\".",
+  "files": [
+    "internal/cli/commissioni_convocazioni.go",
+    "internal/cli/icaro_helpers.go",
+    "internal/icaroclient/bd.go",
+    "internal/icaroclient/bd_test.go"
+  ],
+  "validated_outcome": "convocazioni --codcom 1 --legisl 18 --anno 2026 -> 41 (I - Affari Istituzionali); sommari --commissione Bilancio --legisl 18 -> 25 (II - Bilancio); commissione inesistente -> 0. MODO OR SU SOMMARI: prima `commissioni sommari --commissione QUARTA --limit 3` -> 'unexpected status 500'; identico con --codcom 4 e con --data su un anno solo, mentre con --legisl 18 rispondeva 200 (un id solo). Dopo, 200 e righe fino al 28/07/2026. Prova che l'unione non perde ne' duplica nulla, sull'anno di transizione XVII->XVIII: `--commissione QUARTA --data 2022-01-01:2022-12-31 --limit 300` senza --legisl -> 46 righe, mesi 01-07/09/11/12; con --legisl 17 -> 37 righe (gen-set); con --legisl 18 -> 9 righe (nov-dic); 37+9=46. Range biennale 2022-2023 senza --legisl -> 103 righe (46+57), troncato false. convocazioni invariato (--commissione QUARTA -> 21/04/1994, come prima). Il <select> di sommari ha 95 opzioni e nessun attributo `multiple`, verificato sull'HTML di https://dati.ars.sicilia.it/bd/sommari: sono nove quelle che iniziano per 'IV ', dalla 'IV - Ambiente e Territorio' (id 4) alla 'IV - Ambiente, territorio e mobilita'' (id 119)."
+}

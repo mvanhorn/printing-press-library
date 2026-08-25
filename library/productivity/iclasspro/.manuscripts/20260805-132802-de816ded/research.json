@@ -1,0 +1,294 @@
+{
+  "api_name": "iclasspro",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "master-events-calendar",
+      "url": "https://github.com/Jaymelynng/master-events-calendarMASTER",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "iclasspro-driver",
+      "url": "https://github.com/johnmarcovici/iclasspro-driver",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "icp-widget",
+      "url": "https://github.com/DevCabin/icp-widget",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-05T13:58:00Z",
+  "novel_features": [
+    {
+      "name": "Openings watcher",
+      "command": "watch",
+      "description": "Get told the moment a spot frees up in a class or camp that is currently full.",
+      "rationale": "Requires a local openings history to diff against; the API is present-tense only and the portal sends no notification of any kind.",
+      "example": "iclasspro-pp-cli watch scottsdalegymnastics --class 8357 --agent",
+      "why_it_matters": "Reach for this instead of re-polling a list endpoint yourself: it stores every observation, so it reports the transition rather than the current value.",
+      "group": "Local history the API forgets"
+    },
+    {
+      "name": "Catalog drift",
+      "command": "drift",
+      "description": "See what changed between syncs: classes and camps added, removed, retimed, or newly marked deleted.",
+      "rationale": "Compares two local snapshots; no upstream endpoint exposes history, an updated-at cursor, or a deletion feed.",
+      "example": "iclasspro-pp-cli drift scottsdalegymnastics --since 7d --agent",
+      "why_it_matters": "Use this to answer 'what is different since last week' without re-reading the whole catalog into context.",
+      "group": "Local history the API forgets"
+    },
+    {
+      "name": "Registration windows",
+      "command": "opens-soon",
+      "description": "Find registration that has not opened yet or is about to close, across every synced class and camp.",
+      "rationale": "The registration date fields exist on every record but the API offers no filter on them and the portal surfaces none of them.",
+      "example": "iclasspro-pp-cli opens-soon scottsdalegymnastics --days 14 --agent",
+      "why_it_matters": "This is the only way to see a camp before its registration opens, which is when popular sessions are still winnable.",
+      "group": "Local history the API forgets"
+    },
+    {
+      "name": "Calendar export",
+      "command": "calendar",
+      "description": "Export synced camps and classes to an RFC 5545 calendar file, one event per session.",
+      "rationale": "Builds events from the per-session schedule and block arrays; iClassPro publishes no feed in any format.",
+      "example": "iclasspro-pp-cli calendar scottsdalegymnastics --format ics --out fall-camps.ics",
+      "why_it_matters": "Turns a portal catalog into something a calendar app, a website, or a newsletter can consume directly.",
+      "group": "Catalog hygiene and publishing"
+    },
+    {
+      "name": "Tenant capability probe",
+      "command": "tenant",
+      "description": "Report which surfaces an account actually exposes: open, sign-in-gated, or plan-gated.",
+      "rationale": "iClassPro signals both gates with HTTP 200 plus an explanatory message, so status codes alone cannot distinguish 'empty' from 'blocked'.",
+      "example": "iclasspro-pp-cli tenant nadoclub --agent",
+      "why_it_matters": "Run this first against any new account; it prevents mistaking a sign-in gate for a gym with no classes.",
+      "group": "Multi-tenant reach"
+    },
+    {
+      "name": "Fill-rate trend",
+      "command": "fill-rate",
+      "description": "Show how fast classes are filling over time, by class or by program.",
+      "rationale": "Aggregates the local openings history; a single API call can only ever report the current number.",
+      "example": "iclasspro-pp-cli fill-rate scottsdalegymnastics --programs 589 --agent",
+      "why_it_matters": "Answers whether a class is trending toward full or toward cancellation, which no upstream call can express.",
+      "group": "Local history the API forgets"
+    },
+    {
+      "name": "Cross-tenant compare",
+      "command": "compare",
+      "description": "Compare the same kind of program across several gyms at once.",
+      "rationale": "Joins multiple synced tenants locally; program names and type ids differ per account, so no upstream call spans them.",
+      "example": "iclasspro-pp-cli compare --accounts scottsdalegymnastics,oasisgymnastics,tigar --agent",
+      "why_it_matters": "Built for franchise and agency operators who track many gyms and need one table instead of many tabs.",
+      "group": "Multi-tenant reach"
+    },
+    {
+      "name": "Catalog lint",
+      "command": "lint",
+      "description": "Flag catalog quality problems: missing descriptions or images, expired registration windows, deleted-but-listed programs.",
+      "rationale": "Checks fields the portal never validates, using the synced local copy so the whole catalog is inspected at once.",
+      "example": "iclasspro-pp-cli lint scottsdalegymnastics --agent",
+      "why_it_matters": "Use before publishing a schedule to a website; it catches the records that will render blank or dead.",
+      "group": "Catalog hygiene and publishing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Openings watcher",
+      "command": "watch",
+      "description": "Get told the moment a spot frees up in a class or camp that is currently full.",
+      "rationale": "Requires a local openings history to diff against; the API is present-tense only and the portal sends no notification of any kind.",
+      "example": "iclasspro-pp-cli watch scottsdalegymnastics --class 8357 --agent",
+      "why_it_matters": "Reach for this instead of re-polling a list endpoint yourself: it stores every observation, so it reports the transition rather than the current value.",
+      "group": "Local history the API forgets"
+    },
+    {
+      "name": "Catalog drift",
+      "command": "drift",
+      "description": "See what changed between syncs: classes and camps added, removed, retimed, or newly marked deleted.",
+      "rationale": "Compares two local snapshots; no upstream endpoint exposes history, an updated-at cursor, or a deletion feed.",
+      "example": "iclasspro-pp-cli drift scottsdalegymnastics --since 7d --agent",
+      "why_it_matters": "Use this to answer 'what is different since last week' without re-reading the whole catalog into context.",
+      "group": "Local history the API forgets"
+    },
+    {
+      "name": "Registration windows",
+      "command": "opens-soon",
+      "description": "Find registration that has not opened yet or is about to close, across every synced class and camp.",
+      "rationale": "The registration date fields exist on every record but the API offers no filter on them and the portal surfaces none of them.",
+      "example": "iclasspro-pp-cli opens-soon scottsdalegymnastics --days 14 --agent",
+      "why_it_matters": "This is the only way to see a camp before its registration opens, which is when popular sessions are still winnable.",
+      "group": "Local history the API forgets"
+    },
+    {
+      "name": "Calendar export",
+      "command": "calendar",
+      "description": "Export synced camps and classes to an RFC 5545 calendar file, one event per session.",
+      "rationale": "Builds events from the per-session schedule and block arrays; iClassPro publishes no feed in any format.",
+      "example": "iclasspro-pp-cli calendar scottsdalegymnastics --format ics --out fall-camps.ics",
+      "why_it_matters": "Turns a portal catalog into something a calendar app, a website, or a newsletter can consume directly.",
+      "group": "Catalog hygiene and publishing"
+    },
+    {
+      "name": "Tenant capability probe",
+      "command": "tenant",
+      "description": "Report which surfaces an account actually exposes: open, sign-in-gated, or plan-gated.",
+      "rationale": "iClassPro signals both gates with HTTP 200 plus an explanatory message, so status codes alone cannot distinguish 'empty' from 'blocked'.",
+      "example": "iclasspro-pp-cli tenant nadoclub --agent",
+      "why_it_matters": "Run this first against any new account; it prevents mistaking a sign-in gate for a gym with no classes.",
+      "group": "Multi-tenant reach"
+    },
+    {
+      "name": "Fill-rate trend",
+      "command": "fill-rate",
+      "description": "Show how fast classes are filling over time, by class or by program.",
+      "rationale": "Aggregates the local openings history; a single API call can only ever report the current number.",
+      "example": "iclasspro-pp-cli fill-rate scottsdalegymnastics --programs 589 --agent",
+      "why_it_matters": "Answers whether a class is trending toward full or toward cancellation, which no upstream call can express.",
+      "group": "Local history the API forgets"
+    },
+    {
+      "name": "Cross-tenant compare",
+      "command": "compare",
+      "description": "Compare the same kind of program across several gyms at once.",
+      "rationale": "Joins multiple synced tenants locally; program names and type ids differ per account, so no upstream call spans them.",
+      "example": "iclasspro-pp-cli compare --accounts scottsdalegymnastics,oasisgymnastics,tigar --agent",
+      "why_it_matters": "Built for franchise and agency operators who track many gyms and need one table instead of many tabs.",
+      "group": "Multi-tenant reach"
+    },
+    {
+      "name": "Catalog lint",
+      "command": "lint",
+      "description": "Flag catalog quality problems: missing descriptions or images, expired registration windows, deleted-but-listed programs.",
+      "rationale": "Checks fields the portal never validates, using the synced local copy so the whole catalog is inspected at once.",
+      "example": "iclasspro-pp-cli lint scottsdalegymnastics --agent",
+      "why_it_matters": "Use before publishing a schedule to a website; it catches the records that will render blank or dead.",
+      "group": "Catalog hygiene and publishing"
+    }
+  ],
+  "narrative": {
+    "display_name": "iClassPro",
+    "headline": "The only iClassPro tool that remembers yesterday — a queryable local mirror of any gym's catalog, with the search and filter surface the portal keeps to itself.",
+    "value_prop": "iClassPro powers thousands of gymnastics, swim, dance, and cheer businesses and ships no developer API at all. This CLI treats the portal's own endpoints as one: it works against any account by its portal slug, keeps every sync in local SQLite, and answers the questions the upstream API structurally cannot — what changed since last week (drift), how fast a class is filling (fill-rate), and what registration opens next (opens-soon). It also exposes the filters the portal UI uses but nobody documented, including free-text search and openings-only.",
+    "auth_narrative": "Most accounts need no credentials at all — the catalog endpoints answer plain HTTP with no key, no cookie, and no user agent. Some accounts set a portal flag that hides classes and camps behind a customer login; those return HTTP 200 with an empty list and a 'Please sign in to see classes.' message rather than an error. Run 'tenant \u003cslug\u003e' to find out which kind you are dealing with, and use 'auth login' to attach a read-only customer session when the gate is on. That session is replayed only on catalog reads: this CLI has no cart, enrollment, or checkout command.",
+    "quickstart": [
+      {
+        "command": "iclasspro-pp-cli doctor --dry-run",
+        "comment": "Confirm the binary, config path, and local database are wired before touching the network"
+      },
+      {
+        "command": "iclasspro-pp-cli tenant scottsdalegymnastics",
+        "comment": "Find out whether this account is open, sign-in-gated, or plan-gated before assuming an empty result means empty"
+      },
+      {
+        "command": "iclasspro-pp-cli locations scottsdalegymnastics",
+        "comment": "Every other command needs a location id, and this is where they come from"
+      },
+      {
+        "command": "iclasspro-pp-cli classes list scottsdalegymnastics --q ninja --openings 1",
+        "comment": "Free-text search plus openings-only, both honored server-side"
+      },
+      {
+        "command": "iclasspro-pp-cli sync scottsdalegymnastics --resources classes,camps",
+        "comment": "Populate the local mirror; drift and fill-rate need at least two syncs before they can say anything"
+      },
+      {
+        "command": "iclasspro-pp-cli opens-soon scottsdalegymnastics --days 14",
+        "comment": "Registration opening or closing in the next two weeks, which the portal never shows"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "classes list returns an empty array but the gym clearly has classes",
+        "fix": "Run 'iclasspro-pp-cli tenant \u003cslug\u003e' — the account probably hides its catalog behind customer sign-in, which the API reports as HTTP 200 with an empty list."
+      },
+      {
+        "symptom": "A filter flag seems to do nothing and the result count never changes",
+        "fix": "Only --q, --openings, --programs, --levels, --instructors, --days, --ages, --genders, --sessions, --location-id, --limit and --page are honored upstream; anything else is applied locally and the CLI warns on stderr when it does so."
+      },
+      {
+        "symptom": "camps list returns 'No camps found' for a type id that appeared in programs camps",
+        "fix": "Use 'bookings \u003cslug\u003e \u003clocationId\u003e' for type ids. The ids from 'programs camps' are programIds and never match --type-id."
+      },
+      {
+        "symptom": "drift or fill-rate report nothing at all",
+        "fix": "Both read local history. Run 'iclasspro-pp-cli sync \u003caccount\u003e --resources classes,camps' at least twice, spaced apart, before either has anything to compare."
+      },
+      {
+        "symptom": "programs appointments returns a plan message instead of data",
+        "fix": "That account does not have the appointments subscription. The message is returned by iClassPro, not by this CLI, and there is no workaround."
+      },
+      {
+        "symptom": "Organization not found",
+        "fix": "The portal slug is wrong. It is the path segment in portal.iclasspro.com/\u003cslug\u003e, not the gym's brand name or website domain."
+      }
+    ],
+    "when_to_use": "Use this CLI whenever a task involves an iClassPro-powered business: gymnastics gyms, swim schools, dance and cheer studios. It is the right tool for reading a gym's class and camp catalog, searching or filtering it, watching for openings and registration windows, exporting schedules to a website or calendar, and comparing several gyms at once. It is especially suited to agencies and multi-location operators, because every command takes a portal slug and the local mirror can hold many accounts side by side. Prefer it over ad-hoc HTTP calls, because it knows which filters the API actually honors and which it silently ignores.",
+    "anti_triggers": [
+      "Do not use this CLI to enroll a student, add to a cart, apply a promo code, or pay — it is read-only by design and has no such commands.",
+      "Do not use it for staff-side operations like rosters, families, attendance, billing, or payroll; those live behind the iClassPro staff dashboard, which this CLI does not touch.",
+      "Do not use it to cancel or reschedule a booking on a family's behalf; direct the person to the customer portal.",
+      "Do not point it at a class-management product that is not iClassPro — Mariana Tek, Vagaro, Jackrabbit, and Sutra all have unrelated APIs.",
+      "Do not treat its output as a system of record for enrollment counts; openings is a portal-facing number, not the gym's roster."
+    ],
+    "recipes": [
+      {
+        "title": "Narrow a large class list down to just what an agent needs",
+        "command": "iclasspro-pp-cli classes list oasisgymnastics --openings 1 --limit 50 --agent --select id,name,openings,allowWaitlist,schedule.dayName,schedule.startTime",
+        "explanation": "Some gyms return well over a hundred classes with nested schedule arrays; selecting dotted paths keeps the payload small enough to reason over without paging through raw JSON."
+      },
+      {
+        "title": "Resolve camp type ids the correct way, then list that type",
+        "command": "iclasspro-pp-cli bookings scottsdalegymnastics 1 --agent --select title,target,targetParams.typeId",
+        "explanation": "The booking menu is the only authoritative source of camp type ids; feeding a programId from 'programs camps' into --type-id silently returns nothing."
+      },
+      {
+        "title": "Publish a gym's camp schedule to a calendar file",
+        "command": "iclasspro-pp-cli calendar scottsdalegymnastics --format ics --out fall-camps.ics",
+        "explanation": "Builds one event per camp session from the block and schedule arrays, with the portal registration link attached to each event."
+      },
+      {
+        "title": "Check several gyms for openings in one pass",
+        "command": "iclasspro-pp-cli compare --accounts scottsdalegymnastics,oasisgymnastics,tigar --agent",
+        "explanation": "Joins the synced copies of each account locally, which is the only way to line up programs whose names and ids differ per gym."
+      },
+      {
+        "title": "Audit a catalog before pushing it to a client website",
+        "command": "iclasspro-pp-cli lint scottsdalegymnastics --agent",
+        "explanation": "Flags the records that will render blank or dead on a site: missing descriptions, missing images, expired registration windows, and programs already marked deleted upstream."
+      }
+    ],
+    "trigger_phrases": [
+      "what classes does this gym have",
+      "check openings at",
+      "when does camp registration open",
+      "find a swim class for",
+      "export the gym schedule to a calendar",
+      "what changed on the class schedule",
+      "use iclasspro",
+      "run iclasspro"
+    ]
+  }
+}

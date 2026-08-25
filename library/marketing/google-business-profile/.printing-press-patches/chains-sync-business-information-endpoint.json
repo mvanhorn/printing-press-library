@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "chains-sync-business-information-endpoint",
+  "applied_at": "2026-07-08",
+  "base_run_id": "20260616-220217",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Route chains sync through the Business Information chains search endpoint.",
+  "reason": "Greptile found the chains sync path reused the default Account Management host and omitted the required chainName query parameter, so sync and workflow archive could leave the local chains table empty.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/sync_chains_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli -run TestSyncChainsUsesBusinessInformationEndpointAndChainName -count=1 failed before the fix on the relative /v1/chains:search path, then passed after routing chains sync to the Business Information endpoint with chainName."
+}

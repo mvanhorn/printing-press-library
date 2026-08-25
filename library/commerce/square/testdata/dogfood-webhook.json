@@ -1,0 +1,10 @@
+{
+  "event_id": "dogfood-event-0001",
+  "type": "test.webhook",
+  "created_at": "2026-01-01T00:00:00Z",
+  "data": {
+    "object": {
+      "test": true
+    }
+  }
+}

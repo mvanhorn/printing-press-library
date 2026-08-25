@@ -1,0 +1,57 @@
+{
+  "api_name": "air-quality",
+  "cli_name": "air-quality-pp-cli",
+  "run_id": "20260626-114410",
+  "status": "pass_with_auth_gaps",
+  "commands": [
+    {
+      "command": "air-quality-pp-cli --help",
+      "status": "passed",
+      "mode": "local"
+    },
+    {
+      "command": "air-quality-pp-cli --version",
+      "status": "passed",
+      "mode": "local"
+    },
+    {
+      "command": "air-quality-pp-cli sources --agent",
+      "status": "passed",
+      "mode": "local"
+    },
+    {
+      "command": "air-quality-pp-cli doctor --agent",
+      "status": "passed",
+      "mode": "local"
+    },
+    {
+      "command": "air-quality-pp-cli current --lat 40.7128 --lon -74.0060 --agent",
+      "status": "passed_setup_guidance",
+      "mode": "no_local_key",
+      "source": "OpenAQ API v3"
+    },
+    {
+      "command": "air-quality-pp-cli nearest --lat 40.7128 --lon -74.0060 --agent",
+      "status": "passed_setup_guidance",
+      "mode": "no_local_key",
+      "source": "OpenAQ API v3"
+    },
+    {
+      "command": "air-quality-pp-cli compare --lat-a 40.7128 --lon-a -74.0060 --lat-b 34.0522 --lon-b -118.2437 --agent",
+      "status": "passed_setup_guidance",
+      "mode": "no_local_key",
+      "source": "OpenAQ API v3"
+    },
+    {
+      "command": "air-quality-pp-cli airnow current --zip 10001 --agent",
+      "status": "passed_setup_guidance",
+      "mode": "no_local_key",
+      "source": "AirNow API"
+    }
+  ],
+  "notes": [
+    "No API keys were committed.",
+    "Auth-gated commands return structured setup guidance when keys are absent.",
+    "OpenAQ physical measurements and AirNow AQI observations remain separate."
+  ]
+}

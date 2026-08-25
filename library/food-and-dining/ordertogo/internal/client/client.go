@@ -209,7 +209,6 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 
 	const maxRetries = 3
 	var lastErr error
-
 	// PATCH: hoist the __requestid above the retry loop so all retries
 	// for the same logical request share the same idempotency token.
 	// Generating it inline would assign a new id on each retry, defeating
@@ -258,10 +257,10 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			req.Header.Set(k, v)
 		}
 		// PATCH: ordertogo.com gates every /m/api/* request on browser-like
-		// UA + Origin + Referer headers. The CLI's "ordertogo-pp-cli/0.1.0"
-		// returned 403 Access denied even with a valid Chrome cookie session.
+		// UA + Origin + Referer headers. The CLI's default identifier returned
+		// 403 Access denied even with a valid Chrome cookie session.
 		if req.Header.Get("User-Agent") == "" {
-			req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36")
+			req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36")
 		}
 		if req.Header.Get("Origin") == "" && c.BaseURL != "" {
 			req.Header.Set("Origin", c.BaseURL)
@@ -269,20 +268,14 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		if req.Header.Get("Referer") == "" && c.BaseURL != "" {
 			req.Header.Set("Referer", c.BaseURL+"/")
 		}
-		// PATCH: /api/* endpoints (getRestmeshUser, getUserOrderHistoryByUserid,
-		// etc.) gate on Authorization = <_fbtoken> (the Firebase ID JWT from
-		// the cookie), not on the cookie itself. The web client lifts the
-		// cookie value into the header in fbbase.post; without it the server
-		// returns "Server communication config missing".
+		// PATCH: /api/* endpoints gate on Authorization = <_fbtoken> (the raw
+		// Firebase ID JWT from the cookie), not on the cookie itself.
 		if req.Header.Get("Authorization") == "" {
 			if fbtoken, err := config.CookieValueFromStore("", "_fbtoken"); err == nil && fbtoken != "" {
 				req.Header.Set("Authorization", fbtoken)
 			}
 		}
-		// PATCH: ordertogo.com uses an `__requestid` header for idempotency
-		// on POSTs (epoch_ms + random int). Format: <epoch_ms>_<random>.
-		// requestID is hoisted above the retry loop so all attempts share
-		// the same token (greptile P1 on PR #471).
+		// PATCH: all retries for one logical POST share this idempotency token.
 		if requestID != "" && req.Header.Get("__requestid") == "" {
 			req.Header.Set("__requestid", requestID)
 		}
@@ -326,8 +319,11 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			continue
 		}
 
-		// Server error - retry with backoff
-		if resp.StatusCode >= 500 && attempt < maxRetries {
+		// Server error - retry with backoff, EXCEPT for the order placement
+		// endpoint: postmicmeshorder returns 500 even when the order succeeded,
+		// so retrying it risks placing (and charging) duplicate orders.
+		nonIdempotent := strings.Contains(path, "postmicmeshorder")
+		if resp.StatusCode >= 500 && attempt < maxRetries && !nonIdempotent {
 			wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
 			fmt.Fprintf(os.Stderr, "server error %d, retrying in %s (attempt %d/%d)\n", resp.StatusCode, wait, attempt+1, maxRetries)
 			time.Sleep(wait)

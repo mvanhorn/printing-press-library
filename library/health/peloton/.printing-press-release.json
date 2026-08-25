@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "peloton",
+  "cli_name": "peloton-pp-cli",
+  "version": "2026.8.4",
+  "released_at": "2026-08-22T09:09:54Z",
+  "source_commit": "c290bac90ed5f79da0ce375c4cc959ba0b8caca2",
+  "printing_press_version": "4.28.0",
+  "run_id": "20260714-231159",
+  "changes": [
+    {
+      "title": "test(peloton): add live-round-14 turn-bit regression test",
+      "pr": 1780,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1780",
+      "commit": "c290bac90ed5f79da0ce375c4cc959ba0b8caca2"
+    }
+  ]
+}

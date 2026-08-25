@@ -1,0 +1,4 @@
+warning: resource "jobs" from path "/jobs" would shadow framework cobra command "jobs"; renamed to "immich-jobs"
+warning: resource "auth" from path "/auth/change-password" would shadow framework cobra command "auth"; renamed to "immich-auth"
+warning: resource "search" from path "/search/cities" would shadow framework cobra command "search"; renamed to "immich-search"
+warning: resource "sync" from path "/sync/ack" would shadow framework cobra command "sync"; renamed to "immich-sync"

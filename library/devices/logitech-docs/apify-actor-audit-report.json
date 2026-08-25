@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/logitech-docs-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260815-214721-c558e557",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

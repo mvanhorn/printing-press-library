@@ -1,0 +1,463 @@
+name: axs
+description: "SRAM AXS CLI — manage your bikes, AXS components, firmware, and ride telemetry from the terminal"
+version: "0.1.0"
+base_url: "https://nexus.quarqnet.com/api/v2"
+category: other
+health_check_path: "/devicetypes/"
+
+required_headers:
+  - name: User-Agent
+    value: "axs-pp-cli/0.1 (+https://github.com/mvanhorn/printing-press-library)"
+  - name: Accept
+    value: "application/json"
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  env_vars:
+    - SRAM_AXS_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/axs-pp-cli/config.toml"
+
+resources:
+  bikes:
+    description: "Your registered bikes"
+    endpoints:
+      list:
+        method: GET
+        path: "/bikes/"
+        description: "List your registered bikes"
+        response:
+          type: array
+          item: Bike
+      get:
+        method: GET
+        path: "/bikes/{id}/"
+        description: "Get a bike by ID"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Bike ID"
+        response:
+          type: object
+          item: Bike
+
+  components:
+    description: "Your AXS components (derailleurs, shifters, batteries, dropper posts)"
+    endpoints:
+      list:
+        method: GET
+        path: "/components/"
+        description: "List your AXS components"
+        response:
+          type: array
+          item: Component
+      get:
+        method: GET
+        path: "/components/{id}/"
+        description: "Get a component by ID"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Component ID"
+        response:
+          type: object
+          item: Component
+
+  registrations:
+    description: "Register AXS components by serial number"
+    endpoints:
+      create:
+        method: POST
+        path: "/componentregistrations/"
+        description: "Register a component to your account by serial number"
+        body:
+          - name: serial
+            type: string
+            required: true
+            description: "Component serial number (printed on the component)"
+          - name: email
+            type: string
+            required: false
+            description: "Account email (defaults to the authenticated user)"
+        response:
+          type: object
+          item: Component
+
+  devicetypes:
+    description: "Catalog of AXS device types (public, no login required)"
+    endpoints:
+      list:
+        method: GET
+        path: "/devicetypes/"
+        no_auth: true
+        description: "List all AXS device types"
+        response:
+          type: array
+          item: DeviceType
+
+  models:
+    description: "Catalog of component models and their firmware versions"
+    endpoints:
+      list:
+        method: GET
+        path: "/models/"
+        description: "List component models and latest firmware versions"
+        response:
+          type: array
+          item: Model
+
+  products:
+    description: "Product detail lookups"
+    endpoints:
+      get:
+        method: GET
+        path: "/productdetails/{id}/"
+        description: "Get product detail by product ID"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Product ID"
+        response:
+          type: object
+          item: Product
+
+  units:
+    description: "Measurement / advanced units catalog"
+    endpoints:
+      list:
+        method: GET
+        path: "/advancedunits/"
+        description: "List advanced measurement units"
+        params:
+          - name: page
+            type: int
+            required: false
+            default: 1
+            description: "Page number (DRF pagination)"
+          - name: page_size
+            flag_name: page-size
+            type: int
+            required: false
+            default: 100
+            description: "Results per page"
+        response:
+          type: array
+          item: Unit
+
+  notifications:
+    description: "Your notifications inbox"
+    endpoints:
+      list:
+        method: GET
+        path: "/notifications/"
+        description: "List your notifications"
+        response:
+          type: array
+          item: Notification
+
+  linkedids:
+    description: "Linked third-party accounts (Strava, etc.)"
+    endpoints:
+      list:
+        method: GET
+        path: "/linkedids/"
+        description: "List your linked third-party accounts"
+        response:
+          type: array
+          item: LinkedID
+      unlink:
+        method: DELETE
+        path: "/linkedids/{id}/"
+        description: "Unlink a third-party account"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Linked account ID"
+
+  account:
+    description: "Your SRAM account profile and settings"
+    endpoints:
+      profile:
+        method: GET
+        path: "/users/self/"
+        description: "Get your account profile"
+        response:
+          type: object
+          item: User
+      flags:
+        method: GET
+        path: "/users/self/flags/"
+        description: "Get your account feature flags"
+        response:
+          type: object
+          item: Flags
+      accessgroups:
+        method: GET
+        path: "/users/self/public_accessgroups/"
+        description: "Get your public access groups"
+        response:
+          type: array
+          item: AccessGroup
+      export:
+        method: POST
+        path: "/users/self/export/"
+        description: "Request a data export of your account"
+        response:
+          type: object
+          item: User
+
+  activities:
+    description: "Your ride activities (telemetry host)"
+    base_url: "https://api.quarqnet.com/api/v2"
+    endpoints:
+      list:
+        method: GET
+        path: "/activities/"
+        description: "List your ride activities"
+        params:
+          - name: page
+            type: int
+            required: false
+            default: 1
+            description: "Page number"
+          - name: page_size
+            flag_name: page-size
+            type: int
+            required: false
+            default: 50
+            description: "Results per page"
+        response:
+          type: array
+          item: Activity
+      types:
+        method: GET
+        path: "/activitytypes/"
+        description: "List activity types"
+        response:
+          type: array
+          item: ActivityType
+
+  summaries:
+    description: "Activity and component usage summaries (telemetry host)"
+    base_url: "https://api.quarqnet.com/api/v2"
+    endpoints:
+      activities:
+        method: GET
+        path: "/activitysummaries/"
+        description: "List per-activity summaries"
+        params:
+          - name: page
+            type: int
+            required: false
+            default: 1
+            description: "Page number"
+          - name: page_size
+            flag_name: page-size
+            type: int
+            required: false
+            default: 50
+            description: "Results per page"
+        response:
+          type: array
+          item: ActivitySummary
+      components:
+        method: GET
+        path: "/componentsummaries/"
+        description: "List component usage summaries (wear, shift counts, distance)"
+        response:
+          type: array
+          item: ComponentSummary
+
+  stats:
+    description: "Aggregate account stats (telemetry host)"
+    base_url: "https://api.quarqnet.com/api/v2"
+    endpoints:
+      get:
+        method: GET
+        path: "/users/self/stats/"
+        description: "Get your aggregate riding stats"
+        response:
+          type: object
+          item: Stats
+
+types:
+  Bike:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: nickname
+        type: string
+      - name: model
+        type: string
+      - name: image
+        type: string
+      - name: create_ts
+        type: string
+  Component:
+    fields:
+      - name: id
+        type: string
+      - name: serial
+        type: string
+      - name: name
+        type: string
+      - name: nickname
+        type: string
+      - name: device_type
+        type: int
+      - name: model
+        type: string
+      - name: firmware_version
+        type: string
+      - name: battery_level
+        type: int
+      - name: bike
+        type: string
+  DeviceType:
+    fields:
+      - name: device_type
+        type: int
+      - name: name
+        type: string
+      - name: bridge_priority
+        type: int
+      - name: display_sort_priority
+        type: float
+  Model:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: firmware_version
+        type: string
+      - name: version
+        type: string
+      - name: device_type
+        type: int
+  Product:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: description
+        type: string
+  Unit:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: symbol
+        type: string
+  Notification:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: body
+        type: string
+      - name: read
+        type: bool
+      - name: create_ts
+        type: string
+  LinkedID:
+    fields:
+      - name: id
+        type: string
+      - name: provider
+        type: string
+      - name: external_id
+        type: string
+  User:
+    fields:
+      - name: id
+        type: string
+      - name: sub
+        type: string
+      - name: email
+        type: string
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+      - name: units
+        type: string
+  Flags:
+    fields:
+      - name: id
+        type: string
+  AccessGroup:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+  Activity:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: activity_type
+        type: int
+      - name: start_ts
+        type: string
+      - name: distance
+        type: float
+      - name: duration
+        type: float
+  ActivityType:
+    fields:
+      - name: activity_type
+        type: int
+      - name: name
+        type: string
+  ActivitySummary:
+    fields:
+      - name: id
+        type: string
+      - name: activity
+        type: string
+      - name: distance
+        type: float
+      - name: shift_count
+        type: int
+  ComponentSummary:
+    fields:
+      - name: id
+        type: string
+      - name: component
+        type: string
+      - name: serial
+        type: string
+      - name: total_distance
+        type: float
+      - name: shift_count
+        type: int
+      - name: battery_changes
+        type: int
+  Stats:
+    fields:
+      - name: total_distance
+        type: float
+      - name: total_activities
+        type: int
+      - name: total_shifts
+        type: int

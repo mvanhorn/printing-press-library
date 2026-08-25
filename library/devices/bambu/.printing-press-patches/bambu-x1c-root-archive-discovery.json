@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "bambu-x1c-root-archive-discovery",
+  "applied_at": "2026-07-11",
+  "base_run_id": "20260711-063302-c519dd7c",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Legacy X1 Carbon printers must discover current root-level 3MF archives when MQTT exposes only plate_1.gcode.",
+  "reason": "An X1C Studio print stored the current archive under its project-derived root filename while MQTT reported only the generic G-code name and print-profile title, so exact filename guesses could not find its preview or weight.",
+  "files": [
+    "internal/bambu/ftps.go",
+    "internal/bambu/bambu_test.go"
+  ],
+  "validated_outcome": "Fallback discovery rejects reliably stale root 3MF files, retains and prioritizes every candidate with a missing timestamp, orders dated attempts newest first, and accepts metadata only when its embedded project or profile title matches the active MQTT job. The existing 1,000-entry listing, archive-size limits, and command deadline bound the search."
+}

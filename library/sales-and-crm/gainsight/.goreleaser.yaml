@@ -1,0 +1,51 @@
+version: 2
+project_name: gainsight-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: gainsight-pp-cli
+    main: ./cmd/gainsight-pp-cli
+    binary: gainsight-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/sales-and-crm/gainsight/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: gainsight-pp-mcp
+    main: ./cmd/gainsight-pp-mcp
+    binary: gainsight-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: gainsight-pp-cli
+    repository:
+      owner: debgotwired
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Read-first Gainsight NXT API surface for customer success account, relationship, person, timeline"
+    install: |
+      bin.install "gainsight-pp-cli"
+      bin.install "gainsight-pp-mcp"

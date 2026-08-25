@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "gladly-pp-cli"
+display_name = "Gladly Read"
+description = "Read-first Gladly API surface for customer timelines, conversations, agents, topics, answers, and support operations."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/gladly-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+GLADLY_PASSWORD = true
+GLADLY_USERNAME = false

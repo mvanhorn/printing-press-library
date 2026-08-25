@@ -1,0 +1,14 @@
+info: learn: defaulting self-learning loop on (opt out with learn.disabled: true)
+PASS go mod tidy
+PASS ensure safe golang.org/x/net
+PASS govulncheck ./...
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS jimmy-johns-pp-cli --help
+PASS jimmy-johns-pp-cli version
+PASS jimmy-johns-pp-cli doctor
+Force regen merged 1 preserved files / 0 AddCommand calls
+agentcookie: skipping jimmy-johns (cookie-only or no env-var auth)
+Generated jimmy-johns at /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-190027-jj-reprint428/working/jimmy-johns-pp-cli
+Bundled /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-190027-jj-reprint428/working/jimmy-johns-pp-cli/build/jimmy-johns-pp-mcp-darwin-arm64.mcpb

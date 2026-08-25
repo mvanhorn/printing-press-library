@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "workout-details-nested-ride-id",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "workoutDetailRideID (internal/cli/offline.go) extracts a workout_details payload's class (ride) id, falling back to the nested ride.id/ride.title after checking top-level ride_id/rideId. The real Peloton API never carries a top-level ride_id/rideId on workout_details -- unlike the \"workouts\" family, where enrichWorkoutRideMetadata (internal/store/peloton.go) promotes ride.id to a top-level field at write time specifically because lookupFieldValue only ever reads top-level fields. workout_details is stored as-is with no such promotion. offline_intervals and offline_repeat both call this helper instead of stringValue(...,\"ride_id\",\"rideId\") directly. Any future regen must keep both call sites routed through workoutDetailRideID, not a direct stringValue call, or the nested-only case regresses.",
+  "reason": "NEW ISSUE A from a third live post-fix verification sweep: offline_intervals reported \"workout detail does not include a class identifier\" for a workout confirmed to have a real class association, at detail.ride.id. Confirmed the identical bug independently affects offline_repeat (same stringValue(...,\"ride_id\",\"rideId\") pattern on the same workout_details payload), which the report hadn't tested yet due to lacking suitable test data -- fixed both together rather than leaving the second instance of the same bug in place.",
+  "files": [
+    "internal/cli/offline.go",
+    "internal/cli/offline_test.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. New test TestOfflineIntervalsAndRepeatResolveNestedRideID uses a fixture with the real (nested-only) shape -- the existing seedOfflineFacts fixture happens to put ride_id at the top level already, which is why this slipped past earlier tests. Live-verified against the exact record cited in the report: ride_id now resolves correctly (44867a5486184a09b8ca135a6d8c7494), replacing the false \"no class identifier\" caveat with the correct (and separate, legitimate) \"stored class structure is unavailable\" caveat, since that class itself isn't locally synced."
+}

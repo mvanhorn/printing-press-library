@@ -1,0 +1,271 @@
+{
+  "api_name": "etsy-seller-dashboard",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "Seerxo",
+      "url": "https://github.com/semihbugrasezer/seerxo",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 25,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "administrativetrick/etsy-mcp-server",
+      "url": "https://github.com/administrativetrick/etsy-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 12,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "profplum700/etsy-mcp-server",
+      "url": "https://github.com/profplum700/etsy-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 9,
+      "last_updated": "",
+      "command_count": 13,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "Country-filtered Marketplace Insights metrics are unavailable in the captured first-party surface.",
+    "Marketplace keyword clicks and click-through rate are unavailable and must not be inferred from searches and listing counts.",
+    "The Etsy Ads search-term endpoint was not captured, so term-level revenue attribution is unsupported.",
+    "Promotion discounted-order, item-count, and AOV fields remain optional until confirmed in a sanitized live response.",
+    "Direct HTTP replay with imported Chrome cookies and CSRF handling remains to be proven during dogfood.",
+    "All Etsy-side mutations are excluded until separately approved and backed by replayable, idempotent contracts."
+  ],
+  "patterns": [
+    "Treat Marketplace Insights, Etsy Ads, Offsite Ads, and Sales \u0026 Discounts as equal-weight peer sources; Marketplace Insights leads README onboarding only.",
+    "Use local cache timestamps before live keyword enqueue to preserve weekly quota.",
+    "Normalize by shop, listing, and observation window before joining dashboard surfaces.",
+    "Keep Etsy Ads revenue, Offsite Ads attribution, and promotion revenue separately labeled to prevent double-counting.",
+    "Use deterministic local rules and typed insufficient-data results; do not require an LLM.",
+    "Treat optional Etsy experiment fields as feature-detected data, never required schema."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-26T03:00:00Z",
+  "novel_features": [
+    {
+      "name": "Listing action queue",
+      "command": "listing action-queue",
+      "description": "Rank listing-level research and marketing review actions from all four synchronized Etsy surfaces.",
+      "rationale": "Requires deterministic SQLite joins across demand, onsite ads, offsite acquisition, and promotions while preserving missing-data and freshness semantics.",
+      "example": "etsy-seller-dashboard-pp-cli listing action-queue --agent --select listing_id,action,reasons,observed_at",
+      "why_it_matters": "Use this before a weekly catalog review to decide which listings need research, ad review, promotion review, or no intervention.",
+      "group": "Cross-surface decisions"
+    },
+    {
+      "name": "Economics reconciliation",
+      "command": "economics reconcile",
+      "description": "Reconcile onsite spend, offsite fees, attributed revenue, and promotion observations without inventing net profit.",
+      "rationale": "Joins channel-specific financial observations while preserving incompatible attribution boundaries and explicitly labeling excluded costs.",
+      "example": "etsy-seller-dashboard-pp-cli economics reconcile --agent",
+      "why_it_matters": "Use this before changing marketing spend or comparing channel performance.",
+      "group": "Marketing economics"
+    },
+    {
+      "name": "Observed promotion lift",
+      "command": "promotion observed-lift",
+      "description": "Compare one promotion window with an equal-length prior window across promotion, onsite-ad, and offsite observations.",
+      "rationale": "Requires temporal joins across local snapshots and careful non-causal language when reporting coincident changes.",
+      "example": "etsy-seller-dashboard-pp-cli promotion observed-lift PROMOTION_ID --agent",
+      "why_it_matters": "Use this while reviewing an active or recently ended promotion.",
+      "group": "Promotion analysis"
+    },
+    {
+      "name": "Acquisition channel gap",
+      "command": "acquisition channel-gap",
+      "description": "Find listings whose separately labeled onsite and offsite efficiency signals diverge.",
+      "rationale": "Normalizes and aligns listing-level observations from Etsy Ads and Offsite Ads without collapsing their distinct attribution models.",
+      "example": "etsy-seller-dashboard-pp-cli acquisition channel-gap --agent",
+      "why_it_matters": "Use this during weekly channel-allocation review to surface onsite-strong, offsite-strong, balanced, and insufficient-data listings.",
+      "group": "Cross-channel acquisition"
+    },
+    {
+      "name": "Research-quota allocation",
+      "command": "quota allocate",
+      "description": "Prioritize scarce Marketplace Insights searches where stale demand evidence affects the most consequential listing decisions.",
+      "rationale": "Joins quota and cache state with ads, offsite, and promotion exposure without consuming a live keyword search.",
+      "example": "etsy-seller-dashboard-pp-cli quota allocate --agent",
+      "why_it_matters": "Use this before spending the weekly Marketplace Insights allowance.",
+      "group": "Quota-aware research"
+    },
+    {
+      "name": "Visibility-performance gap",
+      "command": "listing visibility-gap",
+      "description": "Compare explicit listing-keyword visibility observations with onsite and offsite performance without fabricating keyword revenue.",
+      "rationale": "Uses only explicit or observed listing-keyword mappings, listing rank history, and listing-level acquisition metrics.",
+      "example": "etsy-seller-dashboard-pp-cli listing visibility-gap --agent",
+      "why_it_matters": "Use this after demand, rank, and marketing snapshots sync to distinguish visibility gaps from acquisition-efficiency gaps.",
+      "group": "Search and acquisition"
+    },
+    {
+      "name": "Cross-surface anomalies",
+      "command": "growth anomalies",
+      "description": "Detect deterministic weekly outliers and coincident movements across all four synchronized surfaces.",
+      "rationale": "Requires historical SQLite snapshots, documented minimum-history rules, and source-linked evidence rather than an LLM narrative.",
+      "example": "etsy-seller-dashboard-pp-cli growth anomalies --agent",
+      "why_it_matters": "Use this for recurring portfolio review when raw dashboard totals hide exceptions.",
+      "group": "Historical monitoring"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Listing action queue",
+      "command": "listing action-queue",
+      "description": "Rank listing-level research and marketing review actions from all four synchronized Etsy surfaces.",
+      "rationale": "Requires deterministic SQLite joins across demand, onsite ads, offsite acquisition, and promotions while preserving missing-data and freshness semantics.",
+      "example": "etsy-seller-dashboard-pp-cli listing action-queue --agent --select listing_id,action,reasons,observed_at",
+      "why_it_matters": "Use this before a weekly catalog review to decide which listings need research, ad review, promotion review, or no intervention.",
+      "group": "Cross-surface decisions"
+    },
+    {
+      "name": "Economics reconciliation",
+      "command": "economics reconcile",
+      "description": "Reconcile onsite spend, offsite fees, attributed revenue, and promotion observations without inventing net profit.",
+      "rationale": "Joins channel-specific financial observations while preserving incompatible attribution boundaries and explicitly labeling excluded costs.",
+      "example": "etsy-seller-dashboard-pp-cli economics reconcile --agent",
+      "why_it_matters": "Use this before changing marketing spend or comparing channel performance.",
+      "group": "Marketing economics"
+    },
+    {
+      "name": "Observed promotion lift",
+      "command": "promotion observed-lift",
+      "description": "Compare one promotion window with an equal-length prior window across promotion, onsite-ad, and offsite observations.",
+      "rationale": "Requires temporal joins across local snapshots and careful non-causal language when reporting coincident changes.",
+      "example": "etsy-seller-dashboard-pp-cli promotion observed-lift PROMOTION_ID --agent",
+      "why_it_matters": "Use this while reviewing an active or recently ended promotion.",
+      "group": "Promotion analysis"
+    },
+    {
+      "name": "Acquisition channel gap",
+      "command": "acquisition channel-gap",
+      "description": "Find listings whose separately labeled onsite and offsite efficiency signals diverge.",
+      "rationale": "Normalizes and aligns listing-level observations from Etsy Ads and Offsite Ads without collapsing their distinct attribution models.",
+      "example": "etsy-seller-dashboard-pp-cli acquisition channel-gap --agent",
+      "why_it_matters": "Use this during weekly channel-allocation review to surface onsite-strong, offsite-strong, balanced, and insufficient-data listings.",
+      "group": "Cross-channel acquisition"
+    },
+    {
+      "name": "Research-quota allocation",
+      "command": "quota allocate",
+      "description": "Prioritize scarce Marketplace Insights searches where stale demand evidence affects the most consequential listing decisions.",
+      "rationale": "Joins quota and cache state with ads, offsite, and promotion exposure without consuming a live keyword search.",
+      "example": "etsy-seller-dashboard-pp-cli quota allocate --agent",
+      "why_it_matters": "Use this before spending the weekly Marketplace Insights allowance.",
+      "group": "Quota-aware research"
+    },
+    {
+      "name": "Visibility-performance gap",
+      "command": "listing visibility-gap",
+      "description": "Compare explicit listing-keyword visibility observations with onsite and offsite performance without fabricating keyword revenue.",
+      "rationale": "Uses only explicit or observed listing-keyword mappings, listing rank history, and listing-level acquisition metrics.",
+      "example": "etsy-seller-dashboard-pp-cli listing visibility-gap --agent",
+      "why_it_matters": "Use this after demand, rank, and marketing snapshots sync to distinguish visibility gaps from acquisition-efficiency gaps.",
+      "group": "Search and acquisition"
+    },
+    {
+      "name": "Cross-surface anomalies",
+      "command": "growth anomalies",
+      "description": "Detect deterministic weekly outliers and coincident movements across all four synchronized surfaces.",
+      "rationale": "Requires historical SQLite snapshots, documented minimum-history rules, and source-linked evidence rather than an LLM narrative.",
+      "example": "etsy-seller-dashboard-pp-cli growth anomalies --agent",
+      "why_it_matters": "Use this for recurring portfolio review when raw dashboard totals hide exceptions.",
+      "group": "Historical monitoring"
+    }
+  ],
+  "narrative": {
+    "display_name": "Etsy Seller Dashboard",
+    "headline": "First-party Etsy demand and marketing evidence, reconciled locally.",
+    "value_prop": "Bring Marketplace Insights, Etsy Ads, Offsite Ads, and Sales \u0026 Discounts into one read-only CLI. Preserve short-lived observations in SQLite, compare aligned periods, and turn disconnected seller dashboards into deterministic listing-level decisions without inventing attribution or profit.",
+    "auth_narrative": "These are private Shop Manager surfaces protected by the seller's Etsy session and DataDome. Sign in to Etsy in local Chrome, then use the CLI auth flow to import session cookies at runtime. Credentials remain local; doctor detects missing or expired browser-session material. The CLI does not change ad status, Offsite Ads enrollment, or promotions.",
+    "quickstart": [
+      {
+        "command": "etsy-seller-dashboard-pp-cli doctor --dry-run",
+        "comment": "Check the binary, local store, and Etsy browser-session prerequisites without changing seller settings or spending keyword quota."
+      },
+      {
+        "command": "etsy-seller-dashboard-pp-cli sync --shop-id 12345678 --resources marketplace-insights,ads,offsite-ads,promotions --since 30d",
+        "comment": "Persist aligned read-only observations from the four peer dashboard surfaces."
+      },
+      {
+        "command": "etsy-seller-dashboard-pp-cli listing action-queue --agent --select listing_id,action,reasons,observed_at",
+        "comment": "Produce a compact, agent-shaped weekly listing review queue with source timestamps."
+      },
+      {
+        "command": "etsy-seller-dashboard-pp-cli economics reconcile --agent",
+        "comment": "Review separately attributed spend, fees, and revenue without a false net-profit total."
+      },
+      {
+        "command": "etsy-seller-dashboard-pp-cli promotion observed-lift PROMOTION_ID --agent",
+        "comment": "Compare a promotion window with an equal-length baseline and explicit non-causal wording."
+      },
+      {
+        "command": "etsy-seller-dashboard-pp-cli growth anomalies --agent",
+        "comment": "Surface deterministic historical outliers after recurring sync."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports missing or expired Etsy session material",
+        "fix": "Sign in to Etsy in local Chrome, rerun the CLI auth import, and retry doctor. Do not paste cookies into shell history."
+      },
+      {
+        "symptom": "a local analysis reports stale or unsynchronized resources",
+        "fix": "Run sync for the named resources and matching date range, then repeat the analysis."
+      },
+      {
+        "symptom": "Ads search terms or promotion order/item/AOV fields are unavailable",
+        "fix": "Treat them as unsupported optional data. Do not infer missing attribution or substitute title-token matching."
+      }
+    ],
+    "when_to_use": "Use when a seller, operator, or agent needs read-only Etsy demand and marketing research, recurring local history, aligned-period comparisons, listing-level action queues, or attribution-safe economics across Shop Manager surfaces.",
+    "anti_triggers": [
+      "Do not use to create, edit, pause, or delete Etsy promotions.",
+      "Do not use to change Etsy Ads budget or advertised listing state.",
+      "Do not use to opt into or out of Offsite Ads.",
+      "Do not use to claim keyword-level ad revenue, causal promotion lift, or net profit from incomplete Etsy attribution data."
+    ],
+    "recipes": [
+      {
+        "title": "Prepare the weekly four-surface review",
+        "command": "etsy-seller-dashboard-pp-cli sync --shop-id 12345678 --resources marketplace-insights,ads,offsite-ads,promotions --since 30d",
+        "explanation": "Refresh aligned observations before running any cross-surface local analysis."
+      },
+      {
+        "title": "Choose listing review priorities",
+        "command": "etsy-seller-dashboard-pp-cli listing action-queue --agent --select listing_id,action,reasons,observed_at",
+        "explanation": "Return deterministic action codes and supporting source timestamps without a live mutation."
+      },
+      {
+        "title": "Reconcile marketing economics",
+        "command": "etsy-seller-dashboard-pp-cli economics reconcile --agent",
+        "explanation": "Preserve Etsy Ads, Offsite Ads, and promotion attribution boundaries while exposing exact subtotals and exclusions."
+      },
+      {
+        "title": "Find portfolio exceptions",
+        "command": "etsy-seller-dashboard-pp-cli growth anomalies --agent",
+        "explanation": "Detect source-linked outliers from local history after the minimum observation window is met."
+      }
+    ],
+    "trigger_phrases": [
+      "research Etsy marketplace demand",
+      "review Etsy Ads performance",
+      "analyze Etsy Offsite Ads",
+      "compare Etsy promotions",
+      "reconcile Etsy marketing economics",
+      "build my Etsy listing action queue",
+      "find Etsy growth anomalies"
+    ]
+  }
+}

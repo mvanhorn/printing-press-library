@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "root-must-register-hand-authored-store-commands",
+  "applied_at": "2026-07-25",
+  "base_run_id": "20260725-041142-9944f727",
+  "base_printing_press_version": "4.29.0",
+  "summary": "root.go must register the hand-authored sync/get/searches commands, and sync hints must stay enabled; a plain regen of root.go silently drops all four because the generator does not know these commands exist.",
+  "reason": "The generator owns root.go but does not own this CLI's hand-written local-store layer, so a regen rewrites the AddCommand block from the spec alone and orphans sync.go/get.go/searches.go — the files stay in the tree and still compile, so nothing fails loudly, but the entire advertised sync -> stats/skills/new workflow becomes unreachable at runtime. The same regen left syncHintsEnabled false while the generated sync_hint tests assert the enabled behavior. Any future regen must re-apply this wiring.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/sync_hint.go"
+  ],
+  "validated_outcome": "go test ./internal/cli/ went from 6 failures (TestNovelSyncHelpWires plus 5 sync_hint tests) to green; sync, get, and searches now appear in --help and execute their real code paths.",
+  "findings_addressed": ["F1", "F2", "F3"]
+}

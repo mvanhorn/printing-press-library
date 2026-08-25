@@ -1,0 +1,9 @@
+/DEVONthink-cli
+/devonthink-pp-cli
+/devonthink-pp-mcp
+/devonthink-inventory.json
+/dogfood-results.json
+/workflow-verify-report.json
+/dist/
+/.cache/
+.DS_Store

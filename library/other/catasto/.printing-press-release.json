@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "catasto",
+  "cli_name": "catasto-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-22T09:12:22Z",
+  "source_commit": "c6feec311cecf6db3841d32d812c024c740f8987",
+  "printing_press_version": "4.27.1",
+  "run_id": "20260517-193731",
+  "changes": [
+    {
+      "title": "feat(catasto): add catasto CLI",
+      "pr": 1431,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1431",
+      "commit": "c6feec311cecf6db3841d32d812c024c740f8987"
+    }
+  ]
+}

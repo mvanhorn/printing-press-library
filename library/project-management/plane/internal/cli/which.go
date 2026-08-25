@@ -11,10 +11,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// whichEntry is one row of the curated capability index. The index is
-// seeded at generation time from the same NovelFeature list that drives
-// the SKILL.md feature section, so the command a `which` query returns
-// is guaranteed to exist and to match what the skill advertises.
+// whichEntry is one row of the curated capability index. The index is seeded
+// at generation time from the verified NovelFeature list that drives the
+// SKILL.md feature section, so the command a `which` query returns is
+// guaranteed to exist and to match what the skill advertises.
 type whichEntry struct {
 	Command      string `json:"command"`
 	Description  string `json:"description"`
@@ -26,132 +26,12 @@ type whichEntry struct {
 // its hero features. Endpoint-level commands are discoverable via
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
+// PATCH(which-index): the novel-feature metadata carried no descriptions, so
+// the template rendered empty strings; filled from the commands' own Short
+// text so `which` can rank them.
 var whichIndex = []whichEntry{
-	{Command: "assets create-generic-upload", Description: "Generate presigned URL for generic asset upload", Group: "assets"},
-	{Command: "assets create-user-upload", Description: "Generate presigned URL for user asset upload", Group: "assets"},
-	{Command: "assets delete-user", Description: "Delete user asset.\n\nDelete a user profile asset (avatar or cover image) and remove its reference from the user profile.\nThis performs a soft delete by marking the asset as deleted and updating the user's profile.", Group: "assets"},
-	{Command: "assets get-generic", Description: "Get presigned URL for asset download", Group: "assets"},
-	{Command: "assets update-generic", Description: "Update generic asset after upload completion", Group: "assets"},
-	{Command: "assets update-user", Description: "Mark user asset as uploaded", Group: "assets"},
-	{Command: "invitations workspaces-create", Description: "Create a workspace invite", Group: "invitations"},
-	{Command: "invitations workspaces-destroy", Description: "Delete a workspace invite", Group: "invitations"},
-	{Command: "invitations workspaces-list", Description: "List all workspace invites for a workspace", Group: "invitations"},
-	{Command: "invitations workspaces-partial-update", Description: "Update a workspace invite", Group: "invitations"},
-	{Command: "invitations workspaces-retrieve", Description: "Get a workspace invite by ID", Group: "invitations"},
-	{Command: "issues get-workspace-work-item", Description: "Retrieve a specific work item using workspace slug, project identifier, and issue identifier.", Group: "issues"},
-	{Command: "issues search-work-items", Description: "Perform semantic search across issue names, sequence IDs, and project identifiers.", Group: "issues"},
-	{Command: "members get-workspace", Description: "Retrieve all users who are members of the specified workspace.", Group: "members"},
-	{Command: "projects create", Description: "Create a new project in the workspace with default states and member assignments.", Group: "projects"},
-	{Command: "projects delete", Description: "Permanently remove a project and all its associated data from the workspace.", Group: "projects"},
-	{Command: "projects list", Description: "Retrieve all projects in a workspace or get details of a specific project.", Group: "projects"},
-	{Command: "projects retrieve", Description: "Retrieve details of a specific project.", Group: "projects"},
-	{Command: "projects update", Description: "Partially update an existing project's properties like name, description, or settings.", Group: "projects"},
-	{Command: "projects archive project", Description: "Move a project to archived status, hiding it from active project lists.", Group: "projects"},
-	{Command: "projects archive unarchive-project", Description: "Restore an archived project to active status, making it available in regular workflows.", Group: "projects"},
-	{Command: "projects archived-cycles list", Description: "Retrieve all cycles that have been archived in the project.", Group: "projects"},
-	{Command: "projects archived-cycles unarchive-cycle", Description: "Restore an archived cycle to active status, making it available for regular use.", Group: "projects"},
-	{Command: "projects archived-modules list", Description: "Retrieve all modules that have been archived in the project.", Group: "projects"},
-	{Command: "projects archived-modules unarchive-module", Description: "Restore an archived module to active status, making it available for regular use.", Group: "projects"},
-	{Command: "projects cycles add-work-items", Description: "Assign multiple work items to a cycle. Automatically handles bulk creation and updates with activity tracking.", Group: "projects"},
-	{Command: "projects cycles archive", Description: "Move a completed cycle to archived status for historical tracking. Only cycles that have ended can be archived.", Group: "projects"},
-	{Command: "projects cycles create", Description: "Create a new development cycle with specified name, description, and date range. Supports external ID tracking for integration purposes.", Group: "projects"},
-	{Command: "projects cycles delete", Description: "Permanently remove a cycle and all its associated issue relationships", Group: "projects"},
-	{Command: "projects cycles delete-work-item", Description: "Remove a work item from a cycle while keeping the work item in the project.", Group: "projects"},
-	{Command: "projects cycles list", Description: "Retrieve all cycles in a project. Supports filtering by cycle status like current, upcoming, completed, or draft.", Group: "projects"},
-	{Command: "projects cycles list-work-items", Description: "Retrieve all work items assigned to a cycle.", Group: "projects"},
-	{Command: "projects cycles retrieve", Description: "Retrieve details of a specific cycle by its ID. Supports cycle status filtering.", Group: "projects"},
-	{Command: "projects cycles retrieve-work-item", Description: "Retrieve details of a specific cycle work item.", Group: "projects"},
-	{Command: "projects cycles transfer-work-items", Description: "Move incomplete work items from the current cycle to a new target cycle. Captures progress snapshot and transfers only unfinished work items.", Group: "projects"},
-	{Command: "projects cycles update", Description: "Modify an existing cycle's properties like name, description, or date range. Completed cycles can only have their sort order changed.", Group: "projects"},
-	{Command: "projects intake-issues create-intake-work-item", Description: "Submit a new work item to the project's intake queue for review and triage. Automatically creates the work item with default triage state and tracks activity.", Group: "projects"},
-	{Command: "projects intake-issues delete-intake-work-item", Description: "Permanently remove an intake work item from the triage queue. Also deletes the underlying work item if it hasn't been accepted yet.", Group: "projects"},
-	{Command: "projects intake-issues get-intake-work-items-list", Description: "Retrieve all work items in the project's intake queue. Returns paginated results when listing all intake work items.", Group: "projects"},
-	{Command: "projects intake-issues retrieve-intake-work-item", Description: "Retrieve details of a specific intake work item.", Group: "projects"},
-	{Command: "projects intake-issues update-intake-work-item", Description: "Modify an existing intake work item's properties or status for triage processing. Supports status changes like accept, reject, or mark as duplicate.", Group: "projects"},
-	{Command: "projects issues create-work-item", Description: "Create a new work item in the specified project with the provided details.", Group: "projects"},
-	{Command: "projects issues create-work-item-attachment", Description: "Generate presigned URL for uploading file attachments to a work item.", Group: "projects"},
-	{Command: "projects issues create-work-item-comment", Description: "Add a new comment to a work item with HTML content.", Group: "projects"},
-	{Command: "projects issues create-work-item-link", Description: "Add a new external link to a work item with URL, title, and metadata.", Group: "projects"},
-	{Command: "projects issues delete-work-item", Description: "Permanently delete an existing work item from the project. Only admins or the item creator can perform this action.", Group: "projects"},
-	{Command: "projects issues delete-work-item-attachment", Description: "Permanently remove an attachment from a work item. Records deletion activity for audit purposes.", Group: "projects"},
-	{Command: "projects issues delete-work-item-comment", Description: "Permanently remove a comment from a work item. Records deletion activity for audit purposes.", Group: "projects"},
-	{Command: "projects issues delete-work-item-link", Description: "Permanently remove an external link from a work item.", Group: "projects"},
-	{Command: "projects issues list-work-item-activities", Description: "Retrieve all activities for a work item. Supports filtering by activity type and date range.", Group: "projects"},
-	{Command: "projects issues list-work-item-attachments", Description: "Retrieve all attachments for a work item.", Group: "projects"},
-	{Command: "projects issues list-work-item-comments", Description: "Retrieve all comments for a work item.", Group: "projects"},
-	{Command: "projects issues list-work-item-links", Description: "Retrieve all links associated with a work item. Supports filtering by URL, title, and metadata.", Group: "projects"},
-	{Command: "projects issues list-work-items", Description: "Retrieve a paginated list of all work items in a project. Supports filtering, ordering, and field selection through query parameters.", Group: "projects"},
-	{Command: "projects issues retrieve-work-item", Description: "Retrieve details of a specific work item.", Group: "projects"},
-	{Command: "projects issues retrieve-work-item-activity", Description: "Retrieve details of a specific activity.", Group: "projects"},
-	{Command: "projects issues retrieve-work-item-attachment", Description: "Download attachment file. Returns a redirect to the presigned download URL.", Group: "projects"},
-	{Command: "projects issues retrieve-work-item-comment", Description: "Retrieve details of a specific comment.", Group: "projects"},
-	{Command: "projects issues retrieve-work-item-link", Description: "Retrieve details of a specific work item link.", Group: "projects"},
-	{Command: "projects issues update-link", Description: "Modify the URL, title, or metadata of an existing issue link.", Group: "projects"},
-	{Command: "projects issues update-work-item", Description: "Partially update an existing work item with the provided fields. Supports external ID validation to prevent conflicts.", Group: "projects"},
-	{Command: "projects issues update-work-item-comment", Description: "Modify the content of an existing comment on a work item.", Group: "projects"},
-	{Command: "projects issues upload-work-item-attachment", Description: "Mark an attachment as uploaded after successful file transfer to storage.", Group: "projects"},
-	{Command: "projects labels create", Description: "Create a new label in the specified project with name, color, and description.", Group: "projects"},
-	{Command: "projects labels delete", Description: "Permanently remove a label from the project. This action cannot be undone.", Group: "projects"},
-	{Command: "projects labels get", Description: "Retrieve details of a specific label.", Group: "projects"},
-	{Command: "projects labels list", Description: "Retrieve all labels in a project. Supports filtering by name and color.", Group: "projects"},
-	{Command: "projects labels update", Description: "Partially update an existing label's properties like name, color, or description.", Group: "projects"},
-	{Command: "projects members create-project", Description: "Create a new project member", Group: "projects"},
-	{Command: "projects members delete-project", Description: "Delete a project member", Group: "projects"},
-	{Command: "projects members get-project", Description: "Retrieve all users who are members of the specified project.", Group: "projects"},
-	{Command: "projects members get-project-projects", Description: "Retrieve a project member by ID.", Group: "projects"},
-	{Command: "projects members update-project", Description: "Update a project member", Group: "projects"},
-	{Command: "projects modules add-work-items", Description: "Assign multiple work items to a module or move them from another module. Automatically handles bulk creation and updates with activity tracking.", Group: "projects"},
-	{Command: "projects modules archive", Description: "Move a module to archived status for historical tracking.", Group: "projects"},
-	{Command: "projects modules create", Description: "Create a new project module with specified name, description, and timeline.", Group: "projects"},
-	{Command: "projects modules delete", Description: "Permanently remove a module and all its associated issue relationships.", Group: "projects"},
-	{Command: "projects modules delete-work-item", Description: "Remove a work item from a module while keeping the work item in the project.", Group: "projects"},
-	{Command: "projects modules list", Description: "Retrieve all modules in a project.", Group: "projects"},
-	{Command: "projects modules list-work-items", Description: "Retrieve all work items assigned to a module with detailed information.", Group: "projects"},
-	{Command: "projects modules retrieve", Description: "Retrieve details of a specific module.", Group: "projects"},
-	{Command: "projects modules update", Description: "Modify an existing module's properties like name, description, status, or timeline.", Group: "projects"},
-	{Command: "projects project-members create-2", Description: "Create a new project member", Group: "projects"},
-	{Command: "projects project-members delete-2", Description: "Delete a project member", Group: "projects"},
-	{Command: "projects project-members get-2", Description: "Retrieve all users who are members of the specified project.", Group: "projects"},
-	{Command: "projects project-members get-2-projects", Description: "Retrieve a project member by ID.", Group: "projects"},
-	{Command: "projects project-members update-2", Description: "Update a project member", Group: "projects"},
-	{Command: "projects states create", Description: "Create a new workflow state for a project with specified name, color, and group.", Group: "projects"},
-	{Command: "projects states delete", Description: "Permanently remove a workflow state from a project. Default states and states with existing work items cannot be deleted.", Group: "projects"},
-	{Command: "projects states list", Description: "Retrieve all workflow states for a project.", Group: "projects"},
-	{Command: "projects states retrieve", Description: "Retrieve details of a specific state.", Group: "projects"},
-	{Command: "projects states update", Description: "Partially update an existing workflow state's properties like name, color, or group.", Group: "projects"},
-	{Command: "projects summary workspaces-projects-retrieve", Description: "Get project summary\n\nGet the summary of a project", Group: "projects"},
-	{Command: "projects work-items create-2", Description: "Create a new work item in the specified project with the provided details.", Group: "projects"},
-	{Command: "projects work-items create-attachment-2", Description: "Generate presigned URL for uploading file attachments to a work item.", Group: "projects"},
-	{Command: "projects work-items create-comment-2", Description: "Add a new comment to a work item with HTML content.", Group: "projects"},
-	{Command: "projects work-items create-link-2", Description: "Add a new external link to a work item with URL, title, and metadata.", Group: "projects"},
-	{Command: "projects work-items create-relation", Description: "Create relationships between work items. Supports various relation types including blocking, blocked_by, duplicate, relates_to, start_before, start_after, finish_before, and finish_after.", Group: "projects"},
-	{Command: "projects work-items delete-2", Description: "Permanently delete an existing work item from the project. Only admins or the item creator can perform this action.", Group: "projects"},
-	{Command: "projects work-items delete-attachment-2", Description: "Permanently remove an attachment from a work item. Records deletion activity for audit purposes.", Group: "projects"},
-	{Command: "projects work-items delete-comment-2", Description: "Permanently remove a comment from a work item. Records deletion activity for audit purposes.", Group: "projects"},
-	{Command: "projects work-items delete-link-2", Description: "Permanently remove an external link from a work item.", Group: "projects"},
-	{Command: "projects work-items list-2", Description: "Retrieve a paginated list of all work items in a project. Supports filtering, ordering, and field selection through query parameters.", Group: "projects"},
-	{Command: "projects work-items list-activities-2", Description: "Retrieve all activities for a work item. Supports filtering by activity type and date range.", Group: "projects"},
-	{Command: "projects work-items list-attachments-2", Description: "Retrieve all attachments for a work item.", Group: "projects"},
-	{Command: "projects work-items list-comments-2", Description: "Retrieve all comments for a work item.", Group: "projects"},
-	{Command: "projects work-items list-links-2", Description: "Retrieve all links associated with a work item. Supports filtering by URL, title, and metadata.", Group: "projects"},
-	{Command: "projects work-items list-relations", Description: "Retrieve all relationships for a work item including blocking, blocked_by, duplicate, relates_to, start_before, start_after, finish_before, and finish_after relations.", Group: "projects"},
-	{Command: "projects work-items retrieve-2", Description: "Retrieve details of a specific work item.", Group: "projects"},
-	{Command: "projects work-items retrieve-activity-2", Description: "Retrieve details of a specific activity.", Group: "projects"},
-	{Command: "projects work-items retrieve-attachment-2", Description: "Download attachment file. Returns a redirect to the presigned download URL.", Group: "projects"},
-	{Command: "projects work-items retrieve-comment-2", Description: "Retrieve details of a specific comment.", Group: "projects"},
-	{Command: "projects work-items retrieve-link-2", Description: "Retrieve details of a specific work item link.", Group: "projects"},
-	{Command: "projects work-items update-2", Description: "Partially update an existing work item with the provided fields. Supports external ID validation to prevent conflicts.", Group: "projects"},
-	{Command: "projects work-items update-comment-2", Description: "Modify the content of an existing comment on a work item.", Group: "projects"},
-	{Command: "projects work-items update-issue-link-2", Description: "Modify the URL, title, or metadata of an existing issue link.", Group: "projects"},
-	{Command: "projects work-items upload-attachment-2", Description: "Mark an attachment as uploaded after successful file transfer to storage.", Group: "projects"},
-	{Command: "stickies create-sticky", Description: "Create a new sticky in the workspace", Group: "stickies"},
-	{Command: "stickies delete-sticky", Description: "Delete a sticky by its ID", Group: "stickies"},
-	{Command: "stickies list", Description: "List all stickies in the workspace", Group: "stickies"},
-	{Command: "stickies retrieve-sticky", Description: "Retrieve a sticky by its ID", Group: "stickies"},
-	{Command: "stickies update-sticky", Description: "Update a sticky by its ID", Group: "stickies"},
-	{Command: "users get-current", Description: "Retrieve the authenticated user's profile information including basic details.", Group: "users"},
-	{Command: "work-items get-workspace-2", Description: "Retrieve a specific work item using workspace slug, project identifier, and issue identifier.", Group: "work-items"},
-	{Command: "work-items search-2", Description: "Perform semantic search across issue names, sequence IDs, and project identifiers.", Group: "work-items"},
+	{Command: "relations", Description: "List, create, and delete work-item relations (blocking, blocked_by, duplicate, relates_to, temporal).", Group: "work-items", WhyItMatters: "The REST API exposes relations only as raw sub-resource calls; this groups them by type and adds set/unset UX the web app has but the API hides."},
+	{Command: "module", Description: "Module-membership helpers: cache enrichment (sync) and assign-on-create.", Group: "modules", WhyItMatters: "Plane's issue serializer never returns module membership; the enrichment pass is the only way to query issue↔module links locally."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.
@@ -170,6 +50,7 @@ type whichMatch struct {
 //	+3  exact token match on the command's leaf or full path
 //	+2  substring match on the command (any part)
 //	+2  substring match on the description
+//	+2  per-token match on the description
 //	+1  group tag contains the query as a word
 //
 // Ties break on declaration order in the index. An empty query returns
@@ -187,7 +68,9 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 		}
 		return out
 	}
-	qTokens := strings.Fields(q)
+	// Sub-tokenize the query the same way command paths are split, so a
+	// pasted hyphenated capability (repos-list-for-authenticated) matches.
+	qTokens := whichSubTokens(q)
 
 	scored := make([]whichMatch, 0, len(index))
 	for i, e := range index {
@@ -197,7 +80,14 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 	}
 
 	sort.SliceStable(scored, func(i, j int) bool {
-		return scored[i].Score > scored[j].Score
+		if scored[i].Score != scored[j].Score {
+			return scored[i].Score > scored[j].Score
+		}
+		// Specificity tie-break: at equal score prefer the command with the
+		// fewest capability sub-tokens - the canonical operation over variants
+		// carrying extra words the request never used.
+		return len(whichSubTokens(strings.ToLower(scored[i].Entry.Command))) <
+			len(whichSubTokens(strings.ToLower(scored[j].Entry.Command)))
 	})
 	// Drop zero-score matches when the query was non-empty; agents
 	// branching on exit code rely on "no match" meaning no confidence.
@@ -216,14 +106,19 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	score := 0
 	cmd := strings.ToLower(e.Command)
-	cmdTokens := strings.Fields(cmd)
+	// Sub-token split (spaces, hyphens, underscores, slashes): a capability
+	// word buried in a hyphenated leaf (repos-list-for-authenticated) must be
+	// matchable by the words a human asks with, or every command in a group
+	// ties on the group token alone and index order decides the answer.
+	cmdTokens := whichSubTokens(cmd)
 	desc := strings.ToLower(e.Description)
+	descTokens := strings.Fields(desc)
 	group := strings.ToLower(e.Group)
 
 	// Exact token match on the command path (any token).
 	for _, qt := range qTokens {
 		for _, ct := range cmdTokens {
-			if qt == ct {
+			if whichTokenMatch(qt, ct) {
 				score += 3
 				break
 			}
@@ -237,6 +132,23 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	if strings.Contains(desc, query) {
 		score += 2
 	}
+	// Per-token description match, CAPPED: natural-language requests often say
+	// "top coins by market cap" and the endpoint doc uses the same words - but
+	// uncapped description credit lets long token-soup descriptions outrank the
+	// precise command path, so the credit saturates at 3.
+	descCredit := 0
+	for _, qt := range qTokens {
+		for _, dt := range descTokens {
+			if whichTokenMatch(qt, dt) {
+				descCredit++
+				break
+			}
+		}
+		if descCredit == 3 {
+			break
+		}
+	}
+	score += descCredit
 	// Group tag match.
 	if group != "" {
 		for _, qt := range qTokens {
@@ -246,7 +158,121 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 			}
 		}
 	}
+	// Possessive aliasing: "my/mine/me/current" in a request is API-speak for
+	// the authenticated caller; commands scoped to the authenticated user must
+	// outrank generic listings for possessive asks.
+	possessive := false
+	for _, qt := range qTokens {
+		switch qt {
+		case "my", "mine", "me", "current":
+			possessive = true
+		}
+	}
+	if possessive {
+		for _, ct := range cmdTokens {
+			if ct == "authenticated" || ct == "me" {
+				score += 3
+				break
+			}
+		}
+	}
+	// Read-intent default: penalize write-verb commands when the request never
+	// asked for a write, so neutral asks can never rank a destructive command
+	// first on a tie.
+	if score > 0 {
+		queryWrite := false
+		for _, qt := range qTokens {
+			if whichWriteVerbs[qt] {
+				queryWrite = true
+				break
+			}
+		}
+		if !queryWrite {
+			for _, ct := range cmdTokens {
+				if whichWriteVerbs[ct] {
+					score -= 2
+					break
+				}
+			}
+		}
+	}
+	// Specificity: a command leaf carrying capability sub-tokens the request never
+	// used is a variant, not the canonical answer ("activity-list-repos-
+	// starred-by-authenticated" for a repositories ask). Parent resource tokens
+	// are excluded so a valid nested command is not erased by its path.
+	if score > 0 && len(qTokens) > 1 {
+		unmatched := 0
+		commandParts := strings.Fields(cmd)
+		leafTokens := whichSubTokens(commandParts[len(commandParts)-1])
+		for _, ct := range leafTokens {
+			hit := false
+			for _, qt := range qTokens {
+				if whichTokenMatch(qt, ct) {
+					hit = true
+					break
+				}
+			}
+			if !hit {
+				unmatched++
+			}
+		}
+		if unmatched > 3 {
+			unmatched = 3
+		}
+		score -= unmatched
+	}
 	return score
+}
+
+func whichTokenMatch(a, b string) bool {
+	a = strings.Trim(strings.ToLower(a), ".,:;!?()[]{}\"'")
+	b = strings.Trim(strings.ToLower(b), ".,:;!?()[]{}\"'")
+	if a == "" || b == "" {
+		return false
+	}
+	if a == b {
+		return true
+	}
+	if whichSingular(a) == whichSingular(b) {
+		return true
+	}
+	return whichTokenAliases[a] != "" && whichTokenAliases[a] == whichTokenAliases[b]
+}
+
+func whichSubTokens(cmd string) []string {
+	return strings.FieldsFunc(cmd, func(r rune) bool {
+		return r == ' ' || r == '-' || r == '_' || r == '/'
+	})
+}
+
+// The closed API-verb set for write-shaped commands. A request that never
+// asked for a write must not tie-break into a destructive command.
+var whichWriteVerbs = map[string]bool{
+	"delete": true, "remove": true, "update": true, "create": true, "set": true,
+	"add": true, "replace": true, "rename": true, "transfer": true, "merge": true,
+	"lock": true, "unlock": true, "star": true, "unstar": true, "follow": true,
+	"unfollow": true, "block": true, "unblock": true, "mute": true, "archive": true,
+	"unarchive": true, "cancel": true, "send": true, "upload": true, "subscribe": true,
+	"unsubscribe": true, "dismiss": true, "approve": true, "decline": true,
+	"post": true, "put": true, "write": true, "edit": true, "modify": true,
+	"publish": true, "share": true, "comment": true, "grant": true, "revoke": true,
+}
+
+var whichTokenAliases = map[string]string{
+	"repo": "repository", "repos": "repository", "repository": "repository", "repositories": "repository",
+}
+
+func whichSingular(s string) string {
+	if len(s) > 3 && strings.HasSuffix(s, "ies") {
+		return strings.TrimSuffix(s, "ies") + "y"
+	}
+	if len(s) > 3 && strings.HasSuffix(s, "es") {
+		return strings.TrimSuffix(s, "es")
+	}
+	if len(s) > 2 && strings.HasSuffix(s, "s") {
+		return strings.TrimSuffix(s, "s")
+	}
+	return s
 }
 
 func newWhichCmd(flags *rootFlags) *cobra.Command {
@@ -255,6 +281,7 @@ func newWhichCmd(flags *rootFlags) *cobra.Command {
 		Use:   "which [query]",
 		Short: "Find the command that implements a capability",
 		Annotations: map[string]string{
+			"mcp:read-only":       "true",
 			"pp:typed-exit-codes": "0,2",
 		},
 		Long: `which resolves a natural-language capability query (for example, "search messages" or "stale tickets") to the best matching command from this CLI's curated feature index.

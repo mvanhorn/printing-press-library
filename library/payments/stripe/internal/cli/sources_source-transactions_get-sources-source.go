@@ -34,10 +34,12 @@ func newSourcesSourceTransactionsGetSourcesSourceCmd(flags *rootFlags) *cobra.Co
 			}
 
 			path := "/v1/sources/{source}/source_transactions"
-			if len(args) < 4 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("source is required\nUsage: %s <%s>", cmd.CommandPath(), "source"))
 			}
-			path = replacePathParam(path, "source", args[3])
+			path = replacePathParam(path, "source", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "source-transactions", path, map[string]string{
 				"ending_before":  fmt.Sprintf("%v", flagEndingBefore),
 				"expand":         fmt.Sprintf("%v", flagExpand),

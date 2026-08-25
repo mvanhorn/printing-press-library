@@ -38,6 +38,9 @@ func newStoresPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if len(stores) == 0 {
+				if flags.asJSON {
+					return printJSONFiltered(cmd.OutOrStdout(), []any{}, flags)
+				}
 				fmt.Fprintln(cmd.OutOrStdout(), "No stores found — run 'anylist-pp-cli sync' first")
 				return nil
 			}

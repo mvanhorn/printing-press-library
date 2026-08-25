@@ -1,0 +1,33 @@
+{
+  "schema_version": 2,
+  "patch_id": "twitch-greptile-review-fixes",
+  "base_run_id": "20260620-151417",
+  "title": "Address Greptile P2 review findings on PR #1306",
+  "rationale": "Four P2 findings from Greptile's review of the Twitch CLI, all in internal/client/client.go (one also touching internal/cli/auth.go).",
+  "files": [
+    "internal/client/client.go",
+    "internal/cli/auth.go"
+  ],
+  "changes": [
+    {
+      "file": "internal/client/client.go",
+      "summary": "CheckRedirect cross-host branch now also deletes the Client-Id header (security P2). Go does not strip custom headers on cross-host 3xx; since the Client-Id is set on every request, it would otherwise leak the application's Client ID to a redirect target on an open redirect or partner handoff.",
+      "validated_outcome": "go build/vet/test pass; Authorization and Client-Id both stripped on cross-host hops."
+    },
+    {
+      "file": "internal/client/client.go",
+      "summary": "Removed dead `if tokenURL == \"\" { return nil }` guard in mintClientCredentials: the line immediately above unconditionally sets tokenURL to the Twitch endpoint, so the second guard was unreachable.",
+      "validated_outcome": "go vet clean; token minting unchanged."
+    },
+    {
+      "file": "internal/client/client.go",
+      "summary": "Credential mask set: removed the duplicate addCredential(ClientSecret) (copy-paste) and added addCredential(ClientID) so the application Client ID is also masked in error/debug output.",
+      "validated_outcome": "go build/test pass; both ClientID and ClientSecret masked once."
+    },
+    {
+      "file": "internal/client/client.go + internal/cli/auth.go",
+      "summary": "Deduplicated resolveClientCredentialsScope, which was defined identically in both the client and cli packages. Exported it as client.ResolveClientCredentialsScope (single source of truth) and updated auth.go to call it, adding the client import. Prevents silent divergence if the Twitch scope list changes.",
+      "validated_outcome": "go build/vet/test pass across both packages; no import cycle (cli already imports client; client does not import cli)."
+    }
+  ]
+}

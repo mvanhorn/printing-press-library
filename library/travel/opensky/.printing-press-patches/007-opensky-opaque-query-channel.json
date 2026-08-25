@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "opensky-opaque-query-channel",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-162902",
+  "base_printing_press_version": "4.28.0",
+  "summary": "The entire learn command family gains file-based opaque-data flags: recall, teach, learnings forget, teach-playbook, and playbook amend read the query verbatim from --query-file, and playbook amend reads the correction note from --add-note-file , files the agent wrote with its file tool, so user content never enters a shell command line in any quoting scheme. Precedence: inline flag > file > positional > stdin (stdin kept for pipelines; terminal reads refused). Use strings updated to recall [query] / forget [query]. Recipes in SKILL.md and AGENTS.md write the question (and the amend note) to temp files and pass the file flags. Also: promoted_states.go uses a -999 sentinel default instead of pflag's Changed bit for the bbox boundaries, because profile application sets flag values via flag.Value.Set directly (never the Changed bit) and would silently drop profile-supplied coordinates; the sentinel preserves an explicit 0.0 boundary (equator, prime meridian) and profile-applied values alike. Adds internal/cli/query_stdin_test.go (8 cases incl. file precedence and missing file).",
+  "reason": "Greptile policy gate rounds 2-4: single-quoting was broken by apostrophe breakout, quoted heredocs by the fixed delimiter, and the playbook-amend recipe still double-quoted the raw recall query into shell source. The only channel with nothing to escape is one that keeps user content out of the shell entirely: a temp file written by the agent's file tool is opaque bytes, and --query-file hands the CLI a path, never content. The Changed-bit bbox guard was reworked because profile application (flag.Value.Set) does not set Changed, silently dropping profile-supplied coordinates.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/teach.go",
+    "internal/cli/teach_playbook.go",
+    "internal/cli/promoted_states.go",
+    "internal/cli/query_stdin_test.go",
+    "SKILL.md",
+    "AGENTS.md"
+  ],
+  "validated_outcome": "go build ./..., go vet ./..., and the full go test ./... suite (12 packages) pass; verify-skill passes all checks (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command). Live: a query file containing 'what flies over JFK?$(touch /tmp/pwned)' is recalled verbatim with nothing executed; states dry-run with --lamax 0 keeps lamax=0 in the query string.",
+  "upstream_issue": "Template defect: the generated SKILL.md/AGENTS.md agent recipes interpolate user questions into shell commands; candidate for a cli-printing-press template fix (--query-file in the learn command family + file-based recipes)."
+}

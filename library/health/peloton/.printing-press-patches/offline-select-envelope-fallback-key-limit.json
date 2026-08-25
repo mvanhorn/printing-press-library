@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "offline-select-envelope-fallback-key-limit",
+  "applied_at": "2026-08-20",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "filterFieldsRec's envelope-fallback heuristic (internal/cli/helpers.go) -- which treats an object with no matching top-level --select key as a list envelope (`{\"items\":[...]}`, `{\"data\":[...]}`) when at least one sibling is a non-null array, and passes every OTHER sibling through completely unfiltered -- now only fires when the object has at most maxEnvelopeFallbackKeys (5) top-level keys. Every legitimate wrapper shape this heuristic exists for (offline_history's items+caveats, offline_intervals's workout_id+ride_id+segments+caveats, etc.) tops out at 4 keys; a raw upstream payload passed straight through by a command like `classes show` (\"show one locally stored class fact\") realistically has far more. This bounds the heuristic to the shapes it was actually designed for without needing to reason about nested-object shapes or special-case the write-through/detail-vs-list distinction inside the generic filter function.",
+  "reason": "Round-12 live verification NEW C: `offline_classes_show <id> --select title,duration,fitness_discipline` returned the full ~25 KB record (playlist, instructor bio and Q&As, workout_share_images, related_rides, the nested ride object) instead of the 3 requested fields, for a detail-shaped class fact where those field names don't happen to exist at the top level (they're nested under `ride.*` in a detail response). The report attributed this to the new resources-table fallback (offline-classes-resources-fallback.json) \"bypassing the projection layer\" -- but tracing the actual code path showed printOffline's filtering runs identically regardless of data source; the real cause is a general envelope-fallback bug that fires on ANY object with a non-matching selector and an array-valued sibling (segments, related_rides), then leaks every non-array field verbatim. Detail-shaped records are disproportionately reached via the resources-table fallback (list-shaped records are the bulk-synced majority and rarely need it), which is why the symptom correlated with that specific code path in the report without actually being caused by it.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/root_test.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. TestFilterFields extended with a case reproducing the exact shape (8 top-level keys: id, ride, segments, averages, playlist, instructor, workout_share_images, related_rides; select title,duration,fitness_discipline, none of which are top-level keys on this object) and asserts it now returns {} instead of leaking the nested objects. Every pre-existing TestFilterFields case (all <=3 keys) continues to pass unchanged, confirming the 5-key threshold doesn't affect any real wrapper shape."
+}

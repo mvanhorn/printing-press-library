@@ -182,6 +182,25 @@ class PublishPackageVerifierTest(unittest.TestCase):
 
         self.assertFalse(any("-pp-cli/-pp-mcp binary suffix" in msg for msg in messages))
 
+    def test_existing_cli_entrypoint_may_live_in_single_nested_module(self) -> None:
+        cli_dir = self.tmp / "library" / "cloud" / "v0"
+        manifest = {
+            "schema_version": 1,
+            "api_name": "v0",
+            "category": "cloud",
+            "cli_name": "v0-pp-cli",
+        }
+        self.write("library/cloud/v0/.printing-press.json", json.dumps(manifest))
+        self.write("library/cloud/v0/vzero/cmd/v0-pp-cli/main.go", "package main\n")
+
+        problems = verifier.validate_cli_dir(cli_dir, strict=False, changed_files=set())
+        messages = [p.message for p in problems]
+
+        self.assertFalse(
+            any("does not have a matching cmd/v0-pp-cli/main.go entry point" in msg for msg in messages),
+            msg=messages,
+        )
+
     def test_patch_manifest_with_marker_and_no_entry_passes(self) -> None:
         """The bidirectional pairing rule that used to require markers and
         patches[] entries to mirror each other is gone. A source file with a

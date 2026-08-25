@@ -1,0 +1,59 @@
+name: extron
+description: "Extron literature library CLI — spec sheets, user manuals, and product docs from extron.com"
+version: "0.1.0"
+base_url: "https://www.extron.com"
+category: devices
+health_check_path: "/technology/literature.aspx"
+
+config:
+  format: toml
+  path: "~/.config/extron-pp-cli/config.toml"
+
+learn:
+  entity_lookup_seeds:
+    product_series:
+      - canonical: DTP Series
+        aliases: [dtp, dtp2, dtp t]
+      - canonical: MAV Plus Series
+        aliases: [mav, mav88, mavplus, mav plus]
+      - canonical: IP Link Series
+        aliases: [ipl, ip link, ipl t]
+      - canonical: DVS Series
+        aliases: [dvs, dvs304, dvs605]
+      - canonical: SMD Series
+        aliases: [smd, smd101, smd202]
+      - canonical: PCS Series
+        aliases: [pcs, pcs4]
+      - canonical: MediaLink Plus Series
+        aliases: [medialink, mlc]
+      - canonical: Annotator Series
+        aliases: [annotator, annotator 300]
+      - canonical: Matrix Series
+        aliases: [matrix, matrix 3200, matrix 12800]
+  stopwords: []
+
+resources:
+  literature:
+    description: "Extron literature library index (spec sheets, manuals, guides)"
+    endpoints:
+      index:
+        method: GET
+        path: "/technology/literature.aspx"
+        description: "Fetch the alphabetical literature index for a letter"
+        params:
+          - name: id
+            type: string
+            default: All
+            description: "Alphabetical index letter (A-Z, 0-9, or All)"
+          - name: tabid
+            type: int
+            default: 5
+            description: "Literature library tab (5 = literature)"
+          - name: defaultLang
+            type: bool
+            default: true
+            description: "Request the default English language view"
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/download/files"]

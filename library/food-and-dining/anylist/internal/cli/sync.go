@@ -98,8 +98,9 @@ func newSyncStatusCmd(flags *rootFlags) *cobra.Command {
 	var staleAfter time.Duration
 
 	cmd := &cobra.Command{
-		Use:   "status",
-		Short: "Show local cache freshness and exit 1 if stale",
+		Use:     "status",
+		Short:   "Show local cache freshness and exit 1 if stale",
+		Example: "  anylist-pp-cli sync status --json",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {

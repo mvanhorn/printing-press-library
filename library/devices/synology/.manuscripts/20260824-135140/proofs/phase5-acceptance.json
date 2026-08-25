@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "synology",
+  "run_id": "20260824-135140",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 192,
+  "tests_passed": 192,
+  "tests_skipped": 101,
+  "auth_context": {
+    "type": "session_handshake"
+  }
+}

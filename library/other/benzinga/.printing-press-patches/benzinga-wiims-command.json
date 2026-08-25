@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "benzinga-wiims-command",
+  "applied_at": "2026-07-02",
+  "base_run_id": "20260627-034058-2c1f9c5c",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Add a wiims convenience command (preset WIIM channel on GET /api/v2/news) with an optional --with-points delayed-quote enrichment.",
+  "reason": "WIIM (Why Is It Moving) is not a standalone endpoint: the /api/v2/wiims path 404s on the gateway and /api/v1/wiims is a dead legacy route returning a single stale item. Benzinga delivers WIIM as the `WIIM` channel of the news feed (verified against a live production integration). This command is a thin preset over the news endpoint with channels=WIIM, mirroring news.get's camelCase query params (pageSize/dateFrom/dateTo/updatedSince) and its bare-array response. A regen must keep wiims pointed at /api/v2/news?channels=WIIM, not any /wiims path. The WIIM feed has no numeric move, so --with-points joins GET /api/v1/quoteDelayed (batched by 50) using the SAME token — a Benzinga Pro key entitles both the WIIM news call and delayed quotes — and attaches price_move:[{ticker,points,percent,last}] per item. A regen must keep both calls on one credential (no second token slot required).",
+  "files": [
+    "internal/cli/promoted_wiims.go",
+    "internal/cli/root.go",
+    "tools-manifest.json"
+  ],
+  "validated_outcome": "With a Benzinga Pro token (e.g. BENZINGA_API_KEY_V2), `wiims --date 2026-07-01 --page-size 50 --json` returns 50 WIIM-channel items, and `--with-points` attaches price_move:[{ticker,points,percent,last}] per item from /api/v1/quoteDelayed on the same token; go build/vet pass. The MARKET/EVENTS super-tokens are NOT WIIM-entitled and return zero items.",
+  "deferred_to_upstream": [
+    {
+      "feature": "WIIM requires a Benzinga News token entitled to the WIIM channel; it is a licensing boundary distinct from the market-data tokens.",
+      "reason": "The CLI has a single credential slot, so wiims and the market-data commands cannot both be authenticated at once without per-product credential support. Track adding a WIIM/news token slot upstream."
+    }
+  ]
+}

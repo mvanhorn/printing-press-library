@@ -23,7 +23,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w
+      - -s -w -X main.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -45,7 +45,7 @@ brews:
       owner: horknfbr
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Research Etsy products, shops, and keywords from EverBee in a repeatable agent-ready workflow."
+    description: "Etsy niche research whose scores come with their evidence attached — seeded search, honest confidence, and a local store that turns repeat research into trends."
     install: |
       bin.install "everbee-pp-cli"
       bin.install "everbee-pp-mcp"

@@ -29,10 +29,12 @@ func newTreasuryGetFinancialAccountsFinancialAccountCmd(flags *rootFlags) *cobra
 			}
 
 			path := "/v1/treasury/financial_accounts/{financial_account}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("financial_account is required\nUsage: %s <%s>", cmd.CommandPath(), "financial_account"))
 			}
-			path = replacePathParam(path, "financial_account", args[1])
+			path = replacePathParam(path, "financial_account", args[0])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

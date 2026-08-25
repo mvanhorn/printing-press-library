@@ -12,6 +12,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -104,7 +105,7 @@ func newSyncExtrasCmd(flags *rootFlags) *cobra.Command {
 					if cursor != "" {
 						params["after"] = cursor
 					}
-					data, err := c.Get("/me/following", params)
+					data, err := c.Get(context.Background(), "/me/following", params)
 					if err != nil {
 						fmt.Fprintf(cmd.ErrOrStderr(), "warning: followed artists: %v\n", err)
 						break
@@ -136,7 +137,7 @@ func newSyncExtrasCmd(flags *rootFlags) *cobra.Command {
 
 			// Top tracks (3 time ranges, snapshot each).
 			for _, tr := range []string{"short_term", "medium_term", "long_term"} {
-				data, err := c.Get("/me/top/tracks", map[string]string{"time_range": tr, "limit": "50"})
+				data, err := c.Get(context.Background(), "/me/top/tracks", map[string]string{"time_range": tr, "limit": "50"})
 				if err != nil {
 					continue
 				}
@@ -156,7 +157,7 @@ func newSyncExtrasCmd(flags *rootFlags) *cobra.Command {
 
 			// Top artists.
 			for _, tr := range []string{"short_term", "medium_term", "long_term"} {
-				data, err := c.Get("/me/top/artists", map[string]string{"time_range": tr, "limit": "50"})
+				data, err := c.Get(context.Background(), "/me/top/artists", map[string]string{"time_range": tr, "limit": "50"})
 				if err != nil {
 					continue
 				}
@@ -177,7 +178,7 @@ func newSyncExtrasCmd(flags *rootFlags) *cobra.Command {
 
 			// Recently played.
 			{
-				data, err := c.Get("/me/player/recently-played", map[string]string{"limit": "50"})
+				data, err := c.Get(context.Background(), "/me/player/recently-played", map[string]string{"limit": "50"})
 				if err == nil {
 					var resp struct {
 						Items []struct {
@@ -207,7 +208,7 @@ func newSyncExtrasCmd(flags *rootFlags) *cobra.Command {
 
 			// Devices.
 			{
-				data, err := c.Get("/me/player/devices", nil)
+				data, err := c.Get(context.Background(), "/me/player/devices", nil)
 				if err == nil {
 					var resp struct {
 						Devices []struct {

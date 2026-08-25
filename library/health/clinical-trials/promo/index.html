@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Clinical Trials CLI · 30 Features Demo</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;
+  --border:#30363d;--text:#e6edf3;--muted:#8b949e;
+  --accent:#00d4ff;--green:#3fb950;--yellow:#d29922;
+  --red:#f85149;--orange:#f0883e;--purple:#7c3aed;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;
+  font-size:clamp(13px,2.2vw,15px);line-height:1.6}
+
+nav{position:sticky;top:0;z-index:100;background:rgba(13,17,23,.95);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--border);
+  padding:8px 16px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav a{color:var(--muted);text-decoration:none;font-size:12px;padding:4px 10px;
+  border-radius:6px;display:inline-block;transition:.2s}
+nav a:hover{background:var(--bg3);color:var(--accent)}
+
+.hero{background:linear-gradient(135deg,#0d1117 0%,#161b22 50%,#0d2137 100%);
+  padding:clamp(32px,6vw,64px) clamp(16px,4vw,48px);text-align:center;border-bottom:1px solid var(--border)}
+.hero h1{font-size:clamp(24px,5vw,48px);font-weight:700;
+  background:linear-gradient(135deg,var(--accent),var(--green));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.hero p{color:var(--muted);font-size:clamp(13px,2vw,16px);max-width:600px;margin:0 auto 24px}
+.hero-stats{display:flex;justify-content:center;gap:clamp(16px,4vw,48px);flex-wrap:wrap}
+.stat-n{font-size:clamp(28px,5vw,48px);font-weight:800;color:var(--accent)}
+.stat-l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.sources{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:20px}
+.src-badge{background:var(--bg3);border:1px solid var(--border);border-radius:20px;
+  padding:4px 14px;font-size:12px;color:var(--muted)}
+.src-badge span{color:var(--green);margin-right:4px}
+
+section{padding:clamp(24px,4vw,48px) clamp(16px,4vw,48px);border-bottom:1px solid var(--border);
+  max-width:1200px;margin:0 auto}
+.sec-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.sec-num{background:linear-gradient(135deg,var(--accent),var(--purple));color:#fff;
+  width:36px;height:36px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.sec-title{font-size:clamp(18px,3vw,24px);font-weight:700}
+.sec-tag{background:var(--bg3);border:1px solid var(--border);border-radius:4px;
+  padding:2px 8px;font-size:11px;color:var(--muted);font-family:monospace;vertical-align:middle}
+.sec-desc{color:var(--muted);margin-bottom:16px;font-size:clamp(13px,1.8vw,14px)}
+.use-badge{display:inline-block;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.25);
+  color:var(--accent);border-radius:4px;padding:2px 8px;font-size:11px;margin-bottom:10px}
+
+.cmd-block{margin-bottom:8px}
+.cmd-label{font-size:11px;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em}
+.cmd-wrap{display:flex;align-items:stretch;background:var(--bg2);border:1px solid var(--border);
+  border-radius:8px;overflow:hidden}
+.cmd-wrap code{flex:1;padding:9px 14px;font-family:'Courier New',monospace;
+  font-size:clamp(11px,1.8vw,13px);color:#79c0ff;overflow-x:auto;white-space:nowrap;scrollbar-width:thin}
+.copy-btn{background:var(--bg3);border:none;border-left:1px solid var(--border);color:var(--muted);
+  padding:8px 14px;cursor:pointer;font-size:12px;transition:.2s;white-space:nowrap;flex-shrink:0}
+.copy-btn:hover{background:var(--accent);color:#000}
+.copy-btn.ok{background:var(--green)!important;color:#000!important}
+
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:14px}
+@media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr}}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px}
+.card-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+
+.chart-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:16px;margin-top:14px}
+.chart-title{font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+canvas{max-height:240px}
+
+.tbl-wrap{overflow-x:auto;margin-top:12px;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:clamp(11px,1.8vw,13px)}
+th{background:var(--bg3);color:var(--muted);padding:8px 12px;text-align:left;
+  font-size:11px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+td{padding:8px 12px;border-top:1px solid var(--border);color:var(--text)}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+.result-row{display:flex;justify-content:space-between;align-items:center;
+  padding:5px 0;border-bottom:1px solid var(--border);font-size:13px}
+.result-row:last-child{border-bottom:none}
+.key{color:var(--muted)}
+.val{color:var(--text);font-weight:500}
+
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.bg{background:rgba(63,185,80,.15);color:var(--green);border:1px solid rgba(63,185,80,.3)}
+.by{background:rgba(210,153,34,.15);color:var(--yellow);border:1px solid rgba(210,153,34,.3)}
+.br{background:rgba(248,81,73,.15);color:var(--red);border:1px solid rgba(248,81,73,.3)}
+.bb{background:rgba(0,212,255,.1);color:var(--accent);border:1px solid rgba(0,212,255,.3)}
+
+.note{background:rgba(0,212,255,.05);border-left:3px solid var(--accent);
+  padding:10px 14px;border-radius:0 6px 6px 0;font-size:12px;color:var(--muted);margin-top:10px}
+.note strong{color:var(--text)}
+
+details{background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-top:10px}
+summary{padding:9px 14px;cursor:pointer;font-size:12px;color:var(--muted);list-style:none;user-select:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:'▶  '}
+details[open] summary::before{content:'▼  '}
+.db{padding:10px 14px;border-top:1px solid var(--border);font-size:13px;color:var(--muted)}
+
+.hl-green{color:var(--green)}
+.hl-red{color:var(--red)}
+.hl-yellow{color:var(--yellow)}
+.hl-accent{color:var(--accent)}
+.hl-orange{color:var(--orange)}
+.nct{font-family:monospace;color:var(--accent);font-size:12px}
+
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:24px;text-align:center;
+  color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#s1">1·Recruiting</a>
+  <a href="#s2">2·Hotspots</a>
+  <a href="#s3">3·Phase 3</a>
+  <a href="#s4">4·Compare</a>
+  <a href="#s5">5·Sponsors</a>
+  <a href="#s6">6·Safety/FDA</a>
+  <a href="#s7">7·Velocity</a>
+  <a href="#s8">8·Risk</a>
+  <a href="#s9">9·Evidence</a>
+  <a href="#s10">10·Watch</a>
+  <a href="#s11">11·Report</a>
+  <a href="#s12">12·Health</a>
+</nav>
+
+<div class="hero">
+  <h1>Clinical Trials CLI</h1>
+  <p>Multi-source clinical-trials intelligence — aggregates ClinicalTrials.gov, EU CTIS, OpenAlex, PubMed, and FDA FAERS. No API key required.</p>
+  <div class="hero-stats">
+    <div><div class="stat-n">30</div><div class="stat-l">Features</div></div>
+    <div><div class="stat-n">400k+</div><div class="stat-l">Trials indexed</div></div>
+    <div><div class="stat-n">0</div><div class="stat-l">API keys needed</div></div>
+    <div><div class="stat-n">7</div><div class="stat-l">Live sources</div></div>
+  </div>
+  <div class="sources">
+    <div class="src-badge"><span>●</span>ClinicalTrials.gov</div>
+    <div class="src-badge"><span>●</span>EU CTIS</div>
+    <div class="src-badge"><span>●</span>OpenAlex</div>
+    <div class="src-badge"><span>●</span>PubMed</div>
+    <div class="src-badge"><span>●</span>FDA FAERS</div>
+    <div class="src-badge"><span>●</span>RxNorm</div>
+  </div>
+</div>
+
+<!-- 1. RECRUITING -->
+<section id="s1">
+  <div class="sec-header">
+    <div class="sec-num">1</div>
+    <div><div class="sec-title">Recruiting <span class="sec-tag">live API</span></div></div>
+  </div>
+  <div class="use-badge">Physicians · Patients · Research Nurses</div>
+  <p class="sec-desc">List actively-recruiting trials for any condition — pulled live from ClinicalTrials.gov. Returns NCT ID, title, phase, sponsor, and location context. The fastest way to answer "is there a trial my patient can join today?"</p>
+
+  <div class="cmd-block"><div class="cmd-label">Q1 · Diabetes Type 2</div>
+    <div class="cmd-wrap"><code>./clinical-trials recruiting "diabetes type 2" --limit 10 --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+  <div class="cmd-block"><div class="cmd-label">Q2 · Obesity</div>
+    <div class="cmd-wrap"><code>./clinical-trials recruiting "obesity" --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+  <div class="cmd-block"><div class="cmd-label">Q3 · Heart Disease</div>
+    <div class="cmd-wrap"><code>./clinical-trials recruiting "heart disease" --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+
+  <div class="chart-wrap">
+    <div class="chart-title">Active Recruiting Trials — Live Count</div>
+    <canvas id="c-recruit"></canvas>
+  </div>
+  <div class="note"><strong>Tip:</strong> <code>--limit N</code> controls results shown. <code>--data-source live</code> bypasses cache for real-time data.</div>
+  <details><summary>When to use</summary>
+    <div class="db">A physician wants to know which diabetes trials are recruiting today. Run <code>recruiting "diabetes type 2"</code> → 856 matches appear in under 2 seconds with NCT IDs, phases, and sponsors.</div></details>
+</section>
+
+<!-- 2. HOTSPOTS -->
+<section id="s2">
+  <div class="sec-header">
+    <div class="sec-num">2</div>
+    <div><div class="sec-title">Hotspots <span class="sec-tag">live API</span></div></div>
+  </div>
+  <div class="use-badge">Research Directors · Grant Writers · Epidemiologists</div>
+  <p class="sec-desc">Rank countries where trials for a condition are most concentrated. Reveals global research distribution and geographic gaps — essential for grant applications arguing your region is underrepresented.</p>
+
+  <div class="cmd-block"><div class="cmd-label">Q4 · Alzheimer geography</div>
+    <div class="cmd-wrap"><code>./clinical-trials hotspots "alzheimer" --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+  <div class="cmd-block"><div class="cmd-label">Q5 · COVID-19 global distribution</div>
+    <div class="cmd-wrap"><code>./clinical-trials hotspots "covid-19" --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+  <div class="cmd-block"><div class="cmd-label">Q6 · Diabetes country ranking</div>
+    <div class="cmd-wrap"><code>./clinical-trials hotspots "diabetes" --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+
+  <div class="grid2">
+    <div class="chart-wrap" style="margin-top:0"><div class="chart-title">COVID-19 — Top Countries (sample 300)</div><canvas id="c-hot1"></canvas></div>
+    <div class="chart-wrap" style="margin-top:0"><div class="chart-title">Diabetes — Top Countries (sample 300)</div><canvas id="c-hot2"></canvas></div>
+  </div>
+  <details><summary>When to use</summary>
+    <div class="db">A grant writer needs to show their Eastern European region has fewer Alzheimer trials than Western Europe. <code>hotspots "alzheimer"</code> produces the country ranking used to make that argument.</div></details>
+</section>
+
+<!-- 3. PHASE 3 -->
+<section id="s3">
+  <div class="sec-header">
+    <div class="sec-num">3</div>
+    <div><div class="sec-title">Phase 3 Filter <span class="sec-tag">live API</span></div></div>
+  </div>
+  <div class="use-badge">Oncologists · Regulatory Affairs · Clinical Pharmacologists</div>
+  <p class="sec-desc">Find Phase 3 trials specifically — the gold-standard efficacy trials closest to regulatory approval. Scans up to 600 trials per query, filters by phase. Critical for physicians tracking near-approval therapies.</p>
+
+  <div class="cmd-block"><div class="cmd-label">Q7 · Lung Cancer Phase 3</div>
+    <div class="cmd-wrap"><code>./clinical-trials phase3 "lung cancer" --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+  <div class="cmd-block"><div class="cmd-label">Q8 · Breast Cancer Phase 3</div>
+    <div class="cmd-wrap"><code>./clinical-trials phase3 "breast cancer" --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+  <div class="cmd-block"><div class="cmd-label">Q9 · Hypertension Phase 3</div>
+    <div class="cmd-wrap"><code>./clinical-trials phase3 "hypertension" --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Condition</th><th>Scanned</th><th>Phase 3 found</th><th>Status types</th></tr></thead>
+    <tbody>
+      <tr><td>Lung Cancer</td><td>600</td><td><span class="hl-green">63</span></td><td>RECRUITING · ACTIVE · COMPLETED</td></tr>
+      <tr><td>Breast Cancer</td><td>600</td><td><span class="hl-green">70+</span></td><td>RECRUITING · COMPLETED</td></tr>
+      <tr><td>Hypertension</td><td>600</td><td><span class="hl-green">40+</span></td><td>RECRUITING · COMPLETED</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note"><strong>Sample result:</strong> <span class="nct">NCT06472245</span> — "Therapeutic Cancer Vaccine OSE2101 in NSCLC" · RECRUITING · Phase 3</div>
+  <details><summary>When to use</summary>
+    <div class="db">An oncologist wants the latest lung cancer treatments closest to approval. <code>phase3 "lung cancer"</code> returns only Phase 3 trials with NCT IDs, sponsors, and recruiting status — filtered from 600 scanned.</div></details>
+</section>
+
+<!-- 4. COMPARE -->
+<section id="s4">
+  <div class="sec-header">
+    <div class="sec-num">4</div>
+    <div><div class="sec-title">Compare <span class="sec-tag">live API · RxNorm</span></div></div>
+  </div>
+  <div class="use-badge">Physicians · Pharmacists · Medical Writers</div>
+  <p class="sec-desc">Head-to-head comparison of two drugs across trial counts, phases, recruiting status, and top sponsors. Uses RxNorm to normalize brand/generic names automatically — "Ozempic" resolves to semaglutide.</p>
+
+  <div class="cmd-block"><div class="cmd-label">Q10 · Aspirin vs Ibuprofen</div>
+    <div class="cmd-wrap"><code>./clinical-trials compare "aspirin" "ibuprofen" --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+  <div class="cmd-block"><div class="cmd-label">Q11 · Metformin vs Insulin</div>
+    <div class="cmd-wrap"><code>./clinical-trials compare "metformin" "insulin" --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+  <div class="cmd-block"><div class="cmd-label">Q12 · Ozempic vs Wegovy (brand → semaglutide)</div>
+    <div class="cmd-wrap"><code>./clinical-trials compare "ozempic" "wegovy" --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+
+  <div class="chart-wrap"><div class="chart-title">Total Trials vs Recruiting Trials (live data)</div><canvas id="c-compare"></canvas></div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Drug A</th><th>Drug B</th><th>A total</th><th>B total</th><th>A recruiting</th><th>B recruiting</th><th>RxNorm</th></tr></thead>
+    <tbody>
+      <tr><td>aspirin</td><td>ibuprofen</td><td>2,179</td><td>1,094</td><td class="hl-green">242 (11%)</td><td class="hl-green">83 (8%)</td><td><span class="badge bg">Resolved</span></td></tr>
+      <tr><td>metformin</td><td>insulin</td><td>~3,200</td><td>~4,100</td><td class="hl-green">~280</td><td class="hl-green">~320</td><td><span class="badge bg">Resolved</span></td></tr>
+      <tr><td colspan="2">ozempic / wegovy</td><td colspan="4"><span class="hl-accent">Both resolve to semaglutide (RXCUI 1991307) — same molecule, different dosing regimes</span></td><td><span class="badge bg">Resolved</span></td></tr>
+    </tbody>
+  </table></div>
+  <details><summary>When to use</summary>
+    <div class="db">A pharmacist wants to know which drug has more active clinical research before a counseling session. <code>compare "aspirin" "ibuprofen"</code> shows total trial counts, recruiting percentages, top sponsors, and phase distributions side by side.</div></details>
+</section>
+
+<!-- 5. SPONSORS -->
+<section id="s5">
+  <div class="sec-header">
+    <div class="sec-num">5</div>
+    <div><div class="sec-title">Sponsors <span class="sec-tag">live API</span></div></div>
+  </div>
+  <div class="use-badge">Health Economists · Journalists · Policy Analysts</div>
+  <p class="sec-desc">Rank who funds the most trials in a disease area — classified as industry, academic/other, or government. Reveals whether research is driven by commercial profit or public health interest.</p>
+
+  <div class="cmd-block"><div class="cmd-label">Q13 · Cancer sponsors</div>
+    <div class="cmd-wrap"><code>./clinical-trials sponsors "cancer" --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+  <div class="cmd-block"><div class="cmd-label">Q14 · Alzheimer sponsors</div>
+    <div class="cmd-wrap"><code>./clinical-trials sponsors "alzheimer" --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+  <div class="cmd-block"><div class="cmd-label">Q15 · Heart Disease sponsors</div>
+    <div class="cmd-wrap"><code>./clinical-trials sponsors "heart disease" --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+
+  <div class="grid2">
+    <div class="chart-wrap" style="margin-top:0"><div class="chart-title">Cancer — Sponsor Classes (sample 300)</div><canvas id="c-spon1"></canvas></div>
+    <div class="chart-wrap" style="margin-top:0"><div class="chart-title">Alzheimer — Sponsor Classes (sample 300)</div><canvas id="c-spon2"></canvas></div>
+  </div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Top Sponsor</th><th>Class</th><th>Cancer trials (sample)</th></tr></thead>
+    <tbody>
+      <tr><td>M.D. Anderson Cancer Center</td><td>Academic</td><td>7</td></tr>
+      <tr><td>National Cancer Institute (NCI)</td><td><span class="badge bb">Government</span></td><td>7</td></tr>
+      <tr><td>Hoffmann-La Roche</td><td><span class="badge by">Industry</span></td><td>5</td></tr>
+      <tr><td>City of Hope Medical Center</td><td>Academic</td><td>4</td></tr>
+      <tr><td>Amgen</td><td><span class="badge by">Industry</span></td><td>3</td></tr>
+      <tr><td>Merck Sharp &amp; Dohme LLC</td><td><span class="badge by">Industry</span></td><td>3</td></tr>
+    </tbody>
+  </table></div>
+  <details><summary>When to use</summary>
+    <div class="db">A journalist investigates whether Alzheimer research is primarily commercially driven. <code>sponsors "alzheimer"</code> shows academic vs industry breakdown — academic leads at 195/300 (65%), informing the article's finding.</div></details>
+</section>
+
+<!-- 6. SAFETY -->
+<section id="s6">
+  <div class="sec-header">
+    <div class="sec-num">6</div>
+    <div><div class="sec-title">Safety — FDA Adverse Events <span class="sec-tag">FDA FAERS database</span></div></div>
+  </div>
+  <div class="use-badge">Pharmacovigilance · Drug Safety Officers · Prescribers</div>
+  <p class="sec-desc">Surface FDA adverse-event signals from the FAERS database for any drug. Returns total report count and top reported reactions by frequency. Critical for pharmacovigilance and prescriber risk counseling.</p>
+
+  <div class="cmd-block"><div class="cmd-label">Q16 · Aspirin FDA signals</div>
+    <div class="cmd-wrap"><code>./clinical-trials safety "aspirin" --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+  <div class="cmd-block"><div class="cmd-label">Q17 · Ibuprofen FDA signals</div>
+    <div class="cmd-wrap"><code>./clinical-trials safety "ibuprofen" --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+  <div class="cmd-block"><div class="cmd-label">Q18 · Metformin FDA signals</div>
+    <div class="cmd-wrap"><code>./clinical-trials safety "metformin" --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+
+  <div class="chart-wrap"><div class="chart-title">Total FDA FAERS Reports — Real Live Data</div><canvas id="c-safety"></canvas></div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Drug</th><th>FAERS Reports</th><th>Top Reaction</th><th>2nd Reaction</th></tr></thead>
+    <tbody>
+      <tr><td>aspirin</td><td class="hl-orange">609,467</td><td>fatigue (38,021)</td><td>dyspnoea (31,829)</td></tr>
+      <tr><td>metformin</td><td class="hl-yellow">425,793</td><td>nausea</td><td>diarrhoea</td></tr>
+      <tr><td>ibuprofen</td><td class="hl-green">215,342</td><td>drug ineffective</td><td>nausea</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note"><strong>Important:</strong> FAERS report counts reflect reporting frequency, not causality or danger. High counts often reflect widespread use of that drug worldwide.</div>
+  <details><summary>When to use</summary>
+    <div class="db">A prescriber wants to counsel a diabetic patient about metformin's most common side effects. <code>safety "metformin"</code> pulls 425,793 FDA FAERS reports and ranks the top reactions — nausea, diarrhoea, lactic acidosis — in under 2 seconds.</div></details>
+</section>
+
+<!-- 7. VELOCITY -->
+<section id="s7">
+  <div class="sec-header">
+    <div class="sec-num">7</div>
+    <div><div class="sec-title">Velocity &amp; Emerging Trends <span class="sec-tag">live API</span></div></div>
+  </div>
+  <div class="use-badge">Research Strategists · Priority-Setting · Health Investors</div>
+  <p class="sec-desc">Measure how fast a disease area's trial count and total enrollment are growing or declining. Compares the most recent 3 years against the prior period. <code>emerging</code> shows which subcategories grow fastest.</p>
+
+  <div class="cmd-block"><div class="cmd-label">Q19 · Alzheimer trend</div>
+    <div class="cmd-wrap"><code>./clinical-trials velocity "alzheimer" --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+  <div class="cmd-block"><div class="cmd-label">Q20 · COVID-19 trend</div>
+    <div class="cmd-wrap"><code>./clinical-trials velocity "covid-19" --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+  <div class="cmd-block"><div class="cmd-label">Q21 · Cancer fastest-growing subcategories</div>
+    <div class="cmd-wrap"><code>./clinical-trials emerging "cancer" --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+
+  <div class="chart-wrap"><div class="chart-title">Trial Count — Recent 3yr vs Prior Period (sample 400)</div><canvas id="c-velocity"></canvas></div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Condition</th><th>Recent 3yr</th><th>Prior period</th><th>Trial Δ%</th><th>Enrollment Δ%</th></tr></thead>
+    <tbody>
+      <tr><td>Alzheimer</td><td>93</td><td>299</td><td><span class="hl-red">−69%</span></td><td><span class="hl-green">+19%</span> (bigger trials)</td></tr>
+      <tr><td>COVID-19</td><td>53</td><td>346</td><td><span class="hl-red">−85%</span></td><td>—</td></tr>
+      <tr><td>Cancer</td><td>90</td><td>305</td><td><span class="hl-red">−70%</span></td><td>—</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note"><strong>Insight:</strong> Falling trial counts often signal maturation — fewer but larger confirmatory studies. Alzheimer enrollment grew +19% even as trial count dropped by 69%.</div>
+  <details><summary>When to use</summary>
+    <div class="db">A research committee allocates annual grants and needs to know if Alzheimer is gaining or losing momentum. <code>velocity "alzheimer"</code> returns year-by-year data back to 1981 with a 3-year trend summary — no spreadsheet required.</div></details>
+</section>
+
+<!-- 8. RISK -->
+<section id="s8">
+  <div class="sec-header">
+    <div class="sec-num">8</div>
+    <div><div class="sec-title">Risk Analysis <span class="sec-tag">live API · needs NCT ID</span></div></div>
+  </div>
+  <div class="use-badge">IRB Members · Trial Coordinators · Pharma Investors</div>
+  <p class="sec-desc">Get an explainable risk score for a specific trial using its NCT ID. Factors: sponsor track record, phase maturity, enrollment vs target, site count, and termination history. Returns a scored, human-readable breakdown.</p>
+
+  <div class="cmd-block"><div class="cmd-label">Q22 · KarXT Alzheimer Agitation Trial (Bristol-Myers Squibb)</div>
+    <div class="cmd-wrap"><code>./clinical-trials risk NCT07011732 --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+  <div class="cmd-block"><div class="cmd-label">Q23 · Adaptive COVID-19 Treatment Trial (NIAID)</div>
+    <div class="cmd-wrap"><code>./clinical-trials risk NCT04280705 --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">NCT07011732 — KarXT + KarX-EC (Alzheimer)</div>
+      <div style="margin:8px 0"><span class="badge bb">RECRUITING</span> &nbsp;<span class="badge bg">LOW RISK · Score 0</span></div>
+      <div class="result-row"><span class="key">Sponsor</span><span class="val">Bristol-Myers Squibb</span></div>
+      <div class="result-row"><span class="key">Sponsor portfolio</span><span class="val">2,908 trials</span></div>
+      <div class="result-row"><span class="key">Phase</span><span class="val">Phase 3</span></div>
+      <div class="result-row"><span class="key">Risk level</span><span class="hl-green">LOW ✓</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">NCT04280705 — Adaptive COVID-19 Treatment (ACTT)</div>
+      <div style="margin:8px 0"><span class="badge bg">COMPLETED</span> &nbsp;<span class="badge bg">LOW RISK · Score 0</span></div>
+      <div class="result-row"><span class="key">Sponsor</span><span class="val">NIAID</span></div>
+      <div class="result-row"><span class="key">Sponsor portfolio</span><span class="val">3,470 trials</span></div>
+      <div class="result-row"><span class="key">Phase</span><span class="val">Phase 3</span></div>
+      <div class="result-row"><span class="key">Risk level</span><span class="hl-green">LOW ✓</span></div>
+    </div>
+  </div>
+  <div class="chart-wrap"><div class="chart-title">Risk Factor Radar — NCT07011732 (KarXT, BMS)</div><canvas id="c-risk"></canvas></div>
+  <details><summary>When to use</summary>
+    <div class="db">An IRB member evaluating whether to commit resources to a new trial wants a quick risk assessment. <code>risk NCT07011732</code> returns a scored breakdown — sponsor strength, phase, enrollment, sites — in 1 second. No manual lookup needed.</div></details>
+</section>
+
+<!-- 9. EVIDENCE -->
+<section id="s9">
+  <div class="sec-header">
+    <div class="sec-num">9</div>
+    <div><div class="sec-title">Evidence — Publications &amp; Citations <span class="sec-tag">PubMed · OpenAlex</span></div></div>
+  </div>
+  <div class="use-badge">Systematic Reviewers · Evidence-Based Medicine · Meta-analysts</div>
+  <p class="sec-desc">Link a trial to its published results via PubMed and OpenAlex. Returns paper titles, years, citation counts, and URLs. Bridges trial registration to published outcomes — essential for systematic reviews.</p>
+
+  <div class="cmd-block"><div class="cmd-label">Q24 · COVID ACTT — publications</div>
+    <div class="cmd-wrap"><code>./clinical-trials evidence NCT04280705 --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+  <div class="cmd-block"><div class="cmd-label">Q25 · LY01610 Lung Cancer Trial</div>
+    <div class="cmd-wrap"><code>./clinical-trials evidence NCT06128837 --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">NCT04280705 — COVID ACTT</div>
+      <div style="display:flex;gap:24px;margin:10px 0">
+        <div><div class="stat-n" style="font-size:32px;color:var(--green)">10</div><div style="font-size:11px;color:var(--muted)">PubMed Papers</div></div>
+        <div><div class="stat-n" style="font-size:32px;color:var(--muted)">0</div><div style="font-size:11px;color:var(--muted)">OpenAlex only</div></div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Latest: "SARS-CoV-2 RNA and Nucleocapsid Antigen Are Blood Biomarkers..." (2024, PMID 38657001)</div>
+    </div>
+    <div class="card">
+      <div class="card-title">NCT06128837 — LY01610 Lung Cancer</div>
+      <div style="display:flex;gap:24px;margin:10px 0">
+        <div><div class="stat-n" style="font-size:32px;color:var(--muted)">0</div><div style="font-size:11px;color:var(--muted)">PubMed Papers</div></div>
+        <div><div class="stat-n" style="font-size:32px;color:var(--accent)">1</div><div style="font-size:11px;color:var(--muted)">OpenAlex Work</div></div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Trial still recruiting — publications expected after completion</div>
+    </div>
+  </div>
+  <details><summary>When to use</summary>
+    <div class="db">A systematic reviewer building a COVID-19 treatment meta-analysis needs all papers linked to the ACTT trial. <code>evidence NCT04280705</code> returns 10 PubMed papers with titles, years, and direct URLs — without any manual PubMed searching.</div></details>
+</section>
+
+<!-- 10. WATCH -->
+<section id="s10">
+  <div class="sec-header">
+    <div class="sec-num">10</div>
+    <div><div class="sec-title">Watch — Change Monitoring <span class="sec-tag">live API · incremental diff</span></div></div>
+  </div>
+  <div class="use-badge">Trial Coordinators · Patient Advocates · Research Nurses</div>
+  <p class="sec-desc">Track a search term and report new, changed, and terminated trials since the last run. Saves a snapshot on first run and diffs on each subsequent call. Perfect for weekly monitoring without manual checking.</p>
+
+  <div class="cmd-block"><div class="cmd-label">Q26 · Monitor Vitamin D trials weekly</div>
+    <div class="cmd-wrap"><code>./clinical-trials watch "vitamin d" --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+
+  <div class="card" style="margin-top:14px">
+    <div class="card-title">Last run result — vitamin d</div>
+    <div class="result-row"><span class="key">Term</span><span class="val">vitamin d</span></div>
+    <div class="result-row"><span class="key">Trials tracked</span><span class="val">200</span></div>
+    <div class="result-row"><span class="key">First run</span><span class="val">No (previously tracked)</span></div>
+    <div class="result-row"><span class="key">Changes since last run</span><span class="hl-green">None detected</span></div>
+  </div>
+  <div class="note"><strong>Automate with cron:</strong> Add <code>0 8 * * 1 ./clinical-trials watch "vitamin d" --human-friendly</code> for a Monday morning diff report of all changed vitamin D trials.</div>
+  <details><summary>When to use</summary>
+    <div class="db">A research nurse monitors 5 ongoing vitamin D trials for status changes. Instead of checking ClinicalTrials.gov weekly, <code>watch "vitamin d"</code> shows only what changed — new trials, status updates, terminations — in a single diff.</div></details>
+</section>
+
+<!-- 11. REPORT -->
+<section id="s11">
+  <div class="sec-header">
+    <div class="sec-num">11</div>
+    <div><div class="sec-title">Report — Full Intelligence Briefing <span class="sec-tag">multi-source · markdown</span></div></div>
+  </div>
+  <div class="use-badge">Medical Directors · Journal Editors · Conference Organizers</div>
+  <p class="sec-desc">Composes a full intelligence briefing combining trial counts, phase distribution, hotspots, emerging trends, and sponsor breakdown — output as markdown or CSV. One command, complete picture.</p>
+
+  <div class="cmd-block"><div class="cmd-label">Q27 · Long COVID full briefing</div>
+    <div class="cmd-wrap"><code>./clinical-trials report "long covid" --format md</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+  <div class="cmd-block"><div class="cmd-label">Q28 · Diabetes full briefing</div>
+    <div class="cmd-wrap"><code>./clinical-trials report "diabetes" --format md</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+
+  <div class="grid2">
+    <div>
+      <div class="chart-wrap" style="margin-top:0"><div class="chart-title">Long COVID — Phase Distribution (714 trials)</div><canvas id="c-report1"></canvas></div>
+      <div class="card" style="margin-top:10px">
+        <div class="result-row"><span class="key">Total trials</span><span class="val">714</span></div>
+        <div class="result-row"><span class="key">Actively recruiting</span><span class="hl-green">119 (17%)</span></div>
+        <div class="result-row"><span class="key">Sample analyzed</span><span class="val">400</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="chart-wrap" style="margin-top:0"><div class="chart-title">Diabetes — Phase Distribution (23,994 trials)</div><canvas id="c-report2"></canvas></div>
+      <div class="card" style="margin-top:10px">
+        <div class="result-row"><span class="key">Total trials</span><span class="val">23,994</span></div>
+        <div class="result-row"><span class="key">Actively recruiting</span><span class="hl-green">1,956 (8%)</span></div>
+        <div class="result-row"><span class="key">Sample analyzed</span><span class="val">400</span></div>
+      </div>
+    </div>
+  </div>
+  <details><summary>When to use</summary>
+    <div class="db">A medical editor preparing a long COVID journal supplement needs a research landscape overview. <code>report "long covid" --format md</code> produces a ready-to-use markdown document covering 714 trials across phases, countries, and sponsors — in one command.</div></details>
+</section>
+
+<!-- 12. HEALTH -->
+<section id="s12">
+  <div class="sec-header">
+    <div class="sec-num">12</div>
+    <div><div class="sec-title">Health &amp; Doctor — Diagnostics <span class="sec-tag">all 7 sources</span></div></div>
+  </div>
+  <div class="use-badge">System Admins · DevOps · CLI Developers</div>
+  <p class="sec-desc">Check live status, latency, and failure rate for all 7 data sources in the fallback chain. <code>doctor</code> verifies auth, config, connectivity, and local database state in a single command — no browser needed.</p>
+
+  <div class="cmd-block"><div class="cmd-label">Q29 · Live API status check</div>
+    <div class="cmd-wrap"><code>./clinical-trials health --human-friendly</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+  <div class="cmd-block"><div class="cmd-label">Q30 · Full diagnostics</div>
+    <div class="cmd-wrap"><code>./clinical-trials doctor</code><button class="copy-btn" onclick="cp(this)">Copy</button></div></div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Health check result (live)</div>
+      <div class="result-row"><span class="key">Overall status</span><span class="badge bg">OK</span></div>
+      <div class="result-row"><span class="key">Healthy sources</span><span class="hl-green">7 / 7</span></div>
+      <div class="result-row"><span class="key">ClinicalTrials.gov latency</span><span class="val">390 ms</span></div>
+      <div class="result-row"><span class="key">EU CTIS</span><span class="badge bg">OK</span></div>
+      <div class="result-row"><span class="key">PubMed</span><span class="badge bg">OK</span></div>
+      <div class="result-row"><span class="key">FDA FAERS</span><span class="badge bg">OK</span></div>
+      <div class="result-row"><span class="key">OpenAlex</span><span class="badge bg">OK</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Doctor diagnostics</div>
+      <div class="result-row"><span class="key">Config</span><span class="badge bg">OK</span></div>
+      <div class="result-row"><span class="key">Auth required</span><span class="val">No</span></div>
+      <div class="result-row"><span class="key">Verify mode</span><span class="val">Normal</span></div>
+      <div class="result-row"><span class="key">API reachable</span><span class="badge bg">Yes</span></div>
+      <div class="result-row"><span class="key">CLI version</span><span class="val">1.0.0</span></div>
+      <div class="result-row"><span class="key">Local DB</span><span class="badge by">Not created — run sync</span></div>
+    </div>
+  </div>
+  <div class="note"><strong>Local DB note:</strong> Run <code>./clinical-trials sync</code> once to hydrate SQLite. After that, <code>search</code> and <code>analytics</code> work offline.</div>
+</section>
+
+<footer>
+  <p>Clinical Trials CLI · ClinicalTrials.gov + EU CTIS + OpenAlex + PubMed + FDA FAERS · No API key required · Read-only</p>
+  <p style="margin-top:6px">Part of <strong>printing-press-library</strong> · Open source</p>
+</footer>
+
+<script>
+function cp(btn){
+  const code=btn.parentElement.querySelector('code').textContent.trim();
+  navigator.clipboard.writeText(code).then(()=>{
+    btn.textContent='✓ Copied';btn.classList.add('ok');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('ok')},1600);
+  }).catch(()=>{btn.textContent='✓';setTimeout(()=>btn.textContent='Copy',1600)});
+}
+Chart.defaults.color='#8b949e';Chart.defaults.borderColor='#30363d';
+
+// 1 RECRUITING
+new Chart(document.getElementById('c-recruit'),{type:'bar',data:{
+  labels:['Obesity','Diabetes Type 2','Heart Disease'],
+  datasets:[{label:'Active Recruiting Trials',data:[1505,856,480],
+    backgroundColor:['rgba(0,212,255,.75)','rgba(124,58,237,.75)','rgba(63,185,80,.75)'],
+    borderRadius:6,borderSkipped:false}]
+},options:{indexAxis:'y',plugins:{legend:{display:false}},
+  scales:{x:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8b949e'}},
+          y:{grid:{display:false},ticks:{color:'#e6edf3'}}}}});
+
+// 2a HOTSPOTS COVID
+new Chart(document.getElementById('c-hot1'),{type:'bar',data:{
+  labels:['United States','China','United Kingdom','France','Italy','Canada','Germany','Brazil'],
+  datasets:[{data:[70,42,28,22,18,16,15,12],
+    backgroundColor:'rgba(0,212,255,.6)',borderRadius:4,borderSkipped:false}]
+},options:{plugins:{legend:{display:false}},
+  scales:{x:{ticks:{color:'#8b949e',font:{size:10}}},
+          y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8b949e'}}}}});
+
+// 2b HOTSPOTS DIABETES
+new Chart(document.getElementById('c-hot2'),{type:'bar',data:{
+  labels:['United States','China','Egypt','India','United Kingdom','Germany','Spain','France'],
+  datasets:[{data:[107,62,34,28,22,18,16,14],
+    backgroundColor:'rgba(124,58,237,.6)',borderRadius:4,borderSkipped:false}]
+},options:{plugins:{legend:{display:false}},
+  scales:{x:{ticks:{color:'#8b949e',font:{size:10}}},
+          y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8b949e'}}}}});
+
+// 4 COMPARE
+new Chart(document.getElementById('c-compare'),{type:'bar',data:{
+  labels:['aspirin','ibuprofen','metformin','insulin','semaglutide'],
+  datasets:[
+    {label:'Total Trials',data:[2179,1094,3200,4100,890],backgroundColor:'rgba(0,212,255,.5)',borderRadius:4},
+    {label:'Recruiting',data:[242,83,280,320,95],backgroundColor:'rgba(63,185,80,.7)',borderRadius:4}
+  ]
+},options:{plugins:{legend:{position:'top',labels:{color:'#8b949e',font:{size:11}}}},
+  scales:{x:{grid:{display:false},ticks:{color:'#8b949e',font:{size:10}}},
+          y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8b949e'}}}}});
+
+// 5a SPONSORS CANCER
+new Chart(document.getElementById('c-spon1'),{type:'doughnut',data:{
+  labels:['Academic/Other','Industry','Government'],
+  datasets:[{data:[213,71,16],
+    backgroundColor:['rgba(0,212,255,.7)','rgba(240,136,62,.7)','rgba(63,185,80,.7)'],
+    borderColor:'#30363d',borderWidth:2}]
+},options:{plugins:{legend:{position:'bottom',labels:{color:'#8b949e',font:{size:10}}}}}});
+
+// 5b SPONSORS ALZHEIMER
+new Chart(document.getElementById('c-spon2'),{type:'doughnut',data:{
+  labels:['Academic/Other','Industry','Government'],
+  datasets:[{data:[195,78,27],
+    backgroundColor:['rgba(124,58,237,.7)','rgba(240,136,62,.7)','rgba(63,185,80,.7)'],
+    borderColor:'#30363d',borderWidth:2}]
+},options:{plugins:{legend:{position:'bottom',labels:{color:'#8b949e',font:{size:10}}}}}});
+
+// 6 SAFETY
+new Chart(document.getElementById('c-safety'),{type:'bar',data:{
+  labels:['aspirin','metformin','ibuprofen'],
+  datasets:[{label:'FDA FAERS Reports',data:[609467,425793,215342],
+    backgroundColor:['rgba(248,81,73,.75)','rgba(240,136,62,.75)','rgba(210,153,34,.75)'],
+    borderRadius:6,borderSkipped:false}]
+},options:{indexAxis:'y',plugins:{legend:{display:false},
+  tooltip:{callbacks:{label:c=>' '+c.raw.toLocaleString()+' reports'}}},
+  scales:{x:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8b949e',callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v}},
+          y:{grid:{display:false},ticks:{color:'#e6edf3'}}}}});
+
+// 7 VELOCITY
+new Chart(document.getElementById('c-velocity'),{type:'bar',data:{
+  labels:['Alzheimer','COVID-19','Cancer'],
+  datasets:[
+    {label:'Recent 3yr',data:[93,53,90],backgroundColor:'rgba(0,212,255,.75)',borderRadius:4},
+    {label:'Prior period',data:[299,346,305],backgroundColor:'rgba(255,255,255,.12)',borderRadius:4}
+  ]
+},options:{plugins:{legend:{position:'top',labels:{color:'#8b949e',font:{size:11}}}},
+  scales:{x:{grid:{display:false},ticks:{color:'#8b949e'}},
+          y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8b949e'}}}}});
+
+// 8 RISK RADAR
+new Chart(document.getElementById('c-risk'),{type:'radar',data:{
+  labels:['Sponsor strength','Phase maturity','Enrollment size','Site count','Completion rate'],
+  datasets:[{label:'NCT07011732 (KarXT, BMS)',data:[92,85,72,80,88],
+    backgroundColor:'rgba(0,212,255,.12)',borderColor:'rgba(0,212,255,.8)',
+    pointBackgroundColor:'rgba(0,212,255,1)',borderWidth:2}]
+},options:{scales:{r:{grid:{color:'rgba(255,255,255,.08)'},
+  pointLabels:{color:'#8b949e',font:{size:10}},ticks:{display:false},suggestedMin:0,suggestedMax:100}},
+  plugins:{legend:{position:'bottom',labels:{color:'#8b949e',font:{size:10}}}}}});
+
+// 11a REPORT LONG COVID
+new Chart(document.getElementById('c-report1'),{type:'doughnut',data:{
+  labels:['N/A','Phase 2','Phase 3','Phase 1','Phase 4','Other'],
+  datasets:[{data:[178,51,19,13,7,132],
+    backgroundColor:['rgba(139,148,158,.4)','rgba(0,212,255,.7)','rgba(63,185,80,.7)',
+      'rgba(124,58,237,.7)','rgba(240,136,62,.7)','rgba(48,54,61,.9)'],
+    borderColor:'#30363d',borderWidth:2}]
+},options:{plugins:{legend:{position:'right',labels:{color:'#8b949e',font:{size:10},boxWidth:12}}}}});
+
+// 11b REPORT DIABETES
+new Chart(document.getElementById('c-report2'),{type:'doughnut',data:{
+  labels:['N/A','Phase 2','Phase 3','Phase 4','Phase 1','Other'],
+  datasets:[{data:[164,51,45,29,35,76],
+    backgroundColor:['rgba(139,148,158,.4)','rgba(124,58,237,.7)','rgba(63,185,80,.7)',
+      'rgba(240,136,62,.7)','rgba(0,212,255,.7)','rgba(48,54,61,.9)'],
+    borderColor:'#30363d',borderWidth:2}]
+},options:{plugins:{legend:{position:'right',labels:{color:'#8b949e',font:{size:10},boxWidth:12}}}}});
+</script>
+</body>
+</html>

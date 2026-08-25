@@ -1,0 +1,3260 @@
+{
+  "api_name": "pinecone",
+  "base_url": "https://api.pinecone.io",
+  "description": "Every Pinecone API feature, plus local sync, snapshot history, and text-first search no other Pinecone tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "Api-Key",
+    "in": "header",
+    "env_vars": [
+      "PINECONE_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "PINECONE_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true
+      }
+    ],
+    "key_url": "https://app.pinecone.io/"
+  },
+  "required_headers": [
+    {
+      "name": "X-Pinecone-Api-Version",
+      "value": "2026-04"
+    }
+  ],
+  "tools": [
+    {
+      "name": "admin_create-api-key",
+      "description": "Create an API key for a project to authenticate Data Plane and Control Plane requests. Required: X-Pinecone-Api-Version (default: 2026-04), project_id, name. Optional: roles. Returns the new ApikeyWithSecret.",
+      "method": "POST",
+      "path": "/admin/projects/{project_id}/api-keys",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the API key. The name must be 1-80 characters long.",
+          "required": true
+        },
+        {
+          "name": "roles",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The roles to create the API key with. Default is `['ProjectEditor']`."
+        }
+      ]
+    },
+    {
+      "name": "admin_create-invite",
+      "description": "Invite a user to the organization by email and grant their initial role bindings. Required: X-Pinecone-Api-Version (default: 2026-04), email, role_bindings. Returns the new Invite.",
+      "method": "POST",
+      "path": "/admin/invites",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The email address to invite.",
+          "required": true
+        },
+        {
+          "name": "role_bindings",
+          "type": "array",
+          "location": "body",
+          "description": "Role bindings for the invitee. Must include at least one `organization`-scoped binding that grants organization membership (`OrgOwner`, `OrgManager`, `OrgBillingAdmin`, or `OrgMember`); `project`-scoped bindings are optional. Not returned in the response.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_create-project",
+      "description": "Create a new project. Required: X-Pinecone-Api-Version (default: 2026-04), name. Optional: force_encryption_with_cmek, max_pods. Returns the new Project.",
+      "method": "POST",
+      "path": "/admin/projects",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "force_encryption_with_cmek",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to force encryption with a customer-managed encryption key (CMEK). Default is `false`."
+        },
+        {
+          "name": "max_pods",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of Pods that can be created in the project. Default is `0` (serverless only)."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the new project.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_create-role-binding",
+      "description": "Grant a role to a principal at an organization or project scope. Required: X-Pinecone-Api-Version (default: 2026-04), principal_id, principal_type, resource_type, role. Optional: resource_id. Returns the new RoleBinding.",
+      "method": "POST",
+      "path": "/admin/role-bindings",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "principal_id",
+          "type": "string",
+          "location": "body",
+          "description": "Principal ID. Format depends on `principal_type`.",
+          "required": true
+        },
+        {
+          "name": "principal_type",
+          "type": "string",
+          "location": "body",
+          "description": "The kind of principal that receives permissions from a role binding. Possible values: `user`, `service_account`, `api_key`, `invite`.",
+          "required": true
+        },
+        {
+          "name": "resource_id",
+          "type": "string",
+          "location": "body",
+          "description": "Project UUID. Required when `resource_type` is `project`; omit for `organization` scope."
+        },
+        {
+          "name": "resource_type",
+          "type": "string",
+          "location": "body",
+          "description": "The kind of resource scope a role binding applies to. Possible values: `organization`, `project`.",
+          "required": true
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "body",
+          "description": "A role assigned to a principal at a resource scope.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_create-service-account",
+      "description": "Create a service account with optional initial role bindings; the client secret is returned only once. Required: X-Pinecone-Api-Version (default: 2026-04), name. Optional: role_bindings. Returns the new ServiceAccountWithSecret.",
+      "method": "POST",
+      "path": "/admin/service-accounts",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The human-readable name of the service account.",
+          "required": true
+        },
+        {
+          "name": "role_bindings",
+          "type": "array",
+          "location": "body",
+          "description": "Optional initial role bindings. Omitting the field or passing an empty array creates the service account with no role bindings; roles can be added later via the role binding endpoints. A service account may be granted any organization- or project-scoped role. Not returned in the response."
+        }
+      ]
+    },
+    {
+      "name": "admin_delete-api-key",
+      "description": "Delete an API key from a project. Required: X-Pinecone-Api-Version (default: 2026-04), api_key_id. Destructive.",
+      "method": "DELETE",
+      "path": "/admin/api-keys/{api_key_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "api_key_id",
+          "type": "string",
+          "location": "path",
+          "description": "API key ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_delete-invite",
+      "description": "Delete a pending or expired invite and its role bindings; to remove an accepted user, delete the user instead. Required: X-Pinecone-Api-Version (default: 2026-04), invite_id. Destructive.",
+      "method": "DELETE",
+      "path": "/admin/invites/{invite_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "invite_id",
+          "type": "string",
+          "location": "path",
+          "description": "Invite ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_delete-organization",
+      "description": "Delete an organization and all its configuration; delete all its projects first. Required: X-Pinecone-Api-Version (default: 2026-04), organization_id. Destructive.",
+      "method": "DELETE",
+      "path": "/admin/organizations/{organization_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_delete-project",
+      "description": "Delete a project and all its configuration; delete its indexes, assistants, backups, and collections first. Required: X-Pinecone-Api-Version (default: 2026-04), project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/admin/projects/{project_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_delete-role-binding",
+      "description": "Delete a role binding; permissions are revoked when the deletion completes. Required: X-Pinecone-Api-Version (default: 2026-04), role_binding_id. Destructive.",
+      "method": "DELETE",
+      "path": "/admin/role-bindings/{role_binding_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "role_binding_id",
+          "type": "string",
+          "location": "path",
+          "description": "Role binding ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_delete-service-account",
+      "description": "Delete a service account and its role bindings; tokens it minted are revoked within a few seconds. Required: X-Pinecone-Api-Version (default: 2026-04), service_account_id. Destructive.",
+      "method": "DELETE",
+      "path": "/admin/service-accounts/{service_account_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "service_account_id",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the service account.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_delete-user",
+      "description": "Remove a user from the organization and revoke their role bindings; their Pinecone account is not deleted. Required: X-Pinecone-Api-Version (default: 2026-04), user_id. Destructive.",
+      "method": "DELETE",
+      "path": "/admin/users/{user_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "User ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_fetch-api-key",
+      "description": "Get an API key's details, excluding its secret. Required: X-Pinecone-Api-Version (default: 2026-04), api_key_id. Returns array of string.",
+      "method": "GET",
+      "path": "/admin/api-keys/{api_key_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "api_key_id",
+          "type": "string",
+          "location": "path",
+          "description": "API key ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_fetch-invite",
+      "description": "Get an invite in the caller's organization by ID. Required: X-Pinecone-Api-Version (default: 2026-04), invite_id. Returns the Invite.",
+      "method": "GET",
+      "path": "/admin/invites/{invite_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "invite_id",
+          "type": "string",
+          "location": "path",
+          "description": "Invite ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_fetch-organization",
+      "description": "Get an organization's details. Required: X-Pinecone-Api-Version (default: 2026-04), organization_id. Returns the Organization.",
+      "method": "GET",
+      "path": "/admin/organizations/{organization_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_fetch-project",
+      "description": "Get a project's details. Required: X-Pinecone-Api-Version (default: 2026-04), project_id. Returns the Project.",
+      "method": "GET",
+      "path": "/admin/projects/{project_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_fetch-role-binding",
+      "description": "Get a role binding in the caller's organization by ID. Required: X-Pinecone-Api-Version (default: 2026-04), role_binding_id. Returns the RoleBinding.",
+      "method": "GET",
+      "path": "/admin/role-bindings/{role_binding_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "role_binding_id",
+          "type": "string",
+          "location": "path",
+          "description": "Role binding ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_fetch-service-account",
+      "description": "Get a service account by ID; the client secret is returned only from create and rotate-secret requests. Required: X-Pinecone-Api-Version (default: 2026-04), service_account_id. Returns the ServiceAccount.",
+      "method": "GET",
+      "path": "/admin/service-accounts/{service_account_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "service_account_id",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the service account.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_fetch-user",
+      "description": "Get a user in the caller's organization by ID. Required: X-Pinecone-Api-Version (default: 2026-04), user_id. Returns the User.",
+      "method": "GET",
+      "path": "/admin/users/{user_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "User ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_list-invites",
+      "description": "List pending and expired invites in the caller's organization. Required: X-Pinecone-Api-Version (default: 2026-04). Optional: limit (default: 100), paginationToken. Returns array of Invite.",
+      "method": "GET",
+      "path": "/admin/invites",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results to return per page."
+        },
+        {
+          "name": "paginationToken",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor from `pagination."
+        }
+      ]
+    },
+    {
+      "name": "admin_list-organizations",
+      "description": "List all organizations associated with an account. Required: X-Pinecone-Api-Version (default: 2026-04). Returns array of Organization.",
+      "method": "GET",
+      "path": "/admin/organizations",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_list-project-api-keys",
+      "description": "List all API keys in a project. Required: X-Pinecone-Api-Version (default: 2026-04), project_id. Returns array of Apikey.",
+      "method": "GET",
+      "path": "/admin/projects/{project_id}/api-keys",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_list-projects",
+      "description": "List all projects in an organization. Required: X-Pinecone-Api-Version (default: 2026-04). Returns array of Project.",
+      "method": "GET",
+      "path": "/admin/projects",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_list-role-bindings",
+      "description": "List role bindings in the caller's organization, optionally filtered by principal, resource, and role. Required: X-Pinecone-Api-Version (default: 2026-04). Optional: principal_type, principal_id, resource_type (plus 4 more). Returns array of RoleBinding.",
+      "method": "GET",
+      "path": "/admin/role-bindings",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "principal_type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by principal type. Required when `principal_id` is set."
+        },
+        {
+          "name": "principal_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by principal ID. Requires `principal_type`. The ID is a UUID for all principal types (user, service account, or invite)."
+        },
+        {
+          "name": "resource_type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by resource type. Required when `resource_id` is set."
+        },
+        {
+          "name": "resource_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by resource ID. Requires `resource_type`."
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by role."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results to return per page."
+        },
+        {
+          "name": "paginationToken",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor from `pagination."
+        }
+      ]
+    },
+    {
+      "name": "admin_list-service-accounts",
+      "description": "List service accounts in the caller's organization. Required: X-Pinecone-Api-Version (default: 2026-04). Optional: limit (default: 100), paginationToken. Returns array of ServiceAccount.",
+      "method": "GET",
+      "path": "/admin/service-accounts",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results to return per page."
+        },
+        {
+          "name": "paginationToken",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor from `pagination."
+        }
+      ]
+    },
+    {
+      "name": "admin_list-users",
+      "description": "List users in the caller's organization, optionally filtered by email address. Required: X-Pinecone-Api-Version (default: 2026-04). Optional: email, limit (default: 100), paginationToken. Returns array of User.",
+      "method": "GET",
+      "path": "/admin/users",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query",
+          "description": "Case-insensitive filter on the user's email address. Malformed email returns `400 INVALID_ARGUMENT`."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results to return per page."
+        },
+        {
+          "name": "paginationToken",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor from `pagination."
+        }
+      ]
+    },
+    {
+      "name": "admin_resend-invite",
+      "description": "Resend the invite email and extend its expiration to 7 days from now; limited to 100 emails per hour per organization. Required: X-Pinecone-Api-Version (default: 2026-04), invite_id. Returns the new Invite.",
+      "method": "POST",
+      "path": "/admin/invites/{invite_id}/resend",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "invite_id",
+          "type": "string",
+          "location": "path",
+          "description": "Invite ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_rotate-service-account-secret",
+      "description": "Rotate a service account's OAuth client secret; the previous secret and its tokens are revoked within seconds and the new secret is returned only once. Required: X-Pinecone-Api-Version (default: 2026-04), service_account_id. Returns the new ServiceAccountWithSecret.",
+      "method": "POST",
+      "path": "/admin/service-accounts/{service_account_id}/rotate-secret",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "service_account_id",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the service account.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "admin_update-api-key",
+      "description": "Update an API key's name and roles. Required: X-Pinecone-Api-Version (default: 2026-04), api_key_id. Optional: name, roles. Returns array of string.",
+      "method": "PATCH",
+      "path": "/admin/api-keys/{api_key_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "api_key_id",
+          "type": "string",
+          "location": "path",
+          "description": "API key ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "A new name for the API key. The name must be 1-80 characters long. If omitted, the name will not be updated."
+        },
+        {
+          "name": "roles",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A new set of roles for the API key. Existing roles will be removed if not included. If this field is omitted, the roles will not be updated."
+        }
+      ]
+    },
+    {
+      "name": "admin_update-organization",
+      "description": "Update an organization's name. Required: X-Pinecone-Api-Version (default: 2026-04), organization_id. Optional: name. Returns the updated Organization.",
+      "method": "PATCH",
+      "path": "/admin/organizations/{organization_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The new name for the organization."
+        }
+      ]
+    },
+    {
+      "name": "admin_update-project",
+      "description": "Update a project's name, maximum number of Pods, or customer-managed encryption key (CMEK). Required: X-Pinecone-Api-Version (default: 2026-04), project_id. Optional: force_encryption_with_cmek, max_pods, name. Returns the updated Project.",
+      "method": "PATCH",
+      "path": "/admin/projects/{project_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "force_encryption_with_cmek",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to force encryption with a customer-managed encryption key (CMEK). Once enabled, CMEK encryption cannot be disabled."
+        },
+        {
+          "name": "max_pods",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of Pods that can be created in the project."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the new project."
+        }
+      ]
+    },
+    {
+      "name": "admin_update-service-account",
+      "description": "Update a service account's name; role bindings are managed through the role-binding endpoints. Required: X-Pinecone-Api-Version (default: 2026-04), service_account_id. Optional: name. Returns the updated ServiceAccount.",
+      "method": "PATCH",
+      "path": "/admin/service-accounts/{service_account_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "service_account_id",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the service account.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "A new name for the service account. If omitted, the name is unchanged."
+        }
+      ]
+    },
+    {
+      "name": "assistants_create",
+      "description": "Create an assistant. This is where you specify the underlying training model, which cloud provider you would like to deploy with, and more. For guidance and examples, see [Create an assistant](https://docs.pinecone.io/guides/assistant/create-assistant). Required: X-Pinecone-Api-Version (default: 2026-04), name. Optional: instructions, metadata, region. Returns the new Assistant.",
+      "method": "POST",
+      "path": "/assistants",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "instructions",
+          "type": "string",
+          "location": "body",
+          "description": "Guidance applied to all responses generated by the assistant. Maximum 16 KB."
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Optional metadata associated with the assistant. Metadata is a JSON object that can store custom organizational data, tags, and attributes. Maximum size is 16KB."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the assistant. Resource name must be 1-63 characters long, start and end with an alphanumeric character, and consist only of lower case alphanumeric characters or `-`.",
+          "required": true
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "body",
+          "description": "The region to deploy the assistant in. Our current options are either `us` or `eu`. Defaults to `us`."
+        }
+      ]
+    },
+    {
+      "name": "assistants_delete",
+      "description": "Delete an existing assistant. For guidance and examples, see [Manage assistants](https://docs.pinecone.io/guides/assistant/manage-assistants#delete-an-assistant). Required: X-Pinecone-Api-Version (default: 2026-04), assistant_name. Destructive.",
+      "method": "DELETE",
+      "path": "/assistants/{assistant_name}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "assistant_name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the assistant to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "assistants_get",
+      "description": "Get the status of an assistant. For guidance and examples, see [Manage assistants](https://docs.pinecone.io/guides/assistant/manage-assistants#get-the-status-of-an-assistant). Required: X-Pinecone-Api-Version (default: 2026-04), assistant_name. Returns the Assistant.",
+      "method": "GET",
+      "path": "/assistants/{assistant_name}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "assistant_name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the assistant to get a status on.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "assistants_list",
+      "description": "List of all assistants in a project. For guidance and examples, see [Manage assistants](https://docs.pinecone.io/guides/assistant/manage-assistants#list-assistants-for-a-project). Required: X-Pinecone-Api-Version (default: 2026-04). Optional: limit, pagination_token. Returns array of Assistant.",
+      "method": "GET",
+      "path": "/assistants",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit on the number of assistants to return. Default is 50. Minimum is 1. Maximum is 100."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination token to continue a previous listing operation."
+        }
+      ]
+    },
+    {
+      "name": "assistants_update",
+      "description": "Update an existing assistant. You can modify the assistant's instructions. For guidance and examples, see [Manage assistants](https://docs.pinecone.io/guides/assistant/manage-assistants#add-instructions-to-an-assistant). Required: X-Pinecone-Api-Version (default: 2026-04), assistant_name. Optional: instructions, metadata. Returns the updated UpdateAssistantResponse.",
+      "method": "PATCH",
+      "path": "/assistants/{assistant_name}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "assistant_name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the assistant to update.",
+          "required": true
+        },
+        {
+          "name": "instructions",
+          "type": "string",
+          "location": "body",
+          "description": "Guidance applied to all responses generated by the assistant. Maximum 16 KB."
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Optional metadata associated with the assistant. Metadata is a JSON object that can store custom organizational data, tags, and attributes. Maximum size is 16KB."
+        }
+      ]
+    },
+    {
+      "name": "backup-schedules_delete",
+      "description": "Permanently remove a backup schedule. Required: X-Pinecone-Api-Version (default: 2026-04), schedule_id. Destructive.",
+      "method": "DELETE",
+      "path": "/backup-schedules/{schedule_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "schedule_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the backup schedule to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "backup-schedules_describe",
+      "description": "Get a single backup schedule by ID. Required: X-Pinecone-Api-Version (default: 2026-04), schedule_id. Returns the BackupScheduleResponse.",
+      "method": "GET",
+      "path": "/backup-schedules/{schedule_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "schedule_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the backup schedule.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "backup-schedules_update",
+      "description": "Update frequency, retention, or enabled state for a backup schedule. Re-enabling a disabled schedule (`enabled: true`) enqueues a new backup operation. Required: X-Pinecone-Api-Version (default: 2026-04), schedule_id. Optional: enabled, frequency, retention. Returns the updated BackupScheduleResponse.",
+      "method": "PATCH",
+      "path": "/backup-schedules/{schedule_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "schedule_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the backup schedule to update.",
+          "required": true
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the schedule is active. Setting to `true` after a disable re-enqueues backup processing."
+        },
+        {
+          "name": "frequency",
+          "type": "string",
+          "location": "body",
+          "description": "How often the scheduled backup runs."
+        },
+        {
+          "name": "retention-expire-after-days",
+          "wire_name": "retention.expire_after_days",
+          "type": "int",
+          "location": "body",
+          "description": "Number of days to retain each backup created by this schedule. The maximum allowed value is determined by your project configuration (`max_backup_retention_days`).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "backup-schedules_history_list-backup-schedule",
+      "description": "Return backups that were created by the specified backup schedule. Required: X-Pinecone-Api-Version (default: 2026-04), schedule_id. Optional: limit (default: 10), paginationToken. Returns array of BackupScheduleHistoryItem.",
+      "method": "GET",
+      "path": "/backup-schedules/{schedule_id}/history",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "schedule_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the backup schedule.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results to return per page."
+        },
+        {
+          "name": "paginationToken",
+          "type": "string",
+          "location": "query",
+          "description": "The token to use to retrieve the next page of results."
+        }
+      ]
+    },
+    {
+      "name": "backups_delete",
+      "description": "Delete a backup. Required: X-Pinecone-Api-Version (default: 2026-04), backup_id. Destructive.",
+      "method": "DELETE",
+      "path": "/backups/{backup_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "backup_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the backup to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "backups_describe",
+      "description": "Get a description of a backup. Required: X-Pinecone-Api-Version (default: 2026-04), backup_id. Returns the BackupModel.",
+      "method": "GET",
+      "path": "/backups/{backup_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "backup_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the backup to describe.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "backups_list-project",
+      "description": "List backups for all indexes in a project. Required: X-Pinecone-Api-Version (default: 2026-04). Optional: limit (default: 10), paginationToken. Returns array of BackupModel.",
+      "method": "GET",
+      "path": "/backups",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results to return per page."
+        },
+        {
+          "name": "paginationToken",
+          "type": "string",
+          "location": "query",
+          "description": "The token to use to retrieve the next page of results."
+        }
+      ]
+    },
+    {
+      "name": "backups_create-index_from-backup-operation",
+      "description": "Create an index from a backup. For serverless backups, you can optionally set `read_capacity` so the restored index is created with dedicated read nodes (DRN) instead of defaulting to on-demand capacity. Required: X-Pinecone-Api-Version (default: 2026-04), backup_id, name. Optional: deletion_protection (default: disabled), read_capacity, tags. Returns the new CreateIndexFromBackupResponse.",
+      "method": "POST",
+      "path": "/backups/{backup_id}/create-index",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "backup_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the backup to create an index from.",
+          "required": true
+        },
+        {
+          "name": "deletion_protection",
+          "type": "string",
+          "location": "body",
+          "description": "Whether [deletion protection](http://docs."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the index. Resource name must be 1-45 characters long, start and end with an...",
+          "required": true
+        },
+        {
+          "name": "read_capacity",
+          "type": "string",
+          "location": "body",
+          "description": "By default the index will be created with read capacity mode `OnDemand`. If you prefer to allocate dedicated read nodes for your workload, you must specify mode `Dedicated` and additional configurations for `node_type` and `scaling`."
+        },
+        {
+          "name": "tags",
+          "type": "object",
+          "location": "body",
+          "description": "Custom user tags added to an index."
+        }
+      ]
+    },
+    {
+      "name": "bulk_cancel-import",
+      "description": "Cancel an import operation if it is not yet finished. It has no effect if the operation is already finished. For guidance and examples, see [Import data](https://docs.pinecone.io/guides/index-data/import-data). Required: X-Pinecone-Api-Version (default: 2026-04), id. Returns the CancelImportResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/bulk/imports/{id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for the import operation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bulk_describe-import",
+      "description": "Return details of a specific import operation. For guidance and examples, see [Import data](https://docs.pinecone.io/guides/index-data/import-data). Required: X-Pinecone-Api-Version (default: 2026-04), id. Returns the ImportModel.",
+      "method": "GET",
+      "path": "/bulk/imports/{id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for the import operation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bulk_list-imports",
+      "description": "List all recent and ongoing import operations. By default, `list_imports` returns up to 100 imports per page. If the `limit` parameter is set, `list` returns up to that number of imports instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of imports. When the response does not include a `pagination_token`, there are no more imports to return. For guidance and examples, see [Import data](https://docs.pinecone.io/guides/index-data/import-data). Required: X-Pinecone-Api-Version (default: 2026-04). Optional: limit (default: 100), paginationToken.",
+      "method": "GET",
+      "path": "/bulk/imports",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max number of operations to return per page."
+        },
+        {
+          "name": "paginationToken",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination token to continue a previous listing operation."
+        }
+      ]
+    },
+    {
+      "name": "bulk_start-import",
+      "description": "Start an asynchronous import of vectors from object storage into an index. For guidance and examples, see [Import data](https://docs.pinecone.io/guides/index-data/import-data). Required: X-Pinecone-Api-Version (default: 2026-04), uri. Optional: errorMode, integrationId. Returns the new StartImportResponse.",
+      "method": "POST",
+      "path": "/bulk/imports",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "error-mode-on-error",
+          "wire_name": "errorMode.onError",
+          "type": "string",
+          "location": "body",
+          "description": "Indicates how to respond to errors during the import process. Possible values: `abort` or `continue`."
+        },
+        {
+          "name": "integrationId",
+          "type": "string",
+          "location": "body",
+          "description": "The id of the [storage integration](https://docs.pinecone.io/guides/operations/integrations/manage-storage-integrations) that should be used to access the data."
+        },
+        {
+          "name": "uri",
+          "type": "string",
+          "location": "body",
+          "description": "The URI of the bucket (or container) and import directory containing the namespaces and Parquet files you want to import. For example, `s3://BUCKET_NAME/IMPORT_DIR` for Amazon S3, `gs://BUCKET_NAME/IMPORT_DIR` for Google Cloud Storage, or `https://STORAGE_ACCOUNT.blob.core.windows.net/CONTAINER_NAME/IMPORT_DIR` for Azure Blob Storage. For more information, see [Import records](https://docs.pinecone.io/guides/index-data/import-data#prepare-your-data).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chat_assistant",
+      "description": "Chat with an assistant and get back citations in structured form. This is the recommended way to chat with an assistant, as it offers more functionality and control over the assistant's responses and references than the OpenAI-compatible chat interface. For guidance and examples, see [Chat with an assistant](https://docs.pinecone.io/guides/assistant/chat-with-assistant). Required: X-Pinecone-Api-Version (default: 2026-04), assistant_name, messages. Optional: context_options, filter, include_highlights (default: false) (plus 4 more). Returns array of CitationModel.",
+      "method": "POST",
+      "path": "/chat/{assistant_name}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "assistant_name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the assistant to be described.",
+          "required": true
+        },
+        {
+          "name": "context-options-include-binary-content",
+          "wire_name": "context_options.include_binary_content",
+          "type": "bool",
+          "location": "body",
+          "description": "If image-related context snippets are sent to the LLM, this field determines whether or not they should include base64 image data. If `false`, only the image caption is sent. Only available when `multimodal=true`."
+        },
+        {
+          "name": "context-options-multimodal",
+          "wire_name": "context_options.multimodal",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not to send image-related context snippets to the LLM. If `false`, only text context snippets are sent."
+        },
+        {
+          "name": "context-options-snippet-size",
+          "wire_name": "context_options.snippet_size",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum context snippet size. Default is 2048 tokens. Minimum is 512 tokens. Maximum is 8192 tokens."
+        },
+        {
+          "name": "context-options-top-k",
+          "wire_name": "context_options.top_k",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of context snippets to use. Default is 16. Maximum is 64."
+        },
+        {
+          "name": "filter",
+          "type": "object",
+          "location": "body",
+          "description": "Optional metadata-based filter to restrict which documents are retrieved for the assistant's response context."
+        },
+        {
+          "name": "include_highlights",
+          "type": "bool",
+          "location": "body",
+          "description": "If `true`, instructs the assistant to include highlights from the referenced documents that support its response."
+        },
+        {
+          "name": "json_response",
+          "type": "bool",
+          "location": "body",
+          "description": "If `true`, instructs the assistant to return a JSON-formatted response. Cannot be used together with streaming mode."
+        },
+        {
+          "name": "messages",
+          "type": "array",
+          "location": "body",
+          "description": "The list of messages sent to the assistant, used for context retrieval and generating response with the LLM.",
+          "required": true
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "The large language model used to generate responses."
+        },
+        {
+          "name": "stream",
+          "type": "bool",
+          "location": "body",
+          "description": "If `false`, the assistant returns a single JSON response. If `true`, the assistant returns a stream of responses."
+        },
+        {
+          "name": "temperature",
+          "type": "float",
+          "location": "body",
+          "description": "Controls the randomness of the model's output: lower values make responses more deterministic, while higher values increase creativity and variability. If the model does not support a temperature parameter, the parameter will be ignored."
+        }
+      ]
+    },
+    {
+      "name": "chat_chat_completion-assistant",
+      "description": "Chat with an assistant. This endpoint is based on the OpenAI Chat Completion API, a commonly used and adopted API. It is useful if you need inline citations or OpenAI-compatible responses, but has limited functionality compared to the standard chat interface. For guidance and examples, see [Chat with an assistant](https://docs.pinecone.io/guides/assistant/chat-with-assistant). Required: X-Pinecone-Api-Version (default: 2026-04), assistant_name, messages. Optional: filter, model (default: gpt-4o), stream (default: false) (plus 1 more). Returns array of ChoiceModel.",
+      "method": "POST",
+      "path": "/chat/{assistant_name}/chat/completions",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "assistant_name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the assistant to be described.",
+          "required": true
+        },
+        {
+          "name": "filter",
+          "type": "object",
+          "location": "body",
+          "description": "Optional metadata-based filter to restrict which documents are retrieved for the assistant's response context."
+        },
+        {
+          "name": "messages",
+          "type": "array",
+          "location": "body",
+          "description": "The list of messages sent to the assistant, used for context retrieval and generating response with the LLM.",
+          "required": true
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "The large language model used to generate responses."
+        },
+        {
+          "name": "stream",
+          "type": "bool",
+          "location": "body",
+          "description": "If `false`, the assistant returns a single JSON response. If `true`, the assistant returns a stream of responses."
+        },
+        {
+          "name": "temperature",
+          "type": "float",
+          "location": "body",
+          "description": "Controls the randomness of the model's output: lower values make responses more deterministic, while higher values increase creativity and variability. If the model does not support a temperature parameter, the parameter will be ignored."
+        }
+      ]
+    },
+    {
+      "name": "chat_context_assistant",
+      "description": "Retrieve context snippets from an assistant to use as part of RAG or any agentic flow. For guidance and examples, see [Retrieve context snippets](https://docs.pinecone.io/guides/assistant/retrieve-context-snippets). Required: X-Pinecone-Api-Version (default: 2026-04), assistant_name. Optional: filter, include_binary_content (default: true), messages (plus 4 more). Returns array of SnippetModel.",
+      "method": "POST",
+      "path": "/chat/{assistant_name}/context",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "assistant_name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the assistant to be described.",
+          "required": true
+        },
+        {
+          "name": "filter",
+          "type": "object",
+          "location": "body",
+          "description": "Optionally filter which documents can be retrieved using the following metadata fields."
+        },
+        {
+          "name": "include_binary_content",
+          "type": "bool",
+          "location": "body",
+          "description": "If image-related context snippets are returned, this field determines whether or not they should include base64 image data. If `false`, only the image captions are returned. Only available when `multimodal=true`."
+        },
+        {
+          "name": "messages",
+          "type": "array",
+          "location": "body",
+          "description": "The list of messages to use for generating the context. Exactly one of query or messages should be provided."
+        },
+        {
+          "name": "multimodal",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not to retrieve image-related context snippets. If `false`, only text snippets are returned."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "The query that is used to generate the context. Exactly one of query or messages should be provided."
+        },
+        {
+          "name": "snippet_size",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum context snippet size. Default is 2048 tokens. Minimum is 512 tokens. Maximum is 8192 tokens."
+        },
+        {
+          "name": "top_k",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of context snippets to return. Default is 16. Maximum is 64."
+        }
+      ]
+    },
+    {
+      "name": "collections_create",
+      "description": "Create a Pinecone collection. Serverless indexes do not support collections. Required: X-Pinecone-Api-Version (default: 2026-04), name, source. Returns the new CollectionModel.",
+      "method": "POST",
+      "path": "/collections",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the collection to be created. Resource name must be 1-45 characters long, start and end with an alphanumeric character, and consist only of lower case alphanumeric characters or '-'.",
+          "required": true
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the index to be used as the source for the collection.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_delete",
+      "description": "Delete an existing collection. Serverless indexes do not support collections. Required: X-Pinecone-Api-Version (default: 2026-04), collection_name. Destructive.",
+      "method": "DELETE",
+      "path": "/collections/{collection_name}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "collection_name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the collection.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_describe",
+      "description": "Get a description of a collection. Serverless indexes do not support collections. Required: X-Pinecone-Api-Version (default: 2026-04), collection_name. Returns the CollectionModel.",
+      "method": "GET",
+      "path": "/collections/{collection_name}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "collection_name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the collection to be described.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_list",
+      "description": "List all collections in a project. Serverless indexes do not support collections. Required: X-Pinecone-Api-Version (default: 2026-04). Returns array of CollectionModel.",
+      "method": "GET",
+      "path": "/collections",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "describe-index-stats_describe_index_stats",
+      "description": "Return statistics about the contents of an index, including the vector count per namespace, the number of dimensions, and the index fullness. Serverless indexes scale automatically as needed, so index fullness is relevant only for pod-based indexes. Required: X-Pinecone-Api-Version (default: 2026-04). Optional: filter. Returns the new IndexDescription.",
+      "method": "POST",
+      "path": "/describe_index_stats",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "filter",
+          "type": "object",
+          "location": "body",
+          "description": "If this parameter is present, the operation only returns statistics for vectors that satisfy the filter. See [Understanding metadata](https://docs.pinecone.io/guides/index-data/indexing-overview#metadata). Serverless indexes do not support filtering `describe_index_stats` by metadata."
+        }
+      ]
+    },
+    {
+      "name": "embed_embed",
+      "description": "Generate vector embeddings for input data. This endpoint uses Pinecone's [hosted embedding models](https://docs.pinecone.io/guides/index-data/create-an-index#embedding-models). Required: X-Pinecone-Api-Version (default: 2026-04), inputs, model. Optional: parameters. Returns array of Embedding.",
+      "method": "POST",
+      "path": "/embed",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "inputs",
+          "type": "array",
+          "location": "body",
+          "description": "List of inputs to generate embeddings for.",
+          "required": true
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "The [model](https://docs.pinecone.io/guides/index-data/create-an-index#embedding-models) to use for embedding generation.",
+          "required": true
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "Additional model-specific parameters. Refer to the [model guide](https://docs.pinecone.io/guides/index-data/create-an-index#embedding-models) for available model parameters."
+        }
+      ]
+    },
+    {
+      "name": "files_delete",
+      "description": "[Delete an uploaded file](https://docs.pinecone.io/guides/assistant/manage-files#delete-a-file) from an assistant. This operation is asynchronous. The response includes an operation ID that can be used to poll for completion via the describe operation endpoint. Required: X-Pinecone-Api-Version (default: 2026-04), assistant_name, assistant_file_id. Returns the OperationModel. Destructive.",
+      "method": "DELETE",
+      "path": "/files/{assistant_name}/{assistant_file_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "assistant_name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the assistant that contains the file.",
+          "required": true
+        },
+        {
+          "name": "assistant_file_id",
+          "type": "string",
+          "location": "path",
+          "description": "The identifier of the file to be deleted.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_describe",
+      "description": "[Get the current status and metadata of a file](https://docs.pinecone.io/guides/assistant/manage-files#get-the-status-of-a-file) uploaded to an assistant. Required: X-Pinecone-Api-Version (default: 2026-04), assistant_name, assistant_file_id. Optional: include_url. Returns the AssistantFileModel.",
+      "method": "GET",
+      "path": "/files/{assistant_name}/{assistant_file_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "assistant_name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the assistant that contains the file.",
+          "required": true
+        },
+        {
+          "name": "assistant_file_id",
+          "type": "string",
+          "location": "path",
+          "description": "The identifier of the file to be described.",
+          "required": true
+        },
+        {
+          "name": "include_url",
+          "type": "string",
+          "location": "query",
+          "description": "Include the signed URL of the file in the response."
+        }
+      ]
+    },
+    {
+      "name": "files_list",
+      "description": "List all files in an assistant, with an option to filter files with metadata. For guidance and examples, see [Manage files](https://docs.pinecone.io/guides/assistant/manage-files#list-files-in-an-assistant). Required: X-Pinecone-Api-Version (default: 2026-04), assistant_name. Optional: filter, limit, pagination_token. Returns array of AssistantFileModel.",
+      "method": "GET",
+      "path": "/files/{assistant_name}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "assistant_name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the assistant to list files for.",
+          "required": true
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Optional JSON-encoded metadata filter for files."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit on the number of files to return."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination token to continue a previous listing operation."
+        }
+      ]
+    },
+    {
+      "name": "files_upload",
+      "description": "Upload a file to the specified assistant. An identifier will be generated. To specify a file identifier or to replace file content, use the upsert endpoint (`PUT /files/{assistant_name}/{assistant_file_id}`). This operation is asynchronous. The response includes an operation ID that can be used to poll for completion via the describe operation endpoint. For guidance and examples, see [Manage files](https://docs.pinecone.io/guides/assistant/manage-files#upload-a-local-file). Required: X-Pinecone-Api-Version (default: 2026-04), assistant_name, file. Optional: multimodal, metadata. Returns the new OperationModel.",
+      "method": "POST",
+      "path": "/files/{assistant_name}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "assistant_name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the assistant to upload files to.",
+          "required": true
+        },
+        {
+          "name": "multimodal",
+          "type": "string",
+          "location": "query",
+          "description": "Optional flag to opt in to multimodal file processing (PDFs only). Can be either `true` or `false`. Default is `false`."
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "The file to upload.",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Optional metadata associated with the file. This metadata can be used to filter files when listing them or to restrict search results when querying the assistant. Maximum size is 16KB."
+        }
+      ]
+    },
+    {
+      "name": "files_upsert",
+      "description": "Create or replace a file in the specified assistant. If a file with the given `assistant_file_id` already exists, it will be replaced with the new file. If it doesn't exist, a new file will be created with that identifier. This operation is asynchronous. The file processing will occur in the background. For guidance and examples, see [Manage files](https://docs.pinecone.io/guides/assistant/manage-files#upload-a-local-file). Required: X-Pinecone-Api-Version (default: 2026-04), assistant_name, assistant_file_id, file. Optional: multimodal, metadata. Returns the updated OperationModel.",
+      "method": "PUT",
+      "path": "/files/{assistant_name}/{assistant_file_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "assistant_name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the assistant to upload files to.",
+          "required": true
+        },
+        {
+          "name": "assistant_file_id",
+          "type": "string",
+          "location": "path",
+          "description": "The identifier of the file to be created or replaced. Must be 1-128 characters long and consist only of alphanumeric characters, hyphens (-), or underscores (_).",
+          "required": true
+        },
+        {
+          "name": "multimodal",
+          "type": "string",
+          "location": "query",
+          "description": "Optional flag to opt in to multimodal file processing (PDFs only). Can be either `true` or `false`. Default is `false`."
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "The file to upload.",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Optional metadata associated with the file. This metadata can be used to filter files when listing them or to restrict search results when querying the assistant. Maximum size is 16KB."
+        }
+      ]
+    },
+    {
+      "name": "indexes_configure-index",
+      "description": "Configure an existing index. For guidance and examples, see [Manage indexes](https://docs.pinecone.io/guides/manage-data/manage-indexes). Required: X-Pinecone-Api-Version (default: 2026-04), index_name. Optional: deletion_protection (default: disabled), embed, spec (plus 1 more). Returns the updated IndexModel.",
+      "method": "PATCH",
+      "path": "/indexes/{index_name}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "index_name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the index to configure.",
+          "required": true
+        },
+        {
+          "name": "deletion_protection",
+          "type": "string",
+          "location": "body",
+          "description": "Whether [deletion protection](http://docs."
+        },
+        {
+          "name": "embed-field-map",
+          "wire_name": "embed.field_map",
+          "type": "object",
+          "location": "body",
+          "description": "Identifies the name of the text field from your document model that will be embedded."
+        },
+        {
+          "name": "embed-model",
+          "wire_name": "embed.model",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the embedding model to use with the index. The index dimension and model dimension must match, and the index similarity metric must be supported by the model. The index embedding model cannot be changed once set."
+        },
+        {
+          "name": "embed-read-parameters",
+          "wire_name": "embed.read_parameters",
+          "type": "object",
+          "location": "body",
+          "description": "The read parameters for the embedding model."
+        },
+        {
+          "name": "embed-write-parameters",
+          "wire_name": "embed.write_parameters",
+          "type": "object",
+          "location": "body",
+          "description": "The write parameters for the embedding model."
+        },
+        {
+          "name": "spec",
+          "type": "string",
+          "location": "body",
+          "description": "The spec object defines how the index should be deployed. Only some attributes of an index's spec may be updated. In general, you can modify settings related to scaling and configuration but you cannot change the cloud or region where the index is hosted."
+        },
+        {
+          "name": "tags",
+          "type": "object",
+          "location": "body",
+          "description": "Custom user tags added to an index."
+        }
+      ]
+    },
+    {
+      "name": "indexes_create-index",
+      "description": "Create a Pinecone index. This is where you specify the measure of similarity, the dimension of vectors to be stored in the index, which cloud provider you would like to deploy with, and more. To restore from a backup, set `spec.serverless.source_backup_id` and specify the target `cloud` and `region`. Same-cloud cross-region restore is supported when available for the backup's source region. Cross-cloud restore is not supported. For guidance and examples, see [Create an index](https://docs.pinecone.io/guides/index-data/create-an-index). Required: X-Pinecone-Api-Version (default: 2026-04), name, spec. Optional: deletion_protection (default: disabled), dimension, metric (plus 2 more). Returns the new IndexModel.",
+      "method": "POST",
+      "path": "/indexes",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "deletion_protection",
+          "type": "string",
+          "location": "body",
+          "description": "Whether [deletion protection](http://docs."
+        },
+        {
+          "name": "dimension",
+          "type": "int",
+          "location": "body",
+          "description": "The dimensions of the vectors to be inserted in the index."
+        },
+        {
+          "name": "metric",
+          "type": "string",
+          "location": "body",
+          "description": "The distance metric to be used for similarity search. You can use 'euclidean', 'cosine', or 'dotproduct'. If the 'vector_type' is 'sparse', the metric must be 'dotproduct'. If the `vector_type` is `dense`, the metric defaults to 'cosine'. Possible values: `cosine`, `euclidean`, or `dotproduct`."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the index. Resource name must be 1-45 characters long, start and end with an...",
+          "required": true
+        },
+        {
+          "name": "spec",
+          "type": "string",
+          "location": "body",
+          "description": "The spec object defines how the index should be deployed. For serverless indexes, you define only the [cloud and region](http://docs.pinecone.io/guides/index-data/create-an-index#cloud-regions) where the index should be hosted. For pod-based indexes, you define the [environment](http://docs.pinecone.io/guides/indexes/pods/understanding-pod-based-indexes#pod-environments) where the index should be hosted, the [pod type and size](http://docs.pinecone.io/guides/indexes/pods/understanding-pod-based-indexes#pod-types) to use, and other index characteristics.",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "object",
+          "location": "body",
+          "description": "Custom user tags added to an index."
+        },
+        {
+          "name": "vector_type",
+          "type": "string",
+          "location": "body",
+          "description": "The index vector type. You can use 'dense' or 'sparse'. If 'dense', the vector dimension must be specified. If 'sparse', the vector dimension should not be specified."
+        }
+      ]
+    },
+    {
+      "name": "indexes_create-index-for-model",
+      "description": "Create an index with integrated embedding. With this type of index, you provide source text, and Pinecone uses a [hosted embedding model](https://docs.pinecone.io/guides/index-data/create-an-index#embedding-models) to convert the text automatically during [upsert](https://docs.pinecone.io/reference/api/2026-04/data-plane/upsert_records) and [search](https://docs.pinecone.io/reference/api/2026-04/data-plane/search_records). For guidance and examples, see [Create an index](https://docs.pinecone.io/guides/index-data/create-an-index#integrated-embedding). Required: X-Pinecone-Api-Version (default: 2026-04), cloud, embed, name, region. Optional: deletion_protection (default: disabled), read_capacity, schema (plus 1 more). Returns the new IndexModel.",
+      "method": "POST",
+      "path": "/indexes/create-for-model",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "cloud",
+          "type": "string",
+          "location": "body",
+          "description": "The public cloud where you would like your index hosted. Possible values: `gcp`, `aws`, or `azure`.",
+          "required": true
+        },
+        {
+          "name": "deletion_protection",
+          "type": "string",
+          "location": "body",
+          "description": "Whether [deletion protection](http://docs."
+        },
+        {
+          "name": "embed-dimension",
+          "wire_name": "embed.dimension",
+          "type": "int",
+          "location": "body",
+          "description": "The dimension of embedding vectors produced for the index."
+        },
+        {
+          "name": "embed-field-map",
+          "wire_name": "embed.field_map",
+          "type": "object",
+          "location": "body",
+          "description": "Identifies the name of the text field from your document model that will be embedded.",
+          "required": true
+        },
+        {
+          "name": "embed-metric",
+          "wire_name": "embed.metric",
+          "type": "string",
+          "location": "body",
+          "description": "The distance metric to be used for similarity search. You can use 'euclidean', 'cosine', or 'dotproduct'. If not specified, the metric will be defaulted according to the model. Cannot be updated once set. Possible values: `cosine`, `euclidean`, or `dotproduct`."
+        },
+        {
+          "name": "embed-model",
+          "wire_name": "embed.model",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the embedding model to use for the index.",
+          "required": true
+        },
+        {
+          "name": "embed-read-parameters",
+          "wire_name": "embed.read_parameters",
+          "type": "object",
+          "location": "body",
+          "description": "The read parameters for the embedding model."
+        },
+        {
+          "name": "embed-write-parameters",
+          "wire_name": "embed.write_parameters",
+          "type": "object",
+          "location": "body",
+          "description": "The write parameters for the embedding model."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the index. Resource name must be 1-45 characters long, start and end with an...",
+          "required": true
+        },
+        {
+          "name": "read_capacity",
+          "type": "string",
+          "location": "body",
+          "description": "By default the index will be created with read capacity mode `OnDemand`. If you prefer to allocate dedicated read nodes for your workload, you must specify mode `Dedicated` and additional configurations for `node_type` and `scaling`."
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "body",
+          "description": "The region where you would like your index to be created.",
+          "required": true
+        },
+        {
+          "name": "schema-fields",
+          "wire_name": "schema.fields",
+          "type": "object",
+          "location": "body",
+          "description": "A map of metadata field names to their configuration. The field name must be a valid metadata field name. The field name must be unique.",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "object",
+          "location": "body",
+          "description": "Custom user tags added to an index."
+        }
+      ]
+    },
+    {
+      "name": "indexes_delete-index",
+      "description": "Delete an existing index. Required: X-Pinecone-Api-Version (default: 2026-04), index_name. Destructive.",
+      "method": "DELETE",
+      "path": "/indexes/{index_name}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "index_name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the index to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "indexes_describe-index",
+      "description": "Get a description of an index. Required: X-Pinecone-Api-Version (default: 2026-04), index_name. Returns the IndexModel.",
+      "method": "GET",
+      "path": "/indexes/{index_name}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "index_name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the index to be described.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "indexes_list",
+      "description": "List all indexes in a project. Required: X-Pinecone-Api-Version (default: 2026-04). Returns array of IndexModel.",
+      "method": "GET",
+      "path": "/indexes",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "indexes_backup-schedules_create",
+      "description": "Create a time-based backup schedule for the specified index. Required: X-Pinecone-Api-Version (default: 2026-04), index_name, name, retention, schedule. Returns the new BackupScheduleResponse.",
+      "method": "POST",
+      "path": "/indexes/{index_name}/backup-schedules",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "index_name",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index to attach the backup schedule to.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "User-defined name for the backup schedule.",
+          "required": true
+        },
+        {
+          "name": "retention-expire-after-days",
+          "wire_name": "retention.expire_after_days",
+          "type": "int",
+          "location": "body",
+          "description": "Number of days to retain each backup created by this schedule. The maximum allowed value is determined by your project configuration (`max_backup_retention_days`).",
+          "required": true
+        },
+        {
+          "name": "schedule-frequency",
+          "wire_name": "schedule.frequency",
+          "type": "string",
+          "location": "body",
+          "description": "How often the scheduled backup runs.",
+          "required": true
+        },
+        {
+          "name": "schedule-type",
+          "wire_name": "schedule.type",
+          "type": "string",
+          "location": "body",
+          "description": "Schedule category. Only time-based schedules are supported.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "indexes_backup-schedules_list",
+      "description": "Return backup schedules associated with the given index. Required: X-Pinecone-Api-Version (default: 2026-04), index_name. Optional: limit (default: 10), paginationToken. Returns array of BackupScheduleResponse.",
+      "method": "GET",
+      "path": "/indexes/{index_name}/backup-schedules",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "index_name",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index whose backup schedules are listed.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results to return per page."
+        },
+        {
+          "name": "paginationToken",
+          "type": "string",
+          "location": "query",
+          "description": "The token to use to retrieve the next page of results."
+        }
+      ]
+    },
+    {
+      "name": "indexes_backups_create",
+      "description": "Create a backup of an index. Required: X-Pinecone-Api-Version (default: 2026-04), index_name. Optional: description, name. Returns the new BackupModel.",
+      "method": "POST",
+      "path": "/indexes/{index_name}/backups",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "index_name",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index to backup",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "A description of the backup."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the backup."
+        }
+      ]
+    },
+    {
+      "name": "indexes_backups_list-index",
+      "description": "When `include_deleted` is false (or omitted), `index_name` must resolve to an active index in the project. If no active index by that name exists—including the case where only deleted indexes have used the name—the API returns **404**, not an empty list. When `include_deleted` is true, the API returns backups from every index in the project that has ever used this name (active and deleted). The `source_index_deleted_at` field is present only when the backup is from a deleted index. **404** is returned only when no index by that name has ever existed in the project (active or deleted). Required: X-Pinecone-Api-Version (default: 2026-04), index_name. Optional: include_deleted (default: false), limit (default: 10), paginationToken.",
+      "method": "GET",
+      "path": "/indexes/{index_name}/backups",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "index_name",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index whose backups are listed. When `include_deleted` is false or omitted, this must resolve to an active index in the project.",
+          "required": true
+        },
+        {
+          "name": "include_deleted",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, includes backups for every index incarnation with this name (active and deleted). When false or omitted, only the active index’s backups are included; **404** when no active index has that name."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results to return per page."
+        },
+        {
+          "name": "paginationToken",
+          "type": "string",
+          "location": "query",
+          "description": "The token to use to retrieve the next page of results."
+        }
+      ]
+    },
+    {
+      "name": "metrics_fetch-prometheus-targets",
+      "description": "Get endpoints for Prometheus scraping. Required: project_id. Returns array of MetricsFetchPrometheusTargetsItem.",
+      "method": "GET",
+      "path": "/prometheus/projects/{project_id}/metrics/discover",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "models_get",
+      "description": "Get a description of a model hosted by Pinecone. You can use hosted models as an integrated part of Pinecone operations or for standalone embedding and reranking. For more details, see [Vector embedding](https://docs.pinecone.io/guides/index-data/indexing-overview#vector-embedding) and [Rerank results](https://docs.pinecone.io/guides/search/rerank-results). Required: X-Pinecone-Api-Version (default: 2026-04), model_name. Returns the ModelInfo.",
+      "method": "GET",
+      "path": "/models/{model_name}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "model_name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the model to look up.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "models_list",
+      "description": "List the embedding and reranking models hosted by Pinecone. You can use hosted models as an integrated part of Pinecone operations or for standalone embedding and reranking. For more details, see [Vector embedding](https://docs.pinecone.io/guides/index-data/indexing-overview#vector-embedding) and [Rerank results](https://docs.pinecone.io/guides/search/rerank-results). Required: X-Pinecone-Api-Version (default: 2026-04). Optional: type, vector_type. Returns array of ModelInfo.",
+      "method": "GET",
+      "path": "/models",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter models by type ('embed' or 'rerank')."
+        },
+        {
+          "name": "vector_type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter embedding models by vector type ('dense' or 'sparse'). Only relevant when `type=embed`."
+        }
+      ]
+    },
+    {
+      "name": "namespaces_create",
+      "description": "Create a namespace in a serverless index. For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces). **Note:** This operation is not supported for pod-based indexes. Required: X-Pinecone-Api-Version (default: 2026-04), name. Optional: schema. Returns the new NamespaceDescription.",
+      "method": "POST",
+      "path": "/namespaces",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the namespace.",
+          "required": true
+        },
+        {
+          "name": "schema-fields",
+          "wire_name": "schema.fields",
+          "type": "object",
+          "location": "body",
+          "description": "A map of metadata field names to their configuration. The field name must be a valid metadata field name. The field name must be unique.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "namespaces_delete",
+      "description": "Delete a namespace from a serverless index. Deleting a namespace is irreversible; all data in the namespace is permanently deleted. For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces). **Note:** This operation is not supported for pod-based indexes. Required: X-Pinecone-Api-Version (default: 2026-04), namespace. Returns the DeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/namespaces/{namespace}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "namespace",
+          "type": "string",
+          "location": "path",
+          "description": "The namespace to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "namespaces_describe",
+      "description": "Describe a namespace in a serverless index, including the total number of vectors in the namespace. For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces). **Note:** This operation is not supported for pod-based indexes. Required: X-Pinecone-Api-Version (default: 2026-04), namespace. Returns the NamespaceDescription.",
+      "method": "GET",
+      "path": "/namespaces/{namespace}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "namespace",
+          "type": "string",
+          "location": "path",
+          "description": "The namespace to describe.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "namespaces_list-operation",
+      "description": "List all namespaces in a serverless index. Up to 100 namespaces are returned at a time by default, in sorted order (bitwise “C” collation). If the `limit` parameter is set, up to that number of namespaces are returned instead. Whenever there are additional namespaces to return, the response also includes a `pagination_token` that you can use to get the next batch of namespaces. When the response does not include a `pagination_token`, there are no more namespaces to return. For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces). **Note:** This operation is not supported for pod-based indexes. Required: X-Pinecone-Api-Version (default: 2026-04). Optional: limit, paginationToken, prefix. Returns array of NamespaceDescription.",
+      "method": "GET",
+      "path": "/namespaces",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max number namespaces to return per page."
+        },
+        {
+          "name": "paginationToken",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination token to continue a previous listing operation."
+        },
+        {
+          "name": "prefix",
+          "type": "string",
+          "location": "query",
+          "description": "Prefix of the namespaces to list. Acts as a filter to return only namespaces that start with this prefix."
+        }
+      ]
+    },
+    {
+      "name": "oauth_get-token",
+      "description": "Obtain an access token for a service account using the OAuth2 client credentials flow. An access token is needed to authorize requests to the Pinecone Admin API. The host domain for OAuth endpoints is `login.pinecone.io`. Required: X-Pinecone-Api-Version (default: 2026-04), audience, client_id, client_secret, grant_type. Returns the new TokenResponse. (public)",
+      "method": "POST",
+      "path": "/oauth/token",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "audience",
+          "type": "string",
+          "location": "body",
+          "description": "The audience for the token.",
+          "required": true
+        },
+        {
+          "name": "client_id",
+          "type": "string",
+          "location": "body",
+          "description": "The service account's client ID.",
+          "required": true
+        },
+        {
+          "name": "client_secret",
+          "type": "string",
+          "location": "body",
+          "description": "The service account's client secret.",
+          "required": true
+        },
+        {
+          "name": "grant_type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of grant to use.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "operations_describe",
+      "description": "Get the status of an operation. Required: X-Pinecone-Api-Version (default: 2026-04), assistant_name, operation_id. Returns the OperationModel.",
+      "method": "GET",
+      "path": "/operations/{assistant_name}/{operation_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "assistant_name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the assistant.",
+          "required": true
+        },
+        {
+          "name": "operation_id",
+          "type": "string",
+          "location": "path",
+          "description": "The identifier of the operation to be described.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "operations_list",
+      "description": "List all operations for an assistant. Returns operations that are in progress, as well as recently completed or failed operations. Both successful and failed operations are retained for 30 days after completion. Use the `operation_type` and `status` query parameters to filter results. Required: X-Pinecone-Api-Version (default: 2026-04), assistant_name. Optional: operation_type, status, limit (plus 1 more).",
+      "method": "GET",
+      "path": "/operations/{assistant_name}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "assistant_name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the assistant to list operations for.",
+          "required": true
+        },
+        {
+          "name": "operation_type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter operations by type."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter operations by status."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit on the number of operations to return."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination token to continue a previous listing operation."
+        }
+      ]
+    },
+    {
+      "name": "query_vectors",
+      "description": "Search a namespace using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores. For guidance, examples, and limits, see [Search](https://docs.pinecone.io/guides/search/search-overview). Required: X-Pinecone-Api-Version (default: 2026-04), topK. Optional: filter, id, includeMetadata (default: false) (plus 7 more). Returns the new QueryResponse.",
+      "method": "POST",
+      "path": "/query",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "filter",
+          "type": "object",
+          "location": "body",
+          "description": "The filter to apply. You can use vector metadata to limit your search. See [Understanding metadata](https://docs.pinecone.io/guides/index-data/indexing-overview#metadata)."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique ID of the vector to be used as a query vector. Each request can contain either the `vector` or `id` parameter."
+        },
+        {
+          "name": "includeMetadata",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates whether metadata is included in the response as well as the ids."
+        },
+        {
+          "name": "includeValues",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates whether vector values are included in the response. For on-demand indexes, setting this to `true` may increase latency, especially with higher `topK` values, because vector values are retrieved from object storage. Unless you need vector values, set this to `false` for better performance."
+        },
+        {
+          "name": "maxCandidates",
+          "type": "int",
+          "location": "body",
+          "description": "An optimization parameter that controls the maximum number of candidate dense vectors to rerank. Reranking computes exact distances to improve recall but increases query latency. Range: top_k – 100000. Keep the default for a balance of recall and latency. Increase this value if recall is too low, or decrease it to reduce latency at the cost of accuracy. This parameter is only supported for dedicated (DRN) dense indexes."
+        },
+        {
+          "name": "namespace",
+          "type": "string",
+          "location": "body",
+          "description": "The namespace to query."
+        },
+        {
+          "name": "queries",
+          "type": "array",
+          "location": "body",
+          "description": "DEPRECATED. Use `vector` or `id` instead."
+        },
+        {
+          "name": "scanFactor",
+          "type": "float",
+          "location": "body",
+          "description": "An optimization parameter for IVF dense indexes in dedicated read node indexes. It adjusts how much of the index is scanned to find vector candidates. Range: 0.5 – 4 (default). Keep the default (4.0) for the best search results. If query latency is too high, try lowering this value incrementally (minimum 0.5) to speed up the search at the cost of slightly lower accuracy. This parameter is only supported for dedicated (DRN) dense indexes."
+        },
+        {
+          "name": "sparse-vector-indices",
+          "wire_name": "sparseVector.indices",
+          "type": "array",
+          "location": "body",
+          "description": "The indices of the sparse data.",
+          "required": true
+        },
+        {
+          "name": "sparse-vector-values",
+          "wire_name": "sparseVector.values",
+          "type": "array",
+          "location": "body",
+          "description": "The corresponding values of the sparse data, which must be with the same length as the indices.",
+          "required": true
+        },
+        {
+          "name": "topK",
+          "type": "int",
+          "location": "body",
+          "description": "The number of results to return for each query.",
+          "required": true
+        },
+        {
+          "name": "vector",
+          "type": "array",
+          "location": "body",
+          "description": "The query vector. This should be the same length as the dimension of the index being queried. Each `query` request can contain only one of the parameters `id` or `vector`."
+        }
+      ]
+    },
+    {
+      "name": "records_search-namespace",
+      "description": "Search a namespace with a query text, query vector, or record ID and return the most similar records, along with their similarity scores. Optionally, rerank the initial results based on their relevance to the query. Searching with text is supported only for indexes with [integrated embedding](https://docs.pinecone.io/guides/index-data/indexing-overview#vector-embedding). Searching with a query vector or record ID is supported for all indexes. For guidance and examples, see [Search](https://docs.pinecone.io/guides/search/search-overview). Required: X-Pinecone-Api-Version (default: 2026-04), namespace, query. Optional: fields, rerank. Returns the new SearchRecordsResponse.",
+      "method": "POST",
+      "path": "/records/namespaces/{namespace}/search",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "namespace",
+          "type": "string",
+          "location": "path",
+          "description": "The namespace to search.",
+          "required": true
+        },
+        {
+          "name": "fields",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The fields to return in the search results. If not specified, the response will include all fields."
+        },
+        {
+          "name": "query-filter",
+          "wire_name": "query.filter",
+          "type": "object",
+          "location": "body",
+          "description": "The filter to apply. You can use vector metadata to limit your search. See [Understanding metadata](https://docs.pinecone.io/guides/index-data/indexing-overview#metadata)."
+        },
+        {
+          "name": "query-id",
+          "wire_name": "query.id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique ID of the vector to be used as a query vector."
+        },
+        {
+          "name": "query-inputs",
+          "wire_name": "query.inputs",
+          "type": "object",
+          "location": "body",
+          "description": "Inputs"
+        },
+        {
+          "name": "query-match-terms-strategy",
+          "wire_name": "query.match_terms.strategy",
+          "type": "string",
+          "location": "body",
+          "description": "The strategy for matching terms in the text. Currently, only `all` is supported, which means all specified terms must be present."
+        },
+        {
+          "name": "query-match-terms-terms",
+          "wire_name": "query.match_terms.terms",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of terms that must be present in the text of each search hit based on the specified strategy."
+        },
+        {
+          "name": "query-top-k",
+          "wire_name": "query.top_k",
+          "type": "int",
+          "location": "body",
+          "description": "The number of similar records to return.",
+          "required": true
+        },
+        {
+          "name": "query-vector-sparse-indices",
+          "wire_name": "query.vector.sparse_indices",
+          "type": "array",
+          "location": "body",
+          "description": "The sparse embedding indices."
+        },
+        {
+          "name": "query-vector-sparse-values",
+          "wire_name": "query.vector.sparse_values",
+          "type": "array",
+          "location": "body",
+          "description": "The sparse embedding values."
+        },
+        {
+          "name": "query-vector-values",
+          "wire_name": "query.vector.values",
+          "type": "array",
+          "location": "body",
+          "description": "This is the vector data included in the request."
+        },
+        {
+          "name": "rerank-model",
+          "wire_name": "rerank.model",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the [reranking model](https://docs.pinecone.io/guides/search/rerank-results#reranking-models) to use.",
+          "required": true
+        },
+        {
+          "name": "rerank-parameters",
+          "wire_name": "rerank.parameters",
+          "type": "object",
+          "location": "body",
+          "description": "Additional model-specific parameters. Refer to the [model guide](https://docs.pinecone.io/guides/search/rerank-results#reranking-models) for available model parameters."
+        },
+        {
+          "name": "rerank-query",
+          "wire_name": "rerank.query",
+          "type": "string",
+          "location": "body",
+          "description": "The query to rerank documents against. If a specific rerank query is specified, it overwrites the query input that was provided at the top level."
+        },
+        {
+          "name": "rerank-rank-fields",
+          "wire_name": "rerank.rank_fields",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The field(s) to consider for reranking. If not provided, the default is `['text']`. The number of fields supported is [model-specific](https://docs.pinecone.io/guides/search/rerank-results#reranking-models).",
+          "required": true
+        },
+        {
+          "name": "rerank-top-n",
+          "wire_name": "rerank.top_n",
+          "type": "int",
+          "location": "body",
+          "description": "The number of top results to return after reranking. Defaults to top_k."
+        }
+      ]
+    },
+    {
+      "name": "records_upsert-namespace",
+      "description": "Upsert text into a namespace. Pinecone converts the text to vectors automatically using the hosted embedding model associated with the index. Upserting text is supported only for [indexes with integrated embedding](https://docs.pinecone.io/guides/index-data/create-an-index#embedding-models). For guidance, examples, and limits, see [Upsert data](https://docs.pinecone.io/guides/index-data/upsert-data). Required: X-Pinecone-Api-Version (default: 2026-04), namespace.",
+      "method": "POST",
+      "path": "/records/namespaces/{namespace}/upsert",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "namespace",
+          "type": "string",
+          "location": "path",
+          "description": "The namespace to upsert records into.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rerank_rerank",
+      "description": "Rerank results according to their relevance to a query. For guidance and examples, see [Rerank results](https://docs.pinecone.io/guides/search/rerank-results). Required: X-Pinecone-Api-Version (default: 2026-04), documents, model, query. Optional: parameters, rank_fields (default: [text]), return_documents (default: true) (plus 1 more). Returns array of RankedDocument.",
+      "method": "POST",
+      "path": "/rerank",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "documents",
+          "type": "array",
+          "location": "body",
+          "description": "The documents to rerank.",
+          "required": true
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "The [model](https://docs.pinecone.io/guides/search/rerank-results#reranking-models) to use for reranking.",
+          "required": true
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "Additional model-specific parameters. Refer to the [model guide](https://docs.pinecone.io/guides/search/rerank-results#reranking-models) for available model parameters."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "The query to rerank documents against.",
+          "required": true
+        },
+        {
+          "name": "rank_fields",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The field(s) to consider for reranking. If not provided, the default is `['text']`. The number of fields supported is [model-specific](https://docs.pinecone.io/guides/search/rerank-results#reranking-models)."
+        },
+        {
+          "name": "return_documents",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to return the documents in the response."
+        },
+        {
+          "name": "top_n",
+          "type": "int",
+          "location": "body",
+          "description": "The number of results to return sorted by relevance. Defaults to the number of inputs."
+        }
+      ]
+    },
+    {
+      "name": "restore-jobs_describe",
+      "description": "Get a description of a restore job. Required: X-Pinecone-Api-Version (default: 2026-04), job_id. Returns the RestoreJobModel.",
+      "method": "GET",
+      "path": "/restore-jobs/{job_id}",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "job_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the restore job to describe.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "restore-jobs_list",
+      "description": "List all restore jobs for a project. Required: X-Pinecone-Api-Version (default: 2026-04). Optional: limit (default: 10), paginationToken. Returns array of RestoreJobModel.",
+      "method": "GET",
+      "path": "/restore-jobs",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results to return per page."
+        },
+        {
+          "name": "paginationToken",
+          "type": "string",
+          "location": "query",
+          "description": "The token to use to retrieve the next page of results."
+        }
+      ]
+    },
+    {
+      "name": "vectors_delete",
+      "description": "Delete records by id or by metadata from a single namespace. For guidance and examples, see [Delete data](https://docs.pinecone.io/guides/manage-data/delete-data). Required: X-Pinecone-Api-Version (default: 2026-04). Optional: deleteAll (default: false), filter, ids (plus 1 more). Returns the new DeleteResponse.",
+      "method": "POST",
+      "path": "/vectors/delete",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "deleteAll",
+          "type": "bool",
+          "location": "body",
+          "description": "This indicates that all vectors in the index namespace should be deleted."
+        },
+        {
+          "name": "filter",
+          "type": "object",
+          "location": "body",
+          "description": "If specified, the metadata filter here will be used to select the vectors to delete. This is mutually exclusive with specifying ids to delete in the ids param or using delete_all=True. See [Delete data](https://docs.pinecone.io/guides/manage-data/delete-data#delete-records-by-metadata)."
+        },
+        {
+          "name": "ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Vectors to delete."
+        },
+        {
+          "name": "namespace",
+          "type": "string",
+          "location": "body",
+          "description": "The namespace to delete records from, if applicable."
+        }
+      ]
+    },
+    {
+      "name": "vectors_fetch",
+      "description": "Look up and return records by ID from a single namespace. The returned records include the vector data and/or metadata. For on-demand indexes, since vector values are retrieved from object storage, fetch operations may have increased latency. If you only need metadata or IDs, consider using the query operation with `includeValues` set to `false` instead. For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/manage-data/fetch-data). Required: X-Pinecone-Api-Version (default: 2026-04), ids. Optional: namespace. Returns the FetchResponse.",
+      "method": "GET",
+      "path": "/vectors/fetch",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "query",
+          "description": "The vector IDs to fetch. Does not accept values containing spaces.",
+          "required": true
+        },
+        {
+          "name": "namespace",
+          "type": "string",
+          "location": "query",
+          "description": "The namespace to fetch records from. If not provided, the default namespace is used."
+        }
+      ]
+    },
+    {
+      "name": "vectors_fetch-by-metadata",
+      "description": "Look up and return records by metadata from a single namespace. The returned records include the vector data and metadata. For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/manage-data/fetch-data). Required: X-Pinecone-Api-Version (default: 2026-04). Optional: filter, limit (default: 100), namespace (plus 1 more). Returns the new FetchByMetadataResponse.",
+      "method": "POST",
+      "path": "/vectors/fetch_by_metadata",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "filter",
+          "type": "object",
+          "location": "body",
+          "description": "Metadata filter expression to select vectors. See [Understanding metadata](https://docs.pinecone.io/guides/index-data/indexing-overview#metadata)."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Max number of vectors to return."
+        },
+        {
+          "name": "namespace",
+          "type": "string",
+          "location": "body",
+          "description": "The namespace to fetch records from."
+        },
+        {
+          "name": "paginationToken",
+          "type": "string",
+          "location": "body",
+          "description": "Pagination token to continue a previous listing operation."
+        }
+      ]
+    },
+    {
+      "name": "vectors_list",
+      "description": "List the IDs of records in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix. Returns up to 100 IDs at a time by default in sorted order (bitwise 'C' collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return. For guidance and examples, see [List record IDs](https://docs.pinecone.io/guides/manage-data/list-record-ids). **Note:** `list` is supported only for serverless indexes. Required: X-Pinecone-Api-Version (default: 2026-04). Optional: prefix, limit (default: 100), paginationToken (plus 1 more).",
+      "method": "GET",
+      "path": "/vectors/list",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "prefix",
+          "type": "string",
+          "location": "query",
+          "description": "The vector IDs to fetch. Does not accept values containing spaces."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max number of IDs to return per page."
+        },
+        {
+          "name": "paginationToken",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination token to continue a previous listing operation."
+        },
+        {
+          "name": "namespace",
+          "type": "string",
+          "location": "query",
+          "description": "The namespace to list vectors from. If not provided, the default namespace is used."
+        }
+      ]
+    },
+    {
+      "name": "vectors_update",
+      "description": "Update records by ID or by metadata in a namespace. Updating by ID changes the vector and/or metadata of a single record. Updating by metadata changes metadata across multiple records using a metadata filter. If a vector value is included, it will overwrite the previous value. If `set_metadata` is included, only the specified metadata fields are modified, and if a specified metadata field does not exist, it is added. For guidance and examples, see [Update data](https://docs.pinecone.io/guides/manage-data/update-data). Required: X-Pinecone-Api-Version (default: 2026-04). Optional: dryRun (default: false), filter, id (plus 4 more). Returns the new UpdateResponse.",
+      "method": "POST",
+      "path": "/vectors/update",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "dryRun",
+          "type": "bool",
+          "location": "body",
+          "description": "If `true`, return the number of records that match the `filter`, but do not execute the update. Default is `false`."
+        },
+        {
+          "name": "filter",
+          "type": "object",
+          "location": "body",
+          "description": "A metadata filter expression. When updating metadata across records in a namespace, the update is applied to all records that match the filter. See [Understanding metadata](https://docs.pinecone.io/guides/index-data/indexing-overview#metadata)."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Vector's unique id."
+        },
+        {
+          "name": "namespace",
+          "type": "string",
+          "location": "body",
+          "description": "The namespace containing the record to update."
+        },
+        {
+          "name": "setMetadata",
+          "type": "object",
+          "location": "body",
+          "description": "Metadata to set for the record."
+        },
+        {
+          "name": "sparse-values-indices",
+          "wire_name": "sparseValues.indices",
+          "type": "array",
+          "location": "body",
+          "description": "The indices of the sparse data.",
+          "required": true
+        },
+        {
+          "name": "sparse-values-values",
+          "wire_name": "sparseValues.values",
+          "type": "array",
+          "location": "body",
+          "description": "The corresponding values of the sparse data, which must be with the same length as the indices.",
+          "required": true
+        },
+        {
+          "name": "values",
+          "type": "array",
+          "location": "body",
+          "description": "Vector data."
+        }
+      ]
+    },
+    {
+      "name": "vectors_upsert",
+      "description": "Upsert records into a namespace. If a new value is upserted for an existing record ID, it will overwrite the previous value. For guidance, examples, and limits, see [Upsert data](https://docs.pinecone.io/guides/index-data/upsert-data). Required: X-Pinecone-Api-Version (default: 2026-04), vectors. Optional: namespace. Returns the new UpsertResponse.",
+      "method": "POST",
+      "path": "/vectors/upsert",
+      "params": [
+        {
+          "name": "X-Pinecone-Api-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Required date-based version header",
+          "required": true
+        },
+        {
+          "name": "namespace",
+          "type": "string",
+          "location": "body",
+          "description": "The namespace where you upsert records."
+        },
+        {
+          "name": "vectors",
+          "type": "array",
+          "location": "body",
+          "description": "An array containing the vectors to upsert. Recommended batch limit is up to 1000 vectors.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

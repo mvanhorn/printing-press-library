@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "spotify-oauth2-env-bearer-fallback-emission",
+  "applied_at": "2026-07-07",
+  "base_run_id": "20260707-145126",
+  "base_printing_press_version": "4.27.1",
+  "summary": "config.go and cliutil/credentials_test.go carry the OAuth2 direct-bearer env fallback emission ahead of the generator PR merging.",
+  "reason": "Pristine 4.27.1 emits a config/test pair that contradict each other for OAuth2 authcode specs (generated CLI fails its own credential test; directly-held SPOTIFY_OAUTH_2_0 bearer ignored). These two files were re-emitted from the pending generator fix. Once that PR merges, the next reprint absorbs this and the entry can be dropped.",
+  "files": [
+    "internal/config/config.go",
+    "internal/cliutil/credentials_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cliutil passes; AuthHeader honors SPOTIFY_OAUTH_2_0 when no minted token exists.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/3431"
+}

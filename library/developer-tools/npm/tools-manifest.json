@@ -1,0 +1,104 @@
+{
+  "api_name": "npm",
+  "base_url": "https://registry.npmjs.org",
+  "description": "Research npm packages by metadata, downloads, maintainers, freshness, and dependency risk.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none",
+    "env_vars": [],
+    "env_var_specs": []
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "downloads_get",
+      "description": "Gets the downloads per day for a given period for all packages. Required: period. Returns the RegistryDownloads.",
+      "method": "GET",
+      "path": "/downloads/point/{period}",
+      "params": [
+        {
+          "name": "period",
+          "type": "string",
+          "location": "path",
+          "description": "Period",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "downloads_get-point",
+      "description": "Gets the downloads per day for a given period for a specific package. Required: period, packageName. Returns the PackageDownloads.",
+      "method": "GET",
+      "path": "/downloads/point/{period}/{packageName}",
+      "params": [
+        {
+          "name": "period",
+          "type": "string",
+          "location": "path",
+          "description": "Period",
+          "required": true
+        },
+        {
+          "name": "packageName",
+          "type": "string",
+          "location": "path",
+          "description": "Package name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "downloads_get-range",
+      "description": "Gets the downloads per day for a given period for all packages. Required: period. Returns the DailyRegistryDownloads.",
+      "method": "GET",
+      "path": "/downloads/range/{period}",
+      "params": [
+        {
+          "name": "period",
+          "type": "string",
+          "location": "path",
+          "description": "Period",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "downloads_get-range-2",
+      "description": "Gets the downloads per day for a given period for a specific package. Required: period, packageName. Returns the DailyPackageDownloads.",
+      "method": "GET",
+      "path": "/downloads/range/{period}/{packageName}",
+      "params": [
+        {
+          "name": "period",
+          "type": "string",
+          "location": "path",
+          "description": "Period",
+          "required": true
+        },
+        {
+          "name": "packageName",
+          "type": "string",
+          "location": "path",
+          "description": "Package name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "versions_last-week_get",
+      "description": "Download count for specific versions of a package. It's only available for the previous 7 days. Note: for scoped packages, the `/` needs to be percent encoded. (`@slack/client` -\u003e `@slack%2Fclient`). Required: packageName. Returns the PackageVersionsDownloadCount.",
+      "method": "GET",
+      "path": "/versions/{packageName}/last-week",
+      "params": [
+        {
+          "name": "packageName",
+          "type": "string",
+          "location": "path",
+          "description": "Package name",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

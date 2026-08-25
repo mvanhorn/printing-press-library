@@ -1,0 +1,24 @@
+{
+  "run_id": "20260821-194418",
+  "cli": "fec-pp-cli",
+  "accepted_at": "2026-08-21",
+  "phase5_mode": "full-dogfood (mechanical matrix over every command family + error paths)",
+  "matrix_results": { "pass": 35, "fail": 0 },
+  "shipcheck": { "verdict": "PASS", "legs": "7/7 (verify, validate-narrative, dogfood, workflow-verify, apify-audit, verify-skill, scorecard)" },
+  "live_probes": {
+    "candidates_list_search": "200 live JSON",
+    "schedules_schedule_a": "200 live JSON (committee+period filtered)",
+    "totals_get": "200 live JSON",
+    "elections_search": "200 live JSON",
+    "legal_search_murs": "200 live JSON"
+  },
+  "known_gaps": [
+    "govulncheck local run reports stdlib vulns fixed in go1.26.6; CI toolchain is current, cite CI result in PR",
+    "schedule_a without committee/period filter hits upstream 504; CLI surfaces clear retry-then-error message (upstream behavior, not a CLI defect)"
+  ],
+  "evidence": [
+    ".manuscripts/20260821-194418/proofs/dogfood-matrix-output.txt",
+    ".manuscripts/20260821-194418/proofs/reachability.json",
+    "dogfood-results.json (CLI root)"
+  ]
+}

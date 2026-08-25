@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "psx-watchlist-leaf-rename",
+  "applied_at": "2026-08-20",
+  "base_run_id": "20260819-222022-b3c3479a",
+  "base_printing_press_version": "4.31.0",
+  "summary": "Renamed watchlist subcommands add/show/remove to track/prices/untrack.",
+  "reason": "verify-skill resolves doc-referenced command paths by leaf token, ignoring the parent group, so 'watchlist show' resolved to the generated 'profile show <name>' and 'watchlist add' to platform_client's 'add <name>'. That produced three false positional-args failures that blocked publish validate and could not be cleared from the CLI side while those leaf names were in use. The new names are also less ambiguous in a flat MCP tool list.",
+  "files": ["internal/cli/watchlist.go", "internal/cli/actions.go", "internal/cli/diff.go", "internal/cli/psx_feeds.go", "README.md", "SKILL.md"],
+  "validated_outcome": "verify-skill: all checks passed; publish validate passed:true; live dogfood 217/217.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/4040"
+}

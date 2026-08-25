@@ -1,9 +1,9 @@
-.PHONY: all build test lint install clean build-mcp install-mcp build-all
+.PHONY: build test lint install clean
 
-all: build-all
+BIN_EXT := $(if $(filter windows,$(shell go env GOOS)),.exe,)
 
 build:
-	go build -o bin/everbee-pp-cli ./cmd/everbee-pp-cli
+	go build -o bin/everbee-pp-cli$(BIN_EXT) ./cmd/everbee-pp-cli
 
 test:
 	go test ./...
@@ -18,7 +18,7 @@ clean:
 	rm -rf bin/
 
 build-mcp:
-	go build -o bin/everbee-pp-mcp ./cmd/everbee-pp-mcp
+	go build -o bin/everbee-pp-mcp$(BIN_EXT) ./cmd/everbee-pp-mcp
 
 install-mcp:
 	go install ./cmd/everbee-pp-mcp

@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "slack-pp-mcp",
+  "display_name": "Slack",
+  "version": "4.29.0",
+  "description": "Every Slack read your token can make, mirrored to local SQLite so your history outlives Slack's own retention wall.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/slack-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/slack-pp-mcp",
+      "args": [],
+      "env": {
+        "SLACK_BOT_TOKEN": "${user_config.slack_bot_token}",
+        "SLACK_USER_TOKEN": "${user_config.slack_user_token}"
+      }
+    }
+  },
+  "user_config": {
+    "slack_bot_token": {
+      "type": "string",
+      "title": "SLACK_BOT_TOKEN",
+      "description": "Sets SLACK_BOT_TOKEN for the Slack MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "slack_user_token": {
+      "type": "string",
+      "title": "SLACK_USER_TOKEN",
+      "description": "Sets SLACK_USER_TOKEN for the Slack MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

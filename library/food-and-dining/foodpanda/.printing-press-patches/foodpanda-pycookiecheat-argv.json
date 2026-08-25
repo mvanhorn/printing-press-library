@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "foodpanda-pycookiecheat-argv",
+  "applied_at": "2026-08-20",
+  "base_run_id": "20260808-044349-820894b7",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Pass the cookie URL and profile path to pycookiecheat as argv instead of interpolating them into the python -c program.",
+  "reason": "Chrome profile discovery accepts any directory named 'Profile *' under the data dir, and the resulting path was only slash-normalized before being embedded in a double-quoted Python string literal. A profile name containing a quote, backslash or newline could close the literal and execute arbitrary Python during 'auth login --chrome'. argv has no quoting context, so the injection class is removed rather than escaped around.",
+  "files": [
+    "internal/cli/auth.go"
+  ],
+  "validated_outcome": "go build, go vet and go test ./... all clean; Greptile P1 'Unescaped profile path executes Python' addressed.",
+  "upstream_issue": null
+}

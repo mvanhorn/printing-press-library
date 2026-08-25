@@ -1,0 +1,107 @@
+name: giustizia-amministrativa
+description: "CLI per la ricerca pubblica di Decisioni e Pareri della Giustizia Amministrativa italiana (TAR, Consiglio di Stato, CGARS): sentenze, ordinanze, decreti e pareri, con testo integrale in Markdown."
+version: "0.1.0"
+base_url: "https://www.giustizia-amministrativa.it"
+spec_source: sniffed
+http_transport: standard
+health_check_path: "/web/guest/dcsnprr"
+
+required_headers:
+  - name: User-Agent
+    value: "giustizia-amministrativa-pp-cli/0.1.0 (+https://github.com/aborruso)"
+  - name: Accept-Language
+    value: "it-IT,it;q=0.9"
+
+auth:
+  type: none
+  header: ""
+  format: ""
+  env_vars: []
+
+config:
+  format: toml
+  path: "~/.config/giustizia-amministrativa-pp-cli/config.toml"
+
+resources:
+  provvedimenti:
+    description: "Provvedimenti (sentenze, ordinanze, decreti, pareri) di TAR, Consiglio di Stato e CGARS."
+    endpoints:
+      cerca:
+        method: GET
+        path: "/web/guest/dcsnprr"
+        description: "Cerca provvedimenti per testo, tipo, sede, anno, numero o NRG."
+        params:
+          - name: testo
+            type: string
+            description: "Ricerca full-text libera."
+          - name: tipo
+            type: string
+            description: "Tipo: sentenza, ordinanza, decreto, parere, plenaria, generale."
+          - name: sede
+            type: string
+            description: "Sede (es. roma, milano, consiglio-di-stato)."
+          - name: anno
+            type: int
+            description: "Anno del provvedimento."
+          - name: numero
+            type: int
+            description: "Numero del provvedimento."
+          - name: nrg
+            type: int
+            description: "Numero di registro generale (ricorso)."
+          - name: limit
+            type: int
+            default: 10
+            description: "Max risultati da scaricare."
+        response:
+          type: array
+          item: Provvedimento
+        response_format: html
+      get:
+        method: GET
+        path: "/visualizzah2/"
+        description: "Scarica il testo integrale di un provvedimento."
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "ECLI o idprovv del provvedimento (da una ricerca)."
+        response:
+          type: object
+          item: Provvedimento
+        response_format: html
+
+types:
+  Provvedimento:
+    fields:
+      - name: idprovv
+        type: string
+      - name: ecli
+        type: string
+      - name: tipo
+        type: string
+      - name: sede
+        type: string
+      - name: schema
+        type: string
+      - name: sezione
+        type: string
+      - name: numero
+        type: int
+      - name: anno
+        type: int
+      - name: nrg
+        type: string
+      - name: data_deposito
+        type: string
+      - name: snippet
+        type: string
+      - name: formato
+        type: string
+      - name: nome_file
+        type: string
+      - name: url
+        type: string
+      - name: full_text
+        type: string

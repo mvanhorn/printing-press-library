@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/youtube/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -31,13 +32,12 @@ type FeedbackEntry struct {
 const feedbackMaxTextLen = 4096
 
 func feedbackFilePath() (string, error) {
-	home, err := os.UserHomeDir()
+	dir, err := cliutil.DataDir()
 	if err != nil {
-		return "", fmt.Errorf("resolving home dir: %w", err)
+		return "", err
 	}
-	dir := filepath.Join(home, ".youtube-pp-cli")
 	if err := os.MkdirAll(dir, 0o700); err != nil {
-		return "", fmt.Errorf("creating state dir: %w", err)
+		return "", fmt.Errorf("creating feedback data dir: %w", err)
 	}
 	return filepath.Join(dir, "feedback.jsonl"), nil
 }
@@ -98,9 +98,10 @@ func newFeedbackCmd(flags *rootFlags) *cobra.Command {
 	var useStdin bool
 	var send bool
 	cmd := &cobra.Command{
-		Use:   "feedback [text]",
-		Short: "Record feedback about this CLI (local by default; upstream opt-in)",
-		Long: `Feedback is captured locally first at ~/.youtube-pp-cli/feedback.jsonl.
+		Use:     "feedback [text]",
+		Short:   "Record feedback about this CLI (local by default; upstream opt-in)",
+		Example: "  youtube-pp-cli feedback \"great tool\"\n  youtube-pp-cli feedback list --limit 5",
+		Long: `Feedback is captured locally first in the CLI data directory's feedback.jsonl.
 When ` + "`YOUTUBE_FEEDBACK_ENDPOINT`" + ` is set and either --send is
 passed or ` + "`YOUTUBE_FEEDBACK_AUTO_SEND=true`" + `, the entry is
 POSTed as JSON after the local write.
@@ -184,6 +185,9 @@ func newFeedbackListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List recent feedback entries",
+		Annotations: map[string]string{
+			"mcp:read-only": "true",
+		},
 		Example: `  youtube-pp-cli feedback list
   youtube-pp-cli feedback list --limit 5
   youtube-pp-cli feedback list --json`,

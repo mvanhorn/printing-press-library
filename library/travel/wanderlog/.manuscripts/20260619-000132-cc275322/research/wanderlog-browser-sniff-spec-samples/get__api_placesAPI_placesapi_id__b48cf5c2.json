@@ -1,0 +1,169 @@
+{
+  "endpoint": "GET /api/placesAPI/{placesapi_id}",
+  "method": "GET",
+  "raw_url": "https://wanderlog.com/api/placesAPI/getPlaceDetailsAndCardData?placeId=ChIJtTeDfh9w5kcRJEWRKN1Yy6I&language=en",
+  "status": 200,
+  "request_headers": {
+    "accept": "application/json,text/plain,*/*",
+    "referer": "https://wanderlog.com/",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+  },
+  "request_body": null,
+  "response_headers": {
+    "connection": "keep-alive",
+    "content-encoding": "gzip",
+    "content-language": "en",
+    "content-type": "application/json; charset=utf-8",
+    "date": "Fri, 19 Jun 2026 01:58:14 GMT",
+    "etag": "W/\"80f-cVKZyqNCnNb1eL1HNFfJAjs7PmE\"",
+    "server": "nginx/1.24.0 (Ubuntu)",
+    "transfer-encoding": "chunked",
+    "x-powered-by": "Express"
+  },
+  "response_body": {
+    "data": {
+      "cardData": {
+        "assistantQuestions": [],
+        "bookingInformation": null,
+        "menuItems": [],
+        "name": "Eiffel Tower",
+        "placeId": "ChIJtTeDfh9w5kcRJEWRKN1Yy6I",
+        "reasonsToVisit": [],
+        "reviewCategories": [],
+        "reviews": [],
+        "reviewsSummary": null,
+        "sources": [],
+        "tips": []
+      },
+      "details": {
+        "address_components": [
+          {
+            "long_name": "Paris",
+            "short_name": "Paris",
+            "types": [
+              "locality",
+              "political"
+            ]
+          },
+          {
+            "long_name": "France",
+            "short_name": "FR",
+            "types": [
+              "country",
+              "political"
+            ]
+          }
+        ],
+        "business_status": "OPERATIONAL",
+        "formatted_address": "Av. Gustave Eiffel, 75007 Paris, France",
+        "geometry": {
+          "location": {
+            "lat": 48.858370099999995,
+            "lng": 2.2944812999999997
+          }
+        },
+        "name": "Eiffel Tower",
+        "opening_hours": {
+          "periods": [
+            {
+              "close": {
+                "day": 0,
+                "time": "2300"
+              },
+              "open": {
+                "day": 0,
+                "time": "0930"
+              }
+            },
+            {
+              "close": {
+                "day": 1,
+                "time": "2300"
+              },
+              "open": {
+                "day": 1,
+                "time": "0930"
+              }
+            },
+            {
+              "close": {
+                "day": 2,
+                "time": "2300"
+              },
+              "open": {
+                "day": 2,
+                "time": "0930"
+              }
+            },
+            {
+              "close": {
+                "day": 3,
+                "time": "2300"
+              },
+              "open": {
+                "day": 3,
+                "time": "0930"
+              }
+            },
+            {
+              "close": {
+                "day": 4,
+                "time": "2300"
+              },
+              "open": {
+                "day": 4,
+                "time": "0930"
+              }
+            },
+            {
+              "close": {
+                "day": 5,
+                "time": "2300"
+              },
+              "open": {
+                "day": 5,
+                "time": "0930"
+              }
+            },
+            {
+              "close": {
+                "day": 6,
+                "time": "2300"
+              },
+              "open": {
+                "day": 6,
+                "time": "0930"
+              }
+            }
+          ],
+          "weekday_text": [
+            "Monday: 9:30 AM–11 PM",
+            "Tuesday: 9:30 AM–11 PM",
+            "Wednesday: 9:30 AM–11 PM",
+            "Thursday: 9:30 AM–11 PM",
+            "Friday: 9:30 AM–11 PM",
+            "Saturday: 9:30 AM–11 PM",
+            "Sunday: 9:30 AM–11 PM"
+          ]
+        },
+        "photo_urls": [
+          "https://lh3.googleusercontent.com/gps-cs-s/APNQkAHxPrb7ujQJz-lrLCwZdv4mONUfcX2khpjnPKs1nGHuk81ogeyNxWlAxUjd88TKuGfCZYgJ4vTeGUEG1RLBceA9_sszXc_1AB2z_02lE8WvkF83DPfWrXJ5u4cRviTlbffKyJkOUg",
+          "https://lh3.googleusercontent.com/gps-cs-s/APNQkAHHX02EKphfoBHYI06vdcrGjHDvoO_e2vqrFfCu8lMVyuw_QNI-kOZCrin4WcGL-d7cIijN7wys5x32KnYrATxhCwMFzbGgPOv0t9YgpV9i2hspDxtsrrnR-IfwRdduvLgfkrXzDo-DQ3h2"
+        ],
+        "place_id": "ChIJLU7jZClu5kcR4PcOOO6p3I0",
+        "rating": 4.7,
+        "types": [
+          "historical_landmark",
+          "monument",
+          "tourist_attraction"
+        ],
+        "url": "https://maps.google.com/?ftid=0x47e66e2964e34e2d:0x8ddca9ee380ef7e0",
+        "user_ratings_total": 490874,
+        "vicinity": "Av. Gustave Eiffel, Paris",
+        "website": "https://www.toureiffel.paris/fr"
+      }
+    },
+    "success": true
+  },
+  "response_body_known": true
+}

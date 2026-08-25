@@ -1,0 +1,273 @@
+{
+  "api_name": "stac",
+  "base_url": "https://earth-search.aws.element84.com/v1",
+  "description": "The first Go single-binary STAC CLI: every search filter the Python tools have, plus an offline cache, scene ranking, coverage, and asset resolution no other STAC tool offers.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "aggregate_get",
+      "description": "Executes one or more aggregations (e.g. cloud_cover_frequency, datetime_frequency) over the items matching the given filters. Returns frequency-distribution buckets or scalar values. Optional: collections, bbox, datetime (plus 1 more).",
+      "method": "GET",
+      "path": "/aggregate",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "collections",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated collection ids to aggregate over"
+        },
+        {
+          "name": "bbox",
+          "type": "string",
+          "location": "query",
+          "description": "Bounding box filter as west,south,east,north"
+        },
+        {
+          "name": "datetime",
+          "type": "string",
+          "location": "query",
+          "description": "Datetime or interval filter, e.g. 2024-06-01/2024-06-30"
+        },
+        {
+          "name": "aggregations",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated aggregation names, e.g. cloud_cover_frequency,datetime_frequency"
+        }
+      ]
+    },
+    {
+      "name": "aggregations_get",
+      "description": "Lists the aggregations available across the catalog (e.g. total_count, datetime_frequency, cloud_cover_frequency). Returns the AggregationsGetResponse.",
+      "method": "GET",
+      "path": "/aggregations",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "aggregations_get-collection",
+      "description": "Lists the aggregations available for a single collection. Required: collectionId. Returns the AggregationsGetCollectionResponse.",
+      "method": "GET",
+      "path": "/collections/{collectionId}/aggregations",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "collectionId",
+          "type": "string",
+          "location": "path",
+          "description": "Local identifier of a collection, e.g. sentinel-2-l2a",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_describe",
+      "description": "A single Feature Collection for the given if `collectionId`. Request this endpoint to get a full list of metadata for the Feature Collection. Required: collectionId. Returns the Collection.",
+      "method": "GET",
+      "path": "/collections/{collectionId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "collectionId",
+          "type": "string",
+          "location": "path",
+          "description": "local identifier of a collection",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_get",
+      "description": "A body of Feature Collections that belong or are used together with additional links. Request may not return the full set of metadata per Feature Collection. Returns the Collections.",
+      "method": "GET",
+      "path": "/collections",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "collections_items_get-feature",
+      "description": "Fetch the feature with id `featureId` in the feature collection with id `collectionId`. Required: collectionId, featureId. Returns the Item.",
+      "method": "GET",
+      "path": "/collections/{collectionId}/items/{featureId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "collectionId",
+          "type": "string",
+          "location": "path",
+          "description": "local identifier of a collection",
+          "required": true
+        },
+        {
+          "name": "featureId",
+          "type": "string",
+          "location": "path",
+          "description": "local identifier of a feature",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_items_get-features",
+      "description": "Fetch features of the feature collection with id `collectionId`. Every feature in a dataset belongs to a collection. A dataset may consist of multiple feature collections. A feature collection is often a collection of features of a similar type, based on a common schema. Required: collectionId. Optional: limit (default: 10), bbox, datetime. Returns the FeatureCollectionGeoJson.",
+      "method": "GET",
+      "path": "/collections/{collectionId}/items",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "collectionId",
+          "type": "string",
+          "location": "path",
+          "description": "local identifier of a collection",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The optional limit parameter recommends the number of items that should be present in the response document. Only items are counted that are on the first level of the collection in the response document. Nested objects contained within the explicitly requested items must not be counted. Minimum = 1. Maximum = 10000. Default = 10."
+        },
+        {
+          "name": "bbox",
+          "type": "array",
+          "location": "query",
+          "description": "Only features that have a geometry that intersects the bounding box are selected. The bounding box is provided as four or six numbers, depending on whether the coordinate reference system includes a vertical axis (height or depth): * Lower left corner, coordinate axis 1 * Lower left corner, coordinate axis 2 * Minimum value, coordinate axis 3 (optional) * Upper right corner, coordinate axis 1 * Upper right corner, coordinate axis 2 * Maximum value, coordinate axis 3 (optional) The coordinate reference system of the values is WGS 84 longitude/latitude (http://www.opengis.net/def/crs/OGC/1.3/CRS84). For WGS 84 longitude/latitude the values are in most cases the sequence of minimum longitude, minimum latitude, maximum longitude and maximum latitude. However, in cases where the box spans the antimeridian the first value (west-most box edge) is larger than the third value (east-most box edge). If the vertical axis is included, the third and the sixth number are the bottom and the top of the 3-dimensional bounding box. If a feature has multiple spatial geometry properties, it is the decision of the server whether only a single spatial geometry property is used to determine the extent or all relevant geometries. Example: The bounding box of the New Zealand Exclusive Economic Zone in WGS 84 (from 160.6°E to 170°W and from 55.95°S to 25.89°S) would be represented in JSON as `[160.6, -55.95, -170, -25.89]` and in a query as `bbox=160.6,-55.95,-170,-25.89`."
+        },
+        {
+          "name": "datetime",
+          "type": "string",
+          "location": "query",
+          "description": "Either a date-time or an interval, open or closed."
+        }
+      ]
+    },
+    {
+      "name": "conformance_get-declaration",
+      "description": "A list of all conformance classes specified in a standard that the server conforms to. Returns array of string.",
+      "method": "GET",
+      "path": "/conformance",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "items_get-search",
+      "description": "Retrieve Items matching filters. Intended as a shorthand API for simple queries. This method is required to implement. If this endpoint is implemented on a server, it is required to add a link referring to this endpoint with `rel` set to `search` to the `links` array in `GET /`. As `GET` is the default method, the `method` may not be set explicitly in the link. Optional: bbox, intersects, datetime (plus 3 more). Returns the ItemCollection.",
+      "method": "GET",
+      "path": "/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "bbox",
+          "type": "array",
+          "location": "query",
+          "description": "Only features that have a geometry that intersects the bounding box are selected. The bounding box is provided as four or six numbers, depending on whether the coordinate reference system includes a vertical axis (height or depth): * Lower left corner, coordinate axis 1 * Lower left corner, coordinate axis 2 * Minimum value, coordinate axis 3 (optional) * Upper right corner, coordinate axis 1 * Upper right corner, coordinate axis 2 * Maximum value, coordinate axis 3 (optional) The coordinate reference system of the values is WGS 84 longitude/latitude (http://www.opengis.net/def/crs/OGC/1.3/CRS84). For WGS 84 longitude/latitude the values are in most cases the sequence of minimum longitude, minimum latitude, maximum longitude and maximum latitude. However, in cases where the box spans the antimeridian the first value (west-most box edge) is larger than the third value (east-most box edge). If the vertical axis is included, the third and the sixth number are the bottom and the top of the 3-dimensional bounding box. If a feature has multiple spatial geometry properties, it is the decision of the server whether only a single spatial geometry property is used to determine the extent or all relevant geometries. Example: The bounding box of the New Zealand Exclusive Economic Zone in WGS 84 (from 160.6°E to 170°W and from 55.95°S to 25.89°S) would be represented in JSON as `[160.6, -55.95, -170, -25.89]` and in a query as `bbox=160.6,-55.95,-170,-25.89`."
+        },
+        {
+          "name": "intersects",
+          "type": "string",
+          "location": "query",
+          "description": "The optional intersects parameter filters the result Items in the same was as bbox, only with a GeoJSON Geometry rather than a bbox."
+        },
+        {
+          "name": "datetime",
+          "type": "string",
+          "location": "query",
+          "description": "Either a date-time or an interval, open or closed."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The optional limit parameter recommends the number of items that should be present in the response document. Only items are counted that are on the first level of the collection in the response document. Nested objects contained within the explicitly requested items must not be counted. Minimum = 1. Maximum = 10000. Default = 10."
+        },
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "query",
+          "description": "Array of Item ids to return."
+        },
+        {
+          "name": "collections",
+          "type": "array",
+          "location": "query",
+          "description": "Array of Collection IDs to include in the search for items. Only Item objects in one of the provided collections will be searched"
+        }
+      ]
+    },
+    {
+      "name": "items_post-search",
+      "description": "Retrieve items matching filters. Intended as the standard, full-featured query API. This method is optional to implement, but recommended. If this endpoint is implemented on a server, it is required to add a link referring to this endpoint with `rel` set to `search` and `method` set to `POST` to the `links` array in `GET /`. Optional: bbox, collections, datetime (plus 3 more). Returns the new ItemCollection.",
+      "method": "POST",
+      "path": "/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "bbox",
+          "type": "array",
+          "location": "body",
+          "description": "Only features that have a geometry that intersects the bounding box are selected. The bounding box is provided as four or six numbers, depending on whether the coordinate reference system includes a vertical axis (elevation or depth): * Lower left corner, coordinate axis 1 * Lower left corner, coordinate axis 2 * Lower left corner, coordinate axis 3 (optional) * Upper right corner, coordinate axis 1 * Upper right corner, coordinate axis 2 * Upper right corner, coordinate axis 3 (optional) The coordinate reference system of the values is WGS84 longitude/latitude (http://www.opengis.net/def/crs/OGC/1.3/CRS84). For WGS84 longitude/latitude the values are in most cases the sequence of minimum longitude, minimum latitude, maximum longitude and maximum latitude. However, in cases where the box spans the antimeridian the first value (west-most box edge) is larger than the third value (east-most box edge). If a feature has multiple spatial geometry properties, it is the decision of the server whether only a single spatial geometry property is used to determine the extent or all relevant geometries. Example: The bounding box of the New Zealand Exclusive Economic Zone in WGS 84 (from 160.6°E to 170°W and from 55.95°S to 25.89°S) would be represented in JSON as `[160.6, -55.95, -170, -25.89]` and in a query as `bbox=160.6,-55.95,-170,-25.89`."
+        },
+        {
+          "name": "collections",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of Collection IDs to include in the search for items. Only Item objects in one of the provided collections will be searched."
+        },
+        {
+          "name": "datetime",
+          "type": "string",
+          "location": "body",
+          "description": "Either a date-time or an interval, open or closed."
+        },
+        {
+          "name": "ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of Item ids to return."
+        },
+        {
+          "name": "intersects",
+          "type": "string",
+          "location": "body",
+          "description": "Intersects"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "The optional limit parameter limits the number of items that are presented in the response document. If the limit parameter value is greater than advertised limit maximum, the server must return the maximum possible number of items, rather than responding with an error. Only items are counted that are on the first level of the collection in the response document. Nested objects contained within the explicitly requested items must not be counted. Minimum = 1. Maximum = 10000. Default = 10."
+        }
+      ]
+    },
+    {
+      "name": "queryables_get",
+      "description": "Returns the set of queryable properties (JSON Schema) usable in query/filter across the whole catalog.",
+      "method": "GET",
+      "path": "/queryables",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "queryables_get-collection",
+      "description": "Returns the set of queryable properties (JSON Schema) for a single collection, usable in query/filter and sortby. Required: collectionId.",
+      "method": "GET",
+      "path": "/collections/{collectionId}/queryables",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "collectionId",
+          "type": "string",
+          "location": "path",
+          "description": "Local identifier of a collection, e.g. sentinel-2-l2a",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

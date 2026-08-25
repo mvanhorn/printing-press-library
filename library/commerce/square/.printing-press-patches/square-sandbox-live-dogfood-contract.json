@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "id": "square-sandbox-live-dogfood-contract",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260804-231253-e3946f62",
+  "base_printing_press_version": "4.30.0",
+  "summary": "Live dogfood must use safe realistic inputs, treat empty lookup results honestly, and distinguish optional Square product capabilities from the core API surface.",
+  "reason": "Square rejects empty search bodies, some lookups validly return empty success, and Sandbox accounts can lack appointments, loyalty, channels, online checkout, or reporting. Without command-level dogfood metadata, the release gate reports false CLI defects or probes unavailable account capabilities.",
+  "files": [
+    "internal/cli/bookings_search-availability.go",
+    "internal/cli/channels_list.go",
+    "internal/cli/customer_timeline.go",
+    "internal/cli/inventory_changes_retrieve-inventory.go",
+    "internal/cli/inventory_retrieve-count.go",
+    "internal/cli/invoices_search.go",
+    "internal/cli/loyalty_search-accounts.go",
+    "internal/cli/loyalty_search-events.go",
+    "internal/cli/loyalty_search-rewards.go",
+    "internal/cli/online-checkout_retrieve-merchant-settings.go",
+    "internal/cli/orders_search.go",
+    "internal/cli/reporting_get-metadata.go",
+    "internal/cli/vendors_search.go",
+    "internal/cli/webhook_ingest.go",
+    "testdata/dogfood-webhook.json"
+  ],
+  "validated_outcome": "Full Square Sandbox live dogfood passed 774 of 774 executed probes with zero failures; 907 unsafe, fixture-blocked, or capability-mismatched probes were explicitly skipped."
+}

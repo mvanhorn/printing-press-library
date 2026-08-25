@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "api_name": "catasto",
+  "run_id": "20260821-1249",
+  "status": "pass",
+  "level": "live",
+  "matrix_size": 2,
+  "tests_passed": 2,
+  "tests_failed": 0,
+  "tests_skipped": 0,
+  "auth_context": {
+    "type": "none"
+  },
+  "commands": [
+    {
+      "command": "gps 12.4924 41.8902 --agent",
+      "transport": "live",
+      "provider": "Agenzia delle Entrate public AJAX endpoint",
+      "result": {
+        "SIGLA_PROV": "RM",
+        "COD_COMUNE": "H501",
+        "FOGLIO": "508",
+        "NUM_PART": "B",
+        "TIPOLOGIA": "PARTICELLA"
+      }
+    },
+    {
+      "command": "cadastral --comune H501 --foglio 508 --particella B --agent",
+      "transport": "live",
+      "provider": "ondata/dati_catastali",
+      "source_file": "12_Lazio.parquet",
+      "result": {
+        "comune": "H501",
+        "foglio": "0508",
+        "particella": "B",
+        "lat": 41.890252,
+        "lon": 12.492405
+      }
+    }
+  ]
+}

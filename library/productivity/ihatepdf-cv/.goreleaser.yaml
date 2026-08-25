@@ -1,0 +1,51 @@
+version: 2
+project_name: ihatepdf-cv-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: ihatepdf-cv-pp-cli
+    main: ./cmd/ihatepdf-cv-pp-cli
+    binary: ihatepdf-cv-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/ihatepdf-cv/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: ihatepdf-cv-pp-mcp
+    main: ./cmd/ihatepdf-cv-pp-mcp
+    binary: ihatepdf-cv-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: ihatepdf-cv-pp-cli
+    repository:
+      owner: somsamantray
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Private PDF operations for agents, scripts, and offline pipelines."
+    install: |
+      bin.install "ihatepdf-cv-pp-cli"
+      bin.install "ihatepdf-cv-pp-mcp"

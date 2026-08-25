@@ -1,0 +1,57 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-10T18:05:12.348286Z",
+  "printing_press_version": "4.28.0",
+  "api_name": "github-contents",
+  "display_name": "GitHub Contents",
+  "cli_name": "github-contents-pp-cli",
+  "creator": {
+    "handle": "rvdlaar",
+    "name": "Rick van de Laar"
+  },
+  "owner": "rvdlaar",
+  "printer": "rvdlaar",
+  "printer_name": "Rick van de Laar",
+  "spec_path": "github-contents-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:b72614821421c6e8c84e95d9f9bd18cebeb64f0b6b7e58cea52a198bd1d5f1e6",
+  "run_id": "20260710-125244-1a986992",
+  "category": "developer-tools",
+  "description": "Download any GitHub folder without cloning — plan it first, verify it after, re-sync only what changed.",
+  "mcp_binary": "github-contents-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "GITHUB_TOKEN",
+    "GH_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Dry-run download plan",
+      "command": "plan",
+      "description": "Preview exactly what a fetch would download — file list, sizes, total bytes, API-request cost vs your remaining quota, and LFS-pointer warnings — before spending any bandwidth."
+    },
+    {
+      "name": "Blob-SHA integrity verify",
+      "command": "verify",
+      "description": "Check whether a previously downloaded directory still matches the remote at a ref — match/changed/missing/extra per file — without re-downloading anything."
+    },
+    {
+      "name": "Incremental re-sync",
+      "command": "sync-dir",
+      "description": "Update an existing downloaded directory in place, fetching only files that changed upstream or are missing locally."
+    },
+    {
+      "name": "Path size breakdown",
+      "command": "stats",
+      "description": "Size and file-count breakdown of any repo path by subfolder and extension, plus the largest files, from a single API request."
+    },
+    {
+      "name": "Offline tree search",
+      "command": "search",
+      "description": "Search previously fetched repo listings from the local store — find files by name or pattern with zero API calls."
+    }
+  ]
+}

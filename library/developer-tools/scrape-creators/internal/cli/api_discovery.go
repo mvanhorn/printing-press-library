@@ -35,8 +35,23 @@ Run 'api <interface>' to see that interface's methods.`,
 			if len(args) > 0 {
 				target := strings.ToLower(args[0])
 				for _, child := range root.Commands() {
-					if child.Hidden && strings.ToLower(child.Name()) == target {
+					if child.Annotations["pp:api-resource"] == "true" && strings.ToLower(child.Name()) == target {
 						methods := child.Commands()
+						// JSON envelope: {interface, short, methods: [{name, short}, ...]}.
+						if flags.asJSON {
+							methodList := make([]map[string]any, 0, len(methods))
+							for _, method := range methods {
+								methodList = append(methodList, map[string]any{
+									"name":  method.Name(),
+									"short": method.Short,
+								})
+							}
+							return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+								"interface": child.Name(),
+								"short":     child.Short,
+								"methods":   methodList,
+							}, flags)
+						}
 						if len(methods) == 0 {
 							return child.Help()
 						}
@@ -51,22 +66,39 @@ Run 'api <interface>' to see that interface's methods.`,
 				return fmt.Errorf("interface %q not found. Run '%s-pp-cli api' to list all interfaces", args[0], "scrape-creators")
 			}
 
-			var interfaces []string
+			// Pre-formatting human strings ahead of time would block the JSON
+			// path from emitting clean field values; build the typed slice and
+			// derive human format on print.
+			type ifaceEntry struct {
+				Name  string `json:"name"`
+				Short string `json:"short"`
+			}
+			var ifaces []ifaceEntry
 			for _, child := range root.Commands() {
-				if child.Hidden {
-					interfaces = append(interfaces, fmt.Sprintf("  %-45s %s", child.Name(), child.Short))
+				if child.Annotations["pp:api-resource"] == "true" {
+					ifaces = append(ifaces, ifaceEntry{Name: child.Name(), Short: child.Short})
 				}
 			}
-			sort.Strings(interfaces)
+			sort.Slice(ifaces, func(i, j int) bool { return ifaces[i].Name < ifaces[j].Name })
 
-			if len(interfaces) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "No hidden API interfaces found.")
+			// JSON envelope: {interfaces: [...], note?: "..."}.
+			if flags.asJSON {
+				out := map[string]any{"interfaces": ifaces}
+				if len(ifaces) == 0 {
+					out["interfaces"] = []ifaceEntry{}
+					out["note"] = "No API interfaces found."
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+			}
+
+			if len(ifaces) == 0 {
+				fmt.Fprintln(cmd.OutOrStdout(), "No API interfaces found.")
 				return nil
 			}
 
-			fmt.Fprintf(cmd.OutOrStdout(), "Available API interfaces (%d):\n\n", len(interfaces))
-			for _, line := range interfaces {
-				fmt.Fprintln(cmd.OutOrStdout(), line)
+			fmt.Fprintf(cmd.OutOrStdout(), "Available API interfaces (%d):\n\n", len(ifaces))
+			for _, e := range ifaces {
+				fmt.Fprintf(cmd.OutOrStdout(), "  %-45s %s\n", e.Name, e.Short)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "\nUse '%s-pp-cli api <interface>' to see methods.\n", "scrape-creators")
 			return nil

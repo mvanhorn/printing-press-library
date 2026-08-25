@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "review-hardening-cursor-paging-mcp-binding",
+  "applied_at": "2026-08-20",
+  "base_run_id": "20260725-041142-9944f727",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Keep the new-since cursor honest about what a run actually covered, make --page walk the client-side-filtered result set, and hold the HTTP MCP transport to loopback.",
+  "reason": "Review found this CLI reporting or persisting progress it had not made. sync --saved announced a cursor advance it deliberately does not perform; new discarded the postings mirror-write error and advanced the cursor anyway, and separately advanced it from a --max-pages-capped partial scan while presenting that partial count as the whole result set; find handed --page to the API as a raw offset even when client-side filters were active, so the offset sliced the unfiltered stream and dropped matches from earlier server pages. Independently, the generated MCP entrypoint defaulted to ':7777', exposing the registered local-data and local-write tools on every interface with no authentication. That entrypoint is generator-owned and marked DO NOT EDIT, so a plain regen silently restores the all-interface default; the loopback guard must be re-applied. The fix mirrors the pattern the maintainer already applied to peekaboo's cmd/peekaboo-pp-mcp/main.go.",
+  "files": [
+    "cmd/amazon-jobs-pp-mcp/main.go",
+    "internal/cli/find.go",
+    "internal/cli/new.go",
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "go build ./..., go vet ./..., go test ./... (12 packages), go test -race ./internal/cli/, and verify_skill.py all pass. Focused regression tests cover filtered-set paging, unfiltered server paging, the sync cursor-ownership message, an aborted mirror write leaving the cursor untouched, a curtailed scan reporting itself and preserving unreached ids, and loopback-only HTTP MCP binding; each fails against the pre-fix code."
+}

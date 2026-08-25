@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "jules",
+  "cli_name": "jules-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-23T09:17:07Z",
+  "source_commit": "82a35f508afcd4b66781e8d4927c73a4eed24f2d",
+  "printing_press_version": "4.31.1",
+  "run_id": "20260820-141824-efdff954",
+  "changes": [
+    {
+      "title": "feat(jules): add jules",
+      "pr": 1794,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1794",
+      "commit": "82a35f508afcd4b66781e8d4927c73a4eed24f2d"
+    }
+  ]
+}

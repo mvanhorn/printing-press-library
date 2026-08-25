@@ -35,6 +35,7 @@ but do not stop the import.`,
   cat data.jsonl | espn-pp-cli import <resource> --input -`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := cmd.Context()
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -74,7 +75,7 @@ but do not stop the import.`,
 					continue
 				}
 
-				_, _, err := c.Post(path, body)
+				_, _, err := c.Post(ctx, path, body)
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "warning: failed to import record: %v\n", err)
 					failed++

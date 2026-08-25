@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "wahoo-pp-cli"
+display_name = "Wahoo Cloud API"
+description = "Every Wahoo Cloud API capability, plus the local training database and offline analysis Wahoo's app never gives you."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/wahoo-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+WAHOO_CLOUD_OAUTH2 = true

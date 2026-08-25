@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-08-19T19:55:13.046231Z",
+  "cli_dir": "\u003ccli-dir\u003e/psx-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-08-19T19:55:13.046232Z"
+  }
+}

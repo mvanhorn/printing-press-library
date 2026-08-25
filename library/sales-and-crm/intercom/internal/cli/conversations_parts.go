@@ -9,9 +9,10 @@ import (
 
 func newConversationsPartsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "parts",
-		Short: "Create parts for conversations",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "parts",
+		Short:       "Create parts for conversations",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newConversationsPartsManageConversationCmd(flags))

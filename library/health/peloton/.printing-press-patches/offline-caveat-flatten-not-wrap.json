@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "offline-caveat-flatten-not-wrap",
+  "applied_at": "2026-08-16",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Every offline command that can emit caveats (offlineIDCmd, shared by offline_performance/offline_classes_show/offline_classes_structure/offline_strength; newOfflineIntervalsCmd; newOfflineWorkoutCmd, which builds its own RunE independently) must merge caveats into the response's existing top-level map via printOfflineWithCaveats, never nest the payload under a fresh \"result\" key. A field's location in the response must never depend on whether that particular call happened to produce a caveat -- any new offline command with its own caveat-bearing RunE must route through printOfflineWithCaveats too, not reinvent the wrap-on-caveat pattern.",
+  "reason": "A seventh live post-fix verification sweep found offlineIDCmd nested its whole payload under \"result\" only when a caveat fired, so the correct --select path was data-dependent and unknowable in advance -- an agent had to make an unprojected call first just to discover which shape it got back. Fixing offlineIDCmd and newOfflineIntervalsCmd surfaced that newOfflineWorkoutCmd had the identical hand-rolled wrap-in-\"result\" logic (it predates printOfflineWithCaveats and was never migrated), so it was fixed in the same pass to keep the contract uniform across every offline command.",
+  "files": [
+    "internal/cli/offline.go",
+    "internal/cli/offline_test.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. TestOfflineIDCmdKeepsFieldsAtTopLevelRegardlessOfCaveat covers both offlineIDCmd (via offline_performance w2, which has no performance record) and offline_workout (via a seeded workout_details-only record), asserting no \"result\" key, real fields present at top level, caveats present, and --select working identically either way. Live-verified against the real account: offline_workout on a real workout lacking a workouts record returns detail and caveats both at top level with no result wrapper, and --select caveats returns exactly the caveats array."
+}

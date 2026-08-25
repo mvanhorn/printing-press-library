@@ -76,12 +76,10 @@ func newYoutubeChannelUploadsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			c = c.WithContext(cmd.Context())
-
 			// 1. Resolve channel -> uploads playlist ID.
-			chData, err := c.GetWithHeaders("/youtube/v3/channels", channelParam, nil)
+			chData, err := c.GetWithHeaders(cmd.Context(), "/youtube/v3/channels", channelParam, nil)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.ErrOrStderr(), err, flags)
 			}
 			var chResp struct {
 				Items []struct {
@@ -135,10 +133,10 @@ func newYoutubeChannelUploadsCmd(flags *rootFlags) *cobra.Command {
 				if pageToken != "" {
 					params["pageToken"] = pageToken
 				}
-				piData, err := c.GetWithHeaders("/youtube/v3/playlistItems", params, nil)
+				piData, err := c.GetWithHeaders(cmd.Context(), "/youtube/v3/playlistItems", params, nil)
 				if err != nil {
 					if page == 0 {
-						return classifyAPIError(err, flags)
+						return classifyAPIError(cmd.ErrOrStderr(), err, flags)
 					}
 					out.Warnings = append(out.Warnings, fmt.Sprintf("page %d fetch failed: %v", page+1, err))
 					break

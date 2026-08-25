@@ -1,0 +1,1262 @@
+{
+  "verify": {
+    "mode": "mock",
+    "total": 167,
+    "passed": 166,
+    "failed": 1,
+    "critical": 1,
+    "pass_rate": 99.40119760479041,
+    "data_pipeline": true,
+    "data_pipeline_detail": "PASS: sync completed (sql unavailable, table validation skipped)",
+    "freshness": {
+      "enabled": false,
+      "verdict": "SKIP",
+      "detail": "cache freshness helper not emitted"
+    },
+    "verdict": "WARN",
+    "results": [
+      {
+        "command": "resource-path:tail",
+        "kind": "static",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "resource-path:export",
+        "kind": "static",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "resource-path:import",
+        "kind": "static",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "activities",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "admin",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "agent-context",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "album",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      },
+      {
+        "command": "albums",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "analytics",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "api-keys",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "assets",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "auth",
+        "kind": "local",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "doctor",
+        "kind": "local",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "download",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "duplicates",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "export",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "faces",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "feedback",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "immich-auth",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "immich-jobs",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "immich-search",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "immich-sync",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "import",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "learnings",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      },
+      {
+        "command": "libraries",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "library",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      },
+      {
+        "command": "map",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "memories",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "notifications",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "oauth",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "partners",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "people",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "playbook",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      },
+      {
+        "command": "plugins",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "profile",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      },
+      {
+        "command": "queues",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "recall",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "search",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "server",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "sessions",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "shared-links",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "stacks",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "sync",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "system-config",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "system-metadata",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "tags",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "tail",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "teach",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "teach-lookup",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "teach-pattern",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "teach-playbook",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "timeline",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "trash",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "users",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "view",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "which",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "workflow",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      },
+      {
+        "command": "workflows",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      }
+    ],
+    "path_param_probes": [
+      {
+        "command": "activities delete-activity",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "admin delete-integrity-report",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "admin delete-user",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "admin download-database-backup",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "admin get-integrity-report-file",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "admin get-notification-template",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "admin get-user",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "admin get-user-calendar-heatmap",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "admin get-user-preferences",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "admin get-user-sessions",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "admin get-user-statistics",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "admin restore-user",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "admin update-user",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "admin update-user-preferences",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "album event",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "albums assets add-to-album",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "albums assets remove-from-album",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "albums delete",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "albums get-info",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "albums map-markers get-album",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "albums update-info",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "albums user remove-from-album",
+        "positionals": [
+          "12345",
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "albums user update-album",
+        "positionals": [
+          "12345",
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "albums users add-to-album",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "api-keys delete",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "api-keys get-apikeys",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "api-keys update",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "assets edits asset",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "assets edits get-asset",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "assets edits remove-asset",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "assets get-info",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "assets metadata delete-asset",
+        "positionals": [
+          "12345",
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "assets metadata get-asset",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "assets metadata get-asset-by-key",
+        "positionals": [
+          "12345",
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "assets metadata update-asset",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "assets ocr get-asset",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "assets original download-asset",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "assets thumbnail view-asset",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "assets update-id",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "assets video end-session",
+        "positionals": [
+          "12345",
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "assets video get-main-playlist",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "assets video get-media-playlist",
+        "positionals": [
+          "12345",
+          "mock-value",
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "assets video get-segment",
+        "positionals": [
+          "12345",
+          "mock-value",
+          "mock-value",
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "assets video play-asset",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "auth set-token",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "duplicates apply",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": false,
+        "reason": "command rejected the call with \"is required\" despite the supplied positional args; regenerate with the current generator (path-param positional binding fix)"
+      },
+      {
+        "command": "duplicates delete-id",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "faces delete",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "faces reassign-by-id",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "import archive",
+        "positionals": [
+          "94102"
+        ],
+        "passed": true
+      },
+      {
+        "command": "import folder",
+        "positionals": [
+          "/mock/path"
+        ],
+        "passed": true
+      },
+      {
+        "command": "import icloud",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "import takeout",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "import watch",
+        "positionals": [
+          "/mock/path"
+        ],
+        "passed": true
+      },
+      {
+        "command": "learnings confirm",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "learnings forget",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "learnings reject",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "libraries delete-library",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "libraries get-library",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "libraries scan library",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "libraries statistics get-library",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "libraries update-library",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "libraries validate validate",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "memories assets add-memory",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "memories assets remove-memory",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "memories delete-memory",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "memories get-memory",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "memories update-memory",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "notifications delete-id",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "notifications get-id",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "notifications update-id",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "partners create-deprecated",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "partners remove",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "partners update",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "people delete-person",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "people get-person",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "people merge person",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "people reassign faces",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "people statistics get-person",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "people thumbnail get-person",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "people update-person",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "plugins get",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "profile delete",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "profile save",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "profile show",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "profile use",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "sessions delete",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "sessions lock session",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "sessions update",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "shared-links assets add-shared-link",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "shared-links assets remove-shared-link",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "shared-links get-by-id",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "shared-links remove",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "shared-links update",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "stacks assets remove-from-stack",
+        "positionals": [
+          "12345",
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "stacks delete-id",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "stacks get",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "stacks update",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "tags assets tag",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "tags assets untag",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "tags delete",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "tags get-by-id",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "tags update",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "users get",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "users profile-image get",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "workflows delete",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "workflows get",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "workflows share get-workflow-for",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "workflows update",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      }
+    ],
+    "binary": "/Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-133855-89f4eb09/working/immich-pp-cli/immich-pp-cli"
+  }
+}

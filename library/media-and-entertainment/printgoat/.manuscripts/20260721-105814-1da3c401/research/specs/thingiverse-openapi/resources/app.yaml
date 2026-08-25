@@ -1,0 +1,64 @@
+ById:
+  get:
+    tags:
+      - App
+    summary: Get app by id
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: The id of the app to get
+        schema:
+          type: integer
+          minimum: 0
+          example: 22
+    responses:
+      '200':
+        description: An object representing the app requested
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/app_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+approvedAndPublished:
+  get:
+    tags:
+      - App
+    summary: Get all approved and published apps
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        description: An array of objects representing the apps requested
+        content:
+            application/json:
+              schema:
+                count:
+                  type: integer
+                type: array
+                items:
+                  app:
+                    id: 
+                      type: integer
+                    name:
+                      type: string
+                  user:
+                    id: 
+                      type: integer
+                    username:
+                      type: string
+                  image:
+                    type: string 
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"

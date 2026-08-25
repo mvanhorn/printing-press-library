@@ -519,6 +519,41 @@ func extractObjectID(obj map[string]any) string {
 	return ""
 }
 
+func scalarItemID(item json.RawMessage) (string, map[string]any, json.RawMessage, bool) {
+	dec := json.NewDecoder(strings.NewReader(string(item)))
+	dec.UseNumber()
+	var value any
+	if err := dec.Decode(&value); err != nil {
+		return "", nil, nil, false
+	}
+
+	switch v := value.(type) {
+	case json.Number:
+		id := v.String()
+		if id == "" {
+			return "", nil, nil, false
+		}
+		obj := map[string]any{"id": v}
+		data, err := json.Marshal(obj)
+		if err != nil {
+			return "", nil, nil, false
+		}
+		return id, obj, data, true
+	case string:
+		if v == "" {
+			return "", nil, nil, false
+		}
+		obj := map[string]any{"id": v}
+		data, err := json.Marshal(obj)
+		if err != nil {
+			return "", nil, nil, false
+		}
+		return v, obj, data, true
+	default:
+		return "", nil, nil, false
+	}
+}
+
 // ftsRowID derives a deterministic rowid from a string ID for use with FTS5.
 // modernc.org/sqlite's FTS5 implementation may not support DELETE WHERE column=?
 // on virtual tables, so we use explicit rowids and DELETE WHERE rowid=? instead.
@@ -663,20 +698,27 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 	var stored, skippedCount, extractFailures int
 	for _, item := range items {
 		var obj map[string]any
+		data := item
+		var id string
 		if err := json.Unmarshal(item, &obj); err != nil {
-			skippedCount++
-			continue
+			var ok bool
+			id, obj, data, ok = scalarItemID(item)
+			if !ok {
+				skippedCount++
+				continue
+			}
 		}
 		// Templated IDField wins; generic fallback list runs second when
 		// the override is empty OR the override field is absent on this
 		// particular item (response shape mismatches happen even when the
 		// spec declares x-resource-id).
-		var id string
-		if override, ok := resourceIDFieldOverrides[resourceType]; ok && override != "" {
-			if v := lookupFieldValue(obj, override); v != nil {
-				s := fmt.Sprintf("%v", v)
-				if s != "" && s != "<nil>" {
-					id = s
+		if id == "" {
+			if override, ok := resourceIDFieldOverrides[resourceType]; ok && override != "" {
+				if v := lookupFieldValue(obj, override); v != nil {
+					s := fmt.Sprintf("%v", v)
+					if s != "" && s != "<nil>" {
+						id = s
+					}
 				}
 			}
 		}
@@ -697,13 +739,13 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 			continue
 		}
 
-		if err := s.upsertGenericResourceTx(tx, resourceType, id, item); err != nil {
+		if err := s.upsertGenericResourceTx(tx, resourceType, id, data); err != nil {
 			return 0, extractFailures, fmt.Errorf("upserting %s/%s: %w", resourceType, id, err)
 		}
 
 		switch resourceType {
 		case "stories":
-			if err := s.upsertStoriesTx(tx, id, obj, item); err != nil {
+			if err := s.upsertStoriesTx(tx, id, obj, data); err != nil {
 				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
 			}
 		}

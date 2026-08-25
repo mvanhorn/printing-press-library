@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "seats-aero-award-source",
+  "applied_at": "2026-08-19",
+  "base_run_id": "2026-05-02T22:09:06.820184Z",
+  "base_printing_press_version": "3.6.0",
+  "upstream_issue": "",
+  "files": [
+    "internal/seatsaero/seatsaero.go",
+    "internal/seatsaero/seatsaero_test.go",
+    "internal/cli/award.go",
+    "internal/cli/award_test.go",
+    "internal/cli/primary.go"
+  ],
+  "summary": "Add Seats.aero as a hand-written award (mileage) availability source — the `award` command — alongside the cash-fare sources (Google Flights, Kayak, FlySoar). Cached award search across cabin classes, read-only.",
+  "reason": "Seats.aero (https://seats.aero) caches award/mileage redemption availability across airline alliance programs and exposes it via a Partner API (https://developers.seats.aero/reference/getting-started-p). flight-goat covers cash fares (Google Flights, Kayak, FlySoar) and FlightAware status, but had no redemption/miles path. award fills that gap. It uses the cached-search endpoint (GET https://seats.aero/partnerapi/search) with a Partner-Authorization header, ranking by date (premium-first) by default or lowest_mileage with --order. Cached search is Pro-eligible; live search is commercial-only and intentionally not exposed. The API key is read from SEATS_AERO_API_KEY (same env var the standalone seats-aero skill uses) or the config file. It is hand-written (no OpenAPI spec imported into flight-goat), mirrors the soar command pattern, registers in registerPrimaryCommands, and is read-only (mcp:read-only, no booking). A regen must preserve internal/seatsaero and internal/cli/award.go.",
+  "validated_outcome": "go build ./...; go vet ./...; go test ./... all pass. New unit tests cover the Partner-Authorization header, query-param serialization (origin/destination lists, date window, cabin, order_by, only_direct, take), HTTP 401 error surfacing, no-key ErrNoAPIKey, JSON round-trip, and the award CLI's arg validation + no-key hint + dry-run without a key (API key never leaks in dry-run). Live end-to-end not run: requires a SEATS_AERO_API_KEY, not configured; dry-run prints the correct /search URL. Award is auto-exposed via cobratree as an MCP read-only tool like the other hand primary commands."
+}

@@ -1,0 +1,10 @@
+# Build artifacts
+/build/
+/roblox-pp-cli
+*.mcpb
+# Local SQLite sync store
+*.db
+*.db-shm
+*.db-wal
+# Go
+/vendor/

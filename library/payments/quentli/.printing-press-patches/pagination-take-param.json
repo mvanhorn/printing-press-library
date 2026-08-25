@@ -1,0 +1,29 @@
+{
+  "schema_version": 2,
+  "id": "pagination-take-param",
+  "applied_at": "2026-08-11",
+  "base_run_id": "20260805-194716-31db2fb2",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Use the API's real page-size parameter (take) instead of the generic \"limit\" in sync pagination defaults, and pass limitParam=\"take\" in the nine paginated --all call sites.",
+  "reason": "Quentli paginates with take/skip (default take=20). The generated determinePaginationDefaults sent limit=100, which the API ignores, so every page came back with 20 items; shortPageEndsPagination (20 < 100) then read page one as the natural end and sync stored exactly 20 rows per resource. The --all call sites passed limitParam=\"\", so paginatedGet assumed pageSize=100 against real 20-item pages and stopped after page one for the same reason.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/customers_list.go",
+    "internal/cli/discounts_list.go",
+    "internal/cli/invoices_list.go",
+    "internal/cli/payment-concepts_list.go",
+    "internal/cli/payments_list.go",
+    "internal/cli/subscriptions_list.go",
+    "internal/cli/tax-invoices_list.go",
+    "internal/cli/webhooks_list.go",
+    "internal/cli/promoted_webhook-events.go"
+  ],
+  "validated_outcome": "Before: sync left customers/subscriptions/payments/invoices at exactly 20 rows each and `customers list --all` returned 20. After: `customers list --all` returns 1170, and a full re-sync stored 38192 records across 9 resources with zero warnings. Mirror counts match manual last-page probes exactly (customers 1170, subscriptions 1209, payments 22582, invoices 7655).",
+  "deferred_to_upstream": [
+    {
+      "feature": "The profiler should map the spec-declared page-size parameter name (take, per spec.yaml) into determinePaginationDefaults.limitParam and into the generated list call sites' limitParam argument, instead of emitting the generic \"limit\" / \"\".",
+      "reason": "Any API whose page-size param is not literally named \"limit\" silently truncates both sync and --all to the first default-size page while reporting success \u2014 the worst failure mode for agent consumers."
+    }
+  ],
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/4082"
+}

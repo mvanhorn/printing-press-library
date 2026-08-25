@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-06-17T16:57:15.11233Z",
+  "cli_dir": "\u003ccli-dir\u003e/ridewithgps",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-06-17T16:47:08.985518Z"
+  }
+}

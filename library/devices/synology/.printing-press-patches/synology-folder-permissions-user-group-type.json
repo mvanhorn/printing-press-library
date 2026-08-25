@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "synology-folder-permissions-user-group-type",
+  "applied_at": "2026-08-24",
+  "base_run_id": "20260824-135140",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Give `folder permissions --user-group-type` a `local_user` default.",
+  "reason": "DSM answers error 403 whenever `user_group_type` is absent, so the generated command could never succeed on a first call. The parameter is required in practice, and making every caller discover that from an opaque error code is worse than defaulting to the common case.",
+  "files": [
+    "spec.yaml"
+  ],
+  "validated_outcome": "`folder permissions --name <share>` succeeds with no extra flag against a live DS415+, and an explicit `--user-group-type local_group` still overrides it."
+}

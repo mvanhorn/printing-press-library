@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/bonusly",
+  "research_dir": "\u003ccli-dir\u003e/20260810-153232-4e95f81e",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

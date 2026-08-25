@@ -1,0 +1,326 @@
+{
+  "api_name": "prediction-goat",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "polymarket-cli",
+      "url": "https://github.com/Polymarket/polymarket-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 100,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "prediction-mcp",
+      "url": "https://github.com/shaanmajid/prediction-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "prediction-market-mcp",
+      "url": "https://github.com/JamesANZ/prediction-market-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "polymarket-mcp (Gamma)",
+      "url": "https://github.com/pab1it0/polymarket-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "polymarket-mcp (CLOB)",
+      "url": "https://github.com/CarlosIbCu/polymarket-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "kalshi-pp-cli",
+      "url": "https://github.com/mvanhorn/printing-press-library/tree/main/library/payments/kalshi",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 96,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-23T01:12:32Z",
+  "novel_features": [
+    {
+      "name": "Cross-venue topic bundle",
+      "command": "topic",
+      "description": "Get every related Polymarket and Kalshi market for a topic in one slim ranked ~3KB bundle — kanye-west, argentina, chatgpt-5.",
+      "rationale": "Local FTS5 over both venues' synced markets + events + tags lets us rank cross-venue without server-side support; Polymarket /public-search ranks closed markets alongside active and Kalshi has no full-text search at all.",
+      "example": "prediction-goat-pp-cli topic kanye-west --json",
+      "why_it_matters": "When an agent needs current odds on a topic, this is the one-call answer across both venues without fanning out to two platform tools and re-ranking by hand.",
+      "group": "Cross-venue intelligence"
+    },
+    {
+      "name": "Mispriced screen",
+      "command": "mispriced",
+      "description": "Find same-outcome markets where Polymarket and Kalshi disagree on implied probability by more than a threshold.",
+      "rationale": "Requires PM-to-Kalshi outcome pairing in a local store; no API offers this cross-venue spread.",
+      "example": "prediction-goat-pp-cli mispriced --threshold 0.05 --json",
+      "why_it_matters": "The clearest signal that one venue is wrong or one side is mispricing — useful for calibration research, not trading.",
+      "group": "Cross-venue intelligence"
+    },
+    {
+      "name": "Cross-venue compare",
+      "command": "compare",
+      "description": "Side-by-side YES/NO and implied probability for the same topic across Polymarket and Kalshi.",
+      "rationale": "No upstream API returns paired same-outcome markets across venues; the local store resolves topic-to-pair via FTS5 + topic-text overlap.",
+      "example": "prediction-goat-pp-cli compare 'arizona basketball' --json",
+      "why_it_matters": "Tells an agent or analyst 'which venue has the better/different number on this outcome' in one read-only call.",
+      "group": "Cross-venue intelligence"
+    },
+    {
+      "name": "Trending screen",
+      "command": "trending",
+      "description": "Top movers by 24h volume across both venues, ranked.",
+      "rationale": "Neither venue exposes a unified trending feed; the local store ranks across both by 24h volume.",
+      "example": "prediction-goat-pp-cli trending --json --limit 20",
+      "why_it_matters": "One command answers 'what should I be watching today' without scraping two homepages.",
+      "group": "Screens"
+    },
+    {
+      "name": "Resolving screen",
+      "command": "resolving",
+      "description": "Markets resolving in the next week/month/days, sorted by liquidity.",
+      "rationale": "PM has end-date filters, Kalshi doesn't expose them cleanly; unification only possible locally.",
+      "example": "prediction-goat-pp-cli resolving --week --json",
+      "why_it_matters": "Tells an agent 'what's about to settle' without re-paging two cursors.",
+      "group": "Screens"
+    },
+    {
+      "name": "Liquid screen",
+      "command": "liquid",
+      "description": "Markets above a normalized volume/liquidity floor across both venues.",
+      "rationale": "PM has liquidity_num_min; Kalshi doesn't — normalizing across venues only works locally.",
+      "example": "prediction-goat-pp-cli liquid --min-volume 100000 --json",
+      "why_it_matters": "Filters out thin markets that will move on a single 100-dollar bet.",
+      "group": "Screens"
+    },
+    {
+      "name": "Movers screen",
+      "command": "movers",
+      "description": "Biggest implied-probability deltas over a 24h or 7d window across both venues.",
+      "rationale": "Diffs current price vs price-history snapshot; requires synced history; no API call returns this directly.",
+      "example": "prediction-goat-pp-cli movers --window 7d --json",
+      "why_it_matters": "Surfaces narrative shifts (price-driven) vs hype shifts (volume-driven from ).",
+      "group": "Screens"
+    },
+    {
+      "name": "New screen",
+      "command": "new",
+      "description": "Markets created in the last N days across both venues.",
+      "rationale": "Cross-venue unification of created-at filtering; PM and Kalshi disagree on how to expose it.",
+      "example": "prediction-goat-pp-cli new --days 7 --json",
+      "why_it_matters": "Newly listed markets are where the alpha and mispricings live.",
+      "group": "Screens"
+    },
+    {
+      "name": "Markets diff",
+      "command": "markets diff",
+      "description": "Field-by-field structural diff between a specific Polymarket market and a specific Kalshi market.",
+      "rationale": "Local join across two different schemas; no upstream tool does cross-schema diff.",
+      "example": "prediction-goat-pp-cli markets diff \u003cpm-slug\u003e \u003ckalshi-ticker\u003e --json",
+      "why_it_matters": "When you already know the two slugs/tickers (e.g. from `topic \u003ctheme\u003e`), diff shows you exactly where the venues disagree.",
+      "group": "Cross-venue intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-venue topic bundle",
+      "command": "topic",
+      "description": "Get every related Polymarket and Kalshi market for a topic in one slim ranked ~3KB bundle — kanye-west, argentina, chatgpt-5.",
+      "rationale": "Local FTS5 over both venues' synced markets + events + tags lets us rank cross-venue without server-side support; Polymarket /public-search ranks closed markets alongside active and Kalshi has no full-text search at all.",
+      "example": "prediction-goat-pp-cli topic kanye-west --json",
+      "why_it_matters": "When an agent needs current odds on a topic, this is the one-call answer across both venues without fanning out to two platform tools and re-ranking by hand.",
+      "group": "Cross-venue intelligence"
+    },
+    {
+      "name": "Mispriced screen",
+      "command": "mispriced",
+      "description": "Find same-outcome markets where Polymarket and Kalshi disagree on implied probability by more than a threshold.",
+      "rationale": "Requires PM-to-Kalshi outcome pairing in a local store; no API offers this cross-venue spread.",
+      "example": "prediction-goat-pp-cli mispriced --threshold 0.05 --json",
+      "why_it_matters": "The clearest signal that one venue is wrong or one side is mispricing — useful for calibration research, not trading.",
+      "group": "Cross-venue intelligence"
+    },
+    {
+      "name": "Cross-venue compare",
+      "command": "compare",
+      "description": "Side-by-side YES/NO and implied probability for the same topic across Polymarket and Kalshi.",
+      "rationale": "No upstream API returns paired same-outcome markets across venues; the local store resolves topic-to-pair via FTS5 + topic-text overlap.",
+      "example": "prediction-goat-pp-cli compare 'arizona basketball' --json",
+      "why_it_matters": "Tells an agent or analyst 'which venue has the better/different number on this outcome' in one read-only call.",
+      "group": "Cross-venue intelligence"
+    },
+    {
+      "name": "Trending screen",
+      "command": "trending",
+      "description": "Top movers by 24h volume across both venues, ranked.",
+      "rationale": "Neither venue exposes a unified trending feed; the local store ranks across both by 24h volume.",
+      "example": "prediction-goat-pp-cli trending --json --limit 20",
+      "why_it_matters": "One command answers 'what should I be watching today' without scraping two homepages.",
+      "group": "Screens"
+    },
+    {
+      "name": "Resolving screen",
+      "command": "resolving",
+      "description": "Markets resolving in the next week/month/days, sorted by liquidity.",
+      "rationale": "PM has end-date filters, Kalshi doesn't expose them cleanly; unification only possible locally.",
+      "example": "prediction-goat-pp-cli resolving --week --json",
+      "why_it_matters": "Tells an agent 'what's about to settle' without re-paging two cursors.",
+      "group": "Screens"
+    },
+    {
+      "name": "Liquid screen",
+      "command": "liquid",
+      "description": "Markets above a normalized volume/liquidity floor across both venues.",
+      "rationale": "PM has liquidity_num_min; Kalshi doesn't — normalizing across venues only works locally.",
+      "example": "prediction-goat-pp-cli liquid --min-volume 100000 --json",
+      "why_it_matters": "Filters out thin markets that will move on a single 100-dollar bet.",
+      "group": "Screens"
+    },
+    {
+      "name": "Movers screen",
+      "command": "movers",
+      "description": "Biggest implied-probability deltas over a 24h or 7d window across both venues.",
+      "rationale": "Diffs current price vs price-history snapshot; requires synced history; no API call returns this directly.",
+      "example": "prediction-goat-pp-cli movers --window 7d --json",
+      "why_it_matters": "Surfaces narrative shifts (price-driven) vs hype shifts (volume-driven from ).",
+      "group": "Screens"
+    },
+    {
+      "name": "New screen",
+      "command": "new",
+      "description": "Markets created in the last N days across both venues.",
+      "rationale": "Cross-venue unification of created-at filtering; PM and Kalshi disagree on how to expose it.",
+      "example": "prediction-goat-pp-cli new --days 7 --json",
+      "why_it_matters": "Newly listed markets are where the alpha and mispricings live.",
+      "group": "Screens"
+    },
+    {
+      "name": "Markets diff",
+      "command": "markets diff",
+      "description": "Field-by-field structural diff between a specific Polymarket market and a specific Kalshi market.",
+      "rationale": "Local join across two different schemas; no upstream tool does cross-schema diff.",
+      "example": "prediction-goat-pp-cli markets diff \u003cpm-slug\u003e \u003ckalshi-ticker\u003e --json",
+      "why_it_matters": "When you already know the two slugs/tickers (e.g. from `topic \u003ctheme\u003e`), diff shows you exactly where the venues disagree.",
+      "group": "Cross-venue intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Polymarket + Kalshi",
+    "headline": "Every Polymarket and Kalshi market in one slim agent-native CLI, with cross-venue topic search and screens no other tool has.",
+    "value_prop": "Read-only by design and by CI lint — the binary structurally cannot trade. `topic \u003cname\u003e` returns every related Polymarket + Kalshi market/event/tag in one ~3KB ranked bundle (vs the official Polymarket CLI's ~250KB firehose). Local SQLite + FTS5 keeps queries instant and free after one sync. Six screens (`trending`, `resolving`, `liquid`, `mispriced`, `movers`, `new`) cover the workflows agents and odds researchers run every week.",
+    "auth_narrative": "No authentication required. Both Polymarket Gamma and Kalshi v2 trade-api public endpoints work without a key for everything this CLI does (markets, events, tags, series, orderbooks, prices). The binary contains no signing code, no wallet handling, and no order-placement endpoints — CI lint enforces this on every PR.",
+    "quickstart": [
+      {
+        "command": "prediction-goat-pp-cli sync",
+        "comment": "One-time pull of Polymarket and Kalshi market/event/tag data into local SQLite (~30MB, no API key)."
+      },
+      {
+        "command": "prediction-goat-pp-cli topic kanye-west --json",
+        "comment": "The killer feature: every related market across both venues, ranked, slim by default."
+      },
+      {
+        "command": "prediction-goat-pp-cli trending --json --limit 20",
+        "comment": "Top 24h volume across both Polymarket and Kalshi in one call."
+      },
+      {
+        "command": "prediction-goat-pp-cli compare 'arizona basketball' --json",
+        "comment": "Side-by-side implied probability on the same topic across venues."
+      },
+      {
+        "command": "prediction-goat-pp-cli resolving --week --json",
+        "comment": "Markets settling within the next 7 days, sorted by liquidity."
+      },
+      {
+        "command": "prediction-goat-pp-cli mispriced --threshold 0.05 --json",
+        "comment": "Same-outcome markets where Polymarket and Kalshi disagree by 5pp or more."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "`topic` returns no results after install",
+        "fix": "Run `prediction-goat-pp-cli sync` first. Topic search reads the local SQLite store — without a sync, FTS5 has nothing to rank."
+      },
+      {
+        "symptom": "`mispriced` or `compare` returns fewer pairs than expected",
+        "fix": "The PM-to-Kalshi outcome pairing relies on topic-text overlap; some markets simply don't have a counterpart on the other venue. Try `topic \u003cname\u003e --json` first to see what's available."
+      },
+      {
+        "symptom": "Polymarket prices look stale after sync",
+        "fix": "Re-run `sync --incremental` — Polymarket markets refresh in real time but the local mirror is a snapshot; the sync command refreshes only changed rows."
+      },
+      {
+        "symptom": "Kalshi endpoint returns empty events list",
+        "fix": "Set `--venue polymarket` on the failing command to confirm it's a Kalshi-side reachability issue, then check `prediction-goat-pp-cli doctor --json`."
+      }
+    ],
+    "when_to_use": "Reach for prediction-goat-pp-cli when an agent needs current prediction-market odds across both Polymarket and Kalshi without trading. The killer commands are `topic`, `compare`, and the six screens — every other command exists so power users can drill into one venue or one market. The CLI is read-only by structural CI guarantee: it cannot place orders, hold a wallet, or sign trades, which makes it safe to embed in agent toolchains.",
+    "recipes": [
+      {
+        "title": "Find every market for a topic across both venues",
+        "command": "prediction-goat-pp-cli topic kanye-west --json --select markets.title,markets.venue,markets.yesProbability,markets.endDate",
+        "explanation": "Slim ranked bundle of every related PM + Kalshi market. `--select` reduces to four fields per row; an agent sees ~1KB instead of the firehose."
+      },
+      {
+        "title": "What's settling this week?",
+        "command": "prediction-goat-pp-cli resolving --week --json --select title,venue,endDate,liquidity --limit 10",
+        "explanation": "Local SQL filter on end_date \u003c now+7d across both venues, sorted by liquidity descending. `--select` keeps the response tiny."
+      },
+      {
+        "title": "Side-by-side odds comparison",
+        "command": "prediction-goat-pp-cli compare 'arizona basketball' --json",
+        "explanation": "Resolves the topic to paired markets and renders YES/NO + implied prob for each venue side-by-side. Tells you exactly where PM and Kalshi disagree."
+      },
+      {
+        "title": "Catch mispricings across venues",
+        "command": "prediction-goat-pp-cli mispriced --threshold 0.05 --json --select pair.pm.title,pair.kalshi.title,delta",
+        "explanation": "Returns same-outcome market pairs where implied probabilities diverge by 5+ percentage points. Slim output via `--select`."
+      }
+    ],
+    "trigger_phrases": [
+      "what are the odds on",
+      "polymarket odds for",
+      "kalshi odds for",
+      "find prediction markets for",
+      "what's trending on polymarket",
+      "what's resolving this week",
+      "compare polymarket and kalshi on",
+      "use prediction-goat",
+      "run prediction-goat"
+    ]
+  }
+}

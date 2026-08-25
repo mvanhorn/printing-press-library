@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "id": "flights-hotels-search",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260812-144651-60addfc5",
+  "base_printing_press_version": "unstamped (pre-4.28.0, no .printing-press.json in this tree)",
+  "summary": "New net-new capability, not in the original absorb manifest: flights locations/preferences/search against the GraphQL BFF's air-shopping surface (TravelAirQuery/TravelAirMutation). CONFIRMED WORKING end-to-end with real live data (JetBlue LAX->JFK $194, LAX->EWR $199 for 2026-10-12) under the same cookie-session auth already used for trips/reports/expenses. flights search fires a real mutation (air.startShop) that creates a live shopping session on the tenant -- user-approved before this was built; books nothing.",
+  "reason": "User asked to search LAX->NYC travel for the week of Oct 12 2026. No search/shop capability existed in the CLI at all -- trips.list only shows already-booked trips. Confirmed via live GraphQL introspection (single-type __type() lookups work even though full __schema is 403-blocked) that TravelAirQuery.locationSuggestions/searchPreferences are pure reads, and TravelAirMutation.startShop + TravelAirQuery.shop(id) form a create-then-poll flow matching exactly what the UI's Search Flights button does. Location resolution surfaced a genuine architectural finding: NYC resolves to a TravelAirPlaceLocation (metro) whose children expand to JFK/LGA/EWR/HPN airports plus 4 rail stations -- confirmed by live query, not assumed.",
+  "files": [
+    "internal/cli/flights.go",
+    "internal/cli/flights_locations.go",
+    "internal/cli/flights_preferences.go",
+    "internal/cli/flights_search.go",
+    "internal/cli/hotels.go",
+    "internal/cli/hotels_search.go",
+    "internal/cli/root.go",
+    "internal/cli/trips.go"
+  ],
+  "changes": [
+    {
+      "file": "internal/cli/flights.go",
+      "description": "New parent command group (locations, preferences, search), following the trips.go pattern."
+    },
+    {
+      "file": "internal/cli/flights_locations.go",
+      "description": "New. locationSuggestions query with inline fragments on the TravelAirLocationSuggestion interface's 5 concrete types, expanding TravelAirPlaceLocation.children (a TravelAirChildLocation union of airport/rail-station) so a metro query surfaces its constituent airports in one call."
+    },
+    {
+      "file": "internal/cli/flights_preferences.go",
+      "description": "New. searchPreferences query. Deliberately omits preferredCabins (list) and timeWindow (union) -- their leaf/member types were not fully walked this session; omitted rather than guessed, consistent with this codebase's established discipline against unverified fields."
+    },
+    {
+      "file": "internal/cli/flights_search.go",
+      "description": "New. Mutation (air.startShop) + poll (air.shop(id)) flow. Fixed one bug during live testing: initially copied a stopsCount field from the similarly-named-but-different TravelAirBookingJourney type (used by trips_get.go) onto TravelAirJourney (used here), which does not have that field -- caught immediately by a live 400 GRAPHQL_VALIDATION_FAILED and removed. KNOWN GAP, documented in the file header and --help: journeyPage's flat result list is confirmed outbound-leg-only even for a 2-leg round-trip search request (verified empirically -- 50 fetched results for a round-trip shop were all outbound-direction, zero return-direction entries). Combined round-trip fares likely require a select-then-refine flow (journeyPage's unexplored journeyIds argument, or the unexplored selectedJourneys/recommendations/matrix fields) not mapped this session. --return is accepted and included in the actual search request (so the shop has both legs available server-side for a future refinement step) but only the outbound leg is rendered; a stderr note says so explicitly rather than silently under-delivering."
+    },
+    {
+      "file": "internal/cli/hotels.go",
+      "description": "New parent command group, following the flights.go/trips.go pattern."
+    },
+    {
+      "file": "internal/cli/hotels_search.go",
+      "description": "New, and architecturally unique in this CLI: hotel.startShoppingSession (the mutation that creates a hotel shopping session) is confirmed BLOCKED from scripted replay -- proven three separate ways: (1) introspection-guessed payloads failed with a generic 'UNCLASSIFIED' server error across 4 attempts varying location format and stay length; (2) a byte-for-byte VERBATIM replay of a request that had JUST succeeded natively in the browser still failed identically, ruling out payload shape entirely; (3) a fresh concur-correlationid header on the verbatim replay also failed, ruling out simple idempotency/replay dedup. Reads on an existing session (shoppingSession(id:), properties(), trips.ruleClasses for the required-but-schema-nullable ruleClassId) are confirmed to replay perfectly via direct HTTP -- this is specifically a write-path restriction (most likely Akamai bot-mitigation gating mutations more strictly than queries; this tenant has ak_bmsc/_abck per the Aug 12 discovery report). User-approved driving the real UI via agent-browser for this one step after the direct-replay path was exhausted. Session-id extraction took three iterations: agent-browser's own network-log response-body capture came back empty for this specific request despite a confirmed real 630-byte server response (content-length header); injecting a window.fetch override into the page was defeated by a genuine full navigation on search submit (confirmed via performance.getEntriesByType('navigation')[0].type === 0) that resets all page JS state before the intercepted promise resolves; the navigation itself lands on /travel/hotel/shop/{sessionId} -- the id was sitting in the URL the whole time, and reading it there is what's implemented. Also fixed a real destination-selection determinism bug found during this work: Concur's catalog has more than one 'New York' Place entry (one scoped broadly to NY state with zero hotel inventory in a useful radius, one scoped to the actual NYC metro), and an unqualified 'first Place match wins' selection depended on Go's non-deterministic map iteration order, silently picking the empty-inventory entry on one run and a specific named hotel (not a Place at all) on another. Fixed by sorting candidates by their agent-browser ref number, which was confirmed empirically to correlate with the suggestion dropdown's own relevance ranking."
+    },
+    {
+      "file": "internal/cli/root.go",
+      "description": "Registered newFlightsCmd(flags) and newHotelsCmd(flags)."
+    },
+    {
+      "file": "internal/cli/trips.go",
+      "description": "Unrelated stale-description fix caught in passing: Short text still said '(UNVERIFIED paths -- see spec header notes)' from before the Aug 17 trips GraphQL pivot; corrected."
+    }
+  ],
+  "validated_outcome": "flights locations LAX: live, HTTP 200, correct airport match plus an unrelated fuzzy-match ('Laxmi Nagar' place, harmless). flights locations NYC: live, HTTP 200, correct metro-with-children expansion (EWR/JFK/LGA/HPN airports + 4 rail stations). flights preferences: live, HTTP 200, real policy defaults. flights search --from LAX --to NYC --depart 2026-10-12: live, HTTP 200 after one live-caught field-name bug fixed, real fares (JetBlue LAX-JFK nonstop $194-$2217 across cabin tiers, LAX-EWR nonstop from $199), real policy compliance flags (NONE / ALLOW_WITH_CONDITION). --dry-run verified separately: the client's verify-mode short-circuit intercepts the prerequisite location-resolution call too (it rides the same POST transport), handled with the same mock-fallback-plus-stderr-notice convention already established in expenses_tag.go/trips_reconcile.go rather than a hard failure. hotels search --to \"New York\" --check-in 2026-10-12 --check-out 2026-10-18: live end-to-end through the actual CLI binary (not just manual eval testing) across two separate runs, both returning real hotels with real full-week pricing -- The Greenwich Hotel $11,553/5-star, Hilton Brooklyn New York $3,654/4-star, Moxy Nyc East Village $3,456/4-star on one run; Soho House New York $16,493/4-star, Hotel On Rivington $3,077/4-star, Public $3,749/4-star on a second run confirming repeatability. All policyCompliance violationLevel NONE. --dry-run verified separately (no browser driven). go vet clean, full test suite passes, zero regressions.",
+  "upstream_issue": null
+}

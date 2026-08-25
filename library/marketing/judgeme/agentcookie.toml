@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "judgeme-pp-cli"
+display_name = "Judge.me"
+description = "A completeness-verified Judge.me review corpus with explicit populations and syndication-aware exports."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/judgeme-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+JUDGEME_API_KEY = true
+JUDGEME_SHOP_DOMAIN = true

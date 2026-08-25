@@ -1,0 +1,123 @@
+{
+  "_meta": {
+    "endpoint": "GET https://reignite-api.athlinks.com/event/{eventId}/race/{raceId}/bib/{bib}/result",
+    "captured_url": "https://reignite-api.athlinks.com/event/1094411/race/2530164/bib/8420/result",
+    "event": "Paraguay Multisport Challenge 2024 (masterEventId=390468, eventId=1094411)",
+    "auth": "Authorization: Bearer <token> required",
+    "note": "raceId comes from search response eventCourseId field. Times in milliseconds. intervals[0] where full=true is the finish; intervals where full=false are splits.",
+    "id_chain": "eventId=1094411 (reignite), raceId=2530164 (eventCourseId from search), azpEventId=83293 (ctlive timer system), azpEntryId/id=70078023 (entry ID)"
+  },
+  "age": 36,
+  "bib": "8420",
+  "displayName": "Sample Runner",
+  "gender": "M",
+  "id": 70078023,
+  "intervals": [
+    {
+      "chipTimeInMillis": 535000,
+      "distance": {
+        "meters": 2000,
+        "metersFromStart": 2000,
+        "units": "km"
+      },
+      "full": true,
+      "gunTimeInMillis": 540000,
+      "id": 562851,
+      "name": "Full Course",
+      "mostRecentInterval": true,
+      "paceUnits": "min/km",
+      "raceType": "run",
+      "divisions": [
+        {
+          "id": 2451310,
+          "name": "Overall",
+          "rank": 1,
+          "rankType": "chip",
+          "totalAthletes": 11,
+          "type": "overall"
+        },
+        {
+          "id": 2451312,
+          "name": "Male",
+          "rank": 1,
+          "rankType": "chip",
+          "totalAthletes": 4,
+          "type": "gender"
+        },
+        {
+          "id": 2451318,
+          "name": "M30-39",
+          "rank": 1,
+          "rankType": "chip",
+          "totalAthletes": 2,
+          "type": "other"
+        }
+      ],
+      "startTimeInMillis": 1729773300960,
+      "type": "course"
+    },
+    {
+      "chipTimeInMillis": 266000,
+      "distance": {
+        "meters": 1000,
+        "metersFromStart": 1000,
+        "units": "km"
+      },
+      "full": false,
+      "gunTimeInMillis": 271000,
+      "id": 562856,
+      "name": "Lap km 1",
+      "mostRecentInterval": false,
+      "paceUnits": "min/km",
+      "raceType": "run",
+      "divisions": [
+        {
+          "id": 2451310,
+          "name": "Overall",
+          "rank": 3,
+          "rankType": "chip",
+          "totalAthletes": 11,
+          "type": "overall"
+        },
+        {
+          "id": 2451312,
+          "name": "Male",
+          "rank": 3,
+          "rankType": "chip",
+          "totalAthletes": 4,
+          "type": "gender"
+        },
+        {
+          "id": 2451318,
+          "name": "M30-39",
+          "rank": 2,
+          "rankType": "chip",
+          "totalAthletes": 2,
+          "type": "other"
+        }
+      ],
+      "startTimeInMillis": 1729773300960,
+      "type": "course"
+    }
+  ],
+  "location": {
+    "country": "PY",
+    "locality": null,
+    "region": "-"
+  },
+  "private": false,
+  "race": {
+    "id": 219466,
+    "name": "2 km (Group 1)",
+    "plannedStartTime": 1729765800,
+    "plannedEndTime": 1729796400,
+    "actualStartTime": 1729773296,
+    "actualEndTime": 1729796400,
+    "externalResultsUrl": null
+  },
+  "isValidEmail": true,
+  "thirdPartyEntryId": 70078023,
+  "racerId": 0,
+  "source": "s3",
+  "status": "CONF"
+}

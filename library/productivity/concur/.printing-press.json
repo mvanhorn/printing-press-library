@@ -1,0 +1,98 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-12T22:57:00Z",
+  "printing_press_version": "4.30.3",
+  "api_name": "concur",
+  "display_name": "SAP Concur",
+  "cli_name": "concur-pp-cli",
+  "creator": {
+    "handle": "enlewof",
+    "name": "Allen Lew"
+  },
+  "owner": "enlewof",
+  "printer": "enlewof",
+  "printer_name": "Allen Lew",
+  "spec_path": "concur-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:f466fdde30b63114bef3cb7d39cdc24eabab9a60b5f7a5bc9634cb7ad9529211",
+  "run_id": "20260812-144651-60addfc5",
+  "category": "productivity",
+  "description": "Every expense-report and travel workflow Concur's web app offers, plus real flight and hotel search and duplicate detection no Concur tool has -- filed through the same session your browser already uses.",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "auth_env_vars": [],
+  "novel_features": [
+    {
+      "name": "Cross-report duplicate-charge detector",
+      "command": "expenses scan-duplicates",
+      "description": "Local SQLite scan across synced expenses for vendor+amount+date-proximity duplicates. LIVE-VERIFIED (scorecard live-check pass)."
+    },
+    {
+      "name": "Real flight search",
+      "command": "flights search --from \u003corigin\u003e --to \u003cdest\u003e --depart \u003cdate\u003e [--return \u003cdate\u003e]",
+      "description": "Searches real, live flight availability and fares via the GraphQL BFF's air-shopping mutation+poll flow -- not just already-booked trips. LIVE-VERIFIED 2026-08-17: real JetBlue LAX-JFK/EWR fares ($194-$2217 across cabin tiers) with policy compliance flags. Also ships 'flights locations' (metro-to-airport resolution, e.g. NYC expands to JFK/LGA/EWR/HPN) and 'flights preferences' (policy search defaults), both pure reads. KNOWN GAP: --return is accepted and included in the search, but only the outbound leg's results are rendered -- combined round-trip fares need an unmapped select-then-refine step. Net-new capability beyond the original absorb manifest; see .printing-press-patches/flights-hotels-search.json."
+    },
+    {
+      "name": "Real hotel search",
+      "command": "hotels search --to \u003cdestination\u003e --check-in \u003cdate\u003e --check-out \u003cdate\u003e",
+      "description": "Searches real, live hotel availability and rates. Architecturally unique in this CLI: the session-creation mutation is confirmed blocked from scripted replay (even a byte-for-byte replay of a request that had just succeeded natively still failed), so this command drives the real Hotel Search form via agent-browser for that one step, then reads results directly via HTTP once the session exists (confirmed working via scripted replay). Requires agent-browser installed and a live, logged-in Chrome session. LIVE-VERIFIED 2026-08-17 across two separate runs: The Greenwich Hotel ($11,553/5-star), Hilton Brooklyn New York ($3,654/4-star), Moxy Nyc East Village ($3,456/4-star) on one run; Soho House New York, Hotel On Rivington, Public on a second, confirming repeatability. Net-new capability; see .printing-press-patches/flights-hotels-search.json."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 98.25,
+    "passed": 56,
+    "total": 57,
+    "critical_failures": 0,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 87,
+      "grade": "A (1 of 25 dimensions unverified: live_api_verification)",
+      "total": 87
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ],
+    "live_check_note": "Raw live-check pass rate (1/6, 17%) understates real status: 2 of the 3 flagged failures were live-check's own static placeholder example IDs failing against this specific real tenant (both commands work when tested directly with real IDs -- see reports-validate and approvals-list-summary in proofs/2026-08-17-fix-concur-pp-cli-live-smoke.md), and the other 3 failures are the intentional, correct available-expenses-honest-failure guards. True status: 3/6 novel features fully working live, 3/6 correctly and honestly blocked by a confirmed-absent backend API."
+  },
+  "auth_notes": {
+    "works_under_cookie_auth": [
+      "account.whoami",
+      "account.travel (own profile only)",
+      "payment_types.list",
+      "expense_types.list",
+      "reports.list",
+      "reports.get",
+      "reports.validate",
+      "requests.list",
+      "requests.get",
+      "locations.search",
+      "travel_allowance.get",
+      "approvals.list",
+      "expenses.scan_duplicates",
+      "trips.list (via GraphQL BFF, NOT the REST APIs -- see trips_graphql note below)",
+      "trips.get (via GraphQL BFF, query validity confirmed; real flight/hotel data unverified -- no trip existed to test against)"
+    ],
+    "auth_gated_confirmed": {
+      "delegates.list": "401 Invalid headers -- legacy v1.1 host (www.concursolutions.com) does not recognize cookie session; requires OAuth2",
+      "account.travel_other_user": "same legacy host issue when looking up another user's profile",
+      "attendee_types.list": "403 -- requires a company-token OAuth consumer holding an admin role (Web Services Administrator / Expense Configuration Admin)",
+      "trips.get/list via REST (ABANDONED, kept for history)": "BOTH public REST travel APIs (Itinerary v4, Trip v1.1) tested live 2026-08-17 and BOTH require an OAuth2 access token (401 on both, and Itinerary v4 additionally has no list endpoint at all). This CLI no longer calls either -- see trips_graphql_bff_discovery below for what replaced them."
+    },
+    "trips_graphql_bff_discovery": "2026-08-17: per user direction to 'use the UI instead', captured the real Trips UI's network traffic via agent-browser (network har, no screenshots) and found it calls an internal GraphQL BFF (POST https://www-us2.api.concursolutions.com/cds/graphql, operation loadTripList) under the SAME cookie-session auth already used for reports/expenses -- no OAuth2 needed. trips.list and trips.get were rewired to this BFF and confirmed working live (HTTP 200, clean structurally-valid responses). Full-schema GraphQL introspection is disabled (403) but single-type __type() lookups are not, which allowed constructing and live-validating trips.get's query (tripDetail) via schema walking rather than a second live capture, since the test account has zero real trips to click into. See .printing-press-patches/trips-graphql-discovery.json for the complete investigation and the one remaining gap (tripDetail's field selection is unverified against real flight/hotel data).",
+    "confirmed_no_public_api": {
+      "available_expenses.*": "No REST or GraphQL endpoint found on developer.concur.com or captured from UI traffic; web-UI-only concept per the Aug 12 discovery report and a live 404. Originally shipped as expenses.tag, available_expenses.list/move/link_to_trip, and trips.reconcile with an honest-failure guard rather than being deleted (to preserve documentation value without user sign-off on removal). REMOVED 2026-08-19 with explicit user sign-off after re-confirming live with fresh auth that the guard was permanent, not a session-expiry artifact -- see .printing-press-patches/remove-confirmed-broken-endpoints.json."
+    },
+    "removed_2026_08_19": {
+      "attendee_types.list": "403 -- confirmed (again, with fresh auth) to require a company-token OAuth consumer admin role; matches the pre-existing auth_gated_confirmed entry below, but the command itself had shipped anyway without a guard. Removed rather than left to surface a raw 403.",
+      "attendees.search": "404 on /attendees/v4/attendees regardless of auth freshness -- no working alternative path found. Removed. attendees.list/add (a different path family, /expensereports/v4/...) are unaffected and kept.",
+      "expense_types.fields": "500 Internal Server Error even with a real, valid expense_type_id ('TRAVL') and fresh auth. Removed. expense_types.list (sibling, same resource) works fine with the same session.",
+      "reports.form_fields": "500 Internal Server Error, identical error body to expense_types.fields. Removed. The rest of reports.* (create/get/list/submit/update) is unaffected.",
+      "reports.validate": "Not a defect -- the command itself works (confirmed live 2026-08-17 against a real report). Removed because the publish packaging gate requires genuine live-data coverage for every tracked novel feature, and this test tenant has no real report fixture dogfood's harness can supply automatically. Removed by explicit user choice rather than creating a throwaway real report to satisfy the gate.",
+      "approvals.list": "Not a defect -- the command itself works (confirmed live 2026-08-17 against a real account). Removed for the same packaging-gate reason as reports.validate, compounded here by needing a real pending-approval routed to this account from another employee's report, which this test tenant has no way to manufacture."
+    },
+    "mutations_may_be_blocked_even_when_reads_work": "2026-08-17, discovered while building hotels search: this tenant's cookie session can create a flight shopping session (air.startShop) via scripted replay just fine, but CANNOT create a hotel shopping session (hotel.startShoppingSession) the same way -- confirmed via a byte-for-byte verbatim replay of a request that had JUST succeeded natively in the browser, which still failed with a generic server error. Reads against an existing session (once created via the real browser) replay perfectly fine either way. Likely explanation: Akamai bot-mitigation (ak_bmsc/_abck cookies present on this tenant per the Aug 12 discovery report) gates specific mutations more strictly than others, rather than a blanket read-vs-write policy. Practical implication for anyone extending this CLI: do not assume a new mutation will work via direct HTTP just because a sibling mutation does -- verify each one live before committing to the direct-replay architecture, and keep the agent-browser-driven fallback pattern (hotels_search.go) as a template for when it doesn't."
+  }
+}

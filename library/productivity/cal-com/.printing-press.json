@@ -96,5 +96,6 @@
       "command": "ooo list",
       "description": "List your active and upcoming out-of-office entries, sorted by start time."
     }
-  ]
+  ],
+  "description": "Every Cal.com feature, plus offline agendas, composed booking flows, and analytics no other Cal.com tool ships."
 }

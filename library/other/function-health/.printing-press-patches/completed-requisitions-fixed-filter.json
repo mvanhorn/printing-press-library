@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "completed-requisitions-fixed-filter",
+  "applied_at": "2026-07-16",
+  "base_run_id": "20260528-084148",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Keep the completed-requisitions pending=false filter inside the completed command instead of exposing a caller-controlled boolean flag.",
+  "reason": "The generated false-default boolean could not send pending=false, while the common separated form --pending false was parsed as true and returned the opposite requisition set.",
+  "files": [
+    "internal/cli/requisitions_completed.go",
+    "internal/cli/requisitions_completed_test.go"
+  ],
+  "validated_outcome": "The exact evidence help shape exits successfully with the bare completed example, and a dry-run regression test proves the request includes pending=false and never pending=true."
+}

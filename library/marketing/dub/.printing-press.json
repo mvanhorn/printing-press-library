@@ -93,5 +93,6 @@
       "command": "bounties payout-projection",
       "description": "Project upcoming payouts from approved-but-unpaid submissions multiplied by current commission rates."
     }
-  ]
+  ],
+  "description": "Modern link attribution platform — short links, conversion tracking, affiliate/partner programs."
 }

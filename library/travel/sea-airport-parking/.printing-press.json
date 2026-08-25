@@ -1,0 +1,53 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-13T20:17:12.962453Z",
+  "printing_press_version": "4.28.0",
+  "api_name": "sea-airport-parking",
+  "display_name": "SEA Airport Parking",
+  "cli_name": "sea-airport-parking-pp-cli",
+  "creator": {
+    "handle": "omarshahine",
+    "name": "Omar Shahine"
+  },
+  "owner": "omarshahine",
+  "printer": "omarshahine",
+  "printer_name": "Omar Shahine",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:ff8a3d1d440c4f2285806c7e6cc033c9798480e081edd4d25b7ff081350bf06f",
+  "run_id": "20260713-185103-c898b442",
+  "category": "travel",
+  "description": "Check, track, and get alerted on SEA's official on-airport Reserved garage — with a local price/availability history and sold-out watch that no site or aggregator has.",
+  "mcp_binary": "sea-airport-parking-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Flexible-date sweep",
+      "command": "sweep",
+      "description": "Search a flexible date window for the cheapest or any-available Reserved stay."
+    },
+    {
+      "name": "Sold-out watch",
+      "command": "watch",
+      "description": "Poll a sold-out or target date range until Reserved opens up (or drops below a price), then notify."
+    },
+    {
+      "name": "Quote-snapshot history",
+      "command": "history",
+      "description": "List every recorded quote snapshot for a date range: price, availability, promo, captured time."
+    },
+    {
+      "name": "Price / availability drift",
+      "command": "drift",
+      "description": "Summarize how a range's price and availability moved across stored snapshots: first vs latest, min/max, sold-out flips."
+    },
+    {
+      "name": "Availability calendar",
+      "command": "calendar",
+      "description": "Render price and open/sold-out across many entry days for a fixed-length stay."
+    }
+  ]
+}

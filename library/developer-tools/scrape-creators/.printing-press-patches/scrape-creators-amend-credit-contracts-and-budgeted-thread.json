@@ -1,0 +1,29 @@
+{
+  "schema_version": 2,
+  "id": "scrape-creators-amend-credit-contracts-and-budgeted-thread",
+  "applied_at": "2026-08-13",
+  "base_run_id": "20260808-150822-3ff3183d",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Amend of the credit-spending novel commands: injectable apiGetter test seam with offline behavioral tests for every credit-spend contract; comments thread gains opt-in --max-credits budgeted traversal of further top-level comment pages (with cursor-cycle detection and honest page-failure diagnosis); comments sweep drops its unreachable pre-first-fetch budget guard with the real sweepBudget invariant documented and pinned.",
+  "reason": "Three residual findings from PR #1680's final review, fixed together because they share one seam. (F1) A fresh sweepBudget starts at charged 0 with floor estimate 1, so allows() was true for every possible --max-credits before the first charge: the pre-first-fetch guard in comments sweep was unreachable dead code and TestSweepBudget_GatesTheFirstFetch proved only constructor defaults; the guard is removed and the invariant is documented on sweepBudget and pinned in tests. (F2) The novel commands' credit-spend contracts (sweep budget gating, account estimate's exit-7 boundary and creditCount parsing, thread's auto-routing thresholds) lived in RunE closures with a concrete client, so their only tests were --help smoke tests — one untested contract had already shipped a real bug (estimate's balance parse). Paid logic is now extracted behind the minimal apiGetter interface (runCommentsSweep, fetchCommentThread, runAccountEstimate) and exercised with a scripted fake client and temp SQLite. (F3) comments thread promised complete threads but fetched one page, deferring traversal until 'a credit-budget design' existed; sweepBudget is that design. With --max-credits N the command follows the envelope's cursor across further pages on both routes, charging every paid call to one budget, refusing cursors it has already served (a cyclic cursor would otherwise re-buy the same page), attributing page-fetch failures to the failed page rather than the budget, and stopping with truncated:true plus an explanatory note. The default (--max-credits 0) keeps the previous single-page cost profile exactly — deliberately opposite to sweep's 0-means-no-budget, because traversal is new spend; the flag help states the asymmetry. Envelope gains max_credits and pages_fetched.",
+  "files": [
+    "internal/cli/amend_credit_seam.go",
+    "internal/cli/amend_credit_contracts_test.go",
+    "internal/cli/amend_sweep_budget_test.go",
+    "internal/cli/comments_sweep.go",
+    "internal/cli/comments_thread.go",
+    "internal/cli/account_estimate.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "publish validate pass; 14 behavioral tests green (routing thresholds 16/15/14, exit-7 strict boundary, balance shapes, budget gate/breach/max-posts stops, traversal completes/budget-stops/breach-halts, cyclic-cursor stop without re-buying, page-failure diagnosis); phase5 quick live dogfood 15/15; library verify_skill.py pass on the updated docs; sweep runtime behavior unchanged (the removed branch was unreachable).",
+  "findings_addressed": ["F1", "F2", "F3"],
+  "deferred_to_upstream": [
+    {
+      "feature": "Novel-command scaffold emits a client-injection seam and a behavioral test skeleton instead of a vacuous --help-only test",
+      "reason": "The apiGetter seam is the per-CLI instance of a generator-level gap: every 4.30 printed CLI's novel commands ship with untestable RunE closures. Once the scaffold ships the seam, this hand-authored one becomes the generated shape."
+    }
+  ],
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/4044",
+  "patch_count": 1
+}

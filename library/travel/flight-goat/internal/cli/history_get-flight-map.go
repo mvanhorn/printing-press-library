@@ -23,59 +23,67 @@ func newHistoryGetFlightMapCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "get-flight-map <id>",
-		Short:       "Returns a historical flight's track as a base64-encoded image. Image can contain a variety of additional data layers...",
-		Example:     "  flight-goat-pp-cli history get-flight-map 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "history.get-flight-map", "mcp:read-only": "true"},
+		Short:       "Returns a historical flight's track as a base64-encoded image.",
+		Example:     "  flight-goat-pp-cli history get-flight-map UAL1234-1234567890-airline-0123",
+		Annotations: map[string]string{"pp:endpoint": "history.get-flight-map", "pp:method": "GET", "pp:path": "/history/flights/{id}/map", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
+			path := "/history/flights/{id}/map"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+			}
+			path = replacePathParam(path, "id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/history/flights/{id}/map"
-			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
 			if flagHeight != 0 {
-				params["height"] = fmt.Sprintf("%v", flagHeight)
+				params["height"] = formatCLIParamValue(flagHeight)
 			}
 			if flagWidth != 0 {
-				params["width"] = fmt.Sprintf("%v", flagWidth)
+				params["width"] = formatCLIParamValue(flagWidth)
 			}
 			if flagLayerOn != "" {
-				params["layer_on"] = fmt.Sprintf("%v", flagLayerOn)
+				params["layer_on"] = formatCLIParamValue(flagLayerOn)
 			}
 			if flagLayerOff != "" {
-				params["layer_off"] = fmt.Sprintf("%v", flagLayerOff)
+				params["layer_off"] = formatCLIParamValue(flagLayerOff)
 			}
 			if flagShowDataBlock != false {
-				params["show_data_block"] = fmt.Sprintf("%v", flagShowDataBlock)
+				params["show_data_block"] = formatCLIParamValue(flagShowDataBlock)
 			}
 			if flagAirportsExpandView != false {
-				params["airports_expand_view"] = fmt.Sprintf("%v", flagAirportsExpandView)
+				params["airports_expand_view"] = formatCLIParamValue(flagAirportsExpandView)
 			}
 			if flagShowAirports != false {
-				params["show_airports"] = fmt.Sprintf("%v", flagShowAirports)
+				params["show_airports"] = formatCLIParamValue(flagShowAirports)
 			}
 			if flagBoundingBox != "" {
-				params["bounding_box"] = fmt.Sprintf("%v", flagBoundingBox)
+				params["bounding_box"] = formatCLIParamValue(flagBoundingBox)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "history", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "history", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -101,17 +109,17 @@ func newHistoryGetFlightMapCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().IntVar(&flagHeight, "height", 480, "Height of requested image (pixels)")
 	cmd.Flags().IntVar(&flagWidth, "width", 640, "Width of requested image (pixels)")
 	cmd.Flags().StringVar(&flagLayerOn, "layer-on", "[\"country boundaries\",\"US state boundaries\",\"water\",\"US major roads\",\"radar\",\"track\",\"flights\",\"airports\"]", "List of map layers to enable")
 	cmd.Flags().StringVar(&flagLayerOff, "layer-off", "[\"US Cities\",\"european country boundaries\",\"asia country boundaries\",\"major airports\"]", "List of map layers to disable")
-	cmd.Flags().BoolVar(&flagShowDataBlock, "show-data-block", false, "Whether a textual caption containing the ident, type, heading, altitude, origin, and destination should be displayed...")
-	cmd.Flags().BoolVar(&flagAirportsExpandView, "airports-expand-view", false, "Whether to force zoom area to ensure origin/destination airports are visible. Enabling this flag forcefully enables...")
+	cmd.Flags().BoolVar(&flagShowDataBlock, "show-data-block", false, "Whether a textual caption containing the ident, type, heading, altitude, origin")
+	cmd.Flags().BoolVar(&flagAirportsExpandView, "airports-expand-view", false, "Whether to force zoom area to ensure origin/destination airports are visible.")
 	cmd.Flags().BoolVar(&flagShowAirports, "show-airports", false, "Whether to show the origin/destination airports for the flight as labeled points on the map.")
-	cmd.Flags().StringVar(&flagBoundingBox, "bounding-box", "", "Manually specify the zoom area of the map using custom bounds. Should be a list of 4 coordinates representing the...")
+	cmd.Flags().StringVar(&flagBoundingBox, "bounding-box", "", "Manually specify the zoom area of the map using custom bounds.")
 
 	return cmd
 }

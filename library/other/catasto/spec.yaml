@@ -1,0 +1,73 @@
+name: catasto
+description: "Italian cadastral CLI — convert between cadastral references (provincia/comune/foglio/particella) and WGS84 GPS coordinates, online or offline. Bridges the Agenzia delle Entrate public ajax endpoint and the community ondata Parquet centroid dataset, with offline cache and agent-native JSON output."
+cli_description: "The free, single-binary Italian cadastre CLI — converts between cadastral references and GPS, online or offline, with agent-native JSON."
+version: "0.1.0"
+base_url: "https://wms.cartografia.agenziaentrate.gov.it"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/catasto-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio]
+
+resources:
+  lookup:
+    description: "Forward lookup: GPS coordinates to cadastral reference via the Agenzia delle Entrate public ajax endpoint."
+    endpoints:
+      gps_to_cadastral:
+        method: GET
+        path: "/inspire/ajax/ajax.php"
+        description: "Resolve a WGS84 longitude/latitude point to the cadastral parcel it falls inside. Returns province code, comune codice belfiore, comune name, sezione, foglio, and particella identifier."
+        no_auth: true
+        params:
+          - name: op
+            type: string
+            required: true
+            description: "Operation name. Must be 'getDatiOggetto'."
+          - name: lon
+            type: number
+            required: true
+            description: "Longitude in WGS84 decimal degrees (EPSG:4326). Italy roughly spans 6.6 to 18.5."
+          - name: lat
+            type: number
+            required: true
+            description: "Latitude in WGS84 decimal degrees (EPSG:4326). Italy roughly spans 35.5 to 47.1."
+        response:
+          type: object
+          item: AjaxLookupResult
+
+types:
+  AjaxLookupResult:
+    description: "Response payload from the AdE ajax getDatiOggetto endpoint. Field names match upstream (uppercase Italian); 'null' string values indicate the field is not applicable to this parcel."
+    fields:
+      - name: SIGLA_PROV
+        type: string
+        description: "Two-letter ISTAT province code (e.g. RM for Roma, MI for Milano)."
+      - name: COD_COMUNE
+        type: string
+        description: "Comune codice belfiore (four-character alphanumeric, e.g. H501 for Roma)."
+      - name: DENOM
+        type: string
+        description: "Comune display name with province in parentheses, e.g. 'ROMA (RM)'."
+      - name: SEZIONE
+        type: string
+        description: "Cadastral section letter, or 'null' string when not applicable."
+      - name: FOGLIO
+        type: string
+        description: "Map sheet number, zero-padded as in the upstream system (e.g. '0508')."
+      - name: ALLEGATO
+        type: string
+        description: "Attachment marker (rare; usually 'null')."
+      - name: SVILUPPO
+        type: string
+        description: "Development marker (rare; usually 'null')."
+      - name: NUM_PART
+        type: string
+        description: "Parcel identifier (numeric or alphanumeric, e.g. 'B' or '1298')."
+      - name: TIPOLOGIA
+        type: string
+        description: "Result type, typically 'PARTICELLA'."

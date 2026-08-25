@@ -1,0 +1,192 @@
+{
+  "day": "15",
+  "start_availability": [
+    {
+      "time_index": 0,
+      "time": "6:00 am",
+      "available": true
+    },
+    {
+      "time_index": 1,
+      "time": "6:30 am",
+      "available": true
+    },
+    {
+      "time_index": 2,
+      "time": "7:00 am",
+      "available": true
+    },
+    {
+      "time_index": 3,
+      "time": "7:30 am",
+      "available": true
+    },
+    {
+      "time_index": 4,
+      "time": "8:00 am",
+      "available": true
+    },
+    {
+      "time_index": 5,
+      "time": "8:30 am",
+      "available": true
+    },
+    {
+      "time_index": 6,
+      "time": "9:00 am",
+      "available": true
+    },
+    {
+      "time_index": 7,
+      "time": "9:30 am",
+      "available": true
+    },
+    {
+      "time_index": 8,
+      "time": "10:00 am",
+      "available": true
+    },
+    {
+      "time_index": 9,
+      "time": "10:30 am",
+      "available": true
+    },
+    {
+      "time_index": 10,
+      "time": "11:00 am",
+      "available": true
+    },
+    {
+      "time_index": 11,
+      "time": "11:30 am",
+      "available": true
+    },
+    {
+      "time_index": 12,
+      "time": "12:00 pm",
+      "available": true
+    },
+    {
+      "time_index": 13,
+      "time": "12:30 pm",
+      "available": true
+    },
+    {
+      "time_index": 14,
+      "time": "1:00 pm",
+      "available": true
+    },
+    {
+      "time_index": 15,
+      "time": "1:30 pm",
+      "available": true
+    },
+    {
+      "time_index": 16,
+      "time": "2:00 pm",
+      "available": true
+    },
+    {
+      "time_index": 17,
+      "time": "2:30 pm",
+      "available": true
+    },
+    {
+      "time_index": 18,
+      "time": "3:00 pm",
+      "available": true
+    },
+    {
+      "time_index": 19,
+      "time": "3:30 pm",
+      "available": true
+    },
+    {
+      "time_index": 20,
+      "time": "4:00 pm",
+      "available": true
+    },
+    {
+      "time_index": 21,
+      "time": "4:30 pm",
+      "available": true
+    },
+    {
+      "time_index": 22,
+      "time": "5:00 pm",
+      "available": true
+    },
+    {
+      "time_index": 23,
+      "time": "5:30 pm",
+      "available": true
+    },
+    {
+      "time_index": 24,
+      "time": "6:00 pm",
+      "available": true
+    },
+    {
+      "time_index": 25,
+      "time": "6:30 pm",
+      "available": true
+    },
+    {
+      "time_index": 26,
+      "time": "7:00 pm",
+      "available": true
+    },
+    {
+      "time_index": 27,
+      "time": "7:30 pm",
+      "available": true
+    },
+    {
+      "time_index": 28,
+      "time": "8:00 pm",
+      "available": true
+    },
+    {
+      "time_index": 29,
+      "time": "8:30 pm",
+      "available": true
+    },
+    {
+      "time_index": 30,
+      "time": "9:00 pm",
+      "available": true
+    },
+    {
+      "time_index": 31,
+      "time": "9:30 pm",
+      "available": true
+    },
+    {
+      "time_index": 32,
+      "time": "10:00 pm",
+      "available": true
+    },
+    {
+      "time_index": 33,
+      "time": "10:30 pm",
+      "available": true
+    },
+    {
+      "time_index": 34,
+      "time": "11:00 pm",
+      "available": true
+    },
+    {
+      "time_index": 35,
+      "time": "11:30 pm",
+      "available": true
+    }
+  ],
+  "month": "9",
+  "search_type": "start",
+  "year": "2026",
+  "space_id": "68d458dba45ae0878156d4b6",
+  "listing_id": "68d468bb44492187e415d4a6",
+  "is_min_duration_test_group": "true",
+  "message": "day availability"
+}

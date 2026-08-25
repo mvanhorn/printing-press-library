@@ -1,0 +1,216 @@
+{
+  "api_name": "thelancet",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "pubmed-cli",
+      "url": "https://github.com/tpapp/pubmed-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 156,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pyalex",
+      "url": "https://github.com/J535D165/pyalex",
+      "language": "Python",
+      "install_method": "",
+      "stars": 250,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-17T10:25:00Z",
+  "novel_features": [
+    {
+      "name": "Lab Citation Impact Rank",
+      "command": "rank-authors",
+      "description": "Rank researchers at your institution by citation impact within a specific Lancet journal or topic.",
+      "rationale": "Requires a full author-citation graph pre-materialized locally from OpenAlex; external APIs cannot cross-tab instantly across journals.",
+      "example": "thelancet-pp-cli rank-authors --institution 'Harvard' --journal lancet-oncology --json",
+      "why_it_matters": "Grant managers and department heads use this to identify who is leading at your institution in a specific field; agents can use it to find high-impact collaborators.",
+      "group": "Local data compounds"
+    },
+    {
+      "name": "Institutional Citation Mesh",
+      "command": "mesh",
+      "description": "Find researchers at your institution who co-author Lancet papers and quantify how their work connects.",
+      "rationale": "Requires author identity resolution and a co-authorship graph built from OpenAlex authorships; impossible without a pre-synced local store.",
+      "example": "thelancet-pp-cli mesh --org 'Stanford University' --json",
+      "why_it_matters": "Librarians and research directors use this to uncover collaboration opportunities and map how an institution's researchers connect through Lancet.",
+      "group": "Local data compounds"
+    },
+    {
+      "name": "Affiliation Growth Tracking",
+      "command": "affiliation-growth",
+      "description": "Track institutions gaining publication velocity in Lancet journals; identify rising research centers.",
+      "rationale": "Requires per-year institutional publication counts derived from OpenAlex authorship+date data; point-in-time API queries cannot reveal multi-year trends.",
+      "example": "thelancet-pp-cli affiliation-growth --journal lancet-neurology --years 5 --json",
+      "why_it_matters": "Strategy teams track this to understand competitive research landscapes and identify emerging partner institutions.",
+      "group": "Local data compounds"
+    },
+    {
+      "name": "Editorial Drift Detector",
+      "command": "drift",
+      "description": "Compare how a journal's topic distribution shifts between two time windows; spot emerging and fading specialties.",
+      "rationale": "Requires stored topic-tagged works across windows; no API serves comparative topic-distribution queries for arbitrary windows.",
+      "example": "thelancet-pp-cli drift --journal lancet-oncology --window1 2018:2020 --window2 2023:2024 --json",
+      "why_it_matters": "Research strategists use this to align their work with journal editorial priorities and detect when journal scope shifts.",
+      "group": "Offline analysis"
+    },
+    {
+      "name": "Reading List Curation",
+      "command": "curate",
+      "description": "Auto-generate ranked reading lists for a topic, sorted by date/citations/relevance, exportable as Markdown or BibTeX.",
+      "rationale": "Fast local ranking on tens of thousands of articles with multi-dimensional sort requires a pre-indexed local store.",
+      "example": "thelancet-pp-cli curate --topic 'gene therapy' --sort citations --output bibtex",
+      "why_it_matters": "Librarians and researchers use this to quickly assemble authoritative reading lists without manual screening.",
+      "group": "Offline analysis"
+    },
+    {
+      "name": "Citation Visibility Gap",
+      "command": "visibility-gap",
+      "description": "Find authors whose citation impact is out of step with the prestige of the Lancet journals they publish in.",
+      "rationale": "Requires cross-tabulating per-author citation counts against per-journal prestige from the local OpenAlex store; three aggregates impossible in one API call.",
+      "example": "thelancet-pp-cli visibility-gap --institution 'Oxford' --json",
+      "why_it_matters": "Grant managers and research directors use this to identify under-recognized talent for promotion or collaboration.",
+      "group": "Local data compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Lab Citation Impact Rank",
+      "command": "rank-authors",
+      "description": "Rank researchers at your institution by citation impact within a specific Lancet journal or topic.",
+      "rationale": "Requires a full author-citation graph pre-materialized locally from OpenAlex; external APIs cannot cross-tab instantly across journals.",
+      "example": "thelancet-pp-cli rank-authors --institution 'Harvard' --journal lancet-oncology --json",
+      "why_it_matters": "Grant managers and department heads use this to identify who is leading at your institution in a specific field; agents can use it to find high-impact collaborators.",
+      "group": "Local data compounds"
+    },
+    {
+      "name": "Institutional Citation Mesh",
+      "command": "mesh",
+      "description": "Find researchers at your institution who co-author Lancet papers and quantify how their work connects.",
+      "rationale": "Requires author identity resolution and a co-authorship graph built from OpenAlex authorships; impossible without a pre-synced local store.",
+      "example": "thelancet-pp-cli mesh --org 'Stanford University' --json",
+      "why_it_matters": "Librarians and research directors use this to uncover collaboration opportunities and map how an institution's researchers connect through Lancet.",
+      "group": "Local data compounds"
+    },
+    {
+      "name": "Affiliation Growth Tracking",
+      "command": "affiliation-growth",
+      "description": "Track institutions gaining publication velocity in Lancet journals; identify rising research centers.",
+      "rationale": "Requires per-year institutional publication counts derived from OpenAlex authorship+date data; point-in-time API queries cannot reveal multi-year trends.",
+      "example": "thelancet-pp-cli affiliation-growth --journal lancet-neurology --years 5 --json",
+      "why_it_matters": "Strategy teams track this to understand competitive research landscapes and identify emerging partner institutions.",
+      "group": "Local data compounds"
+    },
+    {
+      "name": "Editorial Drift Detector",
+      "command": "drift",
+      "description": "Compare how a journal's topic distribution shifts between two time windows; spot emerging and fading specialties.",
+      "rationale": "Requires stored topic-tagged works across windows; no API serves comparative topic-distribution queries for arbitrary windows.",
+      "example": "thelancet-pp-cli drift --journal lancet-oncology --window1 2018:2020 --window2 2023:2024 --json",
+      "why_it_matters": "Research strategists use this to align their work with journal editorial priorities and detect when journal scope shifts.",
+      "group": "Offline analysis"
+    },
+    {
+      "name": "Reading List Curation",
+      "command": "curate",
+      "description": "Auto-generate ranked reading lists for a topic, sorted by date/citations/relevance, exportable as Markdown or BibTeX.",
+      "rationale": "Fast local ranking on tens of thousands of articles with multi-dimensional sort requires a pre-indexed local store.",
+      "example": "thelancet-pp-cli curate --topic 'gene therapy' --sort citations --output bibtex",
+      "why_it_matters": "Librarians and researchers use this to quickly assemble authoritative reading lists without manual screening.",
+      "group": "Offline analysis"
+    },
+    {
+      "name": "Citation Visibility Gap",
+      "command": "visibility-gap",
+      "description": "Find authors whose citation impact is out of step with the prestige of the Lancet journals they publish in.",
+      "rationale": "Requires cross-tabulating per-author citation counts against per-journal prestige from the local OpenAlex store; three aggregates impossible in one API call.",
+      "example": "thelancet-pp-cli visibility-gap --institution 'Oxford' --json",
+      "why_it_matters": "Grant managers and research directors use this to identify under-recognized talent for promotion or collaboration.",
+      "group": "Local data compounds"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "The Lancet",
+    "headline": "Search Lancet articles offline and analyze author impact, institutional networks, and editorial trends — powered by the free OpenAlex scholarly graph.",
+    "value_prop": "The Lancet CLI gives researchers and institutions offline access to The Lancet family of journals via OpenAlex. Beyond search and fetch, it ranks researchers by citation impact within a specialty (rank-authors), maps institutional co-authorship networks (mesh), tracks which institutions are publishing more over time (affiliation-growth), and detects how a journal's editorial focus shifts (drift) — insights impossible from single API queries or paywalled tools.",
+    "quickstart": [
+      {
+        "command": "thelancet-pp-cli doctor --dry-run",
+        "comment": "Verify the CLI is working and OpenAlex is reachable (no auth required)"
+      },
+      {
+        "command": "thelancet-pp-cli works search --search 'CRISPR gene therapy' --per-page 5",
+        "comment": "Find recent Lancet articles on a research topic (scoped to Lancet journals by default)"
+      },
+      {
+        "command": "thelancet-pp-cli refresh --journal lancet",
+        "comment": "Build the local database from OpenAlex so the analytics commands below can run offline"
+      },
+      {
+        "command": "thelancet-pp-cli rank-authors --journal lancet-oncology --json",
+        "comment": "Rank the most-cited authors in a specific Lancet journal"
+      },
+      {
+        "command": "thelancet-pp-cli drift --journal lancet-oncology --window1 2018:2020 --window2 2023:2024",
+        "comment": "See how the journal's editorial focus has shifted between two periods"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "analytics command says 'no local mirror'",
+        "fix": "Run refresh first: thelancet-pp-cli refresh --journal lancet (analytics read the local OpenAlex-derived store)"
+      },
+      {
+        "symptom": "rank-authors or mesh returns empty for an institution",
+        "fix": "Institution names match OpenAlex display names; try a distinctive substring like 'Oxford' rather than a full legal name or acronym"
+      },
+      {
+        "symptom": "OpenAlex returns 429 (rate limited)",
+        "fix": "OpenAlex allows ~10 req/s; lower --rate-limit or set a contact email via OPENALEX_MAILTO to join the polite pool"
+      }
+    ],
+    "when_to_use": "Use this CLI to answer questions about The Lancet's research landscape offline and without API throttling: literature reviews, tracking institutional publication trends, finding collaborators, and analyzing how medical research evolves over time.",
+    "anti_triggers": [
+      "Do NOT use this CLI for real-time article feeds or breaking news; it syncs periodically from OpenAlex, not continuously",
+      "Do NOT use this for journal submission or peer-review status; it mirrors published works, not the editorial pipeline",
+      "Do NOT use this for full-text access to paywalled articles; it returns metadata, topics, and links only"
+    ],
+    "recipes": [
+      {
+        "title": "Build a topic reading list for a literature review",
+        "command": "thelancet-pp-cli curate --topic 'machine learning diagnosis' --sort citations --output bibtex \u003e review.bib",
+        "explanation": "Generate a citation-ranked, BibTeX-exportable reading list on a topic across Lancet journals in one command."
+      },
+      {
+        "title": "Narrow a deeply nested works response for an agent",
+        "command": "thelancet-pp-cli works search --search 'immunotherapy' --per-page 10 --agent --select results.title,results.cited_by_count,results.authorships.author.display_name",
+        "explanation": "OpenAlex works are large and deeply nested; pair --agent with dotted --select paths to return only the fields you need and save context."
+      },
+      {
+        "title": "Spot editorial drift in a specialty journal",
+        "command": "thelancet-pp-cli drift --journal lancet-oncology --window1 2018:2020 --window2 2023:2024 --top-n 15",
+        "explanation": "Compare topic distributions across two multi-year windows to see which specialties the journal now publishes more or less of."
+      }
+    ],
+    "trigger_phrases": [
+      "search Lancet articles for",
+      "rank the top authors in Lancet",
+      "which institutions publish most in",
+      "how has this journal's focus changed",
+      "build a reading list on"
+    ]
+  }
+}

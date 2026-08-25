@@ -1,0 +1,70 @@
+name: notebooklm
+description: Unofficial Gemini Notebook (NotebookLM) client via Google batchexecute RPC (no official public API)
+version: 0.1.0
+base_url: https://notebooklm.google.com
+spec_source: sniffed
+category: ai
+http_transport: browser-chrome
+auth:
+  type: cookie
+  cookie_domain: .google.com
+  cookies:
+    - SID
+    - __Secure-1PSID
+    - __Secure-3PSID
+    - SAPISID
+    - HSID
+    - SSID
+    - APISID
+    - OSID
+    - __Secure-OSID
+config:
+  format: toml
+  path: ~/.config/notebooklm-pp-cli/config.toml
+learn:
+  disabled: true
+resources:
+  notebooks:
+    description: Notebook (project) CRUD via batchexecute RPCs
+    endpoints:
+      list:
+        method: POST
+        path: /_/LabsTailwindUi/data/batchexecute
+        description: List recently viewed notebooks (rpcid wXbhsf / ListRecentlyViewedProjects)
+      create:
+        method: POST
+        path: /_/LabsTailwindUi/data/batchexecute
+        description: Create notebook (rpcid CCqFvf / CreateProject)
+      get:
+        method: POST
+        path: /_/LabsTailwindUi/data/batchexecute
+        description: Get notebook with sources (rpcid rLM1Ne / GetProject)
+  sources:
+    description: Source management within a notebook
+    endpoints:
+      add:
+        method: POST
+        path: /_/LabsTailwindUi/data/batchexecute
+        description: Add source (rpcid izAoDd)
+      list:
+        method: POST
+        path: /_/LabsTailwindUi/data/batchexecute
+        description: Included in GetProject response
+  chat:
+    description: Chat and conversation history
+    endpoints:
+      query:
+        method: POST
+        path: /_/LabsTailwindUi/data/google.internal.labs.tailwind.orchestration.v1.LabsTailwindOrchestrationService/GenerateFreeFormStreamed
+        description: Streamed chat query (not batchexecute)
+  artifacts:
+    description: Studio artifact generation and management
+    endpoints:
+      create:
+        method: POST
+        path: /_/LabsTailwindUi/data/batchexecute
+        description: Create artifact (rpcid R7cb6c)
+      list:
+        method: POST
+        path: /_/LabsTailwindUi/data/batchexecute
+        description: List artifacts (rpcid gArtLc)

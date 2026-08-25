@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-dry-run-argomenti-segnaposto",
+  "applied_at": "2026-08-22",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.30.3",
+  "summary": "Sotto `--dry-run` (e sotto verify) un argomento posizionale che non si parsa fa ripiegare sull'help invece di fallire, su `legge cronologia` e `ddl iter`. Senza `--dry-run` resta un errore.",
+  "reason": "La matrice di collaudo sonda i comandi scritti a mano con argomenti segnaposto (`mock-value`, che compare negli esempi di README e SKILL). Spostando la guardia `--dry-run` dopo il parsing per poter costruire l'anteprima, quella sonda passava da exit 0 a exit 1. Il ripiego e' lo stesso ramo che questi comandi gia' usano per gli argomenti mancanti: un'uscita non muta, con codice 0.",
+  "files": [
+    "internal/cli/legge_cronologia.go",
+    "internal/cli/ddl_iter.go"
+  ],
+  "validated_outcome": "`legge cronologia mock-value mock-value --dry-run` e `ddl iter mock-value mock-value --dry-run` -> exit 0 con l'help, come col binario precedente; senza `--dry-run` entrambi restano exit 1. Collaudo live: 127 pass, 71 skip, 0 fail."
+}

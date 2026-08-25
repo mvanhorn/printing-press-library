@@ -1,0 +1,188 @@
+type: object
+required:
+  - name
+properties:
+  id:
+    type: integer
+    format: int
+    example: 1336
+  name:
+    type: string
+    example: CreativeTools
+  first_name:
+    type: string
+    example: Creative
+  last_name:
+    type: string
+    example: Tools
+  email:
+    type: string
+    example: thingiverse@creativetools.se
+  url:
+    type: string
+    example: https://api.thingiverse.com/users/CreativeTools
+  public_url:
+    type: string
+    example: https://www.thingiverse.com/CreativeTools
+  thumbnail:
+    type: string
+    example: https://cdn.thingiverse.com/renders/b3/a5/0c/45/3f/CT_thumb_medium.jpg
+  bio:
+    type: string
+    example: Creative Tools offers a wide range of software and hardware for both beginners and professional 2D and 3D creators. We always release [our 3D models](http:\/\/www.thingiverse.com\/CreativeTools\/designs) free of charge for anyone to download and use. Please [let us know](mailto:thingiverse@creativetools.se) if you have comments on our files or want to suggest future project ideas. Your feedback is highly appreciated!\r\n\r\n### Do you like our designs?\r\nPlease support us by placing your next 3D related order at [www.creativetools.se](https:\/\/www.creativetools.se\/). We offer a wide range of 3D software and 3D hardware, and are authorized resellers of well-known brands such as [Autodesk](https:\/\/www.creativetools.se\/autodesk), [Adobe](https:\/\/www.creativetools.se\/adobe), [Chaos Group](https:\/\/www.creativetools.se\/chaos-group), [Ultimaker](https:\/\/www.creativetools.se\/ultimaker), [Flashforge](https:\/\/www.creativetools.se\/flashforge), [MakerBot](https:\/\/www.creativetools.se\/makerbot) and [Formlabs](https:\/\/www.creativetools.se\/formlabs).\r\n\r\n\r\nWe would be honoured to serve you as a customer at [www.creativetools.se](https:\/\/www.creativetools.se).\r\n\r\n* * *  \r\n######[Online store](https:\/\/www.creativetools.se\/) - [Blog](https:\/\/blog.creativetools.se\/) -  [#3DBenchy](http:\/\/www.3DBenchy.com) - [Twitter](http:\/\/twitter.com\/CreativeTools) - [Facebook](http:\/\/facebook.com\/creativetools) - [YouTube](http:\/\/youtube.com\/creativetools) - [Instagram](http:\/\/instagram.com\/creative_tools) - [LinkedIn](https:\/\/www.linkedin.com\/company\/creative-tools)
+  bio_html:
+    type: string
+    example: <div><p>Creative Tools offers a wide range of software and hardware for both beginners and professional 2D and 3D creators. We always release <a rel=\"ugc nofollow\" href=\"\/CreativeTools\/designs\">our 3D models<\/a> free of charge for anyone to download and use. Please <a href=\"mailto:thingiverse%20at%20creativetools.se\">let us know<\/a> if you have comments on our files or want to suggest future project ideas. Your feedback is highly appreciated!<\/p><h3>Do you like our designs?<\/h3><p>Please support us by placing your next 3D related order at <a rel=\"ugc nofollow\" href=\"https:\/\/www.creativetools.se\/\">www.creativetools.se<\/a>. We offer a wide range of 3D software and 3D hardware, and are authorized resellers of well-known brands such as <a rel=\"ugc nofollow\" href=\"https:\/\/www.creativetools.se\/autodesk\">Autodesk<\/a>, <a rel=\"ugc nofollow\" href=\"https:\/\/www.creativetools.se\/adobe\">Adobe<\/a>, <a rel=\"ugc nofollow\" href=\"https:\/\/www.creativetools.se\/chaos-group\">Chaos Group<\/a>, <a rel=\"ugc nofollow\" href=\"https:\/\/www.creativetools.se\/ultimaker\">Ultimaker<\/a>, <a rel=\"ugc nofollow\" href=\"https:\/\/www.creativetools.se\/flashforge\">Flashforge<\/a>, <a rel=\"ugc nofollow\" href=\"https:\/\/www.creativetools.se\/makerbot\">MakerBot<\/a> and <a rel=\"ugc nofollow\" href=\"https:\/\/www.creativetools.se\/formlabs\">Formlabs<\/a>.<\/p><p>We would be honoured to serve you as a customer at <a rel=\"ugc nofollow\" href=\"https:\/\/www.creativetools.se\">www.creativetools.se<\/a>.<\/p><hr><h6><a rel=\"ugc nofollow\" href=\"https:\/\/www.creativetools.se\/\">Online store<\/a> - <a rel=\"ugc nofollow\" href=\"https:\/\/blog.creativetools.se\/\">Blog<\/a> -  <a rel=\"ugc nofollow\" href=\"http:\/\/www.3DBenchy.com\">#3DBenchy<\/a> - <a rel=\"ugc nofollow\" href=\"http:\/\/twitter.com\/CreativeTools\">Twitter<\/a> - <a rel=\"ugc nofollow\" href=\"http:\/\/facebook.com\/creativetools\">Facebook<\/a> - <a rel=\"ugc nofollow\" href=\"http:\/\/youtube.com\/creativetools\">YouTube<\/a> - <a rel=\"ugc nofollow\" href=\"http:\/\/instagram.com\/creative_tools\">Instagram<\/a> - <a rel=\"ugc nofollow\" href=\"https:\/\/www.linkedin.com\/company\/creative-tools\">LinkedIn<\/a><\/h6><\/div>\n
+  level:
+    type: integer
+    format: int
+    example: 10
+    description: Is the user an admin or moderator? This will return 10 if user is a normal user
+  location:
+    type: string
+    example: Halmstad, Sweden
+  country:
+    type: string
+    nullable: true
+    example: null
+  registered:
+    type: string
+    format: date-time
+    example: "2009-11-10T10:49:44+00:00"
+  last_active:
+    type: string
+    format: date-time
+    example: "2023-08-01T13:53:53+00:00"
+  cover_image:
+    type: string
+    example: https://cdn.thingiverse.com/renders/6d/54/65/5c/9b/Thingiverse_background_3_preview_birdwing.jpg
+  things_url:
+    type: string
+    example: https://api.thingiverse.com/users/CreativeTools/things
+  copies_url:
+    type: string
+    example: https://api.thingiverse.com/users/CreativeTools/copies
+  likes_url:
+    type: string
+    example: https://api.thingiverse.com/users/CreativeTools/likes
+  printers:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2553
+        name:
+          type: string
+          example: "An army of 3D printers"
+        public_url: 
+          type: string
+          nullable: true
+          example: null
+  programs:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 38
+        name:
+          type: string
+          example: "Rhino"
+  types:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 12
+        name:
+          type: string
+          example: Professional
+  skill_level:
+    type: string
+    example: Advanced
+  accepts_tips:
+    type: boolean
+    example: false
+  groups:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 25
+        name:
+          type: string
+          example: Engineering
+        public_url:
+          type: string
+          example: https://www.thingiverse.com/groups/engineering
+  website: 
+    type: string
+    example: http://CreativeTools.se
+  twitter:
+    type: object
+    nullable: true
+    properties:
+      account_name:
+        type: string
+        example: CreativeTools
+      account_url:
+        type: string
+        example: http://twitter.com/CreativeTools
+  count_of_followers:
+    type: integer
+    format: int
+    example: 9828
+  count_of_following:
+    type: integer
+    format: int
+    example: 975
+  count_of_downloads:
+    type: integer
+    format: int
+    example: 254170
+  count_of_designs:
+    type: integer
+    format: int
+    example: 147
+  collection_count:
+    type: integer
+    format: int
+    example: 16
+  make_count:
+    type: integer
+    format: int
+    exampele: 240
+  like_count:
+    type: integer
+    format: int
+    exampele: 2096
+  has_favorite:
+    type: boolean
+    example: true 
+  favorite_count:
+    type: integer
+    format: int
+    example: 6
+  is_admin: 
+    type: boolean
+    example: false
+  is_moderator:
+    type: boolean
+    example: false
+  is_featured:
+    type: boolean
+    example: false
+  is_verified:
+    type: boolean
+    example: false
+  is_following:
+    type: boolean
+    example: true
+  

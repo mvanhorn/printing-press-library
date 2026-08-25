@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "amazon-jobs",
+  "run_id": "20260725-041142-9944f727",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 81,
+  "tests_passed": 81,
+  "tests_skipped": 57,
+  "auth_context": {
+    "type": "none"
+  }
+}

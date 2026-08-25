@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "adaptive-limiter-floor-must-not-block-backoff",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260514-212234",
+  "base_printing_press_version": "4.6.1",
+  "summary": "The adaptive limiter's floor is an absolute 0.5 rps, dropping to the caller's starting rate only when that is already below 0.5: seeding the floor from ratePerSec unconditionally makes the 429 backoff mathematically unreachable, since halving is immediately clamped back up.",
+  "reason": "This print shipped NewAdaptiveLimiter with floor set to ratePerSec, so OnRateLimit halved the rate and the floor clamp restored it on the same call — the limiter never slowed down after a 429, and its own TestAdaptiveLimiter_HalvesOnRateLimit failed from the day the CLI was published. Current generator templates compute floor as 0.5 clamped down to startRate; this patch adopts that semantics without importing the newer maxRate / NewAdaptiveLimiterAuto API, which would change the package's public surface.",
+  "files": ["internal/cliutil/ratelimit.go"],
+  "validated_outcome": "go test ./... now passes; before the change TestAdaptiveLimiter_HalvesOnRateLimit failed deterministically (Rate() after OnRateLimit = 8, want 4) on three consecutive runs, including on a clean checkout of main with no local changes. The defect is not specific to this CLI: sampled peers printed in the same era (other/edgar, food-and-dining/coffee-goat, developer-tools/pdok-location, marketing/google-search-console, developer-tools/nse-india) carry the same floor and the same failing test, while CLIs printed from later templates already have the fixed form."
+}

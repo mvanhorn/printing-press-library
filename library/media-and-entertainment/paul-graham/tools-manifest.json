@@ -1,0 +1,24 @@
+{
+  "api_name": "paul-graham",
+  "base_url": "https://www.paulgraham.com",
+  "description": "Static public essay index for paulgraham.com.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "articles-html_essays-index-get",
+      "description": "Returns the static HTML essay index from paulgraham.com. The site does not expose an official JSON API; native CLI helpers parse this page and linked essay pages.",
+      "method": "GET",
+      "path": "/articles.html",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

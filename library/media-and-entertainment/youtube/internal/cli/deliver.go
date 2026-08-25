@@ -75,7 +75,7 @@ func deliverFile(path string, body []byte) error {
 	// file if the process is interrupted mid-write.
 	dir := filepath.Dir(path)
 	if dir != "" && dir != "." {
-		if err := os.MkdirAll(dir, 0o755); err != nil {
+		if err := os.MkdirAll(dir, 0o700); err != nil {
 			return fmt.Errorf("creating deliver dir: %w", err)
 		}
 	}
@@ -99,7 +99,11 @@ func deliverWebhook(url string, body []byte, compact bool) error {
 		return fmt.Errorf("building webhook request: %w", err)
 	}
 	req.Header.Set("Content-Type", contentType)
-	req.Header.Set("User-Agent", "youtube-pp-cli/deliver")
+	if ua := os.Getenv("YOUTUBE_USER_AGENT"); ua != "" {
+		req.Header.Set("User-Agent", ua)
+	} else {
+		req.Header.Set("User-Agent", "youtube-pp-cli/deliver")
+	}
 
 	client := &http.Client{Timeout: 30 * time.Second}
 	resp, err := client.Do(req)

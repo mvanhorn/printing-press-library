@@ -1,0 +1,5897 @@
+{
+  "api_name": "netlify",
+  "base_url": "https://api.netlify.com/api/v1",
+  "description": "Every Netlify API endpoint, plus a local SQLite mirror of your whole account so you can search, diff, and audit across all sites at once — offline and agent-native.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "NETLIFY_AUTH_TOKEN",
+      "NETLIFY_NETLIFY_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "NETLIFY_AUTH_TOKEN",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true
+      },
+      {
+        "name": "NETLIFY_NETLIFY_AUTH",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "accounts_cancel",
+      "description": "Cancel. Required: account_id. Destructive.",
+      "description_source": "generated",
+      "method": "DELETE",
+      "path": "/accounts/{account_id}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_create",
+      "description": "Create a new account. Required: name, type_id. Optional: extra_seats_block, payment_method_id, period. Returns the new AccountsCreateResponse.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/accounts",
+      "params": [
+        {
+          "name": "extra_seats_block",
+          "type": "int",
+          "location": "body",
+          "description": "Extra seats block"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "payment_method_id",
+          "type": "string",
+          "location": "body",
+          "description": "Payment method id"
+        },
+        {
+          "name": "period",
+          "type": "string",
+          "location": "body",
+          "description": "Period"
+        },
+        {
+          "name": "type_id",
+          "type": "string",
+          "location": "body",
+          "description": "Type id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_get",
+      "description": "Get an account. Required: account_id. Returns the AccountsGetResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/accounts/{account_id}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_list-for-user",
+      "description": "List for user. Optional: minimal. Returns array of AccountsListForUserItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/accounts",
+      "params": [
+        {
+          "name": "minimal",
+          "type": "bool",
+          "location": "query",
+          "description": "Minimal"
+        }
+      ]
+    },
+    {
+      "name": "accounts_list-types-for-user",
+      "description": "List types for user. Returns array of AccountsListTypesForUserItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/accounts/types",
+      "params": []
+    },
+    {
+      "name": "accounts_update",
+      "description": "Update an account. Required: account_id. Optional: billing_details, billing_email, billing_name (plus 4 more). Returns the updated AccountsUpdateResponse.",
+      "description_source": "generated",
+      "method": "PUT",
+      "path": "/accounts/{account_id}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "billing_details",
+          "type": "string",
+          "location": "body",
+          "description": "Billing details"
+        },
+        {
+          "name": "billing_email",
+          "type": "string",
+          "location": "body",
+          "description": "Billing email"
+        },
+        {
+          "name": "billing_name",
+          "type": "string",
+          "location": "body",
+          "description": "Billing name"
+        },
+        {
+          "name": "extra_seats_block",
+          "type": "int",
+          "location": "body",
+          "description": "Extra seats block"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "body",
+          "description": "Slug"
+        },
+        {
+          "name": "type_id",
+          "type": "string",
+          "location": "body",
+          "description": "Type id"
+        }
+      ]
+    },
+    {
+      "name": "accounts_ai-gateway_get-account-token",
+      "description": "Returns an AI Gateway token scoped to an account. Required: account_id.",
+      "method": "GET",
+      "path": "/accounts/{account_id}/ai-gateway/token",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "The account ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_audit_list-account-events",
+      "description": "List account events. Required: account_id. Optional: query, log_type, page (plus 1 more). Returns array of AuditListAccountEventsItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/accounts/{account_id}/audit",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query"
+        },
+        {
+          "name": "log_type",
+          "type": "string",
+          "location": "query",
+          "description": "Log type"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_env_create-vars",
+      "description": "Creates new environment variables. Granular scopes are available on Pro plans and above. Required: account_id. Optional: site_id. Returns array of EnvCreateVarsItem.",
+      "method": "POST",
+      "path": "/accounts/{account_id}/env",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "Scope response to account_id",
+          "required": true
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "query",
+          "description": "If provided, create an environment variable on the site level, not the account level"
+        }
+      ]
+    },
+    {
+      "name": "accounts_env_delete-var",
+      "description": "Deletes an environment variable. Required: account_id, key. Optional: site_id. Destructive.",
+      "method": "DELETE",
+      "path": "/accounts/{account_id}/env/{key}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "Scope response to account_id",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "path",
+          "description": "The environment variable key (case-sensitive)",
+          "required": true
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "query",
+          "description": "If provided, delete the environment variable from this site"
+        }
+      ]
+    },
+    {
+      "name": "accounts_env_delete-var-value",
+      "description": "Deletes a specific environment variable value. Required: account_id, id, key. Optional: site_id. Destructive.",
+      "method": "DELETE",
+      "path": "/accounts/{account_id}/env/{key}/value/{id}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "Scope response to account_id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The environment variable value's ID",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "path",
+          "description": "The environment variable key name (case-sensitive)",
+          "required": true
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "query",
+          "description": "If provided, delete the value from an environment variable on this site"
+        }
+      ]
+    },
+    {
+      "name": "accounts_env_get-var",
+      "description": "Returns an individual environment variable. Required: account_id, key. Optional: site_id.",
+      "method": "GET",
+      "path": "/accounts/{account_id}/env/{key}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "Scope response to account_id",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "path",
+          "description": "The environment variable key (case-sensitive)",
+          "required": true
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "query",
+          "description": "If provided, return the environment variable for a specific site (no merging is performed)"
+        }
+      ]
+    },
+    {
+      "name": "accounts_env_get-vars",
+      "description": "Returns all environment variables for an account or site. An account corresponds to a team in the Netlify UI. Required: account_id. Optional: context_name, scope, site_id.",
+      "method": "GET",
+      "path": "/accounts/{account_id}/env",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "Scope response to account_id",
+          "required": true
+        },
+        {
+          "name": "context_name",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by deploy context"
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by scope"
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "query",
+          "description": "If specified, only return environment variables set on this site"
+        }
+      ]
+    },
+    {
+      "name": "accounts_env_set-var-value",
+      "description": "Updates or creates a new value for an existing environment variable. Required: account_id, key. Optional: site_id, context, context_parameter (plus 1 more). Returns the updated EnvSetVarValueResponse.",
+      "method": "PATCH",
+      "path": "/accounts/{account_id}/env/{key}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "Scope response to account_id",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "path",
+          "description": "The existing environment variable key name (case-sensitive)",
+          "required": true
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "query",
+          "description": "If provided, update an environment variable set on this site"
+        },
+        {
+          "name": "context",
+          "type": "string",
+          "location": "body",
+          "description": "The deploy context in which this value will be used. `dev` refers to local development when running `netlify dev`. `branch` must be provided with a value in `context_parameter`."
+        },
+        {
+          "name": "context_parameter",
+          "type": "string",
+          "location": "body",
+          "description": "An additional parameter for custom branches. Currently, this is used for providing a branch name when `context=branch`."
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "location": "body",
+          "description": "The environment variable's unencrypted value"
+        }
+      ]
+    },
+    {
+      "name": "accounts_env_update-var",
+      "description": "Updates an existing environment variable and all of its values. Existing values will be replaced by values provided. Required: account_id, key. Optional: site_id, is_secret, key-2 (plus 2 more). Returns the updated EnvUpdateVarResponse.",
+      "method": "PUT",
+      "path": "/accounts/{account_id}/env/{key}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "Scope response to account_id",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "path",
+          "description": "The existing environment variable key name (case-sensitive)",
+          "required": true
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "query",
+          "description": "If provided, update an environment variable set on this site"
+        },
+        {
+          "name": "is_secret",
+          "type": "bool",
+          "location": "body",
+          "description": "Secret values are only readable by code running on Netlify's systems. With secrets, only the local development context values are readable from the UI, API, and CLI. By default, environment variable values are not secret."
+        },
+        {
+          "name": "key-2",
+          "wire_name": "key",
+          "type": "string",
+          "location": "body",
+          "description": "The existing or new name of the key, if you wish to rename it (case-sensitive)"
+        },
+        {
+          "name": "scopes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The scopes that this environment variable is set to (Pro plans and above)"
+        },
+        {
+          "name": "values",
+          "type": "array",
+          "location": "body",
+          "description": "Values"
+        }
+      ]
+    },
+    {
+      "name": "agent-runners_create",
+      "description": "Create a new agent runner. Required: site_id. Optional: deploy_id, branch, prompt (plus 5 more). Returns array of string.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/agent_runners",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "query",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "deploy_id",
+          "type": "string",
+          "location": "query",
+          "description": "Deploy id"
+        },
+        {
+          "name": "branch",
+          "type": "string",
+          "location": "query",
+          "description": "Branch"
+        },
+        {
+          "name": "prompt",
+          "type": "string",
+          "location": "query",
+          "description": "Prompt"
+        },
+        {
+          "name": "agent",
+          "type": "string",
+          "location": "query",
+          "description": "Agent"
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "query",
+          "description": "Model"
+        },
+        {
+          "name": "parent_agent_runner_id",
+          "type": "string",
+          "location": "query",
+          "description": "Parent agent runner id"
+        },
+        {
+          "name": "dev_server_image",
+          "type": "string",
+          "location": "query",
+          "description": "Dev server image"
+        },
+        {
+          "name": "file_keys",
+          "type": "array",
+          "location": "query",
+          "description": "File keys"
+        }
+      ]
+    },
+    {
+      "name": "agent-runners_create-upload-url",
+      "description": "Create upload url. Required: account_id, filename, content_type.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/agent_runners/upload_url",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "filename",
+          "type": "string",
+          "location": "query",
+          "description": "Filename",
+          "required": true
+        },
+        {
+          "name": "content_type",
+          "type": "string",
+          "location": "query",
+          "description": "Content type",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agent-runners_delete",
+      "description": "Delete an agent runner. Required: agent_runner_id. Destructive.",
+      "description_source": "generated",
+      "method": "DELETE",
+      "path": "/agent_runners/{agent_runner_id}",
+      "params": [
+        {
+          "name": "agent_runner_id",
+          "type": "string",
+          "location": "path",
+          "description": "Agent runner id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agent-runners_get",
+      "description": "Get an agent runner. Required: agent_runner_id. Returns array of string.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/agent_runners/{agent_runner_id}",
+      "params": [
+        {
+          "name": "agent_runner_id",
+          "type": "string",
+          "location": "path",
+          "description": "Agent runner id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agent-runners_list",
+      "description": "List agent runners. Required: account_id, site_id. Optional: page, per_page, state (plus 5 more). Returns array of AgentRunnersListItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/agent_runners",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "query",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "State"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "query",
+          "description": "Title"
+        },
+        {
+          "name": "branch",
+          "type": "string",
+          "location": "query",
+          "description": "Branch"
+        },
+        {
+          "name": "result_branch",
+          "type": "string",
+          "location": "query",
+          "description": "Result branch"
+        },
+        {
+          "name": "from",
+          "type": "int",
+          "location": "query",
+          "description": "From"
+        },
+        {
+          "name": "to",
+          "type": "int",
+          "location": "query",
+          "description": "To"
+        }
+      ]
+    },
+    {
+      "name": "agent-runners_update",
+      "description": "Update an agent runner. Required: agent_runner_id. Returns array of string.",
+      "description_source": "generated",
+      "method": "PATCH",
+      "path": "/agent_runners/{agent_runner_id}",
+      "params": [
+        {
+          "name": "agent_runner_id",
+          "type": "string",
+          "location": "path",
+          "description": "Agent runner id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agent-runners_archive_agent-runner",
+      "description": "Agent runner. Required: agent_runner_id.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/agent_runners/{agent_runner_id}/archive",
+      "params": [
+        {
+          "name": "agent_runner_id",
+          "type": "string",
+          "location": "path",
+          "description": "Agent runner id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agent-runners_commit_agent-runner-to-branch",
+      "description": "Agent runner to branch. Required: target_branch, agent_runner_id.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/agent_runners/{agent_runner_id}/commit",
+      "params": [
+        {
+          "name": "target_branch",
+          "type": "string",
+          "location": "query",
+          "description": "Target branch",
+          "required": true
+        },
+        {
+          "name": "agent_runner_id",
+          "type": "string",
+          "location": "path",
+          "description": "Agent runner id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agent-runners_pull-request_agent-runner",
+      "description": "Agent runner. Required: agent_runner_id.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/agent_runners/{agent_runner_id}/pull_request",
+      "params": [
+        {
+          "name": "agent_runner_id",
+          "type": "string",
+          "location": "path",
+          "description": "Agent runner id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agent-runners_sessions_create-agent-runner",
+      "description": "Create agent runner. Required: agent_runner_id. Optional: prompt, agent, model (plus 1 more). Returns the new SessionsCreateAgentRunnerResponse.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/agent_runners/{agent_runner_id}/sessions",
+      "params": [
+        {
+          "name": "prompt",
+          "type": "string",
+          "location": "query",
+          "description": "Prompt"
+        },
+        {
+          "name": "agent",
+          "type": "string",
+          "location": "query",
+          "description": "Agent"
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "query",
+          "description": "Model"
+        },
+        {
+          "name": "file_keys",
+          "type": "array",
+          "location": "query",
+          "description": "File keys"
+        },
+        {
+          "name": "agent_runner_id",
+          "type": "string",
+          "location": "path",
+          "description": "Agent runner id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agent-runners_sessions_delete-agent-runner",
+      "description": "Delete agent runner. Required: agent_runner_id, agent_runner_session_id. Destructive.",
+      "description_source": "generated",
+      "method": "DELETE",
+      "path": "/agent_runners/{agent_runner_id}/sessions/{agent_runner_session_id}",
+      "params": [
+        {
+          "name": "agent_runner_id",
+          "type": "string",
+          "location": "path",
+          "description": "Agent runner id",
+          "required": true
+        },
+        {
+          "name": "agent_runner_session_id",
+          "type": "string",
+          "location": "path",
+          "description": "Agent runner session id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agent-runners_sessions_get-agent-runner",
+      "description": "Get agent runner. Required: agent_runner_id, agent_runner_session_id. Returns the SessionsGetAgentRunnerResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/agent_runners/{agent_runner_id}/sessions/{agent_runner_session_id}",
+      "params": [
+        {
+          "name": "agent_runner_id",
+          "type": "string",
+          "location": "path",
+          "description": "Agent runner id",
+          "required": true
+        },
+        {
+          "name": "agent_runner_session_id",
+          "type": "string",
+          "location": "path",
+          "description": "Agent runner session id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agent-runners_sessions_list-agent-runner",
+      "description": "List agent runner. Required: agent_runner_id. Optional: page, per_page, state (plus 3 more). Returns array of SessionsListAgentRunnerItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/agent_runners/{agent_runner_id}/sessions",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "State"
+        },
+        {
+          "name": "from",
+          "type": "int",
+          "location": "query",
+          "description": "From"
+        },
+        {
+          "name": "to",
+          "type": "int",
+          "location": "query",
+          "description": "To"
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Order by"
+        },
+        {
+          "name": "agent_runner_id",
+          "type": "string",
+          "location": "path",
+          "description": "Agent runner id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agent-runners_sessions_update-agent-runner",
+      "description": "Update agent runner. Required: agent_runner_id, agent_runner_session_id. Optional: is_published. Returns the updated SessionsUpdateAgentRunnerResponse.",
+      "description_source": "generated",
+      "method": "PATCH",
+      "path": "/agent_runners/{agent_runner_id}/sessions/{agent_runner_session_id}",
+      "params": [
+        {
+          "name": "is_published",
+          "type": "bool",
+          "location": "query",
+          "description": "Is published"
+        },
+        {
+          "name": "agent_runner_id",
+          "type": "string",
+          "location": "path",
+          "description": "Agent runner id",
+          "required": true
+        },
+        {
+          "name": "agent_runner_session_id",
+          "type": "string",
+          "location": "path",
+          "description": "Agent runner session id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ai-gateway_get-providers",
+      "description": "Get providers. Returns the AiGatewayGetProvidersResponse. (public)",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/ai-gateway/providers",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "billing_list-payment-methods-for-user",
+      "description": "List payment methods for user. Returns array of BillingListPaymentMethodsForUserItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/billing/payment_methods",
+      "params": []
+    },
+    {
+      "name": "builds_get-site",
+      "description": "Get site. Required: build_id. Returns the BuildsGetSiteResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/builds/{build_id}",
+      "params": [
+        {
+          "name": "build_id",
+          "type": "string",
+          "location": "path",
+          "description": "Build id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "builds_log_update-site-build",
+      "description": "Update site build. Required: build_id. Optional: error, message, section.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/builds/{build_id}/log",
+      "params": [
+        {
+          "name": "build_id",
+          "type": "string",
+          "location": "path",
+          "description": "Build id",
+          "required": true
+        },
+        {
+          "name": "error",
+          "type": "bool",
+          "location": "body",
+          "description": "Error"
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "Message"
+        },
+        {
+          "name": "section",
+          "type": "string",
+          "location": "body",
+          "description": "Section"
+        }
+      ]
+    },
+    {
+      "name": "builds_start_notify-build",
+      "description": "Notify build. Required: build_id. Optional: buildbot_version, build_version, task_id.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/builds/{build_id}/start",
+      "params": [
+        {
+          "name": "build_id",
+          "type": "string",
+          "location": "path",
+          "description": "Build id",
+          "required": true
+        },
+        {
+          "name": "buildbot_version",
+          "type": "string",
+          "location": "query",
+          "description": "Buildbot version"
+        },
+        {
+          "name": "build_version",
+          "type": "string",
+          "location": "query",
+          "description": "Build version"
+        },
+        {
+          "name": "task_id",
+          "type": "string",
+          "location": "query",
+          "description": "Task id"
+        }
+      ]
+    },
+    {
+      "name": "deploy-keys_create",
+      "description": "Create a new deploy key. Returns the new DeployKeysCreateResponse.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/deploy_keys",
+      "params": []
+    },
+    {
+      "name": "deploy-keys_delete",
+      "description": "Delete a deploy key. Required: key_id. Destructive.",
+      "description_source": "generated",
+      "method": "DELETE",
+      "path": "/deploy_keys/{key_id}",
+      "params": [
+        {
+          "name": "key_id",
+          "type": "string",
+          "location": "path",
+          "description": "Key id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deploy-keys_get",
+      "description": "Get a deploy key. Required: key_id. Returns the DeployKeysGetResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/deploy_keys/{key_id}",
+      "params": [
+        {
+          "name": "key_id",
+          "type": "string",
+          "location": "path",
+          "description": "Key id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deploy-keys_list",
+      "description": "List deploy keys. Returns array of DeployKeysListItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/deploy_keys",
+      "params": []
+    },
+    {
+      "name": "deploys_delete",
+      "description": "Delete a deploy. Required: deploy_id. Destructive.",
+      "description_source": "generated",
+      "method": "DELETE",
+      "path": "/deploys/{deploy_id}",
+      "params": [
+        {
+          "name": "deploy_id",
+          "type": "string",
+          "location": "path",
+          "description": "Deploy id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deploys_get",
+      "description": "Get a deploy. Required: deploy_id. Returns the DeploysGetResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/deploys/{deploy_id}",
+      "params": [
+        {
+          "name": "deploy_id",
+          "type": "string",
+          "location": "path",
+          "description": "Deploy id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deploys_cancel_site-deploy",
+      "description": "Site deploy. Required: deploy_id. Returns the new CancelSiteDeployResponse.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/deploys/{deploy_id}/cancel",
+      "params": [
+        {
+          "name": "deploy_id",
+          "type": "string",
+          "location": "path",
+          "description": "Deploy id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deploys_files_upload-deploy",
+      "description": "Upload deploy. Required: deploy_id, path. Optional: size. Returns the updated FilesUploadDeployResponse.",
+      "description_source": "generated",
+      "method": "PUT",
+      "path": "/deploys/{deploy_id}/files/{path}",
+      "params": [
+        {
+          "name": "deploy_id",
+          "type": "string",
+          "location": "path",
+          "description": "Deploy id",
+          "required": true
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "location": "path",
+          "description": "Path",
+          "required": true
+        },
+        {
+          "name": "size",
+          "type": "int",
+          "location": "query",
+          "description": "Size"
+        }
+      ]
+    },
+    {
+      "name": "deploys_functions_upload-deploy",
+      "description": "Upload deploy. Required: deploy_id, name. Optional: runtime, invocation_mode, timeout (plus 1 more). Returns the updated FunctionsUploadDeployResponse.",
+      "description_source": "generated",
+      "method": "PUT",
+      "path": "/deploys/{deploy_id}/functions/{name}",
+      "params": [
+        {
+          "name": "deploy_id",
+          "type": "string",
+          "location": "path",
+          "description": "Deploy id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "runtime",
+          "type": "string",
+          "location": "query",
+          "description": "Runtime"
+        },
+        {
+          "name": "invocation_mode",
+          "type": "string",
+          "location": "query",
+          "description": "Invocation mode"
+        },
+        {
+          "name": "timeout",
+          "type": "int",
+          "location": "query",
+          "description": "Timeout"
+        },
+        {
+          "name": "size",
+          "type": "int",
+          "location": "query",
+          "description": "Size"
+        }
+      ]
+    },
+    {
+      "name": "deploys_lock_deploy",
+      "description": "Deploy. Required: deploy_id. Returns the new LockDeployResponse.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/deploys/{deploy_id}/lock",
+      "params": [
+        {
+          "name": "deploy_id",
+          "type": "string",
+          "location": "path",
+          "description": "Deploy id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deploys_plugin-runs_create",
+      "description": "This is an internal-only endpoint. Required: deploy_id. Optional: package, reporting_event, state (plus 4 more). Returns the new PluginRunsCreateResponse.",
+      "method": "POST",
+      "path": "/deploys/{deploy_id}/plugin_runs",
+      "params": [
+        {
+          "name": "deploy_id",
+          "type": "string",
+          "location": "path",
+          "description": "Deploy id",
+          "required": true
+        },
+        {
+          "name": "package",
+          "type": "string",
+          "location": "body",
+          "description": "Package"
+        },
+        {
+          "name": "reporting_event",
+          "type": "string",
+          "location": "body",
+          "description": "Reporting event"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "State"
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "location": "body",
+          "description": "Summary"
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Text"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "location": "body",
+          "description": "Version"
+        }
+      ]
+    },
+    {
+      "name": "deploys_unlock_deploy",
+      "description": "Deploy. Required: deploy_id. Returns the new UnlockDeployResponse.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/deploys/{deploy_id}/unlock",
+      "params": [
+        {
+          "name": "deploy_id",
+          "type": "string",
+          "location": "path",
+          "description": "Deploy id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deploys_validations-report_update-deploy-validations",
+      "description": "Updates the deploy validations report for a deploy. Required: deploy_id. Optional: secrets_scan. Returns the updated ValidationsReportUpdateDeployValidationsResponse.",
+      "method": "PATCH",
+      "path": "/deploys/{deploy_id}/validations_report",
+      "params": [
+        {
+          "name": "deploy_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the deploy",
+          "required": true
+        },
+        {
+          "name": "secrets_scan",
+          "type": "object",
+          "location": "body",
+          "description": "Secrets scan"
+        }
+      ]
+    },
+    {
+      "name": "dns-zones_create",
+      "description": "Create a new dns zone. Optional: account_slug, name, site_id. Returns the new DnsZonesCreateResponse.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/dns_zones",
+      "params": [
+        {
+          "name": "account_slug",
+          "type": "string",
+          "location": "body",
+          "description": "Account slug"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "body",
+          "description": "Site id"
+        }
+      ]
+    },
+    {
+      "name": "dns-zones_delete",
+      "description": "Delete a dns zone. Required: zone_id. Destructive.",
+      "description_source": "generated",
+      "method": "DELETE",
+      "path": "/dns_zones/{zone_id}",
+      "params": [
+        {
+          "name": "zone_id",
+          "type": "string",
+          "location": "path",
+          "description": "Zone id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dns-zones_get",
+      "description": "Get a dns zone. Optional: account_slug. Returns array of DnsZonesGetItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/dns_zones",
+      "params": [
+        {
+          "name": "account_slug",
+          "type": "string",
+          "location": "query",
+          "description": "Account slug"
+        }
+      ]
+    },
+    {
+      "name": "dns-zones_get-dnszones",
+      "description": "Get dnszones. Required: zone_id. Returns the DnsZonesGetDnszonesResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/dns_zones/{zone_id}",
+      "params": [
+        {
+          "name": "zone_id",
+          "type": "string",
+          "location": "path",
+          "description": "Zone id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dns-zones_dns-records_create",
+      "description": "Create a new dns record. Required: zone_id. Optional: flag, hostname, port (plus 6 more). Returns the new DnsRecordsCreateResponse.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/dns_zones/{zone_id}/dns_records",
+      "params": [
+        {
+          "name": "zone_id",
+          "type": "string",
+          "location": "path",
+          "description": "Zone id",
+          "required": true
+        },
+        {
+          "name": "flag",
+          "type": "int",
+          "location": "body",
+          "description": "Flag"
+        },
+        {
+          "name": "hostname",
+          "type": "string",
+          "location": "body",
+          "description": "Hostname"
+        },
+        {
+          "name": "port",
+          "type": "int",
+          "location": "body",
+          "description": "Port"
+        },
+        {
+          "name": "priority",
+          "type": "int",
+          "location": "body",
+          "description": "Priority"
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "body",
+          "description": "Tag"
+        },
+        {
+          "name": "ttl",
+          "type": "int",
+          "location": "body",
+          "description": "Ttl"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "location": "body",
+          "description": "Value"
+        },
+        {
+          "name": "weight",
+          "type": "int",
+          "location": "body",
+          "description": "Weight"
+        }
+      ]
+    },
+    {
+      "name": "dns-zones_dns-records_delete",
+      "description": "Delete a dns record. Required: zone_id, dns_record_id. Destructive.",
+      "description_source": "generated",
+      "method": "DELETE",
+      "path": "/dns_zones/{zone_id}/dns_records/{dns_record_id}",
+      "params": [
+        {
+          "name": "zone_id",
+          "type": "string",
+          "location": "path",
+          "description": "Zone id",
+          "required": true
+        },
+        {
+          "name": "dns_record_id",
+          "type": "string",
+          "location": "path",
+          "description": "Dns record id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dns-zones_dns-records_get",
+      "description": "Get a dns record. Required: zone_id. Returns array of DnsRecordsGetItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/dns_zones/{zone_id}/dns_records",
+      "params": [
+        {
+          "name": "zone_id",
+          "type": "string",
+          "location": "path",
+          "description": "Zone id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dns-zones_dns-records_get-individual",
+      "description": "Get individual. Required: zone_id, dns_record_id. Returns the DnsRecordsGetIndividualResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/dns_zones/{zone_id}/dns_records/{dns_record_id}",
+      "params": [
+        {
+          "name": "zone_id",
+          "type": "string",
+          "location": "path",
+          "description": "Zone id",
+          "required": true
+        },
+        {
+          "name": "dns_record_id",
+          "type": "string",
+          "location": "path",
+          "description": "Dns record id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dns-zones_transfer_dns-zone",
+      "description": "Dns zone. Required: zone_id, account_id, transfer_account_id, transfer_user_id. Returns the updated TransferDnsZoneResponse.",
+      "description_source": "generated",
+      "method": "PUT",
+      "path": "/dns_zones/{zone_id}/transfer",
+      "params": [
+        {
+          "name": "zone_id",
+          "type": "string",
+          "location": "path",
+          "description": "Zone id",
+          "required": true
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "the account of the dns zone",
+          "required": true
+        },
+        {
+          "name": "transfer_account_id",
+          "type": "string",
+          "location": "query",
+          "description": "the account you want to transfer the dns zone to",
+          "required": true
+        },
+        {
+          "name": "transfer_user_id",
+          "type": "string",
+          "location": "query",
+          "description": "the user you want to transfer the dns zone to",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "forms_submissions_list-form",
+      "description": "List form. Required: form_id. Optional: page, per_page. Returns array of SubmissionsListFormItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/forms/{form_id}/submissions",
+      "params": [
+        {
+          "name": "form_id",
+          "type": "string",
+          "location": "path",
+          "description": "Form id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        }
+      ]
+    },
+    {
+      "name": "hooks_create-by-site-id",
+      "description": "Create by site id. Required: site_id. Optional: created_at, data, disabled (plus 5 more). Returns the new HooksCreateBySiteIdResponse.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/hooks",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "query",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "location": "body",
+          "description": "Created at"
+        },
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "Data"
+        },
+        {
+          "name": "disabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Disabled"
+        },
+        {
+          "name": "event",
+          "type": "string",
+          "location": "body",
+          "description": "Event"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "site-id-2",
+          "wire_name": "site_id",
+          "type": "string",
+          "location": "body",
+          "description": "Site id"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        },
+        {
+          "name": "updated_at",
+          "type": "string",
+          "location": "body",
+          "description": "Updated at"
+        }
+      ]
+    },
+    {
+      "name": "hooks_delete",
+      "description": "Delete a hook. Required: hook_id. Destructive.",
+      "description_source": "generated",
+      "method": "DELETE",
+      "path": "/hooks/{hook_id}",
+      "params": [
+        {
+          "name": "hook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Hook id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hooks_get",
+      "description": "Get a hook. Required: hook_id. Returns the HooksGetResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/hooks/{hook_id}",
+      "params": [
+        {
+          "name": "hook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Hook id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hooks_list-by-site-id",
+      "description": "List by site id. Required: site_id. Returns array of HooksListBySiteIdItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/hooks",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "query",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hooks_list-types",
+      "description": "List types. Returns array of HooksListTypesItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/hooks/types",
+      "params": []
+    },
+    {
+      "name": "hooks_update",
+      "description": "Update a hook. Required: hook_id. Optional: created_at, data, disabled (plus 5 more). Returns the updated HooksUpdateResponse.",
+      "description_source": "generated",
+      "method": "PUT",
+      "path": "/hooks/{hook_id}",
+      "params": [
+        {
+          "name": "hook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Hook id",
+          "required": true
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "location": "body",
+          "description": "Created at"
+        },
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "Data"
+        },
+        {
+          "name": "disabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Disabled"
+        },
+        {
+          "name": "event",
+          "type": "string",
+          "location": "body",
+          "description": "Event"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "body",
+          "description": "Site id"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        },
+        {
+          "name": "updated_at",
+          "type": "string",
+          "location": "body",
+          "description": "Updated at"
+        }
+      ]
+    },
+    {
+      "name": "hooks_enable_hook",
+      "description": "Hook. Required: hook_id. Returns the new EnableHookResponse.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/hooks/{hook_id}/enable",
+      "params": [
+        {
+          "name": "hook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Hook id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "oauth_create-ticket",
+      "description": "Create ticket. Required: client_id. Optional: message. Returns the new OauthCreateTicketResponse.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/oauth/tickets",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "string",
+          "location": "query",
+          "description": "Client id",
+          "required": true
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "Message"
+        }
+      ]
+    },
+    {
+      "name": "oauth_exchange-ticket",
+      "description": "Exchange ticket. Required: ticket_id. Returns the new OauthExchangeTicketResponse.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/oauth/tickets/{ticket_id}/exchange",
+      "params": [
+        {
+          "name": "ticket_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ticket id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "oauth_show-ticket",
+      "description": "Show ticket. Required: ticket_id. Returns the OauthShowTicketResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/oauth/tickets/{ticket_id}",
+      "params": [
+        {
+          "name": "ticket_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ticket id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "purge_cache",
+      "description": "Purges cached content from Netlify's CDN. Supports purging by Cache-Tag. Optional: cache_tags, site_id, site_slug.",
+      "method": "POST",
+      "path": "/purge",
+      "params": [
+        {
+          "name": "cache_tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Cache tags"
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "body",
+          "description": "Site id"
+        },
+        {
+          "name": "site_slug",
+          "type": "string",
+          "location": "body",
+          "description": "Site slug"
+        }
+      ]
+    },
+    {
+      "name": "services_get",
+      "description": "Get a service. Optional: search. Returns array of ServicesGetItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/services/",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search"
+        }
+      ]
+    },
+    {
+      "name": "services_show",
+      "description": "Show. Required: addonName. Returns the ServicesShowResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/services/{addonName}",
+      "params": [
+        {
+          "name": "addonName",
+          "type": "string",
+          "location": "path",
+          "description": "Addon name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_manifest_show-service",
+      "description": "Show service. Required: addonName. Returns the ManifestShowServiceResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/services/{addonName}/manifest",
+      "params": [
+        {
+          "name": "addonName",
+          "type": "string",
+          "location": "path",
+          "description": "Addon name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_create",
+      "description": "**Note:** Environment variable keys and values have moved from `build_settings.env` and `repo.env` to a new endpoint. Please use [createEnvVars](#tag/environmentVariables/operation/createEnvVars) to create environment variables for a site. Optional: configure_dns, account_id, account_name (plus 36 more). Returns array of string.",
+      "method": "POST",
+      "path": "/sites",
+      "params": [
+        {
+          "name": "configure_dns",
+          "type": "bool",
+          "location": "query",
+          "description": "Configure dns"
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "body",
+          "description": "Account id"
+        },
+        {
+          "name": "account_name",
+          "type": "string",
+          "location": "body",
+          "description": "Account name"
+        },
+        {
+          "name": "account_slug",
+          "type": "string",
+          "location": "body",
+          "description": "Account slug"
+        },
+        {
+          "name": "admin_url",
+          "type": "string",
+          "location": "body",
+          "description": "Admin url"
+        },
+        {
+          "name": "branch_deploy_custom_domain",
+          "type": "string",
+          "location": "body",
+          "description": "Branch deploy custom domain"
+        },
+        {
+          "name": "build_image",
+          "type": "string",
+          "location": "body",
+          "description": "Build image"
+        },
+        {
+          "name": "build-settings-allowed-branches",
+          "wire_name": "build_settings.allowed_branches",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Allowed branches"
+        },
+        {
+          "name": "build-settings-cmd",
+          "wire_name": "build_settings.cmd",
+          "type": "string",
+          "location": "body",
+          "description": "The build command to run. This is the command that Netlify runs to build your site. If a site has a netlify.toml file with a build command it will override this value."
+        },
+        {
+          "name": "build-settings-deploy-key-id",
+          "wire_name": "build_settings.deploy_key_id",
+          "type": "string",
+          "location": "body",
+          "description": "Deploy key id"
+        },
+        {
+          "name": "build-settings-dir",
+          "wire_name": "build_settings.dir",
+          "type": "string",
+          "location": "body",
+          "description": "Dir"
+        },
+        {
+          "name": "build-settings-env",
+          "wire_name": "build_settings.env",
+          "type": "object",
+          "location": "body",
+          "description": "Env"
+        },
+        {
+          "name": "build-settings-functions-dir",
+          "wire_name": "build_settings.functions_dir",
+          "type": "string",
+          "location": "body",
+          "description": "The directory where Netlify can find your compiled functions to deploy them. Defaults to netlify/functions if not set. You can also define and override this setting in your project’s netlify.toml file."
+        },
+        {
+          "name": "build-settings-id",
+          "wire_name": "build_settings.id",
+          "type": "int",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "build-settings-installation-id",
+          "wire_name": "build_settings.installation_id",
+          "type": "int",
+          "location": "body",
+          "description": "Installation id"
+        },
+        {
+          "name": "build-settings-private-logs",
+          "wire_name": "build_settings.private_logs",
+          "type": "bool",
+          "location": "body",
+          "description": "Private logs"
+        },
+        {
+          "name": "build-settings-provider",
+          "wire_name": "build_settings.provider",
+          "type": "string",
+          "location": "body",
+          "description": "Provider"
+        },
+        {
+          "name": "build-settings-public-repo",
+          "wire_name": "build_settings.public_repo",
+          "type": "bool",
+          "location": "body",
+          "description": "Public repo"
+        },
+        {
+          "name": "build-settings-repo-branch",
+          "wire_name": "build_settings.repo_branch",
+          "type": "string",
+          "location": "body",
+          "description": "Repo branch"
+        },
+        {
+          "name": "build-settings-repo-path",
+          "wire_name": "build_settings.repo_path",
+          "type": "string",
+          "location": "body",
+          "description": "Repo path"
+        },
+        {
+          "name": "build-settings-repo-url",
+          "wire_name": "build_settings.repo_url",
+          "type": "string",
+          "location": "body",
+          "description": "Repo url"
+        },
+        {
+          "name": "build-settings-stop-builds",
+          "wire_name": "build_settings.stop_builds",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, Netlify will not build your project automatically. You can build locally via the CLI and then publish new deploys manually via the CLI or the API."
+        },
+        {
+          "name": "capabilities",
+          "type": "object",
+          "location": "body",
+          "description": "Capabilities"
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "location": "body",
+          "description": "Created at"
+        },
+        {
+          "name": "custom_domain",
+          "type": "string",
+          "location": "body",
+          "description": "Custom domain"
+        },
+        {
+          "name": "default-hooks-data-access-token",
+          "wire_name": "default_hooks_data.access_token",
+          "type": "string",
+          "location": "body",
+          "description": "Access token"
+        },
+        {
+          "name": "deploy_hook",
+          "type": "string",
+          "location": "body",
+          "description": "Deploy hook"
+        },
+        {
+          "name": "deploy_preview_custom_domain",
+          "type": "string",
+          "location": "body",
+          "description": "Deploy preview custom domain"
+        },
+        {
+          "name": "deploy_url",
+          "type": "string",
+          "location": "body",
+          "description": "Deploy url"
+        },
+        {
+          "name": "domain_aliases",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Domain aliases"
+        },
+        {
+          "name": "force_ssl",
+          "type": "bool",
+          "location": "body",
+          "description": "Force ssl"
+        },
+        {
+          "name": "functions_region",
+          "type": "string",
+          "location": "body",
+          "description": "Functions region"
+        },
+        {
+          "name": "git_provider",
+          "type": "string",
+          "location": "body",
+          "description": "Git provider"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "id_domain",
+          "type": "string",
+          "location": "body",
+          "description": "Id domain"
+        },
+        {
+          "name": "managed_dns",
+          "type": "bool",
+          "location": "body",
+          "description": "Managed dns"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "notification_email",
+          "type": "string",
+          "location": "body",
+          "description": "Notification email"
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Password"
+        },
+        {
+          "name": "plan",
+          "type": "string",
+          "location": "body",
+          "description": "Plan"
+        },
+        {
+          "name": "prerender",
+          "type": "string",
+          "location": "body",
+          "description": "Prerender"
+        },
+        {
+          "name": "prevent_non_git_prod_deploys",
+          "type": "bool",
+          "location": "body",
+          "description": "Prevent non git prod deploys"
+        },
+        {
+          "name": "processing-settings-html-pretty-urls",
+          "wire_name": "processing_settings.html.pretty_urls",
+          "type": "bool",
+          "location": "body",
+          "description": "Pretty urls"
+        },
+        {
+          "name": "published-deploy-admin-url",
+          "wire_name": "published_deploy.admin_url",
+          "type": "string",
+          "location": "body",
+          "description": "Admin url"
+        },
+        {
+          "name": "published-deploy-branch",
+          "wire_name": "published_deploy.branch",
+          "type": "string",
+          "location": "body",
+          "description": "Branch"
+        },
+        {
+          "name": "published-deploy-build-id",
+          "wire_name": "published_deploy.build_id",
+          "type": "string",
+          "location": "body",
+          "description": "Build id"
+        },
+        {
+          "name": "published-deploy-commit-ref",
+          "wire_name": "published_deploy.commit_ref",
+          "type": "string",
+          "location": "body",
+          "description": "Commit ref"
+        },
+        {
+          "name": "published-deploy-commit-url",
+          "wire_name": "published_deploy.commit_url",
+          "type": "string",
+          "location": "body",
+          "description": "Commit url"
+        },
+        {
+          "name": "published-deploy-context",
+          "wire_name": "published_deploy.context",
+          "type": "string",
+          "location": "body",
+          "description": "Context"
+        },
+        {
+          "name": "published-deploy-created-at",
+          "wire_name": "published_deploy.created_at",
+          "type": "string",
+          "location": "body",
+          "description": "Created at"
+        },
+        {
+          "name": "published-deploy-deploy-ssl-url",
+          "wire_name": "published_deploy.deploy_ssl_url",
+          "type": "string",
+          "location": "body",
+          "description": "Deploy ssl url"
+        },
+        {
+          "name": "published-deploy-deploy-url",
+          "wire_name": "published_deploy.deploy_url",
+          "type": "string",
+          "location": "body",
+          "description": "Deploy url"
+        },
+        {
+          "name": "published-deploy-draft",
+          "wire_name": "published_deploy.draft",
+          "type": "bool",
+          "location": "body",
+          "description": "Draft"
+        },
+        {
+          "name": "published-deploy-error-message",
+          "wire_name": "published_deploy.error_message",
+          "type": "string",
+          "location": "body",
+          "description": "Error message"
+        },
+        {
+          "name": "published-deploy-framework",
+          "wire_name": "published_deploy.framework",
+          "type": "string",
+          "location": "body",
+          "description": "Framework"
+        },
+        {
+          "name": "published-deploy-function-schedules",
+          "wire_name": "published_deploy.function_schedules",
+          "type": "array",
+          "location": "body",
+          "description": "Function schedules"
+        },
+        {
+          "name": "published-deploy-functions-region",
+          "wire_name": "published_deploy.functions_region",
+          "type": "string",
+          "location": "body",
+          "description": "The functions region for this deploy as an airport code."
+        },
+        {
+          "name": "published-deploy-functions-region-overrides",
+          "wire_name": "published_deploy.functions_region_overrides",
+          "type": "array",
+          "location": "body",
+          "description": "Functions in the deploy that explicitly specify their own region (airport code)."
+        },
+        {
+          "name": "published-deploy-id",
+          "wire_name": "published_deploy.id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "published-deploy-locked",
+          "wire_name": "published_deploy.locked",
+          "type": "bool",
+          "location": "body",
+          "description": "Locked"
+        },
+        {
+          "name": "published-deploy-name",
+          "wire_name": "published_deploy.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "published-deploy-published-at",
+          "wire_name": "published_deploy.published_at",
+          "type": "string",
+          "location": "body",
+          "description": "Published at"
+        },
+        {
+          "name": "published-deploy-required",
+          "wire_name": "published_deploy.required",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Required"
+        },
+        {
+          "name": "published-deploy-required-functions",
+          "wire_name": "published_deploy.required_functions",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Required functions"
+        },
+        {
+          "name": "published-deploy-review-id",
+          "wire_name": "published_deploy.review_id",
+          "type": "float",
+          "location": "body",
+          "description": "Review id"
+        },
+        {
+          "name": "published-deploy-review-url",
+          "wire_name": "published_deploy.review_url",
+          "type": "string",
+          "location": "body",
+          "description": "Review url"
+        },
+        {
+          "name": "published-deploy-screenshot-url",
+          "wire_name": "published_deploy.screenshot_url",
+          "type": "string",
+          "location": "body",
+          "description": "Screenshot url"
+        },
+        {
+          "name": "published-deploy-site-id",
+          "wire_name": "published_deploy.site_id",
+          "type": "string",
+          "location": "body",
+          "description": "Site id"
+        },
+        {
+          "name": "published-deploy-skew-protection-token",
+          "wire_name": "published_deploy.skew_protection_token",
+          "type": "string",
+          "location": "body",
+          "description": "Skew protection token"
+        },
+        {
+          "name": "published-deploy-skipped",
+          "wire_name": "published_deploy.skipped",
+          "type": "bool",
+          "location": "body",
+          "description": "Skipped"
+        },
+        {
+          "name": "published-deploy-ssl-url",
+          "wire_name": "published_deploy.ssl_url",
+          "type": "string",
+          "location": "body",
+          "description": "Ssl url"
+        },
+        {
+          "name": "published-deploy-state",
+          "wire_name": "published_deploy.state",
+          "type": "string",
+          "location": "body",
+          "description": "State"
+        },
+        {
+          "name": "published-deploy-title",
+          "wire_name": "published_deploy.title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        },
+        {
+          "name": "published-deploy-updated-at",
+          "wire_name": "published_deploy.updated_at",
+          "type": "string",
+          "location": "body",
+          "description": "Updated at"
+        },
+        {
+          "name": "published-deploy-url",
+          "wire_name": "published_deploy.url",
+          "type": "string",
+          "location": "body",
+          "description": "Url"
+        },
+        {
+          "name": "published-deploy-user-id",
+          "wire_name": "published_deploy.user_id",
+          "type": "string",
+          "location": "body",
+          "description": "User id"
+        },
+        {
+          "name": "repo-allowed-branches",
+          "wire_name": "repo.allowed_branches",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Allowed branches"
+        },
+        {
+          "name": "repo-cmd",
+          "wire_name": "repo.cmd",
+          "type": "string",
+          "location": "body",
+          "description": "The build command to run. This is the command that Netlify runs to build your site. If a site has a netlify.toml file with a build command it will override this value."
+        },
+        {
+          "name": "repo-deploy-key-id",
+          "wire_name": "repo.deploy_key_id",
+          "type": "string",
+          "location": "body",
+          "description": "Deploy key id"
+        },
+        {
+          "name": "repo-dir",
+          "wire_name": "repo.dir",
+          "type": "string",
+          "location": "body",
+          "description": "Dir"
+        },
+        {
+          "name": "repo-env",
+          "wire_name": "repo.env",
+          "type": "object",
+          "location": "body",
+          "description": "Env"
+        },
+        {
+          "name": "repo-functions-dir",
+          "wire_name": "repo.functions_dir",
+          "type": "string",
+          "location": "body",
+          "description": "The directory where Netlify can find your compiled functions to deploy them. Defaults to netlify/functions if not set. You can also define and override this setting in your project’s netlify.toml file."
+        },
+        {
+          "name": "repo-id",
+          "wire_name": "repo.id",
+          "type": "int",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "repo-installation-id",
+          "wire_name": "repo.installation_id",
+          "type": "int",
+          "location": "body",
+          "description": "Installation id"
+        },
+        {
+          "name": "repo-private-logs",
+          "wire_name": "repo.private_logs",
+          "type": "bool",
+          "location": "body",
+          "description": "Private logs"
+        },
+        {
+          "name": "repo-provider",
+          "wire_name": "repo.provider",
+          "type": "string",
+          "location": "body",
+          "description": "Provider"
+        },
+        {
+          "name": "repo-public-repo",
+          "wire_name": "repo.public_repo",
+          "type": "bool",
+          "location": "body",
+          "description": "Public repo"
+        },
+        {
+          "name": "repo-repo-branch",
+          "wire_name": "repo.repo_branch",
+          "type": "string",
+          "location": "body",
+          "description": "Repo branch"
+        },
+        {
+          "name": "repo-repo-path",
+          "wire_name": "repo.repo_path",
+          "type": "string",
+          "location": "body",
+          "description": "Repo path"
+        },
+        {
+          "name": "repo-repo-url",
+          "wire_name": "repo.repo_url",
+          "type": "string",
+          "location": "body",
+          "description": "Repo url"
+        },
+        {
+          "name": "repo-stop-builds",
+          "wire_name": "repo.stop_builds",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, Netlify will not build your project automatically. You can build locally via the CLI and then publish new deploys manually via the CLI or the API."
+        },
+        {
+          "name": "screenshot_url",
+          "type": "string",
+          "location": "body",
+          "description": "Screenshot url"
+        },
+        {
+          "name": "session_id",
+          "type": "string",
+          "location": "body",
+          "description": "Session id"
+        },
+        {
+          "name": "ssl",
+          "type": "bool",
+          "location": "body",
+          "description": "Ssl"
+        },
+        {
+          "name": "ssl_url",
+          "type": "string",
+          "location": "body",
+          "description": "Ssl url"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "State"
+        },
+        {
+          "name": "updated_at",
+          "type": "string",
+          "location": "body",
+          "description": "Updated at"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Url"
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "body",
+          "description": "User id"
+        }
+      ]
+    },
+    {
+      "name": "sites_delete",
+      "description": "Delete a site. Required: site_id. Destructive.",
+      "description_source": "generated",
+      "method": "DELETE",
+      "path": "/sites/{site_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_get",
+      "description": "**Note:** Environment variable keys and values have moved from `build_settings.env` and `repo.env` to a new endpoint. Please use [getEnvVars](#tag/environmentVariables/operation/getEnvVars) to retrieve site environment variables. Required: site_id. Optional: feature_flags. Returns array of string.",
+      "method": "GET",
+      "path": "/sites/{site_id}",
+      "params": [
+        {
+          "name": "feature_flags",
+          "type": "string",
+          "location": "query",
+          "description": "Feature flags"
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_list",
+      "description": "**Note:** Environment variable keys and values have moved from `build_settings.env` and `repo.env` to a new endpoint. Please use [getEnvVars](#tag/environmentVariables/operation/getEnvVars) to retrieve site environment variables. Optional: name, filter, page (plus 1 more). Returns array of SitesListItem.",
+      "method": "GET",
+      "path": "/sites",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Name"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        }
+      ]
+    },
+    {
+      "name": "sites_update",
+      "description": "**Note:** Environment variable keys and values have moved from `build_settings.env` and `repo.env` to a new endpoint. Please use [updateEnvVar](#tag/environmentVariables/operation/updateEnvVar) to update a site's environment variables. Required: site_id. Optional: account_id, account_name, account_slug (plus 35 more). Returns array of string.",
+      "method": "PATCH",
+      "path": "/sites/{site_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "body",
+          "description": "Account id"
+        },
+        {
+          "name": "account_name",
+          "type": "string",
+          "location": "body",
+          "description": "Account name"
+        },
+        {
+          "name": "account_slug",
+          "type": "string",
+          "location": "body",
+          "description": "Account slug"
+        },
+        {
+          "name": "admin_url",
+          "type": "string",
+          "location": "body",
+          "description": "Admin url"
+        },
+        {
+          "name": "branch_deploy_custom_domain",
+          "type": "string",
+          "location": "body",
+          "description": "Branch deploy custom domain"
+        },
+        {
+          "name": "build_image",
+          "type": "string",
+          "location": "body",
+          "description": "Build image"
+        },
+        {
+          "name": "build-settings-allowed-branches",
+          "wire_name": "build_settings.allowed_branches",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Allowed branches"
+        },
+        {
+          "name": "build-settings-cmd",
+          "wire_name": "build_settings.cmd",
+          "type": "string",
+          "location": "body",
+          "description": "The build command to run. This is the command that Netlify runs to build your site. If a site has a netlify.toml file with a build command it will override this value."
+        },
+        {
+          "name": "build-settings-deploy-key-id",
+          "wire_name": "build_settings.deploy_key_id",
+          "type": "string",
+          "location": "body",
+          "description": "Deploy key id"
+        },
+        {
+          "name": "build-settings-dir",
+          "wire_name": "build_settings.dir",
+          "type": "string",
+          "location": "body",
+          "description": "Dir"
+        },
+        {
+          "name": "build-settings-env",
+          "wire_name": "build_settings.env",
+          "type": "object",
+          "location": "body",
+          "description": "Env"
+        },
+        {
+          "name": "build-settings-functions-dir",
+          "wire_name": "build_settings.functions_dir",
+          "type": "string",
+          "location": "body",
+          "description": "The directory where Netlify can find your compiled functions to deploy them. Defaults to netlify/functions if not set. You can also define and override this setting in your project’s netlify.toml file."
+        },
+        {
+          "name": "build-settings-id",
+          "wire_name": "build_settings.id",
+          "type": "int",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "build-settings-installation-id",
+          "wire_name": "build_settings.installation_id",
+          "type": "int",
+          "location": "body",
+          "description": "Installation id"
+        },
+        {
+          "name": "build-settings-private-logs",
+          "wire_name": "build_settings.private_logs",
+          "type": "bool",
+          "location": "body",
+          "description": "Private logs"
+        },
+        {
+          "name": "build-settings-provider",
+          "wire_name": "build_settings.provider",
+          "type": "string",
+          "location": "body",
+          "description": "Provider"
+        },
+        {
+          "name": "build-settings-public-repo",
+          "wire_name": "build_settings.public_repo",
+          "type": "bool",
+          "location": "body",
+          "description": "Public repo"
+        },
+        {
+          "name": "build-settings-repo-branch",
+          "wire_name": "build_settings.repo_branch",
+          "type": "string",
+          "location": "body",
+          "description": "Repo branch"
+        },
+        {
+          "name": "build-settings-repo-path",
+          "wire_name": "build_settings.repo_path",
+          "type": "string",
+          "location": "body",
+          "description": "Repo path"
+        },
+        {
+          "name": "build-settings-repo-url",
+          "wire_name": "build_settings.repo_url",
+          "type": "string",
+          "location": "body",
+          "description": "Repo url"
+        },
+        {
+          "name": "build-settings-stop-builds",
+          "wire_name": "build_settings.stop_builds",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, Netlify will not build your project automatically. You can build locally via the CLI and then publish new deploys manually via the CLI or the API."
+        },
+        {
+          "name": "capabilities",
+          "type": "object",
+          "location": "body",
+          "description": "Capabilities"
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "location": "body",
+          "description": "Created at"
+        },
+        {
+          "name": "custom_domain",
+          "type": "string",
+          "location": "body",
+          "description": "Custom domain"
+        },
+        {
+          "name": "default-hooks-data-access-token",
+          "wire_name": "default_hooks_data.access_token",
+          "type": "string",
+          "location": "body",
+          "description": "Access token"
+        },
+        {
+          "name": "deploy_hook",
+          "type": "string",
+          "location": "body",
+          "description": "Deploy hook"
+        },
+        {
+          "name": "deploy_preview_custom_domain",
+          "type": "string",
+          "location": "body",
+          "description": "Deploy preview custom domain"
+        },
+        {
+          "name": "deploy_url",
+          "type": "string",
+          "location": "body",
+          "description": "Deploy url"
+        },
+        {
+          "name": "domain_aliases",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Domain aliases"
+        },
+        {
+          "name": "force_ssl",
+          "type": "bool",
+          "location": "body",
+          "description": "Force ssl"
+        },
+        {
+          "name": "functions_region",
+          "type": "string",
+          "location": "body",
+          "description": "Functions region"
+        },
+        {
+          "name": "git_provider",
+          "type": "string",
+          "location": "body",
+          "description": "Git provider"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "id_domain",
+          "type": "string",
+          "location": "body",
+          "description": "Id domain"
+        },
+        {
+          "name": "managed_dns",
+          "type": "bool",
+          "location": "body",
+          "description": "Managed dns"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "notification_email",
+          "type": "string",
+          "location": "body",
+          "description": "Notification email"
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Password"
+        },
+        {
+          "name": "plan",
+          "type": "string",
+          "location": "body",
+          "description": "Plan"
+        },
+        {
+          "name": "prerender",
+          "type": "string",
+          "location": "body",
+          "description": "Prerender"
+        },
+        {
+          "name": "prevent_non_git_prod_deploys",
+          "type": "bool",
+          "location": "body",
+          "description": "Prevent non git prod deploys"
+        },
+        {
+          "name": "processing-settings-html-pretty-urls",
+          "wire_name": "processing_settings.html.pretty_urls",
+          "type": "bool",
+          "location": "body",
+          "description": "Pretty urls"
+        },
+        {
+          "name": "published-deploy-admin-url",
+          "wire_name": "published_deploy.admin_url",
+          "type": "string",
+          "location": "body",
+          "description": "Admin url"
+        },
+        {
+          "name": "published-deploy-branch",
+          "wire_name": "published_deploy.branch",
+          "type": "string",
+          "location": "body",
+          "description": "Branch"
+        },
+        {
+          "name": "published-deploy-build-id",
+          "wire_name": "published_deploy.build_id",
+          "type": "string",
+          "location": "body",
+          "description": "Build id"
+        },
+        {
+          "name": "published-deploy-commit-ref",
+          "wire_name": "published_deploy.commit_ref",
+          "type": "string",
+          "location": "body",
+          "description": "Commit ref"
+        },
+        {
+          "name": "published-deploy-commit-url",
+          "wire_name": "published_deploy.commit_url",
+          "type": "string",
+          "location": "body",
+          "description": "Commit url"
+        },
+        {
+          "name": "published-deploy-context",
+          "wire_name": "published_deploy.context",
+          "type": "string",
+          "location": "body",
+          "description": "Context"
+        },
+        {
+          "name": "published-deploy-created-at",
+          "wire_name": "published_deploy.created_at",
+          "type": "string",
+          "location": "body",
+          "description": "Created at"
+        },
+        {
+          "name": "published-deploy-deploy-ssl-url",
+          "wire_name": "published_deploy.deploy_ssl_url",
+          "type": "string",
+          "location": "body",
+          "description": "Deploy ssl url"
+        },
+        {
+          "name": "published-deploy-deploy-url",
+          "wire_name": "published_deploy.deploy_url",
+          "type": "string",
+          "location": "body",
+          "description": "Deploy url"
+        },
+        {
+          "name": "published-deploy-draft",
+          "wire_name": "published_deploy.draft",
+          "type": "bool",
+          "location": "body",
+          "description": "Draft"
+        },
+        {
+          "name": "published-deploy-error-message",
+          "wire_name": "published_deploy.error_message",
+          "type": "string",
+          "location": "body",
+          "description": "Error message"
+        },
+        {
+          "name": "published-deploy-framework",
+          "wire_name": "published_deploy.framework",
+          "type": "string",
+          "location": "body",
+          "description": "Framework"
+        },
+        {
+          "name": "published-deploy-function-schedules",
+          "wire_name": "published_deploy.function_schedules",
+          "type": "array",
+          "location": "body",
+          "description": "Function schedules"
+        },
+        {
+          "name": "published-deploy-functions-region",
+          "wire_name": "published_deploy.functions_region",
+          "type": "string",
+          "location": "body",
+          "description": "The functions region for this deploy as an airport code."
+        },
+        {
+          "name": "published-deploy-functions-region-overrides",
+          "wire_name": "published_deploy.functions_region_overrides",
+          "type": "array",
+          "location": "body",
+          "description": "Functions in the deploy that explicitly specify their own region (airport code)."
+        },
+        {
+          "name": "published-deploy-id",
+          "wire_name": "published_deploy.id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "published-deploy-locked",
+          "wire_name": "published_deploy.locked",
+          "type": "bool",
+          "location": "body",
+          "description": "Locked"
+        },
+        {
+          "name": "published-deploy-name",
+          "wire_name": "published_deploy.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "published-deploy-published-at",
+          "wire_name": "published_deploy.published_at",
+          "type": "string",
+          "location": "body",
+          "description": "Published at"
+        },
+        {
+          "name": "published-deploy-required",
+          "wire_name": "published_deploy.required",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Required"
+        },
+        {
+          "name": "published-deploy-required-functions",
+          "wire_name": "published_deploy.required_functions",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Required functions"
+        },
+        {
+          "name": "published-deploy-review-id",
+          "wire_name": "published_deploy.review_id",
+          "type": "float",
+          "location": "body",
+          "description": "Review id"
+        },
+        {
+          "name": "published-deploy-review-url",
+          "wire_name": "published_deploy.review_url",
+          "type": "string",
+          "location": "body",
+          "description": "Review url"
+        },
+        {
+          "name": "published-deploy-screenshot-url",
+          "wire_name": "published_deploy.screenshot_url",
+          "type": "string",
+          "location": "body",
+          "description": "Screenshot url"
+        },
+        {
+          "name": "published-deploy-site-id",
+          "wire_name": "published_deploy.site_id",
+          "type": "string",
+          "location": "body",
+          "description": "Site id"
+        },
+        {
+          "name": "published-deploy-skew-protection-token",
+          "wire_name": "published_deploy.skew_protection_token",
+          "type": "string",
+          "location": "body",
+          "description": "Skew protection token"
+        },
+        {
+          "name": "published-deploy-skipped",
+          "wire_name": "published_deploy.skipped",
+          "type": "bool",
+          "location": "body",
+          "description": "Skipped"
+        },
+        {
+          "name": "published-deploy-ssl-url",
+          "wire_name": "published_deploy.ssl_url",
+          "type": "string",
+          "location": "body",
+          "description": "Ssl url"
+        },
+        {
+          "name": "published-deploy-state",
+          "wire_name": "published_deploy.state",
+          "type": "string",
+          "location": "body",
+          "description": "State"
+        },
+        {
+          "name": "published-deploy-title",
+          "wire_name": "published_deploy.title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        },
+        {
+          "name": "published-deploy-updated-at",
+          "wire_name": "published_deploy.updated_at",
+          "type": "string",
+          "location": "body",
+          "description": "Updated at"
+        },
+        {
+          "name": "published-deploy-url",
+          "wire_name": "published_deploy.url",
+          "type": "string",
+          "location": "body",
+          "description": "Url"
+        },
+        {
+          "name": "published-deploy-user-id",
+          "wire_name": "published_deploy.user_id",
+          "type": "string",
+          "location": "body",
+          "description": "User id"
+        },
+        {
+          "name": "repo-allowed-branches",
+          "wire_name": "repo.allowed_branches",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Allowed branches"
+        },
+        {
+          "name": "repo-cmd",
+          "wire_name": "repo.cmd",
+          "type": "string",
+          "location": "body",
+          "description": "The build command to run. This is the command that Netlify runs to build your site. If a site has a netlify.toml file with a build command it will override this value."
+        },
+        {
+          "name": "repo-deploy-key-id",
+          "wire_name": "repo.deploy_key_id",
+          "type": "string",
+          "location": "body",
+          "description": "Deploy key id"
+        },
+        {
+          "name": "repo-dir",
+          "wire_name": "repo.dir",
+          "type": "string",
+          "location": "body",
+          "description": "Dir"
+        },
+        {
+          "name": "repo-env",
+          "wire_name": "repo.env",
+          "type": "object",
+          "location": "body",
+          "description": "Env"
+        },
+        {
+          "name": "repo-functions-dir",
+          "wire_name": "repo.functions_dir",
+          "type": "string",
+          "location": "body",
+          "description": "The directory where Netlify can find your compiled functions to deploy them. Defaults to netlify/functions if not set. You can also define and override this setting in your project’s netlify.toml file."
+        },
+        {
+          "name": "repo-id",
+          "wire_name": "repo.id",
+          "type": "int",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "repo-installation-id",
+          "wire_name": "repo.installation_id",
+          "type": "int",
+          "location": "body",
+          "description": "Installation id"
+        },
+        {
+          "name": "repo-private-logs",
+          "wire_name": "repo.private_logs",
+          "type": "bool",
+          "location": "body",
+          "description": "Private logs"
+        },
+        {
+          "name": "repo-provider",
+          "wire_name": "repo.provider",
+          "type": "string",
+          "location": "body",
+          "description": "Provider"
+        },
+        {
+          "name": "repo-public-repo",
+          "wire_name": "repo.public_repo",
+          "type": "bool",
+          "location": "body",
+          "description": "Public repo"
+        },
+        {
+          "name": "repo-repo-branch",
+          "wire_name": "repo.repo_branch",
+          "type": "string",
+          "location": "body",
+          "description": "Repo branch"
+        },
+        {
+          "name": "repo-repo-path",
+          "wire_name": "repo.repo_path",
+          "type": "string",
+          "location": "body",
+          "description": "Repo path"
+        },
+        {
+          "name": "repo-repo-url",
+          "wire_name": "repo.repo_url",
+          "type": "string",
+          "location": "body",
+          "description": "Repo url"
+        },
+        {
+          "name": "repo-stop-builds",
+          "wire_name": "repo.stop_builds",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, Netlify will not build your project automatically. You can build locally via the CLI and then publish new deploys manually via the CLI or the API."
+        },
+        {
+          "name": "screenshot_url",
+          "type": "string",
+          "location": "body",
+          "description": "Screenshot url"
+        },
+        {
+          "name": "session_id",
+          "type": "string",
+          "location": "body",
+          "description": "Session id"
+        },
+        {
+          "name": "ssl",
+          "type": "bool",
+          "location": "body",
+          "description": "Ssl"
+        },
+        {
+          "name": "ssl_url",
+          "type": "string",
+          "location": "body",
+          "description": "Ssl url"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "State"
+        },
+        {
+          "name": "updated_at",
+          "type": "string",
+          "location": "body",
+          "description": "Updated at"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Url"
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "body",
+          "description": "User id"
+        }
+      ]
+    },
+    {
+      "name": "sites_agent-runner-hooks_create-site",
+      "description": "Create site. Required: site_id. Optional: agent, branch, prompt (plus 1 more). Returns the new AgentRunnerHooksCreateSiteResponse.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/sites/{site_id}/agent_runner_hooks",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "agent",
+          "type": "string",
+          "location": "body",
+          "description": "Agent"
+        },
+        {
+          "name": "branch",
+          "type": "string",
+          "location": "body",
+          "description": "Branch"
+        },
+        {
+          "name": "prompt",
+          "type": "string",
+          "location": "body",
+          "description": "Prompt"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "sites_agent-runner-hooks_delete-site",
+      "description": "Delete site. Required: site_id, id. Destructive.",
+      "description_source": "generated",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/agent_runner_hooks/{id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_agent-runner-hooks_get-site",
+      "description": "Get site. Required: site_id, id. Returns the AgentRunnerHooksGetSiteResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/agent_runner_hooks/{id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_agent-runner-hooks_list-site",
+      "description": "List site. Required: site_id. Returns array of AgentRunnerHooksListSiteItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/agent_runner_hooks",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_agent-runner-hooks_update-site",
+      "description": "Update site. Required: site_id, id. Optional: agent, branch, prompt (plus 1 more).",
+      "description_source": "generated",
+      "method": "PUT",
+      "path": "/sites/{site_id}/agent_runner_hooks/{id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "agent",
+          "type": "string",
+          "location": "body",
+          "description": "Agent"
+        },
+        {
+          "name": "branch",
+          "type": "string",
+          "location": "body",
+          "description": "Branch"
+        },
+        {
+          "name": "prompt",
+          "type": "string",
+          "location": "body",
+          "description": "Prompt"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "sites_ai-gateway_get-token",
+      "description": "Returns an AI Gateway token for a specific site. Required: site_id.",
+      "method": "GET",
+      "path": "/sites/{site_id}/ai-gateway/token",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "The site ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_assets_create-site",
+      "description": "Create site. Required: name, size, content_type, site_id. Optional: visibility. Returns the new AssetsCreateSiteResponse.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/sites/{site_id}/assets",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "size",
+          "type": "int",
+          "location": "query",
+          "description": "Size",
+          "required": true
+        },
+        {
+          "name": "content_type",
+          "type": "string",
+          "location": "query",
+          "description": "Content type",
+          "required": true
+        },
+        {
+          "name": "visibility",
+          "type": "string",
+          "location": "query",
+          "description": "Visibility"
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_assets_delete-site",
+      "description": "Delete site. Required: site_id, asset_id. Destructive.",
+      "description_source": "generated",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/assets/{asset_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "asset_id",
+          "type": "string",
+          "location": "path",
+          "description": "Asset id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_assets_get-site-info",
+      "description": "Get site info. Required: site_id, asset_id. Returns the AssetsGetSiteInfoResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/assets/{asset_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "asset_id",
+          "type": "string",
+          "location": "path",
+          "description": "Asset id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_assets_get-site-public-signature",
+      "description": "Get site public signature. Required: site_id, asset_id. Returns the AssetsGetSitePublicSignatureResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/assets/{asset_id}/public_signature",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "asset_id",
+          "type": "string",
+          "location": "path",
+          "description": "Asset id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_assets_list-site",
+      "description": "List site. Required: site_id. Returns array of AssetsListSiteItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/assets",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_assets_update-site",
+      "description": "Update site. Required: state, site_id, asset_id. Returns the updated AssetsUpdateSiteResponse.",
+      "description_source": "generated",
+      "method": "PUT",
+      "path": "/sites/{site_id}/assets/{asset_id}",
+      "params": [
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "State",
+          "required": true
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "asset_id",
+          "type": "string",
+          "location": "path",
+          "description": "Asset id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_build-hooks_create-site",
+      "description": "Create site. Required: site_id. Optional: branch, title. Returns the new BuildHooksCreateSiteResponse.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/sites/{site_id}/build_hooks",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "branch",
+          "type": "string",
+          "location": "body",
+          "description": "Branch"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "sites_build-hooks_delete-site",
+      "description": "Delete site. Required: site_id, id. Destructive.",
+      "description_source": "generated",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/build_hooks/{id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_build-hooks_get-site",
+      "description": "Get site. Required: site_id, id. Returns the BuildHooksGetSiteResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/build_hooks/{id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_build-hooks_list-site",
+      "description": "List site. Required: site_id. Returns array of BuildHooksListSiteItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/build_hooks",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_build-hooks_update-site",
+      "description": "Update site. Required: site_id, id. Optional: branch, title.",
+      "description_source": "generated",
+      "method": "PUT",
+      "path": "/sites/{site_id}/build_hooks/{id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "branch",
+          "type": "string",
+          "location": "body",
+          "description": "Branch"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "sites_builds_create-site",
+      "description": "Runs a build for a site. The build will be scheduled to run at the first opportunity, but it might not start immediately if insufficient account build capacity is available. Files for build can be uploaded as a zipped site using one of these methods: 1. Set Content-Type to 'application/zip' and send the zip file as the raw request body 2. Set Content-Type to 'multipart/form-data' and include the zip file in the 'zip' field. Required: site_id. Optional: branch, clear_cache, image (plus 3 more). Returns the new BuildsCreateSiteResponse.",
+      "method": "POST",
+      "path": "/sites/{site_id}/builds",
+      "params": [
+        {
+          "name": "branch",
+          "type": "string",
+          "location": "query",
+          "description": "If no branch is specified, it is treated as a production deploy If a branch IS specified and matches the main branch, it is also production If a branch is specified and doesn't match the main branch, it is a branch deploy"
+        },
+        {
+          "name": "clear_cache",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to clear the build cache before building"
+        },
+        {
+          "name": "image",
+          "type": "string",
+          "location": "query",
+          "description": "The build image tag to use for the build"
+        },
+        {
+          "name": "template_id",
+          "type": "string",
+          "location": "query",
+          "description": "The build template to use for the build"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "query",
+          "description": "The title of the build"
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "zip",
+          "type": "string",
+          "location": "body",
+          "description": "A zip file containing the site files to build. Only used with Content-Type 'multipart/form-data'. Alternatively, set Content-Type to 'application/zip' and send the zip as the raw request body (no 'zip' parameter needed)."
+        }
+      ]
+    },
+    {
+      "name": "sites_builds_list-site",
+      "description": "List site. Required: site_id. Optional: page, per_page. Returns array of BuildsListSiteItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/builds",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_database_clear-site-compute-settings",
+      "description": "Resets project-level compute settings to tier defaults. Requires a Pro or higher plan. Required: site_id. Destructive.",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/database/compute/settings",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_database_create-site",
+      "description": "Creates a new database for the specified site. If a database already exists, returns the existing connection string. The database region defaults to the site's functions region if not specified. Required: site_id. Optional: region.",
+      "method": "POST",
+      "path": "/sites/{site_id}/database",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "body",
+          "description": "The region where the database should be created. Defaults to the site's functions region if not specified."
+        }
+      ]
+    },
+    {
+      "name": "sites_database_create-site-branch",
+      "description": "Creates a new database branch. If a branch already exists for the specified branch ID, returns the existing connection string. Required: site_id, branch_id. Optional: metadata, parent_branch_id.",
+      "method": "POST",
+      "path": "/sites/{site_id}/database/branch",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "branch_id",
+          "type": "string",
+          "location": "body",
+          "description": "The branch identifier",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Arbitrary metadata to associate with the branch"
+        },
+        {
+          "name": "parent_branch_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the parent branch to create the new branch from. Defaults to the production branch if not specified."
+        }
+      ]
+    },
+    {
+      "name": "sites_database_create-site-snapshot",
+      "description": "Creates a point-in-time snapshot of a database branch. Defaults to the production branch if no branch name is specified. Required: site_id. Optional: branch_id, metadata, name. Returns the new DatabaseCreateSiteSnapshotResponse.",
+      "method": "POST",
+      "path": "/sites/{site_id}/database/snapshot",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "branch_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the branch to snapshot. Defaults to 'production' if not specified."
+        },
+        {
+          "name": "metadata-deploy",
+          "wire_name": "metadata.deploy",
+          "type": "object",
+          "location": "body",
+          "description": "Deploy information associated with the snapshot"
+        },
+        {
+          "name": "metadata-source",
+          "wire_name": "metadata.source",
+          "type": "string",
+          "location": "body",
+          "description": "The source that created the snapshot"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "A name for the snapshot"
+        }
+      ]
+    },
+    {
+      "name": "sites_database_delete-site",
+      "description": "Deletes the database and all associated branches and snapshots for the specified site. Required: site_id. Destructive.",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/database",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_database_delete-site-branch",
+      "description": "Deletes a database branch. Required: site_id, branch_id. Destructive.",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/database/branch/{branch_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "branch_id",
+          "type": "string",
+          "location": "path",
+          "description": "The branch ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_database_delete-site-snapshot",
+      "description": "Deletes a database snapshot. Required: site_id, snapshot_id. Destructive.",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/database/snapshot/{snapshot_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "snapshot_id",
+          "type": "string",
+          "location": "path",
+          "description": "The snapshot ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_database_get-site",
+      "description": "Returns the database connection string for the specified site. Required: site_id. Optional: role.",
+      "method": "GET",
+      "path": "/sites/{site_id}/database",
+      "params": [
+        {
+          "name": "role",
+          "type": "string",
+          "location": "query",
+          "description": "The database role to use for the connection string. Defaults to netlifydb_owner if not specified."
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_database_get-site-branch",
+      "description": "Returns the database branch connection string for a specific branch. Required: site_id, branch_id. Optional: role.",
+      "method": "GET",
+      "path": "/sites/{site_id}/database/branch/{branch_id}",
+      "params": [
+        {
+          "name": "role",
+          "type": "string",
+          "location": "query",
+          "description": "The database role to use for the connection string. Defaults to netlifydb_owner if not specified."
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "branch_id",
+          "type": "string",
+          "location": "path",
+          "description": "The branch ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_database_get-site-compute-settings",
+      "description": "Returns the project-level compute settings for the database. Returns effective settings (custom or tier defaults). Requires a Pro or higher plan. Required: site_id.",
+      "method": "GET",
+      "path": "/sites/{site_id}/database/compute/settings",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_database_get-site-migration",
+      "description": "Returns the contents of a named migration for the specified branch. Required: site_id, name. Optional: branch.",
+      "method": "GET",
+      "path": "/sites/{site_id}/database/migrations/{name}",
+      "params": [
+        {
+          "name": "branch",
+          "type": "string",
+          "location": "query",
+          "description": "The branch ID to look up the migration on. Defaults to the currently published deploy's branch."
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "The migration name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_database_list-site-branches",
+      "description": "Returns all branches for the site's database with compute status and metadata. Required: site_id.",
+      "method": "GET",
+      "path": "/sites/{site_id}/database/branches",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_database_list-site-migrations",
+      "description": "Returns the list of migrations available for the specified branch, indicating which ones have been applied to the database. Required: site_id. Optional: branch.",
+      "method": "GET",
+      "path": "/sites/{site_id}/database/migrations",
+      "params": [
+        {
+          "name": "branch",
+          "type": "string",
+          "location": "query",
+          "description": "The branch ID to list migrations for. Defaults to 'production' if not specified."
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_database_list-site-snapshots",
+      "description": "Returns all snapshots for the site's database. Required: site_id.",
+      "method": "GET",
+      "path": "/sites/{site_id}/database/snapshots",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_database_reset-site-branch",
+      "description": "Resets a non-production database branch by re-forking it from a source branch (defaults to the production branch). If the target branch is already in sync with the source, returns the existing connection string without performing a reset, unless `force=true` is passed. The production branch cannot be reset. Required: site_id, branch_id. Optional: force, role, source_branch_id.",
+      "method": "POST",
+      "path": "/sites/{site_id}/database/branch/{branch_id}/reset",
+      "params": [
+        {
+          "name": "force",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, resets the branch even when it is already in sync with the source."
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "query",
+          "description": "The database role to use for the returned connection string. Defaults to netlifydb_owner if not specified."
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "branch_id",
+          "type": "string",
+          "location": "path",
+          "description": "The branch ID to reset",
+          "required": true
+        },
+        {
+          "name": "source_branch_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the branch to re-fork the target branch from. Defaults to 'production' if not specified."
+        }
+      ]
+    },
+    {
+      "name": "sites_database_restore-site-snapshot",
+      "description": "Restores a snapshot to a database branch. Defaults to the production branch if no branch_name is specified. Required: site_id, snapshot_id. Optional: branch_id.",
+      "method": "POST",
+      "path": "/sites/{site_id}/database/snapshot/{snapshot_id}/restore",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "snapshot_id",
+          "type": "string",
+          "location": "path",
+          "description": "The snapshot ID to restore",
+          "required": true
+        },
+        {
+          "name": "branch_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the branch to restore the snapshot to. Defaults to 'production' if not specified."
+        }
+      ]
+    },
+    {
+      "name": "sites_database_run-site-migrations",
+      "description": "Runs database migrations for the specified deploy. Finds the deploy and determines the appropriate branch. Required: site_id, deploy_id. Optional: dry_run.",
+      "method": "POST",
+      "path": "/sites/{site_id}/database/migrations/{deploy_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "deploy_id",
+          "type": "string",
+          "location": "path",
+          "description": "The deploy ID to run migrations for",
+          "required": true
+        },
+        {
+          "name": "dry_run",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, validates migrations without applying them."
+        }
+      ]
+    },
+    {
+      "name": "sites_database_set-site-branch-compute-settings",
+      "description": "Sets compute settings for a specific database branch, overriding project-level settings. Requires a Pro or higher plan. Required: site_id, branch_id. Optional: max_cu, min_cu, sleep_timeout_seconds. Returns the updated DatabaseSetSiteBranchComputeSettingsResponse.",
+      "method": "PUT",
+      "path": "/sites/{site_id}/database/branch/{branch_id}/compute/settings",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "branch_id",
+          "type": "string",
+          "location": "path",
+          "description": "The branch ID",
+          "required": true
+        },
+        {
+          "name": "max_cu",
+          "type": "float",
+          "location": "body",
+          "description": "Maximum compute units (0.25 to 16.0). Must be greater than or equal to min_cu. max_cu - min_cu must not exceed 8.0."
+        },
+        {
+          "name": "min_cu",
+          "type": "float",
+          "location": "body",
+          "description": "Minimum compute units (0.25 to 16.0). Must be less than or equal to max_cu."
+        },
+        {
+          "name": "sleep_timeout_seconds",
+          "type": "int",
+          "location": "body",
+          "description": "Seconds of inactivity before the compute endpoint is suspended. Use -1 for always on, or a non-negative value."
+        }
+      ]
+    },
+    {
+      "name": "sites_database_set-site-compute-settings",
+      "description": "Sets project-level compute settings for the database. Applied to new branches. Can be overridden per-branch. Requires a Pro or higher plan. Required: site_id. Optional: max_cu, min_cu, sleep_timeout_seconds. Returns the updated DatabaseSetSiteComputeSettingsResponse.",
+      "method": "PUT",
+      "path": "/sites/{site_id}/database/compute/settings",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "max_cu",
+          "type": "float",
+          "location": "body",
+          "description": "Maximum compute units (0.25 to 16.0). Must be greater than or equal to min_cu. max_cu - min_cu must not exceed 8.0."
+        },
+        {
+          "name": "min_cu",
+          "type": "float",
+          "location": "body",
+          "description": "Minimum compute units (0.25 to 16.0). Must be less than or equal to max_cu."
+        },
+        {
+          "name": "sleep_timeout_seconds",
+          "type": "int",
+          "location": "body",
+          "description": "Seconds of inactivity before the compute endpoint is suspended. Use -1 for always on, or a non-negative value."
+        }
+      ]
+    },
+    {
+      "name": "sites_deployed-branches_list-site",
+      "description": "List site. Required: site_id. Returns array of DeployedBranchesListSiteItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/deployed-branches",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_deploys_create-site",
+      "description": "Create site. Required: site_id. Optional: title, deploy-previews, production (plus 14 more). Returns the new DeploysCreateSiteResponse.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/sites/{site_id}/deploys",
+      "params": [
+        {
+          "name": "title",
+          "type": "string",
+          "location": "query",
+          "description": "Title"
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "deploy-previews",
+          "type": "bool",
+          "location": "query",
+          "description": "Deploy previews"
+        },
+        {
+          "name": "production",
+          "type": "bool",
+          "location": "query",
+          "description": "Production"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "State"
+        },
+        {
+          "name": "branch",
+          "type": "string",
+          "location": "query",
+          "description": "Branch"
+        },
+        {
+          "name": "latest-published",
+          "type": "bool",
+          "location": "query",
+          "description": "Latest published"
+        },
+        {
+          "name": "async",
+          "type": "bool",
+          "location": "body",
+          "description": "Async"
+        },
+        {
+          "name": "branch-2",
+          "wire_name": "branch",
+          "type": "string",
+          "location": "body",
+          "description": "Branch"
+        },
+        {
+          "name": "draft",
+          "type": "bool",
+          "location": "body",
+          "description": "Draft"
+        },
+        {
+          "name": "environment",
+          "type": "array",
+          "location": "body",
+          "description": "A list of deploy-specific environment variable data. Data specified this way applies only to this specific deploy and is merged into any existing environment variables set on the account and site. Deploy-specific environment variable data takes precedence over account and site environment variable data: For example, a deploy-specific variable with the key `NODE_ENV` will take priority over any existing site- and account-level environment variable data with the key `NODE_ENV`. Environment variable data may be provided at one of two times: - When creating a new Deploy with deploy files (most common) - When finalizing an existing Deploy with deploy files Once set, environment variables for a specific deploy cannot be modified. Subsequent attempts to modify environment variable data for a deploy will be ignored."
+        },
+        {
+          "name": "files",
+          "type": "object",
+          "location": "body",
+          "description": "A hash mapping file paths to SHA1 digests of the file contents."
+        },
+        {
+          "name": "framework",
+          "type": "string",
+          "location": "body",
+          "description": "Framework"
+        },
+        {
+          "name": "framework_version",
+          "type": "string",
+          "location": "body",
+          "description": "Framework version"
+        },
+        {
+          "name": "function_schedules",
+          "type": "array",
+          "location": "body",
+          "description": "Function schedules"
+        },
+        {
+          "name": "functions",
+          "type": "object",
+          "location": "body",
+          "description": "Functions"
+        },
+        {
+          "name": "functions_config",
+          "type": "object",
+          "location": "body",
+          "description": "Functions config"
+        },
+        {
+          "name": "zip",
+          "type": "string",
+          "location": "body",
+          "description": "A zip file containing the site files to deploy. Alternative to 'files'. To use this field, set Content-Type to 'application/json' and include the zip content here. Alternatively, you can set Content-Type to 'application/zip' and send the zip as the raw request body (not as JSON)."
+        }
+      ]
+    },
+    {
+      "name": "sites_deploys_delete-site",
+      "description": "Delete site. Required: deploy_id, site_id. Destructive.",
+      "description_source": "generated",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/deploys/{deploy_id}",
+      "params": [
+        {
+          "name": "deploy_id",
+          "type": "string",
+          "location": "path",
+          "description": "Deploy id",
+          "required": true
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_deploys_get-site",
+      "description": "Get site. Required: site_id, deploy_id. Returns the DeploysGetSiteResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/deploys/{deploy_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "deploy_id",
+          "type": "string",
+          "location": "path",
+          "description": "Deploy id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_deploys_list-site",
+      "description": "List site. Required: site_id. Optional: page, per_page, deploy-previews (plus 4 more). Returns array of DeploysListSiteItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/deploys",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "deploy-previews",
+          "type": "bool",
+          "location": "query",
+          "description": "Deploy previews"
+        },
+        {
+          "name": "production",
+          "type": "bool",
+          "location": "query",
+          "description": "Production"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "State"
+        },
+        {
+          "name": "branch",
+          "type": "string",
+          "location": "query",
+          "description": "Branch"
+        },
+        {
+          "name": "latest-published",
+          "type": "bool",
+          "location": "query",
+          "description": "Latest published"
+        }
+      ]
+    },
+    {
+      "name": "sites_deploys_restore-site",
+      "description": "Restore site. Required: site_id, deploy_id. Returns the new DeploysRestoreSiteResponse.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/sites/{site_id}/deploys/{deploy_id}/restore",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "deploy_id",
+          "type": "string",
+          "location": "path",
+          "description": "Deploy id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_deploys_update-site",
+      "description": "Update site. Required: site_id, deploy_id. Optional: commit_ref, async, branch (plus 9 more). Returns the updated DeploysUpdateSiteResponse.",
+      "description_source": "generated",
+      "method": "PUT",
+      "path": "/sites/{site_id}/deploys/{deploy_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "deploy_id",
+          "type": "string",
+          "location": "path",
+          "description": "Deploy id",
+          "required": true
+        },
+        {
+          "name": "commit_ref",
+          "type": "string",
+          "location": "query",
+          "description": "Commit ref"
+        },
+        {
+          "name": "async",
+          "type": "bool",
+          "location": "body",
+          "description": "Async"
+        },
+        {
+          "name": "branch",
+          "type": "string",
+          "location": "body",
+          "description": "Branch"
+        },
+        {
+          "name": "draft",
+          "type": "bool",
+          "location": "body",
+          "description": "Draft"
+        },
+        {
+          "name": "environment",
+          "type": "array",
+          "location": "body",
+          "description": "A list of deploy-specific environment variable data. Data specified this way applies only to this specific deploy and is merged into any existing environment variables set on the account and site. Deploy-specific environment variable data takes precedence over account and site environment variable data: For example, a deploy-specific variable with the key `NODE_ENV` will take priority over any existing site- and account-level environment variable data with the key `NODE_ENV`. Environment variable data may be provided at one of two times: - When creating a new Deploy with deploy files (most common) - When finalizing an existing Deploy with deploy files Once set, environment variables for a specific deploy cannot be modified. Subsequent attempts to modify environment variable data for a deploy will be ignored."
+        },
+        {
+          "name": "files",
+          "type": "object",
+          "location": "body",
+          "description": "A hash mapping file paths to SHA1 digests of the file contents."
+        },
+        {
+          "name": "framework",
+          "type": "string",
+          "location": "body",
+          "description": "Framework"
+        },
+        {
+          "name": "framework_version",
+          "type": "string",
+          "location": "body",
+          "description": "Framework version"
+        },
+        {
+          "name": "function_schedules",
+          "type": "array",
+          "location": "body",
+          "description": "Function schedules"
+        },
+        {
+          "name": "functions",
+          "type": "object",
+          "location": "body",
+          "description": "Functions"
+        },
+        {
+          "name": "functions_config",
+          "type": "object",
+          "location": "body",
+          "description": "Functions config"
+        },
+        {
+          "name": "zip",
+          "type": "string",
+          "location": "body",
+          "description": "A zip file containing the site files to deploy. Alternative to 'files'. To use this field, set Content-Type to 'application/json' and include the zip content here. Alternatively, you can set Content-Type to 'application/zip' and send the zip as the raw request body (not as JSON)."
+        }
+      ]
+    },
+    {
+      "name": "sites_dev-server-hooks_create-site",
+      "description": "Create site. Required: site_id. Optional: branch, title, type. Returns the new DevServerHooksCreateSiteResponse.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/sites/{site_id}/dev_server_hooks",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "branch",
+          "type": "string",
+          "location": "body",
+          "description": "Branch"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        }
+      ]
+    },
+    {
+      "name": "sites_dev-server-hooks_delete-site",
+      "description": "Delete site. Required: site_id, id. Destructive.",
+      "description_source": "generated",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/dev_server_hooks/{id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_dev-server-hooks_get-site",
+      "description": "Get site. Required: site_id, id. Returns the DevServerHooksGetSiteResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/dev_server_hooks/{id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_dev-server-hooks_list-site",
+      "description": "List site. Required: site_id. Returns array of DevServerHooksListSiteItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/dev_server_hooks",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_dev-server-hooks_update-site",
+      "description": "Update site. Required: site_id, id. Optional: branch, title, type.",
+      "description_source": "generated",
+      "method": "PUT",
+      "path": "/sites/{site_id}/dev_server_hooks/{id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "branch",
+          "type": "string",
+          "location": "body",
+          "description": "Branch"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        }
+      ]
+    },
+    {
+      "name": "sites_dev-servers_create-site",
+      "description": "Create site. Required: site_id. Optional: branch. Returns array of DevServersCreateSiteItem.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/sites/{site_id}/dev_servers",
+      "params": [
+        {
+          "name": "branch",
+          "type": "string",
+          "location": "query",
+          "description": "Branch"
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_dev-servers_delete-site",
+      "description": "Delete site. Required: site_id. Optional: branch. Destructive.",
+      "description_source": "generated",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/dev_servers",
+      "params": [
+        {
+          "name": "branch",
+          "type": "string",
+          "location": "query",
+          "description": "Branch"
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_dev-servers_get-site",
+      "description": "Get site. Required: site_id, dev_server_id. Returns the DevServersGetSiteResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/dev_servers/{dev_server_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "dev_server_id",
+          "type": "string",
+          "location": "path",
+          "description": "Dev server id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_dev-servers_list-site",
+      "description": "List site. Required: site_id. Optional: page, per_page. Returns array of DevServersListSiteItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/dev_servers",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_dev-servers_mark-activity",
+      "description": "Mark activity. Required: site_id, dev_server_id.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/sites/{site_id}/dev_servers/{dev_server_id}/activity",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "dev_server_id",
+          "type": "string",
+          "location": "path",
+          "description": "Dev server id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_dev-servers_update-state",
+      "description": "Update state. Required: site_id, dev_server_id, state. Optional: error, task_id. Returns the new DevServersUpdateStateResponse.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/sites/{site_id}/dev_servers/{dev_server_id}/state",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "dev_server_id",
+          "type": "string",
+          "location": "path",
+          "description": "Dev server id",
+          "required": true
+        },
+        {
+          "name": "error",
+          "type": "string",
+          "location": "body",
+          "description": "Error"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "State",
+          "required": true
+        },
+        {
+          "name": "task_id",
+          "type": "string",
+          "location": "body",
+          "description": "Task id"
+        }
+      ]
+    },
+    {
+      "name": "sites_disable_site",
+      "description": "Disables a site, preventing it from serving content. The site can be re-enabled later using the enable endpoint. Required: reason, site_id.",
+      "method": "PUT",
+      "path": "/sites/{site_id}/disable",
+      "params": [
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "query",
+          "description": "Reason for disabling the site",
+          "required": true
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_dns_configure-dnsfor-site",
+      "description": "Configure dnsfor site. Required: site_id. Returns array of DnsConfigureDnsforSiteItem.",
+      "description_source": "generated",
+      "method": "PUT",
+      "path": "/sites/{site_id}/dns",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_dns_get-dnsfor-site",
+      "description": "Get dnsfor site. Required: site_id. Returns array of DnsGetDnsforSiteItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/dns",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_enable_site",
+      "description": "Re-enables a site that was previously disabled by the user. Sites that were disabled for usage exceeded or marked as spam cannot be re-enabled via this endpoint. Required: site_id.",
+      "method": "PUT",
+      "path": "/sites/{site_id}/enable",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_env_get-site-vars",
+      "description": "Returns all environment variables for a site. This convenience method behaves the same as `getEnvVars` but doesn't require an `account_id` as input. Required: site_id. Optional: context_name, scope.",
+      "method": "GET",
+      "path": "/api/v1/sites/{site_id}/env",
+      "params": [
+        {
+          "name": "context_name",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by deploy context"
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by scope"
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Scope response to site_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_files_get-site-by-path-name",
+      "description": "Get site by path name. Required: site_id, file_path. Returns the FilesGetSiteByPathNameResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/files/{file_path}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "file_path",
+          "type": "string",
+          "location": "path",
+          "description": "File path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_files_list-site",
+      "description": "List site. Required: site_id. Returns array of FilesListSiteItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/files",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_forms_delete-site",
+      "description": "Delete site. Required: site_id, form_id. Destructive.",
+      "description_source": "generated",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/forms/{form_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "form_id",
+          "type": "string",
+          "location": "path",
+          "description": "Form id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_forms_list-site",
+      "description": "List site. Required: site_id. Returns array of FormsListSiteItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/forms",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_functions_search-site",
+      "description": "Search site. Required: site_id. Optional: filter. Returns array of FunctionsSearchSiteItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/functions",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        }
+      ]
+    },
+    {
+      "name": "sites_metadata_get-site",
+      "description": "Get site. Required: site_id. Returns the MetadataGetSiteResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/metadata",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_metadata_update-site",
+      "description": "Update site. Required: site_id.",
+      "description_source": "generated",
+      "method": "PUT",
+      "path": "/sites/{site_id}/metadata",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_plugin-runs_get-latest",
+      "description": "This is an internal-only endpoint. Required: site_id, packages. Optional: state. Returns array of PluginRunsGetLatestItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/plugin_runs/latest",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "packages",
+          "type": "array",
+          "location": "query",
+          "description": "Packages",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "State"
+        }
+      ]
+    },
+    {
+      "name": "sites_plugins_update",
+      "description": "This is an internal-only endpoint. Required: site_id, package. Optional: pinned_version. Returns the updated PluginsUpdateResponse.",
+      "method": "PUT",
+      "path": "/sites/{site_id}/plugins/{package}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "package",
+          "type": "string",
+          "location": "path",
+          "description": "Package",
+          "required": true
+        },
+        {
+          "name": "pinned_version",
+          "type": "string",
+          "location": "body",
+          "description": "Pinned version"
+        }
+      ]
+    },
+    {
+      "name": "sites_rollback_site-deploy",
+      "description": "Site deploy. Required: site_id.",
+      "description_source": "generated",
+      "method": "PUT",
+      "path": "/sites/{site_id}/rollback",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_service-instances_list-for-site",
+      "description": "List for site. Required: site_id. Returns array of ServiceInstancesListForSiteItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/service-instances",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_services_create-instance",
+      "description": "Create instance. Required: site_id, addon. Returns array of ServicesCreateInstanceItem.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/sites/{site_id}/services/{addon}/instances",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "addon",
+          "type": "string",
+          "location": "path",
+          "description": "Addon",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_services_delete-instance",
+      "description": "Delete instance. Required: site_id, addon, instance_id. Destructive.",
+      "description_source": "generated",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/services/{addon}/instances/{instance_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "addon",
+          "type": "string",
+          "location": "path",
+          "description": "Addon",
+          "required": true
+        },
+        {
+          "name": "instance_id",
+          "type": "string",
+          "location": "path",
+          "description": "Instance id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_services_show-instance",
+      "description": "Show instance. Required: site_id, addon, instance_id. Returns array of ServicesShowInstanceItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/services/{addon}/instances/{instance_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "addon",
+          "type": "string",
+          "location": "path",
+          "description": "Addon",
+          "required": true
+        },
+        {
+          "name": "instance_id",
+          "type": "string",
+          "location": "path",
+          "description": "Instance id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_services_update-instance",
+      "description": "Update instance. Required: site_id, addon, instance_id.",
+      "description_source": "generated",
+      "method": "PUT",
+      "path": "/sites/{site_id}/services/{addon}/instances/{instance_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "addon",
+          "type": "string",
+          "location": "path",
+          "description": "Addon",
+          "required": true
+        },
+        {
+          "name": "instance_id",
+          "type": "string",
+          "location": "path",
+          "description": "Instance id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_snippets_create-site",
+      "description": "Create site. Required: site_id. Optional: general, general_position, goal (plus 4 more). Returns the new SnippetsCreateSiteResponse.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/sites/{site_id}/snippets",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "general",
+          "type": "string",
+          "location": "body",
+          "description": "General"
+        },
+        {
+          "name": "general_position",
+          "type": "string",
+          "location": "body",
+          "description": "General position"
+        },
+        {
+          "name": "goal",
+          "type": "string",
+          "location": "body",
+          "description": "Goal"
+        },
+        {
+          "name": "goal_position",
+          "type": "string",
+          "location": "body",
+          "description": "Goal position"
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "site-id-2",
+          "wire_name": "site_id",
+          "type": "string",
+          "location": "body",
+          "description": "Site id"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "sites_snippets_delete-site",
+      "description": "Delete site. Required: site_id, snippet_id. Destructive.",
+      "description_source": "generated",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/snippets/{snippet_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "snippet_id",
+          "type": "string",
+          "location": "path",
+          "description": "Snippet id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_snippets_get-site",
+      "description": "Get site. Required: site_id, snippet_id. Returns the SnippetsGetSiteResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/snippets/{snippet_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "snippet_id",
+          "type": "string",
+          "location": "path",
+          "description": "Snippet id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_snippets_list-site",
+      "description": "List site. Required: site_id. Returns array of SnippetsListSiteItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/snippets",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_snippets_update-site",
+      "description": "Update site. Required: site_id, snippet_id. Optional: general, general_position, goal (plus 4 more).",
+      "description_source": "generated",
+      "method": "PUT",
+      "path": "/sites/{site_id}/snippets/{snippet_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "snippet_id",
+          "type": "string",
+          "location": "path",
+          "description": "Snippet id",
+          "required": true
+        },
+        {
+          "name": "general",
+          "type": "string",
+          "location": "body",
+          "description": "General"
+        },
+        {
+          "name": "general_position",
+          "type": "string",
+          "location": "body",
+          "description": "General position"
+        },
+        {
+          "name": "goal",
+          "type": "string",
+          "location": "body",
+          "description": "Goal"
+        },
+        {
+          "name": "goal_position",
+          "type": "string",
+          "location": "body",
+          "description": "Goal position"
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "site-id-2",
+          "wire_name": "site_id",
+          "type": "string",
+          "location": "body",
+          "description": "Site id"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "sites_ssl_get-all-certificates",
+      "description": "Get all certificates. Required: site_id, domain. Returns array of SslGetAllCertificatesItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/ssl/certificates",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_ssl_provision-site-tlscertificate",
+      "description": "Provisions or updates a TLS certificate for the site. **Creating a certificate (site has no certificate):** - Omit certificate params to initiate Let's Encrypt provisioning - Provide certificate, key, and ca_certificates to upload a custom certificate **Updating a certificate (site already has a certificate):** - REQUIRES certificate, key, and ca_certificates to replace with a new custom certificate - Use POST /api/v1/sites/{site_id}/ssl/renew to renew an existing Let's Encrypt certificate. Required: site_id. Optional: certificate, key, ca_certificates. Returns array of string.",
+      "method": "POST",
+      "path": "/sites/{site_id}/ssl",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "certificate",
+          "type": "string",
+          "location": "query",
+          "description": "PEM-encoded certificate. Required when updating an existing certificate."
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "PEM-encoded private key. Required when updating an existing certificate."
+        },
+        {
+          "name": "ca_certificates",
+          "type": "string",
+          "location": "query",
+          "description": "PEM-encoded CA certificate chain. Required when updating an existing certificate."
+        }
+      ]
+    },
+    {
+      "name": "sites_ssl_show-site-tlscertificate",
+      "description": "Show site tlscertificate. Required: site_id. Returns array of string.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/ssl",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_submissions_list-site",
+      "description": "List site. Required: site_id. Optional: page, per_page. Returns array of SubmissionsListSiteItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/submissions",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        }
+      ]
+    },
+    {
+      "name": "sites_traffic-splits_create-split-test",
+      "description": "Create split test. Required: site_id. Optional: branch_tests. Returns array of TrafficSplitsCreateSplitTestItem.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/sites/{site_id}/traffic_splits",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "branch_tests",
+          "type": "object",
+          "location": "body",
+          "description": "Branch tests"
+        }
+      ]
+    },
+    {
+      "name": "sites_traffic-splits_disable-split-test",
+      "description": "Disable split test. Required: site_id, split_test_id.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/sites/{site_id}/traffic_splits/{split_test_id}/unpublish",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "split_test_id",
+          "type": "string",
+          "location": "path",
+          "description": "Split test id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_traffic-splits_enable-split-test",
+      "description": "Enable split test. Required: site_id, split_test_id.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/sites/{site_id}/traffic_splits/{split_test_id}/publish",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "split_test_id",
+          "type": "string",
+          "location": "path",
+          "description": "Split test id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_traffic-splits_get-split-test",
+      "description": "Get split test. Required: site_id, split_test_id. Returns array of TrafficSplitsGetSplitTestItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/traffic_splits/{split_test_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "split_test_id",
+          "type": "string",
+          "location": "path",
+          "description": "Split test id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_traffic-splits_get-split-tests",
+      "description": "Get split tests. Required: site_id. Returns array of TrafficSplitsGetSplitTestsItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/sites/{site_id}/traffic_splits",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_traffic-splits_update-split-test",
+      "description": "Update split test. Required: site_id, split_test_id. Optional: branch_tests. Returns array of TrafficSplitsUpdateSplitTestItem.",
+      "description_source": "generated",
+      "method": "PUT",
+      "path": "/sites/{site_id}/traffic_splits/{split_test_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "split_test_id",
+          "type": "string",
+          "location": "path",
+          "description": "Split test id",
+          "required": true
+        },
+        {
+          "name": "branch_tests",
+          "type": "object",
+          "location": "body",
+          "description": "Branch tests"
+        }
+      ]
+    },
+    {
+      "name": "sites_unlink-repo_unlink-site-repo",
+      "description": "[Beta] Unlinks the repo from the site. This action will also: - Delete associated deploy keys - Delete outgoing webhooks for the repo - Delete the site's build hooks. Required: site_id. Returns array of string.",
+      "method": "PUT",
+      "path": "/sites/{site_id}/unlink_repo",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "submissions_delete",
+      "description": "Delete a submission. Required: submission_id. Destructive.",
+      "description_source": "generated",
+      "method": "DELETE",
+      "path": "/submissions/{submission_id}",
+      "params": [
+        {
+          "name": "submission_id",
+          "type": "string",
+          "location": "path",
+          "description": "Submission id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "submissions_list-form",
+      "description": "List form. Required: submission_id. Optional: query, page, per_page. Returns array of SubmissionsListFormItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/submissions/{submission_id}",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "submission_id",
+          "type": "string",
+          "location": "path",
+          "description": "Submission id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user_get-current",
+      "description": "Get current. Returns array of string.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/user",
+      "params": []
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "nutrition-register-auth-set-token",
+  "applied_at": "2026-07-02",
+  "base_run_id": "20260702-105700",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Wire newAuthSetTokenCmd into newAuthCmd so 'auth set-token' resolves.",
+  "reason": "auth.go implemented newAuthSetTokenCmd and doctor.go advises running 'auth set-token', but the generator never registered it, so the command returned 'unknown command'.",
+  "files": ["internal/cli/auth.go"],
+  "validated_outcome": "auth --help lists set-token; verify checks 27 commands.",
+  "upstream_issue": ""
+}

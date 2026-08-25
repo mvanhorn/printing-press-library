@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/commerce/facebook-marketplace
 
-go 1.26.3
+go 1.26.5
 
 require (
 	github.com/enetx/surf v1.0.199
@@ -13,7 +13,7 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/mark3labs/mcp-go v0.47.0
 	github.com/spf13/pflag v1.0.6
-	golang.org/x/text v0.37.0
+	golang.org/x/text v0.39.0
 	modernc.org/sqlite v1.50.1
 )
 

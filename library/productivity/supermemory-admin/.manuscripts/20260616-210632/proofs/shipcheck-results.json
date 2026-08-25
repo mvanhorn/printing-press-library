@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-06-16T21:19:08Z",
+  "elapsed_ms": 8825,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-16T21:19:08Z",
+      "elapsed_ms": 4194,
+      "command": "/Users/bobshah/go/bin/cli-printing-press verify --dir /Users/bobshah/printing-press/.publish-repo-supermemory-admin/library/productivity/supermemory-admin --spec library/productivity/supermemory-admin/spec.json --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-16T21:19:13Z",
+      "elapsed_ms": 379,
+      "command": "/Users/bobshah/go/bin/cli-printing-press validate-narrative --strict --full-examples --research library/productivity/supermemory-admin/.manuscripts/20260616-210632/research.json --binary /Users/bobshah/printing-press/.publish-repo-supermemory-admin/library/productivity/supermemory-admin/supermemory-admin-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-16T21:19:13Z",
+      "elapsed_ms": 2310,
+      "command": "/Users/bobshah/go/bin/cli-printing-press dogfood --dir /Users/bobshah/printing-press/.publish-repo-supermemory-admin/library/productivity/supermemory-admin --spec library/productivity/supermemory-admin/spec.json --research-dir library/productivity/supermemory-admin/.manuscripts/20260616-210632"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-16T21:19:15Z",
+      "elapsed_ms": 14,
+      "command": "/Users/bobshah/go/bin/cli-printing-press workflow-verify --dir /Users/bobshah/printing-press/.publish-repo-supermemory-admin/library/productivity/supermemory-admin"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-16T21:19:15Z",
+      "elapsed_ms": 1458,
+      "command": "/Users/bobshah/go/bin/cli-printing-press verify-skill --dir /Users/bobshah/printing-press/.publish-repo-supermemory-admin/library/productivity/supermemory-admin"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-16T21:19:17Z",
+      "elapsed_ms": 467,
+      "command": "/Users/bobshah/go/bin/cli-printing-press scorecard --dir /Users/bobshah/printing-press/.publish-repo-supermemory-admin/library/productivity/supermemory-admin --research-dir library/productivity/supermemory-admin/.manuscripts/20260616-210632 --spec library/productivity/supermemory-admin/spec.json"
+    }
+  ]
+}

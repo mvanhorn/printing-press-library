@@ -1,0 +1,11 @@
+{
+  "command": "axs-pp-cli bikes get <live-bike-id> --json",
+  "exit_code": 0,
+  "pii_policy": "raw output and bike id not persisted",
+  "status": "pass",
+  "json_type": "dict",
+  "keys": [
+    "meta",
+    "results"
+  ]
+}

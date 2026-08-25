@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "ashby-public-postings-workflow",
+  "applied_at": "2026-08-24",
+  "base_run_id": "20260824-211633-3511b2d3",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Add visibility-safe public posting discovery, structured filters, local sync, and offline search.",
+  "reason": "The generated raw endpoint could expose records marked isListed=false and did not provide the job-board workflows expected from the Lever-style library entry.",
+  "files": [
+    "internal/cli/ashby_postings.go",
+    "internal/cli/ashby_postings_test.go",
+    "internal/mcp/ashby_postings.go",
+    "internal/mcp/ashby_postings_test.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "Canonical shipcheck passed; full live dogfood passed 69/69 counted cases with no hollow flagship coverage."
+}

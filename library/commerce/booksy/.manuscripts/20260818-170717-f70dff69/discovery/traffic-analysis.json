@@ -1,0 +1,4074 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://pl.booksy.com/core/v2/customer_api/me",
+    "entry_count": 66,
+    "api_entry_count": 66,
+    "noise_entry_count": 0,
+    "host_distribution": {
+      "pl.booksy.com": 66
+    },
+    "http_version_distribution": {
+      "h3": 66
+    },
+    "time_start": "2026-08-18T15:23:23.378Z",
+    "time_end": "2026-08-18T15:26:15.66Z"
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.65,
+    "reasons": [
+      "no browser-only reachability signals observed"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/my_booksy/galleries/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/my_booksy/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 3,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/likes/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/cms_content/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 6,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/focus_on_query",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/cms_content/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 10,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 11,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/street_hints/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 13,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/street_hints/resolve/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 14,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/street_hints/resolve/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 15,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 16,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/cms_content/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 17,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 18,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/recommended_treatments/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 19,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 20,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/gallery",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 21,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/recommended_treatments/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 22,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 23,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/gallery",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 24,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/likes/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 25,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/focus_on_query",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 26,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/modern_query_hints/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 27,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/modern_query_hints/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 28,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360/safety_rules/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 29,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 30,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/drafts/provider_feature_checklist/297360/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 31,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/images/297360/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 32,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360/reviews",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 33,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/omnibus_consent_content/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 34,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/business_network/business/297360",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 35,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/my_booksy/recommended_new/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 36,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360/review_photos",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 37,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/other/apple_token/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 38,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/likes/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 39,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/likes/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 40,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/drafts/provider_feature_checklist/297360/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 41,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 42,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/drafts/provider_feature_checklist/297360/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 43,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 44,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/family_and_friends/members/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 45,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 46,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 47,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/drafts/provider_feature_checklist/297360/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 48,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/appointments/time_slots",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 49,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 50,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/trigger_event/cb_started_for_customer",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 51,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/appointments/time_slots",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 52,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/services/6094052/addons/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 53,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/services/6094052/addons/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 54,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 55,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 56,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/appointments/time_slots",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 57,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 58,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 59,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 60,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/appointments/time_slots",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 61,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/services/7555343/addons/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 62,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/services/7555343/addons/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 63,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 64,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 65,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360/data_privacy/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "api_key",
+        "confidence": 0.85,
+        "header_names": [
+          "x-api-key"
+        ],
+        "evidence": [
+          {
+            "entry_index": 0,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 1,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/my_booksy/galleries/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 2,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/my_booksy/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 3,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me/likes/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 4,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 5,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses/cms_content/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 6,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 7,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/search/focus_on_query",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 8,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 9,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses/cms_content/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 10,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 11,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 12,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/search/street_hints/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 13,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/search/street_hints/resolve/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 14,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/search/street_hints/resolve/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 15,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 16,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses/cms_content/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 17,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 18,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/search/recommended_treatments/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 19,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 20,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses/gallery",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 21,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/search/recommended_treatments/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 22,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 23,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses/gallery",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 24,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me/likes/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 25,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/search/focus_on_query",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 26,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/search/modern_query_hints/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 27,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/search/modern_query_hints/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 28,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses/297360/safety_rules/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 29,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses/297360",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 30,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/drafts/provider_feature_checklist/297360/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 31,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/images/297360/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 32,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses/297360/reviews",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 33,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/omnibus_consent_content/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 34,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/business_network/business/297360",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 35,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/my_booksy/recommended_new/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 36,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses/297360/review_photos",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 37,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/other/apple_token/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 38,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me/likes/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 39,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me/likes/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 40,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/drafts/provider_feature_checklist/297360/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 41,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses/297360/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 42,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/drafts/provider_feature_checklist/297360/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 43,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 44,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me/family_and_friends/members/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 45,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses/297360/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 46,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 47,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/drafts/provider_feature_checklist/297360/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 48,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me/businesses/297360/appointments/time_slots",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 49,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+            "status": 201,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 50,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/trigger_event/cb_started_for_customer",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 51,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me/businesses/297360/appointments/time_slots",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 52,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me/businesses/297360/services/6094052/addons/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 53,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me/businesses/297360/services/6094052/addons/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 54,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+            "status": 201,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 55,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+            "status": 201,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 56,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me/businesses/297360/appointments/time_slots",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 57,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+            "status": 201,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 58,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+            "status": 201,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 59,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+            "status": 201,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 60,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me/businesses/297360/appointments/time_slots",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 61,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me/businesses/297360/services/7555343/addons/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 62,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me/businesses/297360/services/7555343/addons/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 63,
+            "method": "POST",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+            "status": 201,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 64,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses/297360",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 65,
+            "method": "GET",
+            "host": "pl.booksy.com",
+            "path": "/core/v2/customer_api/businesses/297360/data_privacy/",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          }
+        ]
+      }
+    ]
+  },
+  "endpoint_clusters": [
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/business_network/business/{business_id}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "unknown"
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 34,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/business_network/business/297360",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/businesses",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "large",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "unknown"
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 15,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/businesses/cms_content/",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "best_treatment_reviews",
+            "type": "array"
+          },
+          {
+            "name": "category_regions",
+            "type": "array"
+          },
+          {
+            "name": "feature_flags",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "seo_content",
+            "type": "array"
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/cms_content/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/cms_content/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 16,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/cms_content/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "POST",
+      "path": "/core/v2/customer_api/businesses/faceting_treatment/category/{category_id}/",
+      "count": 6,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "location_id",
+            "type": "integer",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "aggregated_treatments",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "low_confidence_parameters": [
+        {
+          "name": "category_id",
+          "segment": "16",
+          "position": 6,
+          "reason": "single-sample small integer path segment"
+        }
+      ],
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 6,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 10,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 11,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 17,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 19,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 22,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/businesses/gallery",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "unknown"
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 20,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/gallery",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 23,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/gallery",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/businesses/{businesse_id}",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "large",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "business",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "legal_footer_visible",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 29,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 64,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/businesses/{businesse_id}/",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "large",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "business",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "legal_footer_visible",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 41,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 45,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/businesses/{businesse_id}/data_privacy/",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "redirect_url",
+            "type": "string",
+            "required": true,
+            "format": "url"
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 65,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360/data_privacy/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/businesses/{businesse_id}/review_photos",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "unknown"
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 36,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360/review_photos",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/businesses/{businesse_id}/reviews",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "unknown"
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 32,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360/reviews",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/businesses/{businesse_id}/safety_rules/",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "unknown"
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 28,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360/safety_rules/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/drafts/provider_feature_checklist/{provider_feature_checklist_id}/",
+      "count": 4,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "feature_checklist",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 30,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/drafts/provider_feature_checklist/297360/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 40,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/drafts/provider_feature_checklist/297360/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 42,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/drafts/provider_feature_checklist/297360/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 47,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/drafts/provider_feature_checklist/297360/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/images/{image_id}/",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "unknown"
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 31,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/images/297360/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/me",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "customer",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 43,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 46,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "POST",
+      "path": "/core/v2/customer_api/me/appointments/business/{business_id}/dry_run/",
+      "count": 7,
+      "statuses": [
+        201
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "compatibilities",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "subbookings",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "appointment",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "appointment_payment",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "is_cancellation_fee_preauth_flow",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "pre_auth_data",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 49,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 54,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 55,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 57,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 58,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 59,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 63,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "POST",
+      "path": "/core/v2/customer_api/me/businesses/{businesse_id}/appointments/time_slots",
+      "count": 4,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "end_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "start_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "subbookings",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "staff_time_slots",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "time_slots",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 48,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/appointments/time_slots",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 51,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/appointments/time_slots",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 56,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/appointments/time_slots",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 60,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/appointments/time_slots",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/me/businesses/{businesse_id}/services/{service_id}/addons/",
+      "count": 4,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "count",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "data",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "type": "integer",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 52,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/services/6094052/addons/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 53,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/services/6094052/addons/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 61,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/services/7555343/addons/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 62,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/services/7555343/addons/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/me/family_and_friends/members/",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "invited",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "members",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 44,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/family_and_friends/members/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "POST",
+      "path": "/core/v2/customer_api/me/likes/",
+      "count": 4,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "businesses",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "businesses",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "image_likes",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "resource_likes",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 3,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/likes/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 24,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/likes/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 38,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/likes/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 39,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/likes/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/my_booksy/",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "booking_box",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "favorites_visited",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "main_categories",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "pop_up_notifications",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "subcategories",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/my_booksy/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/my_booksy/galleries/",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "large",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "1",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "2",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "4",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "5",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "7",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/my_booksy/galleries/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/my_booksy/recommended_new/",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "large",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "unknown"
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 35,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/my_booksy/recommended_new/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/omnibus_consent_content/",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "html",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 33,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/omnibus_consent_content/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/search/focus_on_query",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "treatments",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/focus_on_query",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 25,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/focus_on_query",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/search/modern_query_hints/",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "number_category_suggestions",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "suggestions",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 26,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/modern_query_hints/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 27,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/modern_query_hints/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/search/recommended_treatments/",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "treatments",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 18,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/recommended_treatments/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 21,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/recommended_treatments/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/search/street_hints/",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "hints",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/street_hints/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/customer_api/search/street_hints/resolve/",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "address",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "city",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "country_code",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "formatted_address",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "full_label",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "location",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "match",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "state",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "street",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "zip",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 13,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/street_hints/resolve/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 14,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/street_hints/resolve/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "POST",
+      "path": "/core/v2/customer_api/trigger_event/cb_started_for_customer",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "been_there_before",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "booking_source",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "business_id",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "gender_code",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "service_id",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "triggered",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 50,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/trigger_event/cb_started_for_customer",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "pl.booksy.com",
+      "method": "GET",
+      "path": "/core/v2/other/apple_token/",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "token",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-access-token",
+        "x-api-key"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 37,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/other/apple_token/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "request_sequences": [
+    {
+      "label": "observed_api_flow",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/my_booksy/galleries/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/my_booksy/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 3,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/likes/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/cms_content/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 6,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/focus_on_query",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        }
+      ],
+      "notes": [
+        "HAR timing available for at least one request."
+      ]
+    }
+  ],
+  "pagination": [
+    {
+      "location": "query",
+      "name": "limit",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/focus_on_query",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "pagination-like query parameter"
+        },
+        {
+          "entry_index": 18,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/recommended_treatments/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "pagination-like query parameter"
+        },
+        {
+          "entry_index": 21,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/recommended_treatments/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "pagination-like query parameter"
+        },
+        {
+          "entry_index": 25,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/focus_on_query",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "pagination-like query parameter"
+        }
+      ]
+    },
+    {
+      "location": "query",
+      "name": "page",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 31,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/images/297360/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "pagination-like query parameter"
+        },
+        {
+          "entry_index": 36,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360/review_photos",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "pagination-like query parameter"
+        }
+      ]
+    },
+    {
+      "location": "query",
+      "name": "per_page",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 52,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/services/6094052/addons/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "pagination-like query parameter"
+        },
+        {
+          "entry_index": 53,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/services/6094052/addons/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "pagination-like query parameter"
+        },
+        {
+          "entry_index": 61,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/services/7555343/addons/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "pagination-like query parameter"
+        },
+        {
+          "entry_index": 62,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/services/7555343/addons/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "pagination-like query parameter"
+        }
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "create_category",
+      "resource": "category",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /core/v2/customer_api/businesses/faceting_treatment/category/{category_id}/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 6,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 10,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 11,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 17,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 19,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 22,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/faceting_treatment/category/16/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_cb_started_for_customer",
+      "resource": "cb_started_for_customer",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /core/v2/customer_api/trigger_event/cb_started_for_customer traffic.",
+      "evidence": [
+        {
+          "entry_index": 50,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/trigger_event/cb_started_for_customer",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_dry_run",
+      "resource": "dry_run",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /core/v2/customer_api/me/appointments/business/{business_id}/dry_run/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 49,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 54,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 55,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 57,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 58,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 59,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 63,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/appointments/business/297360/dry_run/",
+          "status": 201,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_likes",
+      "resource": "likes",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /core/v2/customer_api/me/likes/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 3,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/likes/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 24,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/likes/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 38,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/likes/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 39,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/likes/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_time_slots",
+      "resource": "time_slots",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /core/v2/customer_api/me/businesses/{businesse_id}/appointments/time_slots traffic.",
+      "evidence": [
+        {
+          "entry_index": 48,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/appointments/time_slots",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 51,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/appointments/time_slots",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 56,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/appointments/time_slots",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 60,
+          "method": "POST",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/appointments/time_slots",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_addons",
+      "resource": "addons",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/me/businesses/{businesse_id}/services/{service_id}/addons/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 52,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/services/6094052/addons/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 53,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/services/6094052/addons/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 61,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/services/7555343/addons/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 62,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/businesses/297360/services/7555343/addons/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_business",
+      "resource": "business",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/business_network/business/{business_id} traffic.",
+      "evidence": [
+        {
+          "entry_index": 34,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/business_network/business/297360",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_businesses",
+      "resource": "businesses",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/businesses/{businesse_id} traffic.",
+      "evidence": [
+        {
+          "entry_index": 29,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 64,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_data_privacy",
+      "resource": "data_privacy",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/businesses/{businesse_id}/data_privacy/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 65,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360/data_privacy/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_images",
+      "resource": "images",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/images/{image_id}/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 31,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/images/297360/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_provider_feature_checklist",
+      "resource": "provider_feature_checklist",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/drafts/provider_feature_checklist/{provider_feature_checklist_id}/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 30,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/drafts/provider_feature_checklist/297360/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 40,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/drafts/provider_feature_checklist/297360/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 42,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/drafts/provider_feature_checklist/297360/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 47,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/drafts/provider_feature_checklist/297360/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_review_photos",
+      "resource": "review_photos",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/businesses/{businesse_id}/review_photos traffic.",
+      "evidence": [
+        {
+          "entry_index": 36,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360/review_photos",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_reviews",
+      "resource": "reviews",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/businesses/{businesse_id}/reviews traffic.",
+      "evidence": [
+        {
+          "entry_index": 32,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360/reviews",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_safety_rules",
+      "resource": "safety_rules",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/businesses/{businesse_id}/safety_rules/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 28,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/297360/safety_rules/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_apple_token",
+      "resource": "apple_token",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/other/apple_token/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 37,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/other/apple_token/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_businesses",
+      "resource": "businesses",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/businesses traffic.",
+      "evidence": [
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 15,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_cms_content",
+      "resource": "cms_content",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/businesses/cms_content/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/cms_content/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/cms_content/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 16,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/cms_content/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_focus_on_query",
+      "resource": "focus_on_query",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/search/focus_on_query traffic.",
+      "evidence": [
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/focus_on_query",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 25,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/focus_on_query",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_galleries",
+      "resource": "galleries",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/my_booksy/galleries/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/my_booksy/galleries/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_gallery",
+      "resource": "gallery",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/businesses/gallery traffic.",
+      "evidence": [
+        {
+          "entry_index": 20,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/gallery",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 23,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/businesses/gallery",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_me",
+      "resource": "me",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/me traffic.",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 43,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 46,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_members",
+      "resource": "members",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/me/family_and_friends/members/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 44,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/me/family_and_friends/members/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_modern_query_hints",
+      "resource": "modern_query_hints",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/search/modern_query_hints/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 26,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/modern_query_hints/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 27,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/modern_query_hints/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_my_booksy",
+      "resource": "my_booksy",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/my_booksy/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/my_booksy/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_omnibus_consent_content",
+      "resource": "omnibus_consent_content",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/omnibus_consent_content/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 33,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/omnibus_consent_content/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_recommended_new",
+      "resource": "recommended_new",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/my_booksy/recommended_new/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 35,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/my_booksy/recommended_new/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_recommended_treatments",
+      "resource": "recommended_treatments",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/search/recommended_treatments/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 18,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/recommended_treatments/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 21,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/recommended_treatments/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_resolve",
+      "resource": "resolve",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/search/street_hints/resolve/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 13,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/street_hints/resolve/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 14,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/street_hints/resolve/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_street_hints",
+      "resource": "street_hints",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /core/v2/customer_api/search/street_hints/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "pl.booksy.com",
+          "path": "/core/v2/customer_api/search/street_hints/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ]
+}

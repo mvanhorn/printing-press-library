@@ -1,0 +1,97 @@
+openapi: 3.0.3
+info:
+  title: Lever Postings API
+  version: "1.0.0"
+  description: |
+    Public Lever postings API (https://api.lever.co/v0/postings). Every Lever
+    customer exposes an open job board at api.lever.co/v0/postings/{company}
+    with mode=json, no authentication. The company slug is a path segment
+    that identifies the employer (e.g. `leverdemo`, `netflix`, `eventbrite`).
+
+    Generic CLI: the company slug is the first positional argument on every
+    command. `lever postings list stripe` lists Stripe's open roles when
+    Stripe publishes through Lever.
+
+servers:
+  - url: https://api.lever.co/v0
+    description: Lever public postings API base (without company slug)
+
+paths:
+  /postings/{company}:
+    get:
+      operationId: listPostings
+      summary: List all open postings for a company
+      parameters:
+        - name: company
+          in: path
+          required: true
+          schema: { type: string }
+          description: Company slug (the Lever board identifier)
+        - name: mode
+          in: query
+          required: false
+          schema: { type: string, enum: [json], default: json }
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, default: 100 }
+        - name: offset
+          in: query
+          required: false
+          schema: { type: integer, default: 0 }
+      responses:
+        "200":
+          description: Postings list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Posting" }
+
+  /postings/{company}/{posting_id}:
+    get:
+      operationId: getPosting
+      summary: Retrieve a single posting
+      parameters:
+        - name: company
+          in: path
+          required: true
+          schema: { type: string }
+          description: Company slug (the Lever board identifier)
+        - name: posting_id
+          in: path
+          required: true
+          schema: { type: string }
+          description: Posting id (UUID)
+        - name: mode
+          in: query
+          required: false
+          schema: { type: string, enum: [json], default: json }
+      responses:
+        "200":
+          description: Single posting
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Posting" }
+
+components:
+  schemas:
+    Posting:
+      type: object
+      properties:
+        id: { type: string }
+        text: { type: string, description: Full posting text (HTML) }
+        categories:
+          type: object
+          properties:
+            team: { type: string }
+            location: { type: string }
+            commitment: { type: string }
+            level: { type: string }
+            workplaceType: { type: string }
+        hostedUrl: { type: string }
+        applyUrl: { type: string }
+        createdAt: { type: integer }
+        workplaceType: { type: string }
+        department: { type: string }
+        contactEmail: { type: string }

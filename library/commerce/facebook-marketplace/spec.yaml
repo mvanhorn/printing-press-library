@@ -472,7 +472,7 @@ resources:
           - name: doc_id
             type: string
             required: true
-            default: "8816823481754272"
+            default: "27439893065673498"
             description: Captured Relay document id.
           - name: variables
             type: object

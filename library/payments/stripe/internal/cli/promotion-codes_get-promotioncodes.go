@@ -29,10 +29,12 @@ func newPromotionCodesGetPromotioncodesCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/promotion_codes/{promotion_code}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("promotion_code is required\nUsage: %s <%s>", cmd.CommandPath(), "promotion_code"))
 			}
-			path = replacePathParam(path, "promotion_code", args[1])
+			path = replacePathParam(path, "promotion_code", args[0])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

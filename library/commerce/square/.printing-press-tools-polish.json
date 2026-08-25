@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-08-05T16:00:23.6911007Z",
+  "cli_dir": "\u003ccli-dir\u003e\\square-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 451,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated platform command; the brief Short precisely names the returned profile collection and needs a generator-template improvement"
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated learning command; the concise Short accurately distinguishes listing stored learnings from recall and needs a generator-template improvement"
+    }
+  ]
+}

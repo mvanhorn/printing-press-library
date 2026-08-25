@@ -19,24 +19,42 @@ func newContactsSearchCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:         "search",
-		Short:       "You can search for multiple contacts by the value of their attributes in order to fetch exactly who you want.",
+		Use:   "search",
+		Short: "You can search for multiple contacts by the value of their attributes in order to fetch exactly who you want.",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
 		Example:     "  intercom-pp-cli contacts search --query example-value",
 		Annotations: map[string]string{"pp:endpoint": "contacts.search", "pp:method": "POST", "pp:path": "/contacts/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
+			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("query") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "query")
 				}
 			}
+			path := "/contacts/search"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/contacts/search"
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -48,7 +66,8 @@ func newContactsSearchCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				{
 					nestedPagination := map[string]any{}
 					if bodyPaginationPerPage != 0 {
@@ -58,16 +77,21 @@ func newContactsSearchCmd(flags *rootFlags) *cobra.Command {
 						nestedPagination["starting_after"] = bodyPaginationStartingAfter
 					}
 					if len(nestedPagination) > 0 {
-						body["pagination"] = nestedPagination
+						bodyMap["pagination"] = nestedPagination
 					}
 				}
 				if bodyQuery != "" {
-					// PATCH(intercom-search-query-json-parse): see tickets_search.go.
-					var parsed any
-					if json.Unmarshal([]byte(bodyQuery), &parsed) == nil {
-						body["query"] = parsed
+					// PATCH(intercom-search-query-json-parse): a --query value that
+					// looks like JSON ({...} or [...]) is parsed into a nested
+					// predicate object; a plain string passes through as-is.
+					if looksLikeJSONComposite(bodyQuery) {
+						var parsedQuery any
+						if err := json.Unmarshal([]byte(bodyQuery), &parsedQuery); err != nil {
+							return fmt.Errorf("parsing --query JSON: %w", err)
+						}
+						bodyMap["query"] = parsedQuery
 					} else {
-						body["query"] = bodyQuery
+						bodyMap["query"] = bodyQuery
 					}
 				}
 			}
@@ -135,6 +159,9 @@ func newContactsSearchCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -173,7 +200,11 @@ func newContactsSearchCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

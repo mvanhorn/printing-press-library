@@ -533,6 +533,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 	const maxRetries = 3
 	var lastErr error
 	refreshedAfterUnauthorized := false
+	retriedAsAppOnly := false
 
 	for attempt := 0; attempt <= maxRetries; attempt++ {
 		// Proactive rate limiting — wait before sending
@@ -669,6 +670,20 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 					continue
 				}
 			}
+		}
+
+		// App-only fallback: when OAuth2 user-context token is expired/stale
+		// and refresh was unavailable or failed, retry public v2 reads with
+		// the app-only Bearer token. Only fires when both credentials exist
+		// so single-credential setups are unaffected. User-context-only
+		// endpoints (e.g. /2/users/me) will return 403 Unsupported Authentication
+		// on retry — the existing classifyAPIError handler converts that to a
+		// better error hint than the original 401.
+		if resp.StatusCode == http.StatusUnauthorized && !retriedAsAppOnly && authorizationHeaderOverride(headerOverrides) == "" && !hostUsesCookieAuth(req.URL.Host) && c.Config != nil && c.Config.XOauth2UserToken != "" && c.Config.XBearerToken != "" {
+			authHeader = "Bearer " + c.Config.XBearerToken
+			retriedAsAppOnly = true
+			lastErr = apiErr
+			continue
 		}
 
 		// Rate limited - adjust adaptive limiter and retry

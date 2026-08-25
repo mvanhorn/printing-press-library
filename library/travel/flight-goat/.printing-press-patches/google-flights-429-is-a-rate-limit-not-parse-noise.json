@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "google-flights-429-is-a-rate-limit-not-parse-noise",
+  "applied_at": "2026-07-31",
+  "base_run_id": "20260712-220852",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Google Flights HTTP 429 is an IP-level budget and must stay classified as a rate limit end-to-end: typed sentinel (no HTML in messages), slow bounded retry ladder, terminal rate-limited state (after a 429, a blocked envelope returns immediately without spending the blocked ladder, and later generic failures keep the rate-limit classification), no HTML fallback on 429, exit 7 with pacing + alternate-source hints on every Google-backed command including cheapest-longhaul's per-destination scan, and buffered partial output still delivered to --deliver sinks on failure.",
+  "reason": "Bulk fare probes trip Google's per-IP rate limit; the generated error path embedded the raw HTML interstitial, bypassed rate-limit classification (generated classifyAPIError only serves AeroAPI commands), let a code-13 envelope after a 429 spend more budget on the HTML fallback, and left the dates fallback reading a rate-limited day range as clean success. The block frequently outlasts 15 minutes, so the fallback page is spent budget, not a fallback.",
+  "files": [
+    "internal/gflights/rpc_http.go",
+    "internal/gflights/html_fallback.go",
+    "internal/gflights/html_fallback_test.go",
+    "internal/gflights/rpc_retry.go",
+    "internal/gflights/rpc_retry_test.go",
+    "internal/gflights/flights_native.go",
+    "internal/cli/primary.go",
+    "internal/cli/transcend.go",
+    "internal/cli/root.go",
+    "internal/cli/root_flushdeliver_test.go"
+  ],
+  "validated_outcome": "unit tests cover the 429 ladder (2s/5s/12s), blocked-after-429 returning immediately as rate-limited, generic-after-429 keeping classification while context errors pass through, all-rate-limited dates fallback surfacing the sentinel, flushDeliver's three-way branching, and exit-7 classification; two independent multi-agent review passes (each with a cross-model adversarial reviewer) validated the contract; a live 429 during the 2026-07-24 dogfood session is the reproduction."
+}

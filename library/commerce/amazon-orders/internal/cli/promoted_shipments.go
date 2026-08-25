@@ -67,7 +67,7 @@ func newShipmentsPromotedCmd(flags *rootFlags) *cobra.Command {
 			if flagPackageIndex != 0 {
 				params["packageIndex"] = fmt.Sprintf("%v", flagPackageIndex)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "shipments", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "shipments", false, path, params, nil, "")
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

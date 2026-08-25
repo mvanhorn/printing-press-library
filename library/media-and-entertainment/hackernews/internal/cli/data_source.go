@@ -196,17 +196,10 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 		}
 	}
 
-	// Upsert each item individually
-	for _, item := range items {
-		var obj map[string]json.RawMessage
-		if json.Unmarshal(item, &obj) != nil {
-			continue
-		}
-		if idRaw, ok := obj["id"]; ok {
-			id := strings.Trim(string(idRaw), "\"")
-			_ = db.Upsert(resourceType, id, item)
-		}
+	if len(items) == 0 {
+		return
 	}
+	_, _, _ = db.UpsertBatch(resourceType, items)
 }
 
 // resolveLocal reads data from the local SQLite store.

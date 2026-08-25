@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "archive-full-walk-body-ingest",
+  "applied_at": "2026-07-19",
+  "base_run_id": "20260710-081225",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Make archive walk the full publication archive (empty page is the only terminator, offset advances by items returned) and ingest each new post's body text into the FTS index by default, with --metadata-only as the fast path that never drops stored bodies (a body already in the corpus always survives a re-run) and the whole-walk --timeout deadline applied only when the flag is set explicitly.",
+  "reason": "Substack's /api/v1/archive returns SHORT pages mid-archive (verified live: 23 items for a 50-item request at offset 0, then full 25-item pages at offsets 23 and 46), so treating a short page as end-of-archive capped a 89-post publication at 23 posts, and advancing offset by the requested size would skip the posts behind a short page. The archive endpoint also carries no bodies, so the promised full-text-searchable corpus had nothing to search beyond titles and previews. The 60s default --timeout ('Request timeout') bounded the whole multi-request walk and would kill any full first archive.",
+  "files": [
+    "internal/cli/archive.go",
+    "internal/cli/archive_test.go"
+  ],
+  "validated_outcome": "archive dougshapiro.substack.com --limit 120 stores 89 of 89 posts back to the true 2020-07-05 first post in 47s with every body fetched (bodies_fetched 89, body_errors 0); FTS matches 'streaming' in 56 of 89 posts. A --metadata-only re-run over the same corpus (30 posts re-archived, 0 fetches) leaves all 89 stored bodies and all 56 FTS hits intact. Pinned by seven unit tests: five on archiveWalk's pagination contract plus TestBodyTextToStore and TestMetadataOnlyRerunPreservesBodyText on body preservation."
+}

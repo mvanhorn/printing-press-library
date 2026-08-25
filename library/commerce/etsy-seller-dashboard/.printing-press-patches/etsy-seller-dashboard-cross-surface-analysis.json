@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "etsy-seller-dashboard-cross-surface-analysis",
+  "applied_at": "2026-07-26",
+  "base_run_id": "20260725-212952-c7905991",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Adds local cross-surface decisions and transactional Etsy dashboard observation replacement.",
+  "reason": "Marketplace Insights, Etsy Ads, Offsite Ads, and promotions require reconciled local analyses and persistence behavior beyond generated endpoint templates.",
+  "files": [
+    "internal/analysis/decisions.go",
+    "internal/analysis/history.go",
+    "internal/analysis/model.go",
+    "internal/cli/novel_growth.go",
+    "internal/cli/sync.go",
+    "internal/store/dashboard_observations.go"
+  ],
+  "validated_outcome": "Full live dogfood passed 106/106 checks; go test, go vet, govulncheck, shipcheck, and publish validation passed."
+}

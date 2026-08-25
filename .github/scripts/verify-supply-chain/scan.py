@@ -121,6 +121,8 @@ def added_lines(base_ref: str, head_ref: str, path: str) -> list[tuple[int, str]
 
 
 def is_scoped(path: str) -> bool:
+    if path == ".go-version":
+        return True
     parts = PurePosixPath(path).parts
     if len(parts) >= 3 and parts[0] == ".github" and parts[1] == "workflows":
         return path.endswith((".yml", ".yaml"))
@@ -157,7 +159,12 @@ def emit_annotation(f: signals.Finding) -> None:
 
 
 def build_change(
-    base_ref: str, head_ref: str, status: str, path: str, old_path: str | None
+    base_ref: str,
+    head_ref: str,
+    status: str,
+    path: str,
+    old_path: str | None,
+    go_floor: str,
 ) -> signals.FileChange:
     # For renames/copies, the file's prior version lives at old_path on base.
     # Treating it as a true rename (rather than "new file at new_path") lets
@@ -171,15 +178,26 @@ def build_change(
         base_content=base_content,
         head_content=head_content,
         added_lines=diff_added,
+        go_floor=go_floor,
     )
+
+
+def go_floor_for_ref(ref: str) -> str:
+    content = git_show(ref, ".go-version")
+    if content:
+        value = content.strip()
+        if value:
+            return value
+    return signals.DEFAULT_GO_FLOOR
 
 
 def scan(base_ref: str, head_ref: str, strict: bool) -> list[signals.Finding]:
     findings: list[signals.Finding] = []
+    go_floor = go_floor_for_ref(head_ref)
     for status, path, old_path in changed_files(base_ref, head_ref):
         if not is_scoped(path):
             continue
-        change = build_change(base_ref, head_ref, status, path, old_path)
+        change = build_change(base_ref, head_ref, status, path, old_path, go_floor)
         for finding in signals.run_signals(change):
             if strict and finding.severity == "advise":
                 finding = signals.Finding(

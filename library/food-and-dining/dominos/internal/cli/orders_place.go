@@ -22,6 +22,9 @@ func newOrdersPlaceCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  dominos-pp-cli orders place",
 		Annotations: map[string]string{"pp:endpoint": "orders.place", "pp:method": "POST", "pp:path": "/power/place-order"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := rejectCanadianPlacement(flags); err != nil {
+				return err
+			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("order") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "order")

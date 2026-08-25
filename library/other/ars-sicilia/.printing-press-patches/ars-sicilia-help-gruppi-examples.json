@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-help-gruppi-examples",
+  "applied_at": "2026-08-22",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.30.3",
+  "summary": "`gruppi elenco` e `gruppi get` hanno una sezione Examples, che erano gli unici due comandi a non avere.",
+  "reason": "Il collaudo live li bocciava entrambi con «missing Examples section»: difetto preesistente e identico nel catalogo pubblicato, che la matrice del binario press 4.30.3 controlla e la precedente no. Senza Examples i due comandi restavano `skip` anche su happy_path, error_path e json_fidelity, cioe' non venivano esercitati affatto.",
+  "files": [
+    "internal/cli/gruppi.go"
+  ],
+  "validated_outcome": "Esempi verificati dal vivo: `gruppi elenco --legisl 18` -> 10 gruppi; `gruppi get XVIII-misto` -> 3 componenti; `gruppi get \"Partito Democratico\" --legisl 18` -> 11 componenti; `gruppi elenco --deputato Cracolici --legisl 18` -> 1 risultato. Nel collaudo i due comandi passano ora tutti e quattro i tipi di test."
+}

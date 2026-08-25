@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/copper-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260623-105449-202981ca",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

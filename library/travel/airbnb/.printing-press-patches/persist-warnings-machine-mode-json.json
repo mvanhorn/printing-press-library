@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "persist-warnings-machine-mode-json",
+  "applied_at": "2026-06-17",
+  "base_run_id": "2026-05-03T06:03:12.15145Z",
+  "base_printing_press_version": "3.6.1",
+  "summary": "The best-effort persistence helpers in internal/cli/persist.go (openScrapeStore, persistAirbnbListing, persistHost, persistPriceSnapshot) route every store-failure warning through a persistWarn(reason, id, msg) helper: human mode prints the familiar `warning: <msg>` line, machine mode emits a single structured `{\"event\":\"persist_warning\",\"reason\":...,\"id\"?:...,\"message\":...}` JSON object (id omitted when empty; reason/id/message all jsonEscape'd). Plain `fmt.Fprintf(os.Stderr, \"warning: ...\")` must never be reintroduced here.",
+  "reason": "These helpers run on every default `sync` iteration via runScrapeSync -> computeCheapest, and also on the scrape commands (search/get/cheapest/compare/plan/watch check). A bare human-readable warning on stderr in machine mode (humanFriendly==false) injects free-form text between the JSON sync_* event lines, breaking any consumer parsing the event stream (Greptile P1 on PR #1165). This extends the same machine-mode stream-purity contract already recorded for scrape_sync.go in `sync-rescrapes-known-store-entries`, and complements `scrape-commands-persist-listings-and-snapshots` (which records the best-effort persistence behavior but predates this stream-purity routing). A fresh print emits the unguarded fmt.Fprintf form; this entry is the reprint guard that must survive regen. The persist_warning event mirrors the sync_warning envelope (event/reason/message via the shared jsonEscape helper) and intentionally omits `resource` because these helpers are also called outside the sync envelope; the optional `id` carries the listing id or host name.",
+  "files": [
+    "internal/cli/persist.go",
+    "internal/cli/persist_test.go"
+  ],
+  "validated_outcome": "go build/vet green; TestPersistHelpers_MachineModeStreamPurity forces all three write helpers to fail (closed store) and asserts machine-mode stderr is exactly three persist_warning JSON objects carrying the right reason + id, while human mode keeps the `warning:` line; TestPersistWarn_MachineModeEscapesAllFieldsAndOmitsEmptyID asserts the empty-id branch omits the id key and that reason/message round-trip embedded quotes and backslashes through jsonEscape.",
+  "upstream_issue": "https://github.com/mvanhorn/printing-press-library/pull/1165"
+}

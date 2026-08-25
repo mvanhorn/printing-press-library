@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "devonthink-review-stability-fixes",
+  "applied_at": "2026-06-29",
+  "base_run_id": "20260629T175310Z-b4705e85",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Fix review findings around AppleScript list parsing, mirror backend disclosure, and an empty MCP stdin branch.",
+  "reason": "Publishing review found comma-space AppleScript parsing corruption, a success-shaped mirror noop, and an unfinished empty codegen branch.",
+  "files": [
+    "internal/client/local_devonthink.go",
+    "internal/client/client_test.go",
+    "internal/cli/mcp_call.go",
+    "internal/cli/records_search.go",
+    "internal/cli/graph_audit.go"
+  ],
+  "validated_outcome": "go test ./... passed in the source repo and packaged public-library module."
+}

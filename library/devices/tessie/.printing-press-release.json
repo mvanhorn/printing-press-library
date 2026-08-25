@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "tessie",
+  "cli_name": "tessie-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-21T05:15:26Z",
+  "source_commit": "261cb88c4d7ea5534110b631a6b74f8efad727fc",
+  "printing_press_version": "4.31.0",
+  "run_id": "20260819-193744",
+  "changes": [
+    {
+      "title": "feat(tessie): add tessie",
+      "pr": 1764,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1764",
+      "commit": "261cb88c4d7ea5534110b631a6b74f8efad727fc"
+    }
+  ]
+}

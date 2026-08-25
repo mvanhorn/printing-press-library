@@ -574,11 +574,17 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 	if flags.quiet {
 		return nil
 	}
+	var err error
 	// --csv: render as CSV
 	if flags.csv {
-		return printCSV(w, data)
+		err = printCSV(w, data)
+	} else {
+		err = printOutput(w, data, flags.asJSON)
 	}
-	return printOutput(w, data, flags.asJSON)
+	if err == nil && flags != nil {
+		flags.outputWritten = true
+	}
+	return err
 }
 
 // compactVerboseFields are the prose-shaped fields stripped by both the

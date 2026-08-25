@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "updated-time-is-a-reindex-clock-not-a-posting-time",
+  "applied_at": "2026-07-25",
+  "base_run_id": "20260725-041142-9944f727",
+  "base_printing_press_version": "4.29.0",
+  "summary": "amazon.jobs `updated_time` tracks re-indexing, not posting, so it must never be presented as recency: show it beside `posted_date`, mark rows where they disagree, and give recency filters `posted_date` as their only source of truth.",
+  "reason": "`updated_time` is a relative string (\"about 21 hours\") that reads as freshness but reflects the last touch of any kind, including re-indexing. Observed directly: reqs posted 2026-03-09, 2026-04-19 and 2026-05-18 each reported an updated_time of 9-14 hours. Prevalence is unstable rather than uniform — in a 1,532-req corpus only 7 of the 766 reqs older than 14 days read hours (400 correctly read \"days\"; the oldest, posted 2025-09-19, correctly read \"10 months\"), while a separate 1,000-req sample taken hours later the same day found the fresh-reading share far higher. Because the field is unreliable in both directions, it must never be the basis of a recency filter or sort; show it beside posted_date and mark disagreement instead.",
+  "files": [
+    "internal/cli/amazonjobs_dates.go",
+    "internal/cli/find.go",
+    "internal/cli/get.go",
+    "internal/cli/new.go",
+    "internal/cli/amazonjobs_common.go"
+  ],
+  "validated_outcome": "Live `find --country USA --sort relevant` marks reqs such as a May 14 2026 posting reporting \"about 3 hours\" updated; 11 of 40 sampled rows carried updated_diverged=true."
+}

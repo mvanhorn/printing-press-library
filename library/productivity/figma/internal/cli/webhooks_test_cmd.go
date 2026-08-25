@@ -16,7 +16,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newWebhooksTestCmd(flags *rootFlags) *cobra.Command {
+// pp:data-source auto
+// webhooks test pulls cached webhook deliveries from the local SQLite store and
+// falls back to a live API fetch when the cache is empty, then replays them.
+func newNovelWebhooksTestCmd(flags *rootFlags) *cobra.Command {
 	var replayFailed bool
 	var targetURL, dbPath string
 	var limit int
@@ -164,6 +167,9 @@ func loadDeliveries(cmd *cobra.Command, flags *rootFlags, webhookID, dbPath stri
 				}
 				out = append(out, parseDelivery(id, data))
 			}
+			if err := rows.Err(); err != nil {
+				return nil, "local", fmt.Errorf("reading cached webhook deliveries: %w", err)
+			}
 			if len(out) > 0 {
 				return out, "local", nil
 			}
@@ -175,7 +181,7 @@ func loadDeliveries(cmd *cobra.Command, flags *rootFlags, webhookID, dbPath stri
 	if cerr != nil {
 		return nil, "", cerr
 	}
-	raw, derr := c.Get("/v2/webhooks/"+webhookID+"/requests", nil)
+	raw, derr := c.Get(cmd.Context(), "/v2/webhooks/"+webhookID+"/requests", nil)
 	if derr != nil {
 		return nil, "", classifyAPIError(derr, flags)
 	}

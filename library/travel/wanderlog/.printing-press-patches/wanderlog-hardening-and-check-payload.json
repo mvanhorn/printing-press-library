@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "id": "wanderlog-hardening-and-check-payload",
+  "applied_at": "2026-08-23",
+  "base_run_id": "20260619-000132-cc275322",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Ids that address rows in a shared ShareDB document must come from crypto/rand; --dry-run must return before any disk read or required-flag check; and a --check style projection must answer the question instead of returning the whole plan.",
+  "reason": "Wanderlog plans are one shared ShareDB document, so a time-seeded math/rand id collision corrupts another user's live plan rather than failing locally. The same shape recurs on the read side: dry-run probes that read --ops-file first, or a cobra MarkFlagRequired that fires before RunE, make the safe rehearsal path unreachable, and a check report that carries the full sections outline is larger than the outline command it was meant to replace.",
+  "files": [
+    "internal/cli/plan_copy.go",
+    "internal/cli/plan_batch.go",
+    "internal/cli/plan_edit_more.go",
+    "internal/cli/plan_outline.go",
+    "internal/cli/plan_outline_test.go",
+    "internal/cli/plan_history.go",
+    "internal/cli/plan_edit.go",
+    "internal/cli/plan_collab_ext.go",
+    "internal/cli/plan_preview.go",
+    "internal/cli/plan_reservation.go",
+    "internal/cli/plan_fill.go",
+    "internal/cli/plan_clone.go",
+    "internal/cli/lodging.go",
+    "internal/cli/which.go",
+    "internal/cli/root.go",
+    "internal/mcp/tools.go",
+    "workflow_verify.yaml",
+    ".printing-press.json"
+  ],
+  "validated_outcome": "go build/vet/test ./... pass and gofmt -l is clean; plan inspect --check drops from the full outline to a plan-scalars-plus-checks projection (~70x smaller) with --with-sections restoring it; cobra.NoArgs turns `--check counts` into a usage error instead of silently running every check; which and the MCP command mirror cover all 34 novel commands (was 3). .printing-press.json schema_version was raised 1 -> 2 by hand: no migration command exists, the field has one reader (an equality test in the press publish path), and schema 2 needs no field this manifest lacks."
+}

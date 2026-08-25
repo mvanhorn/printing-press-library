@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "marketplace-currency-completeness",
+  "applied_at": "2026-07-20",
+  "base_run_id": "20260510-105710",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Every accepted Amazon marketplace domain must map to its ISO currency, and the mapping must resolve the registrable domain rather than substring-matching the base URL.",
+  "reason": "amazon-in-order-localization made currencyForMoneyToken return \"\" for the ambiguous \"$\" so the marketplace fallback could supply the right currency. That fallback was incomplete: marketplaceCurrency only covered 9 of the 22 domains in amazonMarketplaceDomains, so amazon.com.au (AUD), amazon.com.mx (MXN), amazon.sg (S$ -> SGD) and amazon.com.br (R$ -> BRL) silently fell through to the USD default and mis-tagged real amounts — the '$' change did not actually fix those marketplaces. The lookup also substring-matched the raw URL, which is fragile because marketplace domains nest (\"amazon.com.au\" and \"amazon.com.mx\" both contain \"amazon.com\"), so ordering alone decided correctness. The table is now exhaustive and keyed on the registrable domain resolved by cookieDomainFromBaseURL, with tests asserting both directions of parity against amazonMarketplaceDomains so a newly accepted marketplace cannot ship without a currency.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/marketplace_currency_test.go"
+  ],
+  "validated_outcome": "go build ./..., go vet ./internal/cli/..., and go test ./... pass from this CLI directory. New tests cover the dollar-sign marketplaces (USD/CAD/AUD/MXN/SGD/BRL), symbol-bearing marketplaces (INR/GBP/EUR/JPY), scheme-less and path-bearing host forms, non-Amazon and empty input falling back to USD, and two-way parity between marketplaceCurrencies and amazonMarketplaceDomains."
+}

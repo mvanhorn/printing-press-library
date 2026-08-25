@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "catalog-provenance-and-merge",
+  "applied_at": "2026-08-03",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "summary": "The catalog tables carry row ownership and merge on conflict; they must never be written with INSERT OR REPLACE.",
+  "reason": "folders, panel_templates, recipes and recipes_usage are written by both the cache path and the API path. SQLite's REPLACE deletes the row and reinserts it, so every column the incoming payload omits is blanked and the ownership marker is rewritten by whichever path wrote last -- on a degraded sync that silently reassigns every cache-owned row to the API. The writes therefore merge with ON CONFLICT DO UPDATE, coalescing each column against the stored value and deliberately leaving row_source out of the SET list so the creating path keeps ownership. A boolean cannot be coalesced that way, so the folder favourite flag is owner-scoped instead: the owning path may clear it, a foreign path may not. Adding an ownership column to these tables changes table shape and requires a StoreSchemaVersion bump, or a pre-bump binary's write reverts rows to the column default.",
+  "validated_outcome": "A no-DELETE guard using BEFORE DELETE triggers with recursive_triggers on proves REPLACE is gone: it fires on the pre-change code and stays silent across healthy, degraded and API syncs run twice each.",
+  "files": [
+    "internal/granola/store_sync.go",
+    "internal/cli/granola_helpers.go",
+    "internal/store/store.go"
+  ]
+}

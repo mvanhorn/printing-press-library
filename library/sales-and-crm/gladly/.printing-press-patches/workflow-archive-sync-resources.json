@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "workflow-archive-sync-resources",
+  "applied_at": "2026-06-24",
+  "base_run_id": "20260622-071510",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Gladly workflow archive must use the CLI's known sync resources instead of an empty local list.",
+  "reason": "The generated archive command initialized an empty resource slice and reported a successful zero-item archive, leaving users with an empty local store and no clear warning. Reusing the known sync resource list keeps archive aligned with syncable Gladly endpoints.",
+  "files": [
+    "internal/cli/channel_workflow.go",
+    "internal/cli/channel_workflow_test.go"
+  ],
+  "validated_outcome": "go test ./... passes with a regression test covering the archive resource list."
+}

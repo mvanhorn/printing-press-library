@@ -5,6 +5,7 @@
 Sync your entire meeting history once, then search, analyze, and correlate across every conversation without touching the API. Find stale action items, track topic escalation over weeks, reconstruct the full history with any person or account — all offline, all composable with jq and SQL.
 
 Created by [@neektza](https://github.com/neektza) (Nikica Jokic).
+Contributors: [@shanegardner405-arch](https://github.com/shanegardner405-arch) (Shane Gardner).
 
 ## Install
 
@@ -35,7 +36,7 @@ npx -y @mvanhorn/printing-press-library install fireflies --agent claude-code --
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/productivity/fireflies/cmd/fireflies-pp-cli@latest
@@ -140,7 +141,7 @@ fireflies-pp-cli transcripts list --mine --limit 10
 fireflies-pp-cli search "action item" --from 7d --agent
 
 # find dropped commitments
-fireflies-pp-cli action-items stale --days 14 --agent
+fireflies-pp-cli action-items --agent
 
 ```
 
@@ -191,12 +192,13 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   fireflies-pp-cli digest --since 24h --agent
   ```
-- **`transcripts export`** — Export a transcript as markdown to a vault directory with auto-generated YYYY-MM-DD_title.md filename.
+- **`transcripts export`** — Export a transcript as markdown to a vault directory with auto-generated YYYY-MM-DD_title.md filename, or to an explicit file path with `--output` (`-o`) or its alias `--file`.
 
   _Use after a client meeting to save the formatted transcript directly to the right project folder._
 
   ```bash
   fireflies-pp-cli transcripts export abc123 --vault ~/vaults/VBT/Projects/1_Active/Ryder/transcripts/ --agent
+  fireflies-pp-cli transcripts export abc123 --file /tmp/dennis_1on1.md --agent
   ```
 
 ### Person-centric intelligence
@@ -306,19 +308,19 @@ Manage users
 
 ```bash
 # Human-readable table (default in terminal, JSON when piped)
-fireflies-pp-cli active-meetings get
+fireflies-pp-cli active-meetings get active_meeting_id
 
 # JSON for scripting and agents
-fireflies-pp-cli active-meetings get --json
+fireflies-pp-cli active-meetings get active_meeting_id --json
 
 # Filter to specific fields
-fireflies-pp-cli active-meetings get --json --select id,name,status
+fireflies-pp-cli active-meetings get active_meeting_id --json --select id,name,status
 
 # Dry run — show the request without sending
-fireflies-pp-cli active-meetings get --dry-run
+fireflies-pp-cli active-meetings get active_meeting_id --dry-run
 
 # Agent mode — JSON + compact + no prompts in one flag
-fireflies-pp-cli active-meetings get --agent
+fireflies-pp-cli active-meetings get active_meeting_id --agent
 ```
 
 ## Agent Usage

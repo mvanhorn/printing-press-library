@@ -10,10 +10,11 @@ import (
 )
 
 func newLeggiGetCmd(flags *rootFlags) *cobra.Command {
+	var flagAnno int
 	cmd := &cobra.Command{
 		Use:     "get <legisl> <numero>",
 		Short:   "Scarica una singola legge regionale.",
-		Example: "  ars-sicilia-pp-cli leggi get 18 1 --json",
+		Example: "  ars-sicilia-pp-cli leggi get 18 23 --anno 2025 --json",
 		Args:    cobra.MaximumNArgs(2),
 		Annotations: map[string]string{
 			"pp:endpoint":   "leggi.get",
@@ -34,8 +35,15 @@ func newLeggiGetCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return runGet(cmd, flags, "leggi", legisl, numero)
+			// Lo stesso numero di legge si ripete ogni anno (es. L.R. 23/2023 e
+			// 23/2025): --anno disambigua sul campo LEGANN.
+			var extra map[string]string
+			if flagAnno != 0 {
+				extra = map[string]string{"anno": itoa(flagAnno)}
+			}
+			return runGetExtra(cmd, flags, "leggi", legisl, numero, extra)
 		},
 	}
+	cmd.Flags().IntVar(&flagAnno, "anno", 0, "Anno della legge, per disambiguare numeri ripetuti tra anni diversi.")
 	return cmd
 }

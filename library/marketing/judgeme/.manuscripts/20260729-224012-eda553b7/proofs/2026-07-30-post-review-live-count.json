@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "verified_at": "2026-07-30T07:21:42Z",
+  "source": "live",
+  "decoder_contract": {
+    "sample_size": 100,
+    "published_field_present": 100,
+    "curated_field_present": 100,
+    "published_curated_disagreements": 0,
+    "missing_published_fallback": "curated == ok"
+  },
+  "corpus": {
+    "complete": true,
+    "count_matched": true,
+    "published_count_matched": true,
+    "expected_total": 12871,
+    "stored_rows": 12871,
+    "published_rows": 9638,
+    "hidden_rows": 3229,
+    "pending_rows": 4,
+    "unique_bodies": 8831,
+    "rating_partitions": {
+      "1": 1265,
+      "2": 495,
+      "3": 611,
+      "4": 1088,
+      "5": 9412
+    }
+  }
+}

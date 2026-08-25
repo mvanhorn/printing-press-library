@@ -1,0 +1,22 @@
+{
+  "status": "pass",
+  "exit_code": 0,
+  "command": "cli-printing-press dogfood --live --level quick",
+  "auth_env": "SRAM_AXS_TOKEN",
+  "pii_policy": "raw live output not persisted",
+  "dogfood": {
+    "verdict": "PASS",
+    "level": "quick",
+    "matrix_size": 18,
+    "passed": 18,
+    "failed": 0,
+    "skipped": 6
+  },
+  "acceptance": {
+    "status": "pass",
+    "level": "quick",
+    "matrix_size": 18,
+    "tests_passed": 18,
+    "tests_skipped": 6
+  }
+}

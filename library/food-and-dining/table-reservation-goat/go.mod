@@ -1,13 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat
 
-go 1.26.3
-
-require (
-	github.com/pelletier/go-toml/v2 v2.2.4
-	github.com/spf13/cobra v1.9.1
-)
-
-require modernc.org/sqlite v1.37.0
+go 1.26.5
 
 require (
 	github.com/browserutils/kooky v0.2.9
@@ -16,11 +9,16 @@ require (
 	github.com/dop251/goja v0.0.0-20260311135729-065cd970411c
 	github.com/enetx/surf v1.0.199
 	github.com/mark3labs/mcp-go v0.47.0
+	github.com/pelletier/go-toml/v2 v2.2.4
+	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.10
-	golang.org/x/sync v0.20.0
+	golang.org/x/sync v0.21.0
 	golang.org/x/term v0.43.0
-	golang.org/x/text v0.37.0
+	golang.org/x/text v0.39.0
+	modernc.org/sqlite v1.37.0
 )
+
+require github.com/go-sqlite/sqlite3 v0.0.0-20180313105335-53dd8e640ee7 // indirect
 
 require (
 	github.com/andybalholm/brotli v1.2.1 // indirect
@@ -34,7 +32,6 @@ require (
 	github.com/enetx/iter v0.0.0-20250912135656-f1583323588f // indirect
 	github.com/go-json-experiment/json v0.0.0-20260214004413-d219187c3433 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
-	github.com/go-sqlite/sqlite3 v0.0.0-20180313105335-53dd8e640ee7 // indirect
 	github.com/gobwas/httphead v0.1.0 // indirect
 	github.com/gobwas/pool v0.2.1 // indirect
 	github.com/gobwas/ws v1.4.0 // indirect
@@ -59,6 +56,9 @@ require (
 	golang.org/x/crypto v0.51.0 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
 	golang.org/x/net v0.55.0 // indirect
+	// Floor x/sys above the vulnerable v0.31.0. It is pulled only transitively
+	// (modernc.org/sqlite, golang.org/x/net, ...), so MVS needs this explicit
+	// floor; tidy drops it for CLIs that pull no x/sys at all.
 	golang.org/x/sys v0.45.0 // indirect
 	modernc.org/libc v1.62.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect

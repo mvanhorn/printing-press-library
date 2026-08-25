@@ -1,0 +1,92 @@
+name: psx
+description: Discovered API spec for dps-psx-com
+version: 0.1.0
+base_url: https://dps.psx.com.pk
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/psx-pp-cli/config.toml
+resources:
+    calendar:
+        description: Operations on calendar
+        endpoints:
+            create_calendar:
+                method: POST
+                path: /calendar
+                description: POST /calendar
+                params: []
+                body:
+                    - name: from
+                      type: string
+                      required: true
+                      positional: false
+                      default: "2026-07-26"
+                      description: ""
+                      fields: []
+                    - name: to
+                      type: string
+                      required: true
+                      positional: false
+                      default: "2026-09-06"
+                      description: ""
+                      fields: []
+                request_content_type: application/x-www-form-urlencoded
+                response:
+                    type: object
+                    item: calendar
+                pagination: null
+    data:
+        description: Operations on top-10-sectors
+        endpoints:
+            list_top_10_sectors:
+                method: GET
+                path: /data/top-10-sectors
+                description: GET /data/top-10-sectors
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: top_10_sectors
+                pagination: null
+    symbols:
+        description: Operations on symbols
+        endpoints:
+            list_symbols:
+                method: GET
+                path: /symbols
+                description: GET /symbols
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: symbols
+                pagination: null
+    timeseries:
+        description: Operations on KSE100
+        endpoints:
+            list_KSE100:
+                method: GET
+                path: /timeseries/int/KSE100
+                description: GET /timeseries/int/KSE100
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: KSE100
+                pagination: null
+            list_OGDC:
+                method: GET
+                path: /timeseries/int/OGDC
+                description: GET /timeseries/int/OGDC
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: OGDC
+                pagination: null
+types: {}

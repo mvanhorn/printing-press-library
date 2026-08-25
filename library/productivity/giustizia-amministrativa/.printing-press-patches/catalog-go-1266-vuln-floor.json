@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "catalog-go-1266-vuln-floor",
+  "applied_at": "2026-08-19",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Alza il floor del toolchain Go della CLI pubblicata a 1.26.6, cosi' che le correzioni della standard library siano imposte da go install. go.mod, README.md e SKILL.md dicono ora tutti 1.26.6.",
+  "reason": "govulncheck dentro publish validate bocciava con 5 vulnerabilita' della standard library, tutte 'Found in go1.26.5 / Fixed in go1.26.6' -- fra cui GO-2026-5026 su net/http, raggiunta da cliutil.ProbeReachable, e una su encoding/asn1 raggiunta dal main MCP via server.StreamableHTTPServer.Start. Stessa forma della patch catalog-go-1265-vuln-floor di luglio, che aveva alzato il floor a 1.26.5 per GO-2026-5856. SKILL.md era gia' stato portato a 1.26.6 dalla PR #1735 del catalogo: erano go.mod e README a essere rimasti indietro, non SKILL a essere in anticipo.",
+  "files": [
+    "go.mod",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go build e go test verdi (GOTOOLCHAIN=auto scarica e usa go1.26.6). publish validate: govulncheck da FAIL a PASS."
+}

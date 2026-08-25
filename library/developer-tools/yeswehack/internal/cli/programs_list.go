@@ -13,7 +13,7 @@ import (
 
 func newProgramsListCmd(flags *rootFlags) *cobra.Command {
 	var flagPage string
-	var flagItemsPerPage int
+	var flagResultsPerPage int
 	var flagDisabled int
 	var flagSearch string
 	var flagBusinessUnit string
@@ -34,13 +34,13 @@ func newProgramsListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/programs"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "programs", path, map[string]string{
-				"page":          fmt.Sprintf("%v", flagPage),
-				"itemsPerPage":  fmt.Sprintf("%v", flagItemsPerPage),
-				"disabled":      fmt.Sprintf("%v", flagDisabled),
-				"search":        fmt.Sprintf("%v", flagSearch),
-				"business_unit": fmt.Sprintf("%v", flagBusinessUnit),
-				"bounty":        fmt.Sprintf("%v", flagBounty),
-				"vdp":           fmt.Sprintf("%v", flagVdp),
+				"page":           fmt.Sprintf("%v", flagPage),
+				"resultsPerPage": fmt.Sprintf("%v", flagResultsPerPage),
+				"disabled":       fmt.Sprintf("%v", flagDisabled),
+				"search":         fmt.Sprintf("%v", flagSearch),
+				"business_unit":  fmt.Sprintf("%v", flagBusinessUnit),
+				"bounty":         fmt.Sprintf("%v", flagBounty),
+				"vdp":            fmt.Sprintf("%v", flagVdp),
 			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err, flags)
@@ -84,7 +84,7 @@ func newProgramsListCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagPage, "page", "", "Page number")
-	cmd.Flags().IntVar(&flagItemsPerPage, "items-per-page", 0, "Page size")
+	cmd.Flags().IntVar(&flagResultsPerPage, "results-per-page", 0, "Page size")
 	cmd.Flags().IntVar(&flagDisabled, "disabled", 0, "Set to 0 to exclude disabled programs")
 	cmd.Flags().StringVar(&flagSearch, "search", "", "Free-text search across program titles")
 	cmd.Flags().StringVar(&flagBusinessUnit, "business-unit", "", "Filter by business unit slug")

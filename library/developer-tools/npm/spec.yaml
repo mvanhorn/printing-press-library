@@ -1,0 +1,2757 @@
+openapi: 3.0.3
+info:
+  title: npm package intelligence
+  description: Research npm packages by metadata, downloads, maintainers, freshness, and dependency risk.
+  version: "1.0"
+servers:
+  - url: https://registry.npmjs.org
+  - url: https://registry.npmjs.cf
+  - url: https://registry.yarnpkg.com
+  - url: https://api.npmjs.org
+paths:
+  /:
+    get:
+      description: Get registry metadata info
+      responses:
+        "200":
+          description: Registry metadata info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegistryMetadata"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "db_name": "registry",
+                      "engine": "couch_bt_engine",
+                      "doc_count": 3150469,
+                      "doc_del_count": 333,
+                      "update_seq": 27689367,
+                      "purge_seq": 0,
+                      "compact_running": false,
+                      "sizes": {
+                        "active": 68851445647,
+                        "external": 200882079555,
+                        "file": 69183730137
+                      },
+                      "disk_size": 69183730137,
+                      "data_size": 68851445647,
+                      "other": {
+                        "data_size": 200882079555
+                      },
+                      "instance_start_time": "1664441341920957",
+                      "disk_format_version": 7,
+                      "committed_update_seq": 27689366,
+                      "compacted_seq": 27682768,
+                      "uuid": "964c127ddcbbd59982db296a0f9e8a56"
+                    }
+  /-/all:
+    get:
+      description: Get registry metadata info
+      responses:
+        "200":
+          description: Registry metadata info
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+              examples:
+                "0":
+                  value: >-
+                    []
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NpmError"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "error": "Not Found",
+                      "statusCode": 404
+                    }
+  /{packageName}:
+    get:
+      description: This endpoint responds with the package metadata document, sometimes informally called a "packument" or "doc.json".
+      parameters:
+        - in: path
+          name: packageName
+          required: true
+          description: The name of the package
+          schema:
+            type: string
+            nullable: false
+      responses:
+        "200":
+          description: Package Metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PackageMetadata"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "_id": "minimize-json",
+                      "_rev": "1-f600a1ed036cd786c80fbfbd11570a8e",
+                      "name": "minimize-json",
+                      "dist-tags": {
+                        "latest": "1.0.1"
+                      },
+                      "versions": {
+                        "1.0.0": {
+                          "name": "minimize-json",
+                          "description": "Minimize your JSON files without making a bundle",
+                          "author": {
+                            "name": "Lorenzo Pichilli",
+                            "email": "pichillilorenzo@gmail.com",
+                            "url": "https://github.com/pichillilorenzo"
+                          },
+                          "version": "1.0.0",
+                          "main": "lib/index.js",
+                          "bin": {
+                            "minimize-json": "lib/index.js"
+                          },
+                          "scripts": {
+                            "start": "ts-node src/index.ts",
+                            "build": "tsc --build",
+                            "clean": "tsc --build --clean",
+                            "watch": "tsc --watch",
+                            "postbuild": "minimize-js ./lib"
+                          },
+                          "repository": {
+                            "type": "git",
+                            "url": "git+https://github.com/pichillilorenzo/minimize-json.git"
+                          },
+                          "keywords": [
+                            "minimize-json",
+                            "minimize",
+                            "minify",
+                            "minify-json",
+                            "json"
+                          ],
+                          "license": "ISC",
+                          "bugs": {
+                            "url": "https://github.com/pichillilorenzo/minimize-json/issues"
+                          },
+                          "homepage": "https://github.com/pichillilorenzo/minimize-json#readme",
+                          "devDependencies": {
+                            "@types/glob": "^7.2.0",
+                            "@types/jest": "^27.0.3",
+                            "@types/node": "^16.11.11",
+                            "typescript": "^4.5.2",
+                            "minimize-js": "^1.3.0"
+                          },
+                          "dependencies": {
+                            "commander": "^8.3.0",
+                            "glob": "^7.2.0",
+                            "pretty-bytes": "^5.6.0",
+                            "progress-barjs": "^2.2.1",
+                            "tslib": "^2.3.1"
+                          },
+                          "types": "./lib/index.d.ts",
+                          "gitHead": "2bec5dc09dbf747fda1e675a876619b5592acb32",
+                          "_id": "minimize-json@1.0.0",
+                          "_nodeVersion": "18.9.0",
+                          "_npmVersion": "8.19.1",
+                          "dist": {
+                            "integrity": "sha512-zbkefqCBy5BK4qcgIMGEIEe819ZSsmEZiiNjeYcBtXX1qCgC3RKB4jm8rv07bZj84YBE/0iFS1yZuIiCw6dhLg==",
+                            "shasum": "4aa41dd9f3807af396b859774dea7f807e9b12ea",
+                            "tarball": "https://registry.npmjs.org/minimize-json/-/minimize-json-1.0.0.tgz",
+                            "fileCount": 11,
+                            "unpackedSize": 29658,
+                            "signatures": [
+                              {
+                                "keyid": "SHA256:jl3bwswu80PjjokCgh0o2w5c2U4LhQAE57gj9cz1kzA",
+                                "sig": "MEUCIQCChdazhwFRzQLrJ5xkBM4WLJvEF9fk7XpucbpuUY4NbwIgZhlhK+0F4uC1IDV9dPGlE2n8WbCJe2qIvdYo9hs9+5o="
+                              }
+                            ],
+                            "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v4.10.10\r\nComment: https://openpgpjs.org\r\n\r\nwsFzBAEBCAAGBQJjNMPlACEJED1NWxICdlZqFiEECWMYAoorWMhJKdjhPU1b\r\nEgJ2VmqgZg/9FFfc4y9NMSnYfUb5S4UEbkSvIiXb2N6ZRo+zQd2HeMq8YQf2\r\n7wefiGs7KVuK7N365GA8+Yx3YYkqQn5EoQ6PdG+CVYJiCDTwmIbu9eu+KNJS\r\nyY8VWWJ6tANsEebV+0Bn1yIRboGp5WaSxw2r3Ns9pZZ1fLihmlnUWld8DPMy\r\nm48MZoUIXiKv1Fb61UPs8THuWJCkPo0cWGmal/nir/QCPqHAlYDh9QJFWUiK\r\nd3LABiJxaXtoM3bjQc1PU9PQUiqC2w9551yYgFgqAHDJ1Wq4rKaRYaaeKzk0\r\n2f/8YgKLEvrfqjqmlb9WoutNPmDi+qNc7dXsKW3Ctt/HBo+NxTttj7ShNDnB\r\ni0xOxzzJfbuSgrj8X1HBZ9s2dgQCKaZVKIiccITPiAJoUjrdWfYw17g/Mlaa\r\nhqat5Ggfj6xmy3c75J64FyHQq1+LGGJzd2B/rIOu/qkoPNlQneP+VmKOVFZr\r\n4Y58SjUcHATcw4zblYLmbFQfvk0jBoY3LQ8A07XTxqfNZUXOGuDU71IIvO5k\r\ncjCPL6KuW5rxIj80pifPQ68pIpDZoJGDI6RD2eSHqvbpCHSgA18uJfcU+RcM\r\nW2/EP/81iGQ6kNCfRICtiwXg73SJUX8zuBBXNd2CMgL4TOY0SdP/Ru2Gmj5A\r\nZi2Y/kCmnb2XPRI1orYLJ/VeOgALWeiKgNg=\r\n=+eig\r\n-----END PGP SIGNATURE-----\r\n"
+                          },
+                          "_npmUser": {
+                            "name": "pichillilorenzo",
+                            "email": "pichillilorenzo@gmail.com"
+                          },
+                          "directories": {},
+                          "maintainers": [
+                            {
+                              "name": "pichillilorenzo",
+                              "email": "pichillilorenzo@gmail.com"
+                            }
+                          ],
+                          "_npmOperationalInternal": {
+                            "host": "s3://npm-registry-packages",
+                            "tmp": "tmp/minimize-json_1.0.0_1664402405430_0.7858639997335126"
+                          },
+                          "_hasShrinkwrap": false
+                        },
+                        "1.0.1": {
+                          "name": "minimize-json",
+                          "version": "1.0.1",
+                          "description": "Minimize your JSON files without making a bundle",
+                          "author": {
+                            "name": "Lorenzo Pichilli",
+                            "email": "pichillilorenzo@gmail.com",
+                            "url": "https://github.com/pichillilorenzo"
+                          },
+                          "homepage": "https://github.com/pichillilorenzo/minimize-json#readme",
+                          "funding": {
+                            "type": "individual",
+                            "url": "https://www.paypal.me/LorenzoPichilli"
+                          },
+                          "repository": {
+                            "type": "git",
+                            "url": "git+https://github.com/pichillilorenzo/minimize-json.git"
+                          },
+                          "license": "ISC",
+                          "bugs": {
+                            "url": "https://github.com/pichillilorenzo/minimize-json/issues"
+                          },
+                          "keywords": [
+                            "minimize-json",
+                            "minimize",
+                            "minify",
+                            "minify-json",
+                            "json"
+                          ],
+                          "main": "lib/index.js",
+                          "bin": {
+                            "minimize-json": "lib/index.js"
+                          },
+                          "scripts": {
+                            "start": "ts-node src/index.ts",
+                            "build": "tsc --build",
+                            "clean": "tsc --build --clean",
+                            "watch": "tsc --watch",
+                            "postbuild": "minimize-js ./lib"
+                          },
+                          "dependencies": {
+                            "commander": "^8.3.0",
+                            "glob": "^7.2.0",
+                            "pretty-bytes": "^5.6.0",
+                            "progress-barjs": "^2.2.1",
+                            "tslib": "^2.3.1"
+                          },
+                          "devDependencies": {
+                            "@types/glob": "^7.2.0",
+                            "@types/jest": "^27.0.3",
+                            "@types/node": "^16.11.11",
+                            "typescript": "^4.5.2",
+                            "minimize-js": "^1.3.0"
+                          },
+                          "types": "./lib/index.d.ts",
+                          "gitHead": "8fd53a53876d26272471340c95f94645d099d11b",
+                          "_id": "minimize-json@1.0.1",
+                          "_nodeVersion": "18.9.0",
+                          "_npmVersion": "8.19.1",
+                          "dist": {
+                            "integrity": "sha512-K/H78Y9TczkfQcZxPXCY2sveIiWu9Eepk9bwoFJyiJ8T1wF7IHOiMSCtnPhQVDZ9Qd15OOUt3kLPDvT++m4OIQ==",
+                            "shasum": "0763d3c6f969d1297be306cd16b6f8c584c4f00d",
+                            "tarball": "https://registry.npmjs.org/minimize-json/-/minimize-json-1.0.1.tgz",
+                            "fileCount": 11,
+                            "unpackedSize": 29800,
+                            "signatures": [
+                              {
+                                "keyid": "SHA256:jl3bwswu80PjjokCgh0o2w5c2U4LhQAE57gj9cz1kzA",
+                                "sig": "MEUCIQDnThGLYqpn+KnGq8yc63dID/c0iZ98eb2vIlfhR1GxtgIgMZMpOsDFgPZCLa4zmerw+iNlITR3XjzUUJ37GTkebhY="
+                              }
+                            ],
+                            "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v4.10.10\r\nComment: https://openpgpjs.org\r\n\r\nwsFzBAEBCAAGBQJjNYVtACEJED1NWxICdlZqFiEECWMYAoorWMhJKdjhPU1b\r\nEgJ2Vmp9GBAAlF1se1N25kpVD93iMw7Rpt+ui00b3uplR+yFj6PXFRgP1wM+\r\nN4ic7OmlI4r27iSrheilTutKC+MlEApKVsXLsU+iqG/LvQl7gD4oP+mFJL4w\r\n6e998d/tjEr8L7DY6Wv8cG1kFiD9MYOiSvk1LWAp4HNLIlEvqPZeYkNpZTQZ\r\nHMRekCVrf3efyaOfkLRVFTeTCrH7aIEvwwR+Xk3qgyg5mvqv+UA/pCGRaF9F\r\nCJDds6L7Ep3i9i0vdDutdywYevNE1UnE+JBId5IKdwX+0KpkXiZUdrCtMq44\r\nh2UwFChfSeH/HqxmWzh5XOr1kF3EAImWaXY4Wndh6b1DSA50BEHv8THFE26z\r\ntlHFkUrOkO9HmoveipoHou3WCovz1JyYvUIkyW+/5YXJ6PeCzvIbSNjdHjNf\r\nqN6r/Fp1MrbiT/T18rpn7QJ9tU6j1CVJcw047VvPPkuV1PpKhyGXIfXQ0HOE\r\n+O8CdIsuqGjiq/ndvzhQIfDP120EpIJLBs76Xrj/4rbubwGmNJFMLjjuvco0\r\nejhDX/ZNNvEinminqrfltulMnTUUS21SC76jR2ugCWgcG6hFEycozokFxm+v\r\nwWls1cVmKl5tLGmcrk9kCU4vj3GfZfZ5fUF6mosk2Voa4Phnks2N8WD58TXn\r\nbV7mlgVSrLfoZx3PAWIZM7fK3BBxxmkON6U=\r\n=o8us\r\n-----END PGP SIGNATURE-----\r\n"
+                          },
+                          "_npmUser": {
+                            "name": "pichillilorenzo",
+                            "email": "pichillilorenzo@gmail.com"
+                          },
+                          "directories": {},
+                          "maintainers": [
+                            {
+                              "name": "pichillilorenzo",
+                              "email": "pichillilorenzo@gmail.com"
+                            }
+                          ],
+                          "_npmOperationalInternal": {
+                            "host": "s3://npm-registry-packages",
+                            "tmp": "tmp/minimize-json_1.0.1_1664451949763_0.5759451677114786"
+                          },
+                          "_hasShrinkwrap": false
+                        }
+                      },
+                      "time": {
+                        "created": "2022-09-28T22:00:05.429Z",
+                        "1.0.0": "2022-09-28T22:00:05.640Z",
+                        "modified": "2022-09-29T11:45:50.068Z",
+                        "1.0.1": "2022-09-29T11:45:49.953Z"
+                      },
+                      "maintainers": [
+                        {
+                          "name": "pichillilorenzo",
+                          "email": "pichillilorenzo@gmail.com"
+                        }
+                      ],
+                      "description": "Minimize your JSON files without making a bundle",
+                      "homepage": "https://github.com/pichillilorenzo/minimize-json#readme",
+                      "keywords": [
+                        "minimize-json",
+                        "minimize",
+                        "minify",
+                        "minify-json",
+                        "json"
+                      ],
+                      "repository": {
+                        "type": "git",
+                        "url": "git+https://github.com/pichillilorenzo/minimize-json.git"
+                      },
+                      "author": {
+                        "name": "Lorenzo Pichilli",
+                        "email": "pichillilorenzo@gmail.com",
+                        "url": "https://github.com/pichillilorenzo"
+                      },
+                      "bugs": {
+                        "url": "https://github.com/pichillilorenzo/minimize-json/issues"
+                      },
+                      "license": "ISC",
+                      "readme": "<div align=\"center\">\n\n# Minimize JSON\n\n### Minimize your JSON files without making a bundle\n\n[![NPM](https://nodei.co/npm/minimize-json.png?compact=true)](https://nodei.co/npm/minimize-json/)\n<br />\n[![](https://img.shields.io/npm/dt/minimize-json.svg?style=flat-square)](https://www.npmjs.com/package/minimize-json)\n\n</div>\n\n[![NPM Version](https://badgen.net/npm/v/minimize-json)](https://npmjs.org/package/minimize-json)\n[![license](https://img.shields.io/github/license/pichillilorenzo/minimize-json)](/LICENSE)\n[![Donate to this project using Paypal](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.me/LorenzoPichilli)\n\n## Getting started\n\nTo get started with this library, you need to install it and add it to your project.\n\n### Installation\n\nMinimize JSON is available as an npm package.\n\n```bash\n# npm\nnpm install minimize-json -D\n\n# yarn\nyarn add minimize-json -D\n```\n\n## Usage\n\nThe code snippet below shows how to put into action `minimize-json` and lets you minimize your files inside a directory.\n\n```bash\nminimize-json <directory>\n```\n\n## Contributors\n\nAny contribution is appreciated. You can get started with the steps below:\n\n1. Fork [this repository](https://github.com/pichillilorenzo/minimize-json) (learn how to do this [here](https://help.github.com/articles/fork-a-repo)).\n\n2. Clone the forked repository.\n\n3. Make your changes and create a pull request ([learn how to do this](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request)).\n\n4. I will attend to your pull request and provide some feedback.\n\n## License\n\nThis repository is licensed under the [ISC](LICENSE) License.\n\nThis project is strongly inspired by the [minimize-js](https://github.com/Randagio13/minimize-js).\n",
+                      "readmeFilename": "README.md"
+                    }
+        "404":
+          description: Package not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NpmError"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "error": "Not found"
+                    }
+  /{packageName}/{version}:
+    get:
+      description: This endpoint responds with the package metadata document for a specific version.
+      parameters:
+        - in: path
+          name: packageName
+          required: true
+          description: The name of the package
+          schema:
+            type: string
+            nullable: false
+        - in: path
+          name: version
+          required: true
+          description: a version number or "latest"
+          schema:
+            type: string
+            nullable: false
+      responses:
+        "200":
+          description: Package Metadata of a specific version
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PackageVersionMetadata"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "license": "Apache-2.0",
+                      "private": false,
+                      "author": {
+                        "name": "OpenAPI Tools",
+                        "email": "team@openapitools.org",
+                        "url": "https://openapitools.org/"
+                      },
+                      "contributors": [
+                        {
+                          "name": "Kay Schecker",
+                          "email": "sayhello@kay-schecker.de",
+                          "url": "https://www.kay-schecker.de"
+                        }
+                      ],
+                      "homepage": "https://github.com/OpenAPITools/openapi-generator-cli",
+                      "bugs": {
+                        "url": "https://github.com/OpenAPITools/openapi-generator-cli/issues"
+                      },
+                      "funding": {
+                        "type": "opencollective",
+                        "url": "https://opencollective.com/openapi_generator"
+                      },
+                      "repository": {
+                        "type": "git",
+                        "url": "git+https://github.com/OpenAPITools/openapi-generator-cli.git"
+                      },
+                      "publishConfig": {
+                        "registry": "https://registry.npmjs.org"
+                      },
+                      "keywords": [
+                        "rest-api",
+                        "rest-client",
+                        "sdk",
+                        "generator",
+                        "restful-api",
+                        "api",
+                        "api-client",
+                        "api-server",
+                        "openapi3",
+                        "openapi",
+                        "oas",
+                        "rest"
+                      ],
+                      "engines": {
+                        "node": ">=10.0.0"
+                      },
+                      "collective": {
+                        "type": "opencollective",
+                        "url": "https://opencollective.com/openapi_generator",
+                        "donation": {
+                          "text": "Please sponsor OpenAPI Generator."
+                        }
+                      },
+                      "version": "2.5.2",
+                      "name": "@openapitools/openapi-generator-cli",
+                      "description": "A npm package wrapper for OpenAPI Generator (https://github.com/OpenAPITools/openapi-generator), generates which API client libraries (SDK generation), server stubs, documentation and configuration automatically given an OpenAPI Spec (v2, v3)",
+                      "scripts": {
+                        "postinstall": "opencollective || exit 0"
+                      },
+                      "bin": {
+                        "openapi-generator-cli": "main.js"
+                      },
+                      "dependencies": {
+                        "@nestjs/common": "8.4.4",
+                        "@nestjs/core": "8.4.4",
+                        "@nuxtjs/opencollective": "0.3.2",
+                        "chalk": "4.1.2",
+                        "commander": "8.3.0",
+                        "compare-versions": "4.1.3",
+                        "concurrently": "6.5.1",
+                        "console.table": "0.10.0",
+                        "fs-extra": "10.0.1",
+                        "glob": "7.1.6",
+                        "inquirer": "8.2.2",
+                        "lodash": "4.17.21",
+                        "reflect-metadata": "0.1.13",
+                        "rxjs": "7.5.5",
+                        "tslib": "2.0.3"
+                      },
+                      "_id": "@openapitools/openapi-generator-cli@2.5.2",
+                      "_nodeVersion": "16.17.0",
+                      "_npmVersion": "6.14.8",
+                      "dist": {
+                        "integrity": "sha512-FLgkjzpDiHVsH821db0VDSElDoA6TcspGyq3RD4zLBJaJhbSsRwr4u87sNoyuHKBg4OMJbZMT4iJxAhkosKrzw==",
+                        "shasum": "727a0f29fec1f91ffb467003d0d12ef35554e0ef",
+                        "tarball": "https://registry.npmjs.org/@openapitools/openapi-generator-cli/-/openapi-generator-cli-2.5.2.tgz",
+                        "fileCount": 4,
+                        "unpackedSize": 110633,
+                        "signatures": [
+                          {
+                            "keyid": "SHA256:jl3bwswu80PjjokCgh0o2w5c2U4LhQAE57gj9cz1kzA",
+                            "sig": "MEQCICRDtk3lPYqlZ3CAKVr54OSY+BoiYlE2qMADa5Zfwm1EAiBUcl0dnThsTZlk75hjeB+Yt6QzykxM0oTzOtumG/DbKg=="
+                          }
+                        ],
+                        "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v4.10.10\r\nComment: https://openpgpjs.org\r\n\r\nwsFzBAEBCAAGBQJjFc4xACEJED1NWxICdlZqFiEECWMYAoorWMhJKdjhPU1b\r\nEgJ2VmowiA//d/CADIrDCgZgKsnOB/6CvqHTrlqgzW43Vuc3UXlmcg9ZY5gy\r\n0nESEElTc2r1oU4DZQ+6HvZHg4kI/QWZQqX8jK6uccvAn1U3x21yt3bdkYNZ\r\nTn+2OmXMa5tp30aJ/gnkMT/73VcB2qKX8w5xcIbXpt9X6zs3ItP/pnn1jtiU\r\nhikm0pr4LyufH2+avHgXihGYQE52S5jtv64i7LW4jj08nWwekxSSCNm0K6e9\r\nuj57lfc5e8A1PwyhujKlVPxHuQisfyrI1RxyFs2T/HnBtOkTud99M5P3jFgu\r\nXBGfqSBuEMfMUpvb6jbJlI+9dUE/wgwHbRhbSOXzkhSsYMkHtOWKKk+Nps2j\r\nBPCBckQZ37ieuxSsVNWvhAkhnwDa8+fXYc9tuWi9dzCdBzeLaGbEBP7rUh4L\r\nRkFR9UnDijauDnW65xTwoxWVrzcLI5u67iPFdJsQU7gCgxPW/bOVN8Y3u4WS\r\nDzf1zr2aTDKVhQTUBfRa96Jo4s7M1pwDRT8Ta5GqrQGA8EnsWti9EEMReeQ7\r\nX0pOwdzypZlZ28cika+JZkXzAg9NYy7rPnnEvuTvYSpm2O09A15vrxUuNhJp\r\nZqtjc+PZiTirmb09+i+QuKt2zAbfmfqgh0w7ABwDeavJbygJ8q8VccX2xMW+\r\nmSjGdR/OwSPJwFSUnp0KhnxprBGx74k2o60=\r\n=cyNg\r\n-----END PGP SIGNATURE-----\r\n"
+                      },
+                      "_npmUser": {
+                        "name": "kschecker",
+                        "email": "npm@kay-schecker.de"
+                      },
+                      "directories": {},
+                      "maintainers": [
+                        {
+                          "name": "wing328",
+                          "email": "wing328hk@gmail.com"
+                        },
+                        {
+                          "name": "ackintosh",
+                          "email": "sora.akatsuki@gmail.com"
+                        },
+                        {
+                          "name": "jimschubert",
+                          "email": "james.schubert@gmail.com"
+                        },
+                        {
+                          "name": "kschecker",
+                          "email": "npm@kay-schecker.de"
+                        }
+                      ],
+                      "_npmOperationalInternal": {
+                        "host": "s3://npm-registry-packages",
+                        "tmp": "tmp/openapi-generator-cli_2.5.2_1662373424944_0.664368769528217"
+                      },
+                      "_hasShrinkwrap": false
+                    }
+        "404":
+          description: Package not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NpmError"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "error": "Not found"
+                    }
+  /-/v1/search:
+    get:
+      description: >-
+        This endpoint responds with the search result.
+
+        Special search qualifiers can be provided in the full-text query:
+
+        - author:bcoe: Show/filter results in which bcoe is the author
+
+        - maintainer:bcoe: Show/filter results in which bcoe is qualifier as a maintainer
+
+        - keywords:batman: Show/filter results that have batman in the keywords
+
+          - separating multiple keywords with
+
+            - , acts like a logical OR
+
+            - + acts like a logical AND
+
+            - ,- can be used to exclude keywords
+
+        - not:unstable: Exclude packages whose version is < 1.0.0
+
+        - not:insecure: Exclude packages that are insecure or have vulnerable dependencies (based on the nsp registry)
+
+        - is:unstable: Show/filter packages whose version is < 1.0.0
+
+        - is:insecure: Show/filter packages that are insecure or have vulnerable dependencies (based on the nsp registry)
+
+        - boost-exact:false: Do not boost exact matches, defaults to true
+
+        Note: the values of quality, popularity, and maintenance are normalized into a unit-vector provide values between 0 - 1 for each to modify weightings, e.g., to return results based solely on quality, set quality=1.0, maintenance=0.0, popularity=0.0.
+      parameters:
+        - in: query
+          name: text
+          description: Full-text search to apply
+          allowEmptyValue: true
+          required: false
+          schema:
+            type: string
+            nullable: true
+        - in: query
+          name: size
+          description: How many results should be returned (default 20, max 250)
+          allowEmptyValue: true
+          required: false
+          schema:
+            type: integer
+            nullable: true
+            minimum: -1
+            maximum: 250
+        - in: query
+          name: from
+          description: Offset to return results from
+          allowEmptyValue: true
+          required: false
+          schema:
+            type: integer
+            nullable: true
+            minimum: -1
+        - in: query
+          name: quality
+          description: How much of an effect should quality have on search results
+          allowEmptyValue: true
+          required: false
+          schema:
+            type: number
+            nullable: true
+        - in: query
+          name: popularity
+          description: How much of an effect should popularity have on search results
+          allowEmptyValue: true
+          required: false
+          schema:
+            type: number
+            nullable: true
+        - in: query
+          name: maintenance
+          description: How much of an effect should maintenance have on search results
+          allowEmptyValue: true
+          required: false
+          schema:
+            type: number
+            nullable: true
+      responses:
+        "200":
+          description: Package Metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResults"
+              example: >-
+                {
+                  "objects": [
+                    {
+                      "package": {
+                        "name": "yargs",
+                        "version": "6.6.0",
+                        "description": "yargs the modern, pirate-themed, successor to optimist.",
+                        "keywords": [
+                          "argument",
+                          "args",
+                          "option",
+                          "parser",
+                          "parsing",
+                          "cli",
+                          "command"
+                        ],
+                        "date": "2016-12-30T16:53:16.023Z",
+                        "links": {
+                          "npm": "https://www.npmjs.com/package/yargs",
+                          "homepage": "http://yargs.js.org/",
+                          "repository": "https://github.com/yargs/yargs",
+                          "bugs": "https://github.com/yargs/yargs/issues"
+                        },
+                        "publisher": {
+                          "username": "bcoe",
+                          "email": "ben@npmjs.com"
+                        },
+                        "maintainers": [
+                          {
+                            "username": "bcoe",
+                            "email": "ben@npmjs.com"
+                          },
+                          {
+                            "username": "chevex",
+                            "email": "alex.ford@codetunnel.com"
+                          },
+                          {
+                            "username": "nexdrew",
+                            "email": "andrew@npmjs.com"
+                          },
+                          {
+                            "username": "nylen",
+                            "email": "jnylen@gmail.com"
+                          }
+                        ]
+                      },
+                      "score": {
+                        "final": 0.9237841281241451,
+                        "detail": {
+                          "quality": 0.9270640902288084,
+                          "popularity": 0.8484861649808381,
+                          "maintenance": 0.9962706951777409
+                        }
+                      },
+                      "searchScore": 100000.914
+                    }
+                  ],
+                  "total": 1,
+                  "time": "Wed Jan 25 2017 19:23:35 GMT+0000 (UTC)"
+                }
+  /downloads/point/{period}:
+    get:
+      description: Gets the downloads per day for a given period for all packages.
+      parameters:
+        - in: path
+          name: period
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Registry downloads metadata info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegistryDownloads"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "downloads": [
+                        {
+                          "day": "2014-02-27",
+                          "downloads": 1904088
+                        },
+                        {
+                          "day": "2014-03-04",
+                          "downloads": 7904294
+                        }
+                      ],
+                      "start": "2014-02-25",
+                      "end": "2014-03-04",
+                      "package": "somepackage"
+                    }
+  /downloads/point/{period}/{packageName}:
+    get:
+      description: Gets the downloads per day for a given period for a specific package.
+      parameters:
+        - in: path
+          name: period
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: packageName
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Package downloads metadata info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PackageDownloads"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "downloads": 31623,
+                      "start": "2014-01-01",
+                      "end": "2014-01-31",
+                      "package": "jquery"
+                    }
+  /downloads/range/{period}:
+    get:
+      description: Gets the downloads per day for a given period for all packages.
+      parameters:
+        - in: path
+          name: period
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Registry downloads metadata info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyRegistryDownloads"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "downloads": [
+                        {
+                          "day": "2014-02-27",
+                          "downloads": 1904088
+                        },
+                        {
+                          "day": "2014-03-04",
+                          "downloads": 7904294
+                        }
+                      ],
+                      "start": "2014-02-25",
+                      "end": "2014-03-04"
+                    }
+  /downloads/range/{period}/{packageName}:
+    get:
+      description: Gets the downloads per day for a given period for a specific package.
+      parameters:
+        - in: path
+          name: period
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: packageName
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Package downloads metadata info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyPackageDownloads"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "start": "2022-09-25",
+                      "end": "2022-10-01",
+                      "package": "jquery",
+                      "downloads": [
+                          {
+                              "downloads": 214190,
+                              "day": "2022-09-25"
+                          },
+                          {
+                              "downloads": 1146822,
+                              "day": "2022-09-26"
+                          },
+                          {
+                              "downloads": 1115359,
+                              "day": "2022-09-27"
+                          },
+                          {
+                              "downloads": 1094660,
+                              "day": "2022-09-28"
+                          },
+                          {
+                              "downloads": 1065723,
+                              "day": "2022-09-29"
+                          },
+                          {
+                              "downloads": 894018,
+                              "day": "2022-09-30"
+                          },
+                          {
+                              "downloads": 220794,
+                              "day": "2022-10-01"
+                          }
+                      ]
+                    }
+  /versions/{packageName}/last-week:
+    get:
+      description: >-
+        Download count for specific versions of a package. It's only available for the previous 7 days.
+
+        Note: for scoped packages, the `/` needs to be percent encoded. (`@slack/client` -> `@slack%2Fclient`).
+      parameters:
+        - in: path
+          name: packageName
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Package download count for specific versions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PackageVersionsDownloadCount"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "package": "fastify",
+                      "downloads": {
+                        "3.1.1": 1409,
+                        "3.27.2": 7670,
+                        "2.14.1": 2824,
+                        "3.24.0": 4475,
+                        "4.0.0": 652,
+                        "3.20.1": 18007,
+                        "3.28.0": 48612,
+                        "4.3.0": 23722
+                      }
+                    }
+  /-/user/org.couchdb.user:{user}:
+    put:
+      description: User login endpoint
+      parameters:
+        - in: path
+          name: user
+          required: true
+          schema:
+            type: string
+            nullable: false
+        - in: header
+          name: 'npm-otp'
+          description: One time password
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+            examples:
+              "0":
+                value: >-
+                  {
+                    "name": "username",
+                    "password": "password"
+                  }
+      responses:
+        "201":
+          description: Successful authentication with Bearer Token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "ok": true,
+                      "id": "org.couchdb.user:undefined",
+                      "rev": "_we_dont_use_revs_any_more",
+                      "token": "BEARER TOKEN HERE"
+                    }
+        "401":
+          description: Authentication was unsuccessful.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegacyStatus"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "ok": false
+                    }
+  /-/npm/v1/user:
+    get:
+      description: User detail endpoint
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: User detail.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "tfa": {
+                        "pending": false,
+                        "mode": "auth-and-writes"
+                      },
+                      "name": "pichillilorenzo",
+                      "email": "pichillilorenzo@gmail.com",
+                      "email_verified": true,
+                      "created": "2018-06-22T20:36:58.619Z",
+                      "updated": "2022-09-28T15:20:05.334Z",
+                      "cidr_whitelist": null,
+                      "fullname": "Lorenzo Pichilli",
+                      "twitter": "LorenzoPichilli",
+                      "github": "pichillilorenzo"
+                    }
+    post:
+      description: User login endpoint
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: 'npm-otp'
+          description: One time password
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileUpdateRequest"
+            examples:
+              "0":
+                value: >-
+                  {
+                    "email": "new_email@example.com",
+                    "github": "new_github_name"
+                  }
+      responses:
+        "200":
+          description: User profile updated with success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "tfa": {
+                        "pending": false,
+                        "mode": "auth-and-writes"
+                      },
+                      "name": "pichillilorenzo",
+                      "email": "pichillilorenzo@gmail.com",
+                      "email_verified": true,
+                      "created": "2018-06-22T20:36:58.619Z",
+                      "updated": "2022-09-28T15:20:05.334Z",
+                      "cidr_whitelist": null,
+                      "fullname": "Lorenzo Pichilli",
+                      "twitter": "LorenzoPichilli",
+                      "github": "pichillilorenzo"
+                    }
+  /-/npm/v1/tokens:
+    get:
+      description: User's token list endpoint
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: User's token list.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenPage"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "objects": [
+                        {
+                          "cidr_whitelist": null,
+                          "readonly": false,
+                          "automation": false,
+                          "created": "2022-10-03T14:37:38.493Z",
+                          "updated": "2022-10-03T14:37:38.493Z",
+                          "key": "48297953007cfb44e3451902d39c5bacf7a4f49369591e511de9f174afa90288f35b4a940a54dfe9f110ac30634443f24667c673fb65ef771954236c51e9b036",
+                          "token": "npm_y7"
+                        },
+                        {
+                          "cidr_whitelist": null,
+                          "readonly": false,
+                          "automation": false,
+                          "created": "2022-10-03T14:37:27.154Z",
+                          "updated": "2022-10-03T14:37:27.154Z",
+                          "key": "fa06877427ed1fd75abd41c2fe12fa12b100e93b4dd00df46f653fa67de8b9ec38dd6982401adf360c3d380af432f619434b30199ec92332b96e42ce2802a0c9",
+                          "token": "npm_zL"
+                        }
+                      ],
+                      "total": 24,
+                      "urls": {
+                          "next": "/-/npm/v1/tokens?page=1"
+                      },
+                      "userHasOldFormatToken": true
+                    }
+    post:
+      description: Token create endpoint
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: 'npm-otp'
+          description: One time password
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TokenCreationRequest"
+            examples:
+              "0":
+                value: >-
+                  {
+                    "password": "some-password"
+                  }
+      responses:
+        "200":
+          description: Token created with success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "token": "b4dc4fe3-30f1-43ea-bf32-87349e3b8cb5",
+                      "key": "48297953007cfb44e3451902d39c5bacf7a4f49369591e511de9f174afa90288f35b4a940a54dfe9f110ac30634443f24667c673fb65ef771954236c51e9b036",
+                      "cidr_whitelist": null,
+                      "readonly": false,
+                      "created": "2017-08-15T07:42:40.811Z",
+                      "updated": "2017-08-15T07:42:40.811Z"
+                    }
+  /-/npm/v1/tokens/token/{uuid}:
+    delete:
+      description: Token delete endpoint
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: uuid
+          description: Key (UUID) of the Token to delete
+          required: true
+          schema:
+            type: string
+            nullable: false
+        - in: header
+          name: 'npm-otp'
+          description: One time password
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Token deleted with success
+  /-/user/token/{token}:
+    delete:
+      description: Token delete endpoint
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: token
+          description: Token to delete
+          required: true
+          schema:
+            type: string
+            nullable: false
+        - in: header
+          name: 'npm-otp'
+          description: One time password
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Token deleted with success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegacyStatus"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "ok": true
+                    }
+  /-/npm/v1/hooks:
+    get:
+      description: Hook list endpoint.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: package
+          description: Filter by package name; regexp patterns are not parsed.
+          schema:
+            type: string
+            nullable: false
+        - in: query
+          name: limit
+          description: Return at most N hooks.
+          schema:
+            type: integer
+            nullable: false
+        - in: query
+          name: offset
+          description: Start at the Nth hook (use with limit for pagination).
+          schema:
+            type: integer
+            nullable: false
+      responses:
+        "200":
+          description: Hook list.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HookSearchResults"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "total": 1,
+                      "objects": [
+                          {
+                            "id": "i2344e1m",
+                            "username": "pichillilorenzo",
+                            "name": "@npmcorp",
+                            "endpoint": "https://example.com/webhook",
+                            "secret": "this is certainly very secret",
+                            "type": "scope",
+                            "created": "2022-10-03T22:23:45.942Z",
+                            "updated": "2022-10-03T22:23:45.942Z",
+                            "delivered": false,
+                            "last_delivery": null,
+                            "response_code": 0,
+                            "status": "active"
+                          }
+                      ]
+                    }
+  /-/npm/v1/hooks/hook:
+    post:
+      description: Hook create endpoint.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: 'npm-otp'
+          description: One time password
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HookCreateRequest"
+            examples:
+              "0":
+                value: >-
+                  {
+                    "type": "scope",
+                    "name": "@npmcorp",
+                    "endpoint": "https://example.com/webhook",
+                    "secret": "this is certainly very secret"
+                  }
+      responses:
+        "200":
+          description: Hook created with success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Hook"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "id": "115c73m8",
+                      "username": "pichillilorenzo",
+                      "name": "@npmcorp",
+                      "endpoint": "https://example.com/webhook",
+                      "secret": "this is certainly very secret",
+                      "type": "scope",
+                      "created": "2022-10-03T22:10:52.760Z",
+                      "updated": "2022-10-03T22:10:52.760Z",
+                      "delivered": false,
+                      "last_delivery": null,
+                      "response_code": 0,
+                      "status": "active"
+                    }
+  /-/npm/v1/hooks/hook/{id}:
+    get:
+      description: Get Hook endpoint.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          description: Hook id
+          required: true
+          schema:
+            type: string
+            nullable: false
+      responses:
+        "200":
+          description: Hook found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Hook"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "id": "115c73m8",
+                      "username": "pichillilorenzo",
+                      "name": "@npmcorp",
+                      "endpoint": "https://example.com/webhook",
+                      "secret": "this is certainly very secret",
+                      "type": "scope",
+                      "created": "2022-10-03T22:10:52.760Z",
+                      "updated": "2022-10-03T22:10:52.760Z",
+                      "delivered": false,
+                      "last_delivery": null,
+                      "response_code": 0,
+                      "status": "active"
+                    }
+    put:
+      description: Hook update endpoint
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          description: Hook id
+          required: true
+          schema:
+            type: string
+            nullable: false
+        - in: header
+          name: 'npm-otp'
+          description: One time password
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HookUpdateRequest"
+            examples:
+              "0":
+                value: >-
+                  {
+                    "endpoint": "https://example.com/webhook",
+                    "secret": "this is certainly very secret"
+                  }
+      responses:
+        "201":
+          description: Hook updated with success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Hook"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "id": "115c73m8",
+                      "username": "pichillilorenzo",
+                      "name": "@npmcorp",
+                      "endpoint": "https://example.com/webhook",
+                      "secret": "this is certainly very secret",
+                      "type": "scope",
+                      "created": "2022-10-03T22:10:52.760Z",
+                      "updated": "2022-10-03T22:10:52.760Z",
+                      "delivered": false,
+                      "last_delivery": null,
+                      "response_code": 0,
+                      "status": "active"
+                    }
+    delete:
+      description: Hook delete endpoint
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          description: Hook id
+          required: true
+          schema:
+            type: string
+            nullable: false
+        - in: header
+          name: 'npm-otp'
+          description: One time password
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Hook deleted with success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Hook"
+              examples:
+                "0":
+                  value: >-
+                    {
+                      "id": "115c73m8",
+                      "username": "pichillilorenzo",
+                      "name": "@npmcorp",
+                      "endpoint": "https://example.com/webhook",
+                      "secret": "this is certainly very secret",
+                      "type": "scope",
+                      "created": "2022-10-03T22:10:52.760Z",
+                      "updated": "2022-10-03T22:10:52.760Z",
+                      "delivered": false,
+                      "last_delivery": null,
+                      "response_code": 0,
+                      "status": "active"
+                    }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    NpmError:
+      description: Generic NpmError
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          readOnly: true
+        code:
+          type: string
+          readOnly: true
+        message:
+          type: string
+          description: Error message
+          readOnly: true
+        statusCode:
+          type: integer
+          description: HTTP Status Code
+          readOnly: true
+
+    PackageVersionsDownloadCount:
+      type: object
+      description: Package download count for specific versions.
+      required:
+        - package
+        - downloads
+      properties:
+        package:
+          type: string
+          description: Package name
+          nullable: false
+          readOnly: true
+        downloads:
+          type: object
+          description: A map containing the package version as key and the download count as value.
+          additionalProperties:
+            type: integer
+            nullable: false
+
+    ProfileTfa:
+      type: object
+      required:
+        - mode
+        - pending
+      properties:
+        mode:
+          type: string
+          nullable: false
+          readOnly: true
+        pending:
+          type: boolean
+          nullable: false
+          readOnly: true
+
+    Profile:
+      type: object
+      required:
+        - name
+        - email
+        - email_verified
+        - created
+        - upadted
+      properties:
+        tfa:
+          description: User Two-Factor authentication settings
+          readOnly: true
+        name:
+          type: string
+          description: User name
+          nullable: false
+          readOnly: true
+        email:
+          type: string
+          description: User email
+          nullable: false
+          readOnly: true
+        email_verified:
+          type: boolean
+          description: Email verification status
+          nullable: false
+          readOnly: true
+        created:
+          type: string
+          format: date-time
+          description: When the account was created
+          nullable: false
+          readOnly: true
+        updated:
+          type: string
+          format: date-time
+          description: When the account was updated
+          nullable: false
+          readOnly: true
+        cidr_whitelist:
+          type: array
+          items:
+            type: string
+            nullable: false
+          description: CIDR whitelist
+          readOnly: true
+        fullname:
+          type: string
+          description: User full name
+          readOnly: true
+        homepage:
+          type: string
+          format: uri
+          description: User homepage url
+          readOnly: true
+        freenode:
+          type: string
+          readOnly: true
+        twitter:
+          type: string
+          description: Twitter username
+          readOnly: true
+        github:
+          type: string
+          description: GitHub username
+          readOnly: true
+
+    PasswordUpdateRequest:
+      type: object
+      required:
+        - old
+        - new
+      properties:
+        old:
+          type: string
+          nullable: false
+        new:
+          type: string
+          nullable: false
+
+    ProfileUpdateRequest:
+      type: object
+      properties:
+        tfa:
+          description: User Two-Factor authentication settings
+        password:
+          description: Password change request data
+          $ref: '#/components/schemas/PasswordUpdateRequest'
+        email:
+          type: string
+          description: User email
+        fullname:
+          type: string
+          description: User full name
+        homepage:
+          type: string
+          format: uri
+          description: User homepage url
+        freenode:
+          type: string
+        twitter:
+          type: string
+          description: Twitter username
+        github:
+          type: string
+          description: GitHub username
+
+    PageUrls:
+      type: object
+      description: Urls to navigate results
+      properties:
+        next:
+          type: string
+          format: uri
+          description: Url of the next results
+          readOnly: true
+        prev:
+          type: string
+          format: uri
+          description: Url of the previous results
+          readOnly: true
+
+    Page:
+      type: object
+      description: A container object for pages of lists.
+      required:
+        - objects
+        - urls
+      properties:
+        total:
+          type: integer
+          description: Number of total items
+          readOnly: true
+        objects:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            nullable: false
+            readOnly: true
+          nullable: false
+          readOnly: true
+        urls:
+          description: Urls to navigate results
+          $ref: '#/components/schemas/PageUrls'
+
+    TokenPage:
+      description: Objects containing the list of user's tokens
+      allOf:
+        - $ref: "#/components/schemas/Page"
+        - type: object
+          required:
+            - userHasOldFormatToken
+          properties:
+            userHasOldFormatToken:
+              type: boolean
+              nullable: false
+
+    Token:
+      type: object
+      required:
+        - token
+        - key
+        - automation
+        - created
+        - updated
+        - readonly
+      properties:
+        token:
+          type: string
+          description: \[REDACTED\] on subsequent display. The "Bearer" token.
+          nullable: false
+          readOnly: true
+        key:
+          type: string
+          description: sha512 hash of the token UUID
+          nullable: false
+          readOnly: true
+        automation:
+          type: boolean
+          nullable: false
+          readOnly: true
+        cidr_whitelist:
+          type: array
+          items:
+            type: string
+            nullable: false
+          readOnly: true
+        created:
+          type: string
+          format: date-time
+          nullable: false
+          readOnly: true
+        updated:
+          type: string
+          format: date-time
+          nullable: false
+          readOnly: true
+        readonly:
+          type: boolean
+          nullable: false
+          readOnly: true
+
+    TokenCreationRequest:
+      type: object
+      required:
+        - password
+      properties:
+        password:
+          type: string
+          description: NPM User password
+          nullable: false
+        readonly:
+          type: boolean
+        cidr_whitelist:
+          type: array
+          items:
+            type: string
+            nullable: false
+
+    LegacyStatus:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          description: If operation succeded.
+          nullable: false
+          readOnly: true
+
+    HookType:
+      type: string
+      description: Type of object being watched; `package`, `scope`, or `owner`.
+      enum:
+        - package
+        - scope
+        - owner
+
+    HookCreateRequest:
+      type: object
+      description: Hook creation request object
+      required:
+        - type
+        - name
+        - endpoint
+        - secret
+      properties:
+        type:
+          $ref: '#/components/schemas/HookType'
+          nullable: false
+        name:
+          type: string
+          description: Name of package or organization/user scope to watch, e.g, `@scope` or `package`.
+          nullable: false
+        endpoint:
+          type: string
+          format: uri
+          description: Full uri of the endpoint to post the notification to.
+          nullable: false
+        secret:
+          type: string
+          description: A secret shared between the registry & you; used to sign the payload.
+          nullable: false
+
+    HookUpdateRequest:
+      type: object
+      description: Hook update request object
+      required:
+        - endpoint
+        - secret
+      properties:
+        endpoint:
+          type: string
+          format: uri
+          description: Full uri of the endpoint to post the notification to.
+          nullable: false
+        secret:
+          type: string
+          description: A secret shared between the registry & you; used to sign the payload.
+          nullable: false
+
+    Hook:
+      type: object
+      description: Hook object
+      required:
+        - id
+        - username
+        - name
+        - endpoint
+        - secret
+        - type
+        - created
+        - updated
+        - delivered
+        - response_code
+        - status
+      properties:
+        id:
+          type: string
+          description: Hook id
+          nullable: false
+          readOnly: true
+        username:
+          type: string
+          description: NPM user name.
+          nullable: false
+          readOnly: true
+        name:
+          type: string
+          description: Name of package or organization/user scope to watch, e.g, `@scope` or `package`.
+          nullable: false
+          readOnly: true
+        endpoint:
+          type: string
+          format: uri
+          description: Full uri of the endpoint to post the notification to.
+          nullable: false
+          readOnly: true
+        secret:
+          type: string
+          description: A secret shared between the registry & you; used to sign the payload.
+          nullable: false
+          readOnly: true
+        type:
+          $ref: '#/components/schemas/HookType'
+          nullable: false
+          readOnly: true
+        created:
+          type: string
+          format: date-time
+          description: Hook creation date
+          nullable: false
+          readOnly: true
+        updated:
+          type: string
+          format: date-time
+          description: Hook update date
+          nullable: false
+          readOnly: true
+        delivered:
+          type: boolean
+          nullable: false
+          readOnly: true
+        last_delivery:
+          type: string
+          format: date-time
+          description: Hook last delivery date
+          readOnly: true
+        response_code:
+          type: integer
+          description: Response code
+          readOnly: true
+        status:
+          type: string
+          description: Hook status
+          nullable: false
+          readOnly: true
+        deleted:
+          type: boolean
+          description: If the Hook has been deleted
+          readOnly: true
+
+    HookSearchResults:
+      description: It contains the results returned by the hook search.
+      type: object
+      required:
+        - objects
+        - total
+      properties:
+        objects:
+          type: array
+          items:
+            $ref: "#/components/schemas/Hook"
+          readOnly: true
+          nullable: false
+        total:
+          type: integer
+          description: Total number of search results corresponding to a query; may be higher than the number of `objects`
+          nullable: false
+          readOnly: true
+
+    LoginRequest:
+      type: object
+      required:
+        - name
+        - password
+      properties:
+        name:
+          type: string
+          nullable: false
+          description: NPM username.
+        password:
+          type: string
+          nullable: false
+          description: NPM user password.
+        readonly:
+          type: boolean
+        cidr_whitelist:
+          type: array
+          items:
+            type: string
+            nullable: false
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: Bearer token
+          readOnly: true
+        ok:
+          type: boolean
+          description: If login succeded
+          nullable: false
+          readOnly: true
+
+    RegistryMetadataOther:
+      type: object
+      required:
+        - data_size
+      properties:
+        data_size:
+          type: number
+          nullable: false
+          readOnly: true
+
+    RegistryMetadataSizes:
+      type: object
+      required:
+        - external
+        - file
+        - active
+      properties:
+        external:
+          type: number
+          nullable: false
+          readOnly: true
+        file:
+          type: number
+          nullable: false
+          readOnly: true
+        active:
+          type: number
+          nullable: false
+          readOnly: true
+
+    RegistryMetadata:
+      description: Registry Metadata
+      type: object
+      required:
+        - data_size
+        - doc_count
+        - other
+        - update_seq
+        - disk_size
+        - disk_format_version
+        - doc_del_count
+        - uuid
+        - instance_start_time
+        - committed_update_seq
+        - compacted_seq
+        - db_name
+        - purge_seq
+        - sizes
+        - engine
+      properties:
+        data_size:
+          type: number
+          nullable: false
+          readOnly: true
+        doc_count:
+          type: integer
+          nullable: false
+          readOnly: true
+        other:
+          $ref: '#/components/schemas/RegistryMetadataOther'
+          nullable: false
+          readOnly: true
+        update_seq:
+          type: number
+          nullable: false
+          readOnly: true
+        disk_size:
+          type: number
+          nullable: false
+          readOnly: true
+        disk_format_version:
+          type: integer
+          nullable: false
+          readOnly: true
+        doc_del_count:
+          type: integer
+          nullable: false
+          readOnly: true
+        uuid:
+          type: string
+          nullable: false
+          readOnly: true
+        instance_start_time:
+          type: string
+          nullable: false
+          readOnly: true
+        committed_update_seq:
+          type: integer
+          nullable: false
+          readOnly: true
+        compacted_seq:
+          type: integer
+          nullable: false
+          readOnly: true
+        db_name:
+          type: string
+          nullable: false
+          readOnly: true
+        purge_seq:
+          type: integer
+          nullable: false
+          readOnly: true
+        sizes:
+          $ref: '#/components/schemas/RegistryMetadataSizes'
+          nullable: false
+          readOnly: true
+        engine:
+          type: string
+          nullable: false
+          readOnly: true
+
+    Person:
+      description: >-
+        Represents a person associated to a package. It has at least one of the following fields defined:
+
+        - name: a freeform string name
+
+        - email: an email address
+
+        - url: a url for a web page with more information about the author
+
+        Historically no validation has been performed on those fields; they are generated by parsing user-provided data in package.json at publication time.
+      example: >-
+        {
+          "email": "ben@example.com",
+          "name": "Ben The Example"
+        }
+      type: object
+      properties:
+        name:
+          type: string
+          description: "A freeform string name"
+          readOnly: true
+        email:
+          type: string
+          format: email
+          description: "An email address"
+          readOnly: true
+        url:
+          type: string
+          format: uri
+          description: "A url for a web page with more information about the author"
+          readOnly: true
+
+    DistInfo:
+      description: >-
+        The dist object is generated by npm and may be relied upon. Each dist object has at least two fields:
+
+        - tarball: the url of the tarball containing the payload for this package
+
+        - shasum: the SHA-1 sum of the tarball
+
+        - integrity: since Apr 2017, string in the format `<hashAlgorithm>-<base64-hash>`, refer the Subresource Integrity and cacache package for more
+
+        - fileCount: since Feb 2018, the number of files in the tarball, folder excluded
+
+        - unpackedSize: since Feb 2018, the total byte of the unpacked files in the tarball
+
+        - npm-signature: since Apr 2018, a PGP signature of `<package>@<version>:<integrity>`, refer the npm blog and doc for more (in the future) a SHA-2 512 sum of the tarball
+      example: >-
+        {
+          "shasum": "bbf102d5ae73afe2c553295e0fb02230216f65b1",
+          "tarball": "https://registry.npmjs.org/tiny-tarball/-/tiny-tarball-1.0.0.tgz"
+        }
+      type: object
+      required:
+        - tarball
+        - shasum
+      properties:
+        tarball:
+          type: string
+          format: uri
+          description: "The url of the tarball containing the payload for this package"
+          readOnly: true
+          nullable: false
+        shasum:
+          type: string
+          description: "The SHA-1 sum of the tarball"
+          readOnly: true
+          nullable: false
+        integrity:
+          type: string
+          description: "Since Apr 2017, string in the format `<hashAlgorithm>-<base64-hash>`, refer the Subresource Integrity and cacache package for more"
+          readOnly: true
+        fileCount:
+          type: integer
+          description: "Since Feb 2018, the number of files in the tarball, folder excluded"
+          readOnly: true
+        unpackedSize:
+          type: integer
+          description: "Since Feb 2018, the total byte of the unpacked files in the tarball"
+          readOnly: true
+        npm-signature:
+          type: string
+          description: "PGP signature of `<package>@<version>:<integrity>`"
+          readOnly: true
+        signatures:
+          type: array
+          readOnly: true
+          items:
+            type: object
+            nullable: false
+            required:
+              - keyid
+              - sig
+            properties:
+              keyid:
+                type: string
+                readOnly: true
+                nullable: false
+              sig:
+                type: string
+                readOnly: true
+                nullable: false
+
+    Repository:
+      description: >-
+        An object specifying the repository where the source for this package might be found.
+      example: >-
+        {
+          "type": "git",
+          "url": "git://github.com/npm/npm.git"
+        }
+      type: object
+      required:
+        - url
+      properties:
+        type:
+          type: string
+          description: Repository type (for example, `git`)
+          readOnly: true
+        url:
+          type: string
+          format: uri
+          description: Url of the repository
+          readOnly: true
+          nullable: false
+        directory:
+          type: string
+          description: Specific directory in the repository containing the package (for example, a directory in a monorepo)
+          readOnly: true
+
+    Funding:
+      description: >-
+        An object specifying the funding info for this package.
+      example: >-
+        {
+          "type": "individual",
+          "url" : "http://example.com/donate"
+        }
+      type: object
+      required:
+        - url
+      properties:
+        type:
+          type: string
+          description: Funding type
+          readOnly: true
+        url:
+          type: string
+          format: uri
+          description: Url of the funding
+          readOnly: true
+          nullable: false
+
+    BugTracker:
+      description: It represents the bug tracking methods.
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: >-
+            The url of the project's issue tracker.
+        email:
+          type: string
+          format: email
+          readOnly: true
+          description: >-
+            The email address to which issues should be reported.
+
+    BasicPackage:
+      description: "Base Package metadata object containing the basic package information. Extended By Version and PackageMetadata"
+      type: object
+      additionalProperties: true
+      required:
+        - _id
+        - name
+      properties:
+        _id:
+          type: string
+          description: "The package name, used as an ID in CouchDB"
+          readOnly: true
+          nullable: false
+        name:
+          type: string
+          readOnly: true
+          nullable: false
+          description: The package name
+        author:
+          $ref: "#/components/schemas/Person"
+          readOnly: true
+        bugs:
+          $ref: "#/components/schemas/BugTracker"
+          description: Bug tracker
+          readOnly: true
+        contributors:
+          type: array
+          description: List of package contributors
+          items:
+            $ref: "#/components/schemas/Person"
+          readOnly: true
+        description:
+          type: string
+          description: A short description of the package
+          readOnly: true
+        homepage:
+          type: string
+          format: uri
+          description: The url of the project homepage.
+          readOnly: true
+        keywords:
+          type: array
+          description: Array of string keywords
+          items:
+            type: string
+          readOnly: true
+        license:
+          type: string
+          description: The SPDX identifier of the package's license
+          readOnly: true
+        maintainers:
+          type: array
+          description: Array of person objects for people with permission to publish this package; not authoritative but informational
+          items:
+            $ref: "#/components/schemas/Person"
+          readOnly: true
+        readme:
+          type: string
+          description: The first 64K of the README data for the most-recently published version of the package
+          readOnly: true
+        readmeFilename:
+          type: string
+          description: The name of the file from which the readme data was taken.
+          readOnly: true
+        repository:
+          $ref: "#/components/schemas/Repository"
+          description: Repository containing the package's source
+          readOnly: true
+
+    PackageVersionMetadata:
+      description: Objects containing the information needed to install that version
+      allOf:
+        - $ref: "#/components/schemas/BasicPackage"
+        - type: object
+          required:
+            - version
+            - dist
+            - _npmUser
+          properties:
+            version:
+              type: string
+              nullable: false
+              description: The version string for this version
+              readOnly: true
+            deprecated:
+              type: string
+              description: The deprecation warnings message of this version
+              readOnly: true
+            dependencies:
+              type: object
+              description: A mapping of other packages this version depends on to the required semver ranges
+              additionalProperties:
+                type: string
+              readOnly: true
+            optionalDependencies:
+              type: object
+              description: An object mapping package names to the required semver ranges of optional dependencies
+              additionalProperties:
+                type: string
+              readOnly: true
+            devDependencies:
+              type: object
+              description: A mapping of package names to the required semver ranges of development dependencies
+              additionalProperties:
+                type: string
+              readOnly: true
+            bundleDependencies:
+              type: array
+              description: An array of dependencies bundled with this version
+              items:
+                type: string
+              readOnly: true
+            peerDependencies:
+              type: object
+              description: A mapping of package names to the required semver ranges of development dependencies
+              additionalProperties:
+                type: string
+              readOnly: true
+            overrides:
+              type: object
+              description: A mapping of dependency package names to be replaced with another version, or another package entirely
+              additionalProperties:
+                type: string
+              readOnly: true
+            bin:
+              type: object
+              description: A mapping of bin commands to set up for this version
+              additionalProperties:
+                type: string
+              readOnly: true
+            directories:
+              type: array
+              description: An array of directories included by this version
+              items:
+                type: string
+              readOnly: true
+            dist:
+              $ref: "#/components/schemas/DistInfo"
+              nullable: false
+              readOnly: true
+            engines:
+              type: object
+              readOnly: true
+              additionalProperties:
+                type: string
+              properties:
+                node:
+                  type: string
+                  description: The node engines required for this version to run, if specified
+                npm:
+                  type: string
+                  description: The npm engines required for this version to run, if specified
+              example: >-
+                {
+                  "engines": {
+                    "node": ">=0.10.3 <15
+                    "npm": "~1.0.20"
+                  }
+                }
+            _hasShrinkwrap:
+              type: boolean
+              description: >-
+                `true` if this version is known to have a shrinkwrap that must be used to install it; false if this version is known not to have a shrinkwrap. If this field is `undefined`, the client must determine through other means if a shrinkwrap exists.
+              readOnly: true
+            _nodeVersion:
+              type: string
+              description: The version of node used to publish the package
+              readOnly: true
+            _npmUser:
+              $ref: "#/components/schemas/Person"
+              description: User who published this package version
+              readOnly: true
+              nullable: false
+            _npmVersion:
+              type: string
+              description: The version of the npm client used to publish the package
+              readOnly: true
+            gitHead:
+              type: string
+              description: Commit hash corresponding to the published version
+              readOnly: true
+            main:
+              type: string
+              description: The package's entry point (e.g., index.js or main.js)
+              readOnly: true
+            browser:
+              type: string
+              description: The package's entry point (e.g., index.js or main.js) if the module is meant to be used client-side
+              readOnly: true
+            scripts:
+              type: object
+              description: The "scripts" property is a dictionary containing script commands that are run at various times in the lifecycle of your package. The key is the lifecycle event, and the value is the command to run at that point.
+              additionalProperties:
+                type: string
+              readOnly: true
+            config:
+              type: object
+              description: A "config" object can be used to set configuration parameters used in package scripts that persist across upgrades.
+              additionalProperties:
+                type: string
+              readOnly: true
+            publishConfig:
+              type: object
+              description: A set of config values that will be used at publish-time
+              additionalProperties:
+                type: string
+              readOnly: true
+            funding:
+              $ref: "#/components/schemas/Funding"
+            files:
+              type: array
+              description: An array of file patterns that describes the entries to be included when the package is installed as a dependency.
+              items:
+                type: string
+            os:
+              type: array
+              description: An array of operating systems the package will run on
+              items:
+                type: string
+              example: >-
+                [
+                  "darwin",
+                  "linux"
+                ]
+              readOnly: true
+            cpu:
+              type: array
+              description: If the package code only runs on certain cpu architectures
+              items:
+                type: string
+              example: >-
+                [
+                  "x64",
+                  "ia32"
+                ]
+              readOnly: true
+            private:
+              type: boolean
+              description: If the package is private or not
+              readOnly: true
+            workspaces:
+              type: array
+              description: An array of file patterns that describes locations within the local file system that the install client should look up to find each workspace that needs to be symlinked to the top level node_modules folder.
+              items:
+                type: string
+              readOnly: true
+            _npmOperationalInternal:
+              description: Internal npm data
+              $ref: "#/components/schemas/NpmOperationalInternal"
+              readOnly: true
+
+    NpmOperationalInternal:
+      description: Internal npm data
+      type: object
+      required:
+        - host
+        - tmp
+      properties:
+        host:
+          type: string
+          nullable: false
+          readOnly: true
+        tmp:
+          type: string
+          nullable: false
+          readOnly: true
+
+    DistTags:
+      description: A mapping of dist tags to the versions they point to.
+      type: object
+      required:
+        - latest
+      properties:
+        latest:
+          type: string
+          description: Latest version number
+          nullable: false
+          readOnly: true
+      additionalProperties:
+        type: string
+        description: Mapping of distribution tags to version numbers
+        readOnly: true
+
+    PackageMetadata:
+      description: "Package metadata describes a package for its consumers: who wrote it, where its repository is, and what versions of it have been published. It also contains a description of each version of a package present in the registry, listing its dependencies, giving the url of its tarball, and so on. Package metadata is useful for finding packages and for installing them."
+      allOf:
+        - $ref: "#/components/schemas/BasicPackage"
+        - type: object
+          required:
+            - _rev
+            - modified
+            - dist-tags
+            - versions
+            - time
+          properties:
+            _rev:
+              type: string
+              description: The revision number of this version of the document in CouchDB.
+              nullable: false
+              readOnly: true
+            modified:
+              type: string
+              format: date-time
+              description: ISO string of the last time this package was modified.
+              readOnly: true
+              nullable: false
+            dist-tags:
+              description: Final and detailed search score values
+              $ref: "#/components/schemas/DistTags"
+              nullable: false
+              readOnly: true
+            versions:
+              type: object
+              description: A mapping of version numbers to objects containing the information needed to install that version.
+              additionalProperties:
+                $ref: "#/components/schemas/PackageVersionMetadata"
+                readOnly: true
+              readOnly: true
+              nullable: false
+            time:
+              description: Mapping of version numbers to publishing timestamps
+              $ref: "#/components/schemas/VersionsToTimestamps"
+              readOnly: true
+              nullable: false
+            users:
+              type: object
+              description: An object whose keys are the npm user names of people who have starred the package.
+              additionalProperties:
+                type: boolean
+              readOnly: true
+
+    VersionsToTimestamps:
+      type: object
+      description: An object mapping versions to the time published, along with created and modified timestamps.
+      required:
+        - created
+        - modified
+      additionalProperties:
+        type: string
+        format: date-time
+        description: ISO string of when the version was published.
+        readOnly: true
+        nullable: false
+      properties:
+        created:
+          type: string
+          format: date-time
+          description: ISO string of when the package was created.
+          readOnly: true
+          nullable: false
+        modified:
+          type: string
+          format: date-time
+          description: ISO string of the last time this package was modified.
+          readOnly: true
+          nullable: false
+
+    SearchResults:
+      description: It contains the results returned by the registry for a query.
+      type: object
+      required:
+        - objects
+        - total
+        - time
+      properties:
+        objects:
+          type: array
+          items:
+            $ref: "#/components/schemas/SearchResult"
+          readOnly: true
+          nullable: false
+        total:
+          type: integer
+          description: Total number of search results corresponding to a query; may be higher than the number of `objects`
+          nullable: false
+          readOnly: true
+        time:
+          type: string
+          description: Date at which the search happened
+          nullable: false
+          readOnly: true
+
+    SearchResult:
+      description: It contains the search result for a single package and its search score.
+      type: object
+      required:
+        - package
+        - totscoreal
+        - searchScore
+      properties:
+        package:
+          description: Abbreviated package metadata
+          $ref: "#/components/schemas/PackageSearchResult"
+          nullable: false
+          readOnly: true
+        score:
+          description: Final and detailed search score values
+          $ref: "#/components/schemas/SearchScore"
+          nullable: false
+          readOnly: true
+        searchScore:
+          type: number
+          description: Search score value; may be different from `score.final`
+          nullable: false
+          readOnly: true
+        flags:
+          description: Flag attributes for the package
+          $ref: "#/components/schemas/PackageFlags"
+          readOnly: true
+
+    PackageSearchResult:
+      description: It contains abbreviated package metadata returned by searching the registry for packages.
+      type: object
+      required:
+        - name
+        - version
+        - date
+        - links
+        - publisher
+      properties:
+        name:
+          type: string
+          nullable: false
+          description: The package name
+          readOnly: true
+        version:
+          type: string
+          nullable: false
+          description: Latest package version number
+          readOnly: true
+        scope:
+          type: string
+          description: The scope of the package
+          readOnly: true
+        description:
+          type: string
+          description: A short description of the package
+          readOnly: true
+        keywords:
+          type: array
+          description: "Array of string keywords"
+          items:
+            type: string
+          readOnly: true
+        date:
+          type: string
+          description: Publishing timestamp for the latest version
+          format: date-time
+          readOnly: true
+          nullable: false
+        links:
+          $ref: "#/components/schemas/PackageLinks"
+          description: Links for pages associated to the package
+          readOnly: true
+          nullable: false
+        publisher:
+          $ref: "#/components/schemas/Person"
+          description: The package publisher
+          readOnly: true
+          nullable: false
+        author:
+          $ref: "#/components/schemas/Person"
+          description: The package author
+          readOnly: true
+        maintainers:
+          type: array
+          description: Array of person objects for people with permission to publish this package; not authoritative but informational
+          items:
+            $ref: "#/components/schemas/Person"
+
+    PackageLinks:
+      description: It contains a collection of links of pages associated to the package.
+      type: object
+      additionalProperties:
+        type: string
+        format: uri
+        readOnly: true
+      properties:
+        npm:
+          type: string
+          format: uri
+          description: The NPM url of the package
+          readOnly: true
+        homepage:
+          type: string
+          format: uri
+          description: The url of the project homepage.
+          readOnly: true
+        repository:
+          type: string
+          format: uri
+          description: The url of the project repository.
+          readOnly: true
+        bugs:
+          type: string
+          format: uri
+          description: >-
+            The url of the project's issue tracker and / or the email address to which issues should be reported.
+          readOnly: true
+
+    SearchScore:
+      description: It contains the final and detailed search score values.
+      type: object
+      required:
+        - final
+        - detail
+      properties:
+        final:
+          type: number
+          description: Final search score value, computed from the detailed scores
+          nullable: false
+          readOnly: true
+        detail:
+          $ref: "#/components/schemas/SearchScoreDetail"
+          description: Detailed search score values
+          readOnly: true
+          nullable: false
+
+    SearchScoreDetail:
+      description: It contains the search score values for the quality, popularity and maintenance categories.
+      type: object
+      required:
+        - quality
+        - popularity
+        - maintenance
+      properties:
+        quality:
+          type: number
+          description: Package quality score value
+          nullable: false
+          readOnly: true
+        popularity:
+          type: number
+          description: Package popularity score value
+          nullable: false
+          readOnly: true
+        maintenance:
+          type: number
+          description: Package maintenance score value
+          nullable: false
+          readOnly: true
+
+    PackageFlags:
+      description: It contains flag attributes categorizing the package.
+      type: object
+      properties:
+        unstable:
+          type: boolean
+          description: If true, package version is `<1.0.0`
+          readOnly: true
+        insecure:
+          type: boolean
+          description: If true, package is insecure or has vulnerable dependencies
+          readOnly: true
+
+    RegistryDownloads:
+      description: Lists the number of downloads for the registry in a given time period.
+      type: object
+      required:
+        - downloads
+        - start
+        - end
+      properties:
+        downloads:
+          type: integer
+          description: Total number of downloads
+          nullable: false
+          readOnly: true
+        start:
+          type: string
+          format: date
+          description: Date of the first day (inclusive)
+          nullable: false
+          readOnly: true
+        end:
+          type: string
+          format: date
+          description: Date of the last day (inclusive)
+          nullable: false
+          readOnly: true
+
+    PackageDownloads:
+      description: Lists the number of downloads for a package in a given time period.
+      allOf:
+        - $ref: "#/components/schemas/RegistryDownloads"
+        - type: object
+          required:
+            - package
+          properties:
+            package:
+              type: string
+              description: Package name
+              nullable: false
+              readOnly: true
+
+    DownloadsPerDay:
+      description: Lists the number of downloads in a given day.
+      type: object
+      required:
+        - downloads
+        - day
+      properties:
+        downloads:
+          type: integer
+          nullable: false
+          readOnly: true
+        day:
+          type: string
+          format: date
+          nullable: false
+          readOnly: true
+
+    DailyRegistryDownloads:
+      description: Lists the number of downloads for a package for each day in a given time period.
+      type: object
+      required:
+        - downloads
+        - start
+        - end
+      properties:
+        downloads:
+          type: array
+          description: Download counts per day
+          nullable: false
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/DownloadsPerDay'
+        start:
+          type: string
+          format: date
+          description: Date of the first day (inclusive)
+          nullable: false
+          readOnly: true
+        end:
+          type: string
+          format: date
+          description: Date of the last day (inclusive)
+          nullable: false
+          readOnly: true
+
+    DailyPackageDownloads:
+      description: Lists the number of downloads for a package for each day in a given time period.
+      allOf:
+        - $ref: "#/components/schemas/DailyRegistryDownloads"
+        - type: object
+          required:
+            - package
+          properties:
+            package:
+              type: string
+              description: Package name
+              nullable: false
+              readOnly: true

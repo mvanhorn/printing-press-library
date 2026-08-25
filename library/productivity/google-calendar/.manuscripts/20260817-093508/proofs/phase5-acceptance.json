@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "api_name": "google-calendar",
+  "run_id": "20260817-093508",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 112,
+  "tests_passed": 110,
+  "tests_skipped": 96,
+  "tests_failed": 2,
+  "auth_context": {
+    "type": "none"
+  },
+  "failure_summary": {
+    "exit_nonzero": 2,
+    "commands": [
+      "conflicts"
+    ]
+  },
+  "adjudication": {
+    "adjudicated_by": "the builder (orchestrating agent), per acceptance report 2026-08-17-fix-google-calendar-pp-cli-acceptance.md",
+    "raw_runner_marker": "phase5-acceptance-raw.json (preserved verbatim; runner status: fail)",
+    "basis": "The 2 runner failures are `conflicts` happy_path/json_fidelity exiting 3 during a window where the operator's calendar genuinely contains 2 conflicts. Exit 3 is the command's documented typed exit (annotation pp:typed-exit-codes '0,3,4'); the live-dogfood runner does not honor typed-exit annotations (filed as Printing Press retro issue). Manual full write-lifecycle (8/8) and seeded-conflict S7 case passed live.",
+    "precedent": "cal-com phase5 adjudication"
+  }
+}

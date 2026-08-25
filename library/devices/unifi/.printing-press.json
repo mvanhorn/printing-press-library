@@ -1,0 +1,120 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-12T21:04:04.652800546Z",
+  "printing_press_version": "4.30.1",
+  "api_name": "unifi",
+  "display_name": "UniFi",
+  "cli_name": "unifi-pp-cli",
+  "creator": {
+    "handle": "phoenix-server",
+    "name": "Ricardo Cabral"
+  },
+  "owner": "phoenix-server",
+  "printer": "phoenix-server",
+  "printer_name": "Ricardo Cabral",
+  "spec_path": "unifi-integration-enriched.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:7b005bd87002041a7e7f44a2028ab03010597fbf775bfc75058bda57fd81627b",
+  "run_id": "20260812-163238-8a1e9cdb",
+  "category": "devices",
+  "description": "Every UniFi Network API operation, plus drift detection, topology, and rule prediction no other UniFi tool has.",
+  "mcp_binary": "unifi-pp-mcp",
+  "mcp_tool_count": 73,
+  "mcp_ready": "full",
+  "api_version": "10.5.67",
+  "auth_type": "api_key",
+  "auth_preference": "apiKeyAuth",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Device topology tree",
+      "command": "topology",
+      "description": "See the physical device tree (gateway to switches to APs) built entirely from local mirror data, no live crawl needed."
+    },
+    {
+      "name": "Config drift detection",
+      "command": "drift",
+      "description": "Show what changed in site config (networks, firewall, wifi, DNS) since the last sync snapshot."
+    },
+    {
+      "name": "Newcomer detection",
+      "command": "newcomer",
+      "description": "List devices and clients first seen since a given sync, for spotting new hardware joining the network."
+    },
+    {
+      "name": "Port audit",
+      "command": "port-audit",
+      "description": "Review port utilization and PoE status across every switch on a site in one table."
+    },
+    {
+      "name": "Guest network report",
+      "command": "guest report",
+      "description": "Summarize guest network usage: active vouchers and connected guest clients, from local data."
+    },
+    {
+      "name": "Firewall rule prediction",
+      "command": "rule-predict",
+      "description": "Predict which firewall policy would match a hypothetical packet before making a live change."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Device topology tree",
+      "command": "topology",
+      "description": "See the physical device tree (gateway to switches to APs) built entirely from local mirror data, no live crawl needed."
+    },
+    {
+      "name": "Config drift detection",
+      "command": "drift",
+      "description": "Show what changed in site config (networks, firewall, wifi, DNS) since the last sync snapshot."
+    },
+    {
+      "name": "Newcomer detection",
+      "command": "newcomer",
+      "description": "List devices and clients first seen since a given sync, for spotting new hardware joining the network."
+    },
+    {
+      "name": "Port audit",
+      "command": "port-audit",
+      "description": "Review port utilization and PoE status across every switch on a site in one table."
+    },
+    {
+      "name": "Guest network report",
+      "command": "guest report",
+      "description": "Summarize guest network usage: active vouchers and connected guest clients, from local data."
+    },
+    {
+      "name": "Firewall rule prediction",
+      "command": "rule-predict",
+      "description": "Predict which firewall policy would match a hypothetical packet before making a live change."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 108,
+    "total": 108,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 93,
+      "grade": "A (1 of 25 dimensions unverified: live_api_verification)",
+      "total": 93
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

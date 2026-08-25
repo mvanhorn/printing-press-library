@@ -1,0 +1,1483 @@
+{
+  "dir": "/Users/zjsng/printing-press/.runstate/coding-b690b753/runs/20260619-000132-cc275322/working/wanderlog-pp-cli",
+  "binary": "/Users/zjsng/printing-press/.runstate/coding-b690b753/runs/20260619-000132-cc275322/working/wanderlog-pp-cli/wanderlog-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 82,
+  "passed": 82,
+  "failed": 0,
+  "skipped": 69,
+  "unverified": 69,
+  "pass_rate": 100,
+  "commands": [
+    "account",
+    "api",
+    "doctor",
+    "feedback list",
+    "geos autocomplete",
+    "geos good-guides",
+    "guides comments",
+    "guides distinction",
+    "guides get",
+    "guides list-for-geo",
+    "import",
+    "pages explore",
+    "pages geo-category-page",
+    "pages shared-view",
+    "place-lists",
+    "places autocomplete",
+    "places card",
+    "places details",
+    "plan clone",
+    "plan fill",
+    "plan preview",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "session",
+    "sync",
+    "trips create",
+    "trips delete",
+    "trips get",
+    "trips home",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "account",
+      "kind": "help",
+      "args": [
+        "account",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get the current Wanderlog account for WANDERLOG_COOKIE\n\nUsage:\n  wanderlog-pp-cli account [flags]\n\nExamples:\n  wanderlog-pp-cli account\n\nFlags:\n  -h, --help   help for account\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "account",
+      "kind": "happy_path",
+      "args": [
+        "account"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"success\":true,\"user\":{\"activated\":true,\"clientLatestSubscription\":null,\"countriesCount\":0,\"createdAt\":\"2026-05-30T06:06:59.000Z\",\"email\":\"\u003credacted\u003e\",\"facebookId\":null,\"geos\":[],\"groups\":[],\"hasGooglePhotosPermission\":false,\"hasInitialized\":true,\"hasUsedApp\":false,\"id\":0,\"isProUser\":false,\"mailboxes\":[],\"name\":\"\u003credacted\u003e\",\"profilePictureKey\":\"<redacted>\",\"role\":\"Normal\",\"showProfileProBadge\":false,\"username\":\"<redacted>\",\"utcOffset\":null,\"visitGeosCount\":0}}}warning: 1/1 account items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "account",
+      "kind": "json_fidelity",
+      "args": [
+        "account",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"success\":true,\"user\":{\"activated\":true,\"clientLatestSubscription\":null,\"countriesCount\":0,\"createdAt\":\"2026-05-30T06:06:59.000Z\",\"email\":\"\u003credacted\u003e\",\"facebookId\":null,\"geos\":[],\"groups\":[],\"hasGooglePhotosPermission\":false,\"hasInitialized\":true,\"hasUsedApp\":false,\"id\":0,\"isProUser\":false,\"mailboxes\":[],\"name\":\"\u003credacted\u003e\",\"profilePictureKey\":\"<redacted>\",\"role\":\"Normal\",\"showProfileProBadge\":false,\"username\":\"<redacted>\",\"utcOffset\":null,\"visitGeosCount\":0}}}warning: 1/1 account items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "account",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  wanderlog-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  wanderlog-pp-cli api\n\n  # Show methods for a specific interface\n  wanderlog-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"interface\" at depth 0"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"interface\" at depth 0"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'wanderlog-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  wanderlog-pp-cli doctor [flags]\n\nExamples:\n  wanderlog-pp-cli doctor\n  wanderlog-pp-cli doctor --json\n  wanderlog-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK 1/1 available\n  OK Verify Mode: normal operation\n  OK API: reachable\n  OK Credentials: valid\n  config_path: /var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/printing-press-subprocess-191772156/.config/wanderlog-pp-cli/config.toml\n  base_url: https://wanderlog.com\n  auth_source: env:WANDERLOG_COOKIE\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/printing-press-subprocess-191772156/.local/share/wanderlog-pp-cli/data.db\n    schema_version: 4\n    db_bytes: 81920\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'wanderlog-pp-cli sync' to hydrate.\nGET https://wanderlog.com/\n  Cookie: ****XOFE\n\n(dry run - no request sent)\nGET https://wanderlog.com/api/user\n  Cookie: ****XOFE\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"agentcookie\": \"not detected (optional)\",\n  \"api\": \"reachable\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"env:WANDERLOG_COOKIE\",\n  \"base_url\": \"https://wanderlog.com\",\n  \"cache\": {\n    \"db_bytes\": 81920,\n    \"db_path\": \"/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/printing-press-subprocess-191772156/.local/share/wanderlog-pp-cli/data.db\",\n    \"hint\": \"sync_state is empty; run 'wanderlog-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 4,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/printing-press-subprocess-191772156/.config/wanderlog-pp-cli/config.toml\",\n  \"credentials\": \"valid\",\n  \"env_vars\": \"OK 1/1 available\",\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\nGET https://wanderlog.com/\n  Cookie: ****XOFE\n\n(dry run - no request sent)\nGET https://wanderlog.com/api/user\n  Cookie: ****XOFE\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  wanderlog-pp-cli feedback list [flags]\n\nExamples:\n  wanderlog-pp-cli feedback list\n  wanderlog-pp-cli feedback list --limit 5\n  wanderlog-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "geos autocomplete",
+      "kind": "help",
+      "args": [
+        "geos",
+        "autocomplete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search destinations by name\n\nUsage:\n  wanderlog-pp-cli geos autocomplete \u003cquery\u003e [flags]\n\nExamples:\n  wanderlog-pp-cli geos autocomplete Paris --agent --select id,name,fullName,slug\n\nFlags:\n  -h, --help   help for autocomplete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "geos autocomplete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "geos autocomplete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "geos autocomplete",
+      "kind": "error_path",
+      "args": [
+        "geos",
+        "autocomplete",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"success\": true,\n    \"data\": []\n  }\n}\n"
+    },
+    {
+      "command": "geos good-guides",
+      "kind": "help",
+      "args": [
+        "geos",
+        "good-guides",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List destinations known to have good public guides\n\nUsage:\n  wanderlog-pp-cli geos good-guides [flags]\n\nExamples:\n  wanderlog-pp-cli geos good-guides\n\nFlags:\n  -h, --help   help for good-guides\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "geos good-guides",
+      "kind": "happy_path",
+      "args": [
+        "geos",
+        "good-guides"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":[{\"bounds\":[122.85547,20.35853,154.00315,45.64126],\"countryCode\":\"JP\",\"countryName\":null,\"depth\":0,\"id\":86647,\"imageKey\":\"bz0hqx1GucYjVmKegnt4gMaRxfOjRSja\",\"latitude\":36.21147,\"longitude\":138.2804,\"name\":\"\u003credacted\u003e\",\"parentId\":null,\"popularity\":0,\"stateName\":null,\"subcategory\":\"country\"},{\"bounds\":[-74.25909,40.4774,-73.70027,40.91758],\"countryCode\":\"US\",\"countryName\":\"United States\",\"depth\":3,\"id\":58144,\"imageKey\":\"HWDwisZ4IIkZtB8ZU5207UhKvXXmyFUk\",\"latitude\":40.713238,\"longitude\":-74.00584,\"name\":\"\u003credacted\u003e\",\"parentId\":90404,\"popularity\":1056637,\"stateName\":\"New York\",\"subcategory\":\"city\"},{\"bounds\":[2.2242,48.81557,2.46992,48.90214],\"countryCode\":\"FR\",\"countryName\":\"France\",\"depth\":3,\"id\":9614,\"imageKey\":\"DF8D6Wc5R3cvNiSGvpI7iVl25XxdKo5A\",\"latitude\":48.857037,\"longitude\":2.349401,\"name\":\"\u003credacted\u003e\",\"parentId\":88353,\"popularity\":857235,\"stateName\":null,\"subcategory\":\"city\"},{\"bounds\":[-0.35147,51.38494,0.14827,51.67234],\"countryCode\":\"GB\",\"countryName\":\"United Kingdom\",\"depth\":3,\"id\":9613,\"imageKey\":\"QhLKeDus0DAfyilgBD7rThtaXCIMzZut\",\"latitude\":51.51924,\"longitude\":-0.096654,\"name\":\"\u003credacted\u003e\",\"parentId\":88354,\"popularity\":1055882,\"stateName\":null,\"subcategory\":\"city\"},{\"bounds\":[-8.65001,54.63324,-0.72468,60.86075],\"countryCode\":\"GB\",\"countryName\":\"United Kingdom\",\"depth\":2,\"id\":88390,\"imageKey\":\"gmxA1HrxZK6pDItPU1vpurrdh7eBqVM7\",\"latitude\":55.95416,\"longitude\":-3.20277,\"name\":\"\u003credacted\u003e\",\"parentId\":88359,\"popularity\":0,\"stateName\":null,\"subcategory\":\"nation\"},{\"bounds\":[138.29911,34.57763,141.24051,36.44085],\"countryCode\":\"JP\",\"countryName\":\"Japan\",\"depth\":4,\"id\":1,\"imageKey\":\"XM72PI6f2uMPaS1kgLJbyYMOmJUSN8q8\",\"latitude\":35.680565,\"longitude\":139.759,\"name\":\"\u003credacted\u003e\",\"parentId\":86645,\"popularity\":251550,\"stateName\":\"Tokyo Prefecture\",\"subcategory\":\"region\"},{\"bounds\":[-26.2573,62.4819,-12.2388,67.2466],\"countryCode\":\"IS\",\"countryName\":null,\"depth\":0,\"id\":88419,\"imageKey\":\"Tzayf8nIqgERYqPJp4f26Hp2rC54ZqS6\",\"latitude\":64.11361,\"longitude\":-21.86044,\"name\":\"\u003credacted\u003e\",\"parentId\":null,\"popularity\":0,\"stateName\":null,\"subcategory\":\"country\"},{\"bounds\":[-158.28175,21.25484,-157.6487,21.71267],\"countryCode\":\"US\",\"countryName\":\"United States\",\"depth\":3,\"id\":58149,\"imageKey\":\"unZtX33IFbUr5lgWDmN9CRoBHbHKQZF1\",\"latitude\":21.422,\"longitude\":-157.9462,\"name\":\"\u003credacted\u003e\",\"parentId\":90410,\"popularity\":209256,\"stateName\":\"Hawaii\",\"subcategory\":\"island\"},{\"bounds\":[4.72876,52.27817,5.07916,52.43116],\"countryCode\":null,\"countryName\":\"The Netherlands\",\"depth\":3,\"id\":9625,\"imageKey\":\"CuF2aQ6Rcu51SudtoImXTrdcgjAwUKlk\",\"latitude\":52.37,\"longitude\":4.89,\"name\":\"\u003credacted\u003e\",\"parentId\":88370,\"popularity\":400126,\"stateName\":\"North Holland Province\",\"subcategory\":\"city\"},{\"bounds\":[114.43155,-8.85063,115.71154,-8.06156],\"countryCode\":\"ID\",\"countryName\":\"Indonesia\",\"depth\":2,\"id\":86662,\"imageKey\":\"UTZWVE85e8BTkgbu7auYS8RhZgbonehE\",\"latitude\":-8.65667,\"longitude\":115.22156,\"name\":\"\u003credacted\u003e\",\"parentId\":86663,\"popularity\":241921,\"stateName\":null,\"subcategory\":\"islandgroup\"},{\"bounds\":[-122.527,37.7034,-122.3482,37.812],\"countryCode\":\"US\",\"countryName\":\"United States\",\"depth\":3,\"id\":58147,\"imageKey\":\"mM47oEn9QscAZVQ2YglqfNNwi2OA7SJO\",\"latitude\":37.778934,\"longitude\":-122.41579,\"name\":\"\u003credacted\u003e\",\"parentId\":90405,\"popularity\":304580,\"stateName\":\"California\",\"subcategory\":\"city\"},{\"bounds\":[-81.50791,28.34799,-81.22977,28.61435],\"countryCode\":\"US\",\"countryName\":\"United States\",\"depth\":4,\"id\":58152,\"imageKey\":\"XxpFiRKh9xCylZUeo3qESgSttlxAVe8L\",\"latitude\":28.531824,\"longitude\":-81.3973,\"name\":\"\u003credacted\u003e\",\"parentId\":90411,\"popularity\":423489,\"stateName\":\"Florida\",\"subcategory\":\"city\"},{\"bounds\":[2.06953,41.32,2.22801,41.46958],\"countryCode\":\"ES\",\"countryName\":\"Spain\",\"depth\":4,\"id\":9617,\"imageKey\":\"IzVqFaOSQepNhstPkrsRYpDo7fV0HjnN\",\"latitude\":41.385597,\"longitude\":2.169576,\"name\":\"\u003credacted\u003e\",\"parentId\":88357,\"popularity\":673625,\"stateName\":\"Province of Barcelona\",\"subcategory\":\"city\"},{\"bounds\":[12.34171,41.7696,12.73029,42.05055],\"countryCode\":\"IT\",\"countryName\":\"Italy\",\"depth\":3,\"id\":9616,\"im…[truncated]"
+    },
+    {
+      "command": "geos good-guides",
+      "kind": "json_fidelity",
+      "args": [
+        "geos",
+        "good-guides",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":[{\"bounds\":[122.85547,20.35853,154.00315,45.64126],\"countryCode\":\"JP\",\"countryName\":null,\"depth\":0,\"id\":86647,\"imageKey\":\"bz0hqx1GucYjVmKegnt4gMaRxfOjRSja\",\"latitude\":36.21147,\"longitude\":138.2804,\"name\":\"\u003credacted\u003e\",\"parentId\":null,\"popularity\":0,\"stateName\":null,\"subcategory\":\"country\"},{\"bounds\":[-74.25909,40.4774,-73.70027,40.91758],\"countryCode\":\"US\",\"countryName\":\"United States\",\"depth\":3,\"id\":58144,\"imageKey\":\"HWDwisZ4IIkZtB8ZU5207UhKvXXmyFUk\",\"latitude\":40.713238,\"longitude\":-74.00584,\"name\":\"\u003credacted\u003e\",\"parentId\":90404,\"popularity\":1056637,\"stateName\":\"New York\",\"subcategory\":\"city\"},{\"bounds\":[2.2242,48.81557,2.46992,48.90214],\"countryCode\":\"FR\",\"countryName\":\"France\",\"depth\":3,\"id\":9614,\"imageKey\":\"DF8D6Wc5R3cvNiSGvpI7iVl25XxdKo5A\",\"latitude\":48.857037,\"longitude\":2.349401,\"name\":\"\u003credacted\u003e\",\"parentId\":88353,\"popularity\":857235,\"stateName\":null,\"subcategory\":\"city\"},{\"bounds\":[-0.35147,51.38494,0.14827,51.67234],\"countryCode\":\"GB\",\"countryName\":\"United Kingdom\",\"depth\":3,\"id\":9613,\"imageKey\":\"QhLKeDus0DAfyilgBD7rThtaXCIMzZut\",\"latitude\":51.51924,\"longitude\":-0.096654,\"name\":\"\u003credacted\u003e\",\"parentId\":88354,\"popularity\":1055882,\"stateName\":null,\"subcategory\":\"city\"},{\"bounds\":[-8.65001,54.63324,-0.72468,60.86075],\"countryCode\":\"GB\",\"countryName\":\"United Kingdom\",\"depth\":2,\"id\":88390,\"imageKey\":\"gmxA1HrxZK6pDItPU1vpurrdh7eBqVM7\",\"latitude\":55.95416,\"longitude\":-3.20277,\"name\":\"\u003credacted\u003e\",\"parentId\":88359,\"popularity\":0,\"stateName\":null,\"subcategory\":\"nation\"},{\"bounds\":[138.29911,34.57763,141.24051,36.44085],\"countryCode\":\"JP\",\"countryName\":\"Japan\",\"depth\":4,\"id\":1,\"imageKey\":\"XM72PI6f2uMPaS1kgLJbyYMOmJUSN8q8\",\"latitude\":35.680565,\"longitude\":139.759,\"name\":\"\u003credacted\u003e\",\"parentId\":86645,\"popularity\":251550,\"stateName\":\"Tokyo Prefecture\",\"subcategory\":\"region\"},{\"bounds\":[-26.2573,62.4819,-12.2388,67.2466],\"countryCode\":\"IS\",\"countryName\":null,\"depth\":0,\"id\":88419,\"imageKey\":\"Tzayf8nIqgERYqPJp4f26Hp2rC54ZqS6\",\"latitude\":64.11361,\"longitude\":-21.86044,\"name\":\"\u003credacted\u003e\",\"parentId\":null,\"popularity\":0,\"stateName\":null,\"subcategory\":\"country\"},{\"bounds\":[-158.28175,21.25484,-157.6487,21.71267],\"countryCode\":\"US\",\"countryName\":\"United States\",\"depth\":3,\"id\":58149,\"imageKey\":\"unZtX33IFbUr5lgWDmN9CRoBHbHKQZF1\",\"latitude\":21.422,\"longitude\":-157.9462,\"name\":\"\u003credacted\u003e\",\"parentId\":90410,\"popularity\":209256,\"stateName\":\"Hawaii\",\"subcategory\":\"island\"},{\"bounds\":[4.72876,52.27817,5.07916,52.43116],\"countryCode\":null,\"countryName\":\"The Netherlands\",\"depth\":3,\"id\":9625,\"imageKey\":\"CuF2aQ6Rcu51SudtoImXTrdcgjAwUKlk\",\"latitude\":52.37,\"longitude\":4.89,\"name\":\"\u003credacted\u003e\",\"parentId\":88370,\"popularity\":400126,\"stateName\":\"North Holland Province\",\"subcategory\":\"city\"},{\"bounds\":[114.43155,-8.85063,115.71154,-8.06156],\"countryCode\":\"ID\",\"countryName\":\"Indonesia\",\"depth\":2,\"id\":86662,\"imageKey\":\"UTZWVE85e8BTkgbu7auYS8RhZgbonehE\",\"latitude\":-8.65667,\"longitude\":115.22156,\"name\":\"\u003credacted\u003e\",\"parentId\":86663,\"popularity\":241921,\"stateName\":null,\"subcategory\":\"islandgroup\"},{\"bounds\":[-122.527,37.7034,-122.3482,37.812],\"countryCode\":\"US\",\"countryName\":\"United States\",\"depth\":3,\"id\":58147,\"imageKey\":\"mM47oEn9QscAZVQ2YglqfNNwi2OA7SJO\",\"latitude\":37.778934,\"longitude\":-122.41579,\"name\":\"\u003credacted\u003e\",\"parentId\":90405,\"popularity\":304580,\"stateName\":\"California\",\"subcategory\":\"city\"},{\"bounds\":[-81.50791,28.34799,-81.22977,28.61435],\"countryCode\":\"US\",\"countryName\":\"United States\",\"depth\":4,\"id\":58152,\"imageKey\":\"XxpFiRKh9xCylZUeo3qESgSttlxAVe8L\",\"latitude\":28.531824,\"longitude\":-81.3973,\"name\":\"\u003credacted\u003e\",\"parentId\":90411,\"popularity\":423489,\"stateName\":\"Florida\",\"subcategory\":\"city\"},{\"bounds\":[2.06953,41.32,2.22801,41.46958],\"countryCode\":\"ES\",\"countryName\":\"Spain\",\"depth\":4,\"id\":9617,\"imageKey\":\"IzVqFaOSQepNhstPkrsRYpDo7fV0HjnN\",\"latitude\":41.385597,\"longitude\":2.169576,\"name\":\"\u003credacted\u003e\",\"parentId\":88357,\"popularity\":673625,\"stateName\":\"Province of Barcelona\",\"subcategory\":\"city\"},{\"bounds\":[12.34171,41.7696,12.73029,42.05055],\"countryCode\":\"IT\",\"countryName\":\"Italy\",\"depth\":3,\"id\":9616,\"im…[truncated]"
+    },
+    {
+      "command": "geos good-guides",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "guides comments",
+      "kind": "help",
+      "args": [
+        "guides",
+        "comments",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List comments for a public trip or guide key\n\nUsage:\n  wanderlog-pp-cli guides comments \u003ctrip_key\u003e [flags]\n\nExamples:\n  wanderlog-pp-cli guides comments your-token-here\n\nFlags:\n  -h, --help   help for comments\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "guides comments",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"trip_key\" at depth 0"
+    },
+    {
+      "command": "guides comments",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"trip_key\" at depth 0"
+    },
+    {
+      "command": "guides comments",
+      "kind": "error_path",
+      "args": [
+        "guides",
+        "comments",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: We couldn’t find your trip plan\n"
+    },
+    {
+      "command": "guides distinction",
+      "kind": "help",
+      "args": [
+        "guides",
+        "distinction",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get distinction metadata for a public trip or guide key\n\nUsage:\n  wanderlog-pp-cli guides distinction \u003ctrip_key\u003e [flags]\n\nExamples:\n  wanderlog-pp-cli guides distinction your-token-here\n\nFlags:\n  -h, --help   help for distinction\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "guides distinction",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"trip_key\" at depth 0"
+    },
+    {
+      "command": "guides distinction",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"trip_key\" at depth 0"
+    },
+    {
+      "command": "guides distinction",
+      "kind": "error_path",
+      "args": [
+        "guides",
+        "distinction",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: We couldn’t find your trip plan\n"
+    },
+    {
+      "command": "guides get",
+      "kind": "help",
+      "args": [
+        "guides",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a public guide or shared trip by view key\n\nUsage:\n  wanderlog-pp-cli guides get \u003cview_key\u003e [flags]\n\nExamples:\n  wanderlog-pp-cli guides get naertjcoixqrgrfc --client-schema-version 2 --agent --select tripPlan.title,tripPlan.itinerary.sections,resources.placeMetadata\n\nFlags:\n      --client-schema-version int   Wanderlog client schema version (default 2)\n  -h, --help                        help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "guides get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"view_key\" at depth 0"
+    },
+    {
+      "command": "guides get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"view_key\" at depth 0"
+    },
+    {
+      "command": "guides get",
+      "kind": "error_path",
+      "args": [
+        "guides",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: Couldn't fetch keyInfo for key __printing_press_invalid__\n"
+    },
+    {
+      "command": "guides list-for-geo",
+      "kind": "help",
+      "args": [
+        "guides",
+        "list-for-geo",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List public guides for a destination geo id\n\nUsage:\n  wanderlog-pp-cli guides list-for-geo \u003cgeo_id\u003e [flags]\n\nExamples:\n  wanderlog-pp-cli guides list-for-geo 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help   help for list-for-geo\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "guides list-for-geo",
+      "kind": "happy_path",
+      "args": [
+        "guides",
+        "list-for-geo",
+        "86647"
+      ],
+      "status": "pass",
+      "fixture_source": "store",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"ancestorGeos\":[],\"geoWithGoodGuides\":{\"bestOfGuideInfo\":null,\"geo\":{\"countryName\":null,\"depth\":0,\"id\":86647,\"latitude\":36.21147,\"longitude\":138.2804,\"name\":\"\u003credacted\u003e\",\"parentId\":null,\"popularity\":0,\"stateName\":null,\"subcategory\":\"country\"},\"guides\":[{\"authorBlurb\":\"quest-like fashion guide with all the places I've personally been to and loved 🎮\\n\\nSummer internship in Tokyo may-aug 2019\\nReturned to Japan for 3 weeks in aug 2024 to climb Fuji 🗻\\nReturned for Hokkaido in Jan-apr 2025\\n\\nCurrently in Korea! Follow my ig @pham2ez\",\"collaborators\":[{\"countriesCount\":14,\"id\":157169,\"isProUser\":false,\"name\":\"\u003credacted\u003e\",\"profilePictureKey\":\"Vlp9auuKUEkRrlRR\",\"showProfileProBadge\":false,\"username\":\"pham2ez\",\"visitGeosCount\":92}],\"commentCount\":null,\"distinction\":\"verified\",\"editedAt\":\"2026-06-17T01:24:02+00:00\",\"endDate\":null,\"headerImageKey\":\"yitfaNaah1Cxyrnht6TDK7dxn2U1EtMW\",\"id\":5325079,\"imageCount\":null,\"isDraft\":false,\"isJournalDraft\":null,\"isPrimary\":true,\"itemType\":\"document\",\"journalKey\":\"wregewngyzrgea\",\"journalStopCount\":0,\"key\":\"nlcviusycz\",\"keyType\":\"view\",\"likeCount\":2794,\"openedAt\":null,\"placeCount\":114,\"startDate\":null,\"title\":\"Japan: Video Game Guide 👾 2025\",\"topImageKeys\":[],\"type\":\"recommendations\",\"user\":{\"countriesCount\":14,\"id\":157169,\"isProUser\":false,\"name\":\"\u003credacted\u003e\",\"profilePictureKey\":\"Vlp9auuKUEkRrlRR\",\"showProfileProBadge\":false,\"username\":\"pham2ez\",\"visitGeosCount\":92},\"viewCount\":216507},{\"authorBlurb\":\"Japan stole my heart during my October 2024 journey through its central and southern regions. This guide is a mix of my own experiences and practical tips to help you plan your visit.\",\"collaborators\":[{\"countriesCount\":29,\"id\":430437,\"isProUser\":false,\"name\":\"\u003credacted\u003e\",\"profilePictureKey\":\"NONwrV1pfSD5jlVw\",\"showProfileProBadge\":false,\"username\":\"Julia_Jablonka\",\"visitGeosCount\":107}],\"commentCount\":null,\"distinction\":\"promotable\",\"editedAt\":\"2026-05-14T08:38:43+00:00\",\"endDate\":null,\"headerImageKey\":\"TgDEsJWByUnGOOI13leX0qYJmvbJW1rh\",\"id\":12653715,\"imageCount\":null,\"isDraft\":false,\"isJournalDraft\":null,\"isPrimary\":true,\"itemType\":\"document\",\"journalKey\":\"bfkqzvjhwhkfcg\",\"journalStopCount\":0,\"key\":\"udsxapneie\",\"keyType\":\"view\",\"likeCount\":814,\"openedAt\":null,\"placeCount\":350,\"startDate\":null,\"title\":\"Japan Guide in 🇬🇧\u0026🇵🇱\",\"topImageKeys\":[],\"type\":\"recommendations\",\"user\":{\"countriesCount\":29,\"id\":430437,\"isProUser\":false,\"name\":\"\u003credacted\u003e\",\"profilePictureKey\":\"NONwrV1pfSD5jlVw\",\"showProfileProBadge\":false,\"username\":\"Julia_Jablonka\",\"visitGeosCount\":107},\"viewCount\":60642},{\"authorBlurb\":\"We’re a family of five — two parents, two young kids (3 and 5), and a nanny — sharing our real winter journey across Japan, from Kanazawa’s charm to Karuizawa’s snowy fun and the magic of Tokyo Disneyland.\",\"collaborators\":[{\"countriesCount\":20,\"id\":1535994,\"isProUser\":false,\"name\":\"\u003credacted\u003e\",\"profilePictureKey\":\"7YA2xvNslRyON6bn\",\"showProfileProBadge\":false,\"username\":\"IbuyAndTwoGirls\",\"visitGeosCount\":65}],\"commentCount\":null,\"distinction\":\"promotable\",\"editedAt\":\"2026-05-16T04:16:39+00:00\",\"endDate\":null,\"headerImageKey\":\"gkuQxjyL2s3kXnejOujvXbxD21cyOST0\",\"id\":6736093,\"imageCount\":null,\"isDraft\":false,\"isJournalDraft\":null,\"isPrimary\":true,\"itemType\":\"document\",\"journalKey\":\"gtekcdrsmgemlv\",\"journalStopCount\":0,\"key\":\"azaqbmlfaa\",\"keyType\":\"view\",\"likeCount\":409,\"openedAt\":null,\"placeCount\":174,\"startDate\":null,\"title\":\"A 10-Day Japan Winter Itinerary for Families with Young Kids\",\"topImageKeys\":[],\"type\":\"recommendations\",\"user\":{\"countriesCount\":20,\"id\":1535994,\"isProUser\":false,\"name\":\"\u003credacted\u003e\",\"profilePictureKey\":\"7YA2xvNslRyON6bn\",\"showProfileProBadge\":false,\"username\":\"IbuyAndTwoGirls\",\"visitGeosCount\":65},\"viewCount\":34171},{\"authorBlurb\":\"It has been one year since my trip to Japan, and I wanted to share how I spent my one month there as a solo, introverted, first-time traveler. I also attempted to vlog the entire trip, so feel free to check the links for each day and drop a comment if you have any questions.\",\"coll…[truncated]"
+    },
+    {
+      "command": "guides list-for-geo",
+      "kind": "json_fidelity",
+      "args": [
+        "guides",
+        "list-for-geo",
+        "86647",
+        "--json"
+      ],
+      "status": "pass",
+      "fixture_source": "store",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"ancestorGeos\":[],\"geoWithGoodGuides\":{\"bestOfGuideInfo\":null,\"geo\":{\"countryName\":null,\"depth\":0,\"id\":86647,\"latitude\":36.21147,\"longitude\":138.2804,\"name\":\"\u003credacted\u003e\",\"parentId\":null,\"popularity\":0,\"stateName\":null,\"subcategory\":\"country\"},\"guides\":[{\"authorBlurb\":\"quest-like fashion guide with all the places I've personally been to and loved 🎮\\n\\nSummer internship in Tokyo may-aug 2019\\nReturned to Japan for 3 weeks in aug 2024 to climb Fuji 🗻\\nReturned for Hokkaido in Jan-apr 2025\\n\\nCurrently in Korea! Follow my ig @pham2ez\",\"collaborators\":[{\"countriesCount\":14,\"id\":157169,\"isProUser\":false,\"name\":\"\u003credacted\u003e\",\"profilePictureKey\":\"Vlp9auuKUEkRrlRR\",\"showProfileProBadge\":false,\"username\":\"pham2ez\",\"visitGeosCount\":92}],\"commentCount\":null,\"distinction\":\"verified\",\"editedAt\":\"2026-06-17T01:24:02+00:00\",\"endDate\":null,\"headerImageKey\":\"yitfaNaah1Cxyrnht6TDK7dxn2U1EtMW\",\"id\":5325079,\"imageCount\":null,\"isDraft\":false,\"isJournalDraft\":null,\"isPrimary\":true,\"itemType\":\"document\",\"journalKey\":\"wregewngyzrgea\",\"journalStopCount\":0,\"key\":\"nlcviusycz\",\"keyType\":\"view\",\"likeCount\":2794,\"openedAt\":null,\"placeCount\":114,\"startDate\":null,\"title\":\"Japan: Video Game Guide 👾 2025\",\"topImageKeys\":[],\"type\":\"recommendations\",\"user\":{\"countriesCount\":14,\"id\":157169,\"isProUser\":false,\"name\":\"\u003credacted\u003e\",\"profilePictureKey\":\"Vlp9auuKUEkRrlRR\",\"showProfileProBadge\":false,\"username\":\"pham2ez\",\"visitGeosCount\":92},\"viewCount\":216507},{\"authorBlurb\":\"Japan stole my heart during my October 2024 journey through its central and southern regions. This guide is a mix of my own experiences and practical tips to help you plan your visit.\",\"collaborators\":[{\"countriesCount\":29,\"id\":430437,\"isProUser\":false,\"name\":\"\u003credacted\u003e\",\"profilePictureKey\":\"NONwrV1pfSD5jlVw\",\"showProfileProBadge\":false,\"username\":\"Julia_Jablonka\",\"visitGeosCount\":107}],\"commentCount\":null,\"distinction\":\"promotable\",\"editedAt\":\"2026-05-14T08:38:43+00:00\",\"endDate\":null,\"headerImageKey\":\"TgDEsJWByUnGOOI13leX0qYJmvbJW1rh\",\"id\":12653715,\"imageCount\":null,\"isDraft\":false,\"isJournalDraft\":null,\"isPrimary\":true,\"itemType\":\"document\",\"journalKey\":\"bfkqzvjhwhkfcg\",\"journalStopCount\":0,\"key\":\"udsxapneie\",\"keyType\":\"view\",\"likeCount\":814,\"openedAt\":null,\"placeCount\":350,\"startDate\":null,\"title\":\"Japan Guide in 🇬🇧\u0026🇵🇱\",\"topImageKeys\":[],\"type\":\"recommendations\",\"user\":{\"countriesCount\":29,\"id\":430437,\"isProUser\":false,\"name\":\"\u003credacted\u003e\",\"profilePictureKey\":\"NONwrV1pfSD5jlVw\",\"showProfileProBadge\":false,\"username\":\"Julia_Jablonka\",\"visitGeosCount\":107},\"viewCount\":60642},{\"authorBlurb\":\"We’re a family of five — two parents, two young kids (3 and 5), and a nanny — sharing our real winter journey across Japan, from Kanazawa’s charm to Karuizawa’s snowy fun and the magic of Tokyo Disneyland.\",\"collaborators\":[{\"countriesCount\":20,\"id\":1535994,\"isProUser\":false,\"name\":\"\u003credacted\u003e\",\"profilePictureKey\":\"7YA2xvNslRyON6bn\",\"showProfileProBadge\":false,\"username\":\"IbuyAndTwoGirls\",\"visitGeosCount\":65}],\"commentCount\":null,\"distinction\":\"promotable\",\"editedAt\":\"2026-05-16T04:16:39+00:00\",\"endDate\":null,\"headerImageKey\":\"gkuQxjyL2s3kXnejOujvXbxD21cyOST0\",\"id\":6736093,\"imageCount\":null,\"isDraft\":false,\"isJournalDraft\":null,\"isPrimary\":true,\"itemType\":\"document\",\"journalKey\":\"gtekcdrsmgemlv\",\"journalStopCount\":0,\"key\":\"azaqbmlfaa\",\"keyType\":\"view\",\"likeCount\":409,\"openedAt\":null,\"placeCount\":174,\"startDate\":null,\"title\":\"A 10-Day Japan Winter Itinerary for Families with Young Kids\",\"topImageKeys\":[],\"type\":\"recommendations\",\"user\":{\"countriesCount\":20,\"id\":1535994,\"isProUser\":false,\"name\":\"\u003credacted\u003e\",\"profilePictureKey\":\"7YA2xvNslRyON6bn\",\"showProfileProBadge\":false,\"username\":\"IbuyAndTwoGirls\",\"visitGeosCount\":65},\"viewCount\":34171},{\"authorBlurb\":\"It has been one year since my trip to Japan, and I wanted to share how I spent my one month there as a solo, introverted, first-time traveler. I also attempted to vlog the entire trip, so feel free to check the links for each day and drop a comment if you have any questions.\",\"coll…[truncated]"
+    },
+    {
+      "command": "guides list-for-geo",
+      "kind": "error_path",
+      "args": [
+        "guides",
+        "list-for-geo",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: Invalid geoId passed in\n"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  wanderlog-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  wanderlog-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  wanderlog-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | wanderlog-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"resource\" at depth 0"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"resource\" at depth 0"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "import",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"resource\" at depth 0"
+    },
+    {
+      "command": "pages explore",
+      "kind": "help",
+      "args": [
+        "pages",
+        "explore",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch a destination explore page\n\nUsage:\n  wanderlog-pp-cli pages explore \u003cgeo_id\u003e \u003cslug\u003e [flags]\n\nExamples:\n  wanderlog-pp-cli pages explore 550e8400-e29b-41d4-a716-446655440000 example-value\n\nFlags:\n  -h, --help   help for explore\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "pages explore",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"slug\" at depth 1"
+    },
+    {
+      "command": "pages explore",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"slug\" at depth 1"
+    },
+    {
+      "command": "pages explore",
+      "kind": "error_path",
+      "args": [
+        "pages",
+        "explore",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: slug is required\nUsage: wanderlog-pp-cli pages explore \u003cslug\u003e\n"
+    },
+    {
+      "command": "pages geo-category-page",
+      "kind": "help",
+      "args": [
+        "pages",
+        "geo-category-page",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch a public geo category list page\n\nUsage:\n  wanderlog-pp-cli pages geo-category-page \u003cgeo_category_id\u003e \u003cslug\u003e [flags]\n\nExamples:\n  wanderlog-pp-cli pages geo-category-page 550e8400-e29b-41d4-a716-446655440000 example-value\n\nFlags:\n  -h, --help   help for geo-category-page\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "pages geo-category-page",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "pages geo-category-page",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "pages geo-category-page",
+      "kind": "error_path",
+      "args": [
+        "pages",
+        "geo-category-page",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: slug is required\nUsage: wanderlog-pp-cli pages geo-category-page \u003cslug\u003e\n"
+    },
+    {
+      "command": "pages shared-view",
+      "kind": "help",
+      "args": [
+        "pages",
+        "shared-view",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch a public shared itinerary page\n\nUsage:\n  wanderlog-pp-cli pages shared-view \u003cview_key\u003e \u003cslug\u003e [flags]\n\nExamples:\n  wanderlog-pp-cli pages shared-view your-token-here example-value\n\nFlags:\n  -h, --help   help for shared-view\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "pages shared-view",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"view_key\" at depth 0"
+    },
+    {
+      "command": "pages shared-view",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"view_key\" at depth 0"
+    },
+    {
+      "command": "pages shared-view",
+      "kind": "error_path",
+      "args": [
+        "pages",
+        "shared-view",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: slug is required\nUsage: wanderlog-pp-cli pages shared-view \u003cslug\u003e\n"
+    },
+    {
+      "command": "place-lists",
+      "kind": "help",
+      "args": [
+        "place-lists",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get places in a destination category list\n\nUsage:\n  wanderlog-pp-cli place-lists \u003cgeo_category_id\u003e [flags]\n\nExamples:\n  wanderlog-pp-cli place-lists 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help                         help for place-lists\n      --include-related-pages-data   Include related page data (default true)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "place-lists",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "place-lists",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "place-lists",
+      "kind": "error_path",
+      "args": [
+        "place-lists",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: We couldn't find the places list\n"
+    },
+    {
+      "command": "places autocomplete",
+      "kind": "help",
+      "args": [
+        "places",
+        "autocomplete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search places with Wanderlog's Places API autocomplete request envelope\n\nUsage:\n  wanderlog-pp-cli places autocomplete [flags]\n\nExamples:\n  wanderlog-pp-cli places autocomplete --request '{\"input\":\"Eiffel Tower\",\"sessiontoken\":\"\u003credacted\u003e\",\"location\":{\"lat\":48.8584,\"lng\":2.2945},\"radius\":50000,\"language\":\"en\"}' --agent --select data.0.place_id,data.0.description\n\nFlags:\n  -h, --help             help for autocomplete\n      --request string   JSON request envelope with input, sessiontoken, optional location, radius, and language\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "places autocomplete",
+      "kind": "happy_path",
+      "args": [
+        "places",
+        "autocomplete",
+        "--request",
+        "{\"input\":\"Eiffel Tower\",\"sessiontoken\":\"printing-press-dogfood\",\"location\":{\"lat\":48.8584,\"lng\":2.2945},\"radius\":50000,\"language\":\"en\"}",
+        "--agent",
+        "--select",
+        "data.0.place_id,data.0.description"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"description\": \"Eiffel Tower, Avenue Gustave Eiffel, Paris, France\",\n      \"matched_substrings\": [\n        {}\n      ],\n      \"place_id\": \"ChIJLU7jZClu5kcR4PcOOO6p3I0\",\n      \"structured_formatting\": {\n        \"main_text\": \"Eiffel Tower\",\n        \"main_text_matched_substrings\": [\n          {\n            \"offset\": 0,\n            \"length\": 12\n          }\n        ],\n        \"secondary_text\": \"Avenue Gustave Eiffel, Paris, France\"\n      },\n      \"terms\": [],\n      \"types\": []\n    },\n    {\n      \"description\": \"Eiffel Tower Bahria Town Lahore, Bahria Town Main Boulevard, Violet Block Bahria Town, Lahore, Pakistan\",\n      \"matched_substrings\": [\n        {}\n      ],\n      \"place_id\": \"ChIJC3WB9DRVGDkRWGruZHovzyc\",\n      \"structured_formatting\": {\n        \"main_text\": \"Eiffel Tower Bahria Town Lahore\",\n        \"main_text_matched_substrings\": [\n          {\n            \"offset\": 0,\n            \"length\": 12\n          }\n        ],\n        \"secondary_text\": \"Bahria Town Main Boulevard, Violet Block Bahria Town, Lahore, Pakistan\"\n      },\n      \"terms\": [],\n      \"types\": []\n    },\n    {\n      \"description\": \"Eiffel Tower, Avenue Anatole France, Paris, France\",\n      \"matched_substrings\": [\n        {}\n      ],\n      \"place_id\": \"ChIJrbS_8-Fv5kcRzSjPvnUT03s\",\n      \"structured_formatting\": {\n        \"main_text\": \"Eiffel Tower\",\n        \"main_text_matched_substrings\": [\n          {\n            \"offset\": 0,\n            \"length\": 12\n          }\n        ],\n        \"secondary_text\": \"Avenue Anatole France, Paris, France\"\n      },\n      \"terms\": [],\n      \"types\": []\n    },\n    {\n      \"description\": \"Eiffel Tower Bahria Town Karachi, Jinnah Avenue, Gadap Town, Karachi, Pakistan\",\n      \"matched_substrings\": [\n        {}\n      ],\n      \"place_id\": \"ChIJ7W-Xb_NNsz4RsjpChLSNq2U\",\n      \"structured_formatting\": {\n        \"main_text\": \"Eiffel Tower Bahria Town Karachi\",\n        \"main_text_matched_substrings\": [\n          {\n            \"offset\": 0,\n            \"length\": 12\n          }\n        ],\n        \"secondary_text\": \"Jinnah Avenue, Gadap Town, Karachi, Pakistan\"\n      },\n      \"terms\": [],\n      \"types\": []\n    },\n    {\n      \"description\": \"Eiffel Tower Viewing Deck, Las Vegas Boulevard South, Las Vegas, NV\",\n      \"matched_substrings\": [\n        {}\n      ],\n      \"place_id\": \"ChIJkygHlzDEyIARoHunOxES-Eo\",\n      \"structured_formatting\": {\n        \"main_text\": \"Eiffel Tower Viewing Deck\",\n        \"main_text_matched_substrings\": [\n          {\n            \"offset\": 0,\n            \"length\": 12\n          }\n        ],\n        \"secondary_text\": \"Las Vegas Boulevard South, Las Vegas, NV\"\n      },\n      \"terms\": [],\n      \"types\": []\n    },\n    {\n      \"canSeeOnMap\": true,\n      \"icon\": null,\n      \"input\": \"Eiffel Tower\",\n      \"inputTextHighlights\": [],\n      \"secondaryText\": null,\n      \"seeLocations\": false,\n      \"type\": \"search\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "places autocomplete",
+      "kind": "json_fidelity",
+      "args": [
+        "places",
+        "autocomplete",
+        "--request",
+        "{\"input\":\"Eiffel Tower\",\"sessiontoken\":\"printing-press-dogfood\",\"location\":{\"lat\":48.8584,\"lng\":2.2945},\"radius\":50000,\"language\":\"en\"}",
+        "--agent",
+        "--select",
+        "data.0.place_id,data.0.description"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"description\": \"Eiffel Tower, Avenue Gustave Eiffel, Paris, France\",\n      \"matched_substrings\": [\n        {}\n      ],\n      \"place_id\": \"ChIJLU7jZClu5kcR4PcOOO6p3I0\",\n      \"structured_formatting\": {\n        \"main_text\": \"Eiffel Tower\",\n        \"main_text_matched_substrings\": [\n          {\n            \"offset\": 0,\n            \"length\": 12\n          }\n        ],\n        \"secondary_text\": \"Avenue Gustave Eiffel, Paris, France\"\n      },\n      \"terms\": [],\n      \"types\": []\n    },\n    {\n      \"description\": \"Eiffel Tower Bahria Town Lahore, Bahria Town Main Boulevard, Violet Block Bahria Town, Lahore, Pakistan\",\n      \"matched_substrings\": [\n        {}\n      ],\n      \"place_id\": \"ChIJC3WB9DRVGDkRWGruZHovzyc\",\n      \"structured_formatting\": {\n        \"main_text\": \"Eiffel Tower Bahria Town Lahore\",\n        \"main_text_matched_substrings\": [\n          {\n            \"offset\": 0,\n            \"length\": 12\n          }\n        ],\n        \"secondary_text\": \"Bahria Town Main Boulevard, Violet Block Bahria Town, Lahore, Pakistan\"\n      },\n      \"terms\": [],\n      \"types\": []\n    },\n    {\n      \"description\": \"Eiffel Tower, Avenue Anatole France, Paris, France\",\n      \"matched_substrings\": [\n        {}\n      ],\n      \"place_id\": \"ChIJrbS_8-Fv5kcRzSjPvnUT03s\",\n      \"structured_formatting\": {\n        \"main_text\": \"Eiffel Tower\",\n        \"main_text_matched_substrings\": [\n          {\n            \"offset\": 0,\n            \"length\": 12\n          }\n        ],\n        \"secondary_text\": \"Avenue Anatole France, Paris, France\"\n      },\n      \"terms\": [],\n      \"types\": []\n    },\n    {\n      \"description\": \"Eiffel Tower Bahria Town Karachi, Jinnah Avenue, Gadap Town, Karachi, Pakistan\",\n      \"matched_substrings\": [\n        {}\n      ],\n      \"place_id\": \"ChIJ7W-Xb_NNsz4RsjpChLSNq2U\",\n      \"structured_formatting\": {\n        \"main_text\": \"Eiffel Tower Bahria Town Karachi\",\n        \"main_text_matched_substrings\": [\n          {\n            \"offset\": 0,\n            \"length\": 12\n          }\n        ],\n        \"secondary_text\": \"Jinnah Avenue, Gadap Town, Karachi, Pakistan\"\n      },\n      \"terms\": [],\n      \"types\": []\n    },\n    {\n      \"description\": \"Eiffel Tower Viewing Deck, Las Vegas Boulevard South, Las Vegas, NV\",\n      \"matched_substrings\": [\n        {}\n      ],\n      \"place_id\": \"ChIJkygHlzDEyIARoHunOxES-Eo\",\n      \"structured_formatting\": {\n        \"main_text\": \"Eiffel Tower Viewing Deck\",\n        \"main_text_matched_substrings\": [\n          {\n            \"offset\": 0,\n            \"length\": 12\n          }\n        ],\n        \"secondary_text\": \"Las Vegas Boulevard South, Las Vegas, NV\"\n      },\n      \"terms\": [],\n      \"types\": []\n    },\n    {\n      \"canSeeOnMap\": true,\n      \"icon\": null,\n      \"input\": \"Eiffel Tower\",\n      \"inputTextHighlights\": [],\n      \"secondaryText\": null,\n      \"seeLocations\": false,\n      \"type\": \"search\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "places autocomplete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "places card",
+      "kind": "help",
+      "args": [
+        "places",
+        "card",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get rich place details and card data\n\nUsage:\n  wanderlog-pp-cli places card [flags]\n\nExamples:\n  wanderlog-pp-cli places card --place-id ChIJLU7jZClu5kcR4PcOOO6p3I0 --language en --agent\n\nFlags:\n  -h, --help              help for card\n      --language string   Language code (default \"en\")\n      --place-id string   Place id\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "places card",
+      "kind": "happy_path",
+      "args": [
+        "places",
+        "card",
+        "--place-id",
+        "ChIJLU7jZClu5kcR4PcOOO6p3I0",
+        "--language",
+        "en",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"cardData\":{\"assistantQuestions\":[\"Is there an entrance fee?\",\"What are the opening hours?\",\"Is it wheelchair accessible?\",\"Are guided tours available?\",\"What's the best time to visit?\",\"Are there restaurants nearby?\"],\"bookingInformation\":{\"priceInfo\":[{\"description\":\"Eiffel Tower\",\"descriptionTags\":null,\"price\":null,\"source\":{\"isOfficialWebsite\":false,\"linkToBooking\":null,\"siteId\":null},\"title\":\"Free admission\"}],\"type\":\"admission\"},\"menuItems\":[],\"name\":\"\u003credacted\u003e\",\"placeId\":\"ChIJLU7jZClu5kcR4PcOOO6p3I0\",\"reasonsToVisit\":[\"Witness breathtaking panoramic views of Paris from different levels of the tower\",\"Experience the magical atmosphere of the Eiffel Tower, especially during nighttime with dazzling lights\",\"Explore historical significance and engineering marvel of one of the world's most iconic monuments\"],\"reviewCategories\":[],\"reviews\":[{\"rank\":1,\"rating\":5,\"reviewId\":\"Ci9DQUlRQUNvZENodHljRjlvT21KeVRqaFFTSE5tTm5wc01XbE1NRE5MTm5WNVpGRRAB\",\"reviewText\":\"It doesn’t feel like a real trip to Paris if you don’t visit the Eiffel Tower. It’s truly one of the world’s most iconic architectural landmarks and something everyone should see at least once in their lifetime.\\n\\nThe tower is beautiful both during the day and at night. In the daytime, you can really admire its structure and design. it’s amazing to think how engineers were able to build something like this so long ago. At night, the atmosphere completely changes, especially when the tower starts sparkling. It feels magical.\\n\\nWe decided to go up inside the tower, and it was a totally different experience seeing the Eiffel Tower from above. You get an incredible 360-degree view of Paris. If you’re afraid of heights or don’t want to climb the stairs, don’t worry, there’s a large elevator that takes many people at once.\\n\\nAn unforgettable experience and absolutely a must-visit in Paris.\",\"reviewerName\":\"A Oki\",\"time\":\"2026-02-13T09:12:29.000Z\"},{\"rank\":1,\"rating\":5,\"reviewId\":\"Ci9DQUlRQUNvZENodHljRjlvT2xwTVpXOVhhbFIyZFdKVFYyeFBNVlJxVW1KMVNHYxAB\",\"reviewText\":\"This is an iconic landmark in Paris so there is not much bro say about it, other than it is well worth it. The view from the top is just jaw dropping and I was lucky enough to enjoy a beautiful sunset during winter time. On the top there's a part covered with a security glass and on top, the one with a protection. But the metal will appear on your pictures so the best one you'll get them from the glass/metal deck. You can see all the \\\"arrondissements\\\" that form this amazing city. I advise you to buy the tickets months before and at the official website.\",\"reviewerName\":\"Diego Onomátor Rodriguez\",\"time\":\"2026-03-07T19:27:59.000Z\"},{\"rank\":1,\"rating\":5,\"reviewId\":\"Ci9DQUlRQUNvZENodHljRjlvT25Oa1lXMVhaVjlMUm01M1NGZ3hlR2h0U1UxblFrRRAB\",\"reviewText\":\"The Eiffel Tower is one of the most iconic landmarks in the world and an absolute must-see when visiting Paris. The impressive iron structure looks even more spectacular in person than in photos. Whether you admire it from the park, walk around its base, or visit the viewing platforms, the experience is truly unforgettable.\\n\\nEspecially at night, when the tower is illuminated, the atmosphere becomes magical. At every full hour, the Eiffel Tower sparkles with golden lights for about six minutes, creating a breathtaking view that looks like the entire tower is glittering. It’s a beautiful moment and perfect for unforgettable photos and videos.\",\"reviewerName\":\"Guido Bertram\",\"time\":\"2026-03-07T12:26:11.000Z\"},{\"rank\":2,\"rating\":5,\"reviewId\":\"Ci9DQUlRQUNvZENodHljRjlvT2s5WE1UVnBVRlJuWkRKZlUxUmFZbVY2VW04MmNXYxAB\",\"reviewText\":\"I visited Paris about 10 years ago with only a very limited time to see this iconic structure. My visit this time was less constrained and I had the opportunity to spend lots of time to see the Eiffel tower both day and night. Millions of visitors have marveled at the tower since it was erected in 1889 and for good reason - it is an astonishingly beautiful and captivating work of artist…[truncated]"
+    },
+    {
+      "command": "places card",
+      "kind": "json_fidelity",
+      "args": [
+        "places",
+        "card",
+        "--place-id",
+        "ChIJLU7jZClu5kcR4PcOOO6p3I0",
+        "--language",
+        "en",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"cardData\":{\"assistantQuestions\":[\"Is there an entrance fee?\",\"What are the opening hours?\",\"Is it wheelchair accessible?\",\"Are guided tours available?\",\"What's the best time to visit?\",\"Are there restaurants nearby?\"],\"bookingInformation\":{\"priceInfo\":[{\"description\":\"Eiffel Tower\",\"descriptionTags\":null,\"price\":null,\"source\":{\"isOfficialWebsite\":false,\"linkToBooking\":null,\"siteId\":null},\"title\":\"Free admission\"}],\"type\":\"admission\"},\"menuItems\":[],\"name\":\"\u003credacted\u003e\",\"placeId\":\"ChIJLU7jZClu5kcR4PcOOO6p3I0\",\"reasonsToVisit\":[\"Witness breathtaking panoramic views of Paris from different levels of the tower\",\"Experience the magical atmosphere of the Eiffel Tower, especially during nighttime with dazzling lights\",\"Explore historical significance and engineering marvel of one of the world's most iconic monuments\"],\"reviewCategories\":[],\"reviews\":[{\"rank\":1,\"rating\":5,\"reviewId\":\"Ci9DQUlRQUNvZENodHljRjlvT21KeVRqaFFTSE5tTm5wc01XbE1NRE5MTm5WNVpGRRAB\",\"reviewText\":\"It doesn’t feel like a real trip to Paris if you don’t visit the Eiffel Tower. It’s truly one of the world’s most iconic architectural landmarks and something everyone should see at least once in their lifetime.\\n\\nThe tower is beautiful both during the day and at night. In the daytime, you can really admire its structure and design. it’s amazing to think how engineers were able to build something like this so long ago. At night, the atmosphere completely changes, especially when the tower starts sparkling. It feels magical.\\n\\nWe decided to go up inside the tower, and it was a totally different experience seeing the Eiffel Tower from above. You get an incredible 360-degree view of Paris. If you’re afraid of heights or don’t want to climb the stairs, don’t worry, there’s a large elevator that takes many people at once.\\n\\nAn unforgettable experience and absolutely a must-visit in Paris.\",\"reviewerName\":\"A Oki\",\"time\":\"2026-02-13T09:12:29.000Z\"},{\"rank\":1,\"rating\":5,\"reviewId\":\"Ci9DQUlRQUNvZENodHljRjlvT2xwTVpXOVhhbFIyZFdKVFYyeFBNVlJxVW1KMVNHYxAB\",\"reviewText\":\"This is an iconic landmark in Paris so there is not much bro say about it, other than it is well worth it. The view from the top is just jaw dropping and I was lucky enough to enjoy a beautiful sunset during winter time. On the top there's a part covered with a security glass and on top, the one with a protection. But the metal will appear on your pictures so the best one you'll get them from the glass/metal deck. You can see all the \\\"arrondissements\\\" that form this amazing city. I advise you to buy the tickets months before and at the official website.\",\"reviewerName\":\"Diego Onomátor Rodriguez\",\"time\":\"2026-03-07T19:27:59.000Z\"},{\"rank\":1,\"rating\":5,\"reviewId\":\"Ci9DQUlRQUNvZENodHljRjlvT25Oa1lXMVhaVjlMUm01M1NGZ3hlR2h0U1UxblFrRRAB\",\"reviewText\":\"The Eiffel Tower is one of the most iconic landmarks in the world and an absolute must-see when visiting Paris. The impressive iron structure looks even more spectacular in person than in photos. Whether you admire it from the park, walk around its base, or visit the viewing platforms, the experience is truly unforgettable.\\n\\nEspecially at night, when the tower is illuminated, the atmosphere becomes magical. At every full hour, the Eiffel Tower sparkles with golden lights for about six minutes, creating a breathtaking view that looks like the entire tower is glittering. It’s a beautiful moment and perfect for unforgettable photos and videos.\",\"reviewerName\":\"Guido Bertram\",\"time\":\"2026-03-07T12:26:11.000Z\"},{\"rank\":2,\"rating\":5,\"reviewId\":\"Ci9DQUlRQUNvZENodHljRjlvT2s5WE1UVnBVRlJuWkRKZlUxUmFZbVY2VW04MmNXYxAB\",\"reviewText\":\"I visited Paris about 10 years ago with only a very limited time to see this iconic structure. My visit this time was less constrained and I had the opportunity to spend lots of time to see the Eiffel tower both day and night. Millions of visitors have marveled at the tower since it was erected in 1889 and for good reason - it is an astonishingly beautiful and captivating work of artist…[truncated]"
+    },
+    {
+      "command": "places card",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "places details",
+      "kind": "help",
+      "args": [
+        "places",
+        "details",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get details for a Google/Wanderlog place id\n\nUsage:\n  wanderlog-pp-cli places details [flags]\n\nExamples:\n  wanderlog-pp-cli places details --place-id ChIJLU7jZClu5kcR4PcOOO6p3I0 --language en --agent\n\nFlags:\n  -h, --help              help for details\n      --language string   Language code (default \"en\")\n      --place-id string   Place id\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "places details",
+      "kind": "happy_path",
+      "args": [
+        "places",
+        "details",
+        "--place-id",
+        "ChIJLU7jZClu5kcR4PcOOO6p3I0",
+        "--language",
+        "en",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"address_components\":[{\"long_name\":\"Paris\",\"short_name\":\"Paris\",\"types\":[\"locality\",\"political\"]},{\"long_name\":\"France\",\"short_name\":\"FR\",\"types\":[\"country\",\"political\"]}],\"business_status\":\"OPERATIONAL\",\"formatted_address\":\"Av. Gustave Eiffel, 75007 Paris, France\",\"geometry\":{\"location\":{\"lat\":48.858370099999995,\"lng\":2.2944812999999997}},\"name\":\"\u003credacted\u003e\",\"opening_hours\":{\"periods\":[{\"close\":{\"day\":1,\"time\":\"0000\"},\"open\":{\"day\":0,\"time\":\"0900\"}},{\"close\":{\"day\":2,\"time\":\"0000\"},\"open\":{\"day\":1,\"time\":\"0900\"}},{\"close\":{\"day\":3,\"time\":\"0000\"},\"open\":{\"day\":2,\"time\":\"0900\"}},{\"close\":{\"day\":4,\"time\":\"0000\"},\"open\":{\"day\":3,\"time\":\"0900\"}},{\"close\":{\"day\":5,\"time\":\"0000\"},\"open\":{\"day\":4,\"time\":\"0900\"}},{\"close\":{\"day\":6,\"time\":\"0000\"},\"open\":{\"day\":5,\"time\":\"0900\"}},{\"close\":{\"day\":0,\"time\":\"0000\"},\"open\":{\"day\":6,\"time\":\"0900\"}}],\"weekday_text\":[\"Monday: 9 AM–12 AM\",\"Tuesday: 9 AM–12 AM\",\"Wednesday: 9 AM–12 AM\",\"Thursday: 9 AM–12 AM\",\"Friday: 9 AM–12 AM\",\"Saturday: 9 AM–12 AM\",\"Sunday: 9 AM–12 AM\"]},\"photo_urls\":[\"https://lh3.googleusercontent.com/gps-cs-s/AHRPTWmCzpX1XrQcPrcaXILHDS_GgdPlcdLoEaMJZ50IDXBFklKrjv3pCIaiXQoAC7DZ2i0hLS1XLk8FgUpbkTkItNt91SmepzxzPz8_u_QjuA9nG9ENtkYMAVqZhRJOvgRiZK8LBSMefw\",\"https://lh3.googleusercontent.com/gps-cs-s/AHRPTWnFNmc5a27p57t7W8E4N6E5OWpULFVL5jpVllBOtdHD30wUDokPwvTKhzngKUFCo3V_yJL4R-OeA4M42KJwcz-abd4ojDWMSTkft5FwoU0fZa883Pc2RmYN8YdApiMWrWDEYUv3yIXHoFnD\"],\"place_id\":\"ChIJLU7jZClu5kcR4PcOOO6p3I0\",\"rating\":4.7,\"types\":[\"historical_landmark\",\"monument\",\"tourist_attraction\"],\"url\":\"https://maps.google.com/?ftid=0x47e66e2964e34e2d:0x8ddca9ee380ef7e0\",\"user_ratings_total\":493421,\"vicinity\":\"Av. Gustave Eiffel, Paris\",\"website\":\"https://www.toureiffel.paris/fr\"},\"success\":true}}warning: 1/1 places items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "places details",
+      "kind": "json_fidelity",
+      "args": [
+        "places",
+        "details",
+        "--place-id",
+        "ChIJLU7jZClu5kcR4PcOOO6p3I0",
+        "--language",
+        "en",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"address_components\":[{\"long_name\":\"Paris\",\"short_name\":\"Paris\",\"types\":[\"locality\",\"political\"]},{\"long_name\":\"France\",\"short_name\":\"FR\",\"types\":[\"country\",\"political\"]}],\"business_status\":\"OPERATIONAL\",\"formatted_address\":\"Av. Gustave Eiffel, 75007 Paris, France\",\"geometry\":{\"location\":{\"lat\":48.858370099999995,\"lng\":2.2944812999999997}},\"name\":\"\u003credacted\u003e\",\"opening_hours\":{\"periods\":[{\"close\":{\"day\":1,\"time\":\"0000\"},\"open\":{\"day\":0,\"time\":\"0900\"}},{\"close\":{\"day\":2,\"time\":\"0000\"},\"open\":{\"day\":1,\"time\":\"0900\"}},{\"close\":{\"day\":3,\"time\":\"0000\"},\"open\":{\"day\":2,\"time\":\"0900\"}},{\"close\":{\"day\":4,\"time\":\"0000\"},\"open\":{\"day\":3,\"time\":\"0900\"}},{\"close\":{\"day\":5,\"time\":\"0000\"},\"open\":{\"day\":4,\"time\":\"0900\"}},{\"close\":{\"day\":6,\"time\":\"0000\"},\"open\":{\"day\":5,\"time\":\"0900\"}},{\"close\":{\"day\":0,\"time\":\"0000\"},\"open\":{\"day\":6,\"time\":\"0900\"}}],\"weekday_text\":[\"Monday: 9 AM–12 AM\",\"Tuesday: 9 AM–12 AM\",\"Wednesday: 9 AM–12 AM\",\"Thursday: 9 AM–12 AM\",\"Friday: 9 AM–12 AM\",\"Saturday: 9 AM–12 AM\",\"Sunday: 9 AM–12 AM\"]},\"photo_urls\":[\"https://lh3.googleusercontent.com/gps-cs-s/AHRPTWmCzpX1XrQcPrcaXILHDS_GgdPlcdLoEaMJZ50IDXBFklKrjv3pCIaiXQoAC7DZ2i0hLS1XLk8FgUpbkTkItNt91SmepzxzPz8_u_QjuA9nG9ENtkYMAVqZhRJOvgRiZK8LBSMefw\",\"https://lh3.googleusercontent.com/gps-cs-s/AHRPTWnFNmc5a27p57t7W8E4N6E5OWpULFVL5jpVllBOtdHD30wUDokPwvTKhzngKUFCo3V_yJL4R-OeA4M42KJwcz-abd4ojDWMSTkft5FwoU0fZa883Pc2RmYN8YdApiMWrWDEYUv3yIXHoFnD\"],\"place_id\":\"ChIJLU7jZClu5kcR4PcOOO6p3I0\",\"rating\":4.7,\"types\":[\"historical_landmark\",\"monument\",\"tourist_attraction\"],\"url\":\"https://maps.google.com/?ftid=0x47e66e2964e34e2d:0x8ddca9ee380ef7e0\",\"user_ratings_total\":493421,\"vicinity\":\"Av. Gustave Eiffel, Paris\",\"website\":\"https://www.toureiffel.paris/fr\"},\"success\":true}}warning: 1/1 places items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "places details",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "plan clone",
+      "kind": "help",
+      "args": [
+        "plan",
+        "clone",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Use this command to create a new Wanderlog trip from a shared/public source plan. Do NOT use it to modify an existing trip; use 'plan fill' instead.\n\nUsage:\n  wanderlog-pp-cli plan clone [flags]\n\nExamples:\n  wanderlog-pp-cli plan clone --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --dry-run --agent\n\nFlags:\n      --apply                       Create and fill the target trip; without this, only preview the operation\n      --client-schema-version int   Wanderlog client schema version (default 2)\n      --destination string          Destination override for clone creation (reserved for sources without a geo id)\n      --end-date string             End date override, YYYY-MM-DD\n  -h, --help                        help for clone\n      --privacy string              Target trip privacy: private, friends, or public (default \"private\")\n      --source-key string           Shared/public Wanderlog plan key\n      --source-url string           Shared/public Wanderlog plan URL\n      --start-date string           Start date override, YYYY-MM-DD\n      --title string                Title for the new target trip\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "plan clone",
+      "kind": "happy_path",
+      "args": [
+        "plan",
+        "clone",
+        "--source-url",
+        "https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared",
+        "--dry-run",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"applied\": false,\n  \"apply_requested\": false,\n  \"blocks\": 9,\n  \"command\": \"plan clone\",\n  \"day_sections\": 0,\n  \"dry_run\": true,\n  \"geo_id\": 90759,\n  \"note_blocks\": 1,\n  \"operations\": [\n    \"fetch source plan\",\n    \"create target trip\",\n    \"replace target itinerary via ShareDB\"\n  ],\n  \"place_blocks\": 7,\n  \"resources\": [\n    \"ancestors\",\n    \"currencyRatesUSD\",\n    \"defaultPlacesListsGeo\",\n    \"distancesBetweenPlaces\",\n    \"distancesBetweenPlacesError\",\n    \"exploreCarouselItems\",\n    \"flightUpdates\",\n    \"geo\",\n    \"geos\",\n    \"hotelDeals\",\n    \"liveFlightUpdates\",\n    \"nearby\",\n    \"placeMetadata\",\n    \"sectionRecommendations\",\n    \"stopPolylines\",\n    \"tipsOnLoadResources\",\n    \"topPlace\"\n  ],\n  \"sections\": 8,\n  \"source_key\": \"naertjcoixqrgrfc\",\n  \"source_title\": \"Morocco Travel Guide\",\n  \"source_url\": \"https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared\",\n  \"title\": \"Morocco Travel Guide (copy)\",\n  \"warnings\": [\n    \"global --dry-run set: no trip will be created\"\n  ]\n}\n"
+    },
+    {
+      "command": "plan clone",
+      "kind": "json_fidelity",
+      "args": [
+        "plan",
+        "clone",
+        "--source-url",
+        "https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared",
+        "--dry-run",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"applied\": false,\n  \"apply_requested\": false,\n  \"blocks\": 9,\n  \"command\": \"plan clone\",\n  \"day_sections\": 0,\n  \"dry_run\": true,\n  \"geo_id\": 90759,\n  \"note_blocks\": 1,\n  \"operations\": [\n    \"fetch source plan\",\n    \"create target trip\",\n    \"replace target itinerary via ShareDB\"\n  ],\n  \"place_blocks\": 7,\n  \"resources\": [\n    \"ancestors\",\n    \"currencyRatesUSD\",\n    \"defaultPlacesListsGeo\",\n    \"distancesBetweenPlaces\",\n    \"distancesBetweenPlacesError\",\n    \"exploreCarouselItems\",\n    \"flightUpdates\",\n    \"geo\",\n    \"geos\",\n    \"hotelDeals\",\n    \"liveFlightUpdates\",\n    \"nearby\",\n    \"placeMetadata\",\n    \"sectionRecommendations\",\n    \"stopPolylines\",\n    \"tipsOnLoadResources\",\n    \"topPlace\"\n  ],\n  \"sections\": 8,\n  \"source_key\": \"naertjcoixqrgrfc\",\n  \"source_title\": \"Morocco Travel Guide\",\n  \"source_url\": \"https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared\",\n  \"title\": \"Morocco Travel Guide (copy)\",\n  \"warnings\": [\n    \"global --dry-run set: no trip will be created\"\n  ]\n}\n"
+    },
+    {
+      "command": "plan clone",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "plan clone",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "plan fill",
+      "kind": "help",
+      "args": [
+        "plan",
+        "fill",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Use this command to fill an existing Wanderlog target trip from a shared/public source. Do NOT use it to create a new target trip; use 'plan clone' instead.\n\nUsage:\n  wanderlog-pp-cli plan fill [flags]\n\nExamples:\n  wanderlog-pp-cli plan fill --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --target-key exampletarget --dry-run --agent\n\nFlags:\n      --apply                       Apply the fill operation; without this, only preview the operation\n      --client-schema-version int   Wanderlog client schema version (default 2)\n      --force                       Allow replacing a target trip that already contains blocks\n  -h, --help                        help for fill\n      --mode string                 Fill mode: replace-sections (default \"replace-sections\")\n      --source-key string           Shared/public Wanderlog plan key\n      --source-url string           Shared/public Wanderlog plan URL\n      --target-key string           Existing target Wanderlog trip key\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "plan fill",
+      "kind": "happy_path",
+      "args": [
+        "plan",
+        "fill",
+        "--source-url",
+        "https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared",
+        "--target-key",
+        "exampletarget",
+        "--dry-run",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"applied\": false,\n  \"apply_requested\": false,\n  \"blocks\": 9,\n  \"command\": \"plan fill\",\n  \"day_sections\": 0,\n  \"dry_run\": true,\n  \"geo_id\": 90759,\n  \"mode\": \"replace-sections\",\n  \"note_blocks\": 1,\n  \"operations\": [\n    \"fetch source plan\",\n    \"fetch target trip\",\n    \"replace target itinerary via ShareDB\"\n  ],\n  \"place_blocks\": 7,\n  \"resources\": [\n    \"ancestors\",\n    \"currencyRatesUSD\",\n    \"defaultPlacesListsGeo\",\n    \"distancesBetweenPlaces\",\n    \"distancesBetweenPlacesError\",\n    \"exploreCarouselItems\",\n    \"flightUpdates\",\n    \"geo\",\n    \"geos\",\n    \"hotelDeals\",\n    \"liveFlightUpdates\",\n    \"nearby\",\n    \"placeMetadata\",\n    \"sectionRecommendations\",\n    \"stopPolylines\",\n    \"tipsOnLoadResources\",\n    \"topPlace\"\n  ],\n  \"sections\": 8,\n  \"source_key\": \"naertjcoixqrgrfc\",\n  \"source_title\": \"Morocco Travel Guide\",\n  \"source_url\": \"https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared\",\n  \"target_key\": \"exampletarget\",\n  \"title\": \"Morocco Travel Guide (copy)\"\n}\n"
+    },
+    {
+      "command": "plan fill",
+      "kind": "json_fidelity",
+      "args": [
+        "plan",
+        "fill",
+        "--source-url",
+        "https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared",
+        "--target-key",
+        "exampletarget",
+        "--dry-run",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"applied\": false,\n  \"apply_requested\": false,\n  \"blocks\": 9,\n  \"command\": \"plan fill\",\n  \"day_sections\": 0,\n  \"dry_run\": true,\n  \"geo_id\": 90759,\n  \"mode\": \"replace-sections\",\n  \"note_blocks\": 1,\n  \"operations\": [\n    \"fetch source plan\",\n    \"fetch target trip\",\n    \"replace target itinerary via ShareDB\"\n  ],\n  \"place_blocks\": 7,\n  \"resources\": [\n    \"ancestors\",\n    \"currencyRatesUSD\",\n    \"defaultPlacesListsGeo\",\n    \"distancesBetweenPlaces\",\n    \"distancesBetweenPlacesError\",\n    \"exploreCarouselItems\",\n    \"flightUpdates\",\n    \"geo\",\n    \"geos\",\n    \"hotelDeals\",\n    \"liveFlightUpdates\",\n    \"nearby\",\n    \"placeMetadata\",\n    \"sectionRecommendations\",\n    \"stopPolylines\",\n    \"tipsOnLoadResources\",\n    \"topPlace\"\n  ],\n  \"sections\": 8,\n  \"source_key\": \"naertjcoixqrgrfc\",\n  \"source_title\": \"Morocco Travel Guide\",\n  \"source_url\": \"https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared\",\n  \"target_key\": \"exampletarget\",\n  \"title\": \"Morocco Travel Guide (copy)\"\n}\n"
+    },
+    {
+      "command": "plan fill",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "plan fill",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "plan preview",
+      "kind": "help",
+      "args": [
+        "plan",
+        "preview",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Inspect a shared plan and report dates, sections, blocks, resources, and clone warnings before any write.\n\nUsage:\n  wanderlog-pp-cli plan preview [flags]\n\nExamples:\n  wanderlog-pp-cli plan preview --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent\n\nFlags:\n      --client-schema-version int   Wanderlog client schema version (default 2)\n  -h, --help                        help for preview\n      --source-key string           Shared/public Wanderlog plan key\n      --source-url string           Shared/public Wanderlog plan URL\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "plan preview",
+      "kind": "happy_path",
+      "args": [
+        "plan",
+        "preview",
+        "--source-url",
+        "https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"applied\": false,\n  \"apply_requested\": false,\n  \"blocks\": 9,\n  \"command\": \"plan preview\",\n  \"day_sections\": 0,\n  \"dry_run\": true,\n  \"geo_id\": 90759,\n  \"note_blocks\": 1,\n  \"operations\": [\n    \"read source plan only\"\n  ],\n  \"place_blocks\": 7,\n  \"resources\": [\n    \"ancestors\",\n    \"currencyRatesUSD\",\n    \"defaultPlacesListsGeo\",\n    \"distancesBetweenPlaces\",\n    \"distancesBetweenPlacesError\",\n    \"exploreCarouselItems\",\n    \"flightUpdates\",\n    \"geo\",\n    \"geos\",\n    \"hotelDeals\",\n    \"liveFlightUpdates\",\n    \"nearby\",\n    \"placeMetadata\",\n    \"sectionRecommendations\",\n    \"stopPolylines\",\n    \"tipsOnLoadResources\",\n    \"topPlace\"\n  ],\n  \"sections\": 8,\n  \"source_key\": \"naertjcoixqrgrfc\",\n  \"source_title\": \"Morocco Travel Guide\",\n  \"source_url\": \"https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared\",\n  \"title\": \"Morocco Travel Guide (copy)\"\n}\n"
+    },
+    {
+      "command": "plan preview",
+      "kind": "json_fidelity",
+      "args": [
+        "plan",
+        "preview",
+        "--source-url",
+        "https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"applied\": false,\n  \"apply_requested\": false,\n  \"blocks\": 9,\n  \"command\": \"plan preview\",\n  \"day_sections\": 0,\n  \"dry_run\": true,\n  \"geo_id\": 90759,\n  \"note_blocks\": 1,\n  \"operations\": [\n    \"read source plan only\"\n  ],\n  \"place_blocks\": 7,\n  \"resources\": [\n    \"ancestors\",\n    \"currencyRatesUSD\",\n    \"defaultPlacesListsGeo\",\n    \"distancesBetweenPlaces\",\n    \"distancesBetweenPlacesError\",\n    \"exploreCarouselItems\",\n    \"flightUpdates\",\n    \"geo\",\n    \"geos\",\n    \"hotelDeals\",\n    \"liveFlightUpdates\",\n    \"nearby\",\n    \"placeMetadata\",\n    \"sectionRecommendations\",\n    \"stopPolylines\",\n    \"tipsOnLoadResources\",\n    \"topPlace\"\n  ],\n  \"sections\": 8,\n  \"source_key\": \"naertjcoixqrgrfc\",\n  \"source_title\": \"Morocco Travel Guide\",\n  \"source_url\": \"https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared\",\n  \"title\": \"Morocco Travel Guide (copy)\"\n}\n"
+    },
+    {
+      "command": "plan preview",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  wanderlog-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  wanderlog-pp-cli profile delete my-defaults --yes\n  wanderlog-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  wanderlog-pp-cli profile list [flags]\n\nExamples:\n  wanderlog-pp-cli profile list\n  wanderlog-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  wanderlog-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  wanderlog-pp-cli profile save my-defaults --json --compact\n  wanderlog-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  wanderlog-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  wanderlog-pp-cli profile show my-defaults\n  wanderlog-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  wanderlog-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  wanderlog-pp-cli profile use my-defaults\n  wanderlog-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "session",
+      "kind": "help",
+      "args": [
+        "session",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get current anonymous session preferences\n\nUsage:\n  wanderlog-pp-cli session [flags]\n\nExamples:\n  wanderlog-pp-cli session\n\nFlags:\n  -h, --help   help for session\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "session",
+      "kind": "happy_path",
+      "args": [
+        "session"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"data\": {\n      \"distancePreference\": \"imperial\",\n      \"datePreference\": \"monthDay\",\n      \"timePreference\": \"twelveHour\",\n      \"currencyPreference\": \"SGD\",\n      \"acceptLanguageHeader\": \"en\",\n      \"languagesBasedOnIP\": [\n        \"en\",\n        \"ms\",\n        \"zh\"\n      ],\n      \"globalModalShownAtMs\": 1787505840143,\n      \"attribution\": {},\n      \"experimentsSeen\": {\n        \"Hotel back-end\": \"Kayak Expedia Airbnb and Google\",\n        \"Subscription trial\": \"oneWeek\",\n        \"Subscription pricing\": \"a3999_secret\"\n      },\n      \"userSelectedLocale\": \"en\",\n      \"dismissedLanguageModalMillis\": 1783943286268,\n      \"planPageTooltipTutorialCompleted\": true,\n      \"autoShowSubscribeModalLastSeenTimeMillis\": {\n        \"onAppOpen\": 1785767967025,\n        \"onTripPlanOpenForAttachments\": 1787379315817\n      },\n      \"lastOpenSubscribeModalTimeMillis\": 1787379316059,\n      \"createdTripPlan\": true,\n      \"shareTooltipSeen\": true,\n      \"lastTooltipShownAtMs\": 1787505840193,\n      \"contextualTipsSeenMillis\": {\n        \"packCubes\": 1782035076963,\n        \"transitApps\": 1787383054768,\n        \"weightLuggage\": 1787505840193\n      },\n      \"triedOrDismissedAddReservation\": true,\n      \"madeTenEdits\": true,\n      \"dismissedOpenInAppLargePromoMillis\": 1783943288926,\n      \"contextualTipClickbaitsSeen\": [\n        \"localRideShareApps\",\n        \"weightLuggage\"\n      ]\n    },\n    \"success\": true\n  }\n}\nwarning: 1/1 session items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "session",
+      "kind": "json_fidelity",
+      "args": [
+        "session",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"data\": {\n      \"distancePreference\": \"imperial\",\n      \"datePreference\": \"monthDay\",\n      \"timePreference\": \"twelveHour\",\n      \"currencyPreference\": \"SGD\",\n      \"acceptLanguageHeader\": \"en\",\n      \"languagesBasedOnIP\": [\n        \"en\",\n        \"ms\",\n        \"zh\"\n      ],\n      \"globalModalShownAtMs\": 1787505840143,\n      \"attribution\": {},\n      \"experimentsSeen\": {\n        \"Hotel back-end\": \"Kayak Expedia Airbnb and Google\",\n        \"Subscription trial\": \"oneWeek\",\n        \"Subscription pricing\": \"a3999_secret\"\n      },\n      \"userSelectedLocale\": \"en\",\n      \"dismissedLanguageModalMillis\": 1783943286268,\n      \"planPageTooltipTutorialCompleted\": true,\n      \"autoShowSubscribeModalLastSeenTimeMillis\": {\n        \"onAppOpen\": 1785767967025,\n        \"onTripPlanOpenForAttachments\": 1787379315817\n      },\n      \"lastOpenSubscribeModalTimeMillis\": 1787379316059,\n      \"createdTripPlan\": true,\n      \"shareTooltipSeen\": true,\n      \"lastTooltipShownAtMs\": 1787505840193,\n      \"contextualTipsSeenMillis\": {\n        \"packCubes\": 1782035076963,\n        \"transitApps\": 1787383054768,\n        \"weightLuggage\": 1787505840193\n      },\n      \"triedOrDismissedAddReservation\": true,\n      \"madeTenEdits\": true,\n      \"dismissedOpenInAppLargePromoMillis\": 1783943288926,\n      \"contextualTipClickbaitsSeen\": [\n        \"localRideShareApps\",\n        \"weightLuggage\"\n      ]\n    },\n    \"success\": true\n  }\n}\nwarning: 1/1 session items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "session",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  wanderlog-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  wanderlog-pp-cli sync\n\n  # Sync specific resources only\n  wanderlog-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  wanderlog-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  wanderlog-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  wanderlog-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  wanderlog-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/wanderlog-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, …[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_warning\",\"reason\":\"no_bulk_list_endpoints\",\"detail\":\"no default sync resources in spec; use --resources for explicit sync targets or populate the store via single-fetch commands\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_warning\",\"reason\":\"no_bulk_list_endpoints\",\"detail\":\"no default sync resources in spec; use --resources for explicit sync targets or populate the store via single-fetch commands\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "trips create",
+      "kind": "help",
+      "args": [
+        "trips",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Create a Wanderlog trip for the authenticated account\n\nUsage:\n  wanderlog-pp-cli trips create [flags]\n\nExamples:\n  wanderlog-pp-cli trips create --geo-ids [86696] --title \"Okinawa test trip\" --dry-run\n\nFlags:\n      --end-date string                 Trip end date\n      --geo-ids string                  JSON array of Wanderlog geo ids\n  -h, --help                            help for create\n      --initial-email-id string         Initial email id\n      --initial-maps-place-ids string   JSON array of initial map place ids (default \"[]\")\n      --is-map-embed                    Whether the trip is for a map embed\n      --language string                 Trip language (default \"en\")\n      --privacy string                  Trip privacy (default \"private\")\n      --start-date string               Trip start date\n      --stdin                           Read request body as JSON from stdin\n      --title string                    Trip title\n      --type string                     Trip type (default \"plan\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trips create",
+      "kind": "happy_path",
+      "args": [
+        "trips",
+        "create",
+        "--geo-ids",
+        "[86696]",
+        "--title",
+        "Okinawa test trip",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/api/tripPlans\",\n  \"resource\": \"trips\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://wanderlog.com/api/tripPlans\n  Body:\n{\n    \"geoIds\": [\n      86696\n    ],\n    \"initialMapsPlaceIds\": [],\n    \"language\": \"en\",\n    \"privacy\": \"private\",\n    \"title\": \"Okinawa test trip\",\n    \"type\": \"plan\"\n  }\n  Cookie: ****XOFE\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "trips create",
+      "kind": "json_fidelity",
+      "args": [
+        "trips",
+        "create",
+        "--geo-ids",
+        "[86696]",
+        "--title",
+        "Okinawa test trip",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/api/tripPlans\",\n  \"resource\": \"trips\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://wanderlog.com/api/tripPlans\n  Body:\n{\n    \"geoIds\": [\n      86696\n    ],\n    \"initialMapsPlaceIds\": [],\n    \"language\": \"en\",\n    \"privacy\": \"private\",\n    \"title\": \"Okinawa test trip\",\n    \"type\": \"plan\"\n  }\n  Cookie: ****XOFE\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "trips create",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "trips create",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "trips delete",
+      "kind": "help",
+      "args": [
+        "trips",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Delete an authenticated Wanderlog trip\n\nUsage:\n  wanderlog-pp-cli trips delete \u003ctrip_key\u003e [flags]\n\nExamples:\n  wanderlog-pp-cli trips delete your-token-here\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trips delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"trip_key\" at depth 0"
+    },
+    {
+      "command": "trips delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"trip_key\" at depth 0"
+    },
+    {
+      "command": "trips delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "trips delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"trip_key\" at depth 0"
+    },
+    {
+      "command": "trips get",
+      "kind": "help",
+      "args": [
+        "trips",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get an authenticated trip with resources\n\nUsage:\n  wanderlog-pp-cli trips get \u003ctrip_key\u003e [flags]\n\nExamples:\n  wanderlog-pp-cli trips get your-token-here\n\nFlags:\n      --client-schema-version int   Wanderlog client schema version (default 2)\n  -h, --help                        help for get\n      --register-view               Register a view while fetching (default true)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trips get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"trip_key\" at depth 0"
+    },
+    {
+      "command": "trips get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"trip_key\" at depth 0"
+    },
+    {
+      "command": "trips get",
+      "kind": "error_path",
+      "args": [
+        "trips",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: Couldn't fetch keyInfo for key __printing_press_invalid__\n"
+    },
+    {
+      "command": "trips home",
+      "kind": "help",
+      "args": [
+        "trips",
+        "home",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List home trips for the authenticated Wanderlog account\n\nUsage:\n  wanderlog-pp-cli trips home [flags]\n\nExamples:\n  wanderlog-pp-cli trips home\n\nFlags:\n  -h, --help   help for home\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trips home",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"cookie\""
+    },
+    {
+      "command": "trips home",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"cookie\""
+    },
+    {
+      "command": "trips home",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"cookie\""
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  wanderlog-pp-cli which [query] [flags]\n\nExamples:\n  wanderlog-pp-cli which \"stale tickets\"\n  wanderlog-pp-cli which \"bottleneck\"\n  wanderlog-pp-cli which --limit 1 \"send message\"\n  wanderlog-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  wanderlog-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  wanderlog-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  wanderlog-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/wanderlog-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "Archived 0 items across 0 resources to /var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/printing-press-subprocess-191772156/.local/share/wanderlog-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 0,\n  \"store_path\": \"/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/printing-press-subprocess-191772156/.local/share/wanderlog-pp-cli/data.db\",\n  \"timestamp\": \"2026-08-23T18:10:49Z\",\n  \"total_items\": 0\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  wanderlog-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  wanderlog-pp-cli workflow status\n\n  # Show status as JSON\n  wanderlog-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wanderlog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  geos                           30 items\n  places                         5 items\n\n  Total: 35 items\n  Store: /var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/printing-press-subprocess-191772156/.local/share/wanderlog-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"geos\": 30,\n  \"places\": 5\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-08-23T18:10:29.698003Z"
+}

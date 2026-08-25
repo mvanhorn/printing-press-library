@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-avvisi-data-e-sede",
+  "applied_at": "2026-08-18",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Due avvisi nuovi, in internal/cli/avvisi.go come funzioni pure: notaDataDepositoAssente dichiara che la ricerca non porta la data di deposito e dove si ottiene (chiamata da runRicerca, solo su stderr); avvisoGruppoTroncato sostituisce il messaggio inline di stats e, quando --by contiene sede, aggiunge che il taglio non e' solo parziale ma distorto e che --sede-sweep legge i totali dichiarati. Nella descrizione del tool MCP provvedimenti_cerca e' detto che data_deposito arriva vuota su ogni riga e che si ottiene con provvedimenti_get o corpus_build, e che il risultato e' {count, items, avvisi} invece dell'array nudo quando la CLI emette avvisi.",
+  "reason": "Il portale non espone la data di deposito nell'indice di ricerca -- verificato sull'HTML dei risultati, dove non compare in alcun formato, quindi non e' un campo che il parser trascura. Il campo usciva vuoto senza spiegazione: si legge come 'questo provvedimento non ha data' invece che come un limite dell'endpoint, e per ordinare 22 pronunce per data servivano 22 get, cioe' 22 documenti interi scaricati per una colonna. Osservato dal vivo dentro Claude Desktop, dove il modello ci e' arrivato per tentativi dopo tre chiamate. Stessa forma per stats --by sede senza --sede-sweep: l'ordine del portale e' proprio quello delle sedi, quindi le prime si riempiono e le ultime mancano -- misurato, Roma 29 contro le 65 dichiarate e Brescia 4 contro 11, mentre le sedi piccole coincidono. L'avviso esistente diceva solo che il campione era finito prima del totale.",
+  "files": [
+    "internal/cli/avvisi.go",
+    "internal/cli/avvisi_test.go",
+    "internal/cli/ga_core.go",
+    "internal/cli/stats.go",
+    "internal/mcp/tools.go",
+    "docs/limiti-della-fonte.md"
+  ],
+  "validated_outcome": "go build/test verdi. La nota viaggia solo su stderr: fra gli avvisi dell'envelope avrebbe fatto scattare l'incapsulamento su ogni ricerca -- e' una proprieta' costante dell'endpoint, non un risultato parziale -- cancellando l'array nudo di --json per tutti (misurato: type da array a object). Il client MCP la riceve comunque, perche' warningsFromStderr raccoglie le righe con prefisso 'Nota: '. Verifica live: ricerca completa -> array len=1 con nota su stderr; sweep -> envelope con 2 avvisi, senza la nota. Dopo la review della PR #1756: l'avviso sullo sweep si emette solo per --by sede esatto (su sede,anno stats conta comunque le righe del campione), la descrizione del tool dichiara la forma reale del risultato perche' MergeDiagnostics avvolge un array appena c'e' un avviso, e runGASearch/runGAGet usano emitSkip come gli altri comandi. Collaudo live: 87 test, 0 falliti."
+}

@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-05-27T01:04:17.985423Z",
+  "cli_dir": "\u003ccli-dir\u003e/authentik",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 334,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; 'Print version' is the canonical acceptable thin-short example cited in tools-polish.md — brief, precise, unambiguous to both humans and agents"
+    }
+  ]
+}

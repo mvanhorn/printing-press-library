@@ -1,0 +1,909 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://wanderlog.com",
+    "captured_at": "2026-06-19T01:58:28.807Z",
+    "entry_count": 16,
+    "api_entry_count": 12,
+    "noise_entry_count": 4,
+    "host_distribution": {
+      "wanderlog.com": 16
+    }
+  },
+  "reachability": {
+    "mode": "browser_http",
+    "confidence": 0.78,
+    "reasons": [
+      "bot-protection signals observed; use browser-like HTTP transport"
+    ],
+    "evidence": [
+      {
+        "entry_index": 15,
+        "method": "GET",
+        "host": "wanderlog.com",
+        "path": "/view/uzyvvtuwtc/paris-5-day-tourist-itinerary-recommendations/shared",
+        "status": 200,
+        "content_type": "text/html; charset=utf-8",
+        "reason": "PerimeterX marker"
+      }
+    ]
+  },
+  "protocols": [
+    {
+      "label": "ssr_embedded_data",
+      "confidence": 0.85,
+      "evidence": [
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/user/following/list",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "HTML contains embedded structured data"
+        }
+      ],
+      "details": {
+        "signature": "application/ld+json"
+      }
+    },
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/sessionStore",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/user/autocomplete/",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/geo/autocomplete/Paris",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesList/geoCategory/104643",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesAPI/getPlaceDetailsAndCardData",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesAPI/getPlaceDetailsAndCardData",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesAPI/getPlaceDetailsAndCardData",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesAPI/getPlaceDetailsAndCardData",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesAPI/getPlaceDetailsAndCardData",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/tripPlans/uzyvvtuwtc/comments",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/tripPlans/uzyvvtuwtc/distinction",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/tripPlans/likes",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    },
+    {
+      "label": "html_scrape",
+      "confidence": 0.55,
+      "evidence": [
+        {
+          "entry_index": 13,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/explore/9614/paris",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 14,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/list/geoCategory/104643/top-things-to-do-and-attractions-in-paris",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 15,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/view/uzyvvtuwtc/paris-5-day-tourist-itinerary-recommendations/shared",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "HTML response observed"
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "none",
+        "confidence": 0.95
+      }
+    ]
+  },
+  "protections": [
+    {
+      "label": "perimeterx",
+      "confidence": 0.8,
+      "evidence": [
+        {
+          "entry_index": 15,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/view/uzyvvtuwtc/paris-5-day-tourist-itinerary-recommendations/shared",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "PerimeterX marker"
+        }
+      ]
+    }
+  ],
+  "endpoint_clusters": [
+    {
+      "host": "wanderlog.com",
+      "method": "GET",
+      "path": "/api/geo/autocomplete/Paris",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "data",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/geo/autocomplete/Paris",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "wanderlog.com",
+      "method": "GET",
+      "path": "/api/placesAPI/{placesapi_id}",
+      "count": 5,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "data",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesAPI/getPlaceDetailsAndCardData",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesAPI/getPlaceDetailsAndCardData",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesAPI/getPlaceDetailsAndCardData",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesAPI/getPlaceDetailsAndCardData",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesAPI/getPlaceDetailsAndCardData",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "wanderlog.com",
+      "method": "GET",
+      "path": "/api/placesList/geoCategory/{geocategory_id}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "large",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "data",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesList/geoCategory/104643",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "wanderlog.com",
+      "method": "GET",
+      "path": "/api/sessionStore",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "data",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/sessionStore",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "wanderlog.com",
+      "method": "GET",
+      "path": "/api/tripPlans/likes",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "errTypes",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "error",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "messages",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/tripPlans/likes",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "wanderlog.com",
+      "method": "GET",
+      "path": "/api/tripPlans/uzyvvtuwtc/comments",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "data",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/tripPlans/uzyvvtuwtc/comments",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "wanderlog.com",
+      "method": "GET",
+      "path": "/api/tripPlans/uzyvvtuwtc/distinction",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "data",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/tripPlans/uzyvvtuwtc/distinction",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "wanderlog.com",
+      "method": "GET",
+      "path": "/api/user/autocomplete/",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "data",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/user/autocomplete/",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "request_sequences": [
+    {
+      "label": "observed_api_flow",
+      "confidence": 0.35,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/sessionStore",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/user/autocomplete/",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/geo/autocomplete/Paris",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesList/geoCategory/104643",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesAPI/getPlaceDetailsAndCardData",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesAPI/getPlaceDetailsAndCardData",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesAPI/getPlaceDetailsAndCardData",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesAPI/getPlaceDetailsAndCardData",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        }
+      ],
+      "notes": [
+        "Capture order used; timing unavailable."
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "get_geoCategory",
+      "resource": "geoCategory",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/placesList/geoCategory/{geocategory_id} traffic.",
+      "evidence": [
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesList/geoCategory/104643",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_placesAPI",
+      "resource": "placesAPI",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/placesAPI/{placesapi_id} traffic.",
+      "evidence": [
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesAPI/getPlaceDetailsAndCardData",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesAPI/getPlaceDetailsAndCardData",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesAPI/getPlaceDetailsAndCardData",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesAPI/getPlaceDetailsAndCardData",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/placesAPI/getPlaceDetailsAndCardData",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_Paris",
+      "resource": "Paris",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/geo/autocomplete/Paris traffic.",
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/geo/autocomplete/Paris",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_autocomplete",
+      "resource": "autocomplete",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/user/autocomplete/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/user/autocomplete/",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_comments",
+      "resource": "comments",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/tripPlans/uzyvvtuwtc/comments traffic.",
+      "evidence": [
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/tripPlans/uzyvvtuwtc/comments",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_distinction",
+      "resource": "distinction",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/tripPlans/uzyvvtuwtc/distinction traffic.",
+      "evidence": [
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/tripPlans/uzyvvtuwtc/distinction",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_likes",
+      "resource": "likes",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/tripPlans/likes traffic.",
+      "evidence": [
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/tripPlans/likes",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_sessionStore",
+      "resource": "sessionStore",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/sessionStore traffic.",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/sessionStore",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "generation_hints": [
+    "browser_http_transport",
+    "requires_protected_client"
+  ],
+  "warnings": [
+    {
+      "type": "html_challenge_page",
+      "message": "API-looking request returned an HTML login, challenge, or access-denied page.",
+      "confidence": 0.82,
+      "evidence": [
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "wanderlog.com",
+          "path": "/api/user/following/list",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "HTML challenge from API-looking request"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "google-trends-empty-result-exit-codes",
+  "applied_at": "2026-07-13",
+  "base_run_id": "20260713-105453-29114a9d",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Made trends interest/related/region/changes/opportunities/seasonality return notFoundErr (exit 3) instead of exit 0 when a live/local query genuinely has no data, distinct from a query that succeeds with real results.",
+  "reason": "Live dogfood's error-path check expects a non-zero exit for a garbage keyword argument on non-search-verb commands. Google Trends keyword search has no concept of an 'invalid keyword' -- any string is a valid search term -- so the fix is not to reject input, but to distinguish 'queried successfully, zero data points' from 'queried successfully, got real data' via exit code (the same convention grep/ripgrep use for no-matches). trends region needed a different signal than empty output: Google's comparedgeo response always covers every geo in scope even for a nonsense keyword, with relative-scaled noise producing misleading non-zero 'peak' values (e.g. Paraguay:100 for a garbage keyword) -- so region additionally fetches the TIMESERIES widget from the same explore() call and uses its emptiness as the reliable 'no real data' signal instead of the region values themselves.",
+  "files": [
+    "internal/cli/trends_interest.go",
+    "internal/cli/trends_related.go",
+    "internal/cli/trends_region.go",
+    "internal/cli/trends_changes.go",
+    "internal/cli/trends_opportunities.go",
+    "internal/cli/trends_seasonality.go"
+  ],
+  "validated_outcome": "Live dogfood full matrix: 65/65 tests pass (up from 59/65). Manually confirmed both directions: trends interest/region coffee still exit 0 with real data; trends interest/region __printing_press_invalid__ now exit 3 with a clear message.",
+  "upstream_issue": null
+}

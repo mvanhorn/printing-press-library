@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "qsys",
+  "cli_name": "qsys-pp-cli",
+  "version": "2026.8.4",
+  "released_at": "2026-08-25T09:33:25Z",
+  "source_commit": "23e5f868854e23f1faede224f759215c0f6ce036",
+  "printing_press_version": "4.31.1",
+  "run_id": "20260824-192635-14fb8c13",
+  "changes": [
+    {
+      "title": "feat(qsys): reprint under press 4.31.1 — support.qsys.com source, bom risks/fault/qds, SIGBUS honesty",
+      "pr": 1808,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1808",
+      "commit": "23e5f868854e23f1faede224f759215c0f6ce036"
+    }
+  ]
+}

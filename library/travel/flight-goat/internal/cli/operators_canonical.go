@@ -9,8 +9,10 @@ import (
 
 func newOperatorsCanonicalCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "canonical",
-		Short: "Manage canonical",
+		Use:         "canonical",
+		Short:       "Get canonical for operators",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newOperatorsCanonicalGetOperatorsCmd(flags))

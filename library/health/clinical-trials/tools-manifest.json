@@ -1,0 +1,319 @@
+{
+  "api_name": "clinical-trials",
+  "base_url": "https://clinicaltrials.gov/api/v2",
+  "description": "This API is made available to provide users meta data, statistics, and the most recent version of the clinical trials available on ClinicalTrials.gov.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "clinicaltrials-gov-version_version",
+      "description": "API and data versions. API version follows [Semantic Versioning 2.0.0 Schema](https://semver.org/spec/v2.0.0.html). Data version is UTC timestamp in `yyyy-MM-dd'T'HH:mm:ss` format. Returns the Version.",
+      "method": "GET",
+      "path": "/version",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "stats_field-values",
+      "description": "Value statistics of the study leaf fields. Optional: types (default: []), fields. Returns array of FieldValuesStats.",
+      "method": "GET",
+      "path": "/stats/field/values",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "types",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by field types"
+        },
+        {
+          "name": "fields",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by piece names or field paths of leaf fields. See [Data Structure](/data-api/about-api/study-data-structure) for the available values. If specified, must be non-empty comma- or pipe-separated list of fields to return."
+        }
+      ]
+    },
+    {
+      "name": "stats_list-field-sizes",
+      "description": "Sizes of list/array fields. To search studies by a list field size, use `AREA[FieldName:size]` search operator. For example, [AREA[Phase:size] 2](https://clinicaltrials.gov/search?term=AREA%5BPhase:size%5D%202) query finds studies with 2 phases. Optional: fields. Returns array of ListSizes.",
+      "method": "GET",
+      "path": "/stats/field/sizes",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "fields",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by piece names or field paths of leaf fields. See [Data Structure](/data-api/about-api/study-data-structure) for the available values. If specified, must be non-empty comma- or pipe-separated list of fields to return. If unspecified, all available stats will be returned."
+        }
+      ]
+    },
+    {
+      "name": "stats_size",
+      "description": "Statistics of study JSON sizes. Returns the GzipStats.",
+      "method": "GET",
+      "path": "/stats/size",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "studies_enums",
+      "description": "Returns enumeration types and their values. Every item of the returning array represents enum type and contains the following properties: * `type` - enum type name * `pieces` - array of names of all data pieces having the enum type * `values` - all available values of the enum; every item contains the following properties: * `value` - data value * `legacyValue` - data value in legacy API * `exceptions` - map from data piece name to legacy value when different from `legacyValue` (some data pieces had special enum values in legacy API).",
+      "method": "GET",
+      "path": "/studies/enums",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "studies_fetch-study",
+      "description": "Returns data of a single study. Required: nctId. Optional: format (default: json), markupFormat (default: markdown), fields.",
+      "method": "GET",
+      "path": "/studies/{nctId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "nctId",
+          "type": "string",
+          "location": "path",
+          "description": "NCT Number of a study. If found in [NCTIdAlias](data-api/about-api/study-data-structure#NCTIdAlias) field, 301 HTTP redirect to the actual study will be returned.",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Must be one of the following: * `csv`- return CSV table; available fields are listed on [CSV Download](/data-api/about-api/csv-download) * `json`- return JSON object; format of `markup` fields depends on `markupFormat` parameter * `json.zip`- put JSON object into a .json file and download it as zip archive; field values of type `markup` are in [markdown](https://spec.commonmark.org/0.28/) format * `fhir.json` - return FHIR JSON; fields are not customizable; see [Access Data in FHIR](/data-api/fhir) * `ris`- return RIS record; available tags are listed on [RIS Download](/data-api/about-api/ris-download)"
+        },
+        {
+          "name": "markupFormat",
+          "type": "string",
+          "location": "query",
+          "description": "Format of `markup` type fields: * `markdown`- [markdown](https://spec.commonmark.org/0.28/) format * `legacy`- compatible with classic PRS Applicable only to `json` format."
+        },
+        {
+          "name": "fields",
+          "type": "array",
+          "location": "query",
+          "description": "If specified, must be non-empty comma- or pipe-separated list of fields to return. If unspecified, all fields will be returned. Order of the fields does not matter. For `csv` format, specify list of columns. The column names are available on [CSV Download](/data-api/about-api/csv-download). For `json` and `json.zip` formats, every list item is either area name, piece name, or field name. If a piece or a field is a branch node, all descendant fields will be included. All area names are available on [Search Areas](/data-api/about-api/search-areas), the piece and field names - on [Data Structure](/data-api/about-api/study-data-structure) and also can be retrieved at `/studies/metadata` endpoint. For `fhir.json` format, all available fields are returned and this parameter must be unspecified. For `ris` format, specify list of tags. The tag names are available on [RIS Download](/data-api/about-api/ris-download)."
+        }
+      ]
+    },
+    {
+      "name": "studies_list",
+      "description": "Returns data of studies matching query and filter parameters. The studies are returned page by page. If response contains `nextPageToken`, use its value in `pageToken` to get next page. The last page will not contain `nextPageToken`. A page may have empty `studies` array. Request for each subsequent page **must** have the same parameters as for the first page, except `countTotal`, `pageSize`, and `pageToken` parameters. If neither queries nor filters are set, all studies will be returned. If any query parameter contains only NCT IDs (comma- and/or space-separated), filters are ignored. `query.*` parameters are in [Essie expression syntax](/find-studies/constructing-complex-search-queries). Those parameters affect ranking of studies, if sorted by relevance. See `sort` parameter for details. `filter.*` and `postFilter.*` parameters have same effect as there is no aggregation calculation. Both are available just to simplify applying parameters from search request. Both do not affect ranking of studies. Note: When trying JSON format in your browser, do not set too large `pageSize` parameter, if `fields` is unlimited. That may return too much data for the browser to parse and render. Optional: format (default: json), markupFormat (default: markdown), query.cond (plus 26 more).",
+      "method": "GET",
+      "path": "/studies",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Must be one of the following: * `csv`- return CSV table with one page of study data; first page will contain header with column names; available fields are listed on [CSV Download](/data-api/about-api/csv-download) page * `json`- return JSON with one page of study data; every study object is placed in a separate line; `markup` type fields format depends on `markupFormat` parameter"
+        },
+        {
+          "name": "markupFormat",
+          "type": "string",
+          "location": "query",
+          "description": "Format of `markup` type fields: * `markdown`- [markdown](https://spec.commonmark.org/0.28/) format * `legacy`- compatible with classic PRS Applicable only to `json` format."
+        },
+        {
+          "name": "query.cond",
+          "type": "string",
+          "location": "query",
+          "description": "'Conditions or disease' query in [Essie expression syntax](/find-studies/constructing-complex-search-queries). See 'ConditionSearch Area' on [Search Areas](/data-api/about-api/search-areas#ConditionSearch) for more details."
+        },
+        {
+          "name": "query.term",
+          "type": "string",
+          "location": "query",
+          "description": "'Other terms' query in [Essie expression syntax](/find-studies/constructing-complex-search-queries). See 'BasicSearch Area' on [Search Areas](/data-api/about-api/search-areas#BasicSearch) for more details."
+        },
+        {
+          "name": "query.locn",
+          "type": "string",
+          "location": "query",
+          "description": "'Location terms' query in [Essie expression syntax](/find-studies/constructing-complex-search-queries). See 'LocationSearch Area' on [Search Areas](/data-api/about-api/search-areas#LocationSearch) for more details."
+        },
+        {
+          "name": "query.titles",
+          "type": "string",
+          "location": "query",
+          "description": "'Title / acronym' query in [Essie expression syntax](/find-studies/constructing-complex-search-queries). See 'TitleSearch Area' on [Search Areas](/data-api/about-api/search-areas#TitleSearch) for more details."
+        },
+        {
+          "name": "query.intr",
+          "type": "string",
+          "location": "query",
+          "description": "'Intervention / treatment' query in [Essie expression syntax](/find-studies/constructing-complex-search-queries). See 'InterventionSearch Area' on [Search Areas](/data-api/about-api/search-areas#InterventionSearch) for more details."
+        },
+        {
+          "name": "query.outc",
+          "type": "string",
+          "location": "query",
+          "description": "'Outcome measure' query in [Essie expression syntax](/find-studies/constructing-complex-search-queries). See 'OutcomeSearch Area' on [Search Areas](/data-api/about-api/search-areas#OutcomeSearch) for more details."
+        },
+        {
+          "name": "query.spons",
+          "type": "string",
+          "location": "query",
+          "description": "'Sponsor / collaborator' query in [Essie expression syntax](/find-studies/constructing-complex-search-queries). See 'SponsorSearch Area' on [Search Areas](/data-api/about-api/search-areas#SponsorSearch) for more details."
+        },
+        {
+          "name": "query.lead",
+          "type": "string",
+          "location": "query",
+          "description": "Searches in 'LeadSponsorName' field. See [Study Data Structure](/data-api/about-api/study-data-structure#LeadSponsorName) for more details. The query is in [Essie expression syntax](/find-studies/constructing-complex-search-queries)."
+        },
+        {
+          "name": "query.id",
+          "type": "string",
+          "location": "query",
+          "description": "'Study IDs' query in [Essie expression syntax](/find-studies/constructing-complex-search-queries). See 'IdSearch Area' on [Search Areas](/data-api/about-api/search-areas#IdSearch) for more details."
+        },
+        {
+          "name": "query.patient",
+          "type": "string",
+          "location": "query",
+          "description": "See 'PatientSearch Area' on [Search Areas](/data-api/about-api/search-areas#PatientSearch) for more details."
+        },
+        {
+          "name": "filter.overallStatus",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by comma- or pipe-separated list of statuses"
+        },
+        {
+          "name": "filter.geo",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by geo-function. Currently only distance function is supported. Format: `distance(latitude,longitude,distance)`"
+        },
+        {
+          "name": "filter.ids",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by comma- or pipe-separated list of NCT IDs (a.k.a. ClinicalTrials.gov identifiers). The provided IDs will be searched in [NCTId](data-api/about-api/study-data-structure#NCTId) and [NCTIdAlias](data-api/about-api/study-data-structure#NCTIdAlias) fields."
+        },
+        {
+          "name": "filter.advanced",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by query in [Essie expression syntax](/find-studies/constructing-complex-search-queries)"
+        },
+        {
+          "name": "filter.synonyms",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by comma- or pipe-separated list of `area`:`synonym_id` pairs"
+        },
+        {
+          "name": "postFilter.overallStatus",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by comma- or pipe-separated list of statuses"
+        },
+        {
+          "name": "postFilter.geo",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by geo-function. Currently only distance function is supported. Format: `distance(latitude,longitude,distance)`"
+        },
+        {
+          "name": "postFilter.ids",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by comma- or pipe-separated list of NCT IDs (a.k.a. ClinicalTrials.gov identifiers). The provided IDs will be searched in [NCTId](data-api/about-api/study-data-structure#NCTId) and [NCTIdAlias](data-api/about-api/study-data-structure#NCTIdAlias) fields."
+        },
+        {
+          "name": "postFilter.advanced",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by query in [Essie expression syntax](/find-studies/constructing-complex-search-queries)"
+        },
+        {
+          "name": "postFilter.synonyms",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by comma- or pipe-separated list of `area`:`synonym_id` pairs"
+        },
+        {
+          "name": "aggFilters",
+          "type": "string",
+          "location": "query",
+          "description": "Apply aggregation filters, aggregation counts will not be provided. The value is comma- or pipe-separated list of pairs `filter_id`:`space-separated list of option keys` for the checked options."
+        },
+        {
+          "name": "geoDecay",
+          "type": "string",
+          "location": "query",
+          "description": "Set proximity factor by distance from `filter.geo` location to the closest [LocationGeoPoint](/data-api/about-api/study-data-structure#LocationGeoPoint) of a study. Ignored, if `filter.geo` parameter is not set or response contains more than 10,000 studies."
+        },
+        {
+          "name": "fields",
+          "type": "array",
+          "location": "query",
+          "description": "If specified, must be non-empty comma- or pipe-separated list of fields to return. If unspecified, all fields will be returned. Order of the fields does not matter. For `csv` format, specify list of columns. The column names are available on [CSV Download](/data-api/about-api/csv-download). For `json` format, every list item is either area name, piece name, field name, or special name. If a piece or a field is a branch node, all descendant fields will be included. All area names are available on [Search Areas](/data-api/about-api/search-areas), the piece and field names — on [Data Structure](/data-api/about-api/study-data-structure) and also can be retrieved at `/studies/metadata` endpoint. There is a special name, `@query`, which expands to all fields queried by search."
+        },
+        {
+          "name": "sort",
+          "type": "array",
+          "location": "query",
+          "description": "Comma- or pipe-separated list of sorting options of the studies. The returning studies are not sorted by default for a performance reason. Every list item contains a field/piece name and an optional sort direction (`asc` for ascending or `desc` for descending) after colon character. All piece and field names can be found on [Data Structure](/data-api/about-api/study-data-structure) and also can be retrieved at `/studies/metadata` endpoint. Currently, only date and numeric fields are allowed for sorting. There is a special 'field' `@relevance` to sort by relevance to a search query. Studies missing sort field are always last. Default sort direction: * Date field - `desc` * Numeric field - `asc` * `@relevance` - `desc`"
+        },
+        {
+          "name": "countTotal",
+          "type": "bool",
+          "location": "query",
+          "description": "Count total number of studies in all pages and return `totalCount` field with first page, if `true`. For CSV, the result can be found in `x-total-count` response header. The parameter is ignored for the subsequent pages."
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Page size is maximum number of studies to return in response. It does not have to be the same for every page. If not specified or set to 0, the default value will be used. It will be coerced down to 1,000, if greater than that."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Token to get next page. Set it to a `nextPageToken` value returned with the previous page in JSON format. For CSV, it can be found in `x-next-page-token` response header. Do not specify it for first page."
+        }
+      ]
+    },
+    {
+      "name": "studies_metadata",
+      "description": "Returns study data model fields. Optional: includeIndexedOnly (default: false), includeHistoricOnly (default: false).",
+      "method": "GET",
+      "path": "/studies/metadata",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "includeIndexedOnly",
+          "type": "bool",
+          "location": "query",
+          "description": "Include indexed-only fields, if `true`"
+        },
+        {
+          "name": "includeHistoricOnly",
+          "type": "bool",
+          "location": "query",
+          "description": "Include fields available only in historic data, if `true`"
+        }
+      ]
+    },
+    {
+      "name": "studies_search-areas",
+      "description": "Search Docs and their Search Areas. Returns array of SearchDocument.",
+      "method": "GET",
+      "path": "/studies/search-areas",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

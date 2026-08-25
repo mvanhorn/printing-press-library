@@ -1,0 +1,46 @@
+{
+  "manifest_version": "0.3",
+  "name": "tessie-pp-mcp",
+  "display_name": "Tessie",
+  "version": "0.1.0",
+  "description": "Live Tesla vehicle data and commands from the terminal via the Tessie API",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/tessie-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/tessie-pp-mcp",
+      "args": [],
+      "env": {
+        "PRINTING_PRESS_CLIENT_PROFILE": "${user_config.printing_press_client_profile}",
+        "TESSIE_API_TOKEN": "${user_config.tessie_api_token}"
+      }
+    }
+  },
+  "user_config": {
+    "printing_press_client_profile": {
+      "type": "string",
+      "title": "Client profile",
+      "description": "Binds the MCP server to an existing tenant-gated Printing Press client profile.",
+      "required": true
+    },
+    "tessie_api_token": {
+      "type": "string",
+      "title": "TESSIE_API_TOKEN",
+      "description": "Tessie API bearer token for live vehicle data and commands.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

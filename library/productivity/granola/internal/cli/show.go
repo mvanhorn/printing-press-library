@@ -33,7 +33,7 @@ func newShowCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 			id := args[0]
-			a, err := buildArtifacts(id, flags.dataSource != "local", "")
+			a, err := buildArtifacts(cmd.Context(), id, flags.dataSource != "local", "")
 			if err != nil {
 				return err
 			}

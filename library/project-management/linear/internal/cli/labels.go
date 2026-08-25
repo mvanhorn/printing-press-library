@@ -58,21 +58,32 @@ func newLabelsListCmd(flags *rootFlags) *cobra.Command {
 			if limit <= 0 {
 				limit = 100
 			}
+			includeGlobals := includeGlobal && !noGlobal
 			var labels []json.RawMessage
 			prov := DataProvenance{ResourceType: "issue_labels"}
-			switch flags.dataSource {
-			case "local":
+			fetchLocal := func(reason string) ([]json.RawMessage, DataProvenance, error) {
 				db, err := store.Open(resolveDBPath(dbPath))
 				if err != nil {
-					return fmt.Errorf("opening local database: %w", err)
+					return nil, DataProvenance{}, fmt.Errorf("opening local database: %w", err)
 				}
 				defer db.Close()
-				labels, err = db.ListIssueLabels(limit)
-				if err != nil {
-					return fmt.Errorf("listing issue labels: %w", err)
+				if team != "" {
+					labels, err = db.ListIssueLabelsForTeam(limit, team, includeGlobals)
+				} else {
+					labels, err = db.ListIssueLabels(limit)
 				}
-				prov.Source = "local"
-				prov.Reason = "user_requested"
+				if err != nil {
+					return nil, DataProvenance{}, fmt.Errorf("listing issue labels: %w", err)
+				}
+				return labels, DataProvenance{Source: "local", ResourceType: "issue_labels", Reason: reason}, nil
+			}
+			switch flags.dataSource {
+			case "local":
+				var err error
+				labels, prov, err = fetchLocal("user_requested")
+				if err != nil {
+					return err
+				}
 			default:
 				c, err := flags.newClient()
 				if err != nil {
@@ -80,13 +91,21 @@ func newLabelsListCmd(flags *rootFlags) *cobra.Command {
 				}
 				nodes, err := c.PaginatedQueryMax(client.IssueLabelsQuery, map[string]any{"first": limit}, "issueLabels", limit, 10)
 				if err != nil {
-					return classifyAPIError(err, flags)
+					if flags.dataSource == "live" || !isNetworkError(err) {
+						return classifyAPIError(err, flags)
+					}
+					var fallbackErr error
+					labels, prov, fallbackErr = fetchLocal("api_unreachable")
+					if fallbackErr != nil {
+						return fmt.Errorf("API unreachable and no local issue labels. Run 'linear-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
+					}
+					break
 				}
 				labels = nodes
 				prov.Source = "live"
 				prov.Reason = "user_requested"
 			}
-			filtered := filterIssueLabelsForTeam(labels, team, includeGlobal && !noGlobal)
+			filtered := filterIssueLabelsForTeam(labels, team, includeGlobals)
 			out, err := json.Marshal(filtered)
 			if err != nil {
 				return err
@@ -166,10 +185,18 @@ func validateIssueLabelTeams(c *client.Client, labelIDs []string, target issueTe
 	if targetID == "" && targetKey == "" {
 		return fmt.Errorf("cannot validate labels without target issue team")
 	}
+	labels, err := fetchIssueLabelsByIDsLive(c, labelIDs)
+	if err != nil {
+		return err
+	}
+	byID := make(map[string]issueLabelInfo, len(labels))
+	for _, label := range labels {
+		byID[strings.ToLower(label.ID)] = label
+	}
 	for _, id := range labelIDs {
-		label, err := fetchIssueLabelLive(c, id)
-		if err != nil {
-			return err
+		label, ok := byID[strings.ToLower(strings.TrimSpace(id))]
+		if !ok {
+			return notFoundErr(fmt.Errorf("issue label %q not found", id))
 		}
 		if label.Team == nil || (label.Team.ID == "" && label.Team.Key == "") {
 			continue
@@ -184,23 +211,37 @@ func validateIssueLabelTeams(c *client.Client, labelIDs []string, target issueTe
 	return nil
 }
 
-func fetchIssueLabelLive(c *client.Client, id string) (issueLabelInfo, error) {
-	const query = `query($id: String!) {
-		issueLabel(id: $id) {
-			id name color
-			team { id key name }
+// fetchIssueLabelsByIDsLive resolves all requested label UUIDs in a single
+// batched GraphQL call. The previous shape issued one round-trip per label,
+// so a multi-label edit paid N sequential API calls before the mutation fired.
+func fetchIssueLabelsByIDsLive(c *client.Client, ids []string) ([]issueLabelInfo, error) {
+	unique := make([]string, 0, len(ids))
+	seen := make(map[string]bool, len(ids))
+	for _, id := range ids {
+		key := strings.ToLower(strings.TrimSpace(id))
+		if key == "" || seen[key] {
+			continue
+		}
+		seen[key] = true
+		unique = append(unique, strings.TrimSpace(id))
+	}
+	const query = `query($ids: [ID!]!, $first: Int!) {
+		issueLabels(filter: { id: { in: $ids } }, first: $first) {
+			nodes {
+				id name color
+				team { id key name }
+			}
 		}
 	}`
 	var resp struct {
-		IssueLabel *issueLabelInfo `json:"issueLabel"`
+		IssueLabels struct {
+			Nodes []issueLabelInfo `json:"nodes"`
+		} `json:"issueLabels"`
 	}
-	if err := c.QueryInto(query, map[string]any{"id": id}, &resp); err != nil {
-		return issueLabelInfo{}, err
+	if err := c.QueryInto(query, map[string]any{"ids": unique, "first": len(unique)}, &resp); err != nil {
+		return nil, err
 	}
-	if resp.IssueLabel == nil || resp.IssueLabel.ID == "" {
-		return issueLabelInfo{}, notFoundErr(fmt.Errorf("issue label %q not found", id))
-	}
-	return *resp.IssueLabel, nil
+	return resp.IssueLabels.Nodes, nil
 }
 
 func labelTeamName(team *issueLabelTeam) string {

@@ -1,0 +1,450 @@
+openapi: 3.0.0
+info:
+  contact: {}
+  description: This REST API provides endpoints to search for logos and get logo details.
+  termsOfService: http://swagger.io/terms/
+  title: NewsQuantified API
+  version: 2.0.0
+paths:
+  /api/v2/newsquantified:
+    get:
+      description: Retrieves quantified news analytics data with sentiment scores,
+        relevance metrics, and market impact indicators. Returns structured data analyzing
+        the quantitative aspects of news coverage including sentiment polarity, article
+        counts, trending scores, and ticker-specific metrics. Use this endpoint to
+        access machine-readable news analytics for algorithmic trading and quantitative
+        research.
+      operationId: get-newsquantified-data
+      parameters:
+        - description: 'Page number for pagination. Zero-indexed (0 = first page,
+            1 = second page, etc.). Default: 0'
+          in: query
+          name: page
+          schema:
+            type: integer
+        - description: 'Number of results per page. Default: 1000. Maximum: 1000.
+            Returns most recent data first.'
+          in: query
+          name: pagesize
+          schema:
+            type: integer
+        - description: Unix timestamp in seconds (UTC). Returns newsquantified data
+            updated after this timestamp. Use for incremental updates.
+          in: query
+          name: updated_since
+          schema:
+            type: integer
+        - description: Comma-separated list of stock ticker symbols to filter results
+            (e.g., AAPL,MSFT,TSLA). Returns analytics for specified securities only.
+          in: query
+          name: symbols
+          schema:
+            type: string
+        - description: Single date in YYYY-MM-DD format (e.g., 2024-12-30). Shorthand
+            for filtering when date_from and date_to are the same. Returns data for
+            this specific date.
+          in: query
+          name: date
+          schema:
+            type: string
+        - description: Start date in YYYY-MM-DD format (e.g., 2024-01-01). Returns
+            data from this date forward. Use with date_to for date range queries.
+          in: query
+          name: date_from
+          schema:
+            type: string
+        - description: End date in YYYY-MM-DD format (e.g., 2024-12-31). Returns data
+            up to and including this date. Use with date_from for date range queries.
+          in: query
+          name: date_to
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Array of quantified news analytics with sentiment scores and
+            metrics
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/models.Newsquantified'
+                type: array
+        '400':
+          description: Bad request - invalid date format or parameters
+          content:
+            application/json:
+              schema:
+                items:
+                  type: object
+                type: array
+        '404':
+          description: Not found - no data available for specified parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                items:
+                  type: object
+                type: array
+      security:
+        - ApiKeyAuth: []
+      summary: Quantitative News Analytics
+      tags:
+        - News Analytics
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: Authorization
+      type: apiKey
+  schemas:
+    bzhttp.Error:
+      properties:
+        code:
+          $ref: '#/components/schemas/bzhttp.ErrorCode'
+        id:
+          type: string
+        value:
+          type: string
+      type: object
+    bzhttp.ErrorCode:
+      enum:
+        - unsupported_message_type
+        - database_query_error
+        - json_unmarshaling_error
+        - no_data_found
+        - no_matching_endpoint
+        - bad_request
+        - db_error
+        - internal_server_error
+        - auth_failed
+        - forbidden
+        - failed_dependency
+        - service_unavailable
+        - upstream_api_error
+      type: string
+      x-enum-varnames:
+        - ErrorUnsupportedMessageType
+        - ErrorDBQueryError
+        - ErrorJSONUnmarshaling
+        - ErrorNoDataFound
+        - ErrorNoMatchingEndpoint
+        - ErrorBadRequest
+        - ErrorDBError
+        - ErrorInternalServerError
+        - ErrorAuthFailed
+        - ErrorForbidden
+        - ErrorFailedDependency
+        - ErrorServiceUnavailable
+        - ErrorUpstreamAPIError
+    bzhttp.Resp:
+      properties:
+        data:
+          additionalProperties: true
+          type: object
+        errors:
+          items:
+            $ref: '#/components/schemas/bzhttp.Error'
+          type: array
+        ok:
+          type: boolean
+      type: object
+    models.Newsquantified:
+      properties:
+        _id:
+          example: 507f1f77bcf86cd799439011
+          type: string
+        1_Minute%:
+          example: '0.2'
+          type: string
+        5_Minutes%:
+          example: '0.5'
+          type: string
+        10_Minutes%:
+          example: '0.8'
+          type: string
+        30_Minutes%:
+          example: '1.2'
+          type: string
+        30_Seconds%:
+          example: '0.1'
+          type: string
+        60_Minutes%:
+          example: '1.5'
+          type: string
+        90_Minutes%:
+          example: '1.8'
+          type: string
+        120_Minutes%:
+          example: '2.0'
+          type: string
+        ATR_Ratio:
+          example: '1.1'
+          type: string
+        ATR14:
+          example: '2.5'
+          type: string
+        AllTicks:
+          example: '1000'
+          type: string
+        AllVWAP:
+          example: '153.00'
+          type: string
+        AnalystAction:
+          example: Upgrade
+          type: string
+        AnalystActionFrom:
+          example: Hold
+          type: string
+        AnalystActionTo:
+          example: Buy
+          type: string
+        AnalystFirm:
+          example: Goldman Sachs
+          type: string
+        Close_Vol:
+          example: '45000'
+          type: string
+        Comments:
+          example: Positive earnings surprise
+          type: string
+        Curr_Vol:
+          example: '1600000'
+          type: string
+        Date:
+          example: '2024-01-09'
+          type: string
+        DayOpen:
+          example: '152.00'
+          type: string
+        DividendYield%:
+          example: '1.5'
+          type: string
+        EODClose:
+          example: '156.00'
+          type: string
+        EODHigh:
+          example: '158.00'
+          type: string
+        EODLow:
+          example: '151.00'
+          type: string
+        EODVWAP:
+          example: '155.00'
+          type: string
+        EPSAction:
+          example: Beat
+          type: string
+        EPSActual:
+          example: '1.50'
+          type: string
+        Ex:
+          example: NASDAQ
+          type: string
+        Headlines:
+          example: Apple Announces New Product Launch
+          type: string
+        HighExcStdDev:
+          example: '2.1'
+          type: string
+        L1:
+          example: '150.00'
+          type: string
+        L2:
+          example: '151.00'
+          type: string
+        L3:
+          example: '152.00'
+          type: string
+        L4:
+          example: '153.00'
+          type: string
+        L5:
+          example: '154.00'
+          type: string
+        L10:
+          example: '156.00'
+          type: string
+        L20:
+          example: '157.00'
+          type: string
+        L75:
+          example: '155.00'
+          type: string
+        LS:
+          example: L
+          type: string
+        LowExcStdDev:
+          example: '1.8'
+          type: string
+        MainVWAP:
+          example: '153.50'
+          type: string
+        MaxDnAmt:
+          example: '2.00'
+          type: string
+        MaxUpAmt:
+          example: '5.00'
+          type: string
+        MktCap(1000):
+          example: '2000000'
+          type: string
+        Mov_Vol:
+          example: '5.2'
+          type: string
+        NewsSess:
+          example: Pre-Market
+          type: string
+        Open_Vol:
+          example: '50000'
+          type: string
+        OpenGap%:
+          example: '0.5'
+          type: string
+        P1:
+          example: '150.50'
+          type: string
+        P2:
+          example: '151.50'
+          type: string
+        P3:
+          example: '152.50'
+          type: string
+        P4:
+          example: '153.50'
+          type: string
+        P5:
+          example: '154.50'
+          type: string
+        P10:
+          example: '156.50'
+          type: string
+        P20:
+          example: '157.50'
+          type: string
+        P75:
+          example: '155.50'
+          type: string
+        PERatio:
+          example: '25.5'
+          type: string
+        PID:
+          example: BZ-12345
+          type: string
+        PUBt:
+          example: '2024-01-09T10:00:00Z'
+          type: string
+        PostVWAP:
+          example: '154.00'
+          type: string
+        PreVWAP:
+          example: '151.00'
+          type: string
+        Prev_Vol:
+          example: '1500000'
+          type: string
+        PrevClose:
+          example: '150.00'
+          type: string
+        Provider:
+          example: Benzinga
+          type: string
+        RECt:
+          example: '2024-01-09T10:30:00Z'
+          type: string
+        Range%:
+          example: '4.5'
+          type: string
+        RangeAmt:
+          example: '7.00'
+          type: string
+        RangeStdDev:
+          example: '1.2'
+          type: string
+        ReportSess:
+          example: Q3
+          type: string
+        ResourceID:
+          example: '12345678'
+          type: string
+        Result%:
+          example: '2.45'
+          type: string
+        Result_Vs_Index%:
+          example: '1.5'
+          type: string
+        S1:
+          example: '149.00'
+          type: string
+        S2:
+          example: '148.00'
+          type: string
+        S3:
+          example: '147.00'
+          type: string
+        S4:
+          example: '146.00'
+          type: string
+        S5:
+          example: '145.00'
+          type: string
+        S10:
+          example: '143.00'
+          type: string
+        S20:
+          example: '142.00'
+          type: string
+        S75:
+          example: '144.00'
+          type: string
+        SPYLast:
+          example: '420.50'
+          type: string
+        SPYclose:
+          example: '422.00'
+          type: string
+        ShortInterest%:
+          example: '5.2'
+          type: string
+        Symb:
+          example: AAPL
+          type: string
+        TONHigh:
+          example: '155.00'
+          type: string
+        TONLast:
+          example: '153.00'
+          type: string
+        TONLow:
+          example: '149.00'
+          type: string
+        Topics:
+          example: Earnings, Tech
+          type: string
+        Vol_Ratio:
+          example: '1.1'
+          type: string
+        VolumeStdDev:
+          example: '3.5'
+          type: string
+        created:
+          example: 1704819600
+          type: integer
+        maxDown%:
+          example: '1.5'
+          type: string
+        maxUp%:
+          example: '3.2'
+          type: string
+        prevDay%:
+          example: '1.2'
+          type: string
+      type: object
+servers:
+  - url: https://api.benzinga.com
+    description: PROD

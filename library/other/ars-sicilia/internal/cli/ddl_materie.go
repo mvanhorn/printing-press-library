@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -151,9 +150,7 @@ Nota: i valori non hanno accenti (es. Sanita, Parita).`,
 				return nil
 			}
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
-				enc := json.NewEncoder(cmd.OutOrStdout())
-				enc.SetIndent("", "  ")
-				return enc.Encode(ddlMaterie)
+				return printJSONFiltered(cmd.OutOrStdout(), ddlMaterie, flags)
 			}
 			for _, m := range ddlMaterie {
 				fmt.Fprintln(cmd.OutOrStdout(), m)

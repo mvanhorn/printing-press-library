@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-bd-form-unica",
+  "applied_at": "2026-08-23",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.30.3",
+  "summary": "La richiesta verso il backend /bd/ la costruisce una sola funzione, `bdBuildForm`, usata da entrambi i percorsi: `searchBD` la manda, `BDPreview` la stampa. Prima l'anteprima reimplementava a mano cio' che searchBD costruisce.",
+  "reason": "La richiesta verso /bd/ era costruita due volte — una da searchBD per mandarla, una da BDPreview per stamparla — e due implementazioni parallele restano d'accordo solo per ispezione: si erano accumulate divergenze su endpoint, nomi dei campi, giri sugli anni, `page`, `anno`, normalizzazione dei filtri e validazione delle date. Un costruttore solo le tiene allineate per costruzione e rifiuta gli stessi filtri non supportati su entrambi i percorsi. `anteprima` e' un parametro esplicito e non si deduce da sessionHTML vuoto: dedurlo farebbe scivolare il percorso vivo in modo anteprima se la GET di sessione tornasse 200 con corpo vuoto, mandando la POST senza il filtro --oratore o --commissione e restituendo piu' record di quanti ne siano stati chiesti.",
+  "files": [
+    "internal/icaroclient/bd.go",
+    "internal/cli/ddl_iter.go"
+  ],
+  "validated_outcome": "IL PERCORSO VIVO NON CAMBIA, verificato per confronto con il binario precedente su 15 casi che coprono tutte le combinazioni di filtri dei tre archivi /bd/ (nessun filtro, --data su un anno e su tre, --oratore, --anno, --testo, --data malformata, --codcom, --commissione per nome, --codcom con --data, e i due rami di `resoconti get`): 15 su 15 identici byte per byte, stdout, stderr e codice d'uscita. L'unico campo che differiva e' un timestamp anti-cache nell'URL della scheda (`&_=1787482198321`), che cambia anche fra due esecuzioni dello STESSO binario di riferimento — verificato apposta per escludere che fosse una conseguenza della modifica. In modo anteprima (parametro esplicito) --oratore e --commissione/--codcom non si risolvono in id, perche' quella risoluzione legge le <option> del form e richiede una richiesta, e finiscono fra i differiti come gia' facevano. `searchBD` passa da 192 a 105 righe, `BDPreview` da 83 a 27, il costruttore ne occupa 140: la logica sta in un posto solo invece che in due. Tutti i test esistenti passano senza essere riscritti, compreso `TestBDUnsupported`, perche' `bdUnsupported` resta come guscio sopra `bdUnsupportedParams` per il controllo su --isis-query, che non e' un parametro della form. Inclusa la correzione del commento di testata di `ddl_iter.go` (issue #5), che dichiarava di combinare gli archivi 230 e 217 mentre il file contiene solo `BySlug(\"ddl\")`."
+}

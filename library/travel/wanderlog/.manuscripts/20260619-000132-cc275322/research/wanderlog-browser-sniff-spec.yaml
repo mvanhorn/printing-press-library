@@ -1,0 +1,856 @@
+name: wanderlog
+description: Discovered API spec for wanderlog
+version: 0.1.0
+base_url: https://wanderlog.com
+spec_source: sniffed
+http_transport: browser-chrome
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/wanderlog-pp-cli/config.toml
+resources:
+    explore:
+        description: Operations on paris
+        endpoints:
+            get_paris:
+                method: GET
+                path: /explore/{explore_id}/paris
+                description: Fetch structured metadata from /explore/{explore_id}/paris
+                params:
+                    - name: explore_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The explore_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    geo:
+        description: Operations on Paris
+        endpoints:
+            list_Paris:
+                method: GET
+                path: /api/geo/autocomplete/Paris
+                description: GET /api/geo/autocomplete/Paris
+                params:
+                    - name: data
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: bounds
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: countryName
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: depth
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: id
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: latitude
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: longitude
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: mapsPlaceId
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: name
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: parentId
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: popularity
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: score
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: subcategory
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: PariData
+                pagination: null
+                response_path: data
+    list:
+        description: Operations on top-things-to-do-and-attractions-in-paris
+        endpoints:
+            get_top_things_to_do_and_attractions_in_paris:
+                method: GET
+                path: /list/geoCategory/{geocategory_id}/top-things-to-do-and-attractions-in-paris
+                description: Fetch structured metadata from /list/geoCategory/{geocategory_id}/top-things-to-do-and-attractions-in-paris
+                params:
+                    - name: geocategory_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The geocategory_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    placesAPI:
+        description: Operations on placesAPI
+        endpoints:
+            get_placesAPI:
+                method: GET
+                path: /api/placesAPI/{placesapi_id}
+                description: GET /api/placesAPI/{placesapi_id}
+                params:
+                    - name: language
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: placeId
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: placesapi_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The placesapi_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: PlacesAPI
+                pagination: null
+    placesList:
+        description: Operations on geoCategory
+        endpoints:
+            get_geoCategory:
+                method: GET
+                path: /api/placesList/geoCategory/{geocategory_id}
+                description: GET /api/placesList/geoCategory/{geocategory_id}
+                params:
+                    - name: geocategory_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The geocategory_id path segment
+                      fields: []
+                    - name: includeRelatedPagesData
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: GeoCategory
+                pagination: null
+    sessionStore:
+        description: Operations on sessionStore
+        endpoints:
+            list_sessionStore:
+                method: GET
+                path: /api/sessionStore
+                description: GET /api/sessionStore
+                params:
+                    - name: data
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: acceptLanguageHeader
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: currencyPreference
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: datePreference
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: distancePreference
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: languagesBasedOnIP
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: timePreference
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: SessionStore
+                pagination: null
+    tripPlans:
+        description: Operations on comments
+        endpoints:
+            list_comments:
+                method: GET
+                path: /api/tripPlans/uzyvvtuwtc/comments
+                description: GET /api/tripPlans/uzyvvtuwtc/comments
+                params:
+                    - name: data
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: author
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: id
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: name
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: username
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: createdAt
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: date-time
+                        - name: downvotes
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: id
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: text
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: ops
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: upvotes
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: CommentData
+                pagination: null
+                response_path: data
+            list_distinction:
+                method: GET
+                path: /api/tripPlans/uzyvvtuwtc/distinction
+                description: GET /api/tripPlans/uzyvvtuwtc/distinction
+                params:
+                    - name: data
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Distinction
+                pagination: null
+            list_likes:
+                method: GET
+                path: /api/tripPlans/likes
+                description: GET /api/tripPlans/likes
+                params:
+                    - name: errTypes
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: error
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: messages
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Like
+                pagination: null
+    user:
+        description: Operations on autocomplete
+        endpoints:
+            list_autocomplete:
+                method: GET
+                path: /api/user/autocomplete/
+                description: GET /api/user/autocomplete/
+                params:
+                    - name: data
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Autocomplete
+                pagination: null
+            list_list:
+                method: GET
+                path: /api/user/following/list
+                description: Fetch structured links from /api/user/following/list
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    view:
+        description: Operations on shared
+        endpoints:
+            list_shared:
+                method: GET
+                path: /view/uzyvvtuwtc/paris-5-day-tourist-itinerary-recommendations/shared
+                description: Fetch structured links from /view/uzyvvtuwtc/paris-5-day-tourist-itinerary-recommendations/shared
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+types:
+    Author:
+        fields:
+            - name: id
+              type: integer
+            - name: name
+              type: string
+            - name: username
+              type: string
+    Autocomplete:
+        fields:
+            - name: data
+              type: array
+            - name: success
+              type: bool
+    BoardSection:
+        fields:
+            - name: blocks
+              type: array
+            - name: heading
+              type: string
+            - name: id
+              type: integer
+            - name: placeMarkerColor
+              type: string
+            - name: placeMarkerIcon
+              type: string
+            - name: text
+              type: object
+            - name: type
+              type: string
+    CardData:
+        fields:
+            - name: assistantQuestions
+              type: array
+            - name: bookingInformation
+              type: object
+              omit_empty: true
+            - name: menuItems
+              type: array
+            - name: name
+              type: string
+            - name: placeId
+              type: string
+            - name: reasonsToVisit
+              type: array
+            - name: reviewCategories
+              type: array
+            - name: reviews
+              type: array
+            - name: reviewsSummary
+              type: string
+              omit_empty: true
+            - name: sources
+              type: array
+            - name: tips
+              type: array
+    CommentData:
+        fields:
+            - name: author
+              type: ref:Author
+            - name: createdAt
+              type: string
+              format: date-time
+            - name: downvotes
+              type: integer
+            - name: id
+              type: integer
+            - name: text
+              type: ref:Text
+            - name: upvotes
+              type: integer
+    Data:
+        fields:
+            - name: acceptLanguageHeader
+              type: string
+            - name: currencyPreference
+              type: string
+            - name: datePreference
+              type: string
+            - name: distancePreference
+              type: string
+            - name: languagesBasedOnIP
+              type: array
+            - name: timePreference
+              type: string
+    Data2:
+        fields:
+            - name: boardSections
+              type: '[]ref:BoardSection'
+            - name: canonicalUrl
+              type: string
+              format: url
+            - name: geo
+              type: ref:Geo
+            - name: headerImageKey
+              type: string
+            - name: headerTemplate
+              type: ref:HeaderTemplate
+            - name: id
+              type: string
+            - name: indexable
+              type: bool
+            - name: placeMetadata
+              type: '[]ref:PlaceMetadata'
+            - name: relatedPagesData
+              type: ref:RelatedPagesData
+            - name: sourceSite
+              type: string
+            - name: title
+              type: string
+            - name: type
+              type: string
+    Data3:
+        fields:
+            - name: cardData
+              type: ref:CardData
+            - name: details
+              type: ref:Details
+    Details:
+        fields:
+            - name: address_components
+              type: array
+            - name: business_status
+              type: string
+            - name: formatted_address
+              type: string
+            - name: geometry
+              type: object
+            - name: international_phone_number
+              type: string
+              omit_empty: true
+            - name: name
+              type: string
+            - name: opening_hours
+              type: object
+              omit_empty: true
+            - name: photo_urls
+              type: array
+            - name: place_id
+              type: string
+            - name: price_level
+              type: integer
+              omit_empty: true
+            - name: rating
+              type: number
+              omit_empty: true
+            - name: types
+              type: array
+              omit_empty: true
+            - name: url
+              type: string
+              format: url
+            - name: user_ratings_total
+              type: integer
+              omit_empty: true
+            - name: vicinity
+              type: string
+            - name: website
+              type: string
+              omit_empty: true
+              format: url
+    Distinction:
+        fields:
+            - name: data
+              type: string
+            - name: success
+              type: bool
+    Geo:
+        fields:
+            - name: id
+              type: integer
+            - name: name
+              type: string
+    GeoCategory:
+        fields:
+            - name: data
+              type: ref:Data2
+            - name: success
+              type: bool
+    HeaderTemplate:
+        fields:
+            - name: blurbTemplate
+              type: string
+            - name: geo
+              type: object
+            - name: placeName
+              type: string
+            - name: source
+              type: string
+            - name: sourcesMerged
+              type: bool
+            - name: subType
+              type: string
+            - name: topBlurb
+              type: string
+            - name: type
+              type: string
+            - name: updatedAt
+              type: string
+              format: date-time
+    Like:
+        fields:
+            - name: errTypes
+              type: array
+            - name: error
+              type: string
+            - name: messages
+              type: array
+            - name: success
+              type: bool
+    PariData:
+        fields:
+            - name: bounds
+              type: array
+            - name: countryName
+              type: string
+            - name: depth
+              type: integer
+            - name: id
+              type: integer
+            - name: latitude
+              type: number
+            - name: longitude
+              type: number
+            - name: mapsPlaceId
+              type: integer
+            - name: name
+              type: string
+            - name: parentId
+              type: integer
+            - name: popularity
+              type: integer
+            - name: score
+              type: number
+            - name: subcategory
+              type: string
+    PlaceMetadata:
+        fields:
+            - name: address
+              type: string
+            - name: assistantQuestions
+              type: array
+            - name: businessStatus
+              type: string
+            - name: categories
+              type: array
+            - name: description
+              type: string
+            - name: generatedDescription
+              type: string
+            - name: hasDetails
+              type: bool
+            - name: id
+              type: integer
+            - name: imageKeys
+              type: array
+            - name: images
+              type: array
+            - name: internationalPhoneNumber
+              type: string
+            - name: maxMinutesSpent
+              type: integer
+            - name: minMinutesSpent
+              type: integer
+            - name: name
+              type: string
+            - name: numRatings
+              type: integer
+            - name: openingPeriods
+              type: array
+            - name: permanentlyClosed
+              type: bool
+            - name: placeId
+              type: string
+            - name: placePageType
+              type: string
+            - name: rating
+              type: number
+            - name: ratingDistribution
+              type: object
+            - name: reviews
+              type: array
+            - name: sources
+              type: array
+            - name: tripadvisorNumRatings
+              type: integer
+            - name: tripadvisorRating
+              type: number
+            - name: utcOffset
+              type: integer
+            - name: website
+              type: string
+              format: url
+    PlacesAPI:
+        fields:
+            - name: data
+              type: ref:Data3
+            - name: success
+              type: bool
+    RelatedPagesData:
+        fields:
+            - name: canShowWeatherLinks
+              type: bool
+            - name: categories
+              type: array
+            - name: drives
+              type: array
+            - name: geoNames
+              type: object
+            - name: itineraries
+              type: array
+            - name: nearbyAttractions
+              type: array
+            - name: nearbyGeos
+              type: array
+            - name: nearbyRestaurants
+              type: array
+            - name: pageSpecific
+              type: object
+            - name: searchedCategories
+              type: array
+    SessionStore:
+        fields:
+            - name: data
+              type: ref:Data
+            - name: success
+              type: bool
+    Text:
+        fields:
+            - name: ops
+              type: array

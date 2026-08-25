@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-07-10T18:02:44.514285Z",
+  "cli_dir": "\u003ccli-dir\u003e/github-contents-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 703,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (teach.go, learn subsystem template); Short is verb-led and accurate for a local-store list with filter flags discoverable via schema; richer default belongs in the generator template — retro candidate"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-10T17:47:33.47921Z"
+  },
+  "progress": {
+    "last_processed_finding_id": "thin-short:list:teach.go:703"
+  }
+}

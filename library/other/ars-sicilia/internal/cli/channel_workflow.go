@@ -4,7 +4,6 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/mvanhorn/printing-press-library/library/other/ars-sicilia/internal/store"
@@ -51,9 +50,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if flags.asJSON {
-				enc := json.NewEncoder(cmd.OutOrStdout())
-				enc.SetIndent("", "  ")
-				return enc.Encode(status)
+				return printJSONFiltered(cmd.OutOrStdout(), status, flags)
 			}
 
 			if len(status) == 0 {

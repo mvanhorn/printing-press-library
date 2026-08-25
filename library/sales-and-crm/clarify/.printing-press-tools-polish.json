@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-08-17T19:18:39.113105Z",
+  "cli_dir": "\u003ccli-dir\u003e/clarify-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Brief but precise: 'List client profiles' names verb+object for a no-arg local read; DO-NOT-EDIT generated framework file — richer default is a generator-template retro candidate"
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Accurate verb-led Short for the framework learn-loop 'learnings list'; command has Example block covering filters; DO-NOT-EDIT generated file, generator owns the template"
+    }
+  ],
+  "progress": {
+    "last_processed_finding_id": "thin-short|teach.go|691"
+  }
+}

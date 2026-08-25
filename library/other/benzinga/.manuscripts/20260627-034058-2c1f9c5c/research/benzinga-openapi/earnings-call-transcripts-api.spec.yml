@@ -1,0 +1,280 @@
+openapi: 3.0.0
+info:
+  contact: {}
+  description: This REST API provides endpoints to search for earnings call transcripts
+    and get earnings call transcript details.
+  termsOfService: http://swagger.io/terms/
+  title: Earnings Call Transcripts API
+  version: 1.0.0
+paths:
+  /api/v1/earnings-call-transcripts:
+    get:
+      description: Retrieves earnings call transcripts for specified companies or
+        call IDs. Returns full text transcripts of quarterly and annual earnings calls
+        including Q&A sessions, speaker identification, and timestamps. Use date filters
+        to retrieve transcripts from specific reporting periods or filter by ticker
+        symbols for company-specific earnings discussions.
+      operationId: get-earnings-call-transcripts
+      parameters:
+        - description: Comma-separated list of stock ticker symbols to filter earnings
+            call transcripts (e.g., AAPL,MSFT,GOOGL). Returns all transcripts for
+            these companies.
+          in: query
+          name: tickers
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - description: Comma-separated list of specific call IDs to retrieve. Use
+            this to fetch transcripts for known earnings call identifiers. Takes precedence
+            over ticker filtering.
+          in: query
+          name: call_id
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - description: 'Page number for pagination. Zero-indexed (0 = first page,
+            1 = second page, etc.). Default: 0'
+          in: query
+          name: page
+          schema:
+            type: integer
+        - description: 'Number of results per page. Default: 5. Maximum: 1000. Use
+            larger page sizes for bulk data retrieval.'
+          in: query
+          name: pagesize
+          schema:
+            type: integer
+        - description: Start date filter in YYYY-MM-DD format (e.g., 2024-01-01).
+            Returns transcripts from earnings calls on or after this date.
+          in: query
+          name: date_from
+          schema:
+            type: string
+        - description: End date filter in YYYY-MM-DD format (e.g., 2024-12-31). Returns
+            transcripts from earnings calls on or before this date.
+          in: query
+          name: date_to
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Array of earnings call transcript summaries with full text
+            and metadata
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/models.TranscriptSummary'
+                type: array
+        '400':
+          description: Bad request - invalid parameters
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                type: array
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                type: array
+      security:
+        - ApiKeyAuth: []
+      summary: Earnings Call Transcripts
+      tags:
+        - Earnings Call Transcripts
+  /api/v1/earnings-call-transcripts/audio:
+    get:
+      description: Retrieves downloadable audio file URLs for earnings call recordings.
+        Returns signed URLs for accessing full audio recordings of quarterly and annual
+        earnings calls. Audio files include complete earnings presentations and Q&A
+        sessions. URLs are time-limited and securely signed for authorized access.
+      operationId: get-earnings-call-transcript-audio-files
+      parameters:
+        - description: Comma-separated list of stock ticker symbols to filter audio
+            files (e.g., AAPL,MSFT,GOOGL). Returns audio files for all earnings calls
+            from these companies.
+          in: query
+          name: tickers
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - description: Comma-separated list of specific call IDs to retrieve audio
+            files for. Use this to fetch audio for known earnings call identifiers.
+          in: query
+          name: call_id
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - description: 'Page number for pagination. Zero-indexed (0 = first page,
+            1 = second page, etc.). Default: 0'
+          in: query
+          name: page
+          schema:
+            type: integer
+        - description: 'Number of results per page. Default: 5. Maximum: 1000'
+          in: query
+          name: pagesize
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Array of earnings call audio file metadata with signed download
+            URLs
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/models.TranscriptSummaryAudio'
+                type: array
+        '400':
+          description: Bad request - invalid parameters
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                type: array
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                type: array
+      security:
+        - ApiKeyAuth: []
+      summary: Earnings Call Audio Files
+      tags:
+        - Earnings Call Transcripts
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      in: query
+      name: token
+      type: apiKey
+  schemas:
+    models.Security:
+      properties:
+        cik:
+          example: '320193'
+          type: string
+        company_name:
+          example: Apple Inc
+          type: string
+        exchange:
+          example: NASDAQ
+          type: string
+        isin:
+          example: US0378331005
+          type: string
+        ticker:
+          example: AAPL
+          type: string
+      type: object
+    models.Summary:
+      properties:
+        summary:
+          example: CEO discusses Q4 revenue growth of 15% YoY
+          type: string
+        time:
+          example: 123.45
+          type: number
+      type: object
+    models.TranscriptAudioFile:
+      properties:
+        file_url:
+          type: string
+      type: object
+    models.TranscriptSummary:
+      properties:
+        call_id:
+          example: AAPL-Q4-2024
+          type: string
+        created:
+          example: 1704819600
+          type: integer
+        date:
+          example: '2024-01-09'
+          type: string
+        id:
+          example: 507f1f77bcf86cd799439011
+          type: string
+        reviewed:
+          example: true
+          type: boolean
+        security:
+          $ref: '#/components/schemas/models.Security'
+        start_time:
+          example: '2024-01-09T16:30:00Z'
+          type: string
+        summaries:
+          items:
+            $ref: '#/components/schemas/models.Summary'
+          type: array
+        summary_full:
+          type: string
+        title:
+          example: Apple Q4 2024 Earnings Call
+          type: string
+        transcript_full:
+          type: string
+        transcript_timestamped:
+          items:
+            $ref: '#/components/schemas/models.TranscriptTimestamp'
+          type: array
+        updated:
+          example: 1704820200
+          type: integer
+        user_id:
+          example: 12345
+          type: integer
+      type: object
+    models.TranscriptSummaryAudio:
+      properties:
+        audio_file:
+          $ref: '#/components/schemas/models.TranscriptAudioFile'
+        call_id:
+          type: string
+        created:
+          type: integer
+        date:
+          type: string
+        id:
+          type: string
+        security:
+          $ref: '#/components/schemas/models.Security'
+        start_time:
+          type: string
+        updated:
+          type: integer
+      type: object
+    models.TranscriptTimestamp:
+      properties:
+        time:
+          example: 123.45
+          type: number
+        transcript:
+          example: Thank you for joining us today...
+          type: string
+      type: object
+servers:
+  - url: https://api.benzinga.com
+    description: PROD

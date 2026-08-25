@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "openrouter-image-pp-mcp",
+  "display_name": "OpenRouter Images",
+  "version": "1.0.0",
+  "description": "Every image model on OpenRouter, one key: generate, rank, estimate, and batch with a local cost ledger.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/openrouter-image-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/openrouter-image-pp-mcp",
+      "args": [],
+      "env": {
+        "OPENROUTER_IMAGE_API_KEY": "${user_config.openrouter_image_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "openrouter_image_api_key": {
+      "type": "string",
+      "title": "OPENROUTER_IMAGE_API_KEY",
+      "description": "Sets OPENROUTER_IMAGE_API_KEY for the OpenRouter MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

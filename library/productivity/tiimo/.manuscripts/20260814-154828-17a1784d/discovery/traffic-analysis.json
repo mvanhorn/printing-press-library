@@ -1,0 +1,1698 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://webapp.tiimoapp.com/home",
+    "captured_at": "2026-08-14T21:05:00Z",
+    "entry_count": 15,
+    "api_entry_count": 15,
+    "noise_entry_count": 0,
+    "host_distribution": {
+      "api.tiimoapp.com": 14,
+      "auth.tiimoapp.com": 1
+    }
+  },
+  "secondary_hosts": [
+    {
+      "host": "auth.tiimoapp.com",
+      "count": 1,
+      "reason": "non-primary host"
+    }
+  ],
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.65,
+    "reasons": [
+      "no browser-only reachability signals observed"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/configuration",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/activities",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/activities/00000000-0000-4000-8000-0000000000a1",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 5,
+          "method": "POST",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/activities",
+          "status": 201,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 6,
+          "method": "PUT",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/activities/00000000-0000-4000-8000-0000000000a1",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/routines",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/tags",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/todo-tasks",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/todo-task-lists",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/externalCalendar/profiles/00000000-0000-4000-8000-000000000001/linkedCalendars",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 13,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/externalCalendar/profiles/00000000-0000-4000-8000-000000000001/externalCalendars/00000000-0000-4000-8000-0000000000c1/activities",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 14,
+          "method": "GET",
+          "host": "auth.tiimoapp.com",
+          "path": "/connect/userinfo",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "oauth2_bearer",
+        "confidence": 0.95
+      }
+    ]
+  },
+  "endpoint_clusters": [
+    {
+      "host": "api.tiimoapp.com",
+      "method": "GET",
+      "path": "/api/configuration",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "braze",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "experiments",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "lockedFeatures",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "onboarding",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "streaksVersion",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "updatePrompt",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/configuration",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "api.tiimoapp.com",
+      "method": "GET",
+      "path": "/api/externalCalendar/profiles/{profile_id}/externalCalendars/{externalcalendar_id}/activities",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "2026-08-14",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 13,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/externalCalendar/profiles/00000000-0000-4000-8000-000000000001/externalCalendars/00000000-0000-4000-8000-0000000000c1/activities",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "api.tiimoapp.com",
+      "method": "GET",
+      "path": "/api/externalCalendar/profiles/{profile_id}/linkedCalendars",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "array",
+        "fields": [
+          {
+            "name": "calendarId",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          },
+          {
+            "name": "color",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "connected",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "email",
+            "type": "string",
+            "required": true,
+            "format": "email"
+          },
+          {
+            "name": "externalCalendarId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "externalCalendarProvider",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "hidden",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "iconId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "iconType",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "isReadOnly",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/externalCalendar/profiles/00000000-0000-4000-8000-000000000001/linkedCalendars",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "api.tiimoapp.com",
+      "method": "GET",
+      "path": "/api/profiles",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "array",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "profileId",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "api.tiimoapp.com",
+      "method": "GET",
+      "path": "/api/profiles/{profile_id}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "profileId",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "api.tiimoapp.com",
+      "method": "GET",
+      "path": "/api/profiles/{profile_id}/activities",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "2026-08-14",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "2026-08-15",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/activities",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "api.tiimoapp.com",
+      "method": "POST",
+      "path": "/api/profiles/{profile_id}/activities",
+      "count": 1,
+      "statuses": [
+        201
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "medium",
+      "request_shape": {
+        "kind": "unknown"
+      },
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "activityId",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          },
+          {
+            "name": "allowEarlyEnd",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "allowEarlyStart",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "blockRecurrenceUpdateExternalEvent",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "checklist",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "duration",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "durationActual",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "durationPaused",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "endTime",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "endTimeActual",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "endTimeUtc",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "grouping",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "iconId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "iconType",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "isAllDay",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "isReadOnly",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "isRepeating",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "recurrenceType",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "repetition",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "sortPriority",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "startTime",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "startTimeActual",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "startTimeLocal",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "startTimeUtc",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "tagIds",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "timeUtcOffset",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 5,
+          "method": "POST",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/activities",
+          "status": 201,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "api.tiimoapp.com",
+      "method": "DELETE",
+      "path": "/api/profiles/{profile_id}/activities/{activity_id}",
+      "count": 1,
+      "statuses": [
+        204
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 7,
+          "method": "DELETE",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/activities/00000000-0000-4000-8000-0000000000a1",
+          "status": 204,
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "api.tiimoapp.com",
+      "method": "GET",
+      "path": "/api/profiles/{profile_id}/activities/{activity_id}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "activityId",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          },
+          {
+            "name": "allowEarlyEnd",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "allowEarlyStart",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "blockRecurrenceUpdateExternalEvent",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "checklist",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "duration",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "durationActual",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "durationPaused",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "endTime",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "endTimeActual",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "endTimeUtc",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "grouping",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "iconId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "iconType",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "isAllDay",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "isReadOnly",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "isRepeating",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "recurrenceType",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "repetition",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "sortPriority",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "startTime",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "startTimeActual",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "startTimeLocal",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "startTimeUtc",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "tagIds",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "timeUtcOffset",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/activities/00000000-0000-4000-8000-0000000000a1",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "api.tiimoapp.com",
+      "method": "PUT",
+      "path": "/api/profiles/{profile_id}/activities/{activity_id}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "medium",
+      "request_shape": {
+        "kind": "unknown"
+      },
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "activityId",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          },
+          {
+            "name": "allowEarlyEnd",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "allowEarlyStart",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "blockRecurrenceUpdateExternalEvent",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "checklist",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "duration",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "durationActual",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "durationPaused",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "endTime",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "endTimeActual",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "endTimeUtc",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "grouping",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "iconId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "iconType",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "isAllDay",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "isReadOnly",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "isRepeating",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "recurrenceType",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "repetition",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "sortPriority",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "startTime",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "startTimeActual",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "startTimeLocal",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "startTimeUtc",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "tagIds",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "timeUtcOffset",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 6,
+          "method": "PUT",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/activities/00000000-0000-4000-8000-0000000000a1",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "api.tiimoapp.com",
+      "method": "GET",
+      "path": "/api/profiles/{profile_id}/routines",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "unknown"
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/routines",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "api.tiimoapp.com",
+      "method": "GET",
+      "path": "/api/profiles/{profile_id}/tags",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "array",
+        "fields": [
+          {
+            "name": "backgroundColor",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "iconId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "iconType",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "tagId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "tagIndex",
+            "type": "integer",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/tags",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "api.tiimoapp.com",
+      "method": "GET",
+      "path": "/api/profiles/{profile_id}/todo-task-lists",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "lists",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/todo-task-lists",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "api.tiimoapp.com",
+      "method": "GET",
+      "path": "/api/profiles/{profile_id}/todo-tasks",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "array",
+        "fields": [
+          {
+            "name": "backgroundColor",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "duration",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "iconId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "iconType",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "isCompleted",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "notes",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "priority",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "profileId",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          },
+          {
+            "name": "sortOrder",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "tagIds",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "taskId",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "todoTaskListId",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/todo-tasks",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "auth.tiimoapp.com",
+      "method": "GET",
+      "path": "/connect/userinfo",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "email",
+            "type": "string",
+            "required": true,
+            "format": "email"
+          },
+          {
+            "name": "email_verified",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "sub",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 14,
+          "method": "GET",
+          "host": "auth.tiimoapp.com",
+          "path": "/connect/userinfo",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "request_sequences": [
+    {
+      "label": "observed_api_flow",
+      "confidence": 0.35,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/configuration",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/activities",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/activities/00000000-0000-4000-8000-0000000000a1",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 5,
+          "method": "POST",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/activities",
+          "status": 201,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 6,
+          "method": "PUT",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/activities/00000000-0000-4000-8000-0000000000a1",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 7,
+          "method": "DELETE",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/activities/00000000-0000-4000-8000-0000000000a1",
+          "status": 204,
+          "reason": "observed API request order"
+        }
+      ],
+      "notes": [
+        "Capture order used; timing unavailable."
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "create_activities",
+      "resource": "activities",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/profiles/{profile_id}/activities traffic.",
+      "evidence": [
+        {
+          "entry_index": 5,
+          "method": "POST",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/activities",
+          "status": 201,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "delete_activities",
+      "resource": "activities",
+      "confidence": 0.55,
+      "rationale": "Derived from observed DELETE /api/profiles/{profile_id}/activities/{activity_id} traffic.",
+      "evidence": [
+        {
+          "entry_index": 7,
+          "method": "DELETE",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/activities/00000000-0000-4000-8000-0000000000a1",
+          "status": 204,
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_activities",
+      "resource": "activities",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/externalCalendar/profiles/{profile_id}/externalCalendars/{externalcalendar_id}/activities traffic.",
+      "evidence": [
+        {
+          "entry_index": 13,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/externalCalendar/profiles/00000000-0000-4000-8000-000000000001/externalCalendars/00000000-0000-4000-8000-0000000000c1/activities",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_linkedCalendars",
+      "resource": "linkedCalendars",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/externalCalendar/profiles/{profile_id}/linkedCalendars traffic.",
+      "evidence": [
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/externalCalendar/profiles/00000000-0000-4000-8000-000000000001/linkedCalendars",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_profiles",
+      "resource": "profiles",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/profiles/{profile_id} traffic.",
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_routines",
+      "resource": "routines",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/profiles/{profile_id}/routines traffic.",
+      "evidence": [
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/routines",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_tags",
+      "resource": "tags",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/profiles/{profile_id}/tags traffic.",
+      "evidence": [
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/tags",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_todo_task_lists",
+      "resource": "todo_task_lists",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/profiles/{profile_id}/todo-task-lists traffic.",
+      "evidence": [
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/todo-task-lists",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_todo_tasks",
+      "resource": "todo_tasks",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/profiles/{profile_id}/todo-tasks traffic.",
+      "evidence": [
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/todo-tasks",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_configuration",
+      "resource": "configuration",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/configuration traffic.",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/configuration",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_profiles",
+      "resource": "profiles",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/profiles traffic.",
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_userinfo",
+      "resource": "userinfo",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /connect/userinfo traffic.",
+      "evidence": [
+        {
+          "entry_index": 14,
+          "method": "GET",
+          "host": "auth.tiimoapp.com",
+          "path": "/connect/userinfo",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "update_activities",
+      "resource": "activities",
+      "confidence": 0.55,
+      "rationale": "Derived from observed PUT /api/profiles/{profile_id}/activities/{activity_id} traffic.",
+      "evidence": [
+        {
+          "entry_index": 6,
+          "method": "PUT",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/activities/00000000-0000-4000-8000-0000000000a1",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "warnings": [
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 7,
+          "method": "DELETE",
+          "host": "api.tiimoapp.com",
+          "path": "/api/profiles/00000000-0000-4000-8000-000000000001/activities/00000000-0000-4000-8000-0000000000a1",
+          "status": 204,
+          "reason": "empty/null payload"
+        }
+      ]
+    }
+  ]
+}

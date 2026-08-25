@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "vehicle-safety-pp-mcp",
+  "display_name": "Vehicle Safety",
+  "version": "1.0.0",
+  "description": "Build source-attributed vehicle safety dossiers, honest comparisons, and recall-change reports from NHTSA data.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/vehicle-safety-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/vehicle-safety-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-07-13T18:47:59.355284Z",
+  "cli_dir": "\u003ccli-dir\u003e/snipd-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file: teach.go carries the CLI Printing Press generator header, so the learnings-list Short is generator-owned and any hand-edit is wiped on regen. The Short 'List recorded learnings' is verb-led and paired with rich Examples (--query/--warnings/--agent), adequate for an agent. Generator-template fix candidate for /printing-press-retro."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-13T18:28:57.230772Z"
+  }
+}

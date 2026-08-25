@@ -19,14 +19,13 @@ func newArticlesListCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  intercom-pp-cli articles list",
 		Annotations: map[string]string{"pp:endpoint": "articles.list", "pp:method": "GET", "pp:path": "/articles", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/articles"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/articles"
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "articles", true, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "articles", true, path, params, nil, "data", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -71,7 +70,7 @@ func newArticlesListCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 

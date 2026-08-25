@@ -20,7 +20,7 @@ func newFilesVersionsGetFileCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "get-file <file_key>",
 		Aliases:     []string{"get"},
-		Short:       "This endpoint fetches the version history of a file, allowing you to see the progression of a file over time. You...",
+		Short:       "This endpoint fetches the version history of a file, allowing you to see the progression of a file over time.",
 		Example:     "  figma-pp-cli files versions get-file your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "versions.get-file", "pp:method": "GET", "pp:path": "/v1/files/{file_key}/versions", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -34,24 +34,30 @@ func newFilesVersionsGetFileCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/files/{file_key}/versions"
 			path = replacePathParam(path, "file_key", args[0])
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "versions", path, map[string]string{
-				"page_size": fmt.Sprintf("%v", flagPageSize),
-				"before":    fmt.Sprintf("%v", flagBefore),
-				"after":     fmt.Sprintf("%v", flagAfter),
-			}, nil, flagAll, "after", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "versions", path, map[string]string{
+				"page_size": formatCLIParamValue(flagPageSize),
+				"before":    formatCLIParamValue(flagBefore),
+				"after":     formatCLIParamValue(flagAfter),
+			}, nil, flagAll, "after", "cursor", "page_size", "pagination.next_page", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -81,8 +87,8 @@ func newFilesVersionsGetFileCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().Float64Var(&flagPageSize, "page-size", 0.0, "The number of items returned in a page of the response. If not included, `page_size` is `30`.")
-	cmd.Flags().Float64Var(&flagBefore, "before", 0.0, "A version ID for one of the versions in the history. Gets versions before this ID. Used for paginating. If the...")
-	cmd.Flags().Float64Var(&flagAfter, "after", 0.0, "A version ID for one of the versions in the history. Gets versions after this ID. Used for paginating. If the...")
+	cmd.Flags().Float64Var(&flagBefore, "before", 0.0, "A version ID for one of the versions in the history. Gets versions before this ID. Used for paginating.")
+	cmd.Flags().Float64Var(&flagAfter, "after", 0.0, "A version ID for one of the versions in the history. Gets versions after this ID. Used for paginating.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

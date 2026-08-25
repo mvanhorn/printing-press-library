@@ -9,10 +9,11 @@ import (
 
 func newIntercomExportCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "intercom-export",
-		Short:  "Get and create intercom export",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "intercom-export",
+		Short:       "Get and create intercom export",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newIntercomExportCancelDataCmd(flags))

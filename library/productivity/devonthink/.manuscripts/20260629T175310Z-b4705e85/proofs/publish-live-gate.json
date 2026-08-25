@@ -1,0 +1,1876 @@
+{
+  "schema_version": 1,
+  "api_name": "devonthink",
+  "run_id": "20260629T175310Z-b4705e85",
+  "artifact_type": "publish-live-gate",
+  "local_only": true,
+  "verdict": "PASS",
+  "level": "full",
+  "ran_at": "2026-08-20T18:06:10.855671Z",
+  "matrix_size": 122,
+  "passed": 122,
+  "skipped": 107,
+  "failed": 0,
+  "commands": [
+    {
+      "command": "ai ask",
+      "kind": "help",
+      "args": [
+        "ai",
+        "ask",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "ai ask",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "ai ask",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "ai ask",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "ai ask",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "ai summarize",
+      "kind": "help",
+      "args": [
+        "ai",
+        "summarize",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "ai summarize",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "ai summarize",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "ai summarize",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "ai summarize",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "batch apply",
+      "kind": "help",
+      "args": [
+        "batch",
+        "apply",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "batch apply",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "batch apply",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "batch apply",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "batch apply",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "batch plan",
+      "kind": "help",
+      "args": [
+        "batch",
+        "plan",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "batch plan",
+      "kind": "happy_path",
+      "args": [
+        "batch",
+        "plan",
+        "--query",
+        "tags:todo",
+        "--add-tag",
+        "reviewed",
+        "--dry-run",
+        "--agent"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "batch plan",
+      "kind": "json_fidelity",
+      "args": [
+        "batch",
+        "plan",
+        "--query",
+        "tags:todo",
+        "--add-tag",
+        "reviewed",
+        "--dry-run",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "batch plan",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "batch plan",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "context pack",
+      "kind": "help",
+      "args": [
+        "context",
+        "pack",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "context pack",
+      "kind": "happy_path",
+      "args": [
+        "context",
+        "pack",
+        "--limit",
+        "10",
+        "--token-budget",
+        "4000"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "context pack",
+      "kind": "json_fidelity",
+      "args": [
+        "context",
+        "pack",
+        "--limit",
+        "10",
+        "--token-budget",
+        "4000",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "context pack",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "databases",
+      "kind": "help",
+      "args": [
+        "databases",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "databases",
+      "kind": "happy_path",
+      "args": [
+        "databases"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "databases",
+      "kind": "json_fidelity",
+      "args": [
+        "databases",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "databases",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "export",
+      "kind": "help",
+      "args": [
+        "export",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "export",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "export",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "export",
+      "kind": "error_path",
+      "args": [
+        "export",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "graph audit",
+      "kind": "help",
+      "args": [
+        "graph",
+        "audit",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "graph audit",
+      "kind": "happy_path",
+      "args": [
+        "graph",
+        "audit",
+        "--database",
+        "Research",
+        "--agent",
+        "--select",
+        "issues,type,count,samples"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "graph audit",
+      "kind": "json_fidelity",
+      "args": [
+        "graph",
+        "audit",
+        "--database",
+        "Research",
+        "--agent",
+        "--select",
+        "issues,type,count,samples",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "graph audit",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "graph links",
+      "kind": "help",
+      "args": [
+        "graph",
+        "links",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "graph links",
+      "kind": "happy_path",
+      "args": [
+        "graph",
+        "links"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "graph links",
+      "kind": "json_fidelity",
+      "args": [
+        "graph",
+        "links",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "graph links",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "groups",
+      "kind": "help",
+      "args": [
+        "groups",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "groups",
+      "kind": "happy_path",
+      "args": [
+        "groups"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "groups",
+      "kind": "json_fidelity",
+      "args": [
+        "groups",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "groups",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "ingest file",
+      "kind": "help",
+      "args": [
+        "ingest",
+        "file",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "ingest file",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "ingest file",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "ingest file",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "ingest file",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "ingest url",
+      "kind": "help",
+      "args": [
+        "ingest",
+        "url",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "ingest url",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "ingest url",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "ingest url",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "ingest url",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "inventory export",
+      "kind": "help",
+      "args": [
+        "inventory",
+        "export",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "inventory export",
+      "kind": "happy_path",
+      "args": [
+        "inventory",
+        "export",
+        "--format",
+        "maintenance",
+        "--limit",
+        "100"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "inventory export",
+      "kind": "json_fidelity",
+      "args": [
+        "inventory",
+        "export",
+        "--format",
+        "maintenance",
+        "--limit",
+        "100",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "inventory export",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "ledger list",
+      "kind": "help",
+      "args": [
+        "ledger",
+        "list",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "ledger list",
+      "kind": "happy_path",
+      "args": [
+        "ledger",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "ledger list",
+      "kind": "json_fidelity",
+      "args": [
+        "ledger",
+        "list",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "ledger list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "ledger show",
+      "kind": "help",
+      "args": [
+        "ledger",
+        "show",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "ledger show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "ledger show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "ledger show",
+      "kind": "error_path",
+      "args": [
+        "ledger",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "mcp call",
+      "kind": "help",
+      "args": [
+        "mcp",
+        "call",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "mcp call",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "mcp call",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "mcp call",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "mcp call",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "mcp schema",
+      "kind": "help",
+      "args": [
+        "mcp",
+        "schema",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "mcp schema",
+      "kind": "happy_path",
+      "args": [
+        "mcp",
+        "schema"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "mcp schema",
+      "kind": "json_fidelity",
+      "args": [
+        "mcp",
+        "schema",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "mcp schema",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "mcp tools",
+      "kind": "help",
+      "args": [
+        "mcp",
+        "tools",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "mcp tools",
+      "kind": "happy_path",
+      "args": [
+        "mcp",
+        "tools"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "mcp tools",
+      "kind": "json_fidelity",
+      "args": [
+        "mcp",
+        "tools",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "mcp tools",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "media ocr",
+      "kind": "help",
+      "args": [
+        "media",
+        "ocr",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "media ocr",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "media ocr",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "media ocr",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "media ocr",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "media transcribe",
+      "kind": "help",
+      "args": [
+        "media",
+        "transcribe",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "media transcribe",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "media transcribe",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "media transcribe",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "media transcribe",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "mirror search",
+      "kind": "help",
+      "args": [
+        "mirror",
+        "search",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "mirror search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "mirror search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "mirror search",
+      "kind": "error_path",
+      "args": [
+        "mirror",
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "mirror sync",
+      "kind": "help",
+      "args": [
+        "mirror",
+        "sync",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "mirror sync",
+      "kind": "happy_path",
+      "args": [
+        "mirror",
+        "sync"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "mirror sync",
+      "kind": "json_fidelity",
+      "args": [
+        "mirror",
+        "sync",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "mirror sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "privacy audit",
+      "kind": "help",
+      "args": [
+        "privacy",
+        "audit",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "privacy audit",
+      "kind": "happy_path",
+      "args": [
+        "privacy",
+        "audit",
+        "--limit",
+        "25"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "privacy audit",
+      "kind": "json_fidelity",
+      "args": [
+        "privacy",
+        "audit",
+        "--limit",
+        "25",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "privacy audit",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "records content",
+      "kind": "help",
+      "args": [
+        "records",
+        "content",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "records content",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records content",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records content",
+      "kind": "error_path",
+      "args": [
+        "records",
+        "content",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "records create",
+      "kind": "help",
+      "args": [
+        "records",
+        "create",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "records create",
+      "kind": "happy_path",
+      "args": [
+        "records",
+        "create",
+        "--title",
+        "example-resource",
+        "--dry-run"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "records create",
+      "kind": "json_fidelity",
+      "args": [
+        "records",
+        "create",
+        "--title",
+        "example-resource",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "records create",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records create",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records get",
+      "kind": "help",
+      "args": [
+        "records",
+        "get",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "records get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records get",
+      "kind": "error_path",
+      "args": [
+        "records",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "records highlights",
+      "kind": "help",
+      "args": [
+        "records",
+        "highlights",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "records highlights",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records highlights",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records highlights",
+      "kind": "error_path",
+      "args": [
+        "records",
+        "highlights",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "records lookup",
+      "kind": "help",
+      "args": [
+        "records",
+        "lookup",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "records lookup",
+      "kind": "happy_path",
+      "args": [
+        "records",
+        "lookup"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "records lookup",
+      "kind": "json_fidelity",
+      "args": [
+        "records",
+        "lookup",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "records lookup",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records move",
+      "kind": "help",
+      "args": [
+        "records",
+        "move",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "records move",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records move",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records move",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records move",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records related",
+      "kind": "help",
+      "args": [
+        "records",
+        "related",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "records related",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records related",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records related",
+      "kind": "error_path",
+      "args": [
+        "records",
+        "related",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "records search",
+      "kind": "help",
+      "args": [
+        "records",
+        "search",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "records search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records search",
+      "kind": "error_path",
+      "args": [
+        "records",
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "records update",
+      "kind": "help",
+      "args": [
+        "records",
+        "update",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "records update",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records update",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records update",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records update",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records versions",
+      "kind": "help",
+      "args": [
+        "records",
+        "versions",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "records versions",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records versions",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "records versions",
+      "kind": "error_path",
+      "args": [
+        "records",
+        "versions",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "runtime",
+      "kind": "help",
+      "args": [
+        "runtime",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "runtime",
+      "kind": "happy_path",
+      "args": [
+        "runtime"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "runtime",
+      "kind": "json_fidelity",
+      "args": [
+        "runtime",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "runtime",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "selection get",
+      "kind": "help",
+      "args": [
+        "selection",
+        "get",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "selection get",
+      "kind": "happy_path",
+      "args": [
+        "selection",
+        "get"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "selection get",
+      "kind": "json_fidelity",
+      "args": [
+        "selection",
+        "get",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "selection get",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "selection snapshot",
+      "kind": "help",
+      "args": [
+        "selection",
+        "snapshot",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "selection snapshot",
+      "kind": "happy_path",
+      "args": [
+        "selection",
+        "snapshot",
+        "--agent"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "selection snapshot",
+      "kind": "json_fidelity",
+      "args": [
+        "selection",
+        "snapshot",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "selection snapshot",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "sheets",
+      "kind": "help",
+      "args": [
+        "sheets",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "sheets",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "sheets",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "sheets",
+      "kind": "error_path",
+      "args": [
+        "sheets",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "tags",
+      "kind": "help",
+      "args": [
+        "tags",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "tags",
+      "kind": "happy_path",
+      "args": [
+        "tags"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "tags",
+      "kind": "json_fidelity",
+      "args": [
+        "tags",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "tags",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "tail",
+      "kind": "help",
+      "args": [
+        "tail",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "tail",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "tail",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "tail",
+      "kind": "error_path",
+      "args": [
+        "tail",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip"
+    }
+  ]
+}

@@ -1,0 +1,1250 @@
+{
+  "api_name": "cosmos",
+  "base_url": "https://api.cosmos.so",
+  "description": "Search, organize, export, and audit your Cosmos inspiration library from the terminal.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "COSMOS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "COSMOS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "actives_imports",
+      "description": "Fetch actives imports. Required: operationName (default: GetActiveImports). Optional: query, variables (default: map[]), extensions. Returns the new get_active_imports.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "activities_get",
+      "description": "Fetch activities. Required: operationName (default: GetActivities). Optional: query, variables (default: map[]), extensions. Returns the new get_activities.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "alls_elements",
+      "description": "Fetch alls elements. Required: operationName (default: GetAllElements). Optional: query, variables (default: map[]), extensions. Returns the new get_all_elements.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "alls_elements_count",
+      "description": "Fetch alls elements count. Required: operationName (default: GetAllElementsCount). Optional: query, variables (default: map[]), extensions. Returns the new get_all_elements_count.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "alls_recent_activity",
+      "description": "Fetch alls recent activity. Required: operationName (default: GetAllRecentActivity). Optional: query, variables (default: map[]), extensions. Returns the new get_all_recent_activity.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "clusters_basic",
+      "description": "Fetch clusters basic. Required: operationName (default: GetClusterBasic). Optional: query, variables (default: map[]), extensions. Returns the new get_cluster_basic.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "clusters_by_slug",
+      "description": "Fetch clusters by slug. Required: operationName (default: GetClusterBySlug). Optional: query, variables (default: map[]), extensions. Returns the new get_cluster_by_slug.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "clusters_elements",
+      "description": "Fetch clusters elements. Required: operationName (default: GetClusterElements). Optional: query, variables (default: map[]), extensions. Returns the new get_cluster_elements.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "clusters_recommendations",
+      "description": "Fetch clusters recommendations. Required: operationName (default: GetClusterRecommendations). Optional: query, variables (default: map[]), extensions. Returns the new get_cluster_recommendations.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "connectables_clusters",
+      "description": "Fetch connectables clusters. Required: operationName (default: GetConnectableClusters). Optional: query, variables (default: map[]), extensions. Returns the new get_connectable_clusters.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "dids_setup_profile",
+      "description": "Fetch dids setup profile. Required: operationName (default: GetDidSetupProfile). Optional: query, variables (default: map[]), extensions. Returns the new get_did_setup_profile.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "elements_get",
+      "description": "Fetch elements. Required: operationName (default: GetElementDetails). Optional: query, variables (default: map[]), extensions. Returns the new get_element_details.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "elements_get_2",
+      "description": "Fetch elements. Required: operationName (default: ViewElement). Optional: query, variables (default: map[]), extensions. Returns the new view_element.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "elements_social_graph",
+      "description": "Fetch elements social graph. Required: operationName (default: GetElementSocialGraph). Optional: query, variables (default: map[]), extensions. Returns the new get_element_social_graph.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "elements_top_counts",
+      "description": "Fetch elements top counts. Required: operationName (default: GetElementTopCounts). Optional: query, variables (default: map[]), extensions. Returns the new get_element_top_counts.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "fors_you_elements",
+      "description": "Fetch fors you elements. Required: operationName (default: GetForYouElements). Optional: query, variables (default: map[]), extensions. Returns the new get_for_you_elements.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "fors_you_user_configuration",
+      "description": "Fetch fors you user configuration. Required: operationName (default: GetForYouUserConfiguration). Optional: query, variables (default: map[]), extensions. Returns the new get_for_you_user_configuration.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "globals_clusters",
+      "description": "Fetch globals clusters. Required: operationName (default: SearchGlobalClusters). Optional: query, variables (default: map[]), extensions. Returns the new search_global_clusters.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "globals_elements",
+      "description": "Fetch globals elements. Required: operationName (default: SearchGlobalElements). Optional: query, variables (default: map[]), extensions. Returns the new search_global_elements.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "globals_get",
+      "description": "Fetch globals. Required: operationName (default: SearchGlobal). Optional: query, variables (default: map[]), extensions. Returns the new search_global.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "has_user_seen_new_feature",
+      "description": "Fetch has user seen new feature. Required: operationName (default: GetHasUserSeenNewFeature). Optional: query, variables (default: map[]), extensions. Returns the new get_has_user_seen_new_feature.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "loaders_state",
+      "description": "Fetch loaders state. Required: operationName (default: GetLoaderState). Optional: query, variables (default: map[]), extensions. Returns the new get_loader_state.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "profiles_counts",
+      "description": "Fetch profiles counts. Required: operationName (default: GetProfileCounts). Optional: query, variables (default: map[]), extensions. Returns the new get_profile_counts.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "quicks_connect_recommendation",
+      "description": "Fetch quicks connect recommendation. Required: operationName (default: GetQuickConnectRecommendation). Optional: query, variables (default: map[]), extensions. Returns the new get_quick_connect_recommendation.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "recentlies_viewed_element_count",
+      "description": "Fetch recentlies viewed element count. Required: operationName (default: GetRecentlyViewedElementCount). Optional: query, variables (default: map[]), extensions. Returns the new get_recently_viewed_element_count.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "recents_global_searches",
+      "description": "Fetch recents global searches. Required: operationName (default: GetRecentGlobalSearches). Optional: query, variables (default: map[]), extensions. Returns the new get_recent_global_searches.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "remembers_global_search_term",
+      "description": "Fetch remembers global search term. Required: operationName (default: RememberGlobalSearchTerm). Optional: query, variables (default: map[]), extensions. Returns the new remember_global_search_term.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "similars_elements",
+      "description": "Fetch similars elements. Required: operationName (default: GetSimilarElements). Optional: query, variables (default: map[]), extensions. Returns the new get_similar_elements.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "subclusters_get",
+      "description": "Fetch subclusters. Required: operationName (default: GetSubclusters). Optional: query, variables (default: map[]), extensions. Returns the new get_subclusters.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "users_clusters",
+      "description": "Fetch users clusters. Required: operationName (default: GetUserClusters). Optional: query, variables (default: map[]), extensions. Returns the new get_user_clusters.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "users_clusters_2",
+      "description": "Fetch users clusters. Required: operationName (default: SearchUserClusters). Optional: query, variables (default: map[]), extensions. Returns the new search_user_clusters.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "users_elements",
+      "description": "Fetch users elements. Required: operationName (default: SearchUserElements). Optional: query, variables (default: map[]), extensions. Returns the new search_user_elements.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "users_follows_basic",
+      "description": "Fetch users follows basic. Required: operationName (default: GetUserFollowsBasic). Optional: query, variables (default: map[]), extensions. Returns the new get_user_follows_basic.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "users_for_member",
+      "description": "Fetch users for member. Required: operationName (default: GetUserForMemberPage). Optional: query, variables (default: map[]), extensions. Returns the new get_user_for_member_page.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "users_public_clusters_count",
+      "description": "Fetch users public clusters count. Required: operationName (default: GetUserPublicClustersCount). Optional: query, variables (default: map[]), extensions. Returns the new get_user_public_clusters_count.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "users_public_elements_cluster_id",
+      "description": "Fetch users public elements cluster id. Required: operationName (default: GetUserPublicElementsClusterId). Optional: query, variables (default: map[]), extensions. Returns the new get_user_public_elements_cluster_id.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    },
+    {
+      "name": "users_public_elements_count",
+      "description": "Fetch users public elements count. Required: operationName (default: GetUserPublicElementsCount). Optional: query, variables (default: map[]), extensions. Returns the new get_user_public_elements_count.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as JSON"
+        },
+        {
+          "name": "extensions",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL extensions as JSON"
+        }
+      ]
+    }
+  ]
+}

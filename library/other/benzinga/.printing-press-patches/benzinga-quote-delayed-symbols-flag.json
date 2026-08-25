@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "benzinga-quote-delayed-symbols-flag",
+  "applied_at": "2026-06-28",
+  "base_run_id": "20260627-034058-2c1f9c5c",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Restore the --symbols flag on quote-delayed get-v1/get-v2.",
+  "reason": "Generation filtered the global query param 'symbols' from these 2 endpoints, leaving only --isin/--cik; symbol lookup is the primary use of a delayed-quote endpoint.",
+  "files": [
+    "internal/cli/quote-delayed_get-v1.go",
+    "internal/cli/quote-delayed_get-v2.go"
+  ]
+}

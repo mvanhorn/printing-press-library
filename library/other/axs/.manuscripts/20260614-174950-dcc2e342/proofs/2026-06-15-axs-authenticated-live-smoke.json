@@ -1,0 +1,7 @@
+{
+  "status": "pass",
+  "command": "axs-pp-cli garage --json",
+  "pii_policy": "raw output not persisted",
+  "bikes": 1,
+  "components": 0
+}

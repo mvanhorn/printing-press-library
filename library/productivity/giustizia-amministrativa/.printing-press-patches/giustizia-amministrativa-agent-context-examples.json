@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-agent-context-examples",
+  "applied_at": "2026-08-22",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Il comando generato agent-context dichiara ora una sezione Example, come ogni altro comando della CLI.",
+  "reason": "La matrice del collaudo live boccia con 'missing Examples section' ogni comando che non ne dichiara una. agent-context e' generato e non ne aveva: il difetto e' preesistente e identico nella versione pubblicata in catalogo, e non emergeva perche' la matrice del binario precedente non copriva quel comando. Due righe di esempio costano meno di un collaudo da rifare.",
+  "files": [
+    "internal/cli/agent_context.go"
+  ],
+  "validated_outcome": "`agent-context --help` mostra la sezione Examples con le due forme del comando (con e senza --pretty). La scansione di tutti i comandi foglia della CLI non riporta piu' alcun 'SENZA Examples' oltre ai built-in di cobra (completion), che non sono in matrice. go build e go test verdi."
+}

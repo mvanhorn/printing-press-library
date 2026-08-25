@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "tessie-pp-cli"
+display_name = "Tessie"
+description = "Live Tesla vehicle data and commands from the terminal via the Tessie API"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/tessie-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+TESSIE_API_TOKEN = true

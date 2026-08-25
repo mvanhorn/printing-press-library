@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "weaviate-collections-greptile-round3-stdin-timeout",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-100645-wvc1",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Bounded auth set-token's stdin read so an inherited-but-idle stdin can no longer hang the command indefinitely.",
+  "reason": "Round 2 removed the positional-token path and made stdin the only input for auth set-token, using io.ReadAll(cmd.InOrStdin()). Greptile's round-3 re-review (score 4/5, up from 1/5) confirmed the prior MCP auth/TLS, snapshot-label, and positional-token findings resolved, but flagged that io.ReadAll blocks until EOF, so an invocation that inherits an open stdin with nothing forthcoming (a bare interactive run with nothing typed, or a parent process that never writes or closes its end of a pipe) hangs forever. Replaced the read with readStdinTokenLine: a single-line bufio.Scanner read racing a 60s timeout via a goroutine + select. Piped/redirected input (the documented usage) still resolves as soon as the line is available; an idle stdin now fails with a clear, actionable error after 60s instead of hanging.",
+  "files": ["internal/cli/auth.go"],
+  "validated_outcome": "Verified with a throwaway test (removed before commit): a never-written, never-closed io.Pipe times out in ~1s against a 1s bound and returns an error; a pipe with one line written returns immediately. End-to-end: `echo faketoken | auth set-token --json` still completes in well under a second. go build/vet/gofmt clean; existing pre-existing unrelated test failure unchanged.",
+  "upstream_issue": ""
+}

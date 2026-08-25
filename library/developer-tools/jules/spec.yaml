@@ -1,0 +1,310 @@
+openapi: 3.0.0
+info:
+  title: Jules API
+  version: 1.0.0-alpha
+  description: Jules Planning & Progress API for async coding tasks
+  contact:
+    name: Google Labs
+    url: https://jules.google/docs/api/
+
+servers:
+  - url: https://jules.googleapis.com/v1alpha
+    description: Jules API (alpha)
+
+security:
+  - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-goog-api-key
+
+  schemas:
+    Source:
+      type: object
+      properties:
+        name:
+          type: string
+        id:
+          type: string
+        githubRepo:
+          type: object
+          properties:
+            owner:
+              type: string
+            repo:
+              type: string
+            isPrivate:
+              type: boolean
+            defaultBranch:
+              type: object
+              properties:
+                displayName:
+                  type: string
+            branches:
+              type: array
+              items:
+                type: object
+
+    Session:
+      type: object
+      properties:
+        name:
+          type: string
+        id:
+          type: string
+        title:
+          type: string
+        prompt:
+          type: string
+        state:
+          type: string
+          enum: [STATE_UNSPECIFIED, QUEUED, PLANNING, AWAITING_PLAN_APPROVAL, IN_PROGRESS, COMPLETED, FAILED]
+        url:
+          type: string
+        createTime:
+          type: string
+          format: date-time
+        updateTime:
+          type: string
+          format: date-time
+        sourceContext:
+          type: object
+        requirePlanApproval:
+          type: boolean
+        automationMode:
+          type: string
+        outputs:
+          type: array
+          items:
+            type: object
+
+    Activity:
+      type: object
+      properties:
+        name:
+          type: string
+        id:
+          type: string
+        originator:
+          type: string
+        description:
+          type: string
+        createTime:
+          type: string
+          format: date-time
+        planGenerated:
+          type: object
+        planApproved:
+          type: object
+        userMessaged:
+          type: object
+        agentMessaged:
+          type: object
+        progressUpdated:
+          type: object
+        sessionCompleted:
+          type: object
+        sessionFailed:
+          type: object
+        artifacts:
+          type: array
+          items:
+            type: object
+
+paths:
+  /sources:
+    get:
+      summary: List connected repositories
+      operationId: listSources
+      parameters:
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 30
+        - name: pageToken
+          in: query
+          schema:
+            type: string
+        - name: filter
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of sources
+
+  /sources/{sourceId}:
+    get:
+      summary: Get specific repository
+      operationId: getSource
+      parameters:
+        - name: sourceId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Source details
+
+  /sessions:
+    post:
+      summary: Create new coding task session
+      operationId: createSession
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - prompt
+              properties:
+                prompt:
+                  type: string
+                title:
+                  type: string
+                sourceContext:
+                  type: object
+                requirePlanApproval:
+                  type: boolean
+                automationMode:
+                  type: string
+      responses:
+        '201':
+          description: Session created
+
+    get:
+      summary: List all sessions
+      operationId: listSessions
+      parameters:
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 30
+        - name: pageToken
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of sessions
+
+  /sessions/{sessionId}:
+    get:
+      summary: Get specific session
+      operationId: getSession
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Session details
+
+    delete:
+      summary: Delete session
+      operationId: deleteSession
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Session deleted
+
+  /sessions/{sessionId}/activities:
+    get:
+      summary: List session activities
+      operationId: listActivities
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: pageToken
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of activities
+
+  /sessions/{sessionId}/activities/{activityId}:
+    get:
+      summary: Get specific activity
+      operationId: getActivity
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: activityId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Activity details
+
+  "/sessions/{sessionId}:sendMessage":
+    post:
+      summary: Send message to session
+      operationId: sendMessage
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - prompt
+              properties:
+                prompt:
+                  type: string
+      responses:
+        '200':
+          description: Message sent
+
+  "/sessions/{sessionId}:approvePlan":
+    post:
+      summary: Approve pending plan
+      operationId: approvePlan
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Plan approved

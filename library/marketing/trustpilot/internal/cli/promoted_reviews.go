@@ -22,8 +22,8 @@ func newReviewsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "reviews <review_build_id> <domain>",
-		Short:       "Fetch a page of reviews for a company by domain (use 'reviews fetch <domain>' from the CLI). Authenticated via...",
-		Long:        "Shortcut for 'reviews list'. Fetch a page of reviews for a company by domain (use 'reviews fetch <domain>' from the CLI). Authenticated via...",
+		Short:       "Fetch a page of reviews for a company by domain (use 'reviews-fetch <domain>' from the CLI). Authenticated via...",
+		Long:        "Shortcut for 'reviews list'. Fetch a page of reviews for a company by domain (use 'reviews-fetch <domain>' from the CLI). Authenticated via...",
 		Example:     "  trustpilot-pp-cli reviews 550e8400-e29b-41d4-a716-446655440000 example-value --business-unit example-value",
 		Annotations: map[string]string{"pp:endpoint": "reviews.list", "pp:method": "GET", "pp:path": "/_next/data/{review_build_id}/review/{domain}.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {

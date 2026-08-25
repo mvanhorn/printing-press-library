@@ -1,0 +1,33 @@
+{
+  "endpoint": "GET /api/tripPlans/likes",
+  "method": "GET",
+  "raw_url": "https://wanderlog.com/api/tripPlans/likes",
+  "status": 200,
+  "request_headers": {
+    "accept": "application/json,text/plain,*/*",
+    "referer": "https://wanderlog.com/",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+  },
+  "request_body": null,
+  "response_headers": {
+    "connection": "keep-alive",
+    "content-language": "en",
+    "content-length": "161",
+    "content-type": "application/json; charset=utf-8",
+    "date": "Fri, 19 Jun 2026 01:58:18 GMT",
+    "etag": "W/\"a1-uvywhlOQKL6CIgBbhJhlqbbSVvY\"",
+    "server": "nginx/1.24.0 (Ubuntu)",
+    "x-powered-by": "Express"
+  },
+  "response_body": {
+    "errTypes": [
+      "keyNotFound"
+    ],
+    "error": "ApplicationError: Couldn't fetch keyInfo for key likes",
+    "messages": [
+      "Couldn't fetch keyInfo for key likes"
+    ],
+    "success": false
+  },
+  "response_body_known": true
+}

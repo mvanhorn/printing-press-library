@@ -7,6 +7,7 @@ stripe-pp-cli matches the official stripe-cli verb-for-verb and adds what it del
 Learn more at [Stripe](https://stripe.com).
 
 Created by [@crodorg](https://github.com/crodorg) (Chris Rodriguez).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 
@@ -37,7 +38,7 @@ npx -y @mvanhorn/printing-press-library install stripe --agent claude-code --age
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/payments/stripe/cmd/stripe-pp-cli@latest

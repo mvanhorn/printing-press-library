@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "ticketdata-learn-command-happy-args",
+  "applied_at": "2026-07-06",
+  "base_run_id": "20260706-072414",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Added pp:happy-args to generated learn-loop commands (teach, teach-pattern, teach-playbook, playbook amend), flattened teach's multi-line Example, and made teach --json honor an explicit JSON request over the silent --quiet default.",
+  "reason": "The live dogfood matrix synthesizes incomplete happy-path args for these generated commands (missing required flags, literal backslash from multi-line Examples) and runs json_fidelity against quiet-by-default teach; the commands work correctly with real args.",
+  "files": ["internal/cli/teach.go", "internal/cli/teach_playbook.go"],
+  "validated_outcome": "Full live dogfood 101/101 pass; teach --json emits a valid confirmation envelope.",
+  "upstream_issue": "retro-candidate: generator should emit pp:happy-args for learn-loop commands or matrix should honor pp:typed-exit-codes for happy_path/json_fidelity"
+}

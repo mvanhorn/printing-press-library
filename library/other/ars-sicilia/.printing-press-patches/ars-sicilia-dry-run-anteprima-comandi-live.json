@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-dry-run-anteprima-comandi-live",
+  "applied_at": "2026-08-22",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.30.3",
+  "summary": "`legge cronologia`, `deputato profilo` e `commissione dossier` stampano un'anteprima `--dry-run` (`{dry_run, note, requests[]}`, una voce per richiesta nell'ordine in cui parte) invece di uscire a vuoto con codice 0.",
+  "reason": "Il flag era accettato e scartato: uscita di zero byte ed exit 0, mentre `ddl iter` l'anteprima ce l'aveva. Un agente che diagnostica con `--dry-run` leggeva il vuoto come un guasto del comando. I comandi che leggono lo store locale (`ddl drift`, `analytics`, `sync stale`, `ddl firmatari`) restano un no-op: non c'e' una richiesta da anteprimare.",
+  "files": [
+    "internal/cli/legge_cronologia.go",
+    "internal/cli/deputato_profilo.go",
+    "internal/cli/commissione_dossier.go",
+    "internal/cli/icaro_helpers.go"
+  ],
+  "validated_outcome": "`legge cronologia 18 1 --anno 2025 --dry-run` -> 1 richiesta con la query ISIS e una `note` che dichiara il passo P010/P012 non anteprimabile; `deputato profilo Cracolici --legisl 18 --dry-run` -> 7 richieste; `commissione dossier 6 --legisl 18 --dry-run` -> 4. Percorso reale invariato: `legge cronologia 18 1 --anno 2025 --agent` da' output byte-identico (7074 B) prima e dopo."
+}

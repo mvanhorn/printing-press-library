@@ -1,0 +1,296 @@
+name: qsys
+description: "Q-SYS equipment reference: product specs, configuration, connection, and compatibility"
+version: "0.1.0"
+category: devices
+# Operator-local SQLite datastore CLI: the corpus (qsys_pages, qsys_products,
+# qsys_compat) is built by the hand-authored `harvest` command from two static
+# vendor sites, not by generated endpoint sync. This classification lets the
+# machine's sync-centric gates (verify Data Pipeline, phase5 skip semantics)
+# treat the CLI as the local-datastore shape it actually is. base_url and the
+# page/product endpoints remain for the live-fetch commands (page get, product
+# page, harvest).
+source: local-sqlite
+base_url: "https://help.qsys.com"
+http_transport: standard
+health_check_path: "/sitemap.xml"
+
+required_headers:
+  - name: User-Agent
+    value: "qsys-pp-cli/0.1 (+https://github.com/mvanhorn/printing-press-library)"
+  # help.qsys.com (MadCap Flare) returns HTTP 406 to the generated client's
+  # default `Accept: application/json` on both .htm pages and the sitemap.
+  # The generated client only sets Accept when it is empty, so a global
+  # `Accept: */*` override reaches every endpoint; all of them verify 200
+  # with it.
+  - name: Accept
+    value: "*/*"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/qsys-pp-cli/config.toml"
+
+# Cache auto-refresh is deliberately OFF. The generator's pre-read refresh
+# calls the generated `product` sync, but this CLI's corpus is built by the
+# hand-authored `harvest` command instead. With cache on, every read command
+# fired a doomed sitemap fetch and dumped the HTTP 406 body into stdout.
+# Per the press guidance, cache requires a real sync path behind it; there
+# isn't one here.
+
+learn:
+  entity_lookup_seeds:
+    product_family:
+      - canonical: power-amplifiers
+        aliases: [amps, amplifiers, amp, power amps]
+      - canonical: loudspeakers
+        aliases: [speakers, loudspeaker, spkr]
+      - canonical: q-sys
+        aliases: [cores, core, processors, qsys core]
+      - canonical: mixers
+        aliases: [mixer, mixing]
+      - canonical: discontinued-products
+        aliases: [discontinued, eol, end of life, obsolete]
+    product_model:
+      - canonical: CX-Q
+        aliases: [cxq, cx q, cx-q series]
+      - canonical: CXD-Q
+        aliases: [cxdq, cxd q, cxd-q series]
+      - canonical: MPA-Q
+        aliases: [mpaq, mpa q]
+      - canonical: SPA-Qf
+        aliases: [spaqf, spa qf, spa-qf]
+      - canonical: TSC-70-G3
+        aliases: [tsc70, tsc 70, tsc-70]
+      - canonical: TSC-101-G3
+        aliases: [tsc101, tsc 101, tsc-101]
+      - canonical: NL-C4
+        aliases: [nlc4, nl c4]
+    topic:
+      - canonical: Dante_Audio
+        aliases: [dante, dante audio]
+      - canonical: QoS
+        aliases: [qos, quality of service]
+      - canonical: Multicast_Traffic
+        aliases: [multicast, igmp]
+      - canonical: Network_Setup_Checklist
+        aliases: [network setup, network checklist, switch setup]
+      - canonical: Addressing_Routing
+        aliases: [addressing, routing, ip setup]
+  ticker_patterns:
+    - "^tsc-[0-9]+w?(-g[0-9])?$"
+    - "^cxd?-q.*$"
+    - "^qio-[a-z0-9]+$"
+    - "^nl-[a-z0-9]+$"
+    - "^mpa-q.*$"
+  synonyms:
+    "spec sheet": "specifications"
+    "data sheet": "specifications"
+    "hook up": "connect"
+    "wire up": "connect"
+    "set up": "configure"
+    "eol": "discontinued"
+  stopwords:
+    - qsys
+    - q-sys
+
+resources:
+  page:
+    description: "Q-SYS Help documentation pages (configuration, networking, hardware)"
+    endpoints:
+      get:
+        method: GET
+        path: "/Content/{topic}"
+        description: "Fetch a Q-SYS Help documentation page as clean text"
+        example: "  qsys-pp-cli page get Networking/Dante_Audio.htm"
+        happy_args: "topic=Networking/Dante_Audio.htm"
+        params:
+          - name: topic
+            type: string
+            required: true
+            positional: true
+            description: "Help topic path under /Content, e.g. Networking/QoS.htm"
+        response_format: html
+        html_extract:
+          mode: page
+      index:
+        method: GET
+        path: "/sitemap.xml"
+        description: "Fetch the Q-SYS Help sitemap listing every documentation page"
+        example: "  qsys-pp-cli page index"
+        response_format: binary
+
+  compat:
+    description: "Hardware and software compatibility matrices"
+    endpoints:
+      by_version:
+        method: GET
+        path: "/Content/Q-SYS_Compatibility/Hardware_Compatibility_QDS_Version.htm"
+        description: "List hardware support by Q-SYS Designer version: which hardware was added or removed in each release of the compatibility matrix"
+        example: "  qsys-pp-cli compat by-version"
+        response_format: html
+        html_extract:
+          mode: page
+      by_product:
+        method: GET
+        path: "/Content/Q-SYS_Compatibility/Hardware_Compatibility_Product.htm"
+        description: "List the Q-SYS Designer versions and compatibility notes for a hardware product, per the compatibility matrix"
+        example: "  qsys-pp-cli compat by-product"
+        response_format: html
+        html_extract:
+          mode: page
+      upgrade_path:
+        method: GET
+        path: "/Content/Q-SYS_Compatibility/upgrade_path_requirements.htm"
+        description: "Show firmware and Q-SYS Designer upgrade path requirements, including the supported upgrade sequences"
+        example: "  qsys-pp-cli compat upgrade-path"
+        response_format: html
+        html_extract:
+          mode: page
+      deprecations:
+        method: GET
+        path: "/Content/Q-SYS_Compatibility/Deprecation_Notices.htm"
+        description: "List deprecated hardware and feature notices with the release in which each item was deprecated"
+        example: "  qsys-pp-cli compat deprecations"
+        response_format: html
+        html_extract:
+          mode: page
+
+  networking:
+    description: "Connection, wiring, and network setup guidance"
+    endpoints:
+      get:
+        method: GET
+        path: "/Content/Networking/{topic}"
+        description: "Fetch a Q-SYS networking or connection guidance page"
+        example: "  qsys-pp-cli networking get QoS.htm"
+        happy_args: "topic=QoS.htm"
+        params:
+          - name: topic
+            type: string
+            required: true
+            positional: true
+            description: "Networking topic file, e.g. Dante_Audio.htm or QoS.htm"
+        response_format: html
+        html_extract:
+          mode: page
+
+  product:
+    base_url: "https://www.qsys.com"
+    description: "Q-SYS product pages and spec sheets on qsys.com"
+    endpoints:
+      index:
+        method: GET
+        path: "/sitemap.xml"
+        description: "Fetch the qsys.com sitemap listing every product page"
+        example: "  qsys-pp-cli product index"
+        response_format: binary
+      page:
+        method: GET
+        path: "/products-solutions/{family}/{slug}/"
+        description: "Fetch a qsys.com product page as clean text"
+        example: "  qsys-pp-cli product page power-amplifiers installed/network/cx-q-series/cx-q-2k4"
+        happy_args: "family=power-amplifiers;slug=installed/network/cx-q-series/cx-q-2k4"
+        params:
+          - name: family
+            type: string
+            required: true
+            positional: true
+            description: "Product family, e.g. power-amplifiers, loudspeakers, q-sys"
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Product slug, e.g. cx-q-series"
+        response_format: html
+        html_extract:
+          mode: page
+      resources:
+        method: GET
+        path: "/products-solutions/{family}/{slug}/"
+        description: "List spec-sheet and manual PDF links for a product"
+        example: "  qsys-pp-cli product resources power-amplifiers installed/network/cx-q-series/cx-q-2k4"
+        happy_args: "family=power-amplifiers;slug=installed/network/cx-q-series/cx-q-2k4"
+        params:
+          - name: family
+            type: string
+            required: true
+            positional: true
+            description: "Product family, e.g. power-amplifiers"
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Product slug, e.g. cx-q-series"
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes:
+            - "/resource-files"
+
+  support:
+    base_url: "https://support.qsys.com"
+    description: "Q-SYS support knowledge base: FAQ, application notes, awareness, troubleshooting, error/status messages"
+    endpoints:
+      index:
+        method: GET
+        path: "/sitemap.xml"
+        description: "Fetch the support.qsys.com sitemap listing every knowledge-base article"
+        example: "  qsys-pp-cli support index"
+        response_format: binary
+      article:
+        method: GET
+        path: "/en_US/{category}/{slug}"
+        description: "Fetch a Q-SYS support article as clean text"
+        example: "  qsys-pp-cli support article errorstatus-messages error-fault-lan-a-streaming-error-not-connected"
+        happy_args: "category=errorstatus-messages;slug=error-fault-lan-a-streaming-error-not-connected"
+        params:
+          - name: category
+            type: string
+            required: true
+            positional: true
+            description: "Article category, e.g. faq, application-notes, awareness, troubleshooting, errorstatus-messages"
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Article slug from the support sitemap"
+        response_format: html
+        html_extract:
+          mode: page
+
+mcp:
+  intents:
+    - name: verify_equipment_list
+      description: Check an equipment list against a Q-SYS Designer version and report support, end-of-life, and known issues
+      params:
+        - name: models
+          type: string
+          required: true
+          description: Space-separated Q-SYS model numbers
+        - name: qds_version
+          type: string
+          required: true
+          description: Target Q-SYS Designer version, e.g. 10.0
+      steps:
+        - endpoint: compat.by_version
+          bind:
+            version: ${input.qds_version}
+          capture: matrix
+        - endpoint: compat.deprecations
+          capture: deprecations
+      returns: matrix
+    - name: research_product
+      description: Gather a Q-SYS product's spec sheet, configuration pages, and support articles in one pass
+      params:
+        - name: model
+          type: string
+          required: true
+          description: Q-SYS model number, e.g. CX-Q
+      steps:
+        - endpoint: product.index
+          capture: catalog
+        - endpoint: support.index
+          capture: support_catalog
+      returns: catalog

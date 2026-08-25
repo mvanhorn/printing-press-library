@@ -1,0 +1,51 @@
+version: 2
+project_name: webflow-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: webflow-pp-cli
+    main: ./cmd/webflow-pp-cli
+    binary: webflow-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/webflow/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: webflow-pp-mcp
+    main: ./cmd/webflow-pp-mcp
+    binary: webflow-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: webflow-pp-cli
+    repository:
+      owner: kmorebetter
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The whole Webflow Data API, plus a local database that lets you audit SEO, diff staging against live, and preview a publish before you trigger it."
+    install: |
+      bin.install "webflow-pp-cli"
+      bin.install "webflow-pp-mcp"

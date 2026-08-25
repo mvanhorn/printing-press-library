@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "github-contents-teach-json-envelope",
+  "applied_at": "2026-07-10",
+  "base_run_id": "20260710-125244-1a986992",
+  "base_printing_press_version": "4.28.0",
+  "summary": "teach --json always emits its JSON envelope instead of being suppressed by the --quiet default.",
+  "reason": "Agents invoking --json must never get empty stdout; the generated template gates the envelope on !quiet && --json, which made dogfood json_fidelity unpassable and starves agent callers.",
+  "files": ["internal/cli/teach.go"],
+  "validated_outcome": "dogfood --live json_fidelity cell for teach passes (99/99 matrix)."
+}

@@ -1,0 +1,14 @@
+type: object
+properties:
+  id:
+    type: integer
+    format: int
+  name:
+    type: string
+  slug:
+    type: string
+  thumbnail:
+    type: string
+  topic_count:
+    type: integer
+    format: int

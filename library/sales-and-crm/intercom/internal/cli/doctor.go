@@ -71,9 +71,15 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 		Short: "Check CLI health",
 		Example: `  intercom-pp-cli doctor
   intercom-pp-cli doctor --json
-  intercom-pp-cli doctor --fail-on warn`,
+  intercom-pp-cli doctor --fail-on warn
+  intercom-pp-cli doctor --fail-on stale`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			report := map[string]any{}
+			pathsReport := collectPathsReport()
+			report["paths"] = pathsReport
+			if warning := pathsWarning(pathsReport); warning != "" {
+				report["paths_warning"] = warning
+			}
 
 			// Check config
 			cfg, err := config.Load(flags.configPath)
@@ -91,6 +97,16 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				report["config"] = "ok"
 				report["config_path"] = cfg.Path
 				report["base_url"] = cfg.BaseURL
+				// agentcookie integration is soft: if the agentcookie daemon manages
+				// this CLI's config, it writes a marker file alongside the config and
+				// AuthSource is upgraded to "agentcookie" in config.Load. Surface the
+				// state explicitly so users can tell whether the bus is wired up.
+				if cfg.AuthSource == "agentcookie" {
+					report["agentcookie"] = "detected (managing credentials)"
+				} else {
+					report["agentcookie"] = "not detected (optional)"
+				}
+				collectCredentialsLocationReport(report, cfg)
 			}
 
 			// Check auth
@@ -99,7 +115,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				header := cfg.AuthHeader()
 				if header == "" {
 					report["auth"] = "not configured"
-					report["auth_hint"] = "export INTERCOM_ACCESS_TOKEN=<your-key>"
+					report["auth_hint"] = "Set it with: intercom-pp-cli auth set-token <token> or export INTERCOM_ACCESS_TOKEN=\"your-token-here\""
 					report["auth_docs_url"] = "https://developers.intercom.com"
 				} else {
 					authConfigured = true
@@ -196,14 +212,12 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					} else if reachErr != nil && !errors.As(reachErr, &reachAPIErr) {
 						report["credentials"] = "skipped (API unreachable)"
 					} else {
-						// Shared auth-header setup for both probe variants below.
-						// Kept hoisted out of the per-probe branches because the
-						// per-API auth-placement, RequiredHeaders, and User-Agent
-						// fallback logic is independent of which verb the probe
-						// dials.
+						// Shared probe-header setup for both probe variants below.
+						// The client's request path injects auth so OAuth refresh-on-401 can
+						// retry with the newly persisted token instead of replaying a stale
+						// header/query override captured before the refresh.
 						authParams := map[string]string{}
 						authHeaders := map[string]string{}
-						authHeaders["Authorization"] = authHeader
 						authHeaders["User-Agent"] = "intercom-pp-cli"
 						verifyPath := "/me"
 						if !strings.HasPrefix(verifyPath, "/") {
@@ -232,7 +246,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			} else if cfg != nil && cfg.BaseURL == "" {
 				report["api"] = "not configured (set base_url in config file)"
 			}
-			// Cache health: only reported when this CLI has a local store.
+			// Cache health: only reported when this CLI has generated sync.
 			// Surfaces rows + last_synced_at per resource, schema version,
 			// and a fresh/stale/unknown verdict so agents can introspect
 			// whether to trust the cached data before issuing queries.
@@ -269,6 +283,8 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				{"auth", "Auth"},
 				{"env_vars", "Env Vars"},
 				{"verify_mode", "Verify Mode"},
+				{"paths_warning", "Paths"},
+				{"credentials_location_warning", "Credentials Storage"},
 				{"api", "API"},
 				{"credentials", "Credentials"},
 			}
@@ -280,6 +296,8 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				s := fmt.Sprintf("%v", v)
 				indicator := green("OK")
 				switch {
+				case strings.HasPrefix(s, "WARN"):
+					indicator = yellow("WARN")
 				case strings.HasPrefix(s, "INFO"):
 					indicator = yellow("INFO")
 				case strings.HasPrefix(s, "ERROR"):
@@ -305,7 +323,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintf(w, "  %s %s: %s\n", indicator, ck.label, s)
 			}
 			// Print info keys without status indicator
-			for _, key := range []string{"config_path", "base_url", "auth_source", "version"} {
+			for _, key := range []string{"config_path", "base_url", "auth_source", "credentials_location", "version"} {
 				if v, ok := report[key]; ok {
 					fmt.Fprintf(w, "  %s: %v\n", key, v)
 				}
@@ -324,22 +342,174 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					renderCacheReport(w, cacheRep)
 				}
 			}
+			if pathsAny, ok := report["paths"]; ok {
+				if pathsRep, ok := pathsAny.(map[string]any); ok {
+					renderPathsReport(w, pathsRep)
+				}
+			}
 			return doctorExitForFailOn(failOn, report)
 		},
 	}
-	cmd.Flags().StringVar(&failOn, "fail-on", "", "Exit non-zero when a health level is reached: stale, error. Default is never.")
+	cmd.Flags().StringVar(&failOn, "fail-on", "", "Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.")
 	return cmd
 }
 
+func collectPathsReport() map[string]any {
+	report := map[string]any{}
+	resolutions, err := cliutil.AllPathResolutions()
+	if err != nil {
+		report["status"] = "error"
+		report["detail"] = err.Error()
+		return report
+	}
+	report["status"] = "ok"
+	ignoredSeen := map[string]bool{}
+	var ignored []map[string]string
+	var notes []string
+	for _, resolution := range resolutions {
+		report[resolution.KindName] = map[string]any{
+			"dir":    resolution.Dir,
+			"rung":   resolution.Rung,
+			"source": resolution.Source,
+		}
+		for _, skipped := range resolution.IgnoredOverrides {
+			key := skipped.Name + "\x00" + skipped.Value
+			if ignoredSeen[key] {
+				continue
+			}
+			ignoredSeen[key] = true
+			ignored = append(ignored, map[string]string{
+				"name":  skipped.Name,
+				"value": skipped.Value,
+			})
+		}
+		if cliutil.HomeOverrideActive() && resolution.Rung == "per-kind-env" && (resolution.Kind == cliutil.PathKindData || resolution.Kind == cliutil.PathKindConfig) {
+			notes = append(notes, fmt.Sprintf("--home shadowed for %s by %s", resolution.KindName, resolution.Source))
+		}
+	}
+	if len(ignored) > 0 {
+		report["skipped_relative_overrides"] = ignored
+	}
+	if len(notes) > 0 {
+		report["notes"] = notes
+	}
+	return report
+}
+
+func pathsWarning(report map[string]any) string {
+	if report == nil {
+		return ""
+	}
+	var parts []string
+	if raw, ok := report["skipped_relative_overrides"].([]map[string]string); ok && len(raw) > 0 {
+		names := make([]string, 0, len(raw))
+		for _, entry := range raw {
+			names = append(names, entry["name"])
+		}
+		parts = append(parts, "relative override skipped: "+strings.Join(names, ", "))
+	}
+	if raw, ok := report["notes"].([]string); ok && len(raw) > 0 {
+		parts = append(parts, "home override shadowed")
+	}
+	if len(parts) == 0 {
+		return ""
+	}
+	return "WARN paths: " + strings.Join(parts, "; ")
+}
+
+func renderPathsReport(w io.Writer, rep map[string]any) {
+	fmt.Fprintf(w, "  Paths:\n")
+	for _, kind := range []string{"config", "data", "state", "cache"} {
+		entry, ok := rep[kind].(map[string]any)
+		if !ok {
+			continue
+		}
+		fmt.Fprintf(w, "    %s: %v (%v)\n", kind, entry["dir"], entry["source"])
+	}
+	if raw, ok := rep["skipped_relative_overrides"].([]map[string]string); ok && len(raw) > 0 {
+		fmt.Fprintf(w, "    skipped_relative_overrides:\n")
+		for _, entry := range raw {
+			fmt.Fprintf(w, "      %s=%q\n", entry["name"], entry["value"])
+		}
+	}
+	if raw, ok := rep["notes"].([]string); ok && len(raw) > 0 {
+		fmt.Fprintf(w, "    notes:\n")
+		for _, note := range raw {
+			fmt.Fprintf(w, "      %s\n", note)
+		}
+	}
+}
+func collectCredentialsLocationReport(report map[string]any, cfg *config.Config) {
+	if cfg == nil {
+		return
+	}
+	if cfg.CredentialSource != "" {
+		report["credentials_location"] = cfg.CredentialSource
+	} else {
+		report["credentials_location"] = "none"
+	}
+	if cfg.AgentcookieManagedByExternalStore() {
+		return
+	}
+
+	locations := []string{}
+	credsPresent, err := cliutil.CredentialsFileHasValues()
+	if err == nil && credsPresent {
+		locations = append(locations, "credentials file")
+	}
+	legacySecretsElsewhere := ""
+	for _, path := range legacyCredentialProbePaths(cfg) {
+		ok, err := config.FileHasCredentialFields(path)
+		if err == nil && ok {
+			locations = append(locations, path)
+			if path != cfg.Path {
+				legacySecretsElsewhere = path
+			}
+		}
+	}
+	if len(locations) > 0 {
+		report["credentials_locations"] = locations
+	}
+	if credsPresent && len(locations) > 1 {
+		if legacySecretsElsewhere != "" {
+			report["credentials_location_warning"] = "WARN credentials stored in more than one location; legacy secrets remain at " + legacySecretsElsewhere + "; run auth set-token or auth logout to consolidate and remove legacy secrets"
+		} else {
+			report["credentials_location_warning"] = "WARN credentials stored in more than one location; current reads use credentials file; run auth set-token or auth logout to consolidate"
+		}
+	}
+}
+
+func legacyCredentialProbePaths(cfg *config.Config) []string {
+	seen := map[string]bool{}
+	var paths []string
+	add := func(path string) {
+		if path == "" || seen[path] {
+			return
+		}
+		seen[path] = true
+		paths = append(paths, path)
+	}
+	if cfg != nil && cfg.Path != "" {
+		// Probe only the active config; a same-dir standard-named file may
+		// belong to an unrelated CLI sharing that directory.
+		add(cfg.Path)
+	}
+	if legacyPath, err := config.LegacyConfigPath(); err == nil {
+		add(legacyPath)
+	}
+	return paths
+}
+
 // doctorExitForFailOn returns a non-nil error when the report's worst
-// status meets or exceeds the --fail-on threshold. "error" always trips
-// when any section reports an error; "stale" also trips when the cache
-// section is stale. The default empty string means never fail on status.
+// status meets the --fail-on gate. "error" trips on failing sections, "warn"
+// trips on deliberate WARN sections plus errors, and "stale" trips on cache
+// freshness plus errors. The default empty string means never fail on status.
 func doctorExitForFailOn(failOn string, report map[string]any) error {
 	if failOn == "" {
 		return nil
 	}
 	worstError := false
+	worstWarn := false
 	worstStale := false
 	for _, v := range report {
 		s, ok := v.(string)
@@ -347,10 +517,15 @@ func doctorExitForFailOn(failOn string, report map[string]any) error {
 			if strings.Contains(s, "error") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing") {
 				worstError = true
 			}
+			if strings.HasPrefix(s, "WARN") {
+				worstWarn = true
+			}
 		}
 		if m, ok := v.(map[string]any); ok {
 			if st, _ := m["status"].(string); st == "error" {
 				worstError = true
+			} else if st == "warn" {
+				worstWarn = true
 			} else if st == "stale" {
 				worstStale = true
 			}
@@ -361,12 +536,16 @@ func doctorExitForFailOn(failOn string, report map[string]any) error {
 		if worstError {
 			return fmt.Errorf("doctor: --fail-on=error triggered")
 		}
+	case "warn":
+		if worstError || worstWarn {
+			return fmt.Errorf("doctor: --fail-on=warn triggered")
+		}
 	case "stale":
 		if worstError || worstStale {
 			return fmt.Errorf("doctor: --fail-on=stale triggered")
 		}
 	default:
-		return fmt.Errorf("doctor: unknown --fail-on value %q (valid: stale, error)", failOn)
+		return fmt.Errorf("doctor: unknown --fail-on value %q (valid: stale, warn, error)", failOn)
 	}
 	return nil
 }
@@ -460,8 +639,8 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 
 	switch {
 	case !haveAny && len(resources) == 0:
-		report["status"] = "unknown"
-		report["hint"] = "sync_state is empty; run 'intercom-pp-cli sync' to hydrate."
+		report["status"] = "empty"
+		report["hint"] = "Cache is empty; run 'intercom-pp-cli sync' to hydrate."
 	case fresh:
 		report["status"] = "fresh"
 	default:
@@ -481,6 +660,8 @@ func renderCacheReport(w io.Writer, rep map[string]any) {
 	case "error":
 		indicator = red("FAIL")
 	case "unknown":
+		indicator = yellow("INFO")
+	case "empty":
 		indicator = yellow("INFO")
 	}
 	fmt.Fprintf(w, "  %s Cache: %s\n", indicator, status)

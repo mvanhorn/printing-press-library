@@ -1,0 +1,3364 @@
+{
+  "api_name": "productive",
+  "base_url": "https://api.productive.io/api/v2",
+  "description": "Full Productive.io v2 API client — list/get across ~48 resource types, generic create/update/delete, 11 report types, and a local sync/search/export/tail data layer, plus first-class revenue-recognition commands (recognized-revenue, invoiced, reconcile, aging).",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "X-Auth-Token",
+    "format": "{PRODUCTIVE_API_TOKEN}",
+    "env_vars": [
+      "PRODUCTIVE_API_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "PRODUCTIVE_API_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "activities_get",
+      "description": "Get one activities by id. Required: id. Optional: include. Returns the Activities.",
+      "method": "GET",
+      "path": "/activities/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "activities_list",
+      "description": "List activities. Optional: page-size (default: 100), page-number (default: 1), sort (plus 1 more). Returns array of Activities.",
+      "method": "GET",
+      "path": "/activities",
+      "params": [
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "attachments_get",
+      "description": "Get one attachments by id. Required: id. Optional: include. Returns the Attachments.",
+      "method": "GET",
+      "path": "/attachments/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "attachments_list",
+      "description": "List attachments. Optional: page-size (default: 100), page-number (default: 1), sort (plus 1 more). Returns array of Attachments.",
+      "method": "GET",
+      "path": "/attachments",
+      "params": [
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "bookings_get",
+      "description": "Get one bookings by id. Required: id. Optional: include. Returns the Bookings.",
+      "method": "GET",
+      "path": "/bookings/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "bookings_list",
+      "description": "List bookings. Optional: person, service, date-from (plus 5 more). Returns array of Bookings.",
+      "method": "GET",
+      "path": "/bookings",
+      "params": [
+        {
+          "name": "person",
+          "wire_name": "filter[person][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Person id"
+        },
+        {
+          "name": "service",
+          "wire_name": "filter[service][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Service id"
+        },
+        {
+          "name": "date-from",
+          "wire_name": "filter[started_on][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with started_on \u003e= YYYY-MM-DD"
+        },
+        {
+          "name": "date-to",
+          "wire_name": "filter[started_on][lt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with started_on \u003c= YYYY-MM-DD"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "comments_get",
+      "description": "Get one comments by id. Required: id. Optional: include. Returns the Comments.",
+      "method": "GET",
+      "path": "/comments/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "comments_list",
+      "description": "List comments. Optional: page-size (default: 100), page-number (default: 1), sort (plus 1 more). Returns array of Comments.",
+      "method": "GET",
+      "path": "/comments",
+      "params": [
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "companies_get",
+      "description": "Get one companies by id. Required: id. Optional: include. Returns the Companies.",
+      "method": "GET",
+      "path": "/companies/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "companies_list",
+      "description": "List companies. Optional: name, created-after, page-size (default: 100) (plus 3 more). Returns array of Companies.",
+      "method": "GET",
+      "path": "/companies",
+      "params": [
+        {
+          "name": "name",
+          "wire_name": "filter[name][contains]",
+          "type": "string",
+          "location": "query",
+          "description": "Name contains"
+        },
+        {
+          "name": "created-after",
+          "wire_name": "filter[created_at][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Created on/after (ISO)"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "contact_entries_get",
+      "description": "Get one contact entries by id. Required: id. Optional: include. Returns the ContactEntries.",
+      "method": "GET",
+      "path": "/contact_entries/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "contact_entries_list",
+      "description": "List contact entries. Optional: page-size (default: 100), page-number (default: 1), sort (plus 1 more). Returns array of ContactEntries.",
+      "method": "GET",
+      "path": "/contact_entries",
+      "params": [
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "custom_fields_get",
+      "description": "Get one custom fields by id. Required: id. Optional: include. Returns the CustomFields.",
+      "method": "GET",
+      "path": "/custom_fields/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "custom_fields_list",
+      "description": "List custom fields. Optional: page-size (default: 100), page-number (default: 1), sort (plus 1 more). Returns array of CustomFields.",
+      "method": "GET",
+      "path": "/custom_fields",
+      "params": [
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "deal_statuses_get",
+      "description": "Get one deal statuses by id. Required: id. Optional: include. Returns the DealStatuses.",
+      "method": "GET",
+      "path": "/deal_statuses/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "deal_statuses_list",
+      "description": "List deal statuses. Optional: pipeline, page-size (default: 100), page-number (default: 1) (plus 2 more). Returns array of DealStatuses.",
+      "method": "GET",
+      "path": "/deal_statuses",
+      "params": [
+        {
+          "name": "pipeline",
+          "wire_name": "filter[pipeline][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Pipeline id"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "deals_get",
+      "description": "Get one deals by id. Required: id. Optional: include. Returns the Deals.",
+      "method": "GET",
+      "path": "/deals/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "deals_list",
+      "description": "List deals. Optional: name, stage-type, company (plus 16 more). Returns array of Deals.",
+      "method": "GET",
+      "path": "/deals",
+      "params": [
+        {
+          "name": "name",
+          "wire_name": "filter[name][contains]",
+          "type": "string",
+          "location": "query",
+          "description": "Name contains"
+        },
+        {
+          "name": "stage-type",
+          "wire_name": "filter[stage_type][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "1=Deal, 2=Budget"
+        },
+        {
+          "name": "company",
+          "wire_name": "filter[company][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Client company id"
+        },
+        {
+          "name": "responsible",
+          "wire_name": "filter[responsible][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Owner person id"
+        },
+        {
+          "name": "project",
+          "wire_name": "filter[project][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Project id"
+        },
+        {
+          "name": "deal-status",
+          "wire_name": "filter[deal_status][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Pipeline stage id"
+        },
+        {
+          "name": "pipeline",
+          "wire_name": "filter[pipeline][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Pipeline id"
+        },
+        {
+          "name": "status",
+          "wire_name": "filter[status][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Budget status 1=Open, 2=Delivered"
+        },
+        {
+          "name": "stage-status",
+          "wire_name": "filter[stage_status][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "1=Open,2=Won,3=Lost,4=Delivered"
+        },
+        {
+          "name": "purchase-order-number",
+          "wire_name": "filter[purchase_order_number][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Client PO number"
+        },
+        {
+          "name": "tag",
+          "wire_name": "filter[tags][contains]",
+          "type": "string",
+          "location": "query",
+          "description": "Tag contains"
+        },
+        {
+          "name": "date-from",
+          "wire_name": "filter[date][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003e= YYYY-MM-DD"
+        },
+        {
+          "name": "date-to",
+          "wire_name": "filter[date][lt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003c= YYYY-MM-DD"
+        },
+        {
+          "name": "created-after",
+          "wire_name": "filter[created_at][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Created on/after (ISO)"
+        },
+        {
+          "name": "updated-after",
+          "wire_name": "filter[last_activity_at][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Last activity on/after (ISO)"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "events_get",
+      "description": "Get one events by id. Required: id. Optional: include. Returns the Events.",
+      "method": "GET",
+      "path": "/events/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "events_list",
+      "description": "List events. Optional: page-size (default: 100), page-number (default: 1), sort (plus 1 more). Returns array of Events.",
+      "method": "GET",
+      "path": "/events",
+      "params": [
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "expenses_get",
+      "description": "Get one expenses by id. Required: id. Optional: include. Returns the Expenses.",
+      "method": "GET",
+      "path": "/expenses/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "expenses_list",
+      "description": "List expenses. Optional: service, person, date-from (plus 5 more). Returns array of Expenses.",
+      "method": "GET",
+      "path": "/expenses",
+      "params": [
+        {
+          "name": "service",
+          "wire_name": "filter[service][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Service id"
+        },
+        {
+          "name": "person",
+          "wire_name": "filter[person][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Person id"
+        },
+        {
+          "name": "date-from",
+          "wire_name": "filter[date][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003e= YYYY-MM-DD"
+        },
+        {
+          "name": "date-to",
+          "wire_name": "filter[date][lt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003c= YYYY-MM-DD"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "filters_get",
+      "description": "Get one filters by id. Required: id. Optional: include. Returns the Filters.",
+      "method": "GET",
+      "path": "/filters/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "filters_list",
+      "description": "List filters. Optional: page-size (default: 100), page-number (default: 1), sort (plus 1 more). Returns array of Filters.",
+      "method": "GET",
+      "path": "/filters",
+      "params": [
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "folders_get",
+      "description": "Get one folders by id. Required: id. Optional: include. Returns the Folders.",
+      "method": "GET",
+      "path": "/folders/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "folders_list",
+      "description": "List folders. Optional: project, page-size (default: 100), page-number (default: 1) (plus 2 more). Returns array of Folders.",
+      "method": "GET",
+      "path": "/folders",
+      "params": [
+        {
+          "name": "project",
+          "wire_name": "filter[project][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Project id"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "holiday_calendars_get",
+      "description": "Get one holiday calendars by id. Required: id. Optional: include. Returns the HolidayCalendars.",
+      "method": "GET",
+      "path": "/holiday_calendars/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "holiday_calendars_list",
+      "description": "List holiday calendars. Optional: page-size (default: 100), page-number (default: 1), sort (plus 1 more). Returns array of HolidayCalendars.",
+      "method": "GET",
+      "path": "/holiday_calendars",
+      "params": [
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "holidays_get",
+      "description": "Get one holidays by id. Required: id. Optional: include. Returns the Holidays.",
+      "method": "GET",
+      "path": "/holidays/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "holidays_list",
+      "description": "List holidays. Optional: page-size (default: 100), page-number (default: 1), sort (plus 1 more). Returns array of Holidays.",
+      "method": "GET",
+      "path": "/holidays",
+      "params": [
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "invoice_attributions_get",
+      "description": "Get one invoice attributions by id. Required: id. Optional: include. Returns the InvoiceAttributions.",
+      "method": "GET",
+      "path": "/invoice_attributions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "invoice_attributions_list",
+      "description": "List invoice attributions. Optional: invoice, budget, page-size (default: 100) (plus 3 more). Returns array of InvoiceAttributions.",
+      "method": "GET",
+      "path": "/invoice_attributions",
+      "params": [
+        {
+          "name": "invoice",
+          "wire_name": "filter[invoice][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Invoice id"
+        },
+        {
+          "name": "budget",
+          "wire_name": "filter[budget][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Budget (deal) id"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "invoices_get",
+      "description": "Get one invoices by id. Required: id. Optional: include. Returns the Invoices.",
+      "method": "GET",
+      "path": "/invoices/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "invoices_list",
+      "description": "List invoices. Optional: number, invoice-type, company (plus 12 more). Returns array of Invoices.",
+      "method": "GET",
+      "path": "/invoices",
+      "params": [
+        {
+          "name": "number",
+          "wire_name": "filter[number][contains]",
+          "type": "string",
+          "location": "query",
+          "description": "Invoice number contains"
+        },
+        {
+          "name": "invoice-type",
+          "wire_name": "filter[invoice_type][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "1=Invoice, 2=Credit note"
+        },
+        {
+          "name": "company",
+          "wire_name": "filter[company][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Client company id"
+        },
+        {
+          "name": "subsidiary",
+          "wire_name": "filter[subsidiary][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Subsidiary id"
+        },
+        {
+          "name": "issued-from",
+          "wire_name": "filter[invoiced_on][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Issued on/after YYYY-MM-DD"
+        },
+        {
+          "name": "issued-to",
+          "wire_name": "filter[invoiced_on][lt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Issued on/before YYYY-MM-DD"
+        },
+        {
+          "name": "due-from",
+          "wire_name": "filter[pay_on][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Due on/after YYYY-MM-DD"
+        },
+        {
+          "name": "due-to",
+          "wire_name": "filter[pay_on][lt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Due on/before YYYY-MM-DD"
+        },
+        {
+          "name": "paid-from",
+          "wire_name": "filter[paid_on][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Paid on/after YYYY-MM-DD"
+        },
+        {
+          "name": "is-credited",
+          "wire_name": "filter[is_credited][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "true to only credited invoices"
+        },
+        {
+          "name": "created-after",
+          "wire_name": "filter[created_at][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Created on/after (ISO)"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "line_items_get",
+      "description": "Get one line items by id. Required: id. Optional: include. Returns the LineItems.",
+      "method": "GET",
+      "path": "/line_items/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "line_items_list",
+      "description": "List line items. Optional: invoice, description, unit (plus 8 more). Returns array of LineItems.",
+      "method": "GET",
+      "path": "/line_items",
+      "params": [
+        {
+          "name": "invoice",
+          "wire_name": "filter[invoice][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Parent invoice id"
+        },
+        {
+          "name": "description",
+          "wire_name": "filter[description][contains]",
+          "type": "string",
+          "location": "query",
+          "description": "Description contains"
+        },
+        {
+          "name": "unit",
+          "wire_name": "filter[unit_id][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "1=Hour, 2=Piece, 3=Day"
+        },
+        {
+          "name": "service",
+          "wire_name": "filter[service][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Service id"
+        },
+        {
+          "name": "expense",
+          "wire_name": "filter[expense][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Expense id"
+        },
+        {
+          "name": "service-type",
+          "wire_name": "filter[service_type][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Service type id"
+        },
+        {
+          "name": "company",
+          "wire_name": "filter[company_id][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Company id (from parent invoice)"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "memberships_get",
+      "description": "Get one memberships by id. Required: id. Optional: include. Returns the Memberships.",
+      "method": "GET",
+      "path": "/memberships/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "memberships_list",
+      "description": "List memberships. Optional: page-size (default: 100), page-number (default: 1), sort (plus 1 more). Returns array of Memberships.",
+      "method": "GET",
+      "path": "/memberships",
+      "params": [
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "pages_get",
+      "description": "Get one pages by id. Required: id. Optional: include. Returns the Pages.",
+      "method": "GET",
+      "path": "/pages/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "pages_list",
+      "description": "List pages. Optional: project, page-size (default: 100), page-number (default: 1) (plus 2 more). Returns array of Pages.",
+      "method": "GET",
+      "path": "/pages",
+      "params": [
+        {
+          "name": "project",
+          "wire_name": "filter[project][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Project id"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "payments_get",
+      "description": "Get one payments by id. Required: id. Optional: include. Returns the Payments.",
+      "method": "GET",
+      "path": "/payments/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "payments_list",
+      "description": "List payments. Optional: invoice, date-from, date-to (plus 4 more). Returns array of Payments.",
+      "method": "GET",
+      "path": "/payments",
+      "params": [
+        {
+          "name": "invoice",
+          "wire_name": "filter[invoice][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Invoice id"
+        },
+        {
+          "name": "date-from",
+          "wire_name": "filter[paid_on][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with paid_on \u003e= YYYY-MM-DD"
+        },
+        {
+          "name": "date-to",
+          "wire_name": "filter[paid_on][lt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with paid_on \u003c= YYYY-MM-DD"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "people_get",
+      "description": "Get one people by id. Required: id. Optional: include. Returns the People.",
+      "method": "GET",
+      "path": "/people/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "people_list",
+      "description": "List people. Optional: first-name, last-name, email (plus 7 more). Returns array of People.",
+      "method": "GET",
+      "path": "/people",
+      "params": [
+        {
+          "name": "first-name",
+          "wire_name": "filter[first_name][contains]",
+          "type": "string",
+          "location": "query",
+          "description": "First name contains"
+        },
+        {
+          "name": "last-name",
+          "wire_name": "filter[last_name][contains]",
+          "type": "string",
+          "location": "query",
+          "description": "Last name contains"
+        },
+        {
+          "name": "email",
+          "wire_name": "filter[email][contains]",
+          "type": "string",
+          "location": "query",
+          "description": "Email contains"
+        },
+        {
+          "name": "person-type",
+          "wire_name": "filter[person_type][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "1=User,2=Contact,3=Placeholder,4=Agent"
+        },
+        {
+          "name": "status",
+          "wire_name": "filter[status][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "1=Active, 2=Deactivated"
+        },
+        {
+          "name": "company",
+          "wire_name": "filter[company][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Company id"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "pipelines_get",
+      "description": "Get one pipelines by id. Required: id. Optional: include. Returns the Pipelines.",
+      "method": "GET",
+      "path": "/pipelines/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "pipelines_list",
+      "description": "List pipelines. Optional: page-size (default: 100), page-number (default: 1), sort (plus 1 more). Returns array of Pipelines.",
+      "method": "GET",
+      "path": "/pipelines",
+      "params": [
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "projects_get",
+      "description": "Get one projects by id. Required: id. Optional: include. Returns the Projects.",
+      "method": "GET",
+      "path": "/projects/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "projects_list",
+      "description": "List projects. Optional: name, project-number, status (plus 9 more). Returns array of Projects.",
+      "method": "GET",
+      "path": "/projects",
+      "params": [
+        {
+          "name": "name",
+          "wire_name": "filter[name][contains]",
+          "type": "string",
+          "location": "query",
+          "description": "Name contains"
+        },
+        {
+          "name": "project-number",
+          "wire_name": "filter[project_number][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Project number"
+        },
+        {
+          "name": "status",
+          "wire_name": "filter[status][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "1=Active, 2=Archived"
+        },
+        {
+          "name": "project-type",
+          "wire_name": "filter[project_type][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "1=Internal, 2=Client"
+        },
+        {
+          "name": "company",
+          "wire_name": "filter[company][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Client company id"
+        },
+        {
+          "name": "project-manager",
+          "wire_name": "filter[project_manager][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "PM person id"
+        },
+        {
+          "name": "member",
+          "wire_name": "filter[member][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Member person id"
+        },
+        {
+          "name": "created-after",
+          "wire_name": "filter[created_at][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Created on/after (ISO)"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "proposals_get",
+      "description": "Get one proposals by id. Required: id. Optional: include. Returns the Proposals.",
+      "method": "GET",
+      "path": "/proposals/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "proposals_list",
+      "description": "List proposals. Optional: deal, page-size (default: 100), page-number (default: 1) (plus 2 more). Returns array of Proposals.",
+      "method": "GET",
+      "path": "/proposals",
+      "params": [
+        {
+          "name": "deal",
+          "wire_name": "filter[deal][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Deal id"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "reports_booking",
+      "description": "Scheduling/resourcing report. Optional: group, date-from, date-to (plus 3 more). Returns array of ReportRow.",
+      "method": "GET",
+      "path": "/reports/booking_reports",
+      "params": [
+        {
+          "name": "group",
+          "type": "string",
+          "location": "query",
+          "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+        },
+        {
+          "name": "date-from",
+          "wire_name": "filter[date][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003e= YYYY-MM-DD"
+        },
+        {
+          "name": "date-to",
+          "wire_name": "filter[date][lt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003c= YYYY-MM-DD"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending"
+        }
+      ]
+    },
+    {
+      "name": "reports_budget",
+      "description": "Budget-level tracking report. Optional: group, date-from, date-to (plus 3 more). Returns array of ReportRow.",
+      "method": "GET",
+      "path": "/reports/budget_reports",
+      "params": [
+        {
+          "name": "group",
+          "type": "string",
+          "location": "query",
+          "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+        },
+        {
+          "name": "date-from",
+          "wire_name": "filter[date][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003e= YYYY-MM-DD"
+        },
+        {
+          "name": "date-to",
+          "wire_name": "filter[date][lt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003c= YYYY-MM-DD"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending"
+        }
+      ]
+    },
+    {
+      "name": "reports_deal",
+      "description": "Deal/sales pipeline report. Optional: group, date-from, date-to (plus 3 more). Returns array of ReportRow.",
+      "method": "GET",
+      "path": "/reports/deal_reports",
+      "params": [
+        {
+          "name": "group",
+          "type": "string",
+          "location": "query",
+          "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+        },
+        {
+          "name": "date-from",
+          "wire_name": "filter[date][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003e= YYYY-MM-DD"
+        },
+        {
+          "name": "date-to",
+          "wire_name": "filter[date][lt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003c= YYYY-MM-DD"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending"
+        }
+      ]
+    },
+    {
+      "name": "reports_expense",
+      "description": "Expense report. Optional: group, date-from, date-to (plus 3 more). Returns array of ReportRow.",
+      "method": "GET",
+      "path": "/reports/expense_reports",
+      "params": [
+        {
+          "name": "group",
+          "type": "string",
+          "location": "query",
+          "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+        },
+        {
+          "name": "date-from",
+          "wire_name": "filter[date][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003e= YYYY-MM-DD"
+        },
+        {
+          "name": "date-to",
+          "wire_name": "filter[date][lt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003c= YYYY-MM-DD"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending"
+        }
+      ]
+    },
+    {
+      "name": "reports_financial_item",
+      "description": "Financial line-item report (revenue/cost/profit across sources). Optional: group, date-from, date-to (plus 8 more). Returns array of ReportRow.",
+      "method": "GET",
+      "path": "/reports/financial_item_reports",
+      "params": [
+        {
+          "name": "group",
+          "type": "string",
+          "location": "query",
+          "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+        },
+        {
+          "name": "date-from",
+          "wire_name": "filter[date][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003e= YYYY-MM-DD"
+        },
+        {
+          "name": "date-to",
+          "wire_name": "filter[date][lt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003c= YYYY-MM-DD"
+        },
+        {
+          "name": "financial-item-type",
+          "wire_name": "filter[financial_item_type][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "service|invoice_attribution|time_entry|expense|booking_item|revenue_item"
+        },
+        {
+          "name": "budget",
+          "wire_name": "filter[budget_id][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Budget/deal id"
+        },
+        {
+          "name": "company",
+          "wire_name": "filter[company_id][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Company id"
+        },
+        {
+          "name": "project",
+          "wire_name": "filter[project_id][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Project id"
+        },
+        {
+          "name": "stage-type",
+          "wire_name": "filter[stage_type][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "1=Deal, 2=Budget"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending"
+        }
+      ]
+    },
+    {
+      "name": "reports_invoice",
+      "description": "Invoice report (amounts, tax, payments, aging). Optional: group, date-from, date-to (plus 4 more). Returns array of ReportRow.",
+      "method": "GET",
+      "path": "/reports/invoice_reports",
+      "params": [
+        {
+          "name": "group",
+          "type": "string",
+          "location": "query",
+          "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+        },
+        {
+          "name": "date-from",
+          "wire_name": "filter[date][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003e= YYYY-MM-DD"
+        },
+        {
+          "name": "date-to",
+          "wire_name": "filter[date][lt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003c= YYYY-MM-DD"
+        },
+        {
+          "name": "company",
+          "wire_name": "filter[company_id][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Company id"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending"
+        }
+      ]
+    },
+    {
+      "name": "reports_line_item",
+      "description": "Invoice line-item report. Optional: group, date-from, date-to (plus 3 more). Returns array of ReportRow.",
+      "method": "GET",
+      "path": "/reports/line_item_reports",
+      "params": [
+        {
+          "name": "group",
+          "type": "string",
+          "location": "query",
+          "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+        },
+        {
+          "name": "date-from",
+          "wire_name": "filter[date][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003e= YYYY-MM-DD"
+        },
+        {
+          "name": "date-to",
+          "wire_name": "filter[date][lt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003c= YYYY-MM-DD"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending"
+        }
+      ]
+    },
+    {
+      "name": "reports_payment",
+      "description": "Invoice payments report. Optional: group, date-from, date-to (plus 3 more). Returns array of ReportRow.",
+      "method": "GET",
+      "path": "/reports/payment_reports",
+      "params": [
+        {
+          "name": "group",
+          "type": "string",
+          "location": "query",
+          "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+        },
+        {
+          "name": "date-from",
+          "wire_name": "filter[date][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003e= YYYY-MM-DD"
+        },
+        {
+          "name": "date-to",
+          "wire_name": "filter[date][lt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003c= YYYY-MM-DD"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending"
+        }
+      ]
+    },
+    {
+      "name": "reports_project",
+      "description": "Project portfolio report. Optional: group, date-from, date-to (plus 3 more). Returns array of ReportRow.",
+      "method": "GET",
+      "path": "/reports/project_reports",
+      "params": [
+        {
+          "name": "group",
+          "type": "string",
+          "location": "query",
+          "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+        },
+        {
+          "name": "date-from",
+          "wire_name": "filter[date][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003e= YYYY-MM-DD"
+        },
+        {
+          "name": "date-to",
+          "wire_name": "filter[date][lt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003c= YYYY-MM-DD"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending"
+        }
+      ]
+    },
+    {
+      "name": "reports_task",
+      "description": "Task report (worked/estimated/remaining). Optional: group, date-from, date-to (plus 3 more). Returns array of ReportRow.",
+      "method": "GET",
+      "path": "/reports/task_reports",
+      "params": [
+        {
+          "name": "group",
+          "type": "string",
+          "location": "query",
+          "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+        },
+        {
+          "name": "date-from",
+          "wire_name": "filter[date][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003e= YYYY-MM-DD"
+        },
+        {
+          "name": "date-to",
+          "wire_name": "filter[date][lt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003c= YYYY-MM-DD"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending"
+        }
+      ]
+    },
+    {
+      "name": "reports_time_entry",
+      "description": "Time tracking report (hours, billable, cost). Optional: group, date-from, date-to (plus 5 more). Returns array of ReportRow.",
+      "method": "GET",
+      "path": "/reports/time_entry_reports",
+      "params": [
+        {
+          "name": "group",
+          "type": "string",
+          "location": "query",
+          "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+        },
+        {
+          "name": "date-from",
+          "wire_name": "filter[date][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003e= YYYY-MM-DD"
+        },
+        {
+          "name": "date-to",
+          "wire_name": "filter[date][lt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003c= YYYY-MM-DD"
+        },
+        {
+          "name": "person",
+          "wire_name": "filter[person_id][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Person id"
+        },
+        {
+          "name": "budget",
+          "wire_name": "filter[budget_id][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Budget/deal id"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending"
+        }
+      ]
+    },
+    {
+      "name": "roles_get",
+      "description": "Get one roles by id. Required: id. Optional: include. Returns the Roles.",
+      "method": "GET",
+      "path": "/roles/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "roles_list",
+      "description": "List roles. Optional: page-size (default: 100), page-number (default: 1), sort (plus 1 more). Returns array of Roles.",
+      "method": "GET",
+      "path": "/roles",
+      "params": [
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "service_types_get",
+      "description": "Get one service types by id. Required: id. Optional: include. Returns the ServiceTypes.",
+      "method": "GET",
+      "path": "/service_types/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "service_types_list",
+      "description": "List service types. Optional: page-size (default: 100), page-number (default: 1), sort (plus 1 more). Returns array of ServiceTypes.",
+      "method": "GET",
+      "path": "/service_types",
+      "params": [
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "services_get",
+      "description": "Get one services by id. Required: id. Optional: include. Returns the Services.",
+      "method": "GET",
+      "path": "/services/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "services_list",
+      "description": "List services. Optional: name, deal, billing-type (plus 6 more). Returns array of Services.",
+      "method": "GET",
+      "path": "/services",
+      "params": [
+        {
+          "name": "name",
+          "wire_name": "filter[name][contains]",
+          "type": "string",
+          "location": "query",
+          "description": "Name contains"
+        },
+        {
+          "name": "deal",
+          "wire_name": "filter[deal][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Deal/budget id"
+        },
+        {
+          "name": "billing-type",
+          "wire_name": "filter[billing_type][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "1=Fixed,2=T\u0026M,3=Non-billable,4=Percentage"
+        },
+        {
+          "name": "service-type",
+          "wire_name": "filter[service_type][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Service type id"
+        },
+        {
+          "name": "section",
+          "wire_name": "filter[section][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Section id"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "subsidiaries_get",
+      "description": "Get one subsidiaries by id. Required: id. Optional: include. Returns the Subsidiaries.",
+      "method": "GET",
+      "path": "/subsidiaries/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "subsidiaries_list",
+      "description": "List subsidiaries. Optional: page-size (default: 100), page-number (default: 1), sort (plus 1 more). Returns array of Subsidiaries.",
+      "method": "GET",
+      "path": "/subsidiaries",
+      "params": [
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "task_lists_get",
+      "description": "Get one task lists by id. Required: id. Optional: include. Returns the TaskLists.",
+      "method": "GET",
+      "path": "/task_lists/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "task_lists_list",
+      "description": "List task lists. Optional: project, page-size (default: 100), page-number (default: 1) (plus 2 more). Returns array of TaskLists.",
+      "method": "GET",
+      "path": "/task_lists",
+      "params": [
+        {
+          "name": "project",
+          "wire_name": "filter[project][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Project id"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "tasks_get",
+      "description": "Get one tasks by id. Required: id. Optional: include. Returns the Tasks.",
+      "method": "GET",
+      "path": "/tasks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "tasks_list",
+      "description": "List tasks. Optional: title, assignee, creator (plus 17 more). Returns array of Tasks.",
+      "method": "GET",
+      "path": "/tasks",
+      "params": [
+        {
+          "name": "title",
+          "wire_name": "filter[title][contains]",
+          "type": "string",
+          "location": "query",
+          "description": "Title contains"
+        },
+        {
+          "name": "assignee",
+          "wire_name": "filter[assignee][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Assignee person id"
+        },
+        {
+          "name": "creator",
+          "wire_name": "filter[creator][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Creator person id"
+        },
+        {
+          "name": "project",
+          "wire_name": "filter[project][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Project id"
+        },
+        {
+          "name": "task-list",
+          "wire_name": "filter[task_list][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Task list id"
+        },
+        {
+          "name": "parent-task",
+          "wire_name": "filter[parent_task][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Parent task id"
+        },
+        {
+          "name": "service",
+          "wire_name": "filter[service][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Service id"
+        },
+        {
+          "name": "workflow-status",
+          "wire_name": "filter[workflow_status][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Workflow status id"
+        },
+        {
+          "name": "status-category",
+          "wire_name": "filter[workflow_status_category][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "1=Not started,2=Started,3=Closed"
+        },
+        {
+          "name": "type",
+          "wire_name": "filter[type_id][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "1=Task, 3=Milestone"
+        },
+        {
+          "name": "task-type",
+          "wire_name": "filter[task_type][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "1=Parent, 2=Subtask"
+        },
+        {
+          "name": "due-from",
+          "wire_name": "filter[due_date][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Due on/after YYYY-MM-DD"
+        },
+        {
+          "name": "due-to",
+          "wire_name": "filter[due_date][lt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Due on/before YYYY-MM-DD"
+        },
+        {
+          "name": "tag",
+          "wire_name": "filter[tag_list][contains]",
+          "type": "string",
+          "location": "query",
+          "description": "Tag contains"
+        },
+        {
+          "name": "created-after",
+          "wire_name": "filter[created_at][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Created on/after (ISO)"
+        },
+        {
+          "name": "updated-after",
+          "wire_name": "filter[last_activity_at][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Last activity on/after (ISO)"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "tax_rates_get",
+      "description": "Get one tax rates by id. Required: id. Optional: include. Returns the TaxRates.",
+      "method": "GET",
+      "path": "/tax_rates/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "tax_rates_list",
+      "description": "List tax rates. Optional: subsidiary, page-size (default: 100), page-number (default: 1) (plus 2 more). Returns array of TaxRates.",
+      "method": "GET",
+      "path": "/tax_rates",
+      "params": [
+        {
+          "name": "subsidiary",
+          "wire_name": "filter[subsidiary][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Subsidiary id"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "teams_get",
+      "description": "Get one teams by id. Required: id. Optional: include. Returns the Teams.",
+      "method": "GET",
+      "path": "/teams/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "teams_list",
+      "description": "List teams. Optional: page-size (default: 100), page-number (default: 1), sort (plus 1 more). Returns array of Teams.",
+      "method": "GET",
+      "path": "/teams",
+      "params": [
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "time_entries_get",
+      "description": "Get one time entries by id. Required: id. Optional: include. Returns the TimeEntries.",
+      "method": "GET",
+      "path": "/time_entries/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "time_entries_list",
+      "description": "List time entries. Optional: person, service, task (plus 11 more). Returns array of TimeEntries.",
+      "method": "GET",
+      "path": "/time_entries",
+      "params": [
+        {
+          "name": "person",
+          "wire_name": "filter[person][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Person id"
+        },
+        {
+          "name": "service",
+          "wire_name": "filter[service][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Service id"
+        },
+        {
+          "name": "task",
+          "wire_name": "filter[task][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Task id"
+        },
+        {
+          "name": "approval-status",
+          "wire_name": "filter[approval_status][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "1=Approved,2=Unapproved,3=Rejected,4=Auto,5=Submitted,6=Unsubmitted"
+        },
+        {
+          "name": "track-method",
+          "wire_name": "filter[track_method][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "1=Manual,2=Timer,3=Bot,4=Mixed,5=Auto,6=AI"
+        },
+        {
+          "name": "approver",
+          "wire_name": "filter[approver][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Approver person id"
+        },
+        {
+          "name": "awaiting-approval-from",
+          "wire_name": "filter[awaiting_approval_from_approver][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Pending approval for this approver person id"
+        },
+        {
+          "name": "date-from",
+          "wire_name": "filter[date][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003e= YYYY-MM-DD"
+        },
+        {
+          "name": "date-to",
+          "wire_name": "filter[date][lt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Only rows with date \u003c= YYYY-MM-DD"
+        },
+        {
+          "name": "created-after",
+          "wire_name": "filter[created_at][gt_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Created on/after (ISO)"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "todos_get",
+      "description": "Get one todos by id. Required: id. Optional: include. Returns the Todos.",
+      "method": "GET",
+      "path": "/todos/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "todos_list",
+      "description": "List todos. Optional: task, assignee, page-size (default: 100) (plus 3 more). Returns array of Todos.",
+      "method": "GET",
+      "path": "/todos",
+      "params": [
+        {
+          "name": "task",
+          "wire_name": "filter[task][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Task id"
+        },
+        {
+          "name": "assignee",
+          "wire_name": "filter[assignee][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Assignee person id"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "workflow_statuses_get",
+      "description": "Get one workflow statuses by id. Required: id. Optional: include. Returns the WorkflowStatuses.",
+      "method": "GET",
+      "path": "/workflow_statuses/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "workflow_statuses_list",
+      "description": "List workflow statuses. Optional: workflow, page-size (default: 100), page-number (default: 1) (plus 2 more). Returns array of WorkflowStatuses.",
+      "method": "GET",
+      "path": "/workflow_statuses",
+      "params": [
+        {
+          "name": "workflow",
+          "wire_name": "filter[workflow][eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Workflow id"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "workflows_get",
+      "description": "Get one workflows by id. Required: id. Optional: include. Returns the Workflows.",
+      "method": "GET",
+      "path": "/workflows/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    },
+    {
+      "name": "workflows_list",
+      "description": "List workflows. Optional: page-size (default: 100), page-number (default: 1), sort (plus 1 more). Returns array of Workflows.",
+      "method": "GET",
+      "path": "/workflows",
+      "params": [
+        {
+          "name": "page-size",
+          "wire_name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page-number",
+          "wire_name": "page[number]",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending (e.g. -created_at)"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated related resources to sideload"
+        }
+      ]
+    }
+  ]
+}

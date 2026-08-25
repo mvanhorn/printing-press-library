@@ -1,0 +1,589 @@
+{
+ "run_id": "20260819-035139-99573931",
+ "source": "final phase-5 live dogfood (level full) that minted phase5-acceptance.json",
+ "planned_probes": 297,
+ "passed": 173,
+ "skipped": 124,
+ "skip_kind_totals": {
+  "error_path": 57,
+  "error_path_real": 25,
+  "happy_path": 21,
+  "json_fidelity": 21
+ },
+ "groups": [
+  {
+   "reason": "no positional argument",
+   "count": 43,
+   "probes": [
+    {
+     "command": "analytics",
+     "kind": "error_path"
+    },
+    {
+     "command": "backfill",
+     "kind": "error_path"
+    },
+    {
+     "command": "breakouts",
+     "kind": "error_path"
+    },
+    {
+     "command": "comments-mine",
+     "kind": "error_path"
+    },
+    {
+     "command": "doctor",
+     "kind": "error_path"
+    },
+    {
+     "command": "feedback list",
+     "kind": "error_path"
+    },
+    {
+     "command": "growth",
+     "kind": "error_path"
+    },
+    {
+     "command": "keys list",
+     "kind": "error_path"
+    },
+    {
+     "command": "learnings candidates",
+     "kind": "error_path"
+    },
+    {
+     "command": "learnings list",
+     "kind": "error_path"
+    },
+    {
+     "command": "learnings purge",
+     "kind": "error_path"
+    },
+    {
+     "command": "learnings stats",
+     "kind": "error_path"
+    },
+    {
+     "command": "monitor",
+     "kind": "error_path"
+    },
+    {
+     "command": "packaging",
+     "kind": "error_path"
+    },
+    {
+     "command": "playbook amend",
+     "kind": "error_path"
+    },
+    {
+     "command": "playbook list",
+     "kind": "error_path"
+    },
+    {
+     "command": "profile list",
+     "kind": "error_path"
+    },
+    {
+     "command": "sync",
+     "kind": "error_path"
+    },
+    {
+     "command": "teach",
+     "kind": "error_path"
+    },
+    {
+     "command": "teach-lookup",
+     "kind": "error_path"
+    },
+    {
+     "command": "teach-pattern",
+     "kind": "error_path"
+    },
+    {
+     "command": "teach-playbook",
+     "kind": "error_path"
+    },
+    {
+     "command": "velocity",
+     "kind": "error_path"
+    },
+    {
+     "command": "watch add",
+     "kind": "error_path"
+    },
+    {
+     "command": "watch list",
+     "kind": "error_path"
+    },
+    {
+     "command": "watch remove",
+     "kind": "error_path"
+    },
+    {
+     "command": "workflow archive",
+     "kind": "error_path"
+    },
+    {
+     "command": "workflow status",
+     "kind": "error_path"
+    },
+    {
+     "command": "workspace list",
+     "kind": "error_path"
+    },
+    {
+     "command": "youtube activities-list",
+     "kind": "error_path"
+    },
+    {
+     "command": "youtube captions-list",
+     "kind": "error_path"
+    },
+    {
+     "command": "youtube channel-sections-list",
+     "kind": "error_path"
+    },
+    {
+     "command": "youtube channel-uploads",
+     "kind": "error_path"
+    },
+    {
+     "command": "youtube channels-list",
+     "kind": "error_path"
+    },
+    {
+     "command": "youtube comment-threads-list",
+     "kind": "error_path"
+    },
+    {
+     "command": "youtube i18n-languages-list",
+     "kind": "error_path"
+    },
+    {
+     "command": "youtube i18n-regions-list",
+     "kind": "error_path"
+    },
+    {
+     "command": "youtube playlist-items-list",
+     "kind": "error_path"
+    },
+    {
+     "command": "youtube playlists-list",
+     "kind": "error_path"
+    },
+    {
+     "command": "youtube search-bulk",
+     "kind": "error_path"
+    },
+    {
+     "command": "youtube search-list",
+     "kind": "error_path"
+    },
+    {
+     "command": "youtube video-categories-list",
+     "kind": "error_path"
+    },
+    {
+     "command": "youtube videos-list",
+     "kind": "error_path"
+    }
+   ]
+  },
+  {
+   "reason": "mutating command dry-run only",
+   "count": 17,
+   "probes": [
+    {
+     "command": "doctor",
+     "kind": "error_path_real"
+    },
+    {
+     "command": "keys add",
+     "kind": "error_path_real"
+    },
+    {
+     "command": "keys remove",
+     "kind": "error_path_real"
+    },
+    {
+     "command": "keys use",
+     "kind": "error_path_real"
+    },
+    {
+     "command": "learnings purge",
+     "kind": "error_path_real"
+    },
+    {
+     "command": "playbook amend",
+     "kind": "error_path_real"
+    },
+    {
+     "command": "sync",
+     "kind": "error_path_real"
+    },
+    {
+     "command": "teach",
+     "kind": "error_path_real"
+    },
+    {
+     "command": "teach-lookup",
+     "kind": "error_path_real"
+    },
+    {
+     "command": "teach-pattern",
+     "kind": "error_path_real"
+    },
+    {
+     "command": "teach-playbook",
+     "kind": "error_path_real"
+    },
+    {
+     "command": "watch add",
+     "kind": "error_path_real"
+    },
+    {
+     "command": "watch remove",
+     "kind": "error_path_real"
+    },
+    {
+     "command": "workflow archive",
+     "kind": "error_path_real"
+    },
+    {
+     "command": "workspace create",
+     "kind": "error_path_real"
+    },
+    {
+     "command": "workspace remove",
+     "kind": "error_path_real"
+    },
+    {
+     "command": "workspace use",
+     "kind": "error_path_real"
+    }
+   ]
+  },
+  {
+   "reason": "mutating command; error_path would call live API without --dry-run",
+   "count": 14,
+   "probes": [
+    {
+     "command": "export",
+     "kind": "error_path"
+    },
+    {
+     "command": "feedback",
+     "kind": "error_path"
+    },
+    {
+     "command": "keys add",
+     "kind": "error_path"
+    },
+    {
+     "command": "keys remove",
+     "kind": "error_path"
+    },
+    {
+     "command": "keys use",
+     "kind": "error_path"
+    },
+    {
+     "command": "learnings confirm",
+     "kind": "error_path"
+    },
+    {
+     "command": "learnings forget",
+     "kind": "error_path"
+    },
+    {
+     "command": "learnings reject",
+     "kind": "error_path"
+    },
+    {
+     "command": "profile delete",
+     "kind": "error_path"
+    },
+    {
+     "command": "profile save",
+     "kind": "error_path"
+    },
+    {
+     "command": "profile use",
+     "kind": "error_path"
+    },
+    {
+     "command": "workspace create",
+     "kind": "error_path"
+    },
+    {
+     "command": "workspace remove",
+     "kind": "error_path"
+    },
+    {
+     "command": "workspace use",
+     "kind": "error_path"
+    }
+   ]
+  },
+  {
+   "reason": "no list companion at depth 0 for \"videoid\"",
+   "count": 12,
+   "probes": [
+    {
+     "command": "youtube videos-comments",
+     "kind": "happy_path"
+    },
+    {
+     "command": "youtube videos-comments",
+     "kind": "json_fidelity"
+    },
+    {
+     "command": "youtube videos-embed",
+     "kind": "happy_path"
+    },
+    {
+     "command": "youtube videos-embed",
+     "kind": "json_fidelity"
+    },
+    {
+     "command": "youtube videos-enrich",
+     "kind": "happy_path"
+    },
+    {
+     "command": "youtube videos-enrich",
+     "kind": "json_fidelity"
+    },
+    {
+     "command": "youtube videos-links",
+     "kind": "happy_path"
+    },
+    {
+     "command": "youtube videos-links",
+     "kind": "json_fidelity"
+    },
+    {
+     "command": "youtube videos-related",
+     "kind": "happy_path"
+    },
+    {
+     "command": "youtube videos-related",
+     "kind": "json_fidelity"
+    },
+    {
+     "command": "youtube videos-transcript",
+     "kind": "happy_path"
+    },
+    {
+     "command": "youtube videos-transcript",
+     "kind": "json_fidelity"
+    }
+   ]
+  },
+  {
+   "reason": "non-id positional \"name\" at depth 0",
+   "count": 11,
+   "probes": [
+    {
+     "command": "profile delete",
+     "kind": "happy_path"
+    },
+    {
+     "command": "profile delete",
+     "kind": "json_fidelity"
+    },
+    {
+     "command": "profile delete",
+     "kind": "error_path_real"
+    },
+    {
+     "command": "profile save",
+     "kind": "happy_path"
+    },
+    {
+     "command": "profile save",
+     "kind": "json_fidelity"
+    },
+    {
+     "command": "profile save",
+     "kind": "error_path_real"
+    },
+    {
+     "command": "profile show",
+     "kind": "happy_path"
+    },
+    {
+     "command": "profile show",
+     "kind": "json_fidelity"
+    },
+    {
+     "command": "profile use",
+     "kind": "happy_path"
+    },
+    {
+     "command": "profile use",
+     "kind": "json_fidelity"
+    },
+    {
+     "command": "profile use",
+     "kind": "error_path_real"
+    }
+   ]
+  },
+  {
+   "reason": "non-id positional \"query\" at depth 0",
+   "count": 9,
+   "probes": [
+    {
+     "command": "learnings forget",
+     "kind": "happy_path"
+    },
+    {
+     "command": "learnings forget",
+     "kind": "json_fidelity"
+    },
+    {
+     "command": "learnings forget",
+     "kind": "error_path_real"
+    },
+    {
+     "command": "recall",
+     "kind": "happy_path"
+    },
+    {
+     "command": "recall",
+     "kind": "json_fidelity"
+    },
+    {
+     "command": "search",
+     "kind": "happy_path"
+    },
+    {
+     "command": "search",
+     "kind": "json_fidelity"
+    },
+    {
+     "command": "which",
+     "kind": "happy_path"
+    },
+    {
+     "command": "which",
+     "kind": "json_fidelity"
+    }
+   ]
+  },
+  {
+   "reason": "command path [export] has fewer segments than placeholders (2)",
+   "count": 3,
+   "probes": [
+    {
+     "command": "export",
+     "kind": "happy_path"
+    },
+    {
+     "command": "export",
+     "kind": "json_fidelity"
+    },
+    {
+     "command": "export",
+     "kind": "error_path_real"
+    }
+   ]
+  },
+  {
+   "reason": "non-id positional \"text\" at depth 0",
+   "count": 3,
+   "probes": [
+    {
+     "command": "feedback",
+     "kind": "happy_path"
+    },
+    {
+     "command": "feedback",
+     "kind": "json_fidelity"
+    },
+    {
+     "command": "feedback",
+     "kind": "error_path_real"
+    }
+   ]
+  },
+  {
+   "reason": "no id parseable from companion at depth 0",
+   "count": 3,
+   "probes": [
+    {
+     "command": "learnings confirm",
+     "kind": "happy_path"
+    },
+    {
+     "command": "learnings confirm",
+     "kind": "json_fidelity"
+    },
+    {
+     "command": "learnings confirm",
+     "kind": "error_path_real"
+    }
+   ]
+  },
+  {
+   "reason": "list companion previously failed at depth 0 for \"id\"",
+   "count": 3,
+   "probes": [
+    {
+     "command": "learnings reject",
+     "kind": "happy_path"
+    },
+    {
+     "command": "learnings reject",
+     "kind": "json_fidelity"
+    },
+    {
+     "command": "learnings reject",
+     "kind": "error_path_real"
+    }
+   ]
+  },
+  {
+   "reason": "file fixture required: --playbook-file ~/playbooks/recipe.json",
+   "count": 2,
+   "probes": [
+    {
+     "command": "teach-playbook",
+     "kind": "happy_path"
+    },
+    {
+     "command": "teach-playbook",
+     "kind": "json_fidelity"
+    }
+   ]
+  },
+  {
+   "reason": "blocked-fixture: required API parameter",
+   "count": 2,
+   "probes": [
+    {
+     "command": "youtube captions-list",
+     "kind": "happy_path"
+    },
+    {
+     "command": "youtube captions-list",
+     "kind": "json_fidelity"
+    }
+   ]
+  },
+  {
+   "reason": "no list companion at depth 0 for \"playlisturlorid\"",
+   "count": 2,
+   "probes": [
+    {
+     "command": "youtube playlist-enrich",
+     "kind": "happy_path"
+    },
+    {
+     "command": "youtube playlist-enrich",
+     "kind": "json_fidelity"
+    }
+   ]
+  }
+ ]
+}

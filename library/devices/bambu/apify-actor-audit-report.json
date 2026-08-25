@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/bambu",
+  "research_dir": "\u003ccli-dir\u003e/20260711-063302-c519dd7c",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

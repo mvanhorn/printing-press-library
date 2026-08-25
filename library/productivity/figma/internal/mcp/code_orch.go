@@ -18,6 +18,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	neturl "net/url"
 	"sort"
 	"strings"
 
@@ -59,7 +60,32 @@ type codeOrchEndpoint struct {
 	Tier       string
 	Summary    string
 	Positional []string
-	keywords   []string
+	// TemplateParams carries public-to-wire bindings for promoted global path
+	// placeholders. These resolve through Config.TemplateVars just like the
+	// per-endpoint MCP tool inputs do.
+	TemplateParams []codeOrchParamBinding
+	// QueryParams carries public-to-wire bindings for spec-declared in:query
+	// parameters. Write methods (POST/PUT/PATCH) route these to the query
+	// string instead of dumping them into the JSON body. Derived from the
+	// same mcpParamBindings location data the per-endpoint tools use.
+	QueryParams []codeOrchParamBinding
+	// HeaderOverrides carries per-endpoint request headers (e.g. an
+	// Accept override for binary-only response endpoints). Without
+	// threading these through, the code-orchestration execute path
+	// sends the client's default Accept and binary endpoints 406.
+	HeaderOverrides map[string]string
+	// BodyIsArray marks endpoints whose request body schema root is a
+	// bare top-level JSON array. The execute path then sends a top-level
+	// array (the agent supplies it as params["body"]) instead of the
+	// params object; a strict-mapping API rejects an object at the body
+	// root with HTTP 422 "Invalid json".
+	BodyIsArray bool
+	keywords    []string
+}
+
+type codeOrchParamBinding struct {
+	PublicName string
+	WireName   string
 }
 
 // codeOrchEndpoints is the generator-populated registry covering every
@@ -67,388 +93,484 @@ type codeOrchEndpoint struct {
 // via <api>_search, so hierarchy shows up as dotted IDs, not nested maps.
 var codeOrchEndpoints = []codeOrchEndpoint{
 	{
-		ID:         "activity-logs.get",
-		Method:     "GET",
-		Path:       "/v1/activity_logs",
-		Summary:    "Returns a list of activity log events",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("activity-logs", "get", "Returns a list of activity log events", "/v1/activity_logs"),
+		ID:             "activity-logs.get",
+		Method:         "GET",
+		Path:           "/v1/activity_logs",
+		Summary:        "Returns a list of activity log events",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "events", WireName: "events"}, {PublicName: "start_time", WireName: "start_time"}, {PublicName: "end_time", WireName: "end_time"}, {PublicName: "limit", WireName: "limit"}, {PublicName: "order", WireName: "order"}},
+		keywords:       codeOrchKeywords("activity-logs", "get", "Returns a list of activity log events", "/v1/activity_logs"),
 	},
 	{
-		ID:         "component-sets.get",
-		Method:     "GET",
-		Path:       "/v1/component_sets/{key}",
-		Summary:    "Get metadata on a published component set by key.",
-		Positional: []string{"key"},
-		keywords:   codeOrchKeywords("component-sets", "get", "Get metadata on a published component set by key.", "/v1/component_sets/{key}"),
+		ID:             "component-sets.get",
+		Method:         "GET",
+		Path:           "/v1/component_sets/{key}",
+		Summary:        "Get metadata on a published component set by key.",
+		Positional:     []string{"key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("component-sets", "get", "Get metadata on a published component set by key.", "/v1/component_sets/{key}"),
 	},
 	{
-		ID:         "components.get",
-		Method:     "GET",
-		Path:       "/v1/components/{key}",
-		Summary:    "Get metadata on a component by key.",
-		Positional: []string{"key"},
-		keywords:   codeOrchKeywords("components", "get", "Get metadata on a component by key.", "/v1/components/{key}"),
+		ID:             "components.get",
+		Method:         "GET",
+		Path:           "/v1/components/{key}",
+		Summary:        "Get metadata on a component by key.",
+		Positional:     []string{"key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("components", "get", "Get metadata on a component by key.", "/v1/components/{key}"),
 	},
 	{
-		ID:         "dev-resources.post",
-		Method:     "POST",
-		Path:       "/v1/dev_resources",
-		Summary:    "Bulk create dev resources across multiple files. Dev resources that are successfully created will show up in the...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("dev-resources", "post", "Bulk create dev resources across multiple files. Dev resources that are successfully created will show up in the...", "/v1/dev_resources"),
+		ID:             "dev-resources.post",
+		Method:         "POST",
+		Path:           "/v1/dev_resources",
+		Summary:        "Bulk create dev resources across multiple files.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("dev-resources", "post", "Bulk create dev resources across multiple files.", "/v1/dev_resources"),
 	},
 	{
-		ID:         "dev-resources.put",
-		Method:     "PUT",
-		Path:       "/v1/dev_resources",
-		Summary:    "Bulk update dev resources across multiple files. Ids for dev resources that are successfully updated will show up in...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("dev-resources", "put", "Bulk update dev resources across multiple files. Ids for dev resources that are successfully updated will show up in...", "/v1/dev_resources"),
+		ID:             "dev-resources.put",
+		Method:         "PUT",
+		Path:           "/v1/dev_resources",
+		Summary:        "Bulk update dev resources across multiple files.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("dev-resources", "put", "Bulk update dev resources across multiple files.", "/v1/dev_resources"),
 	},
 	{
-		ID:         "developer-logs.get",
-		Method:     "POST",
-		Path:       "/v1/developer_logs",
-		Summary:    "Returns a list of developer log entries for REST API and MCP server requests made within the organization. This...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("developer-logs", "get", "Returns a list of developer log entries for REST API and MCP server requests made within the organization. This...", "/v1/developer_logs"),
+		ID:             "developer-logs.get",
+		Method:         "POST",
+		Path:           "/v1/developer_logs",
+		Summary:        "Returns a list of developer log entries for REST API and MCP server requests made within the organization.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("developer-logs", "get", "Returns a list of developer log entries for REST API and MCP server requests made within the organization.", "/v1/developer_logs"),
 	},
 	{
-		ID:         "figma-analytics.get-library-component-actions",
-		Method:     "GET",
-		Path:       "/v1/analytics/libraries/{file_key}/component/actions",
-		Summary:    "Returns a list of library analytics component actions data broken down by the requested dimension.",
-		Positional: []string{"file_key"},
-		keywords:   codeOrchKeywords("figma-analytics", "get-library-component-actions", "Returns a list of library analytics component actions data broken down by the requested dimension.", "/v1/analytics/libraries/{file_key}/component/actions"),
+		ID:             "figma-analytics.get-library-component-actions",
+		Method:         "GET",
+		Path:           "/v1/analytics/libraries/{file_key}/component/actions",
+		Summary:        "Returns a list of library analytics component actions data broken down by the requested dimension.",
+		Positional:     []string{"file_key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "group_by", WireName: "group_by"}, {PublicName: "start_date", WireName: "start_date"}, {PublicName: "end_date", WireName: "end_date"}},
+		keywords:       codeOrchKeywords("figma-analytics", "get-library-component-actions", "Returns a list of library analytics component actions data broken down by the requested dimension.", "/v1/analytics/libraries/{file_key}/component/actions"),
 	},
 	{
-		ID:         "figma-analytics.get-library-component-usages",
-		Method:     "GET",
-		Path:       "/v1/analytics/libraries/{file_key}/component/usages",
-		Summary:    "Returns a list of library analytics component usage data broken down by the requested dimension.",
-		Positional: []string{"file_key"},
-		keywords:   codeOrchKeywords("figma-analytics", "get-library-component-usages", "Returns a list of library analytics component usage data broken down by the requested dimension.", "/v1/analytics/libraries/{file_key}/component/usages"),
+		ID:             "figma-analytics.get-library-component-usages",
+		Method:         "GET",
+		Path:           "/v1/analytics/libraries/{file_key}/component/usages",
+		Summary:        "Returns a list of library analytics component usage data broken down by the requested dimension.",
+		Positional:     []string{"file_key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "group_by", WireName: "group_by"}},
+		keywords:       codeOrchKeywords("figma-analytics", "get-library-component-usages", "Returns a list of library analytics component usage data broken down by the requested dimension.", "/v1/analytics/libraries/{file_key}/component/usages"),
 	},
 	{
-		ID:         "figma-analytics.get-library-style-actions",
-		Method:     "GET",
-		Path:       "/v1/analytics/libraries/{file_key}/style/actions",
-		Summary:    "Returns a list of library analytics style actions data broken down by the requested dimension.",
-		Positional: []string{"file_key"},
-		keywords:   codeOrchKeywords("figma-analytics", "get-library-style-actions", "Returns a list of library analytics style actions data broken down by the requested dimension.", "/v1/analytics/libraries/{file_key}/style/actions"),
+		ID:             "figma-analytics.get-library-style-actions",
+		Method:         "GET",
+		Path:           "/v1/analytics/libraries/{file_key}/style/actions",
+		Summary:        "Returns a list of library analytics style actions data broken down by the requested dimension.",
+		Positional:     []string{"file_key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "group_by", WireName: "group_by"}, {PublicName: "start_date", WireName: "start_date"}, {PublicName: "end_date", WireName: "end_date"}},
+		keywords:       codeOrchKeywords("figma-analytics", "get-library-style-actions", "Returns a list of library analytics style actions data broken down by the requested dimension.", "/v1/analytics/libraries/{file_key}/style/actions"),
 	},
 	{
-		ID:         "figma-analytics.get-library-style-usages",
-		Method:     "GET",
-		Path:       "/v1/analytics/libraries/{file_key}/style/usages",
-		Summary:    "Returns a list of library analytics style usage data broken down by the requested dimension.",
-		Positional: []string{"file_key"},
-		keywords:   codeOrchKeywords("figma-analytics", "get-library-style-usages", "Returns a list of library analytics style usage data broken down by the requested dimension.", "/v1/analytics/libraries/{file_key}/style/usages"),
+		ID:             "figma-analytics.get-library-style-usages",
+		Method:         "GET",
+		Path:           "/v1/analytics/libraries/{file_key}/style/usages",
+		Summary:        "Returns a list of library analytics style usage data broken down by the requested dimension.",
+		Positional:     []string{"file_key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "group_by", WireName: "group_by"}},
+		keywords:       codeOrchKeywords("figma-analytics", "get-library-style-usages", "Returns a list of library analytics style usage data broken down by the requested dimension.", "/v1/analytics/libraries/{file_key}/style/usages"),
 	},
 	{
-		ID:         "figma-analytics.get-library-variable-actions",
-		Method:     "GET",
-		Path:       "/v1/analytics/libraries/{file_key}/variable/actions",
-		Summary:    "Returns a list of library analytics variable actions data broken down by the requested dimension.",
-		Positional: []string{"file_key"},
-		keywords:   codeOrchKeywords("figma-analytics", "get-library-variable-actions", "Returns a list of library analytics variable actions data broken down by the requested dimension.", "/v1/analytics/libraries/{file_key}/variable/actions"),
+		ID:             "figma-analytics.get-library-variable-actions",
+		Method:         "GET",
+		Path:           "/v1/analytics/libraries/{file_key}/variable/actions",
+		Summary:        "Returns a list of library analytics variable actions data broken down by the requested dimension.",
+		Positional:     []string{"file_key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "group_by", WireName: "group_by"}, {PublicName: "start_date", WireName: "start_date"}, {PublicName: "end_date", WireName: "end_date"}},
+		keywords:       codeOrchKeywords("figma-analytics", "get-library-variable-actions", "Returns a list of library analytics variable actions data broken down by the requested dimension.", "/v1/analytics/libraries/{file_key}/variable/actions"),
 	},
 	{
-		ID:         "figma-analytics.get-library-variable-usages",
-		Method:     "GET",
-		Path:       "/v1/analytics/libraries/{file_key}/variable/usages",
-		Summary:    "Returns a list of library analytics variable usage data broken down by the requested dimension.",
-		Positional: []string{"file_key"},
-		keywords:   codeOrchKeywords("figma-analytics", "get-library-variable-usages", "Returns a list of library analytics variable usage data broken down by the requested dimension.", "/v1/analytics/libraries/{file_key}/variable/usages"),
+		ID:             "figma-analytics.get-library-variable-usages",
+		Method:         "GET",
+		Path:           "/v1/analytics/libraries/{file_key}/variable/usages",
+		Summary:        "Returns a list of library analytics variable usage data broken down by the requested dimension.",
+		Positional:     []string{"file_key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "group_by", WireName: "group_by"}},
+		keywords:       codeOrchKeywords("figma-analytics", "get-library-variable-usages", "Returns a list of library analytics variable usage data broken down by the requested dimension.", "/v1/analytics/libraries/{file_key}/variable/usages"),
 	},
 	{
-		ID:         "files.get",
-		Method:     "GET",
-		Path:       "/v1/files/{file_key}",
-		Summary:    "Returns the document identified by `file_key` as a JSON object. The file key can be parsed from any Figma file url:...",
-		Positional: []string{"file_key"},
-		keywords:   codeOrchKeywords("files", "get", "Returns the document identified by `file_key` as a JSON object. The file key can be parsed from any Figma file url:...", "/v1/files/{file_key}"),
+		ID:             "files.get",
+		Method:         "GET",
+		Path:           "/v1/files/{file_key}",
+		Summary:        "Returns the document identified by `file_key` as a JSON object.",
+		Positional:     []string{"file_key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "version", WireName: "version"}, {PublicName: "ids", WireName: "ids"}, {PublicName: "depth", WireName: "depth"}, {PublicName: "geometry", WireName: "geometry"}, {PublicName: "plugin_data", WireName: "plugin_data"}, {PublicName: "branch_data", WireName: "branch_data"}},
+		keywords:       codeOrchKeywords("files", "get", "Returns the document identified by `file_key` as a JSON object.", "/v1/files/{file_key}"),
 	},
 	{
-		ID:         "files.comments.delete",
-		Method:     "DELETE",
-		Path:       "/v1/files/{file_key}/comments/{comment_id}",
-		Summary:    "Deletes a specific comment. Only the person who made the comment is allowed to delete it.",
-		Positional: []string{"file_key", "comment_id"},
-		keywords:   codeOrchKeywords("files", "delete", "Deletes a specific comment. Only the person who made the comment is allowed to delete it.", "/v1/files/{file_key}/comments/{comment_id}"),
+		ID:             "files.comments.delete",
+		Method:         "DELETE",
+		Path:           "/v1/files/{file_key}/comments/{comment_id}",
+		Summary:        "Deletes a specific comment. Only the person who made the comment is allowed to delete it.",
+		Positional:     []string{"file_key", "comment_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("files", "delete", "Deletes a specific comment. Only the person who made the comment is allowed to delete it.", "/v1/files/{file_key}/comments/{comment_id}"),
 	},
 	{
-		ID:         "files.comments.delete-reaction",
-		Method:     "DELETE",
-		Path:       "/v1/files/{file_key}/comments/{comment_id}/reactions",
-		Summary:    "Deletes a specific comment reaction. Only the person who made the reaction is allowed to delete it.",
-		Positional: []string{"file_key", "comment_id"},
-		keywords:   codeOrchKeywords("files", "delete-reaction", "Deletes a specific comment reaction. Only the person who made the reaction is allowed to delete it.", "/v1/files/{file_key}/comments/{comment_id}/reactions"),
+		ID:             "files.comments.delete-reaction",
+		Method:         "DELETE",
+		Path:           "/v1/files/{file_key}/comments/{comment_id}/reactions",
+		Summary:        "Deletes a specific comment reaction. Only the person who made the reaction is allowed to delete it.",
+		Positional:     []string{"file_key", "comment_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "emoji", WireName: "emoji"}},
+		keywords:       codeOrchKeywords("files", "delete-reaction", "Deletes a specific comment reaction. Only the person who made the reaction is allowed to delete it.", "/v1/files/{file_key}/comments/{comment_id}/reactions"),
 	},
 	{
-		ID:         "files.comments.get",
-		Method:     "GET",
-		Path:       "/v1/files/{file_key}/comments",
-		Summary:    "Gets a list of comments left on the file.",
-		Positional: []string{"file_key"},
-		keywords:   codeOrchKeywords("files", "get", "Gets a list of comments left on the file.", "/v1/files/{file_key}/comments"),
+		ID:             "files.comments.get",
+		Method:         "GET",
+		Path:           "/v1/files/{file_key}/comments",
+		Summary:        "Gets a list of comments left on the file.",
+		Positional:     []string{"file_key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "as_md", WireName: "as_md"}},
+		keywords:       codeOrchKeywords("files", "get", "Gets a list of comments left on the file.", "/v1/files/{file_key}/comments"),
 	},
 	{
-		ID:         "files.comments.get-reactions",
-		Method:     "GET",
-		Path:       "/v1/files/{file_key}/comments/{comment_id}/reactions",
-		Summary:    "Gets a paginated list of reactions left on the comment.",
-		Positional: []string{"file_key", "comment_id"},
-		keywords:   codeOrchKeywords("files", "get-reactions", "Gets a paginated list of reactions left on the comment.", "/v1/files/{file_key}/comments/{comment_id}/reactions"),
+		ID:             "files.comments.get-reactions",
+		Method:         "GET",
+		Path:           "/v1/files/{file_key}/comments/{comment_id}/reactions",
+		Summary:        "Gets a paginated list of reactions left on the comment.",
+		Positional:     []string{"file_key", "comment_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}},
+		keywords:       codeOrchKeywords("files", "get-reactions", "Gets a paginated list of reactions left on the comment.", "/v1/files/{file_key}/comments/{comment_id}/reactions"),
 	},
 	{
-		ID:         "files.comments.post",
-		Method:     "POST",
-		Path:       "/v1/files/{file_key}/comments",
-		Summary:    "Posts a new comment on the file.",
-		Positional: []string{"file_key"},
-		keywords:   codeOrchKeywords("files", "post", "Posts a new comment on the file.", "/v1/files/{file_key}/comments"),
+		ID:             "files.comments.post",
+		Method:         "POST",
+		Path:           "/v1/files/{file_key}/comments",
+		Summary:        "Posts a new comment on the file.",
+		Positional:     []string{"file_key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("files", "post", "Posts a new comment on the file.", "/v1/files/{file_key}/comments"),
 	},
 	{
-		ID:         "files.comments.post-reaction",
-		Method:     "POST",
-		Path:       "/v1/files/{file_key}/comments/{comment_id}/reactions",
-		Summary:    "Posts a new comment reaction on a file comment.",
-		Positional: []string{"file_key", "comment_id"},
-		keywords:   codeOrchKeywords("files", "post-reaction", "Posts a new comment reaction on a file comment.", "/v1/files/{file_key}/comments/{comment_id}/reactions"),
+		ID:             "files.comments.post-reaction",
+		Method:         "POST",
+		Path:           "/v1/files/{file_key}/comments/{comment_id}/reactions",
+		Summary:        "Posts a new comment reaction on a file comment.",
+		Positional:     []string{"file_key", "comment_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("files", "post-reaction", "Posts a new comment reaction on a file comment.", "/v1/files/{file_key}/comments/{comment_id}/reactions"),
 	},
 	{
-		ID:         "files.component-sets.get-file",
-		Method:     "GET",
-		Path:       "/v1/files/{file_key}/component_sets",
-		Summary:    "Get a list of published component sets within a file library.",
-		Positional: []string{"file_key"},
-		keywords:   codeOrchKeywords("files", "get-file", "Get a list of published component sets within a file library.", "/v1/files/{file_key}/component_sets"),
+		ID:             "files.component-sets.get-file",
+		Method:         "GET",
+		Path:           "/v1/files/{file_key}/component_sets",
+		Summary:        "Get a list of published component sets within a file library.",
+		Positional:     []string{"file_key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("files", "get-file", "Get a list of published component sets within a file library.", "/v1/files/{file_key}/component_sets"),
 	},
 	{
-		ID:         "files.components.get-file",
-		Method:     "GET",
-		Path:       "/v1/files/{file_key}/components",
-		Summary:    "Get a list of published components within a file library.",
-		Positional: []string{"file_key"},
-		keywords:   codeOrchKeywords("files", "get-file", "Get a list of published components within a file library.", "/v1/files/{file_key}/components"),
+		ID:             "files.components.get-file",
+		Method:         "GET",
+		Path:           "/v1/files/{file_key}/components",
+		Summary:        "Get a list of published components within a file library.",
+		Positional:     []string{"file_key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("files", "get-file", "Get a list of published components within a file library.", "/v1/files/{file_key}/components"),
 	},
 	{
-		ID:         "files.dev-resources.delete",
-		Method:     "DELETE",
-		Path:       "/v1/files/{file_key}/dev_resources/{dev_resource_id}",
-		Summary:    "Delete a dev resource from a file",
-		Positional: []string{"file_key", "dev_resource_id"},
-		keywords:   codeOrchKeywords("files", "delete", "Delete a dev resource from a file", "/v1/files/{file_key}/dev_resources/{dev_resource_id}"),
+		ID:             "files.dev-resources.delete",
+		Method:         "DELETE",
+		Path:           "/v1/files/{file_key}/dev_resources/{dev_resource_id}",
+		Summary:        "Delete a dev resource from a file",
+		Positional:     []string{"file_key", "dev_resource_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("files", "delete", "Delete a dev resource from a file", "/v1/files/{file_key}/dev_resources/{dev_resource_id}"),
 	},
 	{
-		ID:         "files.dev-resources.get",
-		Method:     "GET",
-		Path:       "/v1/files/{file_key}/dev_resources",
-		Summary:    "Get dev resources in a file",
-		Positional: []string{"file_key"},
-		keywords:   codeOrchKeywords("files", "get", "Get dev resources in a file", "/v1/files/{file_key}/dev_resources"),
+		ID:             "files.dev-resources.get",
+		Method:         "GET",
+		Path:           "/v1/files/{file_key}/dev_resources",
+		Summary:        "Get dev resources in a file",
+		Positional:     []string{"file_key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "node_ids", WireName: "node_ids"}},
+		keywords:       codeOrchKeywords("files", "get", "Get dev resources in a file", "/v1/files/{file_key}/dev_resources"),
 	},
 	{
-		ID:         "files.images.get-fills",
-		Method:     "GET",
-		Path:       "/v1/files/{file_key}/images",
-		Summary:    "Returns download links for all images present in image fills in a document. Image fills are how Figma represents any...",
-		Positional: []string{"file_key"},
-		keywords:   codeOrchKeywords("files", "get-fills", "Returns download links for all images present in image fills in a document. Image fills are how Figma represents any...", "/v1/files/{file_key}/images"),
+		ID:             "files.images.get-fills",
+		Method:         "GET",
+		Path:           "/v1/files/{file_key}/images",
+		Summary:        "Returns download links for all images present in image fills in a document.",
+		Positional:     []string{"file_key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("files", "get-fills", "Returns download links for all images present in image fills in a document.", "/v1/files/{file_key}/images"),
 	},
 	{
-		ID:         "files.meta.get-file",
-		Method:     "GET",
-		Path:       "/v1/files/{file_key}/meta",
-		Summary:    "Get file metadata",
-		Positional: []string{"file_key"},
-		keywords:   codeOrchKeywords("files", "get-file", "Get file metadata", "/v1/files/{file_key}/meta"),
+		ID:             "files.meta.get-file",
+		Method:         "GET",
+		Path:           "/v1/files/{file_key}/meta",
+		Summary:        "Get file metadata",
+		Positional:     []string{"file_key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("files", "get-file", "Get file metadata", "/v1/files/{file_key}/meta"),
 	},
 	{
-		ID:         "files.nodes.get-file",
-		Method:     "GET",
-		Path:       "/v1/files/{file_key}/nodes",
-		Summary:    "Returns the nodes referenced to by `ids` as a JSON object. The nodes are retrieved from the Figma file referenced to...",
-		Positional: []string{"file_key"},
-		keywords:   codeOrchKeywords("files", "get-file", "Returns the nodes referenced to by `ids` as a JSON object. The nodes are retrieved from the Figma file referenced to...", "/v1/files/{file_key}/nodes"),
+		ID:             "files.nodes.get-file",
+		Method:         "GET",
+		Path:           "/v1/files/{file_key}/nodes",
+		Summary:        "Returns the nodes referenced to by `ids` as a JSON object.",
+		Positional:     []string{"file_key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}, {PublicName: "version", WireName: "version"}, {PublicName: "depth", WireName: "depth"}, {PublicName: "geometry", WireName: "geometry"}, {PublicName: "plugin_data", WireName: "plugin_data"}},
+		keywords:       codeOrchKeywords("files", "get-file", "Returns the nodes referenced to by `ids` as a JSON object.", "/v1/files/{file_key}/nodes"),
 	},
 	{
-		ID:         "files.styles.get-file",
-		Method:     "GET",
-		Path:       "/v1/files/{file_key}/styles",
-		Summary:    "Get a list of published styles within a file library.",
-		Positional: []string{"file_key"},
-		keywords:   codeOrchKeywords("files", "get-file", "Get a list of published styles within a file library.", "/v1/files/{file_key}/styles"),
+		ID:             "files.styles.get-file",
+		Method:         "GET",
+		Path:           "/v1/files/{file_key}/styles",
+		Summary:        "Get a list of published styles within a file library.",
+		Positional:     []string{"file_key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("files", "get-file", "Get a list of published styles within a file library.", "/v1/files/{file_key}/styles"),
 	},
 	{
-		ID:         "files.variables.get-local",
-		Method:     "GET",
-		Path:       "/v1/files/{file_key}/variables/local",
-		Summary:    "**This API is available to full members of Enterprise orgs.** The `GET /v1/files/:file_key/variables/local` endpoint...",
-		Positional: []string{"file_key"},
-		keywords:   codeOrchKeywords("files", "get-local", "**This API is available to full members of Enterprise orgs.** The `GET /v1/files/:file_key/variables/local` endpoint...", "/v1/files/{file_key}/variables/local"),
+		ID:             "files.variables.get-local",
+		Method:         "GET",
+		Path:           "/v1/files/{file_key}/variables/local",
+		Summary:        "**This API is available to full members of Enterprise orgs.",
+		Positional:     []string{"file_key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("files", "get-local", "**This API is available to full members of Enterprise orgs.", "/v1/files/{file_key}/variables/local"),
 	},
 	{
-		ID:         "files.variables.get-published",
-		Method:     "GET",
-		Path:       "/v1/files/{file_key}/variables/published",
-		Summary:    "**This API is available to full members of Enterprise orgs.** The `GET /v1/files/:file_key/variables/published`...",
-		Positional: []string{"file_key"},
-		keywords:   codeOrchKeywords("files", "get-published", "**This API is available to full members of Enterprise orgs.** The `GET /v1/files/:file_key/variables/published`...", "/v1/files/{file_key}/variables/published"),
+		ID:             "files.variables.get-published",
+		Method:         "GET",
+		Path:           "/v1/files/{file_key}/variables/published",
+		Summary:        "**This API is available to full members of Enterprise orgs.",
+		Positional:     []string{"file_key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("files", "get-published", "**This API is available to full members of Enterprise orgs.", "/v1/files/{file_key}/variables/published"),
 	},
 	{
-		ID:         "files.variables.post",
-		Method:     "POST",
-		Path:       "/v1/files/{file_key}/variables",
-		Summary:    "**This API is available to full members of Enterprise orgs with Editor seats.** The `POST...",
-		Positional: []string{"file_key"},
-		keywords:   codeOrchKeywords("files", "post", "**This API is available to full members of Enterprise orgs with Editor seats.** The `POST...", "/v1/files/{file_key}/variables"),
+		ID:             "files.variables.post",
+		Method:         "POST",
+		Path:           "/v1/files/{file_key}/variables",
+		Summary:        "**This API is available to full members of Enterprise orgs with Editor seats.",
+		Positional:     []string{"file_key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("files", "post", "**This API is available to full members of Enterprise orgs with Editor seats.", "/v1/files/{file_key}/variables"),
 	},
 	{
-		ID:         "files.versions.get-file",
-		Method:     "GET",
-		Path:       "/v1/files/{file_key}/versions",
-		Summary:    "This endpoint fetches the version history of a file, allowing you to see the progression of a file over time. You...",
-		Positional: []string{"file_key"},
-		keywords:   codeOrchKeywords("files", "get-file", "This endpoint fetches the version history of a file, allowing you to see the progression of a file over time. You...", "/v1/files/{file_key}/versions"),
+		ID:             "files.versions.get-file",
+		Method:         "GET",
+		Path:           "/v1/files/{file_key}/versions",
+		Summary:        "This endpoint fetches the version history of a file, allowing you to see the progression of a file over time.",
+		Positional:     []string{"file_key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "page_size", WireName: "page_size"}, {PublicName: "before", WireName: "before"}, {PublicName: "after", WireName: "after"}},
+		keywords:       codeOrchKeywords("files", "get-file", "This endpoint fetches the version history of a file, allowing you to see the progression of a file over time.", "/v1/files/{file_key}/versions"),
 	},
 	{
-		ID:         "images.get",
-		Method:     "GET",
-		Path:       "/v1/images/{file_key}",
-		Summary:    "Renders images from a file. If no error occurs, `'images'` will be populated with a map from node IDs to URLs of the...",
-		Positional: []string{"file_key"},
-		keywords:   codeOrchKeywords("images", "get", "Renders images from a file. If no error occurs, `'images'` will be populated with a map from node IDs to URLs of the...", "/v1/images/{file_key}"),
+		ID:             "images.get",
+		Method:         "GET",
+		Path:           "/v1/images/{file_key}",
+		Summary:        "Renders images from a file.",
+		Positional:     []string{"file_key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}, {PublicName: "version", WireName: "version"}, {PublicName: "scale", WireName: "scale"}, {PublicName: "format", WireName: "format"}, {PublicName: "svg_outline_text", WireName: "svg_outline_text"}, {PublicName: "svg_include_id", WireName: "svg_include_id"}, {PublicName: "svg_include_node_id", WireName: "svg_include_node_id"}, {PublicName: "svg_simplify_stroke", WireName: "svg_simplify_stroke"}, {PublicName: "contents_only", WireName: "contents_only"}, {PublicName: "use_absolute_bounds", WireName: "use_absolute_bounds"}},
+		keywords:       codeOrchKeywords("images", "get", "Renders images from a file.", "/v1/images/{file_key}"),
 	},
 	{
-		ID:         "me.get",
-		Method:     "GET",
-		Path:       "/v1/me",
-		Summary:    "Returns the user information for the currently authenticated user.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "get", "Returns the user information for the currently authenticated user.", "/v1/me"),
+		ID:             "me.get",
+		Method:         "GET",
+		Path:           "/v1/me",
+		Summary:        "Returns the user information for the currently authenticated user.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("me", "get", "Returns the user information for the currently authenticated user.", "/v1/me"),
 	},
 	{
-		ID:         "oembed.get",
-		Method:     "GET",
-		Path:       "/v1/oembed",
-		Summary:    "Returns oEmbed data for a Figma file or published Make site URL, following the [oEmbed...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("oembed", "get", "Returns oEmbed data for a Figma file or published Make site URL, following the [oEmbed...", "/v1/oembed"),
+		ID:             "oembed.get",
+		Method:         "GET",
+		Path:           "/v1/oembed",
+		Summary:        "Returns oEmbed data for a Figma file or published Make site URL, following the [oEmbed specification](https://oembed.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}, {PublicName: "maxwidth", WireName: "maxwidth"}, {PublicName: "maxheight", WireName: "maxheight"}},
+		keywords:       codeOrchKeywords("oembed", "get", "Returns oEmbed data for a Figma file or published Make site URL, following the [oEmbed specification](https://oembed.", "/v1/oembed"),
 	},
 	{
-		ID:         "payments.get",
-		Method:     "GET",
-		Path:       "/v1/payments",
-		Summary:    "There are two methods to query for a user's payment information on a plugin, widget, or Community file. The first...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("payments", "get", "There are two methods to query for a user's payment information on a plugin, widget, or Community file. The first...", "/v1/payments"),
+		ID:             "payments.get",
+		Method:         "GET",
+		Path:           "/v1/payments",
+		Summary:        "There are two methods to query for a user's payment information on a plugin, widget, or Community file.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "plugin_payment_token", WireName: "plugin_payment_token"}, {PublicName: "user_id", WireName: "user_id"}, {PublicName: "community_file_id", WireName: "community_file_id"}, {PublicName: "plugin_id", WireName: "plugin_id"}, {PublicName: "widget_id", WireName: "widget_id"}},
+		keywords:       codeOrchKeywords("payments", "get", "There are two methods to query for a user's payment information on a plugin, widget, or Community file.", "/v1/payments"),
 	},
 	{
-		ID:         "projects.files.get-project",
-		Method:     "GET",
-		Path:       "/v1/projects/{project_id}/files",
-		Summary:    "Get a list of all the Files within the specified project.",
-		Positional: []string{"project_id"},
-		keywords:   codeOrchKeywords("projects", "get-project", "Get a list of all the Files within the specified project.", "/v1/projects/{project_id}/files"),
+		ID:             "projects.files.get-project",
+		Method:         "GET",
+		Path:           "/v1/projects/{project_id}/files",
+		Summary:        "Get a list of all the Files within the specified project.",
+		Positional:     []string{"project_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "branch_data", WireName: "branch_data"}},
+		keywords:       codeOrchKeywords("projects", "get-project", "Get a list of all the Files within the specified project.", "/v1/projects/{project_id}/files"),
 	},
 	{
-		ID:         "styles.get",
-		Method:     "GET",
-		Path:       "/v1/styles/{key}",
-		Summary:    "Get metadata on a style by key.",
-		Positional: []string{"key"},
-		keywords:   codeOrchKeywords("styles", "get", "Get metadata on a style by key.", "/v1/styles/{key}"),
+		ID:             "styles.get",
+		Method:         "GET",
+		Path:           "/v1/styles/{key}",
+		Summary:        "Get metadata on a style by key.",
+		Positional:     []string{"key"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("styles", "get", "Get metadata on a style by key.", "/v1/styles/{key}"),
 	},
 	{
-		ID:         "teams.component-sets.get-team",
-		Method:     "GET",
-		Path:       "/v1/teams/{team_id}/component_sets",
-		Summary:    "Get a paginated list of published component sets within a team library.",
-		Positional: []string{"team_id"},
-		keywords:   codeOrchKeywords("teams", "get-team", "Get a paginated list of published component sets within a team library.", "/v1/teams/{team_id}/component_sets"),
+		ID:             "teams.component-sets.get-team",
+		Method:         "GET",
+		Path:           "/v1/teams/{team_id}/component_sets",
+		Summary:        "Get a paginated list of published component sets within a team library.",
+		Positional:     []string{"team_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "page_size", WireName: "page_size"}, {PublicName: "after", WireName: "after"}, {PublicName: "before", WireName: "before"}},
+		keywords:       codeOrchKeywords("teams", "get-team", "Get a paginated list of published component sets within a team library.", "/v1/teams/{team_id}/component_sets"),
 	},
 	{
-		ID:         "teams.components.get-team",
-		Method:     "GET",
-		Path:       "/v1/teams/{team_id}/components",
-		Summary:    "Get a paginated list of published components within a team library.",
-		Positional: []string{"team_id"},
-		keywords:   codeOrchKeywords("teams", "get-team", "Get a paginated list of published components within a team library.", "/v1/teams/{team_id}/components"),
+		ID:             "teams.components.get-team",
+		Method:         "GET",
+		Path:           "/v1/teams/{team_id}/components",
+		Summary:        "Get a paginated list of published components within a team library.",
+		Positional:     []string{"team_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "page_size", WireName: "page_size"}, {PublicName: "after", WireName: "after"}, {PublicName: "before", WireName: "before"}},
+		keywords:       codeOrchKeywords("teams", "get-team", "Get a paginated list of published components within a team library.", "/v1/teams/{team_id}/components"),
 	},
 	{
-		ID:         "teams.projects.get-team",
-		Method:     "GET",
-		Path:       "/v1/teams/{team_id}/projects",
-		Summary:    "You can use this endpoint to get a list of all the Projects within the specified team. This will only return...",
-		Positional: []string{"team_id"},
-		keywords:   codeOrchKeywords("teams", "get-team", "You can use this endpoint to get a list of all the Projects within the specified team. This will only return...", "/v1/teams/{team_id}/projects"),
+		ID:             "teams.projects.get-team",
+		Method:         "GET",
+		Path:           "/v1/teams/{team_id}/projects",
+		Summary:        "You can use this endpoint to get a list of all the Projects within the specified team.",
+		Positional:     []string{"team_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("teams", "get-team", "You can use this endpoint to get a list of all the Projects within the specified team.", "/v1/teams/{team_id}/projects"),
 	},
 	{
-		ID:         "teams.styles.get-team",
-		Method:     "GET",
-		Path:       "/v1/teams/{team_id}/styles",
-		Summary:    "Get a paginated list of published styles within a team library.",
-		Positional: []string{"team_id"},
-		keywords:   codeOrchKeywords("teams", "get-team", "Get a paginated list of published styles within a team library.", "/v1/teams/{team_id}/styles"),
+		ID:             "teams.styles.get-team",
+		Method:         "GET",
+		Path:           "/v1/teams/{team_id}/styles",
+		Summary:        "Get a paginated list of published styles within a team library.",
+		Positional:     []string{"team_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "page_size", WireName: "page_size"}, {PublicName: "after", WireName: "after"}, {PublicName: "before", WireName: "before"}},
+		keywords:       codeOrchKeywords("teams", "get-team", "Get a paginated list of published styles within a team library.", "/v1/teams/{team_id}/styles"),
 	},
 	{
-		ID:         "teams.webhooks.get-team",
-		Method:     "GET",
-		Path:       "/v2/teams/{team_id}/webhooks",
-		Summary:    "Returns all webhooks registered under the specified team.",
-		Positional: []string{"team_id"},
-		keywords:   codeOrchKeywords("teams", "get-team", "Returns all webhooks registered under the specified team.", "/v2/teams/{team_id}/webhooks"),
+		ID:             "teams.webhooks.get-team",
+		Method:         "GET",
+		Path:           "/v2/teams/{team_id}/webhooks",
+		Summary:        "Returns all webhooks registered under the specified team.",
+		Positional:     []string{"team_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("teams", "get-team", "Returns all webhooks registered under the specified team.", "/v2/teams/{team_id}/webhooks"),
 	},
 	{
-		ID:         "webhooks.delete",
-		Method:     "DELETE",
-		Path:       "/v2/webhooks/{webhook_id}",
-		Summary:    "Deletes the specified webhook. This operation cannot be reversed.",
-		Positional: []string{"webhook_id"},
-		keywords:   codeOrchKeywords("webhooks", "delete", "Deletes the specified webhook. This operation cannot be reversed.", "/v2/webhooks/{webhook_id}"),
+		ID:             "webhooks.delete",
+		Method:         "DELETE",
+		Path:           "/v2/webhooks/{webhook_id}",
+		Summary:        "Deletes the specified webhook. This operation cannot be reversed.",
+		Positional:     []string{"webhook_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("webhooks", "delete", "Deletes the specified webhook. This operation cannot be reversed.", "/v2/webhooks/{webhook_id}"),
 	},
 	{
-		ID:         "webhooks.get",
-		Method:     "GET",
-		Path:       "/v2/webhooks",
-		Summary:    "Returns a list of webhooks corresponding to the context or plan provided, if they exist. For plan, the webhooks for...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("webhooks", "get", "Returns a list of webhooks corresponding to the context or plan provided, if they exist. For plan, the webhooks for...", "/v2/webhooks"),
+		ID:             "webhooks.get",
+		Method:         "GET",
+		Path:           "/v2/webhooks",
+		Summary:        "Returns a list of webhooks corresponding to the context or plan provided, if they exist.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "context", WireName: "context"}, {PublicName: "context_id", WireName: "context_id"}, {PublicName: "plan_api_id", WireName: "plan_api_id"}, {PublicName: "cursor", WireName: "cursor"}},
+		keywords:       codeOrchKeywords("webhooks", "get", "Returns a list of webhooks corresponding to the context or plan provided, if they exist.", "/v2/webhooks"),
 	},
 	{
-		ID:         "webhooks.get-webhookid",
-		Method:     "GET",
-		Path:       "/v2/webhooks/{webhook_id}",
-		Summary:    "Get a webhook by ID.",
-		Positional: []string{"webhook_id"},
-		keywords:   codeOrchKeywords("webhooks", "get-webhookid", "Get a webhook by ID.", "/v2/webhooks/{webhook_id}"),
+		ID:             "webhooks.get-webhookid",
+		Method:         "GET",
+		Path:           "/v2/webhooks/{webhook_id}",
+		Summary:        "Get a webhook by ID.",
+		Positional:     []string{"webhook_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("webhooks", "get-webhookid", "Get a webhook by ID.", "/v2/webhooks/{webhook_id}"),
 	},
 	{
-		ID:         "webhooks.post",
-		Method:     "POST",
-		Path:       "/v2/webhooks",
-		Summary:    "Create a new webhook which will call the specified endpoint when the event triggers. By default, this webhook will...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("webhooks", "post", "Create a new webhook which will call the specified endpoint when the event triggers. By default, this webhook will...", "/v2/webhooks"),
+		ID:             "webhooks.post",
+		Method:         "POST",
+		Path:           "/v2/webhooks",
+		Summary:        "Create a new webhook which will call the specified endpoint when the event triggers.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("webhooks", "post", "Create a new webhook which will call the specified endpoint when the event triggers.", "/v2/webhooks"),
 	},
 	{
-		ID:         "webhooks.put",
-		Method:     "PUT",
-		Path:       "/v2/webhooks/{webhook_id}",
-		Summary:    "Update a webhook by ID.",
-		Positional: []string{"webhook_id"},
-		keywords:   codeOrchKeywords("webhooks", "put", "Update a webhook by ID.", "/v2/webhooks/{webhook_id}"),
+		ID:             "webhooks.put",
+		Method:         "PUT",
+		Path:           "/v2/webhooks/{webhook_id}",
+		Summary:        "Update a webhook by ID.",
+		Positional:     []string{"webhook_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("webhooks", "put", "Update a webhook by ID.", "/v2/webhooks/{webhook_id}"),
 	},
 	{
-		ID:         "webhooks.requests.get-webhook",
-		Method:     "GET",
-		Path:       "/v2/webhooks/{webhook_id}/requests",
-		Summary:    "Returns all webhook requests sent within the last week. Useful for debugging.",
-		Positional: []string{"webhook_id"},
-		keywords:   codeOrchKeywords("webhooks", "get-webhook", "Returns all webhook requests sent within the last week. Useful for debugging.", "/v2/webhooks/{webhook_id}/requests"),
+		ID:             "webhooks.requests.get-webhook",
+		Method:         "GET",
+		Path:           "/v2/webhooks/{webhook_id}/requests",
+		Summary:        "Returns all webhook requests sent within the last week. Useful for debugging.",
+		Positional:     []string{"webhook_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("webhooks", "get-webhook", "Returns all webhook requests sent within the last week. Useful for debugging.", "/v2/webhooks/{webhook_id}/requests"),
 	},
 }
 
@@ -573,42 +695,143 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	path := ep.Path
 	for _, p := range ep.Positional {
 		if v, ok := params[p]; ok {
-			path = strings.ReplaceAll(path, "{"+p+"}", fmt.Sprintf("%v", v))
+			path = strings.ReplaceAll(path, "{"+p+"}", formatMCPParamValue(v))
 			delete(params, p)
 		}
 	}
 
+	// Route params to their runtime slots. GET/DELETE params are query
+	// strings; write methods split spec-declared query params from the
+	// remaining params used as the request body below.
 	query := map[string]string{}
 	if ep.Method == "GET" || ep.Method == "DELETE" {
 		for k, v := range params {
-			query[k] = fmt.Sprintf("%v", v)
+			query[codeOrchWireQueryName(ep.QueryParams, k)] = formatMCPParamValue(v)
+		}
+	} else {
+		// Route spec-declared in:query params to the query string for write
+		// methods too. Without this, a query param (e.g. sendToLedger on
+		// PUT /ledger/voucher/{id}) wrongly lands in the JSON body and the
+		// API silently ignores it or rejects the request. The remaining
+		// params stay in the map for codeOrchWriteBody (the JSON body).
+		if enc := codeOrchSplitQuery(ep.QueryParams, params); enc != "" {
+			sep := "?"
+			if strings.Contains(path, "?") {
+				sep = "&"
+			}
+			path += sep + enc
 		}
 	}
 
+	hdrs := ep.HeaderOverrides
+	writeBody := func() any {
+		if ep.BodyIsArray {
+			return codeOrchArrayBody(params)
+		}
+		return codeOrchWriteBody(params)
+	}
 	var data json.RawMessage
 	switch ep.Method {
 	case "GET":
-		data, err = c.Get(path, query)
+		if len(hdrs) > 0 {
+			data, err = c.GetWithHeaders(ctx, path, query, hdrs)
+		} else {
+			data, err = c.Get(ctx, path, query)
+		}
 	case "DELETE":
-		data, _, err = c.Delete(path)
+		if len(hdrs) > 0 {
+			data, _, err = c.DeleteWithParamsAndHeaders(ctx, path, query, hdrs)
+		} else {
+			data, _, err = c.DeleteWithParams(ctx, path, query)
+		}
+	case "POST":
+		body := writeBody()
+		if len(hdrs) > 0 {
+			data, _, err = c.PostWithHeaders(ctx, path, body, hdrs)
+		} else {
+			data, _, err = c.Post(ctx, path, body)
+		}
+	case "PUT":
+		body := writeBody()
+		if len(hdrs) > 0 {
+			data, _, err = c.PutWithHeaders(ctx, path, body, hdrs)
+		} else {
+			data, _, err = c.Put(ctx, path, body)
+		}
+	case "PATCH":
+		body := writeBody()
+		if len(hdrs) > 0 {
+			data, _, err = c.PatchWithHeaders(ctx, path, body, hdrs)
+		} else {
+			data, _, err = c.Patch(ctx, path, body)
+		}
 	default:
-		body, mErr := json.Marshal(params)
-		if mErr != nil {
-			return mcplib.NewToolResultError(fmt.Sprintf("marshaling body: %v", mErr)), nil
-		}
-		switch ep.Method {
-		case "POST":
-			data, _, err = c.Post(path, body)
-		case "PUT":
-			data, _, err = c.Put(path, body)
-		case "PATCH":
-			data, _, err = c.Patch(path, body)
-		default:
-			return mcplib.NewToolResultError(fmt.Sprintf("unsupported method %q", ep.Method)), nil
-		}
+		return mcplib.NewToolResultError(fmt.Sprintf("unsupported method %q", ep.Method)), nil
 	}
 	if err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
 	return mcplib.NewToolResultText(string(data)), nil
+}
+
+// codeOrchWriteBody returns the value handed to the client layer as the
+// request body for write methods (POST/PUT/PATCH). It MUST be the structured
+// params map, never pre-marshaled bytes.
+//
+// client.do() marshals the body value exactly once. Handing it []byte makes
+// json.Marshal([]byte) emit a base64-encoded JSON *string*, so the API
+// receives "eyJ...==" where it expects the request object. Strict JSON APIs
+// reject that as the wrong type at the body root. GET/DELETE carry no body,
+// so this defect stays latent until the first write attempt.
+func codeOrchWriteBody(params map[string]any) any {
+	return params
+}
+
+// codeOrchArrayBody returns the request body for endpoints whose schema root
+// is a bare top-level JSON array (ep.BodyIsArray). Such a body cannot be
+// expressed as the params object, so the agent supplies the array under the
+// conventional params key "body" (these endpoints have no flattened named
+// params, so there is no collision risk). When present and array-shaped it is
+// sent as the top-level array the API expects. Otherwise params is returned
+// unchanged so a malformed call fails loudly at the API (HTTP 422) instead of
+// silently sending the wrong shape or a partial write — financial mutations
+// are never retried with body-variant guesses (broken-convenience guardrail).
+func codeOrchArrayBody(params map[string]any) any {
+	if v, ok := params["body"]; ok {
+		if arr, ok := v.([]any); ok {
+			return arr
+		}
+	}
+	return params
+}
+
+// codeOrchSplitQuery removes spec-declared in:query params from params and
+// returns them URL-encoded for appending to the request path. The remaining
+// entries stay in the map for codeOrchWriteBody (the JSON body), so a write
+// method's query parameters never get buried in the body. Mutates params by
+// design (deletes the consumed query keys).
+func codeOrchSplitQuery(queryParams []codeOrchParamBinding, params map[string]any) string {
+	uv := neturl.Values{}
+	for _, q := range queryParams {
+		for _, key := range []string{q.PublicName, q.WireName} {
+			if key == "" {
+				continue
+			}
+			if v, ok := params[key]; ok {
+				uv.Set(q.WireName, formatMCPParamValue(v))
+				delete(params, key)
+				break
+			}
+		}
+	}
+	return uv.Encode()
+}
+
+func codeOrchWireQueryName(queryParams []codeOrchParamBinding, name string) string {
+	for _, q := range queryParams {
+		if q.PublicName == name || q.WireName == name {
+			return q.WireName
+		}
+	}
+	return name
 }

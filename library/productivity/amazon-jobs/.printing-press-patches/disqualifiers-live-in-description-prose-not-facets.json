@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "disqualifiers-live-in-description-prose-not-facets",
+  "applied_at": "2026-07-25",
+  "base_run_id": "20260725-041142-9944f727",
+  "base_printing_press_version": "4.29.0",
+  "summary": "The constraints that decide whether a req is applicable — visa sponsorship, relocation support, language requirements — exist only as prose inside the HTML description and qualification fields, so this CLI must offer a client-side text filter over those fields with HTML stripped before matching.",
+  "reason": "amazon.jobs exposes no facet for any of these, and the fields are HTML fragments, so a pattern spanning a <br/> or wrapped in tags misses against the raw text. The filter also has to tolerate ordinary prose containing regex metacharacters (\"C++\") rather than rejecting it as a bad pattern, and it needs a negation form because excluding a disqualifier is as common as searching for one. Matches are rare — sponsorship language appears in roughly 16 of 1000 reqs and relocation language in about 2 — so the scan-cap note that reports how many rows were examined is part of the feature, not decoration.",
+  "files": [
+    "internal/cli/amazonjobs_common.go",
+    "internal/cli/find.go"
+  ],
+  "validated_outcome": "Live `find --country SGP --description-contains \"without sponsorship\"` isolates the sponsorship-restricted req from 158 hits; the negated form returns the complement."
+}

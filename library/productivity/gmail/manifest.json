@@ -1,0 +1,46 @@
+{
+  "manifest_version": "0.3",
+  "name": "gmail-pp-mcp",
+  "display_name": "Gmail",
+  "version": "4.28.0",
+  "description": "Mailbox cleanup that can prove itself \u2014 preview, confirm, undo, verify \u2014 from a binary that structurally cannot send email.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/gmail-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/gmail-pp-mcp",
+      "args": [],
+      "env": {
+        "GMAIL_CONFIG_DIR": "${user_config.gmail_config_dir}",
+        "GMAIL_OAUTH2C": "${user_config.gmail_oauth2c}"
+      }
+    }
+  },
+  "user_config": {
+    "gmail_config_dir": {
+      "type": "string",
+      "title": "GMAIL_CONFIG_DIR",
+      "description": "Sets GMAIL_CONFIG_DIR \u2014 auth directory (profiles.yaml + tokens/) used by the mirrored CLI command tools; typed API tools authenticate with GMAIL_OAUTH2C.",
+      "required": false
+    },
+    "gmail_oauth2c": {
+      "type": "string",
+      "title": "GMAIL_OAUTH2C",
+      "description": "Sets GMAIL_OAUTH2C \u2014 direct OAuth bearer token alternative for single-account use.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

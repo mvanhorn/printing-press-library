@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "retraction-checker-pp-mcp",
+  "display_name": "Retraction Checker",
+  "version": "0.0.0",
+  "description": "Check whether a paper is retracted, why, and what the current research says now — keyless, over Crossref and OpenAlex.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/retraction-checker-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/retraction-checker-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "stac-temporal-sort-coverage",
+  "applied_at": "2026-06-24",
+  "base_run_id": "20260624-152026-b6ccb73c",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Sort gaps and timeline searches by datetime instead of cloud cover.",
+  "reason": "gaps and timeline sample temporal coverage, but both built the search with sortCloudAsc=true. Under the pagination cap, a date whose only acquisition is high-cloud gets pushed off the result window, producing a false gap (gaps) or a dropped date (timeline). Now pass sortCloudAsc=false and set an explicit properties.datetime desc sort so pagination samples across time. scenes best keeps the cloud sort intentionally (it wants the clearest scene).",
+  "files": ["internal/cli/gaps.go", "internal/cli/timeline.go"],
+  "validated_outcome": "go build ./... and go vet ./... pass; verify-skill matches shipped CLI source.",
+  "upstream_issue": ""
+}

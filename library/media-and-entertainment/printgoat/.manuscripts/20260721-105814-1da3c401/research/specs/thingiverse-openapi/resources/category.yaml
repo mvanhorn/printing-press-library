@@ -1,0 +1,169 @@
+RootPartial:
+  get:
+    tags: 
+      - Category
+    summary: List of root categories. Does not list any sub categories.
+    security:
+      - BearerAuth: []
+    parameters: 
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+    responses:
+      '200':
+        description: The list of categories
+        content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: 
+                      type: integer
+                      minimum: 0
+                    name:
+                      type: string
+                    url:
+                      type: string
+                    count:
+                      type: integer
+                      minimum: 0
+                    slug:
+                      type: string
+                    things_url: 
+                      type: string  
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+
+RootComplete:
+  get:
+    tags: 
+      - Category
+    summary: List of root categories and their nested children.
+    deprecated: true
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+    responses:
+      '200':
+        description: The data needed to upload this copy's image file via an HTTP POST with multipart/form-data encoding.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  name: 
+                    type: string
+                  url:
+                    type: string
+                  children:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: 
+                          type: integer
+                          minimum: 0
+                        name:
+                          type: string
+                        url:
+                          type: string
+                        count:
+                          type: integer
+                          minimum: 0
+                        slug:
+                          type: string
+                        things_url: 
+                          type: string
+              
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+BySlug:
+  get:
+    tags:
+      - Category
+    summary: Get category by slug
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: slug
+        required: true
+        description: The slug of the category to get
+        schema:
+          type: string
+          example: art
+    responses:
+      '200':
+        description: An object representing the category requested
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  url:
+                    type: string
+                  count:
+                    type: integer
+                  things_url:
+                    type: string
+                  thumbnail:
+                    type: string
+                  preview_image:
+                    type: string
+                  children:
+                    type: array
+                    items:
+                      $ref: '../schemas/category_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+ThingsByCategorySlug:
+  get:
+    tags:
+      - Category
+    summary: Get list of things of the corresponding category by slug
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: slug
+        required: true
+        description: The slug of the category to get list of things
+        schema:
+          type: string
+          example: art
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+    responses:
+      '200':
+        description: An array of things of the corresponding category
+        content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../schemas/thing_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"

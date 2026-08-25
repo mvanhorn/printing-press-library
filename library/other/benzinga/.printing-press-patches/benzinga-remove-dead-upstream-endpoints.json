@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "benzinga-remove-dead-upstream-endpoints",
+  "applied_at": "2026-06-28",
+  "base_run_id": "20260627-034058-2c1f9c5c",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Remove earnings-call-transcripts and fundamentals operationRatios-v2 commands + sync entries; bound workflow archive under dogfood.",
+  "reason": "earnings-call-transcripts 503s across all tokens (delivery service outage) and operationRatios-v2 500s (deprecated dup of v2.1); shipping always-5xx commands is wrong. workflow archive also timed out under the 30s dogfood budget syncing ~29 resources unbounded.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/fundamentals.go",
+    "internal/cli/sync.go",
+    "internal/cli/channel_workflow.go"
+  ]
+}

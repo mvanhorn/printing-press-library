@@ -21,7 +21,7 @@ metadata:
      silently overwritten on the next regen. Edit the library/ source instead.
      See the repository agent guide, section "Generated artifacts: registry.json, cli-skills/". -->
 
-# War.gov UFO — Printing Press CLI
+# UFO GOAT — Printing Press CLI
 
 ## Prerequisites: Install the CLI
 
@@ -29,12 +29,12 @@ This skill drives the `ufo-goat-pp-cli` binary. **You must verify the CLI is ins
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install ufo-goat --cli-only
+   npx -y @mvanhorn/printing-press-library install ufo-goat --cli-only
    ```
 2. Verify: `ufo-goat-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/ufo-goat/cmd/ufo-goat-pp-cli@latest

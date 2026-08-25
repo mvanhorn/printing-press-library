@@ -9,10 +9,11 @@ import (
 
 func newArticlesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "articles",
-		Short:  "Everything about your Articles",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "articles",
+		Short:       "Everything about your Articles",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newArticlesCreateCmd(flags))
@@ -21,8 +22,7 @@ func newArticlesCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newArticlesRetrieveCmd(flags))
 	cmd.AddCommand(newArticlesSearchCmd(flags))
 	cmd.AddCommand(newArticlesUpdateCmd(flags))
-	// Novel (transcendence) subcommands — hand-written.
-	cmd.AddCommand(newArticlesPullCmd(flags))
-	cmd.AddCommand(newArticlesPushCmd(flags))
+	cmd.AddCommand(newNovelArticlesPullCmd(flags))
+	cmd.AddCommand(newNovelArticlesPushCmd(flags))
 	return cmd
 }

@@ -1,0 +1,259 @@
+{
+  "api_name": "benzinga",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "benzinga-python-client",
+      "url": "https://github.com/Benzinga/benzinga-python-client",
+      "language": "Python",
+      "install_method": "",
+      "stars": 31,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "openbb-benzinga",
+      "url": "https://github.com/OpenBB-finance/OpenBB",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "go-bztcp",
+      "url": "https://github.com/Benzinga/go-bztcp",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "python-bztcp",
+      "url": "https://github.com/Benzinga/python-bztcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-28T03:50:00Z",
+  "novel_features": [
+    {
+      "name": "Overnight watchlist change scan",
+      "command": "watch",
+      "description": "See everything that changed on your tickers since you last looked — new ratings, price-target moves, breaking news, and signals in one diff.",
+      "rationale": "Joins the local ratings, news, and signal tables filtered to a ticker set and an updated-since cursor — a multi-entity diff the REST API cannot express in a single call.",
+      "example": "benzinga-pp-cli watch AAPL,NVDA,TSLA --since 24h --agent",
+      "why_it_matters": "Reach for this when an agent needs a single 'what moved on my names' digest instead of fanning out across ratings, news, and signals endpoints.",
+      "group": "Cross-entity local state"
+    },
+    {
+      "name": "Single-ticker move explainer",
+      "command": "why",
+      "description": "Build one time-ordered catalyst timeline for a ticker by merging unusual options, block trades, halts, rating changes, and news.",
+      "rationale": "Merges five local signal/event tables for one symbol into one chronological story; no single Benzinga endpoint returns a cross-source timeline.",
+      "example": "benzinga-pp-cli why NVDA --window 1d --agent",
+      "why_it_matters": "Use when the question is 'why is X moving right now' and the answer needs options + halts + ratings + headlines stitched in order.",
+      "group": "Cross-entity local state"
+    },
+    {
+      "name": "Unified forward catalyst agenda",
+      "command": "catalysts",
+      "description": "One forward-dated agenda per ticker set unioning earnings, dividends, splits, IPOs, FDA dates, conference calls, guidance, and offerings.",
+      "rationale": "Unions eight calendar families that the REST API only serves one-at-a-time, keyed by (date, ticker) from the local store.",
+      "example": "benzinga-pp-cli catalysts AAPL,LLY,MRNA --ahead 14d --agent",
+      "why_it_matters": "Reach for this to get every upcoming dated event on a watchlist in one ordered list rather than querying eight calendar endpoints.",
+      "group": "Cross-entity local state"
+    },
+    {
+      "name": "Analyst \u0026 firm accuracy scorecard",
+      "command": "analyst-accuracy",
+      "description": "Rank rating-issuing firms and analysts by Benzinga's historical accuracy, and tag today's rating changes with the issuer's hit rate.",
+      "rationale": "Benzinga's ratings_accuracy metric exists only as raw rows; this ranks it and left-joins the live rating-change stream so you can weight a call by its source.",
+      "example": "benzinga-pp-cli analyst-accuracy --ticker AAPL --agent",
+      "why_it_matters": "Use when an agent must judge whether a fresh upgrade/downgrade comes from an analyst with a real track record.",
+      "group": "Analyst signal quality"
+    },
+    {
+      "name": "Earnings surprise tracker",
+      "command": "earnings-season",
+      "description": "Compute EPS and revenue beat/miss and surprise % from the earnings calendar and link each name to its conference call and transcript.",
+      "rationale": "The earnings endpoint returns estimates and actuals as separate fields with no surprise %, no beat/miss flag, and no call link; this computes and joins all three offline.",
+      "example": "benzinga-pp-cli earnings-season --from 7d --agent --select ticker,eps_surprise_pct,beat",
+      "why_it_matters": "Reach for this during earnings season to rank the week's reports by surprise magnitude with calls/transcripts attached.",
+      "group": "Earnings intelligence"
+    },
+    {
+      "name": "Clustered congressional buying",
+      "command": "insider-cluster",
+      "description": "Flag tickers where several distinct members of Congress filed purchases within a window — cluster detection beyond a single disclosure.",
+      "rationale": "Groups synced congressional equity trades by ticker and counts distinct buyers — distinct-buyer cluster logic the per-row endpoint does not provide. (The SEC insider owners view carries no ticker, so clustering is scoped to the ticker-bearing congressional source.)",
+      "example": "benzinga-pp-cli insider-cluster --window 30d --min 3 --agent",
+      "why_it_matters": "Use to surface conviction signals where multiple unrelated members of Congress bought the same name, not just one routine filing.",
+      "group": "Cross-entity local state"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Overnight watchlist change scan",
+      "command": "watch",
+      "description": "See everything that changed on your tickers since you last looked — new ratings, price-target moves, breaking news, and signals in one diff.",
+      "rationale": "Joins the local ratings, news, and signal tables filtered to a ticker set and an updated-since cursor — a multi-entity diff the REST API cannot express in a single call.",
+      "example": "benzinga-pp-cli watch AAPL,NVDA,TSLA --since 24h --agent",
+      "why_it_matters": "Reach for this when an agent needs a single 'what moved on my names' digest instead of fanning out across ratings, news, and signals endpoints.",
+      "group": "Cross-entity local state"
+    },
+    {
+      "name": "Single-ticker move explainer",
+      "command": "why",
+      "description": "Build one time-ordered catalyst timeline for a ticker by merging unusual options, block trades, halts, rating changes, and news.",
+      "rationale": "Merges five local signal/event tables for one symbol into one chronological story; no single Benzinga endpoint returns a cross-source timeline.",
+      "example": "benzinga-pp-cli why NVDA --window 1d --agent",
+      "why_it_matters": "Use when the question is 'why is X moving right now' and the answer needs options + halts + ratings + headlines stitched in order.",
+      "group": "Cross-entity local state"
+    },
+    {
+      "name": "Unified forward catalyst agenda",
+      "command": "catalysts",
+      "description": "One forward-dated agenda per ticker set unioning earnings, dividends, splits, IPOs, FDA dates, conference calls, guidance, and offerings.",
+      "rationale": "Unions eight calendar families that the REST API only serves one-at-a-time, keyed by (date, ticker) from the local store.",
+      "example": "benzinga-pp-cli catalysts AAPL,LLY,MRNA --ahead 14d --agent",
+      "why_it_matters": "Reach for this to get every upcoming dated event on a watchlist in one ordered list rather than querying eight calendar endpoints.",
+      "group": "Cross-entity local state"
+    },
+    {
+      "name": "Analyst \u0026 firm accuracy scorecard",
+      "command": "analyst-accuracy",
+      "description": "Rank rating-issuing firms and analysts by Benzinga's historical accuracy, and tag today's rating changes with the issuer's hit rate.",
+      "rationale": "Benzinga's ratings_accuracy metric exists only as raw rows; this ranks it and left-joins the live rating-change stream so you can weight a call by its source.",
+      "example": "benzinga-pp-cli analyst-accuracy --ticker AAPL --agent",
+      "why_it_matters": "Use when an agent must judge whether a fresh upgrade/downgrade comes from an analyst with a real track record.",
+      "group": "Analyst signal quality"
+    },
+    {
+      "name": "Earnings surprise tracker",
+      "command": "earnings-season",
+      "description": "Compute EPS and revenue beat/miss and surprise % from the earnings calendar and link each name to its conference call and transcript.",
+      "rationale": "The earnings endpoint returns estimates and actuals as separate fields with no surprise %, no beat/miss flag, and no call link; this computes and joins all three offline.",
+      "example": "benzinga-pp-cli earnings-season --from 7d --agent --select ticker,eps_surprise_pct,beat",
+      "why_it_matters": "Reach for this during earnings season to rank the week's reports by surprise magnitude with calls/transcripts attached.",
+      "group": "Earnings intelligence"
+    },
+    {
+      "name": "Clustered congressional buying",
+      "command": "insider-cluster",
+      "description": "Flag tickers where several distinct members of Congress filed purchases within a window — cluster detection beyond a single disclosure.",
+      "rationale": "Groups synced congressional equity trades by ticker and counts distinct buyers — distinct-buyer cluster logic the per-row endpoint does not provide. (The SEC insider owners view carries no ticker, so clustering is scoped to the ticker-bearing congressional source.)",
+      "example": "benzinga-pp-cli insider-cluster --window 30d --min 3 --agent",
+      "why_it_matters": "Use to surface conviction signals where multiple unrelated members of Congress bought the same name, not just one routine filing.",
+      "group": "Cross-entity local state"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "BENZINGA_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Benzinga",
+    "headline": "Every Benzinga calendar, news, fundamentals, and signal endpoint as a typed command — plus an offline SQLite store, full-text search, cross-entity queries, and the first Benzinga MCP server.",
+    "value_prop": "Benzinga's licensed financial-data API is powerful but fragmented across ~60 endpoints and has only one complete client — a Python library with no CLI, no offline store, and no agent surface. This CLI covers the full documented REST surface as first-class commands, delta-syncs the calendar/news/signal families into a local database via the API's own updated cursors, and adds cross-entity commands the REST API cannot express in one call: watch a ticker set for overnight changes, explain why one name is moving, and rank analysts by accuracy.",
+    "auth_narrative": "Benzinga uses a static API token passed as a query parameter. Set BENZINGA_API_KEY in your environment (or run benzinga-pp-cli auth set-token) and every command attaches it as ?token=. Access is tier-gated per product, so a valid token can still return 403 on an endpoint your plan does not include — that is a licensing boundary, not a CLI bug.",
+    "quickstart": [
+      {
+        "command": "benzinga-pp-cli doctor --dry-run",
+        "comment": "Confirm the binary and config resolve before adding a token."
+      },
+      {
+        "command": "benzinga-pp-cli calendar get-ratings --parameters-tickers AAPL",
+        "comment": "Pull recent analyst rating changes for one ticker."
+      },
+      {
+        "command": "benzinga-pp-cli news get --tickers NVDA --display-output headline --page-size 10",
+        "comment": "Latest headlines for a ticker."
+      },
+      {
+        "command": "benzinga-pp-cli sync --resources calendar-ratings,calendar-earnings,news --since 7d",
+        "comment": "Build the local store so offline search and cross-entity commands work."
+      },
+      {
+        "command": "benzinga-pp-cli watch AAPL,NVDA,TSLA --since 24h --agent",
+        "comment": "See everything that changed on a watchlist since yesterday."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 403 on an endpoint that other commands hit fine",
+        "fix": "Your token works but that product is not in your Benzinga plan; this is per-endpoint licensing, not an error. Use a product your tier covers or contact Benzinga sales."
+      },
+      {
+        "symptom": "HTTP 401 / auth_failed on every command",
+        "fix": "The token is missing or invalid. Set BENZINGA_API_KEY=\u003ckey\u003e or run benzinga-pp-cli auth set-token, then benzinga-pp-cli doctor."
+      },
+      {
+        "symptom": "watch / why / catalysts return nothing",
+        "fix": "Those commands read the local store; run benzinga-pp-cli sync --resources ratings,news,earnings,option-activity --since 7d first."
+      },
+      {
+        "symptom": "Responses feel large or slow",
+        "fix": "Narrow with --tickers and --date-from, and use --select to project only the fields you need (the docs recommend narrowing every query)."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or user needs Benzinga financial data — analyst ratings, earnings/economic/dividend calendars, breaking news, fundamentals, unusual options and other signals — as structured JSON, or when they want cross-entity views (overnight watchlist changes, a single-ticker catalyst timeline, analyst accuracy) that no single Benzinga endpoint provides. It is also the right choice for offline full-text search over synced news and calendar data.",
+    "anti_triggers": [
+      "Do not use this CLI for real-time tick/quote streaming or Squawk audio — it covers REST + delayed data, not the WebSocket/TCP live feeds.",
+      "Do not use it to place trades or manage a brokerage account — Benzinga is data-only.",
+      "Do not use it for tickers or products outside your Benzinga license; gated endpoints return 403 by design.",
+      "Do not use it as a general stock-price API for unlimited free quotes — every endpoint requires a paid Benzinga token."
+    ],
+    "recipes": [
+      {
+        "title": "Rank the week's earnings by surprise",
+        "command": "benzinga-pp-cli earnings-season --from 7d --agent --select ticker,eps_surprise_pct,beat",
+        "explanation": "Computes beat/miss and surprise % offline from synced earnings rows and projects just the decision fields."
+      },
+      {
+        "title": "Explain a sudden move",
+        "command": "benzinga-pp-cli why NVDA --window 1d --agent",
+        "explanation": "Stitches unusual options, halts, rating changes, and news for NVDA into one chronological catalyst timeline."
+      },
+      {
+        "title": "Morning watchlist diff",
+        "command": "benzinga-pp-cli watch AAPL,NVDA,TSLA --since 24h --agent --select ticker,kind,headline",
+        "explanation": "Cross-entity diff of ratings, news, and signals on a ticker set, narrowed to the most relevant nested fields with --select."
+      },
+      {
+        "title": "Weekly US economic calendar",
+        "command": "benzinga-pp-cli calendar get-economics --country USA",
+        "explanation": "Recent and latest macro releases for the US with actual vs consensus (country codes are 3-digit, e.g. USA)."
+      },
+      {
+        "title": "Vet a rating change",
+        "command": "benzinga-pp-cli analyst-accuracy --ticker AAPL --today --agent",
+        "explanation": "Ranks the firms/analysts issuing fresh AAPL ratings by their historical accuracy."
+      }
+    ],
+    "trigger_phrases": [
+      "benzinga analyst ratings for AAPL",
+      "what changed on my watchlist",
+      "why is NVDA moving",
+      "this week's earnings calendar",
+      "unusual options activity",
+      "economic calendar this week",
+      "use benzinga",
+      "run benzinga"
+    ]
+  }
+}

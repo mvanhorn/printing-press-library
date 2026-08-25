@@ -55,23 +55,105 @@ type APIError struct {
 }
 
 func (e *APIError) Error() string {
-	return fmt.Sprintf("%s %s returned HTTP %d: %s", e.Method, e.Path, e.StatusCode, e.Body)
+	msg := fmt.Sprintf("%s %s returned HTTP %d", e.Method, e.Path, e.StatusCode)
+	if strings.TrimSpace(e.Body) != "" {
+		msg += ": " + e.Body
+	}
+	return msg
 }
 
+func rejectUnresolvedPathParams(path string, allowedTemplateVars map[string]string) error {
+	for {
+		start := strings.IndexByte(path, '{')
+		if start < 0 {
+			return nil
+		}
+		rest := path[start+1:]
+		end := strings.IndexByte(rest, '}')
+		if end < 0 {
+			return nil
+		}
+		name := rest[:end]
+		if _, ok := allowedTemplateVars[name]; ok {
+			path = rest[end+1:]
+			continue
+		}
+		if isPathPlaceholderName(name) {
+			return fmt.Errorf("unresolved path parameter {%s}", name)
+		}
+		path = rest[end+1:]
+	}
+}
+
+func isPathPlaceholderName(name string) bool {
+	if name == "" {
+		return false
+	}
+	for i, r := range name {
+		if r == '_' || r >= 'A' && r <= 'Z' || r >= 'a' && r <= 'z' || i > 0 && r >= '0' && r <= '9' {
+			continue
+		}
+		return false
+	}
+	return true
+}
+
+// maxIdleConnsPerHost sizes the keep-alive pool so concurrent sync workers
+// reuse warm connections instead of re-paying the TLS handshake (~0.5s) per
+// request. The rate limiter caps throughput, so simultaneous in-flight
+// connections stay ≈ budget×latency (a handful) regardless of --concurrency;
+// 32 covers any sane worker count with margin.
+const maxIdleConnsPerHost = 32
+
 func newHTTPClient(timeout time.Duration, jar http.CookieJar) *http.Client {
-	return &http.Client{Timeout: timeout, Jar: jar}
+	// Clone (do NOT build a bare &http.Transport{}) so Proxy=ProxyFromEnvironment,
+	// IdleConnTimeout, and dialer keep-alive survive — a bare struct would break
+	// corporate-proxy users (a public-build regression).
+	tr := http.DefaultTransport.(*http.Transport).Clone()
+	tr.MaxIdleConnsPerHost = maxIdleConnsPerHost
+	if tr.MaxIdleConns < maxIdleConnsPerHost {
+		tr.MaxIdleConns = maxIdleConnsPerHost
+	}
+	return &http.Client{Timeout: timeout, Jar: jar, Transport: tr}
+}
+
+// RateLimitAuto is the default --rate-limit value: a negative sentinel meaning
+// "auto" — pace by the server's advertised budget (X-Ratelimit-* headers), with
+// an adaptive 429-probe fallback for header-less servers, and NO manual ceiling.
+// A positive value imposes that value as an explicit politeness ceiling; 0
+// disables pacing entirely.
+const RateLimitAuto = -1.0
+
+// defaultAutoStartRate is the conservative pace an auto-mode limiter uses until
+// the first response's rate-limit headers arrive (after which the server's
+// advertised budget governs). Modest so the very first request to an unknown
+// server is polite; headers raise it within one round-trip.
+const defaultAutoStartRate = 2.0
+
+// newRateLimiter maps the user-facing --rate-limit value to a limiter:
+//
+//	< 0 (RateLimitAuto): headers/adaptive govern, no ceiling (the default)
+//	== 0:                pacing disabled (nil limiter)
+//	> 0:                 explicit hard ceiling at that rate
+func newRateLimiter(rateLimit float64) *cliutil.AdaptiveLimiter {
+	if rateLimit < 0 {
+		return cliutil.NewAdaptiveLimiterAuto(defaultAutoStartRate)
+	}
+	return cliutil.NewAdaptiveLimiter(rateLimit) // 0 -> nil (disabled); >0 -> explicit ceiling
 }
 
 func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
-	homeDir, _ := os.UserHomeDir()
-	cacheDir := filepath.Join(homeDir, ".cache", "plane-pp-cli", "http")
+	cacheDir := ""
+	if dir, err := cliutil.CacheDir(); err == nil {
+		cacheDir = filepath.Join(dir, "http")
+	}
 	httpClient := newHTTPClient(timeout, nil)
 	c := &Client{
 		BaseURL:    strings.TrimRight(cfg.BaseURL, "/"),
 		Config:     cfg,
 		HTTPClient: httpClient,
 		cacheDir:   cacheDir,
-		limiter:    cliutil.NewAdaptiveLimiter(rateLimit),
+		limiter:    newRateLimiter(rateLimit),
 	}
 	// CheckRedirect re-derives auth on each hop. Go's default replays the
 	// original Authorization header verbatim, which breaks nonce-bound
@@ -136,6 +218,10 @@ func (c *Client) GetWithHeaders(ctx context.Context, path string, params map[str
 	return result, err
 }
 
+func (c *Client) GetWithHeadersValues(ctx context.Context, path string, params url.Values, headers map[string]string) (json.RawMessage, error) {
+	return c.GetWithHeaders(ctx, pathWithQueryValues(path, params), nil, headers)
+}
+
 // GetNoCache issues a GET that bypasses the cache read for this call only,
 // then refreshes the cache with the fresh response on success. Use for
 // polling-until-terminal patterns where every call must reflect current
@@ -159,6 +245,10 @@ func (c *Client) GetWithHeadersNoCache(ctx context.Context, path string, params 
 		c.writeCache(path, params, result)
 	}
 	return result, err
+}
+
+func (c *Client) GetWithHeadersNoCacheValues(ctx context.Context, path string, params url.Values, headers map[string]string) (json.RawMessage, error) {
+	return c.GetWithHeadersNoCache(ctx, pathWithQueryValues(path, params), nil, headers)
 }
 
 func (c *Client) responseCacheEnabled(binaryResponse bool) bool {
@@ -221,13 +311,12 @@ func (c *Client) cacheKey(path string, params map[string]string) string {
 			key += "|config_path=" + c.Config.Path
 		}
 	}
-	paramKeys := make([]string, 0, len(params))
-	for k := range params {
-		paramKeys = append(paramKeys, k)
-	}
-	sort.Strings(paramKeys)
-	for _, k := range paramKeys {
-		key += k + "=" + params[k]
+	if len(params) > 0 {
+		query := url.Values{}
+		for k, v := range params {
+			query.Set(k, v)
+		}
+		key += "|query=" + query.Encode()
 	}
 	// Include resolved template-var values in the cache identity so two
 	// tenants (different SHOPIFY_SHOP) never collide on the same path, and
@@ -244,13 +333,28 @@ func (c *Client) cacheKey(path string, params map[string]string) string {
 	return hex.EncodeToString(h[:8])
 }
 
+func pathWithQueryValues(path string, params url.Values) string {
+	if len(params) == 0 {
+		return path
+	}
+	encoded := params.Encode()
+	if encoded == "" {
+		return path
+	}
+	separator := "?"
+	if strings.Contains(path, "?") {
+		separator = "&"
+	}
+	return path + separator + encoded
+}
+
 func (c *Client) readCache(path string, params map[string]string) (json.RawMessage, bool) {
 	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
 	info, err := os.Stat(cacheFile)
 	if err != nil || time.Since(info.ModTime()) > 5*time.Minute {
 		return nil, false
 	}
-	data, err := os.ReadFile(cacheFile)
+	data, err := os.ReadFile(filepath.Clean(cacheFile)) // #nosec G304 -- app-derived cache path from sha256 cache key.
 	if err != nil {
 		return nil, false
 	}
@@ -258,9 +362,9 @@ func (c *Client) readCache(path string, params map[string]string) (json.RawMessa
 }
 
 func (c *Client) writeCache(path string, params map[string]string, data json.RawMessage) {
-	os.MkdirAll(c.cacheDir, 0o755)
+	_ = os.MkdirAll(c.cacheDir, 0o700)
 	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
-	os.WriteFile(cacheFile, []byte(data), 0o644)
+	_ = os.WriteFile(cacheFile, []byte(data), 0o600)
 }
 
 // invalidateCache wholesale-removes the cache directory so the next read
@@ -352,6 +456,14 @@ func (c *Client) PutWithParamsAndHeaders(ctx context.Context, path string, param
 	return c.do(ctx, "PUT", path, params, body, headers)
 }
 
+func (c *Client) PutQueryWithParams(ctx context.Context, path string, params map[string]string, body any) (json.RawMessage, int, error) {
+	return c.doRead(ctx, "PUT", path, params, body, nil)
+}
+
+func (c *Client) PutQueryWithParamsAndHeaders(ctx context.Context, path string, params map[string]string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	return c.doRead(ctx, "PUT", path, params, body, headers)
+}
+
 func (c *Client) Patch(ctx context.Context, path string, body any) (json.RawMessage, int, error) {
 	return c.do(ctx, "PATCH", path, nil, body, nil)
 }
@@ -366,6 +478,14 @@ func (c *Client) PatchWithHeaders(ctx context.Context, path string, body any, he
 
 func (c *Client) PatchWithParamsAndHeaders(ctx context.Context, path string, params map[string]string, body any, headers map[string]string) (json.RawMessage, int, error) {
 	return c.do(ctx, "PATCH", path, params, body, headers)
+}
+
+func (c *Client) PatchQueryWithParams(ctx context.Context, path string, params map[string]string, body any) (json.RawMessage, int, error) {
+	return c.doRead(ctx, "PATCH", path, params, body, nil)
+}
+
+func (c *Client) PatchQueryWithParamsAndHeaders(ctx context.Context, path string, params map[string]string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	return c.doRead(ctx, "PATCH", path, params, body, headers)
 }
 
 // isMutatingVerb reports whether the HTTP method writes server state.
@@ -451,6 +571,9 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 	if !readOnlyIntent && isMutatingVerb(method) && cliutil.IsVerifyEnv() && !cliutil.IsVerifyLiveHTTPEnv() {
 		return verifyShortCircuitEnvelope(method, path), http.StatusOK, nil
 	}
+	if err := rejectUnresolvedPathParams(path, templateVarEnvNames); err != nil {
+		return nil, 0, err
+	}
 	// EndpointTemplateVars are declared in the spec — resolve {placeholder}
 	// markers in BaseURL (and, for non-proxy clients, the request path)
 	// against env-backed Config.TemplateVars. Done once at the top of every
@@ -498,7 +621,10 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		return c.dryRun(method, targetURL, path, params, bodyBytes, headerOverrides, authHeader)
 	}
 
-	const maxRetries = 3
+	maxRetries := clientMaxRetries()
+	// Retry only methods that are safe to replay after an ambiguous transport
+	// failure or server error; a write may already have committed remotely.
+	canRetryAmbiguousFailure := readOnlyIntent || method == http.MethodGet || method == http.MethodHead || method == http.MethodOptions
 	var lastErr error
 
 	for attempt := 0; attempt <= maxRetries; attempt++ {
@@ -571,13 +697,33 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 				return nil, 0, ctxErr
 			}
 			lastErr = fmt.Errorf("%s %s: %w", method, c.displayURL(path, authHeader), c.maskError(err, authHeader))
-			continue
+			// Transient network failure (connection reset, DNS blip, request
+			// timeout). Back off before retrying — same exponential schedule as
+			// the 5xx path below — so a brief outage does not burn every attempt
+			// in a tight loop. ctx cancellation breaks out of the wait at once.
+			if attempt < maxRetries && canRetryAmbiguousFailure {
+				wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
+				fmt.Fprintf(os.Stderr, "network error (%v), retrying in %s (attempt %d/%d)\n", c.maskError(err, authHeader), wait, attempt+1, maxRetries)
+				if serr := sleepContext(ctx, wait); serr != nil {
+					return nil, 0, serr
+				}
+				continue
+			}
+			return nil, 0, lastErr
 		}
 
 		respBody, err := io.ReadAll(resp.Body)
-		resp.Body.Close()
+		_ = resp.Body.Close()
 		if err != nil {
 			return nil, 0, fmt.Errorf("reading response: %w", err)
+		}
+
+		// Pace to the server-advertised budget when it ships rate-limit
+		// headers (every response, success or 429). This takes priority over
+		// the blind adaptive ramp/halve, which only governs header-less
+		// servers and the very first request of a session.
+		if remaining, resetAt, ok := cliutil.ParseRateLimitHeaders(resp.Header); ok {
+			c.limiter.ObserveHeaders(remaining, resetAt)
 		}
 
 		// Success
@@ -624,7 +770,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		}
 
 		// Server error - retry with backoff
-		if resp.StatusCode >= 500 && attempt < maxRetries {
+		if resp.StatusCode >= 500 && attempt < maxRetries && canRetryAmbiguousFailure {
 			wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
 			fmt.Fprintf(os.Stderr, "server error %d, retrying in %s (attempt %d/%d)\n", resp.StatusCode, wait, attempt+1, maxRetries)
 			if err := sleepContext(ctx, wait); err != nil {
@@ -948,4 +1094,11 @@ func truncateBody(b []byte) string {
 		return string(b)
 	}
 	return strings.ToValidUTF8(string(b[:maxBytes]), "") + "..."
+}
+
+func clientMaxRetries() int {
+	if cliutil.IsVerifyEnv() || cliutil.IsDogfoodEnv() {
+		return 0
+	}
+	return 3
 }

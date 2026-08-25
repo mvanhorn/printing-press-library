@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "thelancet",
+  "run_id": "20260617-072858-2f9fe13e",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 68,
+  "tests_passed": 68,
+  "tests_skipped": 45,
+  "auth_context": {
+    "type": "none"
+  }
+}

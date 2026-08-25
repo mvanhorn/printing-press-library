@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-08-22T12:28:59.9345551Z",
+  "cli_dir": "\u003ccli-dir\u003e\\rundown-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Accurate and complete as written. 'client list' takes cobra.NoArgs and declares no flags, so there is no parameter to name and no filter to describe; it returns the saved client-profile names. Verb-led and action-specific already - more words would pad, not inform."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Real finding, but not fixable here: teach.go is a DO-NOT-EDIT generated file, so a hand-edit is wiped on the next regen. 'learnings list' declares 7 filters (--query, --action, --source, --resource, --min-confidence, --limit, --warnings) that a parameter-aware Short should name. Needs a generator-template fix; raised as a retro candidate."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-08-22T12:27:50.7150236Z"
+  },
+  "progress": {
+    "last_processed_finding_id": "thin-short:teach.go:691"
+  }
+}

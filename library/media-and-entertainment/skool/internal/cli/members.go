@@ -17,5 +17,7 @@ func newMembersCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newMembersBanCmd(flags))
 	cmd.AddCommand(newMembersPendingCmd(flags))
 	cmd.AddCommand(newMembersRejectCmd(flags))
+	// PATCH(amend-2026-08-12: hydrate posts and members)
+	cmd.AddCommand(newMembersListCmd(flags))
 	return cmd
 }

@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-06-23T19:20:19.510617Z",
+  "cli_dir": "\u003ccli-dir\u003e/copper",
+  "findings": [
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260623-105449-202981ca/research/2026-06-23-111426-feat-copper-pp-cli-brief.md",
+      "line": 14,
+      "column": 90,
+      "matched_span": "partners@copper.com",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Auth notes line: \"OAuth2 exists (authorization_code, scope developer/v1/all) but is partner-gated (email partners@copper.com). Out of scope for v1\". This is Copper's own published partner-program contact address, cited to explain why the OAuth path is deferred — a vendor business contact, not a customer value."
+    }
+  ],
+  "findings_count_before": 1
+}

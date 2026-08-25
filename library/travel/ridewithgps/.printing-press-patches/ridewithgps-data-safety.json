@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "ridewithgps-data-safety",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260616-213832-c533c1eb",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Export and dedup workflows must preserve complete, valid user data when local metadata or binary response handling is imperfect.",
+  "reason": "SQLite iterator failures can surface late, binary bodies arrive in a base64 envelope, and unknown creation dates cannot establish canonical age; mishandling these contracts risks partial exports, invalid FIT files, or deletion of the wrong route.",
+  "files": [
+    "internal/cli/dedup.go",
+    "internal/cli/export.go"
+  ],
+  "validated_outcome": "Unknown creation dates sort after known dates, iterator failures stop export, and native FIT bytes round-trip through the client envelope; regression tests plus Go test, vet, and build pass."
+}

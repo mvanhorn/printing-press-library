@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "google-trends",
+  "run_id": "20260713-105453-29114a9d",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 65,
+  "tests_passed": 65,
+  "tests_skipped": 53,
+  "auth_context": {
+    "type": "cookie"
+  }
+}

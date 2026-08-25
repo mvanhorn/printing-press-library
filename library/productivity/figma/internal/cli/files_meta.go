@@ -9,8 +9,10 @@ import (
 
 func newFilesMetaCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "meta",
-		Short: "Manage meta",
+		Use:         "meta",
+		Short:       "Get meta for files",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newFilesMetaGetFileCmd(flags))

@@ -17,7 +17,7 @@
   "run_id": "20260501-170103",
   "catalog_entry": "producthunt",
   "category": "marketing",
-  "description": "Find, monitor, and export Product Hunt launches for launch research, scouting, and competitive tracking without requiring a Product Hunt API application.",
+  "description": "Read Product Hunt from your terminal — works token-free for the daily skim, unlocks a launch-day cockpit and a marketer research desk in one onboarding step.",
   "mcp_binary": "producthunt-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_public_tool_count": 1,

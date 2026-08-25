@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "gfonts-dogfood-live-gate-surface",
+  "applied_at": "2026-08-21",
+  "base_run_id": "20260719-182127",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Add the agent-native surface the live dogfood runner requires: an agent-context command emitting the versioned command tree (with mcp:read-only and pp:happy-args annotations), per-command --help with Usage and Examples sections, and error-path behavior (search returns exit 0 on no match, info/download exit 1 on unknown font). Unblocks the publish live gate: live dogfood now runs 17/17 pass with real command counts instead of the synthetic skip marker.",
+  "reason": "gfonts is a hand-rolled stdlib CLI printed before the agent-context contract landed; publish-live-gate.json failed with 'agent-context failed: Unknown command: agent-context' and no dogfood-results.json existed. The live dogfood runner enumerates agent-context commands, requires each leaf's --help to exit 0 with an Examples section, and probes error paths. This patch makes the CLI dogfood-compatible in place; a reprint would replace the tree wholesale.",
+  "files": [
+    "cmd/gfonts-pp-cli/main.go"
+  ],
+  "validated_outcome": "cli-printing-press dogfood --dir . --live --level full --timeout 120s: verdict PASS, matrix_size 17, passed 17, failed 0, skipped 11 (json_fidelity x7 + error_path x4 legitimately skipped). publish validate passes all 11 checks. search happy path runs live ('search Inter'), info/download happy paths run live via pp:happy-args (<font>=Inter)."
+}

@@ -1,0 +1,3 @@
+{ "schema_version": 1, "api_name": "janeapp", "run_id": "20260712-213804",
+  "status": "skip", "level": "none", "skip_reason": "cookie-auth-no-harness-session",
+  "auth_context": { "type": "cookie", "note": "Jane two-step _front_desk_session login requires a live per-clinic browser session; no harness session available." } }
