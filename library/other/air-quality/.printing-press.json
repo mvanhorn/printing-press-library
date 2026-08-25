@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-25T23:45:38Z",
+  "printing_press_version": "4.18.1",
+  "api_name": "air-quality",
+  "display_name": "Air Quality",
+  "cli_name": "air-quality-pp-cli",
+  "creator": {
+    "handle": "sdhilip200",
+    "name": "Dhilip Subramanian"
+  },
+  "owner": "sdhilip200",
+  "printer": "sdhilip200",
+  "printer_name": "Dhilip Subramanian",
+  "spec_format": "plan",
+  "spec_source": ".manuscripts/20260626-114410/research/air-quality-plan.md",
+  "spec_checksum": "sha256:b6ef19060140f195d00a463441f1ff4141cef311df4d0714b34422c88dbb2ca4",
+  "run_id": "20260626-114410",
+  "category": "other",
+  "description": "Source-aware air-quality recipes for OpenAQ v3 measurements, nearby monitor discovery, point comparison, and AirNow AQI setup/observations.",
+  "api_version": "0.1.0",
+  "auth_type": "optional_api_key",
+  "auth_env_vars": [
+    "AIR_QUALITY_OPENAQ_API_KEY",
+    "AIR_QUALITY_AIRNOW_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "OpenAQ current snapshot",
+      "command": "current",
+      "description": "Finds a nearby OpenAQ location and returns latest physical pollutant measurements with source caveats."
+    },
+    {
+      "name": "Nearby monitoring locations",
+      "command": "nearest",
+      "description": "Lists nearby OpenAQ locations with provider, coordinate, and sensor metadata."
+    },
+    {
+      "name": "Location latest measurements",
+      "command": "location",
+      "description": "Fetches a known OpenAQ location by ID and its latest measurements."
+    },
+    {
+      "name": "Recent sensor history",
+      "command": "history",
+      "description": "Fetches a bounded recent OpenAQ measurement window for one sensor."
+    },
+    {
+      "name": "Two-point comparison",
+      "command": "compare",
+      "description": "Compares nearest OpenAQ snapshots for two coordinate pairs without converting measurements into AQI."
+    },
+    {
+      "name": "AirNow current AQI setup",
+      "command": "airnow current",
+      "description": "Fetches AirNow current observations by ZIP when configured and otherwise returns setup guidance with non-regulatory caveats."
+    }
+  ]
+}

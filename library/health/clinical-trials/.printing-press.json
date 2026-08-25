@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-23T16:45:06.9651503Z",
+  "printing_press_version": "4.25.0",
+  "api_name": "clinical-trials",
+  "display_name": "ClinicalTrials.gov",
+  "cli_name": "clinical-trials-pp-cli",
+  "creator": {
+    "handle": "laci141",
+    "name": "laci141"
+  },
+  "owner": "laci141",
+  "printer": "laci141",
+  "printer_name": "laci141",
+  "spec_path": "clinicaltrials-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:ba31adaea67e6bb09ff77af5c0c11daf36d5aff7f5d6cbed89f0aab04b297aea",
+  "run_id": "20260623-164233-df565e8d",
+  "category": "health",
+  "description": "A multi-source clinical-trials intelligence system — aggregates, normalizes, and analyzes trials across ClinicalTrials.gov, EU CTIS, and biomedical sources, with an offline SQLite engine no single-registry tool has.",
+  "mcp_binary": "clinical-trials-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_public_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "2.0.5",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Emerging therapy detection",
+      "command": "emerging",
+      "description": "See the fastest-growing trial categories for a disease area, with percent change."
+    },
+    {
+      "name": "Recruitment velocity",
+      "command": "velocity",
+      "description": "Measure how fast a disease area's trials and enrollment are growing over time."
+    },
+    {
+      "name": "Drug compare",
+      "command": "compare",
+      "description": "Compare two drugs head-to-head across trial counts, phases, sponsors, and recruiting status."
+    },
+    {
+      "name": "Trial risk score",
+      "command": "risk",
+      "description": "Get an explainable risk read on a single trial from termination, enrollment, site count, sponsor track record, and phase factor (earlier phases = higher risk)."
+    },
+    {
+      "name": "Watch with change diff",
+      "command": "watch",
+      "description": "Track a term and report new, changed, and terminated trials since the last run."
+    },
+    {
+      "name": "Sponsor dominance",
+      "command": "sponsors",
+      "description": "Rank who runs the most trials in an area, classified as industry, academic, or government."
+    },
+    {
+      "name": "Multi-source merge",
+      "command": "search",
+      "description": "Search a single normalized trial model aggregated and deduplicated across ClinicalTrials.gov, EU CTIS, and OpenAlex."
+    },
+    {
+      "name": "Evidence linkage",
+      "command": "evidence",
+      "description": "Link a trial to its publications and citation context via PubMed and OpenAlex."
+    },
+    {
+      "name": "Safety signals",
+      "command": "safety",
+      "description": "Surface FDA adverse-event signals for a trial's intervention drug."
+    },
+    {
+      "name": "Clinician landscape report",
+      "command": "report",
+      "description": "Compose search, emerging, hotspots, and sponsors into one markdown or CSV briefing for a topic."
+    },
+    {
+      "name": "Per-provider health",
+      "command": "health",
+      "description": "Show live status, latency, and failure rate for every data source in the fallback chain."
+    }
+  ]
+}

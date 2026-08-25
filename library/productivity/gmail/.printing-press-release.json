@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "gmail",
+  "cli_name": "gmail-pp-cli",
+  "version": "2026.8.3",
+  "released_at": "2026-08-21T08:23:54Z",
+  "source_commit": "7db5af195c10a4c718dd477c76e531925a3000ec",
+  "printing_press_version": "4.28.0",
+  "run_id": "20260818-095450",
+  "changes": [
+    {
+      "title": "feat(gmail): add gmail",
+      "pr": 1752,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1752",
+      "commit": "7db5af195c10a4c718dd477c76e531925a3000ec"
+    }
+  ]
+}

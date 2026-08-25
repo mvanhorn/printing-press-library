@@ -1,0 +1,42 @@
+{
+  "schema_version": 2,
+  "id": "iclasspro-staff-readonly",
+  "applied_at": "2026-08-12",
+  "base_run_id": "20260805-132802-de816ded",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Add an authenticated, explicitly read-only Office Portal surface for dashboard, family, student, class, enrollment, attendance, transaction, and report-catalog reads.",
+  "reason": "The generated CLI covered the public/customer catalog but could not perform the staff-side operational diagnosis required by the local user workflow.",
+  "files": [
+    "internal/cli/iclasspro_auth.go",
+    "internal/cli/iclasspro_staff_auth.go",
+    "internal/cli/iclasspro_staff.go",
+    "internal/cli/iclasspro_staff_capabilities.go",
+    "internal/cli/iclasspro_staff_test.go",
+    "internal/cli/iclasspro_sync.go",
+    "internal/cli/calendar.go",
+    "internal/cli/drift.go",
+    "internal/cli/fill_rate.go",
+    "internal/cli/lint.go",
+    "internal/cli/opens_soon.go",
+    "internal/cli/tenant.go",
+    "internal/cli/root.go",
+    "internal/cli/which.go",
+    "internal/mcp/tools.go",
+    "spec.yaml",
+    ".printing-press.json",
+    "manifest.json",
+    ".manuscripts/20260805-132802-de816ded/research.json",
+    "README.md",
+    "SKILL.md",
+    "go.mod"
+  ],
+  "validated_outcome": "PASS: 134/134 live dogfood checks passed at the public auth tier; go test, go vet, go build, verify-skill, govulncheck, and publish validate all passed with Go 1.26.6.",
+  "findings": [
+    "F1 staff authentication",
+    "F2 dashboard snapshot and widget data",
+    "F3 families, students, classes, and enrollments",
+    "F4 attendance, transactions, and report catalogs"
+  ],
+  "publication_status": "validated_local",
+  "reapply_notes": "Preserve the three hand-authored iclasspro_staff files, the StaffSessions field and auth subcommand registrations in iclasspro_auth.go, plus README and SKILL recipes. Re-run the focused staff tests, full Go gates, Printing Press publish validation, and PII scrub before publication."
+}

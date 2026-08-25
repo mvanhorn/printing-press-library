@@ -1,0 +1,158 @@
+{
+  "api_name": "concur",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "concur-mcp",
+      "url": "https://github.com/bharath2020/concur-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 21,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sap-concur-connector",
+      "url": "https://github.com/Tevasoft/sap-concur-connector",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sap-concur-browser-automation",
+      "url": "https://github.com/Nilesunknowing346/sap-concur-browser-automation",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sap-concur-mcp-server-by-cdata",
+      "url": "https://github.com/CDataSoftware/sap-concur-mcp-server-by-cdata",
+      "language": "Java",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "Expense-report and trip-list GraphQL operation names for the internal cookie-authenticated BFF were not fully captured during live browser-sniff (only the session-bootstrap operation was captured) -- expense/travel endpoint shapes are modeled on the documented v3/v4 REST contract (cross-validated by concur-mcp) and must be verified during live dogfood against the user's real tenant.",
+    "Whether documented v3/v4 REST paths are reachable with cookie-only auth (no OAuth2 token) is unverified -- the web app itself calls a separate undocumented GraphQL BFF, not the documented REST paths."
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-12T22:30:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-report duplicate-charge detector",
+      "command": "expenses scan-duplicates",
+      "description": "Find potential double-entered charges across all of your synced expenses.",
+      "rationale": "Requires a local SQLite scan across every synced expense (vendor + amount + date proximity) -- Concur's UI has no cross-report duplicate view.",
+      "example": "concur-pp-cli expenses scan-duplicates --agent",
+      "why_it_matters": "Run this before submitting a batch of reports if you suspect a corporate-card charge and a manually-entered cash expense might be the same transaction.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-report duplicate-charge detector",
+      "command": "expenses scan-duplicates",
+      "description": "Find potential double-entered charges across all of your synced expenses.",
+      "rationale": "Requires a local SQLite scan across every synced expense (vendor + amount + date proximity) -- Concur's UI has no cross-report duplicate view.",
+      "example": "concur-pp-cli expenses scan-duplicates --agent",
+      "why_it_matters": "Run this before submitting a batch of reports if you suspect a corporate-card charge and a manually-entered cash expense might be the same transaction.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "SAP Concur",
+    "headline": "Every expense-report and travel workflow Concur's web app offers, plus duplicate detection and real flight/hotel search no Concur tool has -- filed through the same session your browser already uses.",
+    "value_prop": "SAP Concur's official API requires enterprise partner credentials most individual users can never get. This CLI defaults to your logged-in browser session instead, so filing expense reports and checking travel works the same day you install it. Local SQLite sync turns your report history into something you can search, join, and validate offline.",
+    "auth_narrative": "Concur's documented OAuth2 partner API is gated behind a Partner Enablement Manager relationship -- there is no self-serve signup, and this CLI does not implement that OAuth2 flow at all. Instead, this CLI authenticates via cookie/browser-session auth: run 'auth login --chrome', log into your company's Concur portal like you normally would (including SSO/MFA), and the CLI captures the resulting session. If a command fails with 401/403 and your company IT has partner OAuth2 credentials, that workflow requires calling the documented v3/v4 REST API directly (developer.concur.com) outside this CLI -- it is not something 'auth login' or any other command here can switch to.",
+    "quickstart": [
+      {
+        "command": "concur-pp-cli doctor --dry-run",
+        "comment": "Verify the binary and config are healthy before touching auth."
+      },
+      {
+        "command": "concur-pp-cli auth login --chrome",
+        "comment": "Capture your Concur session the same way you'd log in normally -- no API key needed."
+      },
+      {
+        "command": "concur-pp-cli account whoami --agent",
+        "comment": "Get your Concur user ID once -- most commands need it via --user-id on every invocation (there's no built-in default-flag mechanism for it yet; export it as a shell variable to avoid retyping, e.g. USER_ID=$(concur-pp-cli account whoami --agent --select id --quiet))."
+      },
+      {
+        "command": "concur-pp-cli reports list --user-id 550e8400-e29b-41d4-a716-446655440000 --agent",
+        "comment": "See your existing expense reports."
+      },
+      {
+        "command": "concur-pp-cli reports create --name \"October Travel\" --purpose \"Client site visit\" --user-id 550e8400-e29b-41d4-a716-446655440000",
+        "comment": "Create a report the same way the web UI's 'Create Expense Report' button does."
+      },
+      {
+        "command": "concur-pp-cli expenses scan-duplicates --agent",
+        "comment": "Scan your synced expenses for likely double-entered charges."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "auth login --chrome captures no cookies or the session expires quickly",
+        "fix": "Install press-auth (go install github.com/mvanhorn/cli-printing-press/v4/cmd/press-auth@latest) for a more reliable capture: press-auth login concursolutions.com --login-url https://www.concursolutions.com/ --jwt-carrier-cookie JWT"
+      },
+      {
+        "symptom": "reports submit fails with 'Missing required field: Business Purpose'",
+        "fix": "Auto-fill known-rule expense types via 'concur-pp-cli expenses apply-rules \u003creport-id\u003e --user-id \u003cid\u003e --config expense_types.json'; run it with --dry-run first to preview the changes without writing anything."
+      },
+      {
+        "symptom": "every command wants --user-id and I don't want to retype my own GUID constantly",
+        "fix": "This CLI has no built-in default-flag mechanism for --user-id yet ('profile save' only captures global output flags like --json, not per-command flags). Export it as a shell variable instead: USER_ID=$(concur-pp-cli account whoami --agent --select id --quiet), then pass --user-id \"$USER_ID\" on subsequent commands."
+      },
+      {
+        "symptom": "commands fail with 401/403 against reports or expenses endpoints",
+        "fix": "Your company's Concur tenant may route those calls through the OAuth2 partner API instead of the cookie-authenticated path this CLI uses by default. This CLI does not implement the OAuth2 partner flow; if your company IT has partner credentials, use the documented v3/v4 REST API directly (developer.concur.com) for that workflow instead."
+      },
+      {
+        "symptom": "hotels search keeps opening its own Chrome window and asking me to log in, separately from auth login --chrome",
+        "fix": "Expected: it drives a different, isolated browser instance and cannot share credentials with auth login --chrome's source browser (copying cookies between them was tried and confirmed not to work). The login persists across later invocations until that session expires, so this is occasional, not per-search. To avoid it entirely, set up a dedicated debug-enabled Chrome profile once (see Authentication in the README); hotels search auto-detects and attaches to it instead of opening its own."
+      }
+    ],
+    "when_to_use": "Use this CLI for filing and checking your own SAP Concur expense reports and travel -- creating reports, submitting them, searching real flights and hotels, and checking trip/itinerary status. It is the right choice whenever the task is something an individual employee would otherwise do by logging into concursolutions.com.",
+    "anti_triggers": [
+      "Do not use this CLI to register a new SAP Concur partner application or manage OAuth2 App Center listings -- that is an admin/partner workflow, not an end-user one.",
+      "Do not use this CLI to actually book new travel (flights/hotels/cars). 'flights search' and 'hotels search' return real, live fares and rates from your actual corporate-negotiated policy for research and comparison, but completing a booking is a complex multi-step web/agent experience this CLI does not implement -- finish the booking in Concur's web app.",
+      "Do not use this CLI for company-wide financial reporting or accounting-system integration -- use the documented v3/v4 partner REST API directly for that."
+    ],
+    "recipes": [
+      {
+        "title": "Check for duplicate charges",
+        "command": "concur-pp-cli expenses scan-duplicates --agent",
+        "explanation": "Scan the local SQLite cache for likely double-entered transactions across all your reports."
+      },
+      {
+        "title": "Compare real flight and hotel options before requesting travel",
+        "command": "concur-pp-cli flights search --from LAX --to \"New York\" --depart 2026-10-12 --yes --agent",
+        "explanation": "Creates a live shopping session against your real tenant -- search only, never books."
+      }
+    ],
+    "trigger_phrases": [
+      "file my Concur expense report",
+      "submit my expense report",
+      "what's in my Concur trip",
+      "use concur",
+      "run concur"
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e\\3cx-xapi-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e\\20260627-211721-11cc9df1",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

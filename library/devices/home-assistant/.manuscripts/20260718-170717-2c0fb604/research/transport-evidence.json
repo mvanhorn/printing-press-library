@@ -1,0 +1,41 @@
+{
+  "schema_version": 2,
+  "api_name": "home-assistant",
+  "sources": [
+    {
+      "url": "https://developers.home-assistant.io/docs/api/websocket/",
+      "surface": "Home Assistant WebSocket",
+      "evidence": "Documents /api/websocket authentication and configuration registry command types, including entity display and exposure operations."
+    },
+    {
+      "url": "https://developers.home-assistant.io/docs/api/supervisor/endpoints/",
+      "surface": "Supervisor REST",
+      "evidence": "Documents add-on, backup, job, and update endpoints; authorization requires a Supervisor token."
+    },
+    {
+      "url": "https://developers.home-assistant.io/docs/apps/security/",
+      "surface": "Supervisor authorization",
+      "evidence": "States that Supervisor access is separate from the Home Assistant proxy and requires an app role/token."
+    },
+    {
+      "url": "https://developers.home-assistant.io/docs/api/rest/",
+      "surface": "Home Assistant REST",
+      "evidence": "Documents bearer-token REST endpoints for states, services, history, logbook, templates, and configuration validation."
+    },
+    {
+      "url": "https://github.com/home-assistant/core/tree/dev/homeassistant/components/calendar",
+      "surface": "Calendar and Core WebSocket routes",
+      "evidence": "Core registers calendar/event create, update, delete, subscribe_events, recorder/statistics_during_period, config_entries, Lovelace, system_health, and radio command contracts used by the absorb surface."
+    },
+    {
+      "url": "https://github.com/homeassistant-ai/ha-mcp/tree/main/custom_components/ha_mcp_tools",
+      "surface": "Optional HA-MCP component",
+      "evidence": "Custom component supplies ha_mcp_tools/dashboards and helpers_list plus mounted-config filesystem and edit_yaml_config capability contracts; file/YAML access is opt-in and constrained."
+    },
+    {
+      "url": "local:HASS_CONFIG_DIR",
+      "surface": "Self-hosted local configuration",
+      "evidence": "local_config.go enforces a bounded configuration/packages/themes/www/custom_templates/dashboards allowlist, rejects traversal and symlink escape, masks secrets.yaml, and uses atomic rename writes; unit tests cover each boundary."
+    }
+  ]
+}

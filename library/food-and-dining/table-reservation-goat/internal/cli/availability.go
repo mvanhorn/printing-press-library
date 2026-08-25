@@ -9,8 +9,11 @@ import (
 
 func newAvailabilityCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "availability",
-		Short: "Check open reservation slots across OpenTable, Tock, and Resy",
+		Use:         "availability",
+		Short:       "Check open reservation slots across OpenTable, Tock, and Resy",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newAvailabilityCheckCmd(flags))

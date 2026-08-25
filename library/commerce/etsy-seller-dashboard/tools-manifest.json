@@ -1,0 +1,39 @@
+{
+  "api_name": "etsy-seller-dashboard",
+  "base_url": "https://www.etsy.com",
+  "description": "First-party Etsy demand and marketing evidence, reconciled locally.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "format": "Cookie {ETSY_COOKIE}",
+    "in": "cookie",
+    "env_vars": [
+      "ETSY_COOKIE"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ETSY_COOKIE",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "cookie_domain": "etsy.com",
+    "cookies": [
+      "session-key-apex",
+      "session-key-www",
+      "datadome",
+      "uaid"
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "Accept",
+      "value": "application/json, text/html;q=0.9"
+    }
+  ],
+  "tools": []
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "stac-watch-mcp-annotation",
+  "applied_at": "2026-06-24",
+  "base_run_id": "20260624-152026-b6ccb73c",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Remove the mcp:read-only annotation from the watch command.",
+  "reason": "watch --record opens the local store read-write and upserts new scenes (UpsertBatch), so a readOnlyHint:true annotation would falsely tell MCP hosts the command cannot mutate. Dropping the annotation makes the tool default to potentially-mutating, which is correct.",
+  "files": ["internal/cli/watch.go"],
+  "validated_outcome": "go build ./... and go vet ./... pass; verify-skill still matches shipped CLI source.",
+  "upstream_issue": ""
+}

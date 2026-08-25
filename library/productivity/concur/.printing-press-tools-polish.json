@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-08-18T23:25:15.735674Z",
+  "cli_dir": "\u003ccli-dir\u003e/concur",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Brief but precise -- an agent reading 'List client profiles' knows exactly what this command does. platform_client.go is a DO-NOT-EDIT generated file; a richer default belongs in the generator template, not a hand-edit here."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Brief but precise -- an agent reading 'List recorded learnings' knows exactly what this command does. teach.go is a DO-NOT-EDIT generated file; a richer default belongs in the generator template, not a hand-edit here."
+    }
+  ]
+}

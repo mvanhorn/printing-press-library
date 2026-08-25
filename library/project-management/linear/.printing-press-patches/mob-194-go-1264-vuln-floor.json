@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "mob-194-go-1264-vuln-floor",
+  "applied_at": "2026-06-20",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Raise the published Linear CLI Go toolchain floor from 1.26.3 to 1.26.4 so reachable standard-library vulnerability findings are cleared.",
+  "reason": "govulncheck reported reachable GO-2026-5039 in net/textproto and GO-2026-5037 in crypto/x509 when the module used Go 1.26.3; both findings are fixed in Go 1.26.4.",
+  "files": [
+    "go.mod",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "govulncheck ./... no longer reports reachable standard-library vulnerabilities for the published Linear CLI when evaluated with Go 1.26.4."
+}

@@ -15,5 +15,6 @@
   "mcp_binary": "espn-pp-mcp",
   "mcp_tool_count": 7,
   "mcp_ready": "full",
-  "auth_type": "none"
+  "auth_type": "none",
+  "description": "Live scores, standings, news, and game history across 17 sports from ESPN"
 }

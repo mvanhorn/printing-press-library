@@ -1,0 +1,79 @@
+{
+  "api_name": "air-quality",
+  "issue": "https://github.com/mvanhorn/printing-press-library/issues/1195",
+  "sources": [
+    {
+      "name": "OpenAQ API v3 docs",
+      "url": "https://docs.openaq.org/",
+      "auth": "X-API-Key header",
+      "notes": [
+        "Official docs cover OpenAQ API version 3.",
+        "OpenAQ v1 and v2 were retired on January 31, 2025.",
+        "OpenAQ provides public physical pollutant measurements and metadata, not AQI categories."
+      ]
+    },
+    {
+      "name": "OpenAQ OpenAPI document",
+      "url": "https://api.openaq.org/openapi.json",
+      "auth": "X-API-Key header",
+      "notes": [
+        "OpenAPI 3.1 spec exposes locations, sensors, latest measurements, measurements, parameters, providers, owners, countries, and metadata endpoints.",
+        "Location search supports coordinates and radius, with radius capped at 25 km.",
+        "Latest measurement endpoints exist by location ID and parameter ID."
+      ]
+    },
+    {
+      "name": "AirNow API web services docs",
+      "url": "https://docs.airnowapi.org/webservices",
+      "auth": "AirNow API account key",
+      "notes": [
+        "Docs list current forecasts, current observations, observations by monitoring site, historical observations, and contour maps.",
+        "Current observations can be queried by reporting area, zip code, or latitude/longitude.",
+        "Several legacy zip/lat-long services are marked for retirement in fall 2026, so the first print should keep AirNow support narrow and caveated."
+      ]
+    },
+    {
+      "name": "AirNow API fact sheet",
+      "url": "https://docs.airnowapi.org/docs/AirNowAPIFactSheet.pdf",
+      "auth": "AirNow API account key",
+      "notes": [
+        "Fact sheet says an AirNow API account is required.",
+        "Web service data can be returned in CSV, JSON, or XML.",
+        "AirNow recommends file products over web services for large time ranges or broad geographic extracts."
+      ]
+    },
+    {
+      "name": "AirNow Data Exchange Guidelines",
+      "url": "https://docs.airnowapi.org/docs/DataUseGuidelines.pdf",
+      "auth": "AirNow API account key",
+      "notes": [
+        "Guidelines apply to AirNow API data.",
+        "Observational data are preliminary and subject to change.",
+        "AirNow data should not be used for regulatory, trend, guidance, government, or public decision-making."
+      ]
+    }
+  ],
+  "selected_commands": [
+    "current",
+    "nearest",
+    "location",
+    "history",
+    "compare",
+    "airnow current",
+    "sources",
+    "doctor"
+  ],
+  "auth_env_vars": [
+    "AIR_QUALITY_OPENAQ_API_KEY",
+    "AIR_QUALITY_AIRNOW_API_KEY"
+  ],
+  "non_goals": [
+    "medical advice",
+    "emergency-service claims",
+    "regulatory decision support",
+    "pollutant-to-AQI conversion without source support",
+    "long-running alert daemon",
+    "write-side API calls",
+    "raw endpoint mirror"
+  ]
+}

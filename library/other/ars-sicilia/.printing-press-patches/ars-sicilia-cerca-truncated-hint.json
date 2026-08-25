@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-cerca-truncated-hint",
+  "applied_at": "2026-07-29",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "I comandi */cerca avvisano su stderr quando la lista restituita è solo una finestra dei risultati disponibili, ricordando che l'ordinamento del portale non è per pertinenza. stdout JSON/CSV resta pulito.",
+  "reason": "Senza l'avviso, 'non è nella lista' e 'non è nell'archivio' sono indistinguibili, e la conclusione sbagliata è la più naturale: una gap analysis ha dato per non ancora indicizzata la L.R. 26/2025 (DDL 933, iter completo sul portale) perché `leggi cerca --anno 2025 --testo variazioni` con --limit di default restituisce dieci righe in cui la parola non compare nemmeno nel titolo, e l'ha attribuito alla latenza della fonte. Il valore Truncated era già calcolato da icaroclient ed esposto in `commissione dossier` e `deputato profilo`, ma non nei comandi */cerca, cioè proprio quelli usati per cercare una notizia.",
+  "files": ["internal/cli/icaro_helpers.go", "internal/cli/icaro_helpers_test.go"],
+  "validated_outcome": "`leggi cerca --legisl 18 --anno 2025 --testo variazioni` (--limit default) -> hint 'risultati troncati: mostrati 10'; con --limit 50 escono L.R. 26/29/31. `mozioni cerca --data 2020-02-01:2020-02-29 --limit 30` e `resoconti cerca --data 2025-06-01:2025-06-10 --limit 20` (set completi) -> nessun hint. Copre sia il percorso Icaro sia quello /bd/, che popolano entrambi Truncated."
+}

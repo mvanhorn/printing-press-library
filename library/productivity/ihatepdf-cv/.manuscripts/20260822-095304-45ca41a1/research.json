@@ -1,0 +1,177 @@
+{
+  "api_name": "ihatepdf-cv",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "ihatepdf.cv website",
+      "url": "https://www.ihatepdf.cv",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 48,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-22T04:30:00Z",
+  "novel_features": [
+    {
+      "name": "Privacy audit before sharing",
+      "command": "privacy-scan",
+      "description": "Find content and metadata risks before a PDF leaves your machine.",
+      "rationale": "Correlates local metadata and text signals without uploading the document.",
+      "example": "ihatepdf-cv-pp-cli privacy-scan report.pdf --agent",
+      "why_it_matters": "Choose this when an agent must check a document for accidental sensitive content before delivery.",
+      "group": "Private local document pipelines"
+    },
+    {
+      "name": "Integrity trail",
+      "command": "fingerprint",
+      "description": "Record SHA-256, SHA-1, and MD5 hashes for inputs and outputs.",
+      "rationale": "A CLI can emit a stable integrity record directly alongside generated artifacts.",
+      "example": "ihatepdf-cv-pp-cli fingerprint report.pdf --json",
+      "why_it_matters": "Choose this when downstream systems need to verify that a PDF was not changed.",
+      "group": "Trust and audit"
+    },
+    {
+      "name": "Agent-native inspection",
+      "command": "inspect",
+      "description": "Expose PDF structure, metadata, and hashes as compact JSON.",
+      "rationale": "The CLI provides stable machine output without requiring a browser preview or download click.",
+      "example": "ihatepdf-cv-pp-cli inspect report.pdf --json",
+      "why_it_matters": "Choose this before any transformation when an agent needs to understand the artifact.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Local PDF text search",
+      "command": "search",
+      "description": "Search extracted text across local PDFs and return matching snippets.",
+      "rationale": "Agents need a fast local way to locate relevant phrases without uploading documents or opening a browser preview.",
+      "example": "ihatepdf-cv-pp-cli search invoice reports/*.pdf --agent",
+      "why_it_matters": "Choose this when an agent needs to locate a phrase across a local document set.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Local PDF catalog",
+      "command": "catalog index",
+      "description": "Index PDF paths, hashes, page counts, and extracted text in a local SQLite catalog.",
+      "rationale": "A durable local index makes repeated document search and reconciliation fast without inventing a remote API.",
+      "example": "ihatepdf-cv-pp-cli catalog index ./reports --recursive --agent",
+      "why_it_matters": "Choose this when an agent needs a searchable, repeatable inventory of local PDFs.",
+      "group": "Private local document pipelines"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Privacy audit before sharing",
+      "command": "privacy-scan",
+      "description": "Find content and metadata risks before a PDF leaves your machine.",
+      "rationale": "Correlates local metadata and text signals without uploading the document.",
+      "example": "ihatepdf-cv-pp-cli privacy-scan report.pdf --agent",
+      "why_it_matters": "Choose this when an agent must check a document for accidental sensitive content before delivery.",
+      "group": "Private local document pipelines"
+    },
+    {
+      "name": "Integrity trail",
+      "command": "fingerprint",
+      "description": "Record SHA-256, SHA-1, and MD5 hashes for inputs and outputs.",
+      "rationale": "A CLI can emit a stable integrity record directly alongside generated artifacts.",
+      "example": "ihatepdf-cv-pp-cli fingerprint report.pdf --json",
+      "why_it_matters": "Choose this when downstream systems need to verify that a PDF was not changed.",
+      "group": "Trust and audit"
+    },
+    {
+      "name": "Agent-native inspection",
+      "command": "inspect",
+      "description": "Expose PDF structure, metadata, and hashes as compact JSON.",
+      "rationale": "The CLI provides stable machine output without requiring a browser preview or download click.",
+      "example": "ihatepdf-cv-pp-cli inspect report.pdf --json",
+      "why_it_matters": "Choose this before any transformation when an agent needs to understand the artifact.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Local PDF text search",
+      "command": "search",
+      "description": "Search extracted text across local PDFs and return matching snippets.",
+      "rationale": "Agents need a fast local way to locate relevant phrases without uploading documents or opening a browser preview.",
+      "example": "ihatepdf-cv-pp-cli search invoice reports/*.pdf --agent",
+      "why_it_matters": "Choose this when an agent needs to locate a phrase across a local document set.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Local PDF catalog",
+      "command": "catalog index",
+      "description": "Index PDF paths, hashes, page counts, and extracted text in a local SQLite catalog.",
+      "rationale": "A durable local index makes repeated document search and reconciliation fast without inventing a remote API.",
+      "example": "ihatepdf-cv-pp-cli catalog index ./reports --recursive --agent",
+      "why_it_matters": "Choose this when an agent needs a searchable, repeatable inventory of local PDFs.",
+      "group": "Private local document pipelines"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "ihatepdf.cv",
+    "headline": "Private PDF operations for agents, scripts, and offline pipelines.",
+    "value_prop": "ihatepdf.cv CLI brings the website's no-upload promise to the terminal. Merge, inspect, fingerprint, encrypt, search, catalog, and convert documents locally with JSON output and reproducible artifacts.",
+    "quickstart": [
+      {
+        "command": "ihatepdf-cv-pp-cli doctor --dry-run",
+        "comment": "Confirm the local-only runtime without touching a file."
+      },
+      {
+        "command": "ihatepdf-cv-pp-cli inspect report.pdf --json",
+        "comment": "Inspect page count, metadata, and integrity before processing."
+      },
+      {
+        "command": "ihatepdf-cv-pp-cli privacy-scan report.pdf --agent",
+        "comment": "Check for sensitive content and metadata risks."
+      },
+      {
+        "command": "ihatepdf-cv-pp-cli fingerprint report.pdf --json",
+        "comment": "Record stable hashes for downstream verification."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "The input is not a readable PDF",
+        "fix": "Run `ihatepdf-cv-pp-cli inspect file.pdf --json` and verify the path and file type."
+      },
+      {
+        "symptom": "A transformation refuses to overwrite a file",
+        "fix": "Choose a different `--output` path; the CLI never overwrites inputs by default."
+      }
+    ],
+    "when_to_use": "Use this CLI for local, privacy-sensitive PDF preparation, inspection, and repeatable file pipelines. It is especially useful when an agent needs structured JSON and deterministic output paths.",
+    "anti_triggers": [
+      "Do not use this CLI for interactive browser editing, camera capture, P2P sharing, or collaborative whiteboards."
+    ],
+    "recipes": [
+      {
+        "title": "Audit a PDF before sharing",
+        "command": "ihatepdf-cv-pp-cli privacy-scan report.pdf --agent --select risks,metadata",
+        "explanation": "Return only the risk and metadata fields an agent needs."
+      },
+      {
+        "title": "Create an integrity record",
+        "command": "ihatepdf-cv-pp-cli fingerprint report.pdf --json",
+        "explanation": "Capture hashes for a reproducible handoff."
+      },
+      {
+        "title": "Merge a packet",
+        "command": "ihatepdf-cv-pp-cli merge cover.pdf appendix.pdf --output packet.pdf --json",
+        "explanation": "Combine files in explicit order without uploading them."
+      }
+    ],
+    "trigger_phrases": [
+      "check this PDF for privacy risks",
+      "merge these PDFs locally",
+      "scan a PDF for privacy risks",
+      "fingerprint a PDF",
+      "use ihatepdf.cv CLI"
+    ]
+  }
+}

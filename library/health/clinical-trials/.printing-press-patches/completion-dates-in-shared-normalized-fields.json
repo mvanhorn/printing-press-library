@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "completion-dates-in-shared-normalized-fields",
+  "applied_at": "2026-08-10",
+  "base_run_id": "20260623-164233-df565e8d",
+  "base_printing_press_version": "4.25.0",
+  "summary": "The shared CT.gov field request must ask for both completion-date fields, because a field absent from the request comes back empty and is indistinguishable from a trial that has no date.",
+  "reason": "CT.gov only returns fields named in the `fields` query parameter. The shared normalizedFields list omitted PrimaryCompletionDate and CompletionDate, so every intelligence command — search included — emitted trials with no completion date at all, and downstream consumers rendered an empty column that read as 'no date recorded'. Both Trial fields are omitempty so an absent date stays absent rather than becoming an empty string.",
+  "files": [
+    "internal/cli/intel.go",
+    "internal/cli/timeline.go"
+  ],
+  "validated_outcome": "Live search for NCT04280705 returns \"primary_completion_date\": \"2020-05-21\" and \"completion_date\": \"2020-05-21\"; a trial with neither date posted omits both JSON keys."
+}

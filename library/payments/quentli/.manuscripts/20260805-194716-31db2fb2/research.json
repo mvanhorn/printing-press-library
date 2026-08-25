@@ -1,0 +1,203 @@
+{
+  "api_name": "quentli",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-06T02:04:49Z",
+  "novel_features": [
+    {
+      "name": "Collection / dunning queue",
+      "command": "dunning",
+      "description": "See every customer with an outstanding or overdue invoice, how much is owed, and the next collection action (send reminder, retry payment, or resend pay link).",
+      "rationale": "Requires a local join across invoices, customers, and payments that no single API call returns, plus amount rendering in minor currency units.",
+      "example": "quentli-pp-cli dunning --since 1w --json",
+      "why_it_matters": "Reach for this to answer who owes money and what to do next without firing dozens of API calls.",
+      "group": "Collections that compound"
+    },
+    {
+      "name": "Subscriptions at-risk",
+      "command": "subs at-risk",
+      "description": "Surface active subscriptions whose saved payment method is expired, unconfirmed, or deleted, or that have recent failed collection attempts, ranked by recovery urgency.",
+      "rationale": "Joins subscriptions, payment methods, and failed payments locally to flag involuntary churn risk that no endpoint exposes directly.",
+      "example": "quentli-pp-cli subs at-risk --json",
+      "why_it_matters": "Pick this before renewal season to fix expiring cards instead of discovering silent churn after the fact.",
+      "group": "Churn prevention"
+    },
+    {
+      "name": "CFDI tax-invoice reconciliation",
+      "command": "reconcile",
+      "description": "Cross-check completed or refunded payments and paid invoices against SAT tax-invoice status (VALID/CANCELED/PENDING) to find timbre gaps before monthly SAT filing.",
+      "rationale": "Only a local join across tax invoices, payments, and invoices can flag every completed payment missing a valid SAT timbre in one pass.",
+      "example": "quentli-pp-cli reconcile --period 1m --json",
+      "why_it_matters": "Use before SAT filing to catch completed payments missing a VALID CFDI instead of eyeballing two exported lists.",
+      "group": "SAT tax compliance"
+    },
+    {
+      "name": "Revenue report",
+      "command": "revenue",
+      "description": "Aggregate payments and refunds by status, type, and currency over a window; see net collected vs returned in localized minor-currency amounts.",
+      "rationale": "Aggregates local payments and refunds data for net revenue math that the API delivers only as raw records.",
+      "example": "quentli-pp-cli revenue --since 30d --csv",
+      "why_it_matters": "Reach for this to answer how much money actually landed last month and what came back in refunds.",
+      "group": "Revenue ops"
+    },
+    {
+      "name": "Webhook delivery health",
+      "command": "webhooks health",
+      "description": "Aggregate webhook delivery events by status per endpoint and surface PAYMENT_ATTEMPT_FAILED events as an operational alert with a retry path.",
+      "rationale": "Aggregates local webhook-event status across endpoints and flags payment-failure signals no single API endpoint summarizes.",
+      "example": "quentli-pp-cli webhooks health --since 24h --json",
+      "why_it_matters": "Use on-call to spot failed webhook deliveries and refund/failure signals fast instead of polling dashboards.",
+      "group": "Operational alerts"
+    },
+    {
+      "name": "Customer balance drill-down",
+      "command": "customer balance",
+      "description": "Render a one-screen financial snapshot for a single customer: outstanding invoices, active subscriptions, payment methods, and CFDI linkage.",
+      "rationale": "A single-key multi-entity local join of invoices, subscriptions, payment methods, payments, and tax invoices for one customer.",
+      "example": "quentli-pp-cli customer balance cus_abc123 --json",
+      "why_it_matters": "Reach for this before calling a customer about money so you have their full financial picture in one command.",
+      "group": "Collections that compound"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Collection / dunning queue",
+      "command": "dunning",
+      "description": "See every customer with an outstanding or overdue invoice, how much is owed, and the next collection action (send reminder, retry payment, or resend pay link).",
+      "rationale": "Requires a local join across invoices, customers, and payments that no single API call returns, plus amount rendering in minor currency units.",
+      "example": "quentli-pp-cli dunning --since 1w --json",
+      "why_it_matters": "Reach for this to answer who owes money and what to do next without firing dozens of API calls.",
+      "group": "Collections that compound"
+    },
+    {
+      "name": "Subscriptions at-risk",
+      "command": "subs at-risk",
+      "description": "Surface active subscriptions whose saved payment method is expired, unconfirmed, or deleted, or that have recent failed collection attempts, ranked by recovery urgency.",
+      "rationale": "Joins subscriptions, payment methods, and failed payments locally to flag involuntary churn risk that no endpoint exposes directly.",
+      "example": "quentli-pp-cli subs at-risk --json",
+      "why_it_matters": "Pick this before renewal season to fix expiring cards instead of discovering silent churn after the fact.",
+      "group": "Churn prevention"
+    },
+    {
+      "name": "CFDI tax-invoice reconciliation",
+      "command": "reconcile",
+      "description": "Cross-check completed or refunded payments and paid invoices against SAT tax-invoice status (VALID/CANCELED/PENDING) to find timbre gaps before monthly SAT filing.",
+      "rationale": "Only a local join across tax invoices, payments, and invoices can flag every completed payment missing a valid SAT timbre in one pass.",
+      "example": "quentli-pp-cli reconcile --period 1m --json",
+      "why_it_matters": "Use before SAT filing to catch completed payments missing a VALID CFDI instead of eyeballing two exported lists.",
+      "group": "SAT tax compliance"
+    },
+    {
+      "name": "Revenue report",
+      "command": "revenue",
+      "description": "Aggregate payments and refunds by status, type, and currency over a window; see net collected vs returned in localized minor-currency amounts.",
+      "rationale": "Aggregates local payments and refunds data for net revenue math that the API delivers only as raw records.",
+      "example": "quentli-pp-cli revenue --since 30d --csv",
+      "why_it_matters": "Reach for this to answer how much money actually landed last month and what came back in refunds.",
+      "group": "Revenue ops"
+    },
+    {
+      "name": "Webhook delivery health",
+      "command": "webhooks health",
+      "description": "Aggregate webhook delivery events by status per endpoint and surface PAYMENT_ATTEMPT_FAILED events as an operational alert with a retry path.",
+      "rationale": "Aggregates local webhook-event status across endpoints and flags payment-failure signals no single API endpoint summarizes.",
+      "example": "quentli-pp-cli webhooks health --since 24h --json",
+      "why_it_matters": "Use on-call to spot failed webhook deliveries and refund/failure signals fast instead of polling dashboards.",
+      "group": "Operational alerts"
+    },
+    {
+      "name": "Customer balance drill-down",
+      "command": "customer balance",
+      "description": "Render a one-screen financial snapshot for a single customer: outstanding invoices, active subscriptions, payment methods, and CFDI linkage.",
+      "rationale": "A single-key multi-entity local join of invoices, subscriptions, payment methods, payments, and tax invoices for one customer.",
+      "example": "quentli-pp-cli customer balance cus_abc123 --json",
+      "why_it_matters": "Reach for this before calling a customer about money so you have their full financial picture in one command.",
+      "group": "Collections that compound"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "QUENTLI_SECRET_KEY"
+  },
+  "narrative": {
+    "display_name": "Quentli",
+    "headline": "Every Quentli payments, invoicing, and SAT tax-billing endpoint, plus offline collection, reconciliation, and at-risk-subscription intelligence no other Quentli tool has.",
+    "value_prop": "Quentli is the Stripe-like payments, cobranza, and facturación platform for Latin America. This CLI mirrors your customers, invoices, payments, subscriptions, tax invoices (SAT CFDI), and webhook events into a local database, then answers the questions ops and finance actually ask: who's behind on an invoice, which subscriptions are about to fail, which completed payments lack a valid SAT timbre, and what your net revenue really is — all offline and agent-native.",
+    "auth_narrative": "Authenticate with an organization API key. Set QUENTLI_SECRET_KEY to your sk_... secret key; every command sends Authorization: Bearer \u003ckey\u003e. Do not share or commit the key.",
+    "quickstart": [
+      {
+        "command": "quentli-pp-cli doctor --dry-run",
+        "comment": "Health check — confirms the CLI, config, and auth wiring work without hitting the API."
+      },
+      {
+        "command": "quentli-pp-cli sync --resources customers,invoices,payments,subscriptions,tax-invoices --full",
+        "comment": "Pull your portfolio into the local mirror so offline commands have data."
+      },
+      {
+        "command": "quentli-pp-cli dunning --since 1w",
+        "comment": "See every customer with an outstanding or overdue invoice and the next collection action."
+      },
+      {
+        "command": "quentli-pp-cli customer balance cus_abc123",
+        "comment": "Drill into one customer's full financial snapshot before contacting them."
+      },
+      {
+        "command": "quentli-pp-cli reconcile --period 1m",
+        "comment": "Catch completed payments missing a valid SAT CFDI before monthly filing."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Every command returns 401 \"You are not authenticated\"",
+        "fix": "Your QUENTLI_SECRET_KEY is missing or wrong. Set it and run quentli-pp-cli doctor."
+      },
+      {
+        "symptom": "Offline commands report a missing or stale mirror",
+        "fix": "Run quentli-pp-cli sync --resources customers,invoices,payments,subscriptions,tax-invoices,webhook-events --full and pass --db if you moved the database."
+      },
+      {
+        "symptom": "Amounts look like large integers (150000)",
+        "fix": "All amounts are in minor currency units; these commands render them as MXN 1,500.00 automatically."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when you need to run collections, reconcile revenue or SAT CFDI tax invoices, protect recurring subscriptions, or answer any cross-entity money question across your Quentli portfolio. It shines for automation and agent workflows where firing one API call per customer is too slow and you want the answer offline from the local mirror.",
+    "recipes": [
+      {
+        "title": "Monday collections run",
+        "command": "quentli-pp-cli dunning --since 1w --json --select customer.email,outstanding,next_action",
+        "explanation": "Dump the whole collection queue as compact JSON narrowed to the fields a reminder script needs."
+      },
+      {
+        "title": "At-risk subscriptions before renewals",
+        "command": "quentli-pp-cli subs at-risk --json",
+        "explanation": "List active subscriptions tied to expired or unconfirmed payment methods so you can fix cards before they churn."
+      },
+      {
+        "title": "Monthly SAT filing check",
+        "command": "quentli-pp-cli reconcile --period 1m --json",
+        "explanation": "Find every completed payment that still lacks a valid SAT CFDI timbre before filing."
+      },
+      {
+        "title": "Net revenue pull",
+        "command": "quentli-pp-cli revenue --since 30d --csv",
+        "explanation": "Export last month's net collected-vs-returned revenue for your books."
+      },
+      {
+        "title": "On-call delivery health",
+        "command": "quentli-pp-cli webhooks health --since 24h",
+        "explanation": "Spot failed webhook deliveries and payment-failure signals in the last day."
+      }
+    ],
+    "trigger_phrases": [
+      "who owes me money",
+      "which subscriptions are about to fail",
+      "reconcile my SAT invoices",
+      "what was my net revenue last month",
+      "check this customer's balance",
+      "use quentli",
+      "run quentli"
+    ]
+  }
+}

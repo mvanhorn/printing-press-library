@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "workflow-archive-sync-resources",
+  "applied_at": "2026-06-23",
+  "base_run_id": "20260622-071511",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Make `workflow archive` sync the CLI's known resources instead of reporting a zero-resource success.",
+  "reason": "`workflow archive` was hardcoded to an empty resource slice, so it always printed a successful archive summary with 0 items across 0 resources. The command now uses the same known sync resource list accepted by `sync --resources` and keeps an explicit no-resource warning for specs that genuinely have no sync targets.",
+  "files": [
+    "internal/cli/channel_workflow.go",
+    "internal/cli/root_test.go"
+  ],
+  "validated_outcome": "`go test ./...`, `cli-printing-press publish validate`, `verify-skill`, `verify-publish-package`, and `verify-supply-chain` pass with regression coverage proving `workflow archive --json` requests every known sync resource."
+}

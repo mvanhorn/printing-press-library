@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "scryfall",
+  "cli_name": "scryfall-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-23T09:35:21Z",
+  "source_commit": "c1baf1b4c4dcbaa2383767a35778d342a9e16b4c",
+  "printing_press_version": "4.29.0",
+  "run_id": "20260821-194838",
+  "changes": [
+    {
+      "title": "feat(scryfall): add scryfall",
+      "pr": 1793,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1793",
+      "commit": "c1baf1b4c4dcbaa2383767a35778d342a9e16b4c"
+    }
+  ]
+}

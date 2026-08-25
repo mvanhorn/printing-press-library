@@ -21,9 +21,9 @@ func newAirportsWeatherGetAirportObservationsCmd(flags *rootFlags) *cobra.Comman
 
 	cmd := &cobra.Command{
 		Use:         "get-airport-observations <id>",
-		Short:       "Returns weather for an airport in the form of a decoded METAR, starting from the latest report and working backwards...",
-		Example:     "  flight-goat-pp-cli airports weather get-airport-observations 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "weather.get-airport-observations", "mcp:read-only": "true"},
+		Short:       "Returns weather for an airport in the form of a decoded METAR",
+		Example:     "  flight-goat-pp-cli airports weather get-airport-observations IAH",
+		Annotations: map[string]string{"pp:endpoint": "weather.get-airport-observations", "pp:method": "GET", "pp:path": "/airports/{id}/weather/observations", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -38,36 +38,44 @@ func newAirportsWeatherGetAirportObservationsCmd(flags *rootFlags) *cobra.Comman
 					}
 				}
 				if !validTemperatureUnits {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "temperature-units", flagTemperatureUnits, allowedTemperatureUnits)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagTemperatureUnits, "temperature-units", allowedTemperatureUnits)
 				}
 			}
+			path := "/airports/{id}/weather/observations"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+			}
+			path = replacePathParam(path, "id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/airports/{id}/weather/observations"
-			path = replacePathParam(path, "id", args[0])
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "weather", path, map[string]string{
-				"temperature_units":     fmt.Sprintf("%v", flagTemperatureUnits),
-				"return_nearby_weather": fmt.Sprintf("%v", flagReturnNearbyWeather),
-				"timestamp":             fmt.Sprintf("%v", flagTimestamp),
-				"max_pages":             fmt.Sprintf("%v", flagMaxPages),
-				"cursor":                fmt.Sprintf("%v", flagCursor),
-			}, nil, flagAll, "cursor", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "weather", path, map[string]string{
+				"temperature_units":     formatCLIParamValue(flagTemperatureUnits),
+				"return_nearby_weather": formatCLIParamValue(flagReturnNearbyWeather),
+				"timestamp":             formatCLIParamValue(flagTimestamp),
+				"max_pages":             formatCLIParamValue(flagMaxPages),
+				"cursor":                formatCLIParamValue(flagCursor),
+			}, nil, flagAll, "cursor", "cursor", "", 100, "", "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -93,12 +101,12 @@ func newAirportsWeatherGetAirportObservationsCmd(flags *rootFlags) *cobra.Comman
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagTemperatureUnits, "temperature-units", "Celsius", "Units to use for temperature fields. (one of: C, F, Celsius, Fahrenheit)")
-	cmd.Flags().BoolVar(&flagReturnNearbyWeather, "return-nearby-weather", false, "If the requested airport does not have a weather conditions report then the weather for the nearest airport within...")
-	cmd.Flags().StringVar(&flagTimestamp, "timestamp", "", "Timestamp from which to begin returning weather data in a 1 day range. Because weather data is returned in reverse...")
+	cmd.Flags().BoolVar(&flagReturnNearbyWeather, "return-nearby-weather", false, "If the requested airport does not have a weather conditions report then the weather for the nearest airport within 30")
+	cmd.Flags().StringVar(&flagTimestamp, "timestamp", "", "Timestamp from which to begin returning weather data in a 1 day range.")
 	cmd.Flags().IntVar(&flagMaxPages, "max-pages", 1, "Maximum number of pages to fetch. This is an upper limit and not a guarantee of how many pages will be returned.")
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Opaque value used to get the next batch of data from a paged collection.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")

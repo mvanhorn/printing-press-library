@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "offline-select-compact-precedence-and-filters-shape-docs",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Documentation-only: printOffline's doc comment (internal/cli/offline.go) now states that --select wins over --compact when both are set (matching printOutputWithFlagsMeta's identical, already-existing precedence elsewhere) -- naming a field --compact would otherwise strip is an explicit request for that field, so --compact correctly does not run at all in that combination. A new context tool query_tip (internal/mcp/tools.go) documents offline_classes_filters' double-nested shape (filters.filters / filters.sorts -- the wrapper's own \"filters\" key containing the provider's own \"filters\" array) and that dotted --select paths only descend into object keys, not array indices.",
+  "reason": "Two ambiguous findings from a fifth live post-fix verification sweep, both resolved as non-bugs on investigation: (1) offline_classes_filters --select browse_categories.0.name returned {} -- confirmed live those field names don't exist on this endpoint at all (the real shape is filters.filters/filters.sorts, no browse_categories/class_types), and separately confirmed --select's dotted-path matching does not support numeric array indices (arrays are matched element-wise instead, per filterFieldsRec's existing design). (2) offline_workout --compact --select detail.achievement_templates returned achievement_templates unstripped -- confirmed this is --select intentionally winning over --compact (verified standalone --compact still correctly strips the same field on the same record), the same precedence already documented and used elsewhere in this codebase, not a --compact regression or a flag-ordering bug.",
+  "files": [
+    "internal/cli/offline.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green (documentation-only change, no new functional test surface). Live-verified against the user's real account: offline classes filters --json confirmed the real filters.filters/filters.sorts shape with no browse_categories/class_types fields; offline workout <id> --compact (standalone) confirmed achievement_templates still correctly stripped; the same command with --compact --select detail.achievement_templates,detail.title confirmed --select returns achievement_templates in full, by design."
+}

@@ -1,7 +1,7 @@
 {
   "api_name": "table-reservation-goat",
   "base_url": "https://www.opentable.com",
-  "description": "One reservation CLI for OpenTable and Tock — search both networks at once, watch for cancellations, book, and track changes from a local store agents can query.",
+  "description": "One reservation CLI for OpenTable, Tock, and Resy — search all three networks at once, watch for cancellations",
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {
@@ -116,7 +116,7 @@
     },
     {
       "name": "experiences_list",
-      "description": "List experiences (PRIX_FIXE, EXPERIENCE, PACKAGE) across both networks. Optional: restaurant, type, cuisine (plus 1 more). Returns array of Experience.",
+      "description": "List experiences (PRIX_FIXE, EXPERIENCE, PACKAGE) across OpenTable + Tock. Optional: restaurant, type, cuisine (plus 1 more). Returns array of Experience.",
       "method": "GET",
       "path": "/experiences",
       "no_auth": true,
@@ -243,7 +243,7 @@
     },
     {
       "name": "reservations_list",
-      "description": "List your upcoming and past reservations across both networks. Optional: state, network, limit. Returns array of Reservation.",
+      "description": "List your upcoming and past reservations across OpenTable + Tock + Resy. Optional: state, network, limit. Returns array of Reservation.",
       "method": "GET",
       "path": "/reservations",
       "no_auth": true,
@@ -286,7 +286,7 @@
     },
     {
       "name": "restaurants_list",
-      "description": "List restaurants across OpenTable and Tock; filter by location, cuisine, price band, accolades, and party size. Optional: query, latitude, longitude (plus 8 more). Returns array of Restaurant.",
+      "description": "List restaurants across OpenTable, Tock, and Resy; filter by location, cuisine, price band, accolades, and party size. Optional: query, latitude, longitude (plus 8 more). Returns array of Restaurant.",
       "method": "GET",
       "path": "/restaurants",
       "no_auth": true,

@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "naive-timestamps-are-local",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260814-154828-17a1784d",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Tiimo timestamps carry no offset and must be parsed in the local zone, matching the zone window bounds are built in.",
+  "reason": "time.Parse tags them UTC while windows use time.Local, skewing every comparison off-UTC. Combined with Tiimo storing bucket-scheduled activities at T00:00:00, that made today and gaps return nothing on a day with fourteen activities.",
+  "files": ["internal/cli/tiimo_local.go"],
+  "validated_outcome": "today went from 0 to 14 entries on a UTC-5 machine."
+}

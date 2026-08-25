@@ -1,0 +1,16 @@
+type: object
+properties:
+  id:
+    type: integer
+    format: int
+  name:
+    type: string
+  url:
+    type: string
+  count:
+    type: integer
+    format: int
+  slug:
+    type: string
+  things_url:
+    type: string

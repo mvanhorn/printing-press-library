@@ -1,0 +1,928 @@
+{
+  "api_name": "synology",
+  "base_url": "https://nas.example.com:5001",
+  "description": "Query and operate Synology DSM NAS units - system health, storage, SMART, shares, users",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "session_handshake",
+    "cookie_domain": ".nas.example.com"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "files_copy_start",
+      "description": "Start a background copy or move and return its task id. Required: path, dest_folder_path. Optional: overwrite, remove_src.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.FileStation.CopyMove\u0026method=start\u0026version=3",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of absolute source paths",
+          "required": true
+        },
+        {
+          "name": "dest_folder_path",
+          "type": "string",
+          "location": "query",
+          "description": "Absolute destination folder path",
+          "required": true
+        },
+        {
+          "name": "overwrite",
+          "type": "boolean",
+          "location": "query",
+          "description": "Overwrite an existing destination entry"
+        },
+        {
+          "name": "remove_src",
+          "type": "boolean",
+          "location": "query",
+          "description": "Remove the source after a successful copy, turning the copy into a move"
+        }
+      ]
+    },
+    {
+      "name": "files_copy_status",
+      "description": "Report the progress of a running copy or move. Required: taskid.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.FileStation.CopyMove\u0026method=status\u0026version=3",
+      "params": [
+        {
+          "name": "taskid",
+          "type": "string",
+          "location": "query",
+          "description": "Task id returned by copy_start",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_copy_stop",
+      "description": "Stop a running copy or move. Required: taskid.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.FileStation.CopyMove\u0026method=stop\u0026version=3",
+      "params": [
+        {
+          "name": "taskid",
+          "type": "string",
+          "location": "query",
+          "description": "Task id returned by copy_start",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_delete_start",
+      "description": "Start a background delete and return its task id. Required: path. Optional: recursive.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.FileStation.Delete\u0026method=start\u0026version=2",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of absolute paths to delete",
+          "required": true
+        },
+        {
+          "name": "recursive",
+          "type": "boolean",
+          "location": "query",
+          "description": "Delete folder contents as well as the folder itself"
+        }
+      ]
+    },
+    {
+      "name": "files_delete_status",
+      "description": "Report the progress of a running delete. Required: taskid.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.FileStation.Delete\u0026method=status\u0026version=2",
+      "params": [
+        {
+          "name": "taskid",
+          "type": "string",
+          "location": "query",
+          "description": "Task id returned by delete_start",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_delete_stop",
+      "description": "Stop a running delete. Required: taskid.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.FileStation.Delete\u0026method=stop\u0026version=2",
+      "params": [
+        {
+          "name": "taskid",
+          "type": "string",
+          "location": "query",
+          "description": "Task id returned by delete_start",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_download",
+      "description": "Download a file or folder. Required: path. Optional: mode.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.FileStation.Download\u0026method=download\u0026version=2",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of absolute paths to download",
+          "required": true
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Transfer mode, open to stream inline or download to attach"
+        }
+      ]
+    },
+    {
+      "name": "files_info",
+      "description": "Show File Station capabilities and limits.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.FileStation.Info\u0026method=get\u0026version=1",
+      "params": []
+    },
+    {
+      "name": "files_list",
+      "description": "List the contents of one folder. Required: folder_path. Optional: additional, filetype, pattern (plus 4 more).",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.FileStation.List\u0026method=list\u0026version=2",
+      "params": [
+        {
+          "name": "folder_path",
+          "type": "string",
+          "location": "query",
+          "description": "Absolute folder path, for example /volume1/media",
+          "required": true
+        },
+        {
+          "name": "additional",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of extra fields to include, for example ['real_path','size','time','type']"
+        },
+        {
+          "name": "filetype",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict the listing to file, dir or all"
+        },
+        {
+          "name": "pattern",
+          "type": "string",
+          "location": "query",
+          "description": "Glob the entry name must match"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to sort by"
+        },
+        {
+          "name": "sort_direction",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction, asc or desc"
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "location": "query",
+          "description": "Index of the first entry to return"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum number of entries to return"
+        }
+      ]
+    },
+    {
+      "name": "files_mkdir",
+      "description": "Create a folder. Required: folder_path, name. Optional: force_parent.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.FileStation.CreateFolder\u0026method=create\u0026version=2",
+      "params": [
+        {
+          "name": "folder_path",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of parent folder paths",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of folder names to create",
+          "required": true
+        },
+        {
+          "name": "force_parent",
+          "type": "boolean",
+          "location": "query",
+          "description": "Create missing parent folders instead of failing"
+        }
+      ]
+    },
+    {
+      "name": "files_rename",
+      "description": "Rename a file or folder. Required: path, name.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.FileStation.Rename\u0026method=rename\u0026version=2",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of absolute paths to rename",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of new names",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_search_results",
+      "description": "Read the results of a running or finished search. Required: taskid. Optional: additional, offset, limit.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.FileStation.Search\u0026method=list\u0026version=2",
+      "params": [
+        {
+          "name": "taskid",
+          "type": "string",
+          "location": "query",
+          "description": "Task id returned by search_start",
+          "required": true
+        },
+        {
+          "name": "additional",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of extra fields to include"
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "location": "query",
+          "description": "Index of the first result to return"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum number of results to return"
+        }
+      ]
+    },
+    {
+      "name": "files_search_start",
+      "description": "Start a background search and return its task id. Required: folder_path. Optional: pattern, extension, recursive (plus 1 more).",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.FileStation.Search\u0026method=start\u0026version=2",
+      "params": [
+        {
+          "name": "folder_path",
+          "type": "string",
+          "location": "query",
+          "description": "Absolute folder path to search under",
+          "required": true
+        },
+        {
+          "name": "pattern",
+          "type": "string",
+          "location": "query",
+          "description": "Glob the file name must match"
+        },
+        {
+          "name": "extension",
+          "type": "string",
+          "location": "query",
+          "description": "File extension filter, for example mkv"
+        },
+        {
+          "name": "recursive",
+          "type": "boolean",
+          "location": "query",
+          "description": "Descend into subfolders"
+        },
+        {
+          "name": "filetype",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict results to file, dir or all"
+        }
+      ]
+    },
+    {
+      "name": "files_search_stop",
+      "description": "Stop a running search and release its task. Required: taskid.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.FileStation.Search\u0026method=stop\u0026version=2",
+      "params": [
+        {
+          "name": "taskid",
+          "type": "string",
+          "location": "query",
+          "description": "Task id returned by search_start",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_shares",
+      "description": "List the shared folders File Station can browse. Optional: additional, sort_by, sort_direction (plus 2 more).",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.FileStation.List\u0026method=list_share\u0026version=2",
+      "params": [
+        {
+          "name": "additional",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of extra fields to include, for example ['real_path','size','time','owner']"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to sort by, for example name or size"
+        },
+        {
+          "name": "sort_direction",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction, asc or desc"
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "location": "query",
+          "description": "Index of the first share to return"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum number of shares to return"
+        }
+      ]
+    },
+    {
+      "name": "files_stat",
+      "description": "Show metadata for one file or folder. Required: path. Optional: additional.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.FileStation.List\u0026method=getinfo\u0026version=2",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of absolute paths, for example ['/volume1/media/movie.mkv']",
+          "required": true
+        },
+        {
+          "name": "additional",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of extra fields to include"
+        }
+      ]
+    },
+    {
+      "name": "folder_get",
+      "description": "Show one shared folder in detail. Required: name. Optional: additional.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Core.Share\u0026method=get\u0026version=1",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Share name",
+          "required": true
+        },
+        {
+          "name": "additional",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of extra fields to include"
+        }
+      ]
+    },
+    {
+      "name": "folder_list",
+      "description": "List shared folders. Optional: additional, limit, offset.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Core.Share\u0026method=list\u0026version=1",
+      "params": [
+        {
+          "name": "additional",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of extra fields to include, for example ['nfs_privilege','encryption']"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum number of shares to return"
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "location": "query",
+          "description": "Index of the first share to return"
+        }
+      ]
+    },
+    {
+      "name": "folder_permissions",
+      "description": "List the accounts and groups that hold permissions on one shared folder. Required: name. Optional: user_group_type (default: local_user), limit, offset.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Core.Share.Permission\u0026method=list\u0026version=1",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Share name",
+          "required": true
+        },
+        {
+          "name": "user_group_type",
+          "type": "string",
+          "location": "query",
+          "description": "Which principal set to report, local_user or local_group"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum number of entries to return"
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "location": "query",
+          "description": "Index of the first entry to return"
+        }
+      ]
+    },
+    {
+      "name": "group_list",
+      "description": "List local groups. Optional: additional, limit, offset.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Core.Group\u0026method=list\u0026version=1",
+      "params": [
+        {
+          "name": "additional",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of extra fields to include"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum number of groups to return"
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "location": "query",
+          "description": "Index of the first group to return"
+        }
+      ]
+    },
+    {
+      "name": "group_members",
+      "description": "List the accounts that belong to one group. Required: group. Optional: limit, offset.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Core.Group.Member\u0026method=list\u0026version=1",
+      "params": [
+        {
+          "name": "group",
+          "type": "string",
+          "location": "query",
+          "description": "Group name",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum number of members to return"
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "location": "query",
+          "description": "Index of the first member to return"
+        }
+      ]
+    },
+    {
+      "name": "log_list",
+      "description": "Read the DSM system log with filtering by level, date range and keyword. Optional: logtype, level, keyword (plus 6 more).",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Core.SyslogClient.Log\u0026method=list\u0026version=1",
+      "params": [
+        {
+          "name": "logtype",
+          "type": "string",
+          "location": "query",
+          "description": "Log category to read, for example system or connection"
+        },
+        {
+          "name": "level",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum severity to include, for example err, warn or info"
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Substring the log message must contain"
+        },
+        {
+          "name": "date_from",
+          "type": "integer",
+          "location": "query",
+          "description": "Unix timestamp of the earliest entry to include"
+        },
+        {
+          "name": "date_to",
+          "type": "integer",
+          "location": "query",
+          "description": "Unix timestamp of the latest entry to include"
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Which log store to read"
+        },
+        {
+          "name": "dir",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction, ASC or DESC"
+        },
+        {
+          "name": "start",
+          "type": "integer",
+          "location": "query",
+          "description": "Index of the first entry to return"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum number of entries to return"
+        }
+      ]
+    },
+    {
+      "name": "nfs_status",
+      "description": "Show whether the NFS service is enabled and which protocol versions it offers.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Core.FileServ.NFS\u0026method=get\u0026version=2",
+      "params": []
+    },
+    {
+      "name": "package_list",
+      "description": "List installed packages with their version and running state. Optional: additional.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Core.Package\u0026method=list\u0026version=2",
+      "params": [
+        {
+          "name": "additional",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of extra fields to include, for example ['status','version']"
+        }
+      ]
+    },
+    {
+      "name": "session_apis",
+      "description": "Enumerate every API namespace the NAS exposes, with its version range and CGI path. (public)",
+      "method": "GET",
+      "path": "/webapi/query.cgi?api=SYNO.API.Info\u0026method=query\u0026version=1\u0026query=all",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "session_login",
+      "description": "Log in to DSM and obtain a session id plus a SynoToken. Required: account, passwd. Optional: otp_code, device_id, device_name. (public)",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.API.Auth\u0026method=login\u0026version=7\u0026format=sid\u0026enable_syno_token=yes",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "location": "query",
+          "description": "DSM account name",
+          "required": true
+        },
+        {
+          "name": "passwd",
+          "type": "string",
+          "location": "query",
+          "description": "DSM account password",
+          "required": true
+        },
+        {
+          "name": "otp_code",
+          "type": "string",
+          "location": "query",
+          "description": "Six-digit one-time password, required on the first login of a two-factor account"
+        },
+        {
+          "name": "device_id",
+          "type": "string",
+          "location": "query",
+          "description": "Trusted-device token issued by a previous two-factor login, used instead of otp_code"
+        },
+        {
+          "name": "device_name",
+          "type": "string",
+          "location": "query",
+          "description": "Label DSM records for the trusted device"
+        }
+      ]
+    },
+    {
+      "name": "session_logout",
+      "description": "Invalidate the current session id.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.API.Auth\u0026method=logout\u0026version=6",
+      "params": []
+    },
+    {
+      "name": "storage_disks",
+      "description": "List physical disks with model, serial number, temperature and health status. Optional: limit, offset.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Storage.CGI.Storage\u0026method=load_info\u0026version=1",
+      "params": [
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum number of disks to return"
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "location": "query",
+          "description": "Index of the first disk to return"
+        }
+      ]
+    },
+    {
+      "name": "storage_esata",
+      "description": "List attached eSATA storage devices. Optional: additional.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Core.ExternalDevice.Storage.eSATA\u0026method=list\u0026version=1",
+      "params": [
+        {
+          "name": "additional",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of extra fields to include"
+        }
+      ]
+    },
+    {
+      "name": "storage_luns",
+      "description": "List iSCSI LUNs.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Core.ISCSI.LUN\u0026method=list\u0026version=1",
+      "params": []
+    },
+    {
+      "name": "storage_overview",
+      "description": "Show the complete storage picture DSM Storage Manager renders, covering disks, pools and volumes in one call.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Storage.CGI.Storage\u0026method=load_info\u0026version=1",
+      "params": []
+    },
+    {
+      "name": "storage_pools",
+      "description": "List storage pools with their RAID level and member disks. Optional: limit, offset.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Storage.CGI.Storage\u0026method=load_info\u0026version=1",
+      "params": [
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum number of pools to return"
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "location": "query",
+          "description": "Index of the first pool to return"
+        }
+      ]
+    },
+    {
+      "name": "storage_smart",
+      "description": "Show the full SMART attribute table for one disk. Required: device.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Storage.CGI.Smart\u0026method=get_smart_info\u0026version=1",
+      "params": [
+        {
+          "name": "device",
+          "type": "string",
+          "location": "query",
+          "description": "Disk device path as reported by storage disks, for example /dev/sda",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "storage_smart_schedule",
+      "description": "List scheduled SMART tests.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Storage.CGI.Smart.Scheduler\u0026method=list\u0026version=1",
+      "params": []
+    },
+    {
+      "name": "storage_usb",
+      "description": "List attached USB storage devices. Optional: additional.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Core.ExternalDevice.Storage.USB\u0026method=list\u0026version=1",
+      "params": [
+        {
+          "name": "additional",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of extra fields to include, for example ['dev_type','status']"
+        }
+      ]
+    },
+    {
+      "name": "storage_volumes",
+      "description": "List volumes with size, used space and status. Optional: limit, offset.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Storage.CGI.Storage\u0026method=load_info\u0026version=1",
+      "params": [
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum number of volumes to return"
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "location": "query",
+          "description": "Index of the first volume to return"
+        }
+      ]
+    },
+    {
+      "name": "system_dsm",
+      "description": "Show DSM product identity as the web UI reports it.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.DSM.Info\u0026method=getinfo\u0026version=2",
+      "params": []
+    },
+    {
+      "name": "system_health",
+      "description": "Show the aggregate system health verdict DSM shows on its dashboard.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Core.System.SystemHealth\u0026method=get\u0026version=1",
+      "params": []
+    },
+    {
+      "name": "system_info",
+      "description": "Show model, serial number, firmware version, uptime and temperature. Optional: type.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Core.System\u0026method=info\u0026version=3",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict the report to one section, for example storage"
+        }
+      ]
+    },
+    {
+      "name": "system_network",
+      "description": "Show hostname, DNS, gateway and every network interface.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Core.Network\u0026method=get\u0026version=2",
+      "params": []
+    },
+    {
+      "name": "system_services",
+      "description": "List DSM services and whether each one is enabled. Optional: offset, limit.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Core.Service\u0026method=get\u0026version=3",
+      "params": [
+        {
+          "name": "offset",
+          "type": "integer",
+          "location": "query",
+          "description": "Index of the first service to return"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum number of services to return"
+        }
+      ]
+    },
+    {
+      "name": "system_ups",
+      "description": "Show the state of an attached uninterruptible power supply.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Core.ExternalDevice.UPS\u0026method=get\u0026version=1",
+      "params": []
+    },
+    {
+      "name": "system_utilization",
+      "description": "Show current CPU, memory, disk and network utilization.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Core.System.Utilization\u0026method=get\u0026version=1",
+      "params": []
+    },
+    {
+      "name": "user_get",
+      "description": "Show one local user account in detail. Required: name. Optional: additional.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Core.User\u0026method=get\u0026version=1",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Account name",
+          "required": true
+        },
+        {
+          "name": "additional",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of extra fields to include"
+        }
+      ]
+    },
+    {
+      "name": "user_list",
+      "description": "List local user accounts. Optional: type, additional, limit (plus 1 more).",
+      "method": "GET",
+      "path": "/webapi/entry.cgi?api=SYNO.Core.User\u0026method=list\u0026version=1",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Account source, for example local"
+        },
+        {
+          "name": "additional",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of extra fields to include, for example ['email','expired','description']"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum number of accounts to return"
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "location": "query",
+          "description": "Index of the first account to return"
+        }
+      ]
+    }
+  ]
+}

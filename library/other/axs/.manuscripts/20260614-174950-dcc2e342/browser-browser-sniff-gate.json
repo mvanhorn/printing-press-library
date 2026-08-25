@@ -1,0 +1,11 @@
+{
+  "run_id": "20260614-174950-dcc2e342",
+  "sources": [
+    {
+      "source_name": "sram-axs",
+      "decision": "skip-silent",
+      "reason": "no-browser-backends-and-no-credentials; API surface reverse-engineered from official web client JS bundle (static analysis) instead of live capture",
+      "asked_at": "2026-06-14T21:50:06Z"
+    }
+  ]
+}

@@ -24,33 +24,23 @@ import (
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/marketing/everbee/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/marketing/everbee/internal/mcp/bound"
 )
 
 // RegisterIntents adds generated intent tools to the MCP server.
 // This is called from RegisterTools when spec intents or recipe-lifted intents exist.
 func RegisterIntents(s *server.MCPServer) {
 	s.AddTool(
-		mcplib.NewTool("research_keyword_opportunities",
-			mcplib.WithDescription("Pull EverBee keyword opportunity signals using the observed default keyword suggestion workflow."),
+		mcplib.NewTool("resolve_shop_identity",
+			mcplib.WithDescription("Resolve an Etsy shop handle to its EverBee identity before any shop workflow, so an unknown handle is reported as unresolved rather than as a shop with zero research evidence."),
+			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Etsy shop handle, e.g. '3rdprintsDesign'.")),
 		),
-		handleResearchKeywordOpportunities,
-	)
-	s.AddTool(
-		mcplib.NewTool("research_product_opportunities",
-			mcplib.WithDescription("Pull EverBee product analytics sorted by observed monthly revenue signals."),
-		),
-		handleResearchProductOpportunities,
-	)
-	s.AddTool(
-		mcplib.NewTool("analyze_shops",
-			mcplib.WithDescription("Pull EverBee shop analyzer results for competitor and market research workflows."),
-		),
-		handleAnalyzeShops,
+		handleResolveShopIdentity,
 	)
 }
 
-// handleResearchKeywordOpportunities runs the research_keyword_opportunities intent: Pull EverBee keyword opportunity signals using the observed default keyword suggestion workflow.
-func handleResearchKeywordOpportunities(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+// handleResolveShopIdentity runs the resolve_shop_identity intent: Resolve an Etsy shop handle to its EverBee identity before any shop workflow, so an unknown handle is reported as unresolved rather than as a shop with zero research evidence.
+func handleResolveShopIdentity(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	c, err := newMCPClient()
 	if err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
@@ -59,102 +49,33 @@ func handleResearchKeywordOpportunities(ctx context.Context, req mcplib.CallTool
 	input := req.GetArguments()
 	scope := map[string]any{"input": input}
 
-	// Step 1: keyword_research.list_default_keyword_suggestion
+	// Step 1: shops.resolve
 	{
 		params := map[string]any{}
-		resp, err := callIntentEndpoint(ctx, c, "keyword_research.list_default_keyword_suggestion", params)
-		if err != nil {
-			return mcplib.NewToolResultError(fmt.Sprintf("step %d (keyword_research.list_default_keyword_suggestion) failed: %v", 1, err)), nil
+		if v, ok := resolveIntentBinding(scope, "${input.handle}"); ok {
+			params["query"] = v
 		}
-		scope["keyword_suggestions"] = resp
+		resp, err := callIntentEndpoint(ctx, c, "shops.resolve", params)
+		if err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("step %d (shops.resolve) failed: %v", 1, err)), nil
+		}
+		scope["identity"] = resp
 	}
 
-	returnKey := "keyword_suggestions"
+	returnKey := "identity"
 	if returnKey == "" {
-		returnKey = "keyword_suggestions"
+		returnKey = "identity"
 	}
 
 	if returnKey == "" {
 		return mcplib.NewToolResultText(`{"status":"ok"}`), nil
 	}
 	out := scope[returnKey]
-	data, err := json.Marshal(out)
+	text, err := bound.JSON(out)
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("encoding %s result: %v", returnKey, err)), nil
 	}
-	return mcplib.NewToolResultText(string(data)), nil
-}
-
-// handleResearchProductOpportunities runs the research_product_opportunities intent: Pull EverBee product analytics sorted by observed monthly revenue signals.
-func handleResearchProductOpportunities(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	c, err := newMCPClient()
-	if err != nil {
-		return mcplib.NewToolResultError(err.Error()), nil
-	}
-
-	input := req.GetArguments()
-	scope := map[string]any{"input": input}
-
-	// Step 1: product_analytics.list_default_product_analytics
-	{
-		params := map[string]any{}
-		resp, err := callIntentEndpoint(ctx, c, "product_analytics.list_default_product_analytics", params)
-		if err != nil {
-			return mcplib.NewToolResultError(fmt.Sprintf("step %d (product_analytics.list_default_product_analytics) failed: %v", 1, err)), nil
-		}
-		scope["product_analytics"] = resp
-	}
-
-	returnKey := "product_analytics"
-	if returnKey == "" {
-		returnKey = "product_analytics"
-	}
-
-	if returnKey == "" {
-		return mcplib.NewToolResultText(`{"status":"ok"}`), nil
-	}
-	out := scope[returnKey]
-	data, err := json.Marshal(out)
-	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("encoding %s result: %v", returnKey, err)), nil
-	}
-	return mcplib.NewToolResultText(string(data)), nil
-}
-
-// handleAnalyzeShops runs the analyze_shops intent: Pull EverBee shop analyzer results for competitor and market research workflows.
-func handleAnalyzeShops(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	c, err := newMCPClient()
-	if err != nil {
-		return mcplib.NewToolResultError(err.Error()), nil
-	}
-
-	input := req.GetArguments()
-	scope := map[string]any{"input": input}
-
-	// Step 1: shops.list_shops
-	{
-		params := map[string]any{}
-		resp, err := callIntentEndpoint(ctx, c, "shops.list_shops", params)
-		if err != nil {
-			return mcplib.NewToolResultError(fmt.Sprintf("step %d (shops.list_shops) failed: %v", 1, err)), nil
-		}
-		scope["shops"] = resp
-	}
-
-	returnKey := "shops"
-	if returnKey == "" {
-		returnKey = "shops"
-	}
-
-	if returnKey == "" {
-		return mcplib.NewToolResultText(`{"status":"ok"}`), nil
-	}
-	out := scope[returnKey]
-	data, err := json.Marshal(out)
-	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("encoding %s result: %v", returnKey, err)), nil
-	}
-	return mcplib.NewToolResultText(string(data)), nil
+	return mcplib.NewToolResultText(text), nil
 }
 
 // resolveIntentBinding evaluates a binding expression against the intent's
@@ -206,10 +127,10 @@ func callIntentEndpoint(ctx context.Context, c *client.Client, ref string, param
 	for k, v := range params {
 		placeholder := "{" + k + "}"
 		if strings.Contains(path, placeholder) {
-			path = strings.ReplaceAll(path, placeholder, fmt.Sprintf("%v", v))
+			path = strings.ReplaceAll(path, placeholder, formatMCPParamValue(v))
 			continue
 		}
-		query[k] = fmt.Sprintf("%v", v)
+		query[k] = formatMCPParamValue(v)
 	}
 
 	var data json.RawMessage
@@ -283,7 +204,5 @@ type intentEndpointMeta struct {
 // reference a new endpoint must be declared in the spec, which keeps this
 // table in sync with actual usage.
 var intentEndpoints = map[string]intentEndpointMeta{
-	"keyword_research.list_default_keyword_suggestion": {method: "GET", path: "/keyword_research/default_keyword_suggestion"},
-	"product_analytics.list_default_product_analytics": {method: "GET", path: "/product_analytics/default_product_analytics"},
-	"shops.list_shops": {method: "GET", path: "/shops"},
+	"shops.resolve": {method: "GET", path: "/shops/search"},
 }

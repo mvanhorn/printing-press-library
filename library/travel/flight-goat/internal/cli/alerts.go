@@ -9,8 +9,11 @@ import (
 
 func newAlertsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "alerts",
-		Short: "AeroAPI alerting can be used to configure and receive real-time alerts on key flight events. With customizable...",
+		Use:         "alerts",
+		Short:       "AeroAPI alerting can be used to configure and receive real-time alerts on key flight events.",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newAlertsCreateCmd(flags))

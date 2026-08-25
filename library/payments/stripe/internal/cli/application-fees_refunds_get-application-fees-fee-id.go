@@ -30,14 +30,16 @@ func newApplicationFeesRefundsGetApplicationFeesFeeIdCmd(flags *rootFlags) *cobr
 			}
 
 			path := "/v1/application_fees/{fee}/refunds/{id}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("fee is required\nUsage: %s <%s>", cmd.CommandPath(), "fee"))
 			}
-			path = replacePathParam(path, "fee", args[1])
-			if len(args) < 3 {
+			path = replacePathParam(path, "fee", args[0])
+			if len(args) < 2 {
 				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
 			}
-			path = replacePathParam(path, "id", args[2])
+			path = replacePathParam(path, "id", args[1])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

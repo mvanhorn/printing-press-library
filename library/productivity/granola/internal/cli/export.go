@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"sort"
@@ -25,13 +26,18 @@ type meetingArtifacts struct {
 }
 
 // buildArtifacts gathers human notes + AI panels + transcript for one
-// doc id, preferring the local cache and falling back to live API for
+// doc id, preferring local data and falling back to the live API for
 // panels and transcripts.
-func buildArtifacts(id string, allowLive bool, panelTemplate string) (*meetingArtifacts, error) {
-	c, err := openGranolaCache()
+//
+// PATCH(dual-path-store-read): notes/metadata/transcript now come from the
+// granolaRead seam (store first, cache fallback). Panels remain live-only —
+// the store has no panel table, so that stream is a later unit's problem.
+func buildArtifacts(ctx context.Context, id string, allowLive bool, panelTemplate string) (*meetingArtifacts, error) {
+	c, err := openGranolaRead(ctx)
 	if err != nil {
 		return nil, err
 	}
+	defer c.Close()
 	d := c.DocumentByID(id)
 	if d == nil {
 		return nil, notFoundErr(fmt.Errorf("meeting %s not in cache", id))
@@ -122,7 +128,7 @@ can route each stream.`,
 				return nil
 			}
 			id := args[0]
-			a, err := buildArtifacts(id, flags.dataSource != "local", panelTemplate)
+			a, err := buildArtifacts(cmd.Context(), id, flags.dataSource != "local", panelTemplate)
 			if err != nil {
 				return err
 			}

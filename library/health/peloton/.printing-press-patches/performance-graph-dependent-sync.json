@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "performance-graph-dependent-sync",
+  "applied_at": "2026-08-13",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "performance_graph has no bulk list endpoint (GET /api/workout/{workout_id}/performance_graph only), so it is synced as a genuinely separate per-parent fan-out (syncPerformanceDependent in sync.go) cascading from \"workouts\" via expandSyncResourcesWithDependents, not the flat paginated syncResource loop. It runs after the flat phase completes, not inside the same worker pool, since it depends on workouts already being in the local store. Any future regen must preserve: the two-phase (flat, then dependent) ordering; concurrency on the fan-out (sequential fetching took ~27 minutes against a real ~3.5k-workout account); its own per-item isDryRunResponse check (it issues Get calls outside the flat loop's single check); narrow client.ErrPlaceholderCredential escalation to a hard error (any other per-item failure -- e.g. a workout with no performance data -- must stay a soft anomaly); userParams.applyTo(\"performance\", params, true) so --global-param/--resource-param reach it, matching --global-param's own documented promise to cover dependent calls; and db.ListIDs (not db.List) to enumerate parent ids without deserializing every parent's full JSON. Also: performance_graph responses carry no id field of their own (the id is the request-path workout_id), so the generic write-through cache can never cache a live `workouts performance <id>` fetch -- cacheWorkoutPerformance in data_source.go, called with the caller's own workout_id argument, is the command-specific counterpart that closes this for that one command.",
+  "reason": "The generic printing-press parent-keyed-dependent sync machinery (parentTenantScopeColumns, flatReconcileModes, discriminatorDispatchers, criticalResources, etc. in sync.go) is entirely unpopulated for this CLI -- confirmed by reading every registry in the file: all are empty maps, and there is no dependent-fan-out loop body anywhere, only comments describing one. Peloton's spec is hand-written (internal, not profiled from a real OpenAPI doc), so the profiler that would normally populate this machinery never ran. Building the full generic framework from scratch was judged out of scope; a peloton-specific dependent loop was implemented instead, then hardened by an adversarial code-review pass that caught the dry-run, credential-escalation, userParams, and write-through gaps above.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/workouts_performance.go",
+    "internal/cli/data_source.go",
+    "internal/store/peloton.go",
+    "internal/cli/sync_performance_test.go",
+    "internal/cli/workouts_performance_test.go",
+    "internal/store/peloton_test.go"
+  ],
+  "validated_outcome": "Verified live against a real Peloton account (read-only, user-authorized): `sync --resources workouts` (which cascades to performance automatically) synced 100 workouts + 100 performance_graph records with zero errors on a scoped run, and a full run against ~3.5k already-synced workouts completed performance sync for all of them; `offline performance <id>` returns real data end-to-end where it previously returned empty/caveat responses. Full go build/vet/test suite passes, including tests for dry-run write suppression, placeholder-credential escalation, --global-param/--resource-param threading, and the single-fetch write-through fix."
+}

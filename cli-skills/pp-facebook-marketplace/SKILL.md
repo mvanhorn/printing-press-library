@@ -34,7 +34,7 @@ This skill drives the `facebook-marketplace-pp-cli` binary. **You must verify th
 2. Verify: `facebook-marketplace-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/commerce/facebook-marketplace/cmd/facebook-marketplace-pp-cli@latest
@@ -106,6 +106,7 @@ This CLI uses Chrome-compatible HTTP transport over HTTP/3 for browser-facing en
 **inbox** — Marketplace inbox and messaging operations.
 
 - `facebook-marketplace-pp-cli inbox list` — Fetch Marketplace inbox overview.
+- `facebook-marketplace-pp-cli inbox thread` — Fetch a direct Marketplace/Messenger thread by thread id.
 - `facebook-marketplace-pp-cli inbox message_seller` — Send a Marketplace seller message.
 - `facebook-marketplace-pp-cli inbox seller_threads` — Fetch Marketplace seller inbox threads.
 - `facebook-marketplace-pp-cli inbox seller_threads_page` — Fetch a page of Marketplace seller inbox threads.
@@ -159,6 +160,14 @@ facebook-marketplace-pp-cli watch add --name "eames" --query "eames lounge" --ma
 ```
 
 Stores deterministic filter criteria locally so future runs can compare new listings.
+
+### Read a direct Marketplace buyer thread
+
+```bash
+facebook-marketplace-pp-cli inbox thread --thread 27799138726406206 --agent
+```
+
+Reads the real Messenger thread route for a known Marketplace thread id and returns parsed summary plus message text, sender ids, and timestamps.
 
 ### Draft a seller listing
 

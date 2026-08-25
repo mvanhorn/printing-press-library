@@ -21,5 +21,7 @@ func newPostsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newPostsUnlikeCmd(flags))
 	cmd.AddCommand(newPostsUpdateCmd(flags))
 	cmd.AddCommand(newPostsTopCmd(flags))
+	// PATCH(amend-2026-08-12: hydrate posts and members)
+	cmd.AddCommand(newPostsListCmd(flags))
 	return cmd
 }

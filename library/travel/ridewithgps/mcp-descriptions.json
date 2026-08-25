@@ -1,0 +1,6 @@
+{
+  "descriptions": {
+    "users_get-current": "Fetch the profile of the account the API token belongs to (the whoami call). Takes no parameters. Returns the user object with id, name, and created/updated timestamps. Call this first to confirm which account is authenticated and to obtain the user id that other endpoints reference.",
+    "collections_get-pinned": "Fetch the single collection the authenticated user has pinned. Takes no parameters; returns 404 if nothing is pinned. Returns the collection object (id, name, visibility, description) together with the arrays of route and trip summaries it contains. Use this for the one pinned collection; list all of the user's collections via the collections list tool instead."
+  }
+}

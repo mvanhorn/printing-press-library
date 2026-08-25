@@ -1,0 +1,63 @@
+{
+  "manifest_version": "0.3",
+  "name": "finra-pp-mcp",
+  "display_name": "FINRA",
+  "version": "0.1.0",
+  "description": "Every FINRA Query API dataset, plus local trend detection and batch registration checks no other FINRA tool offers.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/finra-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/finra-pp-mcp",
+      "args": [],
+      "env": {
+        "FINRA_CLIENT_ID": "${user_config.finra_client_id}",
+        "FINRA_CLIENT_SECRET": "${user_config.finra_client_secret}",
+        "FINRA_OAUTH_SCOPE": "${user_config.finra_oauth_scope}",
+        "FINRA_USER_AGENT": "${user_config.finra_user_agent}"
+      }
+    }
+  },
+  "user_config": {
+    "finra_client_id": {
+      "type": "string",
+      "title": "FINRA_CLIENT_ID",
+      "description": "Sets FINRA_CLIENT_ID for the FINRA MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "finra_client_secret": {
+      "type": "string",
+      "title": "FINRA_CLIENT_SECRET",
+      "description": "Sets FINRA_CLIENT_SECRET for the FINRA MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "finra_oauth_scope": {
+      "type": "string",
+      "title": "FINRA_OAUTH_SCOPE",
+      "description": "Sets FINRA_OAUTH_SCOPE for the FINRA MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    },
+    "finra_user_agent": {
+      "type": "string",
+      "title": "FINRA_USER_AGENT",
+      "description": "Sets FINRA_USER_AGENT for the FINRA MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

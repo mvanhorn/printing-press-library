@@ -1,0 +1,272 @@
+{
+  "api_name": "axs",
+  "base_url": "https://nexus.quarqnet.com/api/v2",
+  "description": "SRAM AXS CLI for bikes, components, registrations, ride activities, and synced component-summary analytics.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {SRAM_AXS_TOKEN}",
+    "env_vars": [
+      "SRAM_AXS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SRAM_AXS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "axs-pp-cli/0.1 (+https://github.com/mvanhorn/printing-press-library)"
+    },
+    {
+      "name": "Accept",
+      "value": "application/json"
+    }
+  ],
+  "tools": [
+    {
+      "name": "account_accessgroups",
+      "description": "Get your public access groups. Returns array of AccessGroup.",
+      "method": "GET",
+      "path": "/users/self/public_accessgroups/",
+      "params": []
+    },
+    {
+      "name": "account_export",
+      "description": "Request a data export of your account. Returns the new User.",
+      "method": "POST",
+      "path": "/users/self/export/",
+      "params": []
+    },
+    {
+      "name": "account_flags",
+      "description": "Get your account feature flags. Returns the Flags.",
+      "method": "GET",
+      "path": "/users/self/flags/",
+      "params": []
+    },
+    {
+      "name": "account_profile",
+      "description": "Get the authenticated SRAM AXS account profile, including rider identity fields and account metadata returned by the profile endpoint. Returns the User.",
+      "method": "GET",
+      "path": "/users/self/",
+      "params": []
+    },
+    {
+      "name": "activities_list",
+      "description": "List your ride activities. Optional: page (default: 1), page-size (default: 50). Returns array of Activity.",
+      "method": "GET",
+      "path": "/activities/",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "activities_types",
+      "description": "List SRAM AXS activity type definitions used to classify synced ride activities and telemetry summaries. Returns array of ActivityType.",
+      "method": "GET",
+      "path": "/activitytypes/",
+      "params": []
+    },
+    {
+      "name": "bikes_get",
+      "description": "Get a bike by ID. Required: id. Returns the Bike.",
+      "method": "GET",
+      "path": "/bikes/{id}/",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Bike ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bikes_list",
+      "description": "List your registered bikes. Returns array of Bike.",
+      "method": "GET",
+      "path": "/bikes/",
+      "params": []
+    },
+    {
+      "name": "components_get",
+      "description": "Get a component by ID. Required: id. Returns the Component.",
+      "method": "GET",
+      "path": "/components/{id}/",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Component ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "components_list",
+      "description": "List your AXS components. Returns array of Component.",
+      "method": "GET",
+      "path": "/components/",
+      "params": []
+    },
+    {
+      "name": "devicetypes_list",
+      "description": "List all AXS device types. Returns array of DeviceType. (public)",
+      "method": "GET",
+      "path": "/devicetypes/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "linkedids_list",
+      "description": "List your linked third-party accounts. Returns array of LinkedID.",
+      "method": "GET",
+      "path": "/linkedids/",
+      "params": []
+    },
+    {
+      "name": "linkedids_unlink",
+      "description": "Unlink a connected third-party account, such as a Strava integration, by linked account ID. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/linkedids/{id}/",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Linked account ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "models_list",
+      "description": "List component models and latest firmware versions. Returns array of Model.",
+      "method": "GET",
+      "path": "/models/",
+      "params": []
+    },
+    {
+      "name": "notifications_list",
+      "description": "List SRAM AXS account notifications for the authenticated rider, including notification IDs, titles, bodies, and timestamps when available. Returns array of Notification.",
+      "method": "GET",
+      "path": "/notifications/",
+      "params": []
+    },
+    {
+      "name": "products_get",
+      "description": "Get product detail by product ID. Required: id. Returns the Product.",
+      "method": "GET",
+      "path": "/productdetails/{id}/",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Product ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "registrations_create",
+      "description": "Register a component to your account by serial number. Required: serial. Optional: email. Returns the new Component.",
+      "method": "POST",
+      "path": "/componentregistrations/",
+      "params": [
+        {
+          "name": "serial",
+          "type": "string",
+          "location": "body",
+          "description": "Component serial number (printed on the component)",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Account email (defaults to the authenticated user)"
+        }
+      ]
+    },
+    {
+      "name": "stats_get",
+      "description": "Get your aggregate riding stats. Returns the Stats.",
+      "method": "GET",
+      "path": "/users/self/stats/",
+      "params": []
+    },
+    {
+      "name": "summaries_activities",
+      "description": "List per-activity summaries. Optional: page (default: 1), page-size (default: 50). Returns array of ActivitySummary.",
+      "method": "GET",
+      "path": "/activitysummaries/",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "summaries_components",
+      "description": "List component usage summaries (wear, shift counts, distance). Returns array of ComponentSummary.",
+      "method": "GET",
+      "path": "/componentsummaries/",
+      "params": []
+    },
+    {
+      "name": "units_list",
+      "description": "List advanced measurement units. Optional: page (default: 1), page-size (default: 100). Returns array of Unit.",
+      "method": "GET",
+      "path": "/advancedunits/",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (DRF pagination)"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    }
+  ]
+}

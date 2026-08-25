@@ -1,0 +1,939 @@
+# SAP Concur internal spec for printing-press generation.
+#
+# LIVE-VERIFIED 2026-08-17 (cookie-session auth against a real us2 tenant).
+# The single biggest open question from the original generation run --
+# "does cookie auth reach these REST paths at all" -- is RESOLVED: YES, for
+# a specific subset. Findings:
+#
+# - CONFIRMED WORKING under cookie auth (HTTP 200, live data or valid empty
+#   result): account.whoami, account.travel[NO -- see AUTH-GATED below],
+#   payment_types.list, expense_types.list, reports.list, reports.get,
+#   requests.list, locations.search, travel_allowance.get.
+# - CONFIRMED AUTH-GATED -- path is now correct, cookie session structurally
+#   cannot satisfy the auth requirement (not a bug, a real API boundary):
+#   - delegates.list, account.travel: legacy v1.1/v2.0 APIs on a DIFFERENT
+#     host (www.concursolutions.com, not www-us2.api.concursolutions.com).
+#     401 "Invalid headers" -- this legacy host doesn't recognize the modern
+#     web-session cookie at all. Needs an OAuth2 access token.
+#   - attendee_types.list: modern v4 host, but requires a company-token
+#     OAuth consumer holding an admin role (Web Services Administrator /
+#     Expense Configuration Admin). 403 with that exact message. A personal
+#     cookie session can never hold an OAuth-consumer admin-role grant.
+#   - trips.*: Itinerary v4's own docs state "This API supports only
+#     company access tokens" -- same structural ceiling as attendee_types.
+#     The doc's example host (us.api.concursolutions.com, no "www-", no
+#     datacenter code) also differs from base_url; 404 confirmed live.
+# - CONFIRMED WRONG / NO ALTERNATIVE FOUND: available_expenses.* -- no
+#   official API surface exists for this web-UI-only concept (confirmed
+#   both by the Aug 12 discovery report and a live 404 against the
+#   generated path). Resolving this requires either GraphQL discovery
+#   (the actual web app's /cds/graphql BFF) or accepting the feature is
+#   unavailable via REST. Out of scope for this pass -- see Known Gaps.
+#
+# Practical implication: this CLI's viable cookie-auth feature set is real
+# reports/expenses/policy-config data plus travel requests, locations, and
+# per-diem calculations. Delegate management, admin-scoped attendee-type
+# config, and trip/itinerary data require a registered OAuth2 app (partner
+# API credentials) regardless of any path fix -- document this plainly to
+# users rather than let the commands fail mysteriously.
+
+name: concur
+description: "SAP Concur expense report and travel CLI"
+category: accounting
+version: "0.1.0"
+base_url: "https://www-us2.api.concursolutions.com"
+health_check_path: "/messagenexus/v1/messages/newMessageCount"
+
+auth:
+  type: cookie
+  cookie_domain: concursolutions.com
+  cookies:
+    - JWT
+    - _csrf
+  login_url: "https://www.concursolutions.com/"
+  jwt_carrier_cookie: JWT
+
+learn:
+  stopwords:
+    - expense
+    - report
+    - concur
+  synonyms:
+    "expense report": "report"
+    "unfiled expenses": "available expenses"
+    "per diem": "travel allowance"
+
+config:
+  format: toml
+  path: "~/.config/concur-pp-cli/config.toml"
+
+resources:
+  account:
+    description: "Current user profile, policies, and delegate context"
+    endpoints:
+      whoami:
+        method: GET
+        path: "/profile/v1/me"
+        description: "Get the current user's profile, addresses, and travel IDs"
+        response:
+          type: object
+          item: Profile
+      travel:
+        method: GET
+        # CONFIRMED via developer.concur.com "Travel Profile v2 - Resource":
+        # legacy API on a different host than base_url (www.concursolutions.com,
+        # not www-us2.api.concursolutions.com). LIVE-TESTED 2026-08-17: returns
+        # HTTP 401 "Invalid headers" under cookie-session auth -- this legacy
+        # host does not recognize the modern web-session cookie at all.
+        # Requires an OAuth2 access token; not reachable via cookie auth.
+        path: "https://www.concursolutions.com/api/travelprofile/v2.0/profile"
+        description: "Get the current user's travel profile and loyalty programs (AUTH-GATED: requires OAuth2, cookie session returns 401)"
+        params:
+          - name: user_id
+            flag_name: user-id
+            type: string
+            required: false
+            description: "Optional: look up another user's profile by UUID (requires a company-level token; omit for your own profile)"
+        response:
+          type: object
+          item: TravelProfile
+
+  expense_types:
+    description: "Expense type catalog and per-type dynamic form fields"
+    endpoints:
+      list:
+        method: GET
+        path: "/expenseconfig/v4/expensetypes"
+        description: "List usable expense types for the current user's policy"
+        response:
+          type: array
+          item: ExpenseType
+      fields:
+        method: GET
+        path: "/expenseconfig/v4/expensetypes/{expense_type_id}/formfields"
+        description: "Get the dynamic form fields required for an expense type"
+        params:
+          - name: expense_type_id
+            type: string
+            required: true
+            positional: true
+            description: "Expense type ID (from 'expense-types list')"
+        response:
+          type: array
+          item: FormField
+
+  lists:
+    description: "Valid values for list-type expense form fields"
+    endpoints:
+      values:
+        method: GET
+        path: "/list/v4/items"
+        description: "Get valid values for a list-type form field by list ID"
+        params:
+          - name: list_id
+            flag_name: list-id
+            type: string
+            required: true
+            description: "The listId from a list-type field definition"
+        response:
+          type: array
+          item: ListValue
+
+  payment_types:
+    description: "Payment type catalog (Cash, Company Card, etc.)"
+    endpoints:
+      list:
+        method: GET
+        path: "/expenseconfig/v4/paymenttypes"
+        description: "List payment types available to the current user"
+        response:
+          type: array
+          item: PaymentType
+
+  attendee_types:
+    description: "Attendee type catalog (Business Guest, Spouse, etc.)"
+    endpoints:
+      list:
+        method: GET
+        # CONFIRMED via developer.concur.com "Attendee Types v4": top-level
+        # /v4/attendeetypes, not nested under /expenseconfig/. LIVE-TESTED
+        # 2026-08-17: returns HTTP 403 under cookie-session auth --
+        # "The OAuth Consumer must have one of these roles: Web Services
+        # Administrator, Expense Configuration Admin, or Expense
+        # Configuration Restricted." Matches the docs' stated requirement
+        # ("This API only supports company access tokens"): a personal
+        # cookie session cannot hold an admin-role OAuth consumer grant.
+        path: "/v4/attendeetypes"
+        description: "List attendee types configured for the current user (AUTH-GATED: requires a company-token OAuth consumer with an admin role; cookie session returns 403)"
+        response:
+          type: array
+          item: AttendeeType
+
+  locations:
+    description: "Location catalog for filling expense/attendee location fields"
+    endpoints:
+      search:
+        method: GET
+        # CONFIRMED via developer.concur.com "Localities v5": resource is
+        # /localities/v5/locations (not /locations/v4/), free-text param is
+        # searchText (not query). LIVE-TESTED 2026-08-17: HTTP 200 under
+        # cookie-session auth (docs confirm this API supports user-level
+        # tokens, not just company tokens).
+        path: "/localities/v5/locations"
+        description: "Search the location catalog by city or venue name"
+        params:
+          - name: query
+            flag_name: query
+            type: string
+            required: true
+            positional: true
+            description: "City or venue name to search for (sent as searchText)"
+        response:
+          type: array
+          item: Location
+
+  reports:
+    description: "Expense report headers and lifecycle"
+    endpoints:
+      list:
+        method: GET
+        path: "/expensereports/v4/users/{user_id}/context/{context_type}/reports"
+        description: "List the current user's expense reports"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            description: "Concur user ID (from 'account whoami')"
+          - name: context_type
+            flag_name: context-type
+            type: string
+            default: TRAVELER
+            enum: [TRAVELER, MANAGER, PROCESSOR, PROXY]
+            description: "Access level context for the request"
+          - name: status
+            type: string
+            required: false
+            description: "Filter by approval status"
+          - name: created_after
+            flag_name: created-after
+            type: string
+            format: date-time
+            required: false
+            description: "Only return reports created after this date"
+        response:
+          type: array
+          item: ReportSummary
+        pagination:
+          type: page_token
+          has_more_field: "hasMore"
+      get:
+        method: GET
+        path: "/expensereports/v4/users/{user_id}/context/{context_type}/reports/{report_id}"
+        description: "Get a report's header, expenses, and web deep link"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            description: "Concur user ID (from 'account whoami')"
+          - name: context_type
+            flag_name: context-type
+            type: string
+            default: TRAVELER
+            enum: [TRAVELER, MANAGER, PROCESSOR, PROXY]
+            description: "Access level context for the request"
+          - name: report_id
+            flag_name: report-id
+            type: string
+            required: true
+            positional: true
+            description: "Report ID"
+        response:
+          type: object
+          item: Report
+      create:
+        method: POST
+        path: "/expensereports/v4/users/{user_id}/context/{context_type}/reports"
+        description: "Create a new expense report header"
+        example: "  concur-pp-cli reports create --name \"October Travel\" --purpose \"Client site visit\""
+        params:
+          - name: user_id
+            type: string
+            required: true
+            description: "Concur user ID (from 'account whoami')"
+          - name: context_type
+            flag_name: context-type
+            type: string
+            default: TRAVELER
+            enum: [TRAVELER, MANAGER, PROCESSOR, PROXY]
+            description: "Access level context for the request"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Report name"
+          - name: businessPurpose
+            flag_name: purpose
+            type: string
+            required: false
+            description: "Business purpose for the report"
+        response:
+          type: object
+          item: Report
+      update:
+        method: PUT
+        path: "/expensereports/v4/users/{user_id}/context/{context_type}/reports/{report_id}"
+        description: "Update a report's name or business purpose"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            description: "Concur user ID (from 'account whoami')"
+          - name: context_type
+            flag_name: context-type
+            type: string
+            default: TRAVELER
+            enum: [TRAVELER, MANAGER, PROCESSOR, PROXY]
+            description: "Access level context for the request"
+          - name: report_id
+            flag_name: report-id
+            type: string
+            required: true
+            positional: true
+            description: "Report ID"
+        body:
+          - name: name
+            type: string
+            required: false
+            description: "New report name"
+          - name: businessPurpose
+            flag_name: purpose
+            type: string
+            required: false
+            description: "New business purpose"
+        response:
+          type: object
+          item: Report
+      form_fields:
+        method: GET
+        path: "/expenseconfig/v4/reportformfields"
+        description: "Get report-header form fields (name, business purpose, custom fields) for the current policy"
+        response:
+          type: array
+          item: FormField
+      submit:
+        method: POST
+        path: "/expensereports/v4/users/{user_id}/context/{context_type}/reports/{report_id}/submit"
+        description: "Submit a report for approval"
+        mutation: true
+        params:
+          - name: user_id
+            type: string
+            required: true
+            description: "Concur user ID (from 'account whoami')"
+          - name: context_type
+            flag_name: context-type
+            type: string
+            default: TRAVELER
+            enum: [TRAVELER, MANAGER, PROCESSOR, PROXY]
+            description: "Access level context for the request"
+          - name: report_id
+            flag_name: report-id
+            type: string
+            required: true
+            positional: true
+            description: "Report ID to submit"
+        response:
+          type: object
+          item: Report
+
+  expenses:
+    description: "Expense line items within a report"
+    endpoints:
+      get:
+        method: GET
+        path: "/expensereports/v4/users/{user_id}/context/{context_type}/reports/{report_id}/expenses/{expense_id}"
+        description: "Get a single expense with its filled/empty field manifest"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            description: "Concur user ID (from 'account whoami')"
+          - name: context_type
+            flag_name: context-type
+            type: string
+            default: TRAVELER
+            enum: [TRAVELER, MANAGER, PROCESSOR, PROXY]
+            description: "Access level context for the request"
+          - name: report_id
+            flag_name: report-id
+            type: string
+            required: true
+            description: "Parent report ID"
+          - name: expense_id
+            flag_name: expense-id
+            type: string
+            required: true
+            positional: true
+            description: "Expense ID"
+        response:
+          type: object
+          item: Expense
+      create:
+        method: POST
+        path: "/expensereports/v4/users/{user_id}/context/{context_type}/reports/{report_id}/expenses"
+        description: "Create an expense inside a report (core v3-equivalent fields: type, date, amount, currency, payment type)"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            description: "Concur user ID (from 'account whoami')"
+          - name: context_type
+            flag_name: context-type
+            type: string
+            default: TRAVELER
+            enum: [TRAVELER, MANAGER, PROCESSOR, PROXY]
+            description: "Access level context for the request"
+          - name: report_id
+            flag_name: report-id
+            type: string
+            required: true
+            description: "Parent report ID"
+        body:
+          - name: expenseTypeCode
+            flag_name: type
+            type: string
+            required: true
+            description: "Expense type code (from 'expense-types list')"
+          - name: transactionDate
+            flag_name: date
+            type: string
+            format: date
+            required: true
+            description: "Transaction date (YYYY-MM-DD)"
+          - name: transactionAmount
+            flag_name: amount
+            type: float
+            required: true
+            description: "Transaction amount"
+          - name: transactionCurrencyCode
+            flag_name: currency
+            type: string
+            default: USD
+            description: "Transaction currency code"
+          - name: paymentTypeId
+            flag_name: payment-type
+            type: string
+            required: false
+            description: "Payment type ID (from 'payment-types list')"
+          - name: vendorDescription
+            flag_name: vendor
+            type: string
+            required: false
+            description: "Vendor/merchant name"
+        response:
+          type: object
+          item: Expense
+      update:
+        method: PATCH
+        path: "/expensereports/v4/users/{user_id}/context/{context_type}/reports/{report_id}/expenses/{expense_id}"
+        description: "Fill or change writable fields on an expense (core + custom/list fields)"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            description: "Concur user ID (from 'account whoami')"
+          - name: context_type
+            flag_name: context-type
+            type: string
+            default: TRAVELER
+            enum: [TRAVELER, MANAGER, PROCESSOR, PROXY]
+            description: "Access level context for the request"
+          - name: report_id
+            flag_name: report-id
+            type: string
+            required: true
+            description: "Parent report ID"
+          - name: expense_id
+            flag_name: expense-id
+            type: string
+            required: true
+            positional: true
+            description: "Expense ID"
+        body:
+          - name: businessPurpose
+            flag_name: purpose
+            type: string
+            required: false
+            description: "Business purpose for this expense"
+          - name: comment
+            type: string
+            required: false
+            description: "Comment/note on this expense"
+          - name: customData
+            flag_name: custom-fields
+            type: string
+            required: false
+            description: "JSON-encoded custom/list field values (id/value pairs)"
+        response:
+          type: object
+          item: Expense
+
+  attendees:
+    description: "Attendee catalog and per-expense attendee associations"
+    endpoints:
+      search:
+        method: GET
+        path: "/attendees/v4/attendees"
+        description: "Search the attendee catalog by name, company, or externalId (exact type/externalId match, or fuzzy substring on cached guests)"
+        params:
+          - name: search
+            type: string
+            required: false
+            description: "Fuzzy substring to search name/company/externalId"
+          - name: attendee_type_id
+            flag_name: type-id
+            type: string
+            required: false
+            description: "Exact attendee type ID filter"
+        response:
+          type: array
+          item: Attendee
+      list:
+        method: GET
+        path: "/expensereports/v4/users/{user_id}/context/{context_type}/reports/{report_id}/expenses/{expense_id}/attendees"
+        description: "Get attendees currently associated with an expense"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            description: "Concur user ID (from 'account whoami')"
+          - name: context_type
+            flag_name: context-type
+            type: string
+            default: TRAVELER
+            enum: [TRAVELER, MANAGER, PROCESSOR, PROXY]
+            description: "Access level context for the request"
+          - name: report_id
+            flag_name: report-id
+            type: string
+            required: true
+            description: "Parent report ID"
+          - name: expense_id
+            flag_name: expense-id
+            type: string
+            required: true
+            positional: true
+            description: "Expense ID"
+        response:
+          type: array
+          item: Attendee
+      add:
+        method: POST
+        path: "/expensereports/v4/users/{user_id}/context/{context_type}/reports/{report_id}/expenses/{expense_id}/attendees"
+        description: "Add attendees to an expense (merge-preserves existing associations; Concur's underlying association call is a replace, so this reads first then re-POSTs the union)"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            description: "Concur user ID (from 'account whoami')"
+          - name: context_type
+            flag_name: context-type
+            type: string
+            default: TRAVELER
+            enum: [TRAVELER, MANAGER, PROCESSOR, PROXY]
+            description: "Access level context for the request"
+          - name: report_id
+            flag_name: report-id
+            type: string
+            required: true
+            description: "Parent report ID"
+          - name: expense_id
+            flag_name: expense-id
+            type: string
+            required: true
+            description: "Expense ID"
+        body:
+          - name: email
+            type: string
+            required: false
+            description: "Attendee email (matched to employee login, else guest externalId)"
+          - name: lastName
+            flag_name: last-name
+            type: string
+            required: false
+            description: "Attendee last name (required with attendeeTypeCode when creating a new guest)"
+          - name: attendeeTypeCode
+            flag_name: attendee-type
+            type: string
+            required: false
+            description: "Attendee type code (from 'attendee-types list')"
+          - name: transactionAmount
+            flag_name: amount
+            type: float
+            required: false
+            description: "This attendee's share of the amount (omit to auto-split evenly)"
+        response:
+          type: object
+          item: Expense
+
+  receipts:
+    description: "Receipt image/PDF attachment"
+    endpoints:
+      attach:
+        method: POST
+        path: "/receiptimages/v1/{expense_id}"
+        description: "Attach a receipt image or PDF to an expense"
+        params:
+          - name: expense_id
+            flag_name: expense-id
+            type: string
+            required: true
+            positional: true
+            description: "Expense ID to attach the receipt to"
+          - name: file_path
+            flag_name: file
+            type: string
+            required: true
+            description: "Local path to the receipt image or PDF"
+        response_format: binary
+        response:
+          type: object
+          item: Receipt
+
+  delegates:
+    description: "Delegate (act-on-behalf-of) relationships"
+    endpoints:
+      list:
+        method: GET
+        # CONFIRMED via developer.concur.com "Expense Delegators v1.1": legacy
+        # API on a different host than base_url (www.concursolutions.com, not
+        # www-us2.api.concursolutions.com); native response is XML, not JSON.
+        # LIVE-TESTED 2026-08-17: HTTP 401 "Invalid headers" under
+        # cookie-session auth -- this legacy host does not recognize the
+        # modern web-session cookie at all. Requires an OAuth2 access token.
+        path: "https://www.concursolutions.com/api/expense/expensereport/v1.1/delegators"
+        description: "List users the current session user delegates for, with permission flags (AUTH-GATED: requires OAuth2, cookie session returns 401)"
+        response:
+          type: array
+          item: Delegator
+
+  available_expenses:
+    description: "Unfiled corporate-card charges and e-receipts not yet on a report (CONFIRMED 404 live 2026-08-17 -- no official REST/GraphQL surface found; see spec header notes and Known Gaps)"
+    endpoints:
+      list:
+        method: GET
+        path: "/expense/v4/users/{user_id}/availableexpenses"
+        description: "List expenses available to add to a report (imported card charges, e-receipts)"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            description: "Concur user ID (from 'account whoami')"
+        response:
+          type: array
+          item: AvailableExpense
+      move:
+        method: POST
+        path: "/expense/v4/users/{user_id}/availableexpenses/move"
+        description: "Move available expenses onto a report"
+        mutation: true
+        params:
+          - name: user_id
+            type: string
+            required: true
+            description: "Concur user ID (from 'account whoami')"
+          - name: report_id
+            flag_name: to-report
+            type: string
+            required: true
+            description: "Destination report ID"
+          - name: expense_ids
+            flag_name: expense-ids
+            type: string
+            required: false
+            description: "Comma-separated available-expense IDs to move (omit to move all)"
+        response:
+          type: object
+          item: Report
+
+  trips:
+    description: "Booked trips and itineraries (AUTH-GATED: Itinerary v4 supports only company-level OAuth tokens per developer.concur.com; 404 confirmed live under cookie auth 2026-08-17 -- see spec header notes)"
+    endpoints:
+      list:
+        method: GET
+        path: "/travel/v4/trips"
+        description: "List the current user's upcoming and past trips"
+        params:
+          - name: user_id
+            flag_name: user-id
+            type: string
+            required: false
+            description: "Concur user ID (defaults to current user)"
+        response:
+          type: array
+          item: Trip
+        pagination:
+          type: page_token
+          has_more_field: "hasMore"
+      get:
+        method: GET
+        path: "/travel/v4/trips/{trip_id}"
+        description: "Get a trip's itinerary detail"
+        params:
+          - name: trip_id
+            flag_name: trip-id
+            type: string
+            required: true
+            positional: true
+            description: "Trip ID"
+        response:
+          type: object
+          item: Trip
+
+  travel_allowance:
+    description: "Per-diem / travel allowance calculations"
+    endpoints:
+      get:
+        method: GET
+        # CONFIRMED via developer.concur.com "Travel Allowance v4 -
+        # Calculation Results": keyed by (userId, context, contextId) where
+        # context is the OWNING expense report or travel request -- NOT a
+        # trip/itinerary ID as originally generated (Concur computes travel
+        # allowance per expense-report/request context). LIVE-TESTED
+        # 2026-08-17 against a real report: HTTP 200, exact schema match.
+        path: "/travelallowance/v4/users/{user_id}/contexts/{context}/{context_id}/calculationresultdetails"
+        description: "Get travel allowance (per-diem) calculation results for an expense report or travel request"
+        params:
+          - name: context
+            type: string
+            required: true
+            positional: true
+            description: "EXPENSE_REPORT or TRAVEL_REQUEST"
+          - name: context_id
+            type: string
+            required: true
+            positional: true
+            description: "The report or request ID these results belong to"
+          - name: user_id
+            flag_name: user-id
+            type: string
+            required: true
+            description: "Concur user ID who owns the report/request (from 'account whoami')"
+        response:
+          type: object
+          item: TravelAllowance
+
+  requests:
+    description: "Travel requests / pre-trip authorization (UNVERIFIED paths -- see spec header notes)"
+    endpoints:
+      list:
+        method: GET
+        path: "/travelrequest/v4/requests"
+        description: "List the current user's travel requests"
+        response:
+          type: array
+          item: TravelRequest
+      get:
+        method: GET
+        path: "/travelrequest/v4/requests/{request_id}"
+        description: "Get a travel request's detail and workflow status"
+        params:
+          - name: request_id
+            flag_name: request-id
+            type: string
+            required: true
+            positional: true
+            description: "Travel request ID"
+        response:
+          type: object
+          item: TravelRequest
+
+types:
+  Profile:
+    fields:
+      - name: loginName
+        type: string
+      - name: travelIds
+        type: string
+  TravelProfile:
+    fields:
+      - name: userId
+        type: string
+      - name: loyaltyPrograms
+        type: string
+  ExpenseType:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: code
+        type: string
+  FormField:
+    fields:
+      - name: id
+        type: string
+      - name: label
+        type: string
+      - name: fieldType
+        type: string
+      - name: required
+        type: bool
+      - name: listId
+        type: string
+  ListValue:
+    fields:
+      - name: id
+        type: string
+      - name: code
+        type: string
+      - name: value
+        type: string
+  PaymentType:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+  AttendeeType:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: code
+        type: string
+  Location:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: city
+        type: string
+      - name: country
+        type: string
+  ReportSummary:
+    fields:
+      - name: reportId
+        type: string
+      - name: name
+        type: string
+      - name: approvalStatus
+        type: string
+      - name: total
+        type: float
+      - name: currencyCode
+        type: string
+  Report:
+    fields:
+      - name: reportId
+        type: string
+      - name: name
+        type: string
+      - name: businessPurpose
+        type: string
+      - name: approvalStatus
+        type: string
+      - name: approvalStatusId
+        type: string
+      - name: paymentStatus
+        type: string
+      - name: total
+        type: float
+      - name: currencyCode
+        type: string
+      - name: webUrl
+        type: string
+  Expense:
+    fields:
+      - name: expenseId
+        type: string
+      - name: expenseTypeCode
+        type: string
+      - name: transactionDate
+        type: string
+      - name: transactionAmount
+        type: float
+      - name: transactionCurrencyCode
+        type: string
+      - name: vendorDescription
+        type: string
+      - name: businessPurpose
+        type: string
+      - name: hasException
+        type: bool
+  Attendee:
+    fields:
+      - name: attendeeId
+        type: string
+      - name: firstName
+        type: string
+      - name: lastName
+        type: string
+      - name: attendeeTypeCode
+        type: string
+      - name: transactionAmount
+        type: float
+  Receipt:
+    fields:
+      - name: receiptId
+        type: string
+      - name: imageUrl
+        type: string
+  Delegator:
+    fields:
+      - name: userId
+        type: string
+      - name: name
+        type: string
+      - name: canPrepare
+        type: bool
+      - name: canSubmit
+        type: bool
+      - name: canViewReceipts
+        type: bool
+  AvailableExpense:
+    fields:
+      - name: expenseId
+        type: string
+      - name: vendorDescription
+        type: string
+      - name: transactionAmount
+        type: float
+      - name: transactionDate
+        type: string
+      - name: expenseTypeCode
+        type: string
+  Trip:
+    fields:
+      - name: tripId
+        type: string
+      - name: name
+        type: string
+      - name: startDate
+        type: string
+      - name: endDate
+        type: string
+      - name: status
+        type: string
+  TravelAllowance:
+    fields:
+      - name: tripId
+        type: string
+      - name: totalAllowance
+        type: float
+      - name: currencyCode
+        type: string
+  TravelRequest:
+    fields:
+      - name: requestId
+        type: string
+      - name: name
+        type: string
+      - name: status
+        type: string
+      - name: startDate
+        type: string
+      - name: endDate
+        type: string

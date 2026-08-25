@@ -1,0 +1,20 @@
+openapi: 3.0.3
+info:
+  title: ihatepdf.cv Local Document Toolkit
+  version: 1.0.0
+  description: Private local PDF operations inspired by ihatepdf.cv. The website has no document HTTP API; this spec provides a harmless health endpoint while custom commands perform local file work.
+servers:
+  - url: https://www.ihatepdf.cv
+paths:
+  /merge-pdf:
+    get:
+      operationId: mergePdfPage
+      summary: Check the ihatepdf.cv website
+      responses:
+        '200':
+          description: Website HTML shell
+          content:
+            text/html:
+              schema:
+                type: string
+components: {}

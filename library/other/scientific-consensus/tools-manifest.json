@@ -1,0 +1,311 @@
+{
+  "api_name": "scientific-consensus",
+  "base_url": "https://api.openalex.org",
+  "description": "Aggregate PubMed, OpenAlex, Crossref, and Europe PMC into evidence summaries, consensus scores, and study-design pyramids no single search tool produces.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "authors_get",
+      "description": "Get a single author by OpenAlex ID. Required: id. Returns array of AuthorsGetItem.",
+      "method": "GET",
+      "path": "/authors/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "OpenAlex author ID (A...)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "authors_search",
+      "description": "Search authors. Optional: search, filter, group_by (plus 2 more). Returns array of Author.",
+      "method": "GET",
+      "path": "/authors",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Author name search"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "OpenAlex author filter (e.g. last_known_institutions.id:I27837315)"
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group into facet counts (e.g. group_by=last_known_institutions.id)"
+        },
+        {
+          "name": "per-page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "funders_search",
+      "description": "Search funders. Optional: search, filter, per-page (default: 25) (plus 1 more). Returns array of Funder.",
+      "method": "GET",
+      "path": "/funders",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "per-page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "institutions_get",
+      "description": "Get a single institution by OpenAlex ID. Required: id. Returns the Institution.",
+      "method": "GET",
+      "path": "/institutions/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "institutions_search",
+      "description": "Search institutions. Optional: search, filter, group_by (plus 2 more). Returns array of Institution.",
+      "method": "GET",
+      "path": "/institutions",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "OpenAlex institution filter (e.g. country_code:us)"
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group by"
+        },
+        {
+          "name": "per-page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "sources_get",
+      "description": "Get a journal (source) by ISSN or OpenAlex ID. Required: id. Returns the Source.",
+      "method": "GET",
+      "path": "/sources/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ISSN prefixed issn: (e.g. issn:0140-6736) or OpenAlex source ID (S...)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sources_search",
+      "description": "Search sources (journals). Optional: search, filter, group_by (plus 2 more). Returns array of Source.",
+      "method": "GET",
+      "path": "/sources",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group by"
+        },
+        {
+          "name": "per-page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "topics_search",
+      "description": "Search topics. Optional: search, filter, per-page (default: 25) (plus 1 more). Returns array of Topic.",
+      "method": "GET",
+      "path": "/topics",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "per-page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "works_get",
+      "description": "Get a single work by OpenAlex ID, DOI, or PMID. Required: id. Returns array of WorksGetItem.",
+      "method": "GET",
+      "path": "/works/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "OpenAlex work ID (W...), DOI prefixed doi:, or PMID prefixed pmid:",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "works_search",
+      "description": "Search scholarly works. Optional: search, filter, sort (plus 4 more). Returns array of Work.",
+      "method": "GET",
+      "path": "/works",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across title, abstract, and fulltext"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "OpenAlex filter expression. Scope by date with from_publication_date:2023-01-01,to_publication_date:2024-12-31, open access with is_oa:true, type with type:review, or topic with primary_topic.id:T10906."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order for results"
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group results into facet counts instead of returning works. Use for analytics, e.g. group_by=publication_year, group_by=type, group_by=authorships.institutions.id, group_by=primary_topic.id."
+        },
+        {
+          "name": "per-page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination"
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated fields to return (reduces payload size)"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-iter-data-gurs",
+  "applied_at": "2026-08-16",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "La data che segue una preposizione pendente resta attaccata alla frase dell'evento invece di essere letta come l'inizio dell'evento dopo. In pratica: «Pubblicazione Gurs n. 10 del» torna a essere «Pubblicazione Gurs n. 10 del 24 febbraio 2026».",
+  "reason": "reIterDate spezza la regione di stato a ogni data, e la data della pubblicazione in Gurs sta DENTRO la frase dell'evento, non al suo inizio: l'azione veniva quindi tagliata su «del» e l'evento che ne restava (azione vuota) cadeva sul guardiano `if action == \"\"`. Il risultato era una stringa che finiva a meta' e leggeva come un troncamento del parser — il report `docs/news-agent/2026-08-16_11-23.md` l'ha infatti registrata come «data assente». Si riattacca la sola data e non tutto il testo fino alla successiva, cosi' l'evento i+1 resta al suo posto con cio' che segue: e' la stessa logica di slicing che aveva prodotto l'evento fantasma del ddl 738, e allargarla di piu' l'avrebbe riaperta. Il vincolo e' stretto — solo un'azione che finisce su del/dal/nel — e sui 18 iter di controllo le uniche azioni che finiscono cosi' sono le 13 pubblicazioni in Gurs. Onesta' sul valore: la data recuperata coincide sempre con la data dell'evento nel campione, quindi non e' informazione che mancava ma un'apparenza di troncamento che faceva registrare un difetto inesistente. Il numero non e' corrotto: «44o1», «56o», «02o» sono la notazione del portale per i supplementi — verificato sul testo di legge, la Gurs della L.R. 19/2020 e' la n. 44 del 21/08/2020 («Gazzetta Ufficiale Regione Siciliana 21 08 2020 n. 44»).",
+  "files": [
+    "internal/cli/ddl_iter.go",
+    "internal/cli/ddl_iter_parse_test.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "Confronto binario post-F1 / post-F2 sugli stessi 18 casi (10 `ddl iter` e 8 `legge cronologia`, leg. XVI-XVIII). Ogni campo diverso da `titolo` e' byte-identico: stesso numero di eventi, stesse date, stesse sedi, stessi url. Nessun evento fantasma: la finestra [min, max] di `data_iso` e' identica prima e dopo su tutti e 10 gli iter. Cambiano solo le pubblicazioni in Gurs, che passano da «Pubblicazione Gurs n. 14 del» a «Pubblicazione Gurs n. 14 del 21 marzo 2025» (e omologhi per le leg. XVI e XVII). go build, go vet e go test ./... verdi; binario reinstallato in ~/.local/bin."
+}

@@ -9,10 +9,11 @@ import (
 
 func newAiCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "ai",
-		Short:  "List, get, create, update, and delete ai",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "ai",
+		Short:       "List, get, create, update, and delete ai",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newAiCreateContentImportSourceCmd(flags))

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "api-sync-survives-unreadable-cache",
+  "applied_at": "2026-08-03",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "summary": "An unreadable desktop cache degrades the sync run instead of ending it, and a degraded run must never retire its own rows.",
+  "reason": "The document-fetch path uses the cache only as a destination for the documents it pulls from the API, so it has no real dependency on decrypted content. Aborting on cache-open therefore stranded the one path that still works on a migrated install. Degrading naively is worse than aborting, though: SyncFromCache reads an absent cache-derived row as deleted-upstream and retires it, so an empty cache would clear every cache-owned folder membership and every cache-owned transcript for each meeting the API returned -- rows that can never be re-synced once the key is out of reach. Degraded mode is upsert-only. Degradation is also gated on a classified migration, so a plain key-unavailable error keeps its working remedy instead of hiding behind a silently thinner sync.",
+  "validated_outcome": "Against a real 992-meeting store: a degraded run added 95 meetings while leaving 5385 cache-owned transcript segments and 153 cache-owned folder memberships untouched. The paired healthy-sync test asserts the retirement still happens when the cache is genuinely readable.",
+  "files": [
+    "internal/granola/store_sync.go",
+    "internal/cli/sync_cache.go",
+    "internal/cli/autorefresh.go"
+  ]
+}

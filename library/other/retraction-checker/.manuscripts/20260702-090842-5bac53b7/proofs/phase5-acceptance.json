@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "retraction-checker",
+  "run_id": "20260702-090842-5bac53b7",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 46,
+  "tests_passed": 46,
+  "tests_skipped": 35,
+  "auth_context": {
+    "type": "none"
+  }
+}

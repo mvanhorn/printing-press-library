@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-07-03",
+  "base_run_id": "20260517-193731",
+  "base_printing_press_version": "4.8.0",
+  "patches": [
+    {
+      "id": "which-cadastral-reference-to-gps",
+      "summary": "Align capability discovery with the real Catasto commands so Comune/Foglio/Particella to GPS resolves to cadastral.",
+      "reason": "The generated which index included unavailable placeholder commands and missed the existing cadastral reverse lookup capability.",
+      "files": [
+        "SKILL.md",
+        ".manuscripts/20260517-193731/proofs/phase5-acceptance.json",
+        "go.mod",
+        "internal/cli/which.go",
+        "internal/cli/which_test.go",
+        "internal/ondata/ondata.go",
+        "internal/ondata/ondata_test.go"
+      ],
+      "validated_outcome": "go test ./... passes; cli-printing-press publish validate passes; rebuilt ./catasto-pp-cli; which query for Comune Foglio Particella Geolocalizzazione GPS returns cadastral first; missing mapped parcels now explain Catasto Fabbricati/geometry dataset distinction."
+    },
+    {
+      "id": "sync-latest-only-agent-warning",
+      "summary": "Emit a structured warning when --since takes precedence over --latest-only.",
+      "reason": "Agent callers previously received no indication that --latest-only had been ignored and could misinterpret the resulting pagination behavior.",
+      "files": [
+        "go.mod",
+        "internal/cli/sync.go",
+        "internal/cli/sync_test.go"
+      ],
+      "validated_outcome": "Machine-readable and human-readable warning paths are covered by tests; go test ./... passes."
+    }
+  ]
+}

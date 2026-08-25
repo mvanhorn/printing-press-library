@@ -205,7 +205,16 @@ Exit codes & warnings:
 				go func() {
 					defer wg.Done()
 					for resource := range work {
-						res := syncResource(c, db, resource, sinceTS, full, maxPages, effectiveLatestOnly, userParams)
+						// PATCH(amend-2026-08-12: hydrate posts and members)
+						// Community-scoped resources live inside the Next.js
+						// pageProps envelope, which the flat-list loop below
+						// cannot unwrap. See sync_skool.go.
+						var res syncResult
+						if isSkoolCommunityResource(resource) {
+							res = syncSkoolCommunityResource(c, db, resource, activeCommunity, maxPages)
+						} else {
+							res = syncResource(c, db, resource, sinceTS, full, maxPages, effectiveLatestOnly, userParams)
+						}
 						results <- res
 					}
 				}()
@@ -232,6 +241,11 @@ Exit codes & warnings:
 				if res.Err != nil {
 					if humanFriendly {
 						fmt.Fprintf(os.Stderr, "  %s: error: %v\n", res.Resource, res.Err)
+					} else {
+						// PATCH(amend-2026-08-12: surface per-resource sync
+						// failures) — agent mode printed only the aggregate
+						// count, hiding which resource failed and why.
+						fmt.Fprintln(os.Stdout, syncErrorJSON(res.Resource, "", res.Err))
 					}
 					errCount++
 					if criticalResources[res.Resource] {
@@ -333,6 +347,11 @@ func syncResource(c interface {
 
 	path, err := syncResourcePath(resource)
 	if err != nil {
+		// PATCH(amend-2026-08-12: surface per-resource sync failures) — this
+		// early return reported nothing, so an unknown or unroutable resource
+		// surfaced only as the aggregate "N resource(s) failed to sync" with
+		// no reason attached. The Err set here is now printed once by the
+		// aggregation loop, the single sync_error emission point.
 		return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
 	}
 
@@ -447,9 +466,9 @@ func syncResource(c interface {
 				}
 				return syncResult{Resource: resource, Count: totalCount, Warn: fmt.Errorf("skipped %s: %s", resource, w.Reason), Duration: time.Since(started)}
 			}
-			if !humanFriendly {
-				fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
-			}
+			// PATCH(amend-2026-08-12: single sync_error emission point) — the
+			// aggregation loop prints this wrapped Err once; emitting here too
+			// double-reported every failure.
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("fetching %s: %w", resource, err), Duration: time.Since(started)}
 		}
 
@@ -463,9 +482,7 @@ func syncResource(c interface {
 			}
 			// Single object response - try to store as-is
 			if err := upsertSingleObject(db, resource, data); err != nil {
-				if !humanFriendly {
-					fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
-				}
+				// PATCH(amend-2026-08-12: single sync_error emission point)
 				return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
 			}
 			totalCount++
@@ -485,9 +502,7 @@ func syncResource(c interface {
 		// probe when extraction succeeded but rows still didn't land.
 		stored, extractFailures, err := upsertResourceBatch(db, resource, items)
 		if err != nil {
-			if !humanFriendly {
-				fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
-			}
+			// PATCH(amend-2026-08-12: single sync_error emission point)
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("upserting batch for %s: %w", resource, err), Duration: time.Since(started)}
 		}
 
@@ -956,6 +971,10 @@ func parseSinceDuration(s string) (time.Time, error) {
 
 func defaultSyncResources() []string {
 	return []string{
+		// PATCH(amend-2026-08-12: hydrate posts and members) — posts and
+		// members are served by sync_skool.go, not syncResourcePath.
+		"posts",
+		"members",
 		"notifications",
 	}
 }

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "snipd-pp-cli"
+display_name = "Snipd"
+description = "Turn your Snipd snips into a local, ranked, full-text-searchable corpus — search a concept across every note, quote, and transcript, pull the exact quote, and synthesize across shows from the command line, plus an MCP for agents."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/snipd-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+SNIPD_TOKEN = true

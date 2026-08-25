@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "offline-history-caveats-omit-when-empty",
+  "applied_at": "2026-08-19",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "newOfflineHistoryCmd (internal/cli/offline.go) omits the \"caveats\" key entirely from its response map when caveatIfEmpty returns nil, instead of embedding the nil directly in the map literal (which JSON-marshals to \"caveats\": null). printOffline's own caveats-survives-select reattachment (see offline-caveats-survive-select.json) is hardened as defense-in-depth to match: it now checks whether the captured caveats value actually marshals to something other than the JSON literal \"null\" before re-attaching it after --select filtering, since \"present in the map\" and \"has a real value\" are different things for a typed-nil Go slice boxed in an `any` (c != nil is always true there -- the check has to happen on the marshaled bytes, not the interface value). Together these mean \"caveats\" key present == real caveat content, always, across every offline command -- a caller can test for the key's presence instead of having to null-check its value too. Any future offline command that builds its own caveats value must avoid embedding a possibly-nil slice directly in a map literal it always includes, or rely on printOffline's hardened reattachment to strip it, not both being silently correct only by accident.",
+  "reason": "Round-11 verification NEW 3: offline_history --select ... returned {\"caveats\": null, \"items\": [...]} when there were no caveats to report, instead of omitting the key. The report noted this as a regression risk from the round-8 \"caveats always survives --select\" fix (offline-caveats-survive-select.json), which appears to have made the key unconditional rather than present-only -- a caller can't test for presence and has to null-check the value too.",
+  "files": [
+    "internal/cli/offline.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. Existing offline_test.go coverage continues to pass; offline_history's own map literal no longer includes a nil-valued \"caveats\" key when facts are non-empty, verified by inspection of the JSON encoding path (a nil []string boxed in an any marshals to the literal null, which is exactly what disappeared from the response)."
+}

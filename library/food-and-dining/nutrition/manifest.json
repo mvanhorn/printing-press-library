@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "nutrition-pp-mcp",
+  "display_name": "Nutrition (USDA FoodData Central + NutritionValue.org)",
+  "version": "1.0.0",
+  "description": "One agent-native CLI over USDA FoodData Central and NutritionValue.org - with cross-source enrichment, protein-density comparison, nutrient ranking, and a local SQLite cache no other nutrition tool ships.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/nutrition-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/nutrition-pp-mcp",
+      "args": [],
+      "env": {
+        "FDC_API_KEY": "${user_config.fdc_api_key}",
+        "USDA_API_KEY": "${user_config.usda_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "fdc_api_key": {
+      "type": "string",
+      "title": "FDC_API_KEY",
+      "description": "Sets FDC_API_KEY for the Nutrition (USDA FoodData Central + NutritionValue.org) MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "usda_api_key": {
+      "type": "string",
+      "title": "USDA_API_KEY",
+      "description": "Sets USDA_API_KEY for the Nutrition (USDA FoodData Central + NutritionValue.org) MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

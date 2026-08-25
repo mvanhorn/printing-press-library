@@ -1,0 +1,525 @@
+name: psx
+description: "Pakistan Stock Exchange data portal CLI with a local market mirror"
+version: "0.1.0"
+category: payments
+base_url: "https://dps.psx.com.pk"
+http_transport: standard
+health_check_path: "/symbols"
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+  - name: Referer
+    value: "https://dps.psx.com.pk/"
+  - name: X-Requested-With
+    value: "XMLHttpRequest"
+
+auth:
+  type: none
+  header: ""
+  format: ""
+  env_vars: []
+
+config:
+  format: toml
+  path: "~/.config/psx-pp-cli/config.toml"
+
+cache:
+  enabled: true
+  stale_after: 24h
+  refresh_timeout: 45s
+
+learn:
+  ticker_patterns:
+    - "^[A-Z0-9]{3,12}$"
+  stopwords:
+    - stock
+    - share
+    - scrip
+  synonyms:
+    "most recent": "latest"
+    "kse 100": "kse100"
+    "kse-100": "kse100"
+    "kmi 30": "kmi30"
+    "all share": "allshr"
+  entity_lookup_seeds:
+    index:
+      - canonical: KSE100
+        aliases: [kse100, kse 100, kse-100, the index, benchmark index, main index]
+      - canonical: KSE30
+        aliases: [kse30, kse 30, kse-30]
+      - canonical: KMI30
+        aliases: [kmi30, kmi 30, shariah index, islamic index]
+      - canonical: KMIALLSHR
+        aliases: [kmi all share, shariah all share]
+      - canonical: ALLSHR
+        aliases: [all share index, allshare]
+      - canonical: PSXDIV20
+        aliases: [dividend 20, div20, dividend index]
+      - canonical: BKTI
+        aliases: [banking index, bank index]
+      - canonical: OGTI
+        aliases: [oil and gas index, energy index]
+      - canonical: MII30
+        aliases: [meezan index]
+    announcement_stream:
+      - canonical: C
+        aliases: [companies, company announcements, corporate announcements]
+      - canonical: E
+        aliases: [psx notices, exchange notices]
+      - canonical: B
+        aliases: [secp notices, regulator notices]
+      - canonical: D
+        aliases: [nccpl notices, clearing notices]
+      - canonical: A
+        aliases: [cdc notices, depository notices]
+    market_board:
+      - canonical: REG
+        aliases: [regular, spot, cash market]
+      - canonical: DFC
+        aliases: [deliverable futures, futures]
+      - canonical: CSF
+        aliases: [cash settled futures]
+      - canonical: ODL
+        aliases: [odd lot]
+      - canonical: SQR
+        aliases: [square up]
+
+resources:
+  symbols:
+    description: "Listed instrument master: equities, ETFs and debt securities"
+    endpoints:
+      list:
+        method: GET
+        path: "/symbols"
+        description: "List every listed instrument with sector, ETF and debt flags"
+        example: "  psx-pp-cli symbols list --json"
+        params: []
+        response:
+          type: array
+          item: Symbol
+
+  timeseries:
+    description: "Intraday tick and end-of-day price series"
+    endpoints:
+      intraday:
+        method: GET
+        path: "/timeseries/int/{symbol}"
+        description: "Intraday tick series for a symbol or index (last active session)"
+        example: "  psx-pp-cli timeseries intraday OGDC --json"
+        happy_args: "symbol=OGDC"
+        params:
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Instrument or index code, e.g. OGDC or KSE100"
+        response:
+          type: array
+        response_path: data
+      eod:
+        method: GET
+        path: "/timeseries/eod/{symbol}"
+        description: "End-of-day series for a symbol or index"
+        example: "  psx-pp-cli timeseries eod KSE100 --json"
+        happy_args: "symbol=KSE100"
+        params:
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Instrument or index code, e.g. OGDC or KSE100"
+        response:
+          type: array
+        response_path: data
+
+  market:
+    description: "Whole-market snapshots and movers"
+    endpoints:
+      watch:
+        method: GET
+        path: "/market-watch"
+        description: "Whole-market snapshot table: LDCP, open, high, low, current, change, volume"
+        example: "  psx-pp-cli market watch --json"
+        params: []
+        response_format: html
+        html_extract:
+          mode: page
+      performers:
+        method: GET
+        path: "/performers"
+        description: "Top active, gainer and loser tables for the equity market"
+        example: "  psx-pp-cli market performers --json"
+        params: []
+        response_format: html
+        html_extract:
+          mode: page
+      debt_performers:
+        method: GET
+        path: "/debt-performers"
+        description: "Top movers on the debt market"
+        example: "  psx-pp-cli market debt-performers --json"
+        params: []
+        response_format: html
+        html_extract:
+          mode: page
+
+  sectors:
+    description: "Sector aggregates and rankings"
+    endpoints:
+      summary:
+        method: GET
+        path: "/sector-summary/sectorwise"
+        description: "Per-sector aggregates: advances, declines, turnover and market cap"
+        example: "  psx-pp-cli sectors summary --json"
+        params: []
+        response_format: html
+        html_extract:
+          mode: page
+      top:
+        method: GET
+        path: "/data/top-10-sectors"
+        description: "Top sectors ranked by traded volume"
+        example: "  psx-pp-cli sectors top --json"
+        params: []
+        response:
+          type: array
+          item: SectorVolume
+
+  board:
+    description: "Live trading boards with bid/offer depth across markets"
+    endpoints:
+      show:
+        method: GET
+        path: "/trading-board/{market}/{board}"
+        description: "Trading board for one market and board combination"
+        example: "  psx-pp-cli board show REG main --json"
+        happy_args: "market=REG;board=main"
+        params:
+          - name: market
+            type: string
+            required: true
+            positional: true
+            enum: [REG, ODL, DFC, SQR, CSF]
+            description: "Market code: REG regular, ODL odd lot, DFC deliverable futures, SQR square up, CSF cash settled futures"
+          - name: board
+            type: string
+            required: true
+            positional: true
+            enum: [main, gem, bnb]
+            description: "Board: main, gem (growth), or bnb (bonds and notes)"
+        response_format: html
+        html_extract:
+          mode: page
+
+  history:
+    description: "Full historical OHLCV series"
+    endpoints:
+      get:
+        method: POST
+        path: "/historical"
+        description: "Full OHLCV history for a symbol. PSX ignores date parameters and always returns the complete series"
+        example: "  psx-pp-cli history get --symbol OGDC --json"
+        happy_args: "--symbol=OGDC"
+        body:
+          - name: symbol
+            type: string
+            required: true
+            description: "Instrument code, e.g. OGDC"
+        request_content_type: application/x-www-form-urlencoded
+        response_format: html
+        html_extract:
+          mode: page
+
+  screener:
+    description: "Fundamental screening metrics for the listed universe"
+    endpoints:
+      list:
+        method: GET
+        path: "/screener"
+        description: "Market cap, price, PE (TTM), dividend yield, free float, 30-day average volume and 1-year change"
+        example: "  psx-pp-cli screener list --json"
+        params: []
+        response_format: html
+        html_extract:
+          mode: page
+
+  debt:
+    description: "Debt market instruments"
+    endpoints:
+      list:
+        method: GET
+        path: "/debt-market"
+        description: "TFCs, Sukuks and other debt instruments with coupon, maturity and yields"
+        example: "  psx-pp-cli debt list --json"
+        params: []
+        response_format: html
+        html_extract:
+          mode: page
+
+  eligible-scrips:
+    description: "Margin-trading eligible securities"
+    endpoints:
+      list:
+        method: GET
+        path: "/eligible-scrips"
+        description: "Securities eligible for margin trading and margin financing"
+        example: "  psx-pp-cli eligible-scrips list --json"
+        params: []
+        response_format: html
+        html_extract:
+          mode: page
+
+  announcements:
+    description: "Corporate and regulatory announcement streams"
+    endpoints:
+      list:
+        method: POST
+        path: "/announcements"
+        description: "Search announcements across company, PSX, SECP, NCCPL and CDC streams"
+        example: "  psx-pp-cli announcements list --stream C --symbol OGDC --limit 25 --json"
+        happy_args: "--stream=C;--limit=5"
+        body:
+          - name: type
+            flag_name: stream
+            type: string
+            required: false
+            default: "C"
+            enum: [A, B, C, D, E]
+            description: "Stream: C companies, E PSX notices, B SECP notices, D NCCPL notices, A CDC notices"
+          - name: symbol
+            type: string
+            required: false
+            default: ""
+            description: "Filter to one instrument code, e.g. OGDC"
+          - name: query
+            type: string
+            required: false
+            default: ""
+            description: "Free-text search across announcement titles"
+          - name: count
+            flag_name: limit
+            type: int
+            required: false
+            default: 25
+            description: "Number of announcements to return"
+          - name: offset
+            type: int
+            required: false
+            default: 0
+            description: "Row offset for pagination"
+          - name: date_from
+            flag_name: from
+            type: string
+            required: false
+            default: ""
+            description: "Start date filter, YYYY-MM-DD"
+          - name: date_to
+            flag_name: to
+            type: string
+            required: false
+            default: ""
+            description: "End date filter, YYYY-MM-DD"
+          - name: page
+            type: string
+            required: false
+            default: "annc"
+            description: "Portal page context; leave at the default"
+        request_content_type: application/x-www-form-urlencoded
+        response_format: html
+        html_extract:
+          mode: page
+
+  payouts:
+    description: "Dividend, bonus and right-issue payout history"
+    endpoints:
+      list:
+        method: POST
+        path: "/payouts"
+        description: "Payout history across all instruments"
+        example: "  psx-pp-cli payouts list --limit 25 --json"
+        happy_args: "--limit=5"
+        body:
+          - name: symbol
+            type: string
+            required: false
+            default: ""
+            description: "Filter to one instrument code, e.g. OGDC"
+          - name: count
+            flag_name: limit
+            type: int
+            required: false
+            default: 25
+            description: "Number of payout rows to return"
+          - name: offset
+            type: int
+            required: false
+            default: 0
+            description: "Row offset for pagination"
+        request_content_type: application/x-www-form-urlencoded
+        response_format: html
+        html_extract:
+          mode: page
+      company:
+        method: POST
+        path: "/company/payouts"
+        description: "Full payout history for one instrument"
+        example: "  psx-pp-cli payouts company --symbol OGDC --json"
+        happy_args: "--symbol=OGDC"
+        body:
+          - name: symbol
+            type: string
+            required: true
+            description: "Instrument code, e.g. OGDC"
+        request_content_type: application/x-www-form-urlencoded
+        response_format: html
+        html_extract:
+          mode: page
+
+  calendar:
+    description: "AGM and EOGM meeting calendar"
+    endpoints:
+      list:
+        method: POST
+        path: "/calendar"
+        description: "AGM and EOGM events in a date window"
+        example: "  psx-pp-cli calendar list --from 2026-08-01 --to 2026-09-30 --json"
+        happy_args: "--from=2026-08-01;--to=2026-09-30"
+        body:
+          - name: from
+            type: string
+            required: true
+            description: "Window start date, YYYY-MM-DD"
+          - name: to
+            type: string
+            required: true
+            description: "Window end date, YYYY-MM-DD"
+        request_content_type: application/x-www-form-urlencoded
+        response:
+          type: array
+          item: CalendarEvent
+        response_path: data
+
+  company:
+    description: "Per-company profile and financial report index"
+    endpoints:
+      profile:
+        method: GET
+        path: "/company/{symbol}"
+        description: "Company profile and quote page for an instrument"
+        example: "  psx-pp-cli company profile OGDC --json"
+        happy_args: "symbol=OGDC"
+        params:
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Instrument code, e.g. OGDC"
+        response_format: html
+        html_extract:
+          mode: page
+      reports:
+        method: GET
+        path: "/company/reports/{symbol}"
+        description: "Financial report index for an instrument"
+        example: "  psx-pp-cli company reports OGDC --json"
+        happy_args: "symbol=OGDC"
+        params:
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Instrument code, e.g. OGDC"
+        response_format: html
+        html_extract:
+          mode: page
+
+  indices:
+    description: "Index listing and constituents"
+    endpoints:
+      list:
+        method: GET
+        path: "/indices"
+        description: "All PSX indices with current level and change"
+        example: "  psx-pp-cli indices list --json"
+        params: []
+        response_format: html
+        html_extract:
+          mode: page
+
+  listings:
+    description: "Listing status by board"
+    endpoints:
+      table:
+        method: GET
+        path: "/listings-table/{board}/{status}"
+        description: "Listed companies filtered by board and listing status"
+        example: "  psx-pp-cli listings table main nc --json"
+        happy_args: "board=main;status=nc"
+        params:
+          - name: board
+            type: string
+            required: true
+            positional: true
+            description: "Board segment, e.g. main"
+          - name: status
+            type: string
+            required: true
+            positional: true
+            description: "Listing status segment, e.g. nc"
+        response_format: html
+        html_extract:
+          mode: page
+
+  circuit-breakers:
+    description: "Securities that hit price circuit breakers"
+    endpoints:
+      list:
+        method: GET
+        path: "/circuit-breakers"
+        description: "Instruments currently halted or limit-locked"
+        example: "  psx-pp-cli circuit-breakers list --json"
+        params: []
+        response_format: html
+        html_extract:
+          mode: page
+
+types:
+  Symbol:
+    fields:
+      - name: symbol
+        type: string
+      - name: name
+        type: string
+      - name: sectorName
+        type: string
+      - name: isETF
+        type: bool
+      - name: isDebt
+        type: bool
+  SectorVolume:
+    fields:
+      - name: name
+        type: string
+      - name: code
+        type: string
+      - name: volume
+        type: int
+  CalendarEvent:
+    fields:
+      - name: id
+        type: int
+      - name: symbol
+        type: string
+      - name: name
+        type: string
+      - name: type
+        type: string
+      - name: date
+        type: string
+      - name: time
+        type: string
+      - name: city
+        type: string
+      - name: period_end
+        type: string

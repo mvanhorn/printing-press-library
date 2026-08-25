@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "hotelist-sync",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260606-172109",
+  "base_printing_press_version": "4.22.1",
+  "summary": "Rewrote the generic sync stub to scrape the city->geohash and country reference tables from the Hotelist homepage <option> lists; added a verify-env seed. (watch snapshot tables are created lazily in watch.go.)",
+  "reason": "The spec-driven sync template does not fit Hotelist's HTML/JSON surface; location resolution needs a locally-synced city->geohash table.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "sync cities stores 1374 cities + 205 countries; data-pipeline verify passes."
+}

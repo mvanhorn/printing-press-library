@@ -26,11 +26,13 @@ package opentable
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -181,29 +183,180 @@ func (c *Client) ChromeAvailability(
 	// SSR is what hydrates. Akamai cookies (_abck, bm_*) are intentionally
 	// NOT injected — Akamai will issue fresh ones for this session and
 	// validate them against this Chrome instance's behavior.
-	cookies := c.session.HTTPCookies(auth.NetworkOpenTable)
-
-	// Capture state for the response listener
-	type slotCapture struct {
-		mu     sync.Mutex
-		body   []byte
-		status int
-		err    error
-		done   chan struct{}
+	// Session may be nil (anonymous availability read, or a client built with
+	// no auth). Availability is anonymous, so skip cookie injection and let
+	// the browser earn its own Akamai cookies.
+	var cookies []*http.Cookie
+	if c.session != nil {
+		cookies = c.session.HTTPCookies(auth.NetworkOpenTable)
 	}
-	cap := &slotCapture{done: make(chan struct{})}
-	closed := false
-	closeOnce := func() {
-		cap.mu.Lock()
-		if !closed {
-			closed = true
+
+	// Capture state shared by the event listener and the body-fetch worker.
+	type slotCapture struct {
+		mu       sync.Mutex
+		body     []byte
+		status   int
+		err      error
+		reqHash  string
+		hashSeen bool
+		hashDone chan struct{}
+		done     chan struct{}
+	}
+	cap := &slotCapture{hashDone: make(chan struct{}), done: make(chan struct{})}
+	coordinator := newAvailabilityCaptureCoordinator()
+	var coordinatorMu sync.Mutex
+	var callbackMu sync.Mutex
+	workerCtx, cancelWorker := context.WithCancel(timed)
+	var postDataWorkers sync.WaitGroup
+	var actionMu sync.Mutex
+	var fetchActions []availabilityCaptureAction
+	actionReady := make(chan struct{}, 1)
+	var resultOnce sync.Once
+	publishResult := func(result *availabilityCaptureResult) {
+		if result == nil {
+			return
+		}
+		resultOnce.Do(func() {
+			cap.mu.Lock()
+			cap.body = result.body
+			cap.status = result.status
+			cap.err = result.err
+			cap.mu.Unlock()
 			close(cap.done)
+		})
+	}
+	queueAction := func(action *availabilityCaptureAction) {
+		if action == nil {
+			return
+		}
+		select {
+		case <-workerCtx.Done():
+			return
+		default:
+		}
+		actionMu.Lock()
+		fetchActions = append(fetchActions, *action)
+		actionMu.Unlock()
+		select {
+		case actionReady <- struct{}{}:
+		default:
+		}
+	}
+	dequeueAction := func() (availabilityCaptureAction, bool) {
+		actionMu.Lock()
+		defer actionMu.Unlock()
+		if len(fetchActions) == 0 {
+			return availabilityCaptureAction{}, false
+		}
+		action := fetchActions[0]
+		fetchActions = fetchActions[1:]
+		return action, true
+	}
+	workerDone := make(chan struct{})
+	go func() {
+		defer close(workerDone)
+		for {
+			select {
+			case <-workerCtx.Done():
+				return
+			case <-actionReady:
+				for {
+					action, ok := dequeueAction()
+					if !ok {
+						break
+					}
+					// Listener callbacks are synchronous in chromedp. Waiting on
+					// this barrier keeps CDP body reads out of the callback path.
+					callbackMu.Lock()
+					callbackMu.Unlock()
+					select {
+					case <-workerCtx.Done():
+						return
+					default:
+					}
+					body, err := fetchResponseBodyWithRetry(workerCtx, action.requestID, fetchResponseBody, 25*time.Millisecond)
+					coordinatorMu.Lock()
+					result := coordinator.FetchCompleted(action.requestID, body, err)
+					coordinatorMu.Unlock()
+					publishResult(result)
+				}
+			}
+		}
+	}()
+	hashClosed := false
+	closeHashOnce := func() {
+		cap.mu.Lock()
+		if !hashClosed {
+			hashClosed = true
+			close(cap.hashDone)
 		}
 		cap.mu.Unlock()
 	}
 
 	chromedp.ListenTarget(timed, func(ev any) {
+		callbackMu.Lock()
+		defer callbackMu.Unlock()
 		switch e := ev.(type) {
+		case *network.EventRequestWillBeSent:
+			// Harvest the persisted-query hash the page's own JS uses. The
+			// hash rides in the outgoing request, so we capture it even when
+			// Akamai later 403s the response — this is what seeds the fast
+			// direct path after an OpenTable bundle rotation.
+			if e.Request == nil || !strings.Contains(e.Request.URL, "opname=RestaurantsAvailability") {
+				return
+			}
+			coordinatorMu.Lock()
+			coordinator.RequestWillBeSent(e.RequestID)
+			coordinatorMu.Unlock()
+			if ids, ok := restaurantIDsFromRequest(e.Request); ok {
+				coordinatorMu.Lock()
+				action, result := coordinator.BindRequest(e.RequestID, containsRestaurantID(ids, restID))
+				coordinatorMu.Unlock()
+				queueAction(action)
+				publishResult(result)
+			} else {
+				reqID := e.RequestID
+				postDataWorkers.Add(1)
+				go func() {
+					defer postDataWorkers.Done()
+					callbackMu.Lock()
+					callbackMu.Unlock()
+					postData, err := network.GetRequestPostData(reqID).Do(timed)
+					ids, ok := restaurantIDsFromPostData(string(postData))
+					coordinatorMu.Lock()
+					action, result := coordinator.BindRequest(reqID, err == nil && ok && containsRestaurantID(ids, restID))
+					coordinatorMu.Unlock()
+					queueAction(action)
+					publishResult(result)
+				}()
+			}
+			if h := hashFromRequest(e.Request); h != "" {
+				cap.mu.Lock()
+				cap.hashSeen = true
+				cap.reqHash = h
+				cap.mu.Unlock()
+				closeHashOnce()
+				return
+			}
+			cap.mu.Lock()
+			cap.hashSeen = true
+			cap.mu.Unlock()
+			reqID := e.RequestID
+			postDataWorkers.Add(1)
+			go func() {
+				defer postDataWorkers.Done()
+				callbackMu.Lock()
+				callbackMu.Unlock()
+				body, err := network.GetRequestPostData(reqID).Do(timed)
+				if err == nil {
+					if h := hashFromPostData(body); h != "" {
+						cap.mu.Lock()
+						cap.reqHash = h
+						cap.mu.Unlock()
+					}
+				}
+				closeHashOnce()
+			}()
 		case *network.EventResponseReceived:
 			if e.Response == nil {
 				return
@@ -214,19 +367,20 @@ func (c *Client) ChromeAvailability(
 			if !strings.Contains(e.Response.URL, "opname=RestaurantsAvailability") {
 				return
 			}
-			// Defer the body fetch — chromedp wants us to call from the
-			// run context, not the listener thread.
-			reqID := e.RequestID
-			status := int(e.Response.Status)
-			go func() {
-				body, err := fetchResponseBody(timed, reqID)
-				cap.mu.Lock()
-				cap.body = body
-				cap.status = status
-				cap.err = err
-				cap.mu.Unlock()
-				closeOnce()
-			}()
+			coordinatorMu.Lock()
+			action := coordinator.ResponseReceived(e.RequestID, int(e.Response.Status))
+			coordinatorMu.Unlock()
+			queueAction(action)
+		case *network.EventLoadingFinished:
+			coordinatorMu.Lock()
+			action := coordinator.LoadingFinished(e.RequestID)
+			coordinatorMu.Unlock()
+			queueAction(action)
+		case *network.EventLoadingFailed:
+			coordinatorMu.Lock()
+			result := coordinator.LoadingFailed(e.RequestID, e.ErrorText)
+			coordinatorMu.Unlock()
+			publishResult(result)
 		}
 	})
 
@@ -264,7 +418,23 @@ func (c *Client) ChromeAvailability(
 		// touch the rate-limited GraphQL endpoint.
 		chromedp.Navigate("https://www.opentable.com/restaurant/profile/100"),
 		chromedp.Sleep(2 * time.Second),
-		chromedp.Navigate(pageURL),
+		chromedp.ActionFunc(func(actCtx context.Context) error {
+			// Arm before navigating: the page can fire its availability
+			// request while Navigate is still in flight, and an unarmed
+			// coordinator drops that request's events. Warm-up traffic
+			// stays excluded by the restaurant-ID binding.
+			coordinatorMu.Lock()
+			coordinator.Arm()
+			coordinatorMu.Unlock()
+			_, _, errorText, _, err := page.Navigate(pageURL).Do(actCtx)
+			if err != nil {
+				return err
+			}
+			if errorText != "" {
+				return fmt.Errorf("page load error %s", errorText)
+			}
+			return nil
+		}),
 		// Wait until either the listener captures the response or the
 		// timeout fires. `chromedp.ActionFunc` lets us yield to the event
 		// loop without spinning.
@@ -277,8 +447,45 @@ func (c *Client) ChromeAvailability(
 			}
 		}),
 	}
-	if err := chromedp.Run(timed, tasks); err != nil {
-		return nil, fmt.Errorf("opentable chrome: navigate/intercept: %w", err)
+	runErr := chromedp.Run(timed, tasks)
+	cancelWorker()
+
+	// Harvest the persisted-query hash from the page's own outgoing request,
+	// regardless of whether the availability call returned slots — the hash
+	// rides in the request, so even a WAF-403'd or timed-out run yields it.
+	// This is what lets the fast direct path self-heal after a bundle rotation.
+	cap.mu.Lock()
+	hashSeen := cap.hashSeen
+	cap.mu.Unlock()
+	if hashSeen {
+		select {
+		case <-cap.hashDone:
+		case <-time.After(500 * time.Millisecond):
+		}
+	}
+	// Stop listener-owned post-data work and wait for every worker before
+	// reading capture state or returning. This prevents late writes after a
+	// successful body capture ends chromedp.Run.
+	cancelTimed()
+	callbackMu.Lock()
+	callbackMu.Unlock()
+	postDataWorkers.Wait()
+	<-workerDone
+	cap.mu.Lock()
+	harvested := cap.reqHash
+	cap.mu.Unlock()
+	if harvested != "" && harvested != currentAvailabilityHash() {
+		if err := savePersistedAvailabilityHash(harvested); err != nil {
+			// Best-effort: the harvest still helped this call, but a failed
+			// persist means the next 409 re-spawns Chrome instead of reusing
+			// the value. Surface it so a read-only/mis-configured cache dir is
+			// diagnosable rather than silently degrading.
+			fmt.Fprintf(os.Stderr, "opentable chrome: could not persist harvested availability hash: %v\n", err)
+		}
+	}
+
+	if runErr != nil {
+		return nil, fmt.Errorf("opentable chrome: navigate/intercept: %w", runErr)
 	}
 
 	cap.mu.Lock()
@@ -303,6 +510,108 @@ func (c *Client) ChromeAvailability(
 			mode, status, hint)
 	}
 	return parseAvailabilityResponse(body)
+}
+
+func restaurantIDsFromRequest(req *network.Request) ([]int, bool) {
+	if req == nil {
+		return nil, false
+	}
+	var postData strings.Builder
+	for _, entry := range req.PostDataEntries {
+		if entry == nil || entry.Bytes == "" {
+			continue
+		}
+		decoded, err := base64.StdEncoding.DecodeString(entry.Bytes)
+		if err != nil {
+			return nil, false
+		}
+		postData.Write(decoded)
+	}
+	if postData.Len() == 0 {
+		return nil, false
+	}
+	return restaurantIDsFromPostData(postData.String())
+}
+
+func restaurantIDsFromPostData(postData string) ([]int, bool) {
+	var envelope struct {
+		Variables struct {
+			RestaurantIDs []json.RawMessage `json:"restaurantIds"`
+		} `json:"variables"`
+	}
+	if err := json.Unmarshal([]byte(postData), &envelope); err != nil || len(envelope.Variables.RestaurantIDs) == 0 {
+		return nil, false
+	}
+	ids := make([]int, 0, len(envelope.Variables.RestaurantIDs))
+	for _, raw := range envelope.Variables.RestaurantIDs {
+		var id int
+		if err := json.Unmarshal(raw, &id); err != nil {
+			var text string
+			if json.Unmarshal(raw, &text) != nil {
+				return nil, false
+			}
+			parsed, err := strconv.Atoi(text)
+			if err != nil {
+				return nil, false
+			}
+			id = parsed
+		}
+		ids = append(ids, id)
+	}
+	return ids, true
+}
+
+func containsRestaurantID(ids []int, want int) bool {
+	for _, id := range ids {
+		if id == want {
+			return true
+		}
+	}
+	return false
+}
+
+// hashFromRequest reconstructs a GraphQL request's POST body from the CDP
+// PostDataEntries (each base64-encoded) and extracts the persisted-query
+// sha256Hash. Returns "" when the request carries no well-formed hash.
+func hashFromRequest(req *network.Request) string {
+	if req == nil {
+		return ""
+	}
+	var sb strings.Builder
+	for _, e := range req.PostDataEntries {
+		if e == nil || e.Bytes == "" {
+			continue
+		}
+		if dec, err := base64.StdEncoding.DecodeString(e.Bytes); err == nil {
+			sb.Write(dec)
+		}
+	}
+	return extractSha256Hash(sb.String())
+}
+
+func hashFromPostData(postData []byte) string {
+	return extractSha256Hash(string(postData))
+}
+
+// extractSha256Hash pulls the persisted-query hash out of a GraphQL POST body
+// (`..."sha256Hash":"<64 hex>"...`). Chrome serializes PostData as compact
+// JSON, so the marker is followed immediately by the value. Returns "" when
+// the body has no well-formed 64-hex hash.
+func extractSha256Hash(postData string) string {
+	const marker = `"sha256Hash":"`
+	i := strings.Index(postData, marker)
+	if i < 0 {
+		return ""
+	}
+	start := i + len(marker)
+	if start+64 > len(postData) {
+		return ""
+	}
+	candidate := postData[start : start+64]
+	if !availHashPattern.MatchString(candidate) {
+		return ""
+	}
+	return candidate
 }
 
 // discoverChromeWebSocket queries Chrome's DevTools discovery endpoint and
@@ -422,6 +731,10 @@ func fetchResponseBody(ctx context.Context, reqID network.RequestID) ([]byte, er
 func parseAvailabilityResponse(body []byte) ([]RestaurantAvailability, error) {
 	var env struct {
 		Data struct {
+			// Current consumer-frontend shape (observed August 2026). Keep
+			// this alongside the legacy nested shape below because OpenTable
+			// rolls the two response envelopes independently.
+			Availability            []RestaurantAvailability `json:"availability"`
 			RestaurantsAvailability struct {
 				Availabilities []struct {
 					RestaurantID     int `json:"restaurantId"`
@@ -446,6 +759,9 @@ func parseAvailabilityResponse(body []byte) ([]RestaurantAvailability, error) {
 	if len(env.Errors) > 0 {
 		return nil, fmt.Errorf("opentable: chrome-captured response carried %d GraphQL errors; first: %s",
 			len(env.Errors), env.Errors[0].Message)
+	}
+	if len(env.Data.Availability) > 0 {
+		return env.Data.Availability, nil
 	}
 	out := make([]RestaurantAvailability, 0, len(env.Data.RestaurantsAvailability.Availabilities))
 	for _, a := range env.Data.RestaurantsAvailability.Availabilities {

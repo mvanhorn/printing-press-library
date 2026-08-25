@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/immich",
+  "research_dir": "\u003ccli-dir\u003e/20260721-133855-89f4eb09",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

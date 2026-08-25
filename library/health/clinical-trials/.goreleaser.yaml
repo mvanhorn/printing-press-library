@@ -1,0 +1,51 @@
+version: 2
+project_name: clinical-trials-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: clinical-trials-pp-cli
+    main: ./cmd/clinical-trials-pp-cli
+    binary: clinical-trials-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/health/clinical-trials/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: clinical-trials-pp-mcp
+    main: ./cmd/clinical-trials-pp-mcp
+    binary: clinical-trials-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: clinical-trials-pp-cli
+    repository:
+      owner: laci141
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "A multi-source clinical-trials intelligence system — aggregates, normalizes, and analyzes trials across ClinicalTrials.gov, EU CTIS, and biomedical sources, with an offline SQLite engine no single-registry tool has."
+    install: |
+      bin.install "clinical-trials-pp-cli"
+      bin.install "clinical-trials-pp-mcp"

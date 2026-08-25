@@ -29,10 +29,12 @@ func newFinancialConnectionsGetTransactionsTransactionCmd(flags *rootFlags) *cob
 			}
 
 			path := "/v1/financial_connections/transactions/{transaction}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("transaction is required\nUsage: %s <%s>", cmd.CommandPath(), "transaction"))
 			}
-			path = replacePathParam(path, "transaction", args[1])
+			path = replacePathParam(path, "transaction", args[0])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

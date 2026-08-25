@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "zillow-pp-mcp",
+  "display_name": "Zillow",
+  "version": "0.2.0",
+  "description": "Sync official Zillow Research housing datasets and analyze markets without scraping Zillow.com.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/zillow-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/zillow-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

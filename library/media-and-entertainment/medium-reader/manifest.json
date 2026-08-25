@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "medium-reader-pp-mcp",
+  "display_name": "Medium Reader",
+  "version": "0.0.0",
+  "description": "Read any Medium author, publication, or tag as a local, full-text-searchable corpus — direct from Medium, no key, no proxy.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/medium-reader-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/medium-reader-pp-mcp",
+      "args": [],
+      "env": {
+        "MEDIUM_SESSION": "${user_config.medium_session}"
+      }
+    }
+  },
+  "user_config": {
+    "medium_session": {
+      "type": "string",
+      "title": "MEDIUM_SESSION (optional)",
+      "description": "Optional. Your own Medium session cookie (\"sid=..; uid=..\") to unlock member full bodies (Tier 1). Leave blank to run anonymously (Tier 0).",
+      "sensitive": true,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,288 @@
+{
+  "api_name": "github-contents",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "degit",
+      "url": "https://github.com/Rich-Harris/degit",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 7300,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tiged",
+      "url": "https://github.com/tiged/tiged",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 900,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "giget",
+      "url": "https://github.com/unjs/giget",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1600,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gitdir",
+      "url": "https://github.com/sdushantha/gitdir",
+      "language": "Python",
+      "install_method": "",
+      "stars": 500,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "githubdl",
+      "url": "https://github.com/wilvk/githubdl",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "DownGit",
+      "url": "https://github.com/MinhasKamal/DownGit",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 2000,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "download-directory.github.io",
+      "url": "https://github.com/download-directory/download-directory.github.io",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 1400,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "github-mcp-server",
+      "url": "https://github.com/github/github-mcp-server",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-10T12:52:44Z",
+  "novel_features": [
+    {
+      "name": "Dry-run download plan",
+      "command": "plan",
+      "description": "Preview exactly what a fetch would download — file list, sizes, total bytes, API-request cost vs your remaining quota, and LFS-pointer warnings — before spending any bandwidth.",
+      "rationale": "Joins one git-trees call with rate_limit into a single decision surface; no incumbent downloader can preview at all.",
+      "example": "github-contents-pp-cli plan mjwoon/AI-readings/books --agent",
+      "why_it_matters": "Run this before fetch to know a download is 122 files / 1.9 GB and costs only 2 API requests, instead of finding out mid-download.",
+      "group": "Plan-verify-sync loop"
+    },
+    {
+      "name": "Blob-SHA integrity verify",
+      "command": "verify",
+      "description": "Check whether a previously downloaded directory still matches the remote at a ref — match/changed/missing/extra per file — without re-downloading anything.",
+      "rationale": "Git blob SHAs are recomputable locally from file bytes, so whole-directory integrity costs one tree call and zero downloads; the API has no integrity surface.",
+      "example": "github-contents-pp-cli verify ./books mjwoon/AI-readings/books --agent",
+      "why_it_matters": "Proves 'this workspace matches ref X' cheaply — the post-download assertion CI and agents otherwise can't make without re-fetching.",
+      "group": "Plan-verify-sync loop"
+    },
+    {
+      "name": "Incremental re-sync",
+      "command": "sync-dir",
+      "description": "Update an existing downloaded directory in place, fetching only files that changed upstream or are missing locally.",
+      "rationale": "Joins local blob hashes with the remote tree, then streams only the diff via the raw CDN — picking up 3 new files no longer costs gigabytes.",
+      "example": "github-contents-pp-cli sync-dir ./books mjwoon/AI-readings/books --agent",
+      "why_it_matters": "The weekly-mirror command: keeps a local collection current for the price of one API call plus only the changed bytes.",
+      "group": "Plan-verify-sync loop"
+    },
+    {
+      "name": "Path size breakdown",
+      "command": "stats",
+      "description": "Size and file-count breakdown of any repo path by subfolder and extension, plus the largest files, from a single API request.",
+      "rationale": "The trees API returns a flat list; grouping and top-N ranking are local computation no endpoint offers.",
+      "example": "github-contents-pp-cli stats mjwoon/AI-readings/books --agent --select by_folder",
+      "why_it_matters": "Answers 'how big is this directory and what is in it' in one call before committing to a download.",
+      "group": "Remote inspection"
+    },
+    {
+      "name": "Offline tree search",
+      "command": "search",
+      "description": "Search previously fetched repo listings from the local store — find files by name or pattern with zero API calls.",
+      "rationale": "plan and fetch persist tree listings into local SQLite, so 'where was that file' never burns rate limit.",
+      "example": "github-contents-pp-cli search \"transformers\" --limit 20",
+      "why_it_matters": "Lets agents answer 'which repo path had file X' from data already on disk instead of re-walking the API.",
+      "group": "Remote inspection"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Dry-run download plan",
+      "command": "plan",
+      "description": "Preview exactly what a fetch would download — file list, sizes, total bytes, API-request cost vs your remaining quota, and LFS-pointer warnings — before spending any bandwidth.",
+      "rationale": "Joins one git-trees call with rate_limit into a single decision surface; no incumbent downloader can preview at all.",
+      "example": "github-contents-pp-cli plan mjwoon/AI-readings/books --agent",
+      "why_it_matters": "Run this before fetch to know a download is 122 files / 1.9 GB and costs only 2 API requests, instead of finding out mid-download.",
+      "group": "Plan-verify-sync loop"
+    },
+    {
+      "name": "Blob-SHA integrity verify",
+      "command": "verify",
+      "description": "Check whether a previously downloaded directory still matches the remote at a ref — match/changed/missing/extra per file — without re-downloading anything.",
+      "rationale": "Git blob SHAs are recomputable locally from file bytes, so whole-directory integrity costs one tree call and zero downloads; the API has no integrity surface.",
+      "example": "github-contents-pp-cli verify ./books mjwoon/AI-readings/books --agent",
+      "why_it_matters": "Proves 'this workspace matches ref X' cheaply — the post-download assertion CI and agents otherwise can't make without re-fetching.",
+      "group": "Plan-verify-sync loop"
+    },
+    {
+      "name": "Incremental re-sync",
+      "command": "sync-dir",
+      "description": "Update an existing downloaded directory in place, fetching only files that changed upstream or are missing locally.",
+      "rationale": "Joins local blob hashes with the remote tree, then streams only the diff via the raw CDN — picking up 3 new files no longer costs gigabytes.",
+      "example": "github-contents-pp-cli sync-dir ./books mjwoon/AI-readings/books --agent",
+      "why_it_matters": "The weekly-mirror command: keeps a local collection current for the price of one API call plus only the changed bytes.",
+      "group": "Plan-verify-sync loop"
+    },
+    {
+      "name": "Path size breakdown",
+      "command": "stats",
+      "description": "Size and file-count breakdown of any repo path by subfolder and extension, plus the largest files, from a single API request.",
+      "rationale": "The trees API returns a flat list; grouping and top-N ranking are local computation no endpoint offers.",
+      "example": "github-contents-pp-cli stats mjwoon/AI-readings/books --agent --select by_folder",
+      "why_it_matters": "Answers 'how big is this directory and what is in it' in one call before committing to a download.",
+      "group": "Remote inspection"
+    },
+    {
+      "name": "Offline tree search",
+      "command": "search",
+      "description": "Search previously fetched repo listings from the local store — find files by name or pattern with zero API calls.",
+      "rationale": "plan and fetch persist tree listings into local SQLite, so 'where was that file' never burns rate limit.",
+      "example": "github-contents-pp-cli search \"transformers\" --limit 20",
+      "why_it_matters": "Lets agents answer 'which repo path had file X' from data already on disk instead of re-walking the API.",
+      "group": "Remote inspection"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "GITHUB_TOKEN"
+  },
+  "narrative": {
+    "display_name": "GitHub Contents",
+    "headline": "Download any GitHub folder without cloning — plan it first, verify it after, re-sync only what changed.",
+    "value_prop": "Addresses owner/repo/path#ref like degit, but streams big files past the 1 MB contents-API limit via the raw CDN, preserves folder structure, and gives every command --json for agents. The plan/verify/sync-dir loop — preview cost before downloading, prove local files match remote by git blob SHA, then fetch only the diff — exists in no other GitHub download tool.",
+    "quickstart": [
+      {
+        "command": "github-contents-pp-cli doctor --dry-run",
+        "comment": "Health check first — works without a token; GITHUB_TOKEN raises the rate limit from 60 to 5000 req/h"
+      },
+      {
+        "command": "github-contents-pp-cli stats mjwoon/AI-readings/books",
+        "comment": "One API call: how big is this folder, what file types are in it"
+      },
+      {
+        "command": "github-contents-pp-cli plan mjwoon/AI-readings/books",
+        "comment": "Preview the download: every file, sizes, total bytes, API cost — nothing is written"
+      },
+      {
+        "command": "github-contents-pp-cli fetch mjwoon/AI-readings/books --out ./books",
+        "comment": "Download recursively, preserving folder structure; big files stream via the raw CDN"
+      },
+      {
+        "command": "github-contents-pp-cli verify ./books mjwoon/AI-readings/books",
+        "comment": "Prove every local file matches the remote by git blob SHA — no re-download"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "404 on a repo you know exists",
+        "fix": "Private repos return 404 (not 403) without auth — export GITHUB_TOKEN=\u003ctoken\u003e and retry"
+      },
+      {
+        "symptom": "403 or rate-limit errors during listings",
+        "fix": "Run github-contents-pp-cli rate-limit show; unauthenticated is 60 req/h — set GITHUB_TOKEN for 5000 req/h (file downloads never count against the limit)"
+      },
+      {
+        "symptom": "plan or fetch reports the tree was truncated",
+        "fix": "The repo exceeds 100k entries or 7 MB of tree data — fetch a deeper subpath directly, e.g. fetch owner/repo/sub/dir"
+      },
+      {
+        "symptom": "A downloaded file is a few lines of text starting with 'version https://git-lfs...'",
+        "fix": "That file is stored in Git LFS; plan flags these as lfs_pointers — download it from the repo's web UI or with git lfs"
+      },
+      {
+        "symptom": "Paths with spaces return 404",
+        "fix": "Quote the whole path argument; the CLI URL-escapes each segment automatically"
+      }
+    ],
+    "when_to_use": "Reach for this CLI when a task needs files out of a GitHub repo without a full clone: downloading a subdirectory (docs, datasets, templates, book collections) with structure preserved, previewing what a download costs, verifying a local copy still matches upstream, or keeping a mirror current with minimal bandwidth. It works unauthenticated on public repos and uses at most a couple of API requests per operation.",
+    "anti_triggers": [
+      "Cloning a repo with git history — use git clone or gh repo clone",
+      "Working with issues, pull requests, or actions — use the gh CLI",
+      "Writing, committing, or pushing files to a repo — this CLI is read-only",
+      "Downloading Git LFS binaries — v1 detects and warns but does not resolve LFS pointers",
+      "Searching code across GitHub — use gh search or the code-search API"
+    ],
+    "recipes": [
+      {
+        "title": "Download a folder, keep the structure",
+        "command": "github-contents-pp-cli fetch mjwoon/AI-readings/books --out ./books",
+        "explanation": "Recursive download of one subdirectory; subfolders and filenames (including spaces) arrive intact."
+      },
+      {
+        "title": "Preview cost before a big download",
+        "command": "github-contents-pp-cli plan mjwoon/AI-readings/books --agent",
+        "explanation": "Machine-readable plan: files, total_bytes, api_cost, lfs_pointers — decide before spending bandwidth."
+      },
+      {
+        "title": "Only PDFs, nothing else",
+        "command": "github-contents-pp-cli fetch mjwoon/AI-readings/books --include \"*.pdf\" --out ./pdfs",
+        "explanation": "Glob filters restrict the download without changing the preserved structure."
+      },
+      {
+        "title": "Narrow a huge tree listing for an agent",
+        "command": "github-contents-pp-cli trees mjwoon AI-readings main --recursive --agent --select tree.path,tree.size",
+        "explanation": "The recursive tree of a repo is thousands of entries; --select keeps only the two fields an agent needs."
+      },
+      {
+        "title": "Keep a mirror current",
+        "command": "github-contents-pp-cli sync-dir ./books mjwoon/AI-readings/books --agent",
+        "explanation": "One API call to diff by blob SHA, then only changed or new files are streamed down."
+      }
+    ],
+    "trigger_phrases": [
+      "download a folder from github",
+      "download this github directory",
+      "grab files from a repo without cloning",
+      "check if my local copy matches the repo",
+      "how big is that github folder",
+      "use github-contents",
+      "run github-contents"
+    ]
+  }
+}

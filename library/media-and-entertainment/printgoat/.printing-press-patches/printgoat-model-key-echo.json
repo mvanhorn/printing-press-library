@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "printgoat-model-key-echo",
+  "applied_at": "2026-08-11",
+  "base_run_id": "20260721-105814-1da3c401",
+  "base_printing_press_version": "4.29.0",
+  "summary": "history diff, formats gaps, and similar echo the canonical model_key in every JSON output map.",
+  "reason": "Agents correlating batch output need the <source>:<id> input key echoed verbatim; split source/model_id fields alone broke correlation and live-check token matching.",
+  "files": [
+    "internal/cli/history_diff.go",
+    "internal/cli/formats_gaps.go",
+    "internal/cli/similar.go"
+  ],
+  "validated_outcome": "Live-check features for all three commands pass; full live dogfood 272/272 at publish time."
+}

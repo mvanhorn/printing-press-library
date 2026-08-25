@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "epa-echo-pp-mcp",
+  "display_name": "Epa Echo",
+  "version": "1.0.0",
+  "description": "Query-only EPA ECHO facility search and detailed facility reports.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/epa-echo-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/epa-echo-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

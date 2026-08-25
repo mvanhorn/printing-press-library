@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-leggi-limite-raggiunto",
+  "applied_at": "2026-08-21",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "Report `troncato: true` when the aggregated `leggi cerca` list ends at --limit rather than at the end of the archive, and expose the origin bill numbers on `legge cronologia`.",
+  "reason": "Two findings from a second news-driven coverage run on 2026-08-21, both reproduced live. (1) The aggregated leggi branch distinguished only one way of coming up short — the row window running out before the requested laws were collected — and stayed silent on the other: when exactly --limit laws were collected, pagination stopped without ever learning how many more existed, yet the envelope reported `troncato: false`. `leggi cerca --legisl 18 --anno 2026` therefore returned 10 of the year's 14 laws and asserted the list was complete, with an empty stderr, while every other search in this CLI warns in that situation. It is also the natural path for the question 'which laws passed in year X', and the portal's delivery order is not chronological (1,2,3,4,5,6,10,7,8,9), so the cut list is not even the most recent ones. `troncato` now follows the pagination flag and a second hint covers the limit-reached case. (2) `legge cronologia` did carry the origin bill's number, but inside the prose `sede` of the ddl_originario event ('Disegno di legge n. 239'), so chaining `ddl iter` meant regexing a sentence; `ddl_originari` now exposes the numbers at the report root, as a list because a law can come from several merged bills.",
+  "files": [
+    "internal/cli/icaro_helpers.go",
+    "internal/cli/leggi_collapse_test.go",
+    "internal/cli/legge_cronologia.go",
+    "internal/cli/ddl_iter.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "`leggi cerca --legisl 18 --anno 2026 --envelope` goes from 10 results with `troncato: false` and an empty stderr to 10 results with `troncato: true` and the hint to raise --limit; with `--limit 50` the same search returns all 14 with `troncato: false` and no hint, a single-law search (`--anno 2024 --numero 6`) stays silent, and the `--articoli` branch is unchanged. `legge cronologia` now reports `ddl_originari`: [239] for 18/6 2024, [831] for 18/2 2025, [551] for 18/26 2024, [733] for 17/9 2020 and [587] for 17/19 2020, all matching the bill numbers already visible in the timeline, while `ddl iter` does not carry the field. `go test ./...`, `go vet ./...`, `gofmt -l` and `cli-printing-press verify-skill` all clean.",
+  "upstream_issue": null
+}

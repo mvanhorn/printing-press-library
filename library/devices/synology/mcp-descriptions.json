@@ -1,0 +1,13 @@
+{
+  "descriptions": {
+    "files_delete_stop": "Stop a running background delete task before it finishes. Required: taskid (from files_delete_start). Returns no body on success; use files_delete_stop only to abort, not to check progress - poll files_delete_status for that.",
+    "files_info": "Report File Station's server-side capabilities and limits: supported protocols, max upload size, and enabled features. No parameters. Call this once before scripting file operations to confirm a feature (like search or thumbnails) is actually available on this NAS.",
+    "folder_list": "List every shared folder on the NAS with name, path, and space usage. Optional: additional (extra fields like nfs_privilege or encryption), limit, offset for pagination. Use folder_list to discover folder names, then folder_get for one folder's full detail or folder_permissions for its ACL.",
+    "group_list": "List local DSM user groups with name and description. Optional: additional (extra fields), limit, offset for pagination. Use group_list to find a group name, then group_members to see which accounts belong to it.",
+    "session_logout": "Invalidate the current DSM session id, ending the authenticated session immediately. No parameters, no response body. Call this to explicitly end a session rather than letting it expire; a new session_login is required afterward for further calls.",
+    "storage_esata": "List eSATA storage devices physically attached to the NAS, with device name and status. Optional: additional (extra fields). Returns an empty list on units with no eSATA port or nothing plugged in.",
+    "storage_luns": "List iSCSI LUNs (block-storage targets) configured on this NAS, with name, size, and backing volume. No parameters. Returns an empty list on units with iSCSI Manager not configured.",
+    "storage_smart_schedule": "List the configured SMART self-test schedule (test type and recurrence) applied to the NAS's physical disks. No parameters. Use storage_smart for a specific disk's actual SMART attribute results.",
+    "storage_usb": "List USB storage devices physically attached to the NAS, with device name and status. Optional: additional (extra fields like dev_type or status). Returns an empty list on units with nothing plugged into a USB port."
+  }
+}

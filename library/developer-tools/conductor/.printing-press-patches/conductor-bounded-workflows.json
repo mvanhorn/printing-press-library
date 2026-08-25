@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "conductor-bounded-workflows",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260805-conductor",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Added bounded launch, monitor, steer, run, plan-implement, and daily-report workflows.",
+  "reason": "The OpenAPI primitives do not encode Conductor's queued-message, false-idle, transcript-cursor, or cancellation lifecycle semantics.",
+  "files": [
+    "internal/cli/conductor_workflows.go",
+    "internal/cli/conductor_workflows_test.go",
+    "internal/cli/promoted_roundhouse-public-sql.go"
+  ],
+  "validated_outcome": "Unit tests, live Conductor lifecycle smoke, and Printing Press shipcheck all passed."
+}

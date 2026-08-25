@@ -1,0 +1,113 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-09T17:34:14.666481Z",
+  "printing_press_version": "4.30.1",
+  "api_name": "eero",
+  "display_name": "eero",
+  "cli_name": "eero-pp-cli",
+  "creator": {
+    "handle": "erikrogne",
+    "name": "Erik Rogne"
+  },
+  "owner": "erikrogne",
+  "printer": "erikrogne",
+  "printer_name": "Erik Rogne",
+  "spec_path": "eero-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "community",
+  "spec_checksum": "sha256:12271e971518c9c9aadfccfca2e9d92bc9f4daf1cc61fb4d4ab96f62e11c8115",
+  "run_id": "20260809-172807",
+  "category": "devices",
+  "description": "Inspect an eero mesh network from the terminal with agent-friendly output for networks, nodes, connected devices, diagnostics, and speed tests.",
+  "mcp_binary": "eero-pp-mcp",
+  "mcp_tool_count": 11,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "auth_env_vars": [
+    "EERO_SESSION_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "auth_title": "eero session token",
+  "auth_description": "Set EERO_SESSION_TOKEN to an eero session token, or use auth login --chrome with a browser profile that is already signed in.",
+  "novel_features": [
+    {
+      "name": "Network health snapshot",
+      "command": "network",
+      "description": "One agent-friendly read combines network status, speed summary, client count, node count, DNS, and feature settings."
+    },
+    {
+      "name": "Eero inventory",
+      "command": "eero list",
+      "description": "List all eero nodes in a network with compact agent-friendly output."
+    },
+    {
+      "name": "Connected-device inventory",
+      "command": "device list",
+      "description": "List connected client devices for a network, with filters and compact JSON for downstream automation."
+    },
+    {
+      "name": "Diagnostic report lookup",
+      "command": "diagnostics",
+      "description": "Fetch the latest diagnostic report for a network through the same authenticated CLI surface."
+    },
+    {
+      "name": "Speed-test history lookup",
+      "command": "speed-test",
+      "description": "Read the latest available speed-test results for a network as structured output."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Network health snapshot",
+      "command": "network",
+      "description": "One agent-friendly read combines network status, speed summary, client count, node count, DNS, and feature settings."
+    },
+    {
+      "name": "Eero inventory",
+      "command": "eero list",
+      "description": "List all eero nodes in a network with compact agent-friendly output."
+    },
+    {
+      "name": "Connected-device inventory",
+      "command": "device list",
+      "description": "List connected client devices for a network, with filters and compact JSON for downstream automation."
+    },
+    {
+      "name": "Diagnostic report lookup",
+      "command": "diagnostics",
+      "description": "Fetch the latest diagnostic report for a network through the same authenticated CLI surface."
+    },
+    {
+      "name": "Speed-test history lookup",
+      "command": "speed-test",
+      "description": "Read the latest available speed-test results for a network as structured output."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 97.43589743589743,
+    "passed": 38,
+    "total": 39,
+    "failed": 1,
+    "data_pipeline": true,
+    "verdict": "WARN"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A (1 of 24 dimensions unverified: live_api_verification)",
+      "total": 80
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

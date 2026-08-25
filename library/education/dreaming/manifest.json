@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "dreaming-pp-mcp",
+  "display_name": "Dreaming",
+  "version": "4.24.0",
+  "description": "Dreaming API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/dreaming-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/dreaming-pp-mcp",
+      "args": [],
+      "env": {
+        "DREAMING_TOKEN": "${user_config.dreaming_token}"
+      }
+    }
+  },
+  "user_config": {
+    "dreaming_token": {
+      "type": "string",
+      "title": "DREAMING_TOKEN",
+      "description": "Bearer token from app.dreaming.com localStorage 'token' or via 'auth login'.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

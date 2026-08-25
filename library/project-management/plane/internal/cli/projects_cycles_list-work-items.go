@@ -18,30 +18,44 @@ func newProjectsCyclesListWorkItemsCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:         "list-work-items <cycle_id> <project_id>",
+		Use:         "list-work-items <project_id> <cycle_id>",
 		Short:       "Retrieve all work items assigned to a cycle.",
 		Example:     "  plane-pp-cli projects cycles list-work-items 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "cycles.list-work-items", "pp:method": "GET", "pp:path": "/projects/{project_id}/cycles/{cycle_id}/cycle-issues/", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <project_id> <cycle_id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <project_id> <cycle_id>"))
 			}
+			path := "/projects/{project_id}/cycles/{cycle_id}/cycle-issues/"
+			if len(args) < 2 || args[1] == "" {
+				return usageErr(fmt.Errorf("cycle_id is required\nUsage: %s <%s>", cmd.CommandPath(), "cycle_id"))
+			}
+			path = replacePathParam(path, "cycle_id", args[1])
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("project_id is required\nUsage: %s <%s>", cmd.CommandPath(), "project_id"))
+			}
+			path = replacePathParam(path, "project_id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/projects/{project_id}/cycles/{cycle_id}/cycle-issues/"
-			path = replacePathParam(path, "cycle_id", args[0])
-			if len(args) < 2 {
-				return usageErr(fmt.Errorf("project_id is required\nUsage: %s <%s>", cmd.CommandPath(), "project_id"))
-			}
-			path = replacePathParam(path, "project_id", args[1])
-			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "cycles", path, map[string]string{
-				"cursor":         fmt.Sprintf("%v", flagCursor),
-				"per_page":       fmt.Sprintf("%v", flagPerPage),
-				"updated_at__gt": fmt.Sprintf("%v", flagUpdatedAtGt),
-			}, nil, flagAll, "cursor", "cursor", "per_page", "next_cursor", "", cmd.ErrOrStderr())
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "live", "cycles", path, map[string]string{
+				"cursor":         formatCLIParamValue(flagCursor),
+				"per_page":       formatCLIParamValue(flagPerPage),
+				"updated_at__gt": formatCLIParamValue(flagUpdatedAtGt),
+			}, nil, flagAll, "cursor", "cursor", "per_page", 100, "next_cursor", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -86,7 +100,7 @@ func newProjectsCyclesListWorkItemsCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Pagination cursor for getting next set of results")

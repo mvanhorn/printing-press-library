@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "mob-191-parent-issue-linking",
+  "applied_at": "2026-06-18",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Linear issue create/edit must expose parent/sub-issue linking so agents do not leave the CLI for raw GraphQL.",
+  "reason": "Agents creating issue trees need a safe, documented CLI surface that resolves parent issue identifiers live, supports clearing parentage, preserves dry-run/file-backed workflows, and emits typed agent errors.",
+  "files": [
+    "internal/cli/issues.go",
+    "internal/cli/issues_create.go",
+    "internal/cli/issues_edit.go",
+    "internal/cli/which.go",
+    "internal/cli/root.go",
+    "internal/cli/linear_agent_test.go",
+    "internal/cli/which_test.go"
+  ],
+  "validated_outcome": "Focused parent/which tests, full go test ./..., go vet ./..., go build ./..., SKILL verifier, and dry-run binary smoke all passed."
+}

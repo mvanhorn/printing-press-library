@@ -1,0 +1,68 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-04T01:53:35.522689Z",
+  "printing_press_version": "4.27.1",
+  "api_name": "human-goat",
+  "display_name": "Human-Goat",
+  "cli_name": "human-goat-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
+  "owner": "mvanhorn",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "spec_path": "human-goat-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:d13bff25e9d8da581b5f61422d5eb6af8332ef8ed558dd6106f973f96c1a3bc9",
+  "run_id": "20260703-152050-dff84056",
+  "category": "productivity",
+  "description": "Hire real humans from the terminal — autonomous TaskRabbit checkout with a verified undo, plus Magic remote errands, in one agent-native binary.",
+  "mcp_binary": "human-goat-pp-mcp",
+  "mcp_tool_count": 8,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Autonomous soup-to-nuts hire",
+      "command": "hire",
+      "description": "Say the job and the date; goat searches, ranks by review quality and honest all-in price, and checks out against the card on file with no prompt."
+    },
+    {
+      "name": "Verified cancel (the safety gate)",
+      "command": "cancel",
+      "description": "Cancels a booking and confirms it landed by re-reading status, reporting whether it was inside the free window and any fee."
+    },
+    {
+      "name": "Spend cap",
+      "command": "hire",
+      "description": "Refuses to check out when the computed all-in total exceeds a configurable ceiling, printing the total and the cap."
+    },
+    {
+      "name": "All-in price",
+      "command": "best",
+      "description": "Folds TaskRabbit's hidden service (~15%) and trust-and-support (5-15%) fees into the displayed hourly rate, honoring the CA/MA service-fee-only rule."
+    },
+    {
+      "name": "Cross-source dispatch",
+      "command": "dispatch",
+      "description": "Routes a plain-language task to Magic (remote-doable) or TaskRabbit (in-person) by task shape, with a --via override."
+    },
+    {
+      "name": "Cross-source spend analytics",
+      "command": "spend",
+      "description": "SQL over local booking, invoice, and Magic-task history by category, tasker, source, or month, using true effective all-in $/hr for TaskRabbit."
+    },
+    {
+      "name": "Availability watch",
+      "command": "watch",
+      "description": "Polls recommendations for a category and date (optionally a favorite or a rate ceiling) and alerts when a match opens."
+    },
+    {
+      "name": "Unified in-flight inbox",
+      "command": "status",
+      "description": "One list of every in-flight task across TaskRabbit bookings and Magic requests, joined on the common task model and sorted by state."
+    }
+  ]
+}

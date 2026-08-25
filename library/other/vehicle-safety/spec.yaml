@@ -1,0 +1,243 @@
+openapi: 3.0.3
+info:
+  title: Vehicle Safety
+  version: 1.0.0
+  description: Evidence-first vehicle safety research using NHTSA recalls, complaints, ratings, product catalogs, and vPIC VIN data.
+  x-category: other
+  x-cli-description: Build source-attributed vehicle safety dossiers, honest comparisons, and recall-change reports from NHTSA data.
+servers:
+  - url: https://api.nhtsa.gov
+x-category: other
+x-learn:
+  ticker_patterns:
+    - '^[A-HJ-NPR-Z0-9]{17}$'
+  synonyms:
+    model year: year
+    technical service bulletin: manufacturer communication
+    tsb: manufacturer communication
+paths:
+  /recalls/recallsByVehicle:
+    get:
+      operationId: listRecallsByVehicle
+      summary: List recalls for a model year, make, and model
+      tags: [recalls]
+      parameters:
+        - $ref: '#/components/parameters/Make'
+        - $ref: '#/components/parameters/Model'
+        - $ref: '#/components/parameters/ModelYear'
+      responses:
+        '200':
+          description: Matching recall campaigns
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/RecallResponse'}
+  /recalls/campaignNumber:
+    get:
+      operationId: getRecallCampaign
+      summary: Get a recall by NHTSA campaign number
+      tags: [recalls]
+      parameters:
+        - name: campaignNumber
+          in: query
+          required: true
+          schema: {type: string}
+      responses:
+        '200':
+          description: Recall campaign
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/RecallResponse'}
+  /complaints/complaintsByVehicle:
+    get:
+      operationId: listComplaintsByVehicle
+      summary: List owner complaints for a model year, make, and model
+      tags: [complaints]
+      parameters:
+        - $ref: '#/components/parameters/Make'
+        - $ref: '#/components/parameters/Model'
+        - $ref: '#/components/parameters/ModelYear'
+      responses:
+        '200':
+          description: Matching owner complaints
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ComplaintResponse'}
+  /products/vehicle/modelYears:
+    get:
+      operationId: listVehicleModelYears
+      summary: List vehicle model years for an issue type
+      tags: [products]
+      parameters:
+        - $ref: '#/components/parameters/IssueType'
+      responses:
+        '200': {$ref: '#/components/responses/GenericList'}
+  /products/vehicle/makes:
+    get:
+      operationId: listVehicleMakes
+      summary: List makes for a model year and issue type
+      tags: [products]
+      parameters:
+        - $ref: '#/components/parameters/ModelYear'
+        - $ref: '#/components/parameters/IssueType'
+      responses:
+        '200': {$ref: '#/components/responses/GenericList'}
+  /products/vehicle/models:
+    get:
+      operationId: listVehicleModels
+      summary: List models for a make, model year, and issue type
+      tags: [products]
+      parameters:
+        - $ref: '#/components/parameters/ModelYear'
+        - $ref: '#/components/parameters/Make'
+        - $ref: '#/components/parameters/IssueType'
+      responses:
+        '200': {$ref: '#/components/responses/GenericList'}
+  /SafetyRatings/modelyear/{modelYear}/make/{make}/model/{model}:
+    get:
+      operationId: listSafetyRatingsByVehicle
+      summary: List crash-rating vehicle variants
+      tags: [ratings]
+      parameters:
+        - $ref: '#/components/parameters/ModelYearPath'
+        - $ref: '#/components/parameters/MakePath'
+        - $ref: '#/components/parameters/ModelPath'
+        - name: format
+          in: query
+          schema: {type: string, default: json, enum: [json]}
+      responses:
+        '200': {$ref: '#/components/responses/GenericListUpper'}
+  /SafetyRatings/VehicleId/{vehicleId}:
+    get:
+      operationId: getSafetyRating
+      summary: Get crash ratings for a NHTSA vehicle ID
+      tags: [ratings]
+      parameters:
+        - name: vehicleId
+          in: path
+          required: true
+          schema: {type: integer}
+        - name: format
+          in: query
+          schema: {type: string, default: json, enum: [json]}
+      responses:
+        '200': {$ref: '#/components/responses/GenericListUpper'}
+  /api/vehicles/DecodeVinValues/{vin}:
+    get:
+      operationId: decodeVin
+      summary: Decode a VIN into normalized vehicle attributes
+      tags: [vin]
+      servers:
+        - url: https://vpic.nhtsa.dot.gov
+      parameters:
+        - name: vin
+          in: path
+          required: true
+          schema: {type: string, minLength: 17, maxLength: 17}
+        - name: modelyear
+          in: query
+          required: false
+          schema: {type: integer}
+        - name: format
+          in: query
+          schema: {type: string, default: json, enum: [json]}
+      responses:
+        '200': {$ref: '#/components/responses/GenericListUpper'}
+components:
+  parameters:
+    Make:
+      name: make
+      in: query
+      required: true
+      schema: {type: string}
+    Model:
+      name: model
+      in: query
+      required: true
+      schema: {type: string}
+    ModelYear:
+      name: modelYear
+      in: query
+      required: true
+      schema: {type: integer, minimum: 1949}
+    MakePath:
+      name: make
+      in: path
+      required: true
+      schema: {type: string}
+    ModelPath:
+      name: model
+      in: path
+      required: true
+      schema: {type: string}
+    ModelYearPath:
+      name: modelYear
+      in: path
+      required: true
+      schema: {type: integer, minimum: 1949}
+    IssueType:
+      name: issueType
+      in: query
+      required: true
+      description: r for recalls, c for complaints/communications, i for investigations when supported
+      schema: {type: string, enum: [r, c, i]}
+  responses:
+    GenericList:
+      description: NHTSA list response
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: true
+    GenericListUpper:
+      description: NHTSA list response using the legacy uppercase envelope
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: true
+  schemas:
+    RecallResponse:
+      type: object
+      properties:
+        Count: {type: integer}
+        Message: {type: string}
+        results:
+          type: array
+          items: {$ref: '#/components/schemas/Recall'}
+    Recall:
+      type: object
+      additionalProperties: true
+      properties:
+        NHTSACampaignNumber: {type: string}
+        Manufacturer: {type: string}
+        Component: {type: string}
+        Summary: {type: string}
+        Consequence: {type: string}
+        Remedy: {type: string}
+        ReportReceivedDate: {type: string}
+        ParkIt: {type: boolean}
+        ParkOutSide: {type: boolean}
+        DoNotDrive: {type: boolean}
+    ComplaintResponse:
+      type: object
+      properties:
+        count: {type: integer}
+        message: {type: string}
+        results:
+          type: array
+          items: {$ref: '#/components/schemas/Complaint'}
+    Complaint:
+      type: object
+      additionalProperties: true
+      properties:
+        odiNumber: {type: integer}
+        manufacturer: {type: string}
+        components: {type: string}
+        summary: {type: string}
+        dateComplaintFiled: {type: string}
+        dateOfIncident: {type: string}
+        crash: {type: boolean}
+        fire: {type: boolean}
+        numberOfInjuries: {type: integer}
+        numberOfDeaths: {type: integer}
+

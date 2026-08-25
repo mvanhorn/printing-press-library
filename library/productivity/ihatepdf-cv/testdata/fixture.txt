@@ -1,0 +1,1 @@
+fixture text for offline PDF verification

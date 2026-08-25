@@ -1,0 +1,389 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-06-21T04:40:01.782789Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "wanderlog",
+  "display_name": "Wanderlog",
+  "cli_name": "wanderlog-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:6860caa9799213fe43cffbf33f780a24f06e2815484a3bb4acc84094c60ac1e0",
+  "run_id": "20260619-000132-cc275322",
+  "category": "travel",
+  "description": "Clone shared Wanderlog plans into editable trips, then mine guides and places for agent-ready planning.",
+  "mcp_binary": "wanderlog-pp-mcp",
+  "mcp_tool_count": 19,
+  "mcp_public_tool_count": 14,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "WANDERLOG_COOKIE"
+  ],
+  "novel_features": [
+    {
+      "name": "Shared plan clone",
+      "command": "plan clone",
+      "description": "Create a new Wanderlog trip from a shared or public source plan, then fill it with the source plan template."
+    },
+    {
+      "name": "Existing trip fill from template",
+      "command": "plan fill",
+      "description": "Fill an existing Wanderlog trip from a shared or public source plan with dry-run and force safeguards."
+    },
+    {
+      "name": "Clone preview and copyability report",
+      "command": "plan preview",
+      "description": "Inspect a shared plan and report dates, sections, blocks, resources, and clone warnings before any write."
+    },
+    {
+      "name": "Trip key discovery",
+      "command": "trips home",
+      "description": "List the authenticated account's home trips together with their 16-character plan `key`s. Also: list my trips, own itineraries."
+    },
+    {
+      "name": "Slim itinerary outline",
+      "command": "plan outline",
+      "description": "Show a slim itinerary outline: days, section headings, and stop names, optionally for a single day. Also: show days in my plan, slim day list."
+    },
+    {
+      "name": "Itinerary consistency checks",
+      "command": "plan inspect",
+      "description": "Inspect a slim itinerary outline and, with `--check`, report counts, unformatted notes, lodging coverage, closed places, and text-vs-schedule mismatches. Also: verify an itinerary after edits."
+    },
+    {
+      "name": "Plan vote counts",
+      "command": "plan votes",
+      "description": "List place and hotel block upvote counts for a Wanderlog plan. Also: who upvoted places, upvotedBy counts."
+    },
+    {
+      "name": "Lodging candidate search",
+      "command": "lodging search",
+      "description": "Search Wanderlog's lodging aggregator across Airbnb, Expedia, Google, and Kayak for a geo and date range, and return compact candidates carrying price, rating, coordinates, and booking URL. Also: search hotels, find a place to stay, compare stays."
+    },
+    {
+      "name": "Section index listing",
+      "command": "plan sections",
+      "description": "List editable section indexes, day numbers, section ids, dates, and block counts for a plan."
+    },
+    {
+      "name": "Note blocks",
+      "command": "plan note add",
+      "description": "Add a note block to a selected day or section through ShareDB."
+    },
+    {
+      "name": "Place blocks",
+      "command": "plan place add",
+      "description": "Add a real place block to a selected day or section from a Google/Wanderlog place id, or from a query with location bias. Also: geocode a place by query, verify an address."
+    },
+    {
+      "name": "Place swap in place",
+      "command": "plan place replace",
+      "description": "Replace only the nested place on an existing itinerary block, keeping its times and notes."
+    },
+    {
+      "name": "Batch day fill",
+      "command": "plan fill-day",
+      "description": "Insert a batch of place stops into one Wanderlog day from a JSON array of stops with optional times and notes."
+    },
+    {
+      "name": "Block move",
+      "command": "plan block move",
+      "description": "Move a note or place block within or across days."
+    },
+    {
+      "name": "Block delete",
+      "command": "plan block delete",
+      "description": "Delete a note or place block from a selected day or section."
+    },
+    {
+      "name": "Rich-text note editing",
+      "command": "plan block edit-text",
+      "description": "Replace the rich-text note attached to an existing block, as plain text or compiled markdown with `--markdown`. Also: replace a stop note as plain text."
+    },
+    {
+      "name": "Markdown note formatting",
+      "command": "plan block edit-text --markdown",
+      "description": "Compile a markdown note into Wanderlog rich text: **bold**, `-`/`*` bullets, and `#` label lines. Also: format notes with bullets, bold text, rich text on a stop."
+    },
+    {
+      "name": "Block display rename",
+      "command": "plan block rename",
+      "description": "Rename the display name on an existing place or lodging block. Also: rename a place or hotel, change a display name."
+    },
+    {
+      "name": "Arbitrary block fields",
+      "command": "plan block set-field",
+      "description": "Set or remove a non-protected field on a block, including newly observed fields from live plan data."
+    },
+    {
+      "name": "Block scheduling",
+      "command": "plan block schedule",
+      "description": "Set or clear first-class schedule fields on an existing block. Also: set stop times, duration."
+    },
+    {
+      "name": "Block attachments",
+      "command": "plan block attachment",
+      "description": "List, add, or remove attachment metadata on a block. Also: tickets, booking links, PDFs."
+    },
+    {
+      "name": "Reservation blocks",
+      "command": "plan reservation add",
+      "description": "Add a flight, lodging, rental car, restaurant, transit, cruise, or standalone attachment block with dates, times, and confirmation details. Also: record a hotel stay, check-in and check-out dates."
+    },
+    {
+      "name": "Checklists",
+      "command": "plan checklist",
+      "description": "Add checklist blocks and add, check, or remove checklist items. Also: packing lists, todo items."
+    },
+    {
+      "name": "Plan comments",
+      "command": "plan comments",
+      "description": "List, add, edit, delete, or vote on Wanderlog plan comments using the confirmed comments API. Also: friend discussion, replies, comment votes."
+    },
+    {
+      "name": "Collaborators and sharing",
+      "command": "plan collaborators",
+      "description": "Inspect collaborator/share metadata, list pending invites, send email/user invites, add or remove collaborators by user id, and create share keys. Also: invite a friend, share links, share keys, pending invites, permissions."
+    },
+    {
+      "name": "Trip budget",
+      "command": "plan budget",
+      "description": "Summarize, export, and edit Wanderlog trip budget expenses and settlement payments. Also: add an expense, costs, splits, payers, record a payment or settlement, CSV export."
+    },
+    {
+      "name": "Route optimization",
+      "command": "plan route",
+      "description": "Build route optimization request bodies or call Wanderlog's optimizeRoute endpoint. Also: optimize a route, better travel order."
+    },
+    {
+      "name": "Edit journal with undo/redo",
+      "command": "plan history",
+      "description": "List, preview, undo, and redo local-journaled ShareDB itinerary edits (`plan history`, `plan undo`, `plan redo`). Also: undo my last edit, redo my last edit, revert an itinerary change."
+    },
+    {
+      "name": "Add a day",
+      "command": "plan section add-day",
+      "description": "Insert a new day section and update trip day/date bounds."
+    },
+    {
+      "name": "Section fields",
+      "command": "plan section set-field",
+      "description": "Set or remove a field on a section, including day headings or rich text."
+    },
+    {
+      "name": "Section delete",
+      "command": "plan section delete",
+      "description": "Delete an empty section and update trip day/date bounds."
+    },
+    {
+      "name": "Day swap",
+      "command": "plan section swap-days",
+      "description": "Swap the block arrays of two day sections in one JSON0 batch."
+    },
+    {
+      "name": "JSON0 batch apply",
+      "command": "plan block apply",
+      "description": "Preview or apply a JSON0 operation array read from disk with --ops-file. Also: apply an ops-file batch of plan edits."
+    },
+    {
+      "name": "Raw JSON0 escape hatch",
+      "command": "plan raw op",
+      "description": "Preview or apply an explicit ShareDB JSON0 operation array."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Shared plan clone",
+      "command": "plan clone",
+      "description": "Create a new Wanderlog trip from a shared or public source plan, then fill it with the source plan template."
+    },
+    {
+      "name": "Existing trip fill from template",
+      "command": "plan fill",
+      "description": "Fill an existing Wanderlog trip from a shared or public source plan with dry-run and force safeguards."
+    },
+    {
+      "name": "Clone preview and copyability report",
+      "command": "plan preview",
+      "description": "Inspect a shared plan and report dates, sections, blocks, resources, and clone warnings before any write."
+    },
+    {
+      "name": "Trip key discovery",
+      "command": "trips home",
+      "description": "List the authenticated account's home trips together with their 16-character plan `key`s. Also: list my trips, own itineraries."
+    },
+    {
+      "name": "Slim itinerary outline",
+      "command": "plan outline",
+      "description": "Show a slim itinerary outline: days, section headings, and stop names, optionally for a single day. Also: show days in my plan, slim day list."
+    },
+    {
+      "name": "Itinerary consistency checks",
+      "command": "plan inspect",
+      "description": "Inspect a slim itinerary outline and, with `--check`, report counts, unformatted notes, lodging coverage, closed places, and text-vs-schedule mismatches. Also: verify an itinerary after edits."
+    },
+    {
+      "name": "Plan vote counts",
+      "command": "plan votes",
+      "description": "List place and hotel block upvote counts for a Wanderlog plan. Also: who upvoted places, upvotedBy counts."
+    },
+    {
+      "name": "Lodging candidate search",
+      "command": "lodging search",
+      "description": "Search Wanderlog's lodging aggregator across Airbnb, Expedia, Google, and Kayak for a geo and date range, and return compact candidates carrying price, rating, coordinates, and booking URL. Also: search hotels, find a place to stay, compare stays."
+    },
+    {
+      "name": "Section index listing",
+      "command": "plan sections",
+      "description": "List editable section indexes, day numbers, section ids, dates, and block counts for a plan."
+    },
+    {
+      "name": "Note blocks",
+      "command": "plan note add",
+      "description": "Add a note block to a selected day or section through ShareDB."
+    },
+    {
+      "name": "Place blocks",
+      "command": "plan place add",
+      "description": "Add a real place block to a selected day or section from a Google/Wanderlog place id, or from a query with location bias. Also: geocode a place by query, verify an address."
+    },
+    {
+      "name": "Place swap in place",
+      "command": "plan place replace",
+      "description": "Replace only the nested place on an existing itinerary block, keeping its times and notes."
+    },
+    {
+      "name": "Batch day fill",
+      "command": "plan fill-day",
+      "description": "Insert a batch of place stops into one Wanderlog day from a JSON array of stops with optional times and notes."
+    },
+    {
+      "name": "Block move",
+      "command": "plan block move",
+      "description": "Move a note or place block within or across days."
+    },
+    {
+      "name": "Block delete",
+      "command": "plan block delete",
+      "description": "Delete a note or place block from a selected day or section."
+    },
+    {
+      "name": "Rich-text note editing",
+      "command": "plan block edit-text",
+      "description": "Replace the rich-text note attached to an existing block, as plain text or compiled markdown with `--markdown`. Also: replace a stop note as plain text."
+    },
+    {
+      "name": "Markdown note formatting",
+      "command": "plan block edit-text --markdown",
+      "description": "Compile a markdown note into Wanderlog rich text: **bold**, `-`/`*` bullets, and `#` label lines. Also: format notes with bullets, bold text, rich text on a stop."
+    },
+    {
+      "name": "Block display rename",
+      "command": "plan block rename",
+      "description": "Rename the display name on an existing place or lodging block. Also: rename a place or hotel, change a display name."
+    },
+    {
+      "name": "Arbitrary block fields",
+      "command": "plan block set-field",
+      "description": "Set or remove a non-protected field on a block, including newly observed fields from live plan data."
+    },
+    {
+      "name": "Block scheduling",
+      "command": "plan block schedule",
+      "description": "Set or clear first-class schedule fields on an existing block. Also: set stop times, duration."
+    },
+    {
+      "name": "Block attachments",
+      "command": "plan block attachment",
+      "description": "List, add, or remove attachment metadata on a block. Also: tickets, booking links, PDFs."
+    },
+    {
+      "name": "Reservation blocks",
+      "command": "plan reservation add",
+      "description": "Add a flight, lodging, rental car, restaurant, transit, cruise, or standalone attachment block with dates, times, and confirmation details. Also: record a hotel stay, check-in and check-out dates."
+    },
+    {
+      "name": "Checklists",
+      "command": "plan checklist",
+      "description": "Add checklist blocks and add, check, or remove checklist items. Also: packing lists, todo items."
+    },
+    {
+      "name": "Plan comments",
+      "command": "plan comments",
+      "description": "List, add, edit, delete, or vote on Wanderlog plan comments using the confirmed comments API. Also: friend discussion, replies, comment votes."
+    },
+    {
+      "name": "Collaborators and sharing",
+      "command": "plan collaborators",
+      "description": "Inspect collaborator/share metadata, list pending invites, send email/user invites, add or remove collaborators by user id, and create share keys. Also: invite a friend, share links, share keys, pending invites, permissions."
+    },
+    {
+      "name": "Trip budget",
+      "command": "plan budget",
+      "description": "Summarize, export, and edit Wanderlog trip budget expenses and settlement payments. Also: add an expense, costs, splits, payers, record a payment or settlement, CSV export."
+    },
+    {
+      "name": "Route optimization",
+      "command": "plan route",
+      "description": "Build route optimization request bodies or call Wanderlog's optimizeRoute endpoint. Also: optimize a route, better travel order."
+    },
+    {
+      "name": "Edit journal with undo/redo",
+      "command": "plan history",
+      "description": "List, preview, undo, and redo local-journaled ShareDB itinerary edits (`plan history`, `plan undo`, `plan redo`). Also: undo my last edit, redo my last edit, revert an itinerary change."
+    },
+    {
+      "name": "Add a day",
+      "command": "plan section add-day",
+      "description": "Insert a new day section and update trip day/date bounds."
+    },
+    {
+      "name": "Section fields",
+      "command": "plan section set-field",
+      "description": "Set or remove a field on a section, including day headings or rich text."
+    },
+    {
+      "name": "Section delete",
+      "command": "plan section delete",
+      "description": "Delete an empty section and update trip day/date bounds."
+    },
+    {
+      "name": "Day swap",
+      "command": "plan section swap-days",
+      "description": "Swap the block arrays of two day sections in one JSON0 batch."
+    },
+    {
+      "name": "JSON0 batch apply",
+      "command": "plan block apply",
+      "description": "Preview or apply a JSON0 operation array read from disk with --ops-file. Also: apply an ops-file batch of plan edits."
+    },
+    {
+      "name": "Raw JSON0 escape hatch",
+      "command": "plan raw op",
+      "description": "Preview or apply an explicit ShareDB JSON0 operation array."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 95.23809523809523,
+    "passed": 20,
+    "total": 21,
+    "failed": 1,
+    "data_pipeline": true,
+    "verdict": "WARN"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 94,
+      "grade": "A",
+      "total": 94
+    }
+  }
+}

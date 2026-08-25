@@ -23,26 +23,25 @@ func newArticlesSearchCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  intercom-pp-cli articles search",
 		Annotations: map[string]string{"pp:endpoint": "articles.search", "pp:method": "GET", "pp:path": "/articles/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/articles/search"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/articles/search"
 			params := map[string]string{}
 			if flagPhrase != "" {
-				params["phrase"] = fmt.Sprintf("%v", flagPhrase)
+				params["phrase"] = formatCLIParamValue(flagPhrase)
 			}
 			if flagState != "" {
-				params["state"] = fmt.Sprintf("%v", flagState)
+				params["state"] = formatCLIParamValue(flagState)
 			}
 			if flagHelpCenterId != "" {
-				params["help_center_id"] = fmt.Sprintf("%v", flagHelpCenterId)
+				params["help_center_id"] = formatCLIParamValue(flagHelpCenterId)
 			}
 			if flagHighlight != false {
-				params["highlight"] = fmt.Sprintf("%v", flagHighlight)
+				params["highlight"] = formatCLIParamValue(flagHighlight)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "articles", false, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "articles", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -87,7 +86,7 @@ func newArticlesSearchCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagPhrase, "phrase", "", "The phrase within your articles to search for.")

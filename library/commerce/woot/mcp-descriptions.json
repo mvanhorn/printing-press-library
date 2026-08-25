@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "graphql_list_graphql": "Execute a read-only GraphQL query against Woot's browser API. Required: query containing one query operation; mutation and subscription operations are rejected. Returns a validated GraphQL response envelope. Prefer the deals tool for paged All Deals scans with keyword filtering."
+  }
+}

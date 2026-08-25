@@ -1,0 +1,259 @@
+name: sculptok
+description: "SculptOK AI depth-map, relief, STL and 3D generation CLI"
+version: "0.1.0"
+base_url: "https://api.sculptok.com/api-open"
+health_check_path: "/point/info"
+category: ai
+
+auth:
+  type: api_key
+  header: "apikey"
+  format: "{token}"
+  in: header
+  env_vars:
+    - SCULPTOK_API_KEY
+
+config:
+  format: toml
+  path: "~/.config/sculptok-pp-cli/config.toml"
+
+resources:
+  credits:
+    description: "Credit balance and change history (free reads)"
+    endpoints:
+      balance:
+        method: GET
+        path: "/point/info"
+        description: "Get the current credit balance (free)"
+        response:
+          type: object
+        response_path: data
+      history:
+        method: GET
+        path: "/point/page"
+        description: "List credit-change history, newest first (free)"
+        params:
+          - name: page
+            type: int
+            required: false
+            default: 1
+            description: "Page number (1-based)"
+          - name: limit
+            type: int
+            required: false
+            default: 20
+            description: "Items per page"
+        response:
+          type: array
+          item: CreditEvent
+        response_path: data.list
+
+  drawings:
+    description: "History of generated images/draws (free read)"
+    endpoints:
+      list:
+        method: GET
+        path: "/image/page"
+        description: "List your past generated images, newest first (free)"
+        params:
+          - name: page
+            type: int
+            required: false
+            default: 1
+            description: "Page number (1-based)"
+          - name: limit
+            type: int
+            required: false
+            default: 20
+            description: "Items per page"
+        response:
+          type: array
+          item: Drawing
+        response_path: data.list
+
+  draw:
+    description: "Submit and track async draw jobs (each draw costs credits)"
+    endpoints:
+      depthmap:
+        method: POST
+        path: "/draw/prompt"
+        description: "Submit a depth-map draw. Cost: 10 credits (style=pro 2k 15; style=pro + draw_hd=4k 30). Async: returns promptId; poll with 'draw status'."
+        body:
+          - name: imageUrl
+            flag_name: image-url
+            type: string
+            required: true
+            description: "Uploaded image URL (from the upload step / a SculptOK-hosted src URL)"
+          - name: style
+            type: string
+            required: false
+            default: "normal"
+            enum: ["normal", "portrait", "sketch", "pro"]
+            description: "Depth-map style. pro unlocks version/draw_hd/exr. Default normal."
+          - name: hd_fix
+            flag_name: hd-fix
+            type: string
+            required: false
+            default: "manual"
+            enum: ["auto", "manual"]
+            description: "AI optimization: auto to enable, manual to disable. Default manual."
+          - name: optimal_size
+            flag_name: optimal-size
+            type: string
+            required: false
+            default: "true"
+            enum: ["true", "false"]
+            description: "Enable optimal output size. Default true."
+          - name: extInfo
+            flag_name: ext-info
+            type: string
+            required: false
+            default: "false"
+            enum: ["false", "8bit", "16bit", "exr"]
+            description: "Bit depth; when set, only one image is returned. exr requires style=pro."
+          - name: version
+            type: string
+            required: false
+            enum: ["1.0", "1.5"]
+            description: "Model version, only effective when style=pro. Default 1.0."
+          - name: draw_hd
+            flag_name: draw-hd
+            type: string
+            required: false
+            enum: ["2k", "4k"]
+            description: "Resolution, only effective when style=pro. Default 2k. 4k costs 30 credits."
+        response:
+          type: object
+        response_path: data
+
+      restore:
+        method: POST
+        path: "/draw/hd/prompt"
+        description: "Submit background-removal and/or HD restoration. Cost: 2 credits. Async: returns promptId."
+        body:
+          - name: imageUrl
+            flag_name: image-url
+            type: string
+            required: true
+            description: "Uploaded image URL"
+          - name: hdFix
+            flag_name: hd-fix
+            type: string
+            required: false
+            enum: ["true", "false"]
+            description: "Apply HD restoration."
+          - name: removeBack
+            flag_name: remove-back
+            type: string
+            required: false
+            enum: ["anime", "general"]
+            description: "Background removal model; omit to skip background removal."
+        response:
+          type: object
+        response_path: data
+
+      threed:
+        method: POST
+        path: "/draw/3d/prompt"
+        description: "Submit a 3D draw. Cost: 10 credits. Async: returns promptId."
+        body:
+          - name: imageUrl
+            flag_name: image-url
+            type: string
+            required: true
+            description: "Uploaded image URL"
+          - name: hd_fix
+            flag_name: hd-fix
+            type: string
+            required: false
+            default: "basic"
+            enum: ["basic", "standard", "high"]
+            description: "Precision of the 3D draw. Default basic."
+        response:
+          type: object
+        response_path: data
+
+      stl:
+        method: POST
+        path: "/draw/stl/prompt"
+        description: "Submit an image-to-STL job. Cost: 3 credits. Async: returns promptId."
+        body:
+          - name: image_url
+            flag_name: image-url
+            type: string
+            required: true
+            description: "Input image URL (png/jpg/jpeg/webp/bmp/exr)"
+          - name: width_mm
+            flag_name: width-mm
+            type: float
+            required: false
+            default: 120
+            description: "Output model width in mm (range 40-240). Default 120."
+          - name: min_thickness
+            flag_name: min-thickness
+            type: float
+            required: false
+            default: 1.6
+            description: "Minimum thickness in mm for the brightest area (range 0.4-8). Default 1.6."
+          - name: max_thickness
+            flag_name: max-thickness
+            type: float
+            required: false
+            default: 5.0
+            description: "Maximum thickness in mm for the darkest area (range 0.4-25). Default 5.0."
+          - name: invert
+            type: bool
+            required: false
+            default: false
+            description: "Invert grayscale (black shallow, white deep). Default false."
+          - name: scale_image
+            flag_name: scale-image
+            type: float
+            required: false
+            default: 50
+            description: "Image scale percent (0-100). Default 50."
+        response:
+          type: object
+        response_path: data
+
+      status:
+        method: GET
+        path: "/draw/prompt"
+        description: "Get the status of a submitted draw by promptId (free). status/currentStep/position and imgRecords on completion."
+        params:
+          - name: uuid
+            type: string
+            required: true
+            description: "The promptId returned by a draw submit"
+        response:
+          type: object
+        response_path: data
+
+types:
+  CreditEvent:
+    fields:
+      - name: id
+        type: string
+      - name: userId
+        type: string
+      - name: actionType
+        type: int
+      - name: remainValue
+        type: int
+      - name: changeNum
+        type: int
+      - name: remarks
+        type: string
+      - name: createDate
+        type: string
+
+  Drawing:
+    fields:
+      - name: id
+        type: string
+      - name: userId
+        type: string
+      - name: imgUrl
+        type: string
+      - name: createDate
+        type: string

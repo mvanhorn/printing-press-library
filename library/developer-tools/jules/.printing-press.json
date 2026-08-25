@@ -1,0 +1,85 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-21T01:58:21.716458Z",
+  "printing_press_version": "4.31.1",
+  "api_name": "jules",
+  "display_name": "Jules",
+  "cli_name": "jules-pp-cli",
+  "creator": {
+    "handle": "wryenmeek",
+    "name": "github-actionsbot"
+  },
+  "owner": "wryenmeek",
+  "printer": "wryenmeek",
+  "printer_name": "github-actionsbot",
+  "spec_path": "spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:e40871e0e37f58eb1a268e3993f886ad7846ff55e6c9a92cf4056504cb254a82",
+  "run_id": "20260820-141824-efdff954",
+  "category": "developer-tools",
+  "description": "Jules Planning \u0026 Progress API for async coding tasks",
+  "mcp_binary": "jules-pp-mcp",
+  "mcp_tool_count": 10,
+  "mcp_ready": "full",
+  "api_version": "1.0.0-alpha",
+  "auth_type": "api_key",
+  "auth_preference": "ApiKeyAuth",
+  "auth_env_vars": [
+    "JULES_API_KEY"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "JULES_API_KEY",
+      "kind": "static",
+      "required": true,
+      "sensitive": true
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Quota-Aware Dispatch with Backoff",
+      "command": "sessions create --quota-safe",
+      "description": "Check quota before dispatching a session and retry with exponential backoff on 429/400 rate-limit errors, up to --max-retries (default 5)."
+    },
+    {
+      "name": "Pre-flight Conflict Detection",
+      "command": "sessions create --check-conflicts",
+      "description": "Detect merge conflicts with in-flight sessions on the same repo before dispatching a new session, blocking creation unless overridden with --yes."
+    },
+    {
+      "name": "Continuous Session Monitoring",
+      "command": "monitor",
+      "description": "Poll one or more sessions for progress and state changes; --reconcile detects and reports stalled sessions with no activity for a configurable duration."
+    },
+    {
+      "name": "Working Tree Checkpoints",
+      "command": "checkpoint",
+      "description": "Save, list, and restore session state and activity snapshots locally, enabling safe mid-session work recovery after interruptions."
+    },
+    {
+      "name": "Zombie Session Archival",
+      "command": "archive",
+      "description": "Identify sessions with no activity for a configurable duration (default 7 days) and archive them to free quota, with --dry-run to preview."
+    },
+    {
+      "name": "Pre-submission Diff Validation",
+      "command": "diff-validate",
+      "description": "Validate a session's diff isn't empty, isn't whitespace-only, stays within size limits, and has a meaningful commit message before submission."
+    },
+    {
+      "name": "Workflow Trigger Chaining",
+      "command": "trigger",
+      "description": "Chain cron schedules with GitHub workflow_run events to run Jules tasks on a schedule or automatically trigger workflows when sessions complete."
+    },
+    {
+      "name": "Persona Memory Learning",
+      "command": "persona",
+      "description": "Record successful Jules task decomposition strategies and prompt patterns as reusable personas, backed by local SQLite persistence."
+    },
+    {
+      "name": "Compliance & Safety Gating",
+      "command": "compliance",
+      "description": "Check that Jules-generated changes comply with organizational policies (code review, security scanning, license, dependency, and API usage rules) before allowing submission."
+    }
+  ]
+}

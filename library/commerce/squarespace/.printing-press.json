@@ -36,5 +36,6 @@
       "command": "site",
       "description": "Use site, website, pages, and store-pages aliases over the generated Commerce API website profile and store pages endpoints."
     }
-  ]
+  ],
+  "mcp_tool_count": 47
 }

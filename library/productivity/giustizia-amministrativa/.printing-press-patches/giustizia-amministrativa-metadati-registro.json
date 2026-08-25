@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-metadati-registro",
+  "applied_at": "2026-08-22",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Nuovo flag --meta su get (e provvedimenti get): scarica la forma XML del documento da /visualizza/ e ne legge i metadati di registro - oggetto, presidente, estensore, urn NIR della sezione, flag omissis, data di pubblicazione - che finiscono nel front matter e nel JSON. Opt-in perche' costa una seconda richiesta; sui provvedimenti pubblicati in PDF, che non hanno forma XML, non produce metadati e lo dichiara. Il front matter emette anche data_pubblicazione come campo proprio, e i metadati eventualmente conservati nello store da una chiamata precedente non vengono emessi quando --meta non e' richiesto: opt-in vale a ogni chiamata. L'opt-in vale per l'output, non per lo store: i metadati restano salvati (una ricerca o un get semplice non li cancellano piu', e persistProvvedimenti conserva anche loro come gia' faceva con il testo), mentre le schede di corpus build restano omogenee perche' non li emettono.",
+  "reason": "Il portale pubblica lo stesso provvedimento due volte dalla stessa sorgente: /visualizzah2/ lo rende come pagina HTML (da cui ricaviamo il Markdown) e /visualizza/ serve l'XML da cui quella resa e' generata. La resa perde cio' che non ha posto in una pagina stampata: l'urn NIR (la chiave di citazione degli standard italiani), il flag omissis (che spiega perche' i nomi mancano) e la descrizione dell'oggetto tenuta dal registro; presidente ed estensore ci sono ma non etichettati. Verificato sul documento tar_rm/202515938: urn, omissis e descrizione compaiono solo nell'XML.",
+  "files": [
+    "internal/gaclient/meta.go",
+    "internal/gaclient/meta_test.go",
+    "internal/gaclient/parse.go",
+    "internal/gaclient/frontmatter.go",
+    "internal/cli/ga_core.go",
+    "internal/cli/get.go",
+    "internal/cli/provvedimenti_get.go",
+    "README.md",
+    "SKILL.md",
+    "internal/cli/corpus_build.go",
+    "internal/cli/persist_test.go"
+  ],
+  "validated_outcome": "get --sede tar_rm --nrg 202515938 --file 202614259_01.html --meta aggiunge al front matter oggetto 'accesso procedimento di sorveglianza', estensore 'Silvia Piemonte' e urn 'urn:nir:tar.lazio;sezione.3Q:sentenza:00000-0000'; il presidente, la cui firma nel documento e' vuota, non viene emesso. Sullo stesso get senza --meta l'output e' invariato. Su un provvedimento PDF (tar_rm/202601043/202611157_01.pdf) nessun metadato, avviso su stderr e testo del PDF intatto. Copertura misurata su 10 provvedimenti HTML di 10 sedi diverse (2010-2026): estensore, urn e data di pubblicazione presenti su 10 su 10, presidente su 5 su 10 (la firma del presidente e' spesso vuota nel documento), oggetto di registro su 4 su 10. Il flag omissis risulta vero sui provvedimenti anonimizzati (verificato su 3 su 4 di un campione con -OMISSIS- nel testo). L'urn che il portale scrive lascia numero e data a 00000-0000: identifica organo, sezione e tipo, non il singolo provvedimento, e la documentazione lo dichiara. Dopo un get --meta, un get successivo dello stesso provvedimento senza --meta non emette il campo meta (verificato su ECLI:IT:TARLAZ:2026:14259SENT: 'meta' assente dal JSON). Il front matter con --meta riporta data_pubblicazione accanto a data_deposito. Sequenza verificata sullo stesso provvedimento: get --meta scrive i metadati nello store; una ricerca successiva li conserva; un get semplice li conserva e non li emette; corpus build produce una scheda senza campi di registro e lascia la riga intatta. Test: TestPersistProvvedimentiConservaTestoEMetadati."
+}

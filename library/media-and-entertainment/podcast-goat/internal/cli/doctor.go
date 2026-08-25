@@ -116,91 +116,20 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				report["cookie_tool"] = "not found (install: pip install pycookiecheat)"
 			}
 
-			// Check auth environment variables
-			authEnvSet := []string{}
-			authEnvRequiredMissing := []string{}
-			authEnvInfo := []string{}
-			authEnvOptionalNames := []string{}
-			// Validation rejects multi-OR-group specs upstream, so the single optional-satisfied state is sufficient at runtime.
-			authEnvOptionalSatisfied := false
-			if os.Getenv("SPOKEN_API_KEY") != "" {
-				authEnvSet = append(authEnvSet, "SPOKEN_API_KEY")
-			} else if authConfigured {
-				authSource, _ := report["auth_source"].(string)
-				if authSource == "" {
-					authSource = "config"
+			// Check auth environment variables. Every one of these names a
+			// paid-provider key (spoken, taddy, and the whisper backends).
+			// They are OPTIONAL: the cookie and free tiers work with zero
+			// keys set, and keys can also live in config via `auth set-key`.
+			// Reporting them as "missing required" (the historical behavior)
+			// made a perfectly healthy install FAIL its checkup.
+			paidEnvVars := []string{"SPOKEN_API_KEY", "TADDY_API_KEY", "TADDY_USER_ID", "OPENAI_API_KEY", "DEEPGRAM_API_KEY", "ELEVENLABS_API_KEY"}
+			authEnvSet := 0
+			for _, name := range paidEnvVars {
+				if os.Getenv(name) != "" {
+					authEnvSet++
 				}
-				authEnvInfo = append(authEnvInfo, "credentials available from "+authSource)
-			} else {
-				authEnvRequiredMissing = append(authEnvRequiredMissing, "SPOKEN_API_KEY")
 			}
-			if os.Getenv("TADDY_API_KEY") != "" {
-				authEnvSet = append(authEnvSet, "TADDY_API_KEY")
-			} else if authConfigured {
-				authSource, _ := report["auth_source"].(string)
-				if authSource == "" {
-					authSource = "config"
-				}
-				authEnvInfo = append(authEnvInfo, "credentials available from "+authSource)
-			} else {
-				authEnvRequiredMissing = append(authEnvRequiredMissing, "TADDY_API_KEY")
-			}
-			if os.Getenv("TADDY_USER_ID") != "" {
-				authEnvSet = append(authEnvSet, "TADDY_USER_ID")
-			} else if authConfigured {
-				authSource, _ := report["auth_source"].(string)
-				if authSource == "" {
-					authSource = "config"
-				}
-				authEnvInfo = append(authEnvInfo, "credentials available from "+authSource)
-			} else {
-				authEnvRequiredMissing = append(authEnvRequiredMissing, "TADDY_USER_ID")
-			}
-			if os.Getenv("OPENAI_API_KEY") != "" {
-				authEnvSet = append(authEnvSet, "OPENAI_API_KEY")
-			} else if authConfigured {
-				authSource, _ := report["auth_source"].(string)
-				if authSource == "" {
-					authSource = "config"
-				}
-				authEnvInfo = append(authEnvInfo, "credentials available from "+authSource)
-			} else {
-				authEnvRequiredMissing = append(authEnvRequiredMissing, "OPENAI_API_KEY")
-			}
-			if os.Getenv("DEEPGRAM_API_KEY") != "" {
-				authEnvSet = append(authEnvSet, "DEEPGRAM_API_KEY")
-			} else if authConfigured {
-				authSource, _ := report["auth_source"].(string)
-				if authSource == "" {
-					authSource = "config"
-				}
-				authEnvInfo = append(authEnvInfo, "credentials available from "+authSource)
-			} else {
-				authEnvRequiredMissing = append(authEnvRequiredMissing, "DEEPGRAM_API_KEY")
-			}
-			if os.Getenv("ELEVENLABS_API_KEY") != "" {
-				authEnvSet = append(authEnvSet, "ELEVENLABS_API_KEY")
-			} else if authConfigured {
-				authSource, _ := report["auth_source"].(string)
-				if authSource == "" {
-					authSource = "config"
-				}
-				authEnvInfo = append(authEnvInfo, "credentials available from "+authSource)
-			} else {
-				authEnvRequiredMissing = append(authEnvRequiredMissing, "ELEVENLABS_API_KEY")
-			}
-			switch {
-			case len(authEnvRequiredMissing) > 0:
-				report["env_vars"] = "ERROR missing required: " + strings.Join(authEnvRequiredMissing, ", ")
-			case len(authEnvOptionalNames) > 1 && !authEnvOptionalSatisfied:
-				report["env_vars"] = "INFO set one of: " + strings.Join(authEnvOptionalNames, " or ")
-			case len(authEnvInfo) > 0 && authConfigured:
-				report["env_vars"] = "OK " + strings.Join(authEnvInfo, "; ")
-			case len(authEnvInfo) > 0:
-				report["env_vars"] = "INFO " + strings.Join(authEnvInfo, "; ")
-			default:
-				report["env_vars"] = fmt.Sprintf("OK %d/%d available", len(authEnvSet), 6)
-			}
+			report["env_vars"] = envVarsSummary(authEnvSet, len(paidEnvVars), authConfigured)
 
 			// Check API connectivity and validate credentials.
 			//
@@ -275,6 +204,11 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 
 			report["version"] = version
 
+			// Per-provider key source: env vs config vs missing, plus the
+			// pt_demo demo-key marker. Computed BEFORE the JSON early-return
+			// so agents see the same honesty signals as the human output.
+			report["key_sources"] = collectKeySources()
+
 			if flags.asJSON {
 				if err := printJSONFiltered(cmd.OutOrStdout(), report, flags); err != nil {
 					return err
@@ -344,7 +278,6 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			}
 			// Per-provider key source: env vs config vs missing. Helps users
 			// see whether `auth set-key` persisted correctly.
-			report["key_sources"] = collectKeySources()
 			if ksAny, ok := report["key_sources"].(map[string]string); ok {
 				renderKeySources(w, ksAny)
 			}
@@ -353,6 +286,24 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&failOn, "fail-on", "", "Exit non-zero when a health level is reached: stale, error. Default is never.")
 	return cmd
+}
+
+// envVarsSummary is the doctor's env-vars verdict. Every tracked var names a
+// paid-provider key, and paid providers are OPTIONAL: the free and cookie
+// tiers need no key, and keys may also live in config via `auth set-key`.
+// The verdict is therefore never an ERROR — the historical "missing
+// required" made a perfectly healthy install FAIL its checkup.
+func envVarsSummary(set, total int, authConfigured bool) string {
+	switch {
+	case set == total:
+		return fmt.Sprintf("OK %d/%d paid-provider keys set", set, total)
+	case set > 0:
+		return fmt.Sprintf("OK %d/%d paid-provider keys set (rest optional; see Paid keys below)", set, total)
+	case authConfigured:
+		return "INFO no paid-provider env keys set (optional — cookie auth is configured and free tiers need no key; see Paid keys below)"
+	default:
+		return "INFO no paid-provider env keys set (optional — free + cookie tiers work without them; persist keys with `auth set-key`)"
+	}
 }
 
 // doctorExitForFailOn returns a non-nil error when the report's worst

@@ -1,0 +1,310 @@
+{
+  "api_name": "dreaming",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "DSToolbox",
+      "url": "https://github.com/sk82jack/DSToolbox",
+      "language": "PowerShell",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "DreamingSpanishStats",
+      "url": "https://github.com/HarryPeach/DreamingSpanishStats",
+      "language": "Python",
+      "install_method": "",
+      "stars": 13,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ds-insights-web",
+      "url": "https://github.com/jcholyhead/ds-insights-web",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "dreaming-spanish-enhancer",
+      "url": "https://github.com/cameron-adrian/dreaming-spanish-enhancer",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "yt-dlp-dreaming",
+      "url": "https://github.com/ashleyconnor/yt-dlp-dreaming",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "migrate_dsdf",
+      "url": "https://github.com/brianlund/migrate_dsdf",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Dreaming-Spanish-Toolkit",
+      "url": "https://github.com/spruce04/Dreaming-Spanish-Toolkit",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 6,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "dreamingspanish-progress",
+      "url": "https://github.com/matt-winfield/dreamingspanish-progress",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-17T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Roadmap-aware next-video picker",
+      "command": "next",
+      "description": "Get the next unwatched videos tuned to where you are on the fluency roadmap, sorted by fine-grained difficulty.",
+      "rationale": "Requires joining your cumulative-hours level to the cached catalog minus your watched playlist, ranked by the 1-100 difficulty rating - the app can filter but never picks 'the next video for where you are.'",
+      "example": "dreaming next --limit 5 --agent",
+      "why_it_matters": "Reach for this instead of scrolling the catalog when an agent needs the single right-level, not-yet-watched video to recommend.",
+      "group": "Roadmap intelligence"
+    },
+    {
+      "name": "CSV bulk external-hours import",
+      "command": "external import",
+      "description": "Import a backlog of outside listening/watching hours from a CSV in one command instead of dozens of web-form clicks.",
+      "rationale": "The platform logs external time one entry at a time with no bulk path; only a local CSV-to-batched-POST loop closes the backlog.",
+      "example": "dreaming external import backlog.csv --preview",
+      "why_it_matters": "Use this whenever a learner has weeks of un-logged podcast/Netflix time to reconcile in bulk.",
+      "group": "External-hours logging"
+    },
+    {
+      "name": "Difficulty-progression readiness analysis",
+      "command": "diet",
+      "description": "See whether the difficulty of what you actually watch is trending up over a window - the real signal that you're ready to level up.",
+      "rationale": "Requires joining the watched playlist to per-video 1-100 difficulty and the daily series; no community tool analyzes the numeric difficulty of consumed content.",
+      "example": "dreaming diet --window 90d --agent",
+      "why_it_matters": "Use this to answer 'is this learner actually progressing, or stuck rewatching easy content?'",
+      "group": "Roadmap intelligence"
+    },
+    {
+      "name": "Unified fluency-ladder roadmap",
+      "command": "roadmap",
+      "description": "The whole L1-L7 ladder with comprehensible-input advisories (speaking, reading, native milestones) and personalized calendar ETAs in one view.",
+      "rationale": "Combines cumulative hours, the static level/advisory map, and local pace to compute per-level ETAs; community tools only project a single next milestone.",
+      "example": "dreaming roadmap --agent",
+      "why_it_matters": "Reach for this when the question is 'where am I on the path to fluency and when do I hit the next milestone?'",
+      "group": "Roadmap intelligence"
+    },
+    {
+      "name": "Caption / transcript fetch",
+      "command": "transcript",
+      "description": "Fetch a video's captions as clean, timestamp-free plain text (and cache the cue-level transcript).",
+      "rationale": "The /video endpoint returns the full inline WEBVTT, so we clean it and cache it in SQLite - no tool reads captions via the API (the lone extension does fragile player interception).",
+      "example": "dreaming transcript 5f3a1b2c4d5e6f7a8b9c0d1e --agent",
+      "why_it_matters": "Pick this when an agent needs to read or summarize what a single video actually says rather than just its title and tags.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Corpus concordance (KWIC) search over all transcripts",
+      "command": "concordance",
+      "description": "Search every cached transcript for a word, phrase, regex, or verb-tense pattern and get each hit in context with the video, level, guide, and timestamp.",
+      "rationale": "Requires a local cue-level transcript corpus joined to catalog metadata plus morphology presets - turning the curated comprehensible-input library into a grammar-aware concordance no language tool offers.",
+      "example": "dreaming concordance --tense subjunctive-imperfect --level intermediate --agent",
+      "why_it_matters": "Reach for this to find real, level-appropriate examples of a word or grammar form in context - the core ritual of grammar-in-context study.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Roadmap-aware next-video picker",
+      "command": "next",
+      "description": "Get the next unwatched videos tuned to where you are on the fluency roadmap, sorted by fine-grained difficulty.",
+      "rationale": "Requires joining your cumulative-hours level to the cached catalog minus your watched playlist, ranked by the 1-100 difficulty rating - the app can filter but never picks 'the next video for where you are.'",
+      "example": "dreaming next --limit 5 --agent",
+      "why_it_matters": "Reach for this instead of scrolling the catalog when an agent needs the single right-level, not-yet-watched video to recommend.",
+      "group": "Roadmap intelligence"
+    },
+    {
+      "name": "CSV bulk external-hours import",
+      "command": "external import",
+      "description": "Import a backlog of outside listening/watching hours from a CSV in one command instead of dozens of web-form clicks.",
+      "rationale": "The platform logs external time one entry at a time with no bulk path; only a local CSV-to-batched-POST loop closes the backlog.",
+      "example": "dreaming external import backlog.csv --preview",
+      "why_it_matters": "Use this whenever a learner has weeks of un-logged podcast/Netflix time to reconcile in bulk.",
+      "group": "External-hours logging"
+    },
+    {
+      "name": "Difficulty-progression readiness analysis",
+      "command": "diet",
+      "description": "See whether the difficulty of what you actually watch is trending up over a window - the real signal that you're ready to level up.",
+      "rationale": "Requires joining the watched playlist to per-video 1-100 difficulty and the daily series; no community tool analyzes the numeric difficulty of consumed content.",
+      "example": "dreaming diet --window 90d --agent",
+      "why_it_matters": "Use this to answer 'is this learner actually progressing, or stuck rewatching easy content?'",
+      "group": "Roadmap intelligence"
+    },
+    {
+      "name": "Unified fluency-ladder roadmap",
+      "command": "roadmap",
+      "description": "The whole L1-L7 ladder with comprehensible-input advisories (speaking, reading, native milestones) and personalized calendar ETAs in one view.",
+      "rationale": "Combines cumulative hours, the static level/advisory map, and local pace to compute per-level ETAs; community tools only project a single next milestone.",
+      "example": "dreaming roadmap --agent",
+      "why_it_matters": "Reach for this when the question is 'where am I on the path to fluency and when do I hit the next milestone?'",
+      "group": "Roadmap intelligence"
+    },
+    {
+      "name": "Caption / transcript fetch",
+      "command": "transcript",
+      "description": "Fetch a video's captions as clean, timestamp-free plain text (and cache the cue-level transcript).",
+      "rationale": "The /video endpoint returns the full inline WEBVTT, so we clean it and cache it in SQLite - no tool reads captions via the API (the lone extension does fragile player interception).",
+      "example": "dreaming transcript 5f3a1b2c4d5e6f7a8b9c0d1e --agent",
+      "why_it_matters": "Pick this when an agent needs to read or summarize what a single video actually says rather than just its title and tags.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Corpus concordance (KWIC) search over all transcripts",
+      "command": "concordance",
+      "description": "Search every cached transcript for a word, phrase, regex, or verb-tense pattern and get each hit in context with the video, level, guide, and timestamp.",
+      "rationale": "Requires a local cue-level transcript corpus joined to catalog metadata plus morphology presets - turning the curated comprehensible-input library into a grammar-aware concordance no language tool offers.",
+      "example": "dreaming concordance --tense subjunctive-imperfect --level intermediate --agent",
+      "why_it_matters": "Reach for this to find real, level-appropriate examples of a word or grammar form in context - the core ritual of grammar-in-context study.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Dreaming",
+    "headline": "Every Dreaming Spanish and French tracking feature in one offline-first, agent-native CLI: roadmap math, transcript concordance, and bulk hour-logging.",
+    "value_prop": "Dreaming's web app shows your hours but won't plan, search, or bulk-import for you, and the community's features are scattered across a dozen browser extensions and scripts. This CLI unifies them into one agent-native tool backed by a local SQLite mirror of your catalog, daily series, and external-hours log - so `next` picks your next video offline, `external import` clears a CSV backlog in one shot, and `roadmap` lays out the whole L1-L7 fluency ladder with personalized ETAs.",
+    "auth_narrative": "Dreaming has no official API. Authenticate with your account bearer token: copy it from your browser's localStorage 'token' key on app.dreaming.com (run `dreaming auth setup` for the steps), then run `dreaming auth set-token \u003ctoken\u003e` or set DREAMING_TOKEN. You can also exchange email/password for a token with `sign-in`. Tokens expire periodically - re-run `auth set-token` (or re-export DREAMING_TOKEN) when you hit a 401.",
+    "quickstart": [
+      {
+        "command": "dreaming auth setup",
+        "comment": "Print how to get your bearer token; then `auth set-token \u003ctoken\u003e` or export DREAMING_TOKEN. Every endpoint is 401 without it."
+      },
+      {
+        "command": "dreaming sync",
+        "comment": "Pull your catalog, stats, and history into the local store for offline search and joins."
+      },
+      {
+        "command": "dreaming roadmap",
+        "comment": "See your position on the L1-L7 fluency ladder with milestone ETAs."
+      },
+      {
+        "command": "dreaming next --limit 5",
+        "comment": "Get the next unwatched videos at your current level."
+      },
+      {
+        "command": "dreaming stats",
+        "comment": "See your total hours, streak, and recent pace at a glance."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every command",
+        "fix": "Your token expired - re-run `dreaming auth set-token \u003ctoken\u003e` or re-export DREAMING_TOKEN (the token lives in app.dreaming.com localStorage key 'token')."
+      },
+      {
+        "symptom": "Empty catalog or wrong-language results",
+        "fix": "Select the catalog with `--language fr` or set DREAMING_LANGUAGE=fr (default es)."
+      },
+      {
+        "symptom": "404 or connection errors after a Dreaming update",
+        "fix": "The backend host may have moved; set DREAMING_BASE_URL to the new .netlify/functions base."
+      }
+    ],
+    "when_to_use": "Use the Dreaming CLI for any task about a learner's comprehensible-input progress on Dreaming Spanish or French: checking hours and pace toward a fluency level, picking the next right-level video, searching the catalog by topic/guide/dialect, logging or bulk-importing external listening time, and analyzing whether consumed difficulty is trending up. It is the right tool whenever the question involves the hours-based roadmap or the leveled video catalog.",
+    "recipes": [
+      {
+        "title": "Plan to a deadline",
+        "command": "dreaming plan --target 600h --by 2026-12-31",
+        "explanation": "Back-solves the daily minutes you need to reach 600 hours (L5, speaking recommended) by a date."
+      },
+      {
+        "title": "Find the next video, agent-friendly",
+        "command": "dreaming next --limit 5 --agent",
+        "explanation": "Returns the next unwatched, level-appropriate videos as structured JSON for an agent to recommend."
+      },
+      {
+        "title": "Narrow a large catalog payload",
+        "command": "dreaming next --level beginner --dialect rioplatense --agent --select title,guide,difficulty",
+        "explanation": "The picker returns verbose video records; --select trims each to just the fields an agent needs."
+      },
+      {
+        "title": "Break down watched hours by teacher",
+        "command": "dreaming stats by-guide --agent",
+        "explanation": "Aggregates your watched videos per guide from the local store as structured JSON."
+      },
+      {
+        "title": "Check readiness to level up",
+        "command": "dreaming diet --window 90d --agent",
+        "explanation": "Shows whether the difficulty of what you actually watched is climbing over the last 90 days."
+      },
+      {
+        "title": "Read a video's transcript",
+        "command": "dreaming transcript 5f3a1b2c4d5e6f7a8b9c0d1e",
+        "explanation": "Fetches the inline captions and prints clean, timestamp-free text an agent can read or summarize."
+      },
+      {
+        "title": "Resolve a downloadable stream",
+        "command": "dreaming download 5f3a1b2c4d5e6f7a8b9c0d1e",
+        "explanation": "Prints the signed HLS URL and a ready ffmpeg command; add --exec to download when ffmpeg is installed."
+      },
+      {
+        "title": "Find a verb tense in real content",
+        "command": "dreaming concordance --tense subjunctive-imperfect --level beginner",
+        "explanation": "After 'transcript sync', returns level-appropriate sentences using the imperfect subjunctive, each with its video and timestamp."
+      },
+      {
+        "title": "Concordance a specific word",
+        "command": "dreaming concordance \"entonces\" --agent --select context,video_title,timestamp",
+        "explanation": "Keyword-in-context hits for a word across the whole corpus as structured JSON for an agent."
+      }
+    ],
+    "trigger_phrases": [
+      "what should I watch next on dreaming",
+      "log my external spanish hours",
+      "how many hours until I can speak spanish",
+      "find examples of the subjunctive in dreaming videos",
+      "search dreaming transcripts for a word",
+      "am I on pace for 600 hours",
+      "use dreaming",
+      "run dreaming"
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/ynab-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260812-093755-e1ecbcb1",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "synology",
+  "cli_name": "synology-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-25T09:17:49Z",
+  "source_commit": "9a102089209b10fb266f84586503399dea007dfb",
+  "printing_press_version": "4.29.0",
+  "run_id": "20260824-135140",
+  "changes": [
+    {
+      "title": "feat(synology): add synology",
+      "pr": 1805,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1805",
+      "commit": "9a102089209b10fb266f84586503399dea007dfb"
+    }
+  ]
+}

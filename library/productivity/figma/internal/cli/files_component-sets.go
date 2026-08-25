@@ -9,8 +9,10 @@ import (
 
 func newFilesComponentSetsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "component-sets",
-		Short: "Get information about published component sets.",
+		Use:         "component-sets",
+		Short:       "Get information about published component sets.",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newFilesComponentSetsGetFileCmd(flags))

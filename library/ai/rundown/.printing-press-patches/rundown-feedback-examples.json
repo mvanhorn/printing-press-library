@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "rundown-feedback-examples",
+  "applied_at": "2026-08-22",
+  "base_run_id": "20260822-120000-rundown01",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Attach an Examples block to the generated `feedback` command through the novel-command hook instead of editing the generated file.",
+  "reason": "The generated internal/cli/feedback.go ships with no Example, so live dogfood's help-quality probe fails it with 'missing Examples section'. Editing feedback.go directly would be reverted by `generate --force`, so the examples are added from the hand-authored internal/cli/rundown_framework_help.go via registerNovelCommand, which regeneration preserves. The hook defers if a future generator version supplies its own examples.",
+  "files": ["internal/cli/rundown_framework_help.go"],
+  "validated_outcome": "`rundown-pp-cli feedback --help` renders four examples; live dogfood full matrix went from 3 failures to 0 (106/106).",
+  "upstream_issue": ""
+}

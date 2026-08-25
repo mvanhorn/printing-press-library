@@ -15,10 +15,12 @@ func TestResolveWorkspaceSource(t *testing.T) {
 	if slug != "acme" || src != "config:default_workspace" {
 		t.Fatalf("config source: got %q/%q", slug, src)
 	}
-	slug, src = resolveWorkspace(&rootFlags{workspace: "flag"}, cfg)
+	setNovelWorkspace(t, "flag")
+	slug, src = resolveWorkspace(&rootFlags{}, cfg)
 	if slug != "flag" || src != "flag:--workspace" {
 		t.Fatalf("flag source: got %q/%q", slug, src)
 	}
+	novelWorkspace = "" // clear so the env/config sources below are observable
 	t.Setenv("PLANE_SLUG", "envv")
 	slug, src = resolveWorkspace(&rootFlags{}, cfg)
 	if slug != "envv" || src != "env:PLANE_SLUG" {

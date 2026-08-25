@@ -1,0 +1,64 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-11T20:10:43.407664Z",
+  "printing_press_version": "4.28.0",
+  "api_name": "quranku",
+  "display_name": "QuranKu",
+  "cli_name": "quranku-pp-cli",
+  "creator": {
+    "handle": "erikgunawans",
+    "name": "erikgunawans"
+  },
+  "owner": "erikgunawans",
+  "printer": "erikgunawans",
+  "printer_name": "erikgunawans",
+  "spec_path": "quranku-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:4fb0b00e94b37f3a98765e1f98fb0f057bde019dd9a1d2b6137c03facd59c6e8",
+  "run_id": "20260712-015914-1241bf58",
+  "category": "education",
+  "description": "Every Al-Qur'an feature the app has, plus the Indonesian Tarjamah Tafsiriyah offline, a local database, offline search, a khatam plan, and a hifz tracker no other Qur'an tool has.",
+  "mcp_binary": "quranku-pp-mcp",
+  "mcp_tool_count": 11,
+  "mcp_public_tool_count": 11,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Offline full-text search",
+      "command": "find",
+      "description": "Search the Qur'an offline by word or meaning across Arabic and the Indonesian Tafsiriyah."
+    },
+    {
+      "name": "Cross-source verse lookup",
+      "command": "verse",
+      "description": "Get a single verse (e.g. 2:255) with Arabic and the Tafsiriyah translation joined together."
+    },
+    {
+      "name": "Verse of the day",
+      "command": "daily",
+      "description": "A stable, date-seeded verse of the day with its Tafsiriyah translation."
+    },
+    {
+      "name": "Khatam reading plan",
+      "command": "plan",
+      "description": "Build and follow a plan to finish the Qur'an in N days, tracking progress locally."
+    },
+    {
+      "name": "Hifz memorization tracker",
+      "command": "hifz",
+      "description": "Mark and review Qur'an memorization progress per surah or verse."
+    },
+    {
+      "name": "Bookmarks with notes",
+      "command": "bookmark",
+      "description": "Save verses with personal notes for later, offline."
+    },
+    {
+      "name": "Random ayah",
+      "command": "random",
+      "description": "A random verse with its Tafsiriyah translation for reflection."
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "iclasspro-expired-customer-token-fallback",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260805-132802-de816ded",
+  "base_printing_press_version": "4.30.1",
+  "summary": "fix(iclasspro): fall back to public catalog reads after an expired customer token",
+  "reason": "A stored customer JWT redirected every catalog read to the authenticated API even after the token expired, causing HTTP 401 for data the account still published anonymously.",
+  "files": [
+    "internal/cli/iclasspro_auth.go",
+    "internal/cli/iclasspro_common.go",
+    "internal/cli/iclasspro_common_test.go",
+    "internal/cli/data_source.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Focused and full Go tests pass; full live dogfood passes 134/134; publish validate passes; public catalog and staff dashboard smoke tests pass.",
+  "findings_addressed": [
+    "F1"
+  ]
+}

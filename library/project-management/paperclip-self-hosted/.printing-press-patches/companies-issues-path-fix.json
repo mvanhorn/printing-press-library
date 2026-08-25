@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "companies-issues-path-fix",
+  "applied_at": "2026-07-11",
+  "base_run_id": "pp-pp-local-2026-07-11",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Pre-bound companyId path for /api/companies/{companyId}/issues/list and /api/issues/list endpoints. Auto-resolves companyId from the local companies cache when not supplied on the command line, so single-tenant dogfood runs without an explicit --companyId flag.",
+  "reason": "Path binding in the generator emits the literal {companyId} token; pre-binding it from the cached single-tenant row keeps the read flow ergonomic for the self-hosted topology.",
+  "files": [
+    "internal/cli/companies_issues_list_companies.go",
+    "internal/cli/companies_issues.go",
+    "internal/cli/issues.go",
+    "internal/cli/issues_list.go"
+  ],
+  "validated_outcome": "shipcheck green; 801 passed, 0 failed, 1306 skipped against paperclip.example.test (full live dogfood, --level full)."
+}

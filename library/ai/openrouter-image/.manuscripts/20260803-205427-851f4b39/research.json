@@ -1,0 +1,272 @@
+{
+  "api_name": "openrouter-image",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "openrouter-image-mcp",
+      "url": "https://github.com/hamzatrq/openrouter-image-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "imagen-openrouter",
+      "url": "https://github.com/yusufipk/imagen-openrouter",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 37,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "jtxmp/openrouter-image-mcp",
+      "url": "https://github.com/jtxmp/openrouter-image-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "openrouter-pp-cli",
+      "url": "https://github.com/mvanhorn/printing-press-library",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-03T21:20:00Z",
+  "novel_features": [
+    {
+      "name": "Capability+budget model ranker",
+      "command": "models rank",
+      "description": "Rank every image model+provider combo cheapest-first under your capability and budget constraints.",
+      "rationale": "Requires joining model capability descriptors against per-provider pricing lines in the local store; no single API call returns this ranking.",
+      "example": "openrouter-image-pp-cli models rank --image-to-image --resolution 4K --max-cost 0.10 --limit 5 --json",
+      "why_it_matters": "Pick the cheapest provider that meets your image constraints without paging through catalog JSON.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Budget-gated batch run",
+      "command": "batch",
+      "description": "Run many generations from a CSV with a hard USD budget: estimate first, abort before any spend if over, then execute and log each cost.",
+      "rationale": "Estimates every row from local pricing before the first API call and gates execution on the budget, a loop no endpoint offers.",
+      "example": "openrouter-image-pp-cli batch --spec batch.csv --budget 2.00 --dry-run",
+      "why_it_matters": "Cron pipelines can fire a batch with a hard spend cap and get typed exit codes instead of burning the whole balance.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Pre-spend cost estimate",
+      "command": "cost-estimate",
+      "description": "Estimate USD cost of a generation before spending credits, computed offline from synced per-endpoint pricing.",
+      "rationale": "Computes from synced pricing lines and resolution tiers in the local store with no API call.",
+      "example": "openrouter-image-pp-cli cost-estimate --model openai/gpt-image-1 --resolution 2K --quality high --n 4",
+      "why_it_matters": "Agents can check the price of a planned image before spending credits.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Deterministic re-generation",
+      "command": "regenerate",
+      "description": "Re-run a past generation with its exact stored parameters (model, seed, resolution, quality, references).",
+      "rationale": "Rebuilds the request from the local generation ledger, replay power only a local history store provides.",
+      "example": "openrouter-image-pp-cli regenerate gen-1234567890 --output winner.png",
+      "why_it_matters": "Reproduce or tweak a past image without re-typing the full flag set.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Catalog change diff",
+      "command": "models diff",
+      "description": "See newly added, retired, and price-changed image models between syncs so pinned pipelines never break silently.",
+      "rationale": "Compares the current catalog snapshot against the stored previous snapshot in the local store.",
+      "example": "openrouter-image-pp-cli models diff --since 7d --json",
+      "why_it_matters": "Catch a retired model before the next scheduled batch 404s.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Weekly spend digest",
+      "command": "usage digest",
+      "description": "Period-over-period spend and volume summary: images generated, USD spent, top models, cost per image vs the prior window.",
+      "rationale": "Self-joins the local generation ledger across two time windows, a trend no API call returns.",
+      "example": "openrouter-image-pp-cli usage digest --since 7d --agent",
+      "why_it_matters": "Budget owners get a machine-readable weekly cost report from the local ledger.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Capability+budget model ranker",
+      "command": "models rank",
+      "description": "Rank every image model+provider combo cheapest-first under your capability and budget constraints.",
+      "rationale": "Requires joining model capability descriptors against per-provider pricing lines in the local store; no single API call returns this ranking.",
+      "example": "openrouter-image-pp-cli models rank --image-to-image --resolution 4K --max-cost 0.10 --limit 5 --json",
+      "why_it_matters": "Pick the cheapest provider that meets your image constraints without paging through catalog JSON.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Budget-gated batch run",
+      "command": "batch",
+      "description": "Run many generations from a CSV with a hard USD budget: estimate first, abort before any spend if over, then execute and log each cost.",
+      "rationale": "Estimates every row from local pricing before the first API call and gates execution on the budget, a loop no endpoint offers.",
+      "example": "openrouter-image-pp-cli batch --spec batch.csv --budget 2.00 --dry-run",
+      "why_it_matters": "Cron pipelines can fire a batch with a hard spend cap and get typed exit codes instead of burning the whole balance.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Pre-spend cost estimate",
+      "command": "cost-estimate",
+      "description": "Estimate USD cost of a generation before spending credits, computed offline from synced per-endpoint pricing.",
+      "rationale": "Computes from synced pricing lines and resolution tiers in the local store with no API call.",
+      "example": "openrouter-image-pp-cli cost-estimate --model openai/gpt-image-1 --resolution 2K --quality high --n 4",
+      "why_it_matters": "Agents can check the price of a planned image before spending credits.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Deterministic re-generation",
+      "command": "regenerate",
+      "description": "Re-run a past generation with its exact stored parameters (model, seed, resolution, quality, references).",
+      "rationale": "Rebuilds the request from the local generation ledger, replay power only a local history store provides.",
+      "example": "openrouter-image-pp-cli regenerate gen-1234567890 --output winner.png",
+      "why_it_matters": "Reproduce or tweak a past image without re-typing the full flag set.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Catalog change diff",
+      "command": "models diff",
+      "description": "See newly added, retired, and price-changed image models between syncs so pinned pipelines never break silently.",
+      "rationale": "Compares the current catalog snapshot against the stored previous snapshot in the local store.",
+      "example": "openrouter-image-pp-cli models diff --since 7d --json",
+      "why_it_matters": "Catch a retired model before the next scheduled batch 404s.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Weekly spend digest",
+      "command": "usage digest",
+      "description": "Period-over-period spend and volume summary: images generated, USD spent, top models, cost per image vs the prior window.",
+      "rationale": "Self-joins the local generation ledger across two time windows, a trend no API call returns.",
+      "example": "openrouter-image-pp-cli usage digest --since 7d --agent",
+      "why_it_matters": "Budget owners get a machine-readable weekly cost report from the local ledger.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "OPENROUTER_API_KEY"
+  },
+  "narrative": {
+    "display_name": "OpenRouter",
+    "headline": "Every image model on OpenRouter, one key: generate, rank, estimate, and batch with a local cost ledger.",
+    "value_prop": "OpenRouter's Image API fronts 40+ image models from every major lab. This CLI adds what the API alone lacks: offline model ranking by capability and budget, pre-spend cost estimates, deterministic re-generation from a local history ledger, budget-gated batch runs, and a weekly spend digest. Model selection is always explicit — every generation names its model.",
+    "auth_narrative": "Set OPENROUTER_API_KEY in your environment. The key is read per command; nothing is persisted to disk. Run `openrouter-image-pp-cli doctor` to verify setup.",
+    "quickstart": [
+      {
+        "command": "openrouter-image-pp-cli doctor --dry-run",
+        "comment": "Verify the CLI is installed and the key is wired up"
+      },
+      {
+        "command": "openrouter-image-pp-cli sync --resources images --full",
+        "comment": "Pull the image model catalog and per-endpoint pricing into the local store"
+      },
+      {
+        "command": "openrouter-image-pp-cli models rank --image-to-image --max-cost 0.10 --limit 5",
+        "comment": "Pick the cheapest provider that supports image-to-image under your budget"
+      },
+      {
+        "command": "openrouter-image-pp-cli cost-estimate --model openai/gpt-image-1 --quality high",
+        "comment": "Check the price before spending credits"
+      },
+      {
+        "command": "openrouter-image-pp-cli generate --model openai/gpt-image-1 --prompt 'a red panda astronaut' --output panda.png",
+        "comment": "Generate an image and save it to disk"
+      },
+      {
+        "command": "openrouter-image-pp-cli usage digest --since 7d --agent",
+        "comment": "Review weekly spend and volume as agent-shaped JSON"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports missing key",
+        "fix": "export OPENROUTER_API_KEY=\u003cyour-key\u003e and re-run doctor"
+      },
+      {
+        "symptom": "generate returns 401",
+        "fix": "Check OPENROUTER_API_KEY is set and valid; run `openrouter-image-pp-cli doctor`"
+      },
+      {
+        "symptom": "model slug not found",
+        "fix": "Run `openrouter-image-pp-cli sync --resources images --full` then `openrouter-image-pp-cli models list` to see current slugs; models retire without notice"
+      },
+      {
+        "symptom": "batch spent more than expected",
+        "fix": "Use `batch --dry-run` first; the estimate comes from synced pricing, so re-sync before a big batch"
+      },
+      {
+        "symptom": "429 rate limited",
+        "fix": "OpenRouter throttles per-key; wait and retry, or route to another provider via `generate --provider`"
+      }
+    ],
+    "when_to_use": "Use this CLI when an AI agent or human needs to generate images on demand through OpenRouter with explicit model selection, wants to pick the cheapest capable provider before spending, run budgeted batches from a CSV, reproduce past generations exactly, or track image-generation spend over time. It is the tool for scheduled image pipelines, prompt iteration across models, and cost-aware image production.",
+    "anti_triggers": [
+      "Do not use this CLI for chat completions or text generation — use the existing openrouter-pp-cli (cost attribution) or a chat CLI",
+      "Do not use this CLI for video generation — OpenRouter's video API is a different surface",
+      "Do not use this CLI for embedding, reranking, or speech endpoints",
+      "Do not use this CLI as a general HTTP client for arbitrary OpenRouter endpoints"
+    ],
+    "recipes": [
+      {
+        "title": "Cheapest image-to-image model under budget",
+        "command": "openrouter-image-pp-cli models rank --image-to-image --max-cost 0.10 --limit 3 --json",
+        "explanation": "Finds capable providers under a per-image budget, cheapest first"
+      },
+      {
+        "title": "Budget-gated batch from CSV",
+        "command": "openrouter-image-pp-cli batch --spec batch.csv --budget 5.00 --dry-run",
+        "explanation": "Dry-run estimates every row and aborts if the total exceeds the budget before any spend"
+      },
+      {
+        "title": "Reproduce last week's winner",
+        "command": "openrouter-image-pp-cli regenerate gen-1234567890 --output winner-v2.png",
+        "explanation": "Replays the exact stored model, seed, resolution, and quality of a past generation"
+      },
+      {
+        "title": "Pre-flight cost check for an agent",
+        "command": "openrouter-image-pp-cli cost-estimate --model bytedance-seed/seedream-4.5 --resolution 2K --n 4 --json",
+        "explanation": "Agents can gate generation on the quoted price before spending credits"
+      },
+      {
+        "title": "Narrow generation output for agents",
+        "command": "openrouter-image-pp-cli generate --model google/gemini-2.5-flash-image --prompt 'a red panda astronaut floating in space, studio lighting' --json --agent --select data.0.media_type,usage.cost",
+        "explanation": "Deeply nested generation responses collapse to the fields an agent needs"
+      },
+      {
+        "title": "Spot a retiring model before cron breaks",
+        "command": "openrouter-image-pp-cli models diff --since 7d --json",
+        "explanation": "Surfaces retired and price-changed models between syncs so pinned pipelines fail loudly, not silently"
+      }
+    ],
+    "trigger_phrases": [
+      "generate an image",
+      "create a picture",
+      "which image model is cheapest",
+      "estimate the cost of this image",
+      "regenerate that image",
+      "batch of images",
+      "use openrouter-image",
+      "run openrouter-image"
+    ]
+  }
+}

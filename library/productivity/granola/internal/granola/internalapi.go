@@ -170,6 +170,49 @@ func truncate(s string, n int) string {
 	return s[:n] + "...(truncated)"
 }
 
+// PATCH(api-catalog-refresh): endpoints for the catalog surfaces. Named
+// constants because each one appears three times -- the request, the shape
+// error, and the test that pins the path -- and a typo in any of them reads
+// as "Granola changed the payload" rather than "we asked the wrong URL".
+//
+// The document-list surface is v2. /v1/get-document-lists answers 404 "Not
+// implemented" on the live API, so the fallback below is a legacy-install
+// courtesy, not the primary path.
+const (
+	recipesEndpoint               = "/v1/get-recipes"
+	panelTemplatesEndpoint        = "/v1/get-panel-templates"
+	documentListsEndpoint         = "/v2/get-document-lists"
+	documentListsLegacyEndpoint   = "/v1/get-document-lists"
+	documentListsNotImplemented   = "status 404"
+	shapeErrorBodySampleMaxLength = 200
+)
+
+// APIShapeError reports a response body the client could not map onto any
+// known shape.
+//
+// Typed rather than a bare fmt.Errorf so a caller that makes several calls in
+// one pass can tell "Granola changed this payload" apart from a transport,
+// auth or rate-limit failure -- the first needs a code change here, the others
+// need the user to do something. Endpoint is a field and not only prose in the
+// message for the same reason: the catalog refresh calls three endpoints
+// together, and "unrecognized response shape" without a name leaves both the
+// operator and the test assertion guessing which one drifted.
+type APIShapeError struct {
+	// Endpoint is the API path whose response could not be parsed.
+	Endpoint string
+	// Body is a truncated sample of what came back, so a bug report carries
+	// the actual drift rather than a description of it.
+	Body string
+}
+
+func (e *APIShapeError) Error() string {
+	return fmt.Sprintf("granola %s: unrecognized response shape: %s", e.Endpoint, e.Body)
+}
+
+func shapeError(endpoint string, raw []byte) error {
+	return &APIShapeError{Endpoint: endpoint, Body: truncate(string(raw), shapeErrorBodySampleMaxLength)}
+}
+
 // GetDocumentsRequest is the body for /v2/get-documents.
 type GetDocumentsRequest struct {
 	Limit                  int  `json:"limit,omitempty"`
@@ -365,21 +408,32 @@ func (c *InternalClient) GetWorkspaces() ([]Workspace, error) {
 	return nil, fmt.Errorf("granola get-workspaces: unrecognized response shape")
 }
 
-// GetDocumentLists lists folders. Tries /v2 first then falls back to /v1
-// on 404 — Granola has shipped both.
+// GetDocumentLists lists folders, with each list's membership inline on
+// DocumentListMetadata.Documents. Tries /v2 first then falls back to /v1 on
+// 404 — Granola has shipped both.
+//
+// PATCH(api-catalog-refresh): the fallback used to fire on any 4xx, which
+// meant a 401 on /v2 was retried against a /v1 that answers 404 "Not
+// implemented" — so an expired credential surfaced as a missing endpoint and
+// the real remedy never reached the user. Only a 404 means "this surface is
+// not here"; every other 4xx is about the caller, not the path.
 func (c *InternalClient) GetDocumentLists() ([]DocumentListMetadata, error) {
-	raw, err := c.post("/v2/get-document-lists", map[string]any{})
+	raw, err := c.post(documentListsEndpoint, map[string]any{})
 	if err != nil {
-		// Fall back to /v1 on 4xx (likely 404 because endpoint not present)
-		if strings.Contains(err.Error(), "status 4") {
-			raw, err = c.post("/v1/get-document-lists", map[string]any{})
-			if err != nil {
-				return nil, err
-			}
-		} else {
+		if !strings.Contains(err.Error(), documentListsNotImplemented) {
+			return nil, err
+		}
+		raw, err = c.post(documentListsLegacyEndpoint, map[string]any{})
+		if err != nil {
 			return nil, err
 		}
 	}
+	return parseDocumentLists(raw)
+}
+
+// parseDocumentLists accepts both shapes Granola has shipped: the live
+// {"lists":[...]} envelope and the bare array older builds returned.
+func parseDocumentLists(raw []byte) ([]DocumentListMetadata, error) {
 	var env struct {
 		Lists []DocumentListMetadata `json:"lists"`
 	}
@@ -390,7 +444,150 @@ func (c *InternalClient) GetDocumentLists() ([]DocumentListMetadata, error) {
 	if err := json.Unmarshal(raw, &arr); err == nil {
 		return arr, nil
 	}
-	return nil, fmt.Errorf("granola get-document-lists: unrecognized response shape")
+	return nil, shapeError(documentListsEndpoint, raw)
+}
+
+// RecipeCatalog is the /v1/get-recipes payload: every recipe collection the
+// account can see, plus the usage counters keyed by recipe id.
+//
+// UnlistedRecipes and DefaultRecipes are decoded but deliberately not
+// hydrated into the Cache: the desktop cache has no counterpart key for
+// either, and writing rows that only ever appear on API-refreshed installs
+// would make the two sync paths disagree about what the catalog contains
+// while nothing retires the extras. They are kept on the typed surface so the
+// live shape stays documented at the call site.
+type RecipeCatalog struct {
+	UserRecipes     []Recipe
+	SharedRecipes   []Recipe
+	PublicRecipes   []Recipe
+	UnlistedRecipes []Recipe
+	DefaultRecipes  []Recipe
+	// Usage is keyed by recipe id.
+	Usage map[string]RecipeUsage
+}
+
+// GetRecipes calls /v1/get-recipes. One call returns the whole catalog, so
+// unlike transcripts there is nothing to page or budget.
+func (c *InternalClient) GetRecipes() (RecipeCatalog, error) {
+	raw, err := c.post(recipesEndpoint, map[string]any{})
+	if err != nil {
+		return RecipeCatalog{}, err
+	}
+	return parseRecipeCatalog(raw)
+}
+
+// parseRecipeCatalog decodes the get-recipes envelope key by key so one
+// unreadable collection cannot cost the caller the other four.
+func parseRecipeCatalog(raw []byte) (RecipeCatalog, error) {
+	cat := RecipeCatalog{Usage: map[string]RecipeUsage{}}
+	var probe map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &probe); err != nil {
+		return cat, shapeError(recipesEndpoint, raw)
+	}
+	buckets := []struct {
+		key string
+		dst *[]Recipe
+	}{
+		{"userRecipes", &cat.UserRecipes},
+		{"sharedRecipes", &cat.SharedRecipes},
+		{"publicRecipes", &cat.PublicRecipes},
+		{"unlistedRecipes", &cat.UnlistedRecipes},
+		{"defaultRecipes", &cat.DefaultRecipes},
+	}
+	recognized := false
+	for _, b := range buckets {
+		v, ok := probe[b.key]
+		if !ok {
+			continue
+		}
+		recognized = true
+		_ = json.Unmarshal(v, b.dst)
+	}
+	if v, ok := probe["recipesUsage"]; ok {
+		recognized = true
+		cat.Usage = parseRecipesUsage(v)
+	}
+	if !recognized {
+		// An object with none of the six known keys is not "an account with
+		// no recipes" — every account gets defaultRecipes. It is a payload we
+		// no longer understand, and reporting it as empty would quietly wipe
+		// the catalog on the next sync.
+		return cat, shapeError(recipesEndpoint, raw)
+	}
+	return cat, nil
+}
+
+// parseRecipesUsage decodes the recipesUsage dict.
+//
+// total_count is json.Number rather than string or int64 because the wire
+// carries it as a bare number while the desktop cache stores it as a string,
+// and json.Number is the one type encoding/json fills from either. Every
+// consumer of RecipeUsage.TotalCount runs fmt.Sscanf over it, so the value
+// stored here has to be decimal digits: hand back "" or a float rendering and
+// both the store write and `recipes list --top-usage` silently read zero.
+func parseRecipesUsage(raw json.RawMessage) map[string]RecipeUsage {
+	out := map[string]RecipeUsage{}
+	var entries map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &entries); err != nil {
+		return out
+	}
+	for id, entry := range entries {
+		if id == "" {
+			continue
+		}
+		var u struct {
+			RecipeID   string      `json:"recipe_id,omitempty"`
+			TotalCount json.Number `json:"total_count,omitempty"`
+			LastUsedAt string      `json:"last_used_at,omitempty"`
+		}
+		if err := json.Unmarshal(entry, &u); err != nil {
+			// One unreadable counter, not a broken catalog.
+			continue
+		}
+		recipeID := u.RecipeID
+		if recipeID == "" {
+			// The dict key is the recipe id; the record does not always
+			// repeat it, and the cache-path record leaves it blank too.
+			recipeID = id
+		}
+		out[id] = RecipeUsage{
+			RecipeID:   recipeID,
+			TotalCount: u.TotalCount.String(),
+			LastUsedAt: u.LastUsedAt,
+		}
+	}
+	return out
+}
+
+// GetPanelTemplates calls /v1/get-panel-templates. The live response is a
+// bare list; the envelope shapes are accepted too because every other
+// collection endpoint on this API has shipped both at some point.
+func (c *InternalClient) GetPanelTemplates() ([]PanelTemplate, error) {
+	raw, err := c.post(panelTemplatesEndpoint, map[string]any{})
+	if err != nil {
+		return nil, err
+	}
+	return parsePanelTemplates(raw)
+}
+
+func parsePanelTemplates(raw []byte) ([]PanelTemplate, error) {
+	var arr []PanelTemplate
+	if err := json.Unmarshal(raw, &arr); err == nil {
+		return arr, nil
+	}
+	var env struct {
+		PanelTemplates []PanelTemplate `json:"panelTemplates"`
+		Templates      []PanelTemplate `json:"templates"`
+	}
+	if err := json.Unmarshal(raw, &env); err == nil {
+		if env.PanelTemplates != nil {
+			return env.PanelTemplates, nil
+		}
+		if env.Templates != nil {
+			return env.Templates, nil
+		}
+	}
+	return nil, shapeError(panelTemplatesEndpoint, raw)
 }
 
 // UpdateDocument modifies a document. Used by delete (set deleted_at) and

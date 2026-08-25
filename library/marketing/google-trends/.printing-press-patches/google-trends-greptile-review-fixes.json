@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "google-trends-greptile-review-fixes",
+  "applied_at": "2026-07-14",
+  "base_run_id": "20260713-105453-29114a9d",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Fixed 5 findings from the library PR's Greptile review: 3 local-store cache-key collisions (missing timeframe/geo in the ID hash), an arbitrary-authenticated-POST security issue in the generic import command (reachable via MCP), and 2 unblocked root flags (rate-limit, data-source) in the MCP shell-out.",
+  "reason": "gt_interest_point/gt_keyword_query cache IDs only hashed keyword+geo(+date), so syncing the same keyword/geo with a different --timeframe silently overwrote the earlier series -- fixed by including timeframe in the hash. gt_related_term IDs excluded geo/timeframe entirely, so syncing the same keyword for a different geo overwrote prior related-term snapshots -- fixed by including geo+timeframe. Separately, the generated import command built an authenticated POST path directly from the caller-provided resource argument with no allowlist, and is mirrored as an MCP tool -- since google-trends has no create/upsert endpoints at all (read-only API), the correct fix was to reject every resource with a clear usage error rather than trust caller input, not to add a partial allowlist. Also added rate-limit and data-source to the MCP shell-out's blockedRootFlags, since an MCP caller could otherwise set rate-limit=0 (bypassing adaptive pacing) or force live reads through commands meant to serve local-cache data.",
+  "files": [
+    "internal/cli/trends_interest.go",
+    "internal/cli/trends_related.go",
+    "internal/cli/import.go",
+    "internal/mcp/cobratree/shellout.go"
+  ],
+  "validated_outcome": "Live dogfood full matrix: 65/65 pass after the fix (1 transient failure from dropping import's Example field, fixed and reconfirmed at 65/65). go vet/go test/govulncheck all clean.",
+  "upstream_issue": null
+}

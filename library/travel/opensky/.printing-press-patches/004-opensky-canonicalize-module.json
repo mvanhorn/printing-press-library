@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "opensky-canonicalize-module",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-162902",
+  "base_printing_press_version": "4.28.0",
+  "summary": "go.mod module path canonicalized to github.com/mvanhorn/printing-press-library/library/travel/opensky; all 55 source files' internal imports rewritten to the canonical module root.",
+  "reason": "The print declared module opensky-pp-cli, which fails the library CI gate 'go.mod module path matches directory' (Verify leg) and the supply-chain scan (Scan leg): public go install would fail with 'module declares its path as X but was required as Y'. Same canonicalization the lever print shipped.",
+  "files": [
+    "go.mod",
+    "cmd/opensky-pp-cli/main.go",
+    "cmd/opensky-pp-mcp/main.go",
+    "internal/... (53 import sites)"
+  ],
+  "validated_outcome": "go build ./..., go vet ./..., and the full go test ./... suite (12 packages) pass with the canonical module path.",
+  "upstream_issue": null
+}

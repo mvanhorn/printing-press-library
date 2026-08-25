@@ -83,7 +83,7 @@ recurring duos, or composers who shadow a particular director.`,
 			if id, perr := strconv.Atoi(query); perr == nil {
 				personID = id
 			} else {
-				p, perr := searchPersonByName(c, query)
+				p, perr := searchPersonByName(c, flags, query)
 				if perr != nil {
 					return classifyAPIError(perr)
 				}

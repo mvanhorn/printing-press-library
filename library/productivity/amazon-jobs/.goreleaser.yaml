@@ -1,0 +1,51 @@
+version: 2
+project_name: amazon-jobs-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: amazon-jobs-pp-cli
+    main: ./cmd/amazon-jobs-pp-cli
+    binary: amazon-jobs-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/amazon-jobs/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: amazon-jobs-pp-mcp
+    main: ./cmd/amazon-jobs-pp-mcp
+    binary: amazon-jobs-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: amazon-jobs-pp-cli
+    repository:
+      owner: qazmataz
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Amazon.jobs feature, plus a local job store, new-since diffing, and aggregation Amazon's own site can't do — no login required."
+    install: |
+      bin.install "amazon-jobs-pp-cli"
+      bin.install "amazon-jobs-pp-mcp"

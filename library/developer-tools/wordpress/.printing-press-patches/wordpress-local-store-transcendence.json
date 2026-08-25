@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "wordpress-local-store-transcendence",
+  "applied_at": "2026-07-21",
+  "summary": "feat(wordpress): add queue, audit, orphans, and fleet local-store commands",
+  "reason": "These cross-resource questions cannot be expressed by a single WordPress REST API request and require the per-site SQLite mirror.",
+  "files": [
+    "internal/cli/queue.go",
+    "internal/cli/queue_test.go",
+    "internal/cli/audit.go",
+    "internal/cli/audit_test.go",
+    "internal/cli/orphans.go",
+    "internal/cli/orphans_test.go",
+    "internal/cli/fleet.go",
+    "internal/cli/fleet_test.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass; focused command tests pass; the full internal suite remains blocked by three pre-existing internal/cliutil credential-fallback test failures",
+  "findings_addressed": [
+    "local editorial queue age",
+    "cross-resource content completeness audit",
+    "unused media detection",
+    "cross-site local mirror fleet rollup"
+  ]
+}

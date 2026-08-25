@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "square-windows-private-storage",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260804-231253-e3946f62",
+  "base_printing_press_version": "4.30.0",
+  "summary": "Makes private-file writes and SQLite migration behavior safe and reliable on Windows.",
+  "reason": "The generated Unix-first storage behavior did not preserve private ACLs or valid Windows SQLite migration paths.",
+  "files": [
+    "internal/config/config.go",
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "Full Go tests, build, vet, migration fixtures, and Windows-specific private-file checks passed."
+}

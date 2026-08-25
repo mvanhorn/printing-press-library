@@ -106,7 +106,7 @@ func (c *Client) FetchPage(ctx context.Context, domain string, filters PageFilte
 		if err := json.Unmarshal(body, &redirectEnvelope); err == nil && redirectEnvelope.PageProps.NRedirect != "" {
 			return ReviewsPage{}, &FilterUnsupportedError{ParamHint: filterParamHint(filters)}
 		}
-		return ReviewsPage{}, &BuildIDStaleError{Status: resp.StatusCode}
+		return ReviewsPage{}, &BuildIDStaleError{Status: resp.StatusCode, Domain: domain}
 	}
 	if resp.StatusCode/100 != 2 {
 		return ReviewsPage{}, fmt.Errorf("trustpilot reviews returned HTTP %d: %s", resp.StatusCode, truncate(string(body), 200))
@@ -200,11 +200,25 @@ func (e *CookieExpiredError) Error() string {
 	return fmt.Sprintf("aws-waf-token rejected (HTTP %d); re-run auth login", e.Status)
 }
 
-// BuildIDStaleError signals that the Next.js build id baked into the URL is
-// no longer recognized; the caller should re-harvest both build ids.
-type BuildIDStaleError struct{ Status int }
+// BuildIDStaleError signals an HTTP 404 from a Next.js data endpoint. On the
+// reviews endpoint (Domain set) the likelier cause is that no Trustpilot
+// review page exists for that domain -- review pages are keyed by domain, so
+// a company name or a lookalike domain 404s here; a stale build id is the
+// rarer alternative. On the search endpoint (Domain empty) the path has no
+// domain component, so a 404 is the stale-build-id signal itself. One type
+// covers both because the retry helpers key on it to trigger a re-harvest.
+type BuildIDStaleError struct {
+	Status int
+	Domain string
+}
 
 func (e *BuildIDStaleError) Error() string {
+	if e.Domain != "" {
+		return fmt.Sprintf(
+			"no Trustpilot review page found for %q (HTTP %d) - find the canonical domain with: trustpilot-pp-cli search '<company name>'; if the domain is correct, the build id may be stale - re-run auth login",
+			e.Domain, e.Status,
+		)
+	}
 	return fmt.Sprintf("Next.js build id rejected (HTTP %d); re-run auth login to refresh", e.Status)
 }
 

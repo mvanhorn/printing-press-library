@@ -34,10 +34,12 @@ func newInvoicesLinesGetInvoicesInvoiceCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/invoices/{invoice}/lines"
-			if len(args) < 3 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("invoice is required\nUsage: %s <%s>", cmd.CommandPath(), "invoice"))
 			}
-			path = replacePathParam(path, "invoice", args[2])
+			path = replacePathParam(path, "invoice", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "lines", path, map[string]string{
 				"ending_before":  fmt.Sprintf("%v", flagEndingBefore),
 				"expand":         fmt.Sprintf("%v", flagExpand),

@@ -1,0 +1,153 @@
+{
+  "dir": "\u003ccli-dir\u003e/gmail-pp-cli",
+  "spec_path": "\u003crunstate\u003e/gmail-v1-openapi-pruned.yaml",
+  "spec_source": "caller",
+  "verdict": "FAIL",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0
+  },
+  "auth_check": {
+    "spec_scheme": "bearer token format (expects \"Bearer \" prefix)",
+    "generated_format": "Bearer ",
+    "match": true,
+    "detail": "spec and generated client both use \"Bearer\""
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 20,
+    "covered": 20,
+    "detail": "all OAuth-scoped endpoints covered by generated auth scopes"
+  },
+  "dead_flags": {
+    "total": 25,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 73,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 4,
+    "sync_file_emitted": true,
+    "sync_resources_present": false,
+    "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 4 domain tables found; defaultSyncResources empty (sync command is a no-op)"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 102,
+      "registered": 89,
+      "unregistered": [
+        "batch-modify",
+        "create",
+        "delete",
+        "import",
+        "modify",
+        "modify",
+        "patch",
+        "sync",
+        "trash",
+        "trash",
+        "untrash",
+        "untrash",
+        "update"
+      ]
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 7,
+    "found": 7
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 7,
+    "exempted_via_store": 7,
+    "missing_data_source_strategy": [
+      {
+        "command": "unsub verify",
+        "file": "unsub_verify.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live|computed\u003e annotation"
+      },
+      {
+        "command": "delta",
+        "file": "delta.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live|computed\u003e annotation"
+      },
+      {
+        "command": "storage report",
+        "file": "storage_report.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live|computed\u003e annotation"
+      },
+      {
+        "command": "rules run",
+        "file": "rules_run.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live|computed\u003e annotation"
+      },
+      {
+        "command": "sort suggest",
+        "file": "sort_suggest.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live|computed\u003e annotation"
+      },
+      {
+        "command": "trash report",
+        "file": "storage_report.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live|computed\u003e annotation"
+      },
+      {
+        "command": "score",
+        "file": "score.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live|computed\u003e annotation"
+      }
+    ]
+  },
+  "description_drift_check": {
+    "expected": "Mailbox cleanup that can prove itself — preview, confirm, undo, verify — from a binary that structurally cannot send email."
+  },
+  "source_client_check": {
+    "checked": 1
+  },
+  "print_json_filtered_check": {
+    "checked": 81
+  },
+  "test_presence": {
+    "checked": 2
+  },
+  "naming_check": {
+    "checked": 81
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "defaultSyncResources empty: sync command is a runtime no-op; store-dependent novel commands have no advertised population path",
+    "13 unregistered commands: batch-modify, create, delete, import, modify, modify, patch, sync, trash, trash, untrash, untrash, update",
+    "7/7 novel features missing data-source strategy: unsub verify (unsub_verify.go) — missing // pp:data-source \u003cauto|local|live|computed\u003e annotation; delta (delta.go) — missing // pp:data-source \u003cauto|local|live|computed\u003e annotation; storage report (storage_report.go) — missing // pp:data-source \u003cauto|local|live|computed\u003e annotation; rules run (rules_run.go) — missing // pp:data-source \u003cauto|local|live|computed\u003e annotation; sort suggest (sort_suggest.go) — missing // pp:data-source \u003cauto|local|live|computed\u003e annotation; trash report (storage_report.go) — missing // pp:data-source \u003cauto|local|live|computed\u003e annotation; score (score.go) — missing // pp:data-source \u003cauto|local|live|computed\u003e annotation"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-08-03T21:08:41.304514637Z",
+  "cli_dir": "\u003ccli-dir\u003e/openrouter-image-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings"
+    }
+  ]
+}

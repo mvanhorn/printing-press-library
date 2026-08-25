@@ -1,0 +1,51 @@
+version: 2
+project_name: travelclick-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: travelclick-pp-cli
+    main: ./cmd/travelclick-pp-cli
+    binary: travelclick-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/travelclick/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: travelclick-pp-mcp
+    main: ./cmd/travelclick-pp-mcp
+    binary: travelclick-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: travelclick-pp-cli
+    repository:
+      owner: enlewof
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Search any TravelClick-powered hotel's own rates directly -- room types, rate plans, fee-inclusive pricing, and the cheapest night to book -- without opening a browser tab per property."
+    install: |
+      bin.install "travelclick-pp-cli"
+      bin.install "travelclick-pp-mcp"

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "costco-pp-cli"
+display_name = "Costco"
+description = "Your complete Costco receipt history as data — past the website's 2-year wall, in a local database the site never gives you."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/costco-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+COSTCO_ID_TOKEN = true

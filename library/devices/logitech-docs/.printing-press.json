@@ -1,0 +1,78 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-16T03:16:50.035169Z",
+  "printing_press_version": "4.30.2",
+  "api_name": "logitech-docs",
+  "display_name": "Logitech",
+  "cli_name": "logitech-docs-pp-cli",
+  "creator": {
+    "handle": "Drummerms",
+    "name": "drummerms"
+  },
+  "owner": "drummerms",
+  "printer": "Drummerms",
+  "printer_name": "drummerms",
+  "spec_path": "logitech-docs-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:a163f61553bc6ff688426d550535ba07c448c1cce1cf840e9abcc73670befa78",
+  "run_id": "20260815-214721-c558e557",
+  "category": "devices",
+  "description": "Every Logitech manual, spec sheet, and install guide \u2014 searchable offline, agent-native, no browser.",
+  "mcp_binary": "logitech-docs-pp-mcp",
+  "mcp_tool_count": 6,
+  "mcp_public_tool_count": 6,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Friendly doc-type search",
+      "command": "docs",
+      "description": "Search Logitech support docs by friendly type: spec sheet, manual, install guide, FAQ, download, warranty."
+    },
+    {
+      "name": "Offline full-text search",
+      "command": "find",
+      "description": "Full-text search inside synced manuals and spec sheets from the local store."
+    },
+    {
+      "name": "Download resolver",
+      "command": "download",
+      "description": "Resolve download01.logi.com file links in an article and fetch them (with --dry-run and local cache)."
+    },
+    {
+      "name": "Spec comparison",
+      "command": "compare",
+      "description": "Side-by-side spec comparison between two products from synced spec sheets."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 33,
+    "total": 33,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 91,
+      "grade": "A (1 of 25 dimensions unverified: live_api_verification)",
+      "total": 91
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

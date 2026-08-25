@@ -1,0 +1,15 @@
+{
+  "command": "cli-printing-press shipcheck --dir library/ai/context-dev --json",
+  "passed": true,
+  "started_at": "2026-06-23T22:32:55Z",
+  "legs": [
+    {"name":"verify","passed":true},
+    {"name":"validate-narrative","passed":true},
+    {"name":"dogfood","passed":true},
+    {"name":"workflow-verify","passed":true},
+    {"name":"apify-audit","passed":true},
+    {"name":"verify-skill","passed":true},
+    {"name":"scorecard","passed":true}
+  ],
+  "live_credit_dogfood": "not run: no CONTEXT_DEV_API_KEY, CONTEXT_API_KEY, CONTEXT_DEV_BEARER_AUTH, or stored credentials were present"
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "offline-repeat-includes-performance",
+  "applied_at": "2026-08-15",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "repeatFact (internal/cli/offline.go, offline_repeat's per-workout entry builder) now includes each workout's stored \"performance\" record verbatim under a new performance key, with a performance_caveat when no record exists. Deliberately raw facts, not a computed delta/ranking between the two workouts, keeping offline_repeat consistent with this file's stated \"factual, non-prescriptive\" design contract (package-level comment) while still giving a caller something to actually compare -- previously offline_repeat returned only same_class/ride_id plus each workout's id and recorded date, no comparative data of any kind, for a command literally described as comparing two workouts. Any future regen must keep this additive (never strip the existing workout_id/recorded_at/caveat fields) and keep using the raw offlineFact/decodePayload read, not a derived/summarized shape.",
+  "reason": "A round-6 addendum's open question (explicitly framed as \"question, not a defect\"): offline_repeat's own Short description says \"Compare two recorded workouts,\" but returned no comparative data despite both workouts having synced performance already available. Investigated the offline package's own stated design intent (factual/non-prescriptive) and presented the tradeoff to the user with a recommendation to leave it as-is; user chose to add the raw performance facts side by side instead.",
+  "files": [
+    "internal/cli/offline.go",
+    "internal/cli/offline_test.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. New test TestOfflineRepeatIncludesPerformanceFacts exercises both branches (a workout with a synced performance record and one without) in a single call via the existing seedOfflineFacts fixture. Existing TestOfflineQueriesUseOnlyU3FactsAndCaveatGaps (which already exercises offline_repeat) still passes unchanged. Live-verified against the real account with the exact workout pair from the report: both workouts' full performance payloads (samples, summary, effort_zones, etc.) now appear in the response."
+}

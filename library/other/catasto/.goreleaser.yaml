@@ -1,0 +1,51 @@
+version: 2
+project_name: catasto-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: catasto-pp-cli
+    main: ./cmd/catasto-pp-cli
+    binary: catasto-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/catasto/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: catasto-pp-mcp
+    main: ./cmd/catasto-pp-mcp
+    binary: catasto-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: catasto-pp-cli
+    repository:
+      owner: roberto-bissanti
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The free, single-binary Italian cadastre CLI — converts between cadastral references and GPS, online or offline,..."
+    install: |
+      bin.install "catasto-pp-cli"
+      bin.install "catasto-pp-mcp"

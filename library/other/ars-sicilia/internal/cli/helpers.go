@@ -96,6 +96,7 @@ func (e *cliError) Error() string { return e.err.Error() }
 func (e *cliError) Unwrap() error { return e.err }
 
 func usageErr(err error) error     { return &cliError{code: 2, err: err} }
+func notFoundErr(err error) error  { return &cliError{code: 3, err: err} }
 func configErr(err error) error    { return &cliError{code: 10, err: err} }
 func rateLimitErr(err error) error { return &cliError{code: 7, err: err} }
 
@@ -500,12 +501,14 @@ func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
 		}
 		filtered := map[string]json.RawMessage{}
 		matchedAny := false
+		resolved := map[string]bool{}
 		for k, v := range obj {
 			matched := matchSelectSegment(k, keepWhole, subPaths)
 			if matched == "" {
 				continue
 			}
 			matchedAny = true
+			resolved[matched] = true
 			if keepWhole[matched] {
 				filtered[k] = v
 				continue
@@ -541,12 +544,293 @@ func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
 					filtered[k] = v
 				}
 			}
+		} else if unresolved := unresolvedSelectPaths(paths, resolved); len(unresolved) > 0 {
+			// Mixed selector: some names matched at top level, others didn't.
+			// The unmatched ones usually live inside a sibling array — e.g.
+			// `legge cronologia` returns {legisl, numero, titolo, eventi:[…]}
+			// and `--select data,fase,titolo` means "titolo of the law, plus
+			// data/fase of each event". Before this branch the single root hit
+			// on `titolo` set matchedAny and disabled the envelope fallback
+			// above, so `eventi` was dropped whole and 27 events vanished with
+			// no error. Unlike that fallback this adds ONLY arrays: unrequested
+			// scalar siblings stay out, since here the caller did name the
+			// fields they wanted. An array is kept only when the names that
+			// went unresolved are the ones it answers: a typo can't graft
+			// `"eventi":[…]` onto the output just because some *other*,
+			// already-resolved name happens to exist in those rows too.
+			for k, v := range obj {
+				if _, done := filtered[k]; done {
+					continue
+				}
+				var arr []json.RawMessage
+				if json.Unmarshal(v, &arr) != nil || arr == nil {
+					continue
+				}
+				if !yieldsFields(filterFieldsRec(v, unresolved)) {
+					continue
+				}
+				filtered[k] = filterFieldsRec(v, paths)
+			}
 		}
 		result, _ := json.Marshal(filtered)
 		return result
 	}
 
 	return data
+}
+
+// unresolvedSelectPaths torna i path chiesti a --select che non hanno trovato
+// una chiave a questo livello (`resolved` è popolato dal giro sulle chiavi
+// dell'oggetto). Servono a decidere se un array figlio va aperto: si apre solo
+// se risponde proprio a questi, non a nomi già soddisfatti altrove.
+func unresolvedSelectPaths(paths [][]string, resolved map[string]bool) [][]string {
+	var out [][]string
+	for _, p := range paths {
+		if len(p) > 0 && !resolved[p[0]] {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
+// yieldsFields dice se un array filtrato contiene ancora almeno un campo. Un
+// array di soli oggetti vuoti significa che nessun nome chiesto esiste in quelle
+// righe: aggiungerlo all'output sarebbe solo rumore.
+func yieldsFields(data json.RawMessage) bool {
+	var arr []json.RawMessage
+	if json.Unmarshal(data, &arr) != nil {
+		return false
+	}
+	for _, el := range arr {
+		var obj map[string]json.RawMessage
+		if json.Unmarshal(el, &obj) == nil && len(obj) > 0 {
+			return true
+		}
+	}
+	return false
+}
+
+// warnArrayScartato avverte quando --select ha fatto sparire un elenco intero
+// senza dirlo.
+//
+// Sui comandi aggregati il payload è un oggetto che avvolge un array: la radice
+// porta le coordinate dell'atto (`numero`, `titolo`) e l'array le righe
+// (`eventi`, `stralci`). Quando OGNI nome chiesto esiste già in radice, la
+// radice vince e l'array non viene aperto: `ddl iter 18 6030 --select
+// numero,titolo` esce con numero e titolo del ddl e zero eventi su 31, stderr
+// muto. Chi legge conclude che la cronologia non c'è — una risposta sbagliata
+// data in silenzio, che è la cosa che questa CLI evita ovunque altrove.
+//
+// La semantica non cambia: `--select titolo` su `ddl iter` deve continuare a
+// dare il titolo dell'atto, non quello di trentuno eventi. Cambia solo che ora
+// lo si viene a sapere, e si legge da dove ripartire.
+func warnArrayScartato(originale, filtrato json.RawMessage) {
+	if msg := avvisoArrayScartato(originale, filtrato); msg != "" {
+		fmt.Fprintln(os.Stderr, msg)
+	}
+}
+
+// avvisoArrayScartato torna il testo dell'avviso, o "" quando non c'è nulla da
+// dire. Separato dal warn per poterlo verificare senza catturare stderr, come
+// annoNonPinnatoHint.
+func avvisoArrayScartato(originale, filtrato json.RawMessage) string {
+	var orig map[string]json.RawMessage
+	if json.Unmarshal(originale, &orig) != nil {
+		return ""
+	}
+	var filt map[string]json.RawMessage
+	if json.Unmarshal(filtrato, &filt) != nil {
+		return ""
+	}
+	for _, k := range objectKeys(originale) {
+		if _, resta := filt[k]; resta {
+			continue
+		}
+		var arr []json.RawMessage
+		if json.Unmarshal(orig[k], &arr) != nil || len(arr) == 0 {
+			continue
+		}
+		campi := unionObjectKeys(arr)
+		if len(campi) == 0 {
+			continue
+		}
+		sort.Strings(campi)
+		return fmt.Sprintf(
+			"hint: --select: %s (%d righe) non esce, perché tutti i nomi chiesti esistono già nella radice e la radice vince. Per vedere l'elenco aggiungi un nome che vive nelle sue righe: %s.",
+			k, len(arr), strings.Join(campi, ", "))
+	}
+	return ""
+}
+
+// warnUnknownSelectFields avverte su stderr quando un nome passato a --select
+// non esiste in nessun record: senza questo, il campo sbagliato sparisce in
+// silenzio e sembra un bug del comando (è successo con `--select oggetto`, che
+// in questi archivi si chiama `titolo`). Avverte solo per i nomi che non
+// matchano NULLA, così un --select parzialmente valido resta silenzioso.
+// Guarda solo il primo segmento dei path puntati e il primo elemento di una
+// lista: basta a riconoscere un nome inventato, senza ispezionare tutto.
+func warnUnknownSelectFields(data json.RawMessage, fields string) {
+	unknown := unknownSelectNames(data, fields)
+	if len(unknown) == 0 {
+		return
+	}
+	avail := topLevelKeys(data)
+	sort.Strings(avail)
+	esiste, ignorato := "non esiste in questi record e verrà ignorato", "Campo disponibile"
+	if len(unknown) > 1 {
+		esiste = "non esistono in questi record e verranno ignorati"
+	}
+	if len(avail) > 1 {
+		ignorato = "Campi disponibili"
+	}
+	dove := ""
+	if paths := doveVivono(data, unknown); len(paths) > 0 {
+		dove = fmt.Sprintf(" %s sta un livello sotto: usa %s.", unknown[0], strings.Join(paths, " o "))
+	}
+	fmt.Fprintf(os.Stderr, "hint: --select: %s %s.%s %s: %s.\n",
+		strings.Join(unknown, ", "), esiste, dove, ignorato, strings.Join(avail, ", "))
+}
+
+// doveVivono cerca i nomi ignorati dentro i campi-oggetto della radice e torna
+// i path puntati con cui si raggiungono davvero.
+//
+// `ddl get` non espone data, numero e titolo in radice: stanno dentro `fields`,
+// col nome che usa il portale (`fields.Data`). Chi ha imparato `--select data`
+// su `ddl cerca` lo riusa su `get`, non trova nulla, e l'elenco dei campi
+// disponibili gli dice che esiste `fields` senza dirgli che è lì dentro che
+// deve scendere. Il nome giusto lo si conosce già: basta dirlo.
+//
+// Si guarda un solo livello e solo il primo nome ignorato: serve a rimettere in
+// carreggiata, non a mappare il payload.
+func doveVivono(data json.RawMessage, unknown []string) []string {
+	if len(unknown) == 0 {
+		return nil
+	}
+	var obj map[string]json.RawMessage
+	if json.Unmarshal(data, &obj) != nil {
+		return nil
+	}
+	cercato := strings.ToLower(unknown[0])
+	var out []string
+	for _, k := range objectKeys(data) {
+		var inner map[string]json.RawMessage
+		if json.Unmarshal(obj[k], &inner) != nil {
+			continue
+		}
+		for _, ik := range objectKeys(obj[k]) {
+			if strings.ToLower(ik) == cercato || camelToKebab(ik) == cercato {
+				out = append(out, k+"."+ik)
+			}
+		}
+	}
+	return out
+}
+
+// unknownSelectNames torna i nomi richiesti a --select che non corrispondono a
+// nessun campo del payload, nell'ordine in cui l'utente li ha scritti. Torna
+// nil quando il payload non è ispezionabile (lista vuota, scalare): in dubbio
+// non si avvisa. Il confronto ricalca quello di matchSelectSegment (match
+// case-insensitive più conversione camelCase→kebab-case), così un nome che
+// filterFields saprebbe risolvere non viene mai dato per sconosciuto.
+func unknownSelectNames(data json.RawMessage, fields string) []string {
+	avail := topLevelKeys(data)
+	if len(avail) == 0 {
+		return nil
+	}
+	availSet := map[string]bool{}
+	for _, k := range avail {
+		availSet[strings.ToLower(k)] = true
+		availSet[camelToKebab(k)] = true
+	}
+	var unknown []string
+	for _, f := range strings.Split(fields, ",") {
+		f = strings.TrimSpace(f)
+		if f == "" {
+			continue
+		}
+		head := strings.ToLower(strings.SplitN(f, ".", 2)[0])
+		if !availSet[head] {
+			unknown = append(unknown, head)
+		}
+	}
+	return unknown
+}
+
+// topLevelKeys estrae i nomi di campo selezionabili di un payload: le chiavi
+// unite di tutti gli elementi se è una lista, le proprie se è un oggetto. Su
+// un oggetto aggiunge anche le chiavi delle righe di ogni array figlio,
+// perché su un envelope (`{"items":[...]}`) filterFieldsRec applica il
+// selettore là dentro. L'insieme è deliberatamente ADDITIVO e mai
+// sostitutivo: serve a decidere se tacere, quindi un nome di troppo fa solo
+// perdere un avviso, mentre un nome mancante produrrebbe un avviso falso su
+// un campo che invece esce.
+// Torna nil su payload non ispezionabili.
+func topLevelKeys(data json.RawMessage) []string {
+	var arr []json.RawMessage
+	if err := json.Unmarshal(data, &arr); err == nil {
+		if len(arr) == 0 {
+			return nil
+		}
+		return unionObjectKeys(arr)
+	}
+	keys := objectKeys(data)
+	if keys == nil {
+		return nil
+	}
+	var obj map[string]json.RawMessage
+	if json.Unmarshal(data, &obj) != nil {
+		return keys
+	}
+	seen := map[string]bool{}
+	for _, k := range keys {
+		seen[k] = true
+	}
+	for _, v := range obj {
+		var inner []json.RawMessage
+		if json.Unmarshal(v, &inner) != nil || len(inner) == 0 {
+			continue
+		}
+		for _, k := range unionObjectKeys(inner) {
+			if !seen[k] {
+				seen[k] = true
+				keys = append(keys, k)
+			}
+		}
+	}
+	return keys
+}
+
+// unionObjectKeys torna le chiavi presenti in almeno uno degli oggetti di
+// arr, nell'ordine di prima comparsa. Campionare solo arr[0] farebbe perdere
+// le chiavi che compaiono a partire da un elemento successivo: capita nelle
+// liste cronologiche (`eventi` di `ddl iter`/`legge cronologia`, `atti` di
+// `deputato profilo`), dove le righe più vecchie hanno meno metadati delle
+// più recenti — vedi docs/news-agent/2026-08-07_08-43.md.
+func unionObjectKeys(arr []json.RawMessage) []string {
+	var keys []string
+	seen := map[string]bool{}
+	for _, el := range arr {
+		for _, k := range objectKeys(el) {
+			if !seen[k] {
+				seen[k] = true
+				keys = append(keys, k)
+			}
+		}
+	}
+	return keys
+}
+
+// objectKeys torna le chiavi di un oggetto JSON, o nil se non è un oggetto.
+func objectKeys(data json.RawMessage) []string {
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return nil
+	}
+	keys := make([]string, 0, len(obj))
+	for k := range obj {
+		keys = append(keys, k)
+	}
+	return keys
 }
 
 // matchSelectSegment returns the matching lowercase segment, or "" if no match.
@@ -579,13 +863,20 @@ func camelToKebab(s string) string {
 
 // printOutputWithFlags routes output through the right format based on flags.
 func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) error {
+	// data_iso viaggia accanto a ogni data della fonte, e viene prima di
+	// --select e --compact così resta selezionabile come qualunque altro campo.
+	data = iniettaDataISO(data)
 	// --select wins over --compact when both are set: an explicit field list
 	// is the user's authoritative request, so the high-gravity allow-list
 	// must not strip those fields out before --select can pick them. When
 	// only --compact is set (e.g., --agent without --select), the allow-list
 	// still runs.
 	if flags.selectFields != "" {
+		warnUnknownSelectFields(data, flags.selectFields)
+		originale := data
 		data = filterFields(data, flags.selectFields)
+		data = preservaAvvisi(originale, data)
+		warnArrayScartato(originale, data)
 	} else if flags.compact {
 		data = compactFields(data)
 	}
@@ -678,6 +969,14 @@ func compactListFields(items []map[string]any) json.RawMessage {
 		"date": true,
 		// Versioning
 		"version": true,
+		// Signatories — enriched onto rows only when the caller explicitly
+		// asked for it (--con-firmatari); an explicit opt-in must not then be
+		// silently discarded by --compact/--agent, the CLI's own recommended
+		// mode. Kept even though it's an array of {nome, gruppo} objects: the
+		// final assembly loop below only checks keepFields[k], not scalar-ness
+		// — isCompactScalar only gates the frequency-based auto-extension,
+		// never a field already on this static allowlist.
+		"firmatari": true,
 	}
 	if len(items) > 0 {
 		keyCounts := map[string]int{}
@@ -756,9 +1055,16 @@ func compactObjectFields(obj map[string]any) json.RawMessage {
 func printCSV(w io.Writer, data json.RawMessage) error {
 	var items []map[string]any
 	if err := json.Unmarshal(data, &items); err != nil || len(items) == 0 {
-		// Single object or empty - just print as JSON
-		fmt.Fprintln(w, string(data))
-		return nil
+		// Payload che avvolge la lista in un oggetto: i comandi aggregati
+		// finivano tutti qui e uscivano in JSON senza dire che il formato
+		// chiesto non era arrivato.
+		if righe := righeDaOggetto(data); len(righe) > 0 {
+			items = righe
+		} else {
+			fmt.Fprintln(w, string(data))
+			fmt.Fprintln(os.Stderr, "hint: --csv: questa risposta non ha una lista di righe da mettere in tabella, l'output è JSON.")
+			return nil
+		}
 	}
 	// Collect all keys for header
 	keySet := map[string]bool{}

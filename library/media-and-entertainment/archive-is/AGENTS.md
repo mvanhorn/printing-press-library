@@ -8,14 +8,14 @@ Start by asking the generated CLI for current runtime truth:
 
 ```bash
 archive-is-pp-cli doctor --json
-archive-is-pp-cli agent-context --pretty
+archive-is-pp-cli --help
 ```
 
 Use runtime discovery instead of relying on a copied command list:
 
 ```bash
-archive-is-pp-cli which "<capability>" --json
 archive-is-pp-cli <command> --help
+archive-is-pp-cli snapshots --help
 ```
 
 Add `--agent` to command invocations for JSON, compact output, non-interactive defaults, no color, and confirmation-safe scripting:

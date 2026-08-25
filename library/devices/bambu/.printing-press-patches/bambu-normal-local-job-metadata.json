@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "bambu-normal-local-job-metadata",
+  "applied_at": "2026-07-11",
+  "base_run_id": "20260711-063302-c519dd7c",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Normal local-access monitoring must use Bambu's one-based plate identifiers, wait briefly for initialized ETA telemetry, and never borrow a stale 3MF.",
+  "reason": "Display- and app-launched jobs can expose G-code without a current 3MF, while the first MQTT transition can retain stale layer data or report zero remaining time. A regen must preserve honest omission, precise warnings, and a bounded ETA-enrichment wait instead of emitting the prior job's metadata or an avoidably incomplete start notification.",
+  "files": [
+    "internal/bambu/types.go",
+    "internal/bambu/ftps.go",
+    "internal/cli/bambu_events.go",
+    "internal/bambu/bambu_test.go",
+    "internal/cli/bambu_review_regressions_test.go"
+  ],
+  "validated_outcome": "Display and Handy Benchy runs emitted matching lifecycle pairs without false previews or weights; plate resolved to 1, unavailable metadata named the printer-resident G-code condition, and the Handy run proved ETA telemetry initialized on the next report."
+}

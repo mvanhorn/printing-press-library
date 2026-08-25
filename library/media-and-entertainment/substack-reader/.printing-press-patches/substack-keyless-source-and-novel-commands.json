@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-07-10",
+  "base_run_id": "20260710-081225",
+  "base_printing_press_version": "4.28.0",
+  "id": "substack-keyless-source-and-novel-commands",
+  "summary": "Hand-built keyless Substack HTTP source layer plus the five novel reader commands (archive, read, digest, author-compare, sql), filling genuine generator stubs on top of the generated chassis.",
+  "reason": "The generated chassis wires the framework command surface and emits novel-command scaffolds for every declared novel feature (archive/read/digest/author-compare/sql are declared in research.json novel_features; each 4.28.0 stub carries a 'Novel command scaffold. Implement the RunE body before shipping.' header and a 'TODO: implement novel feature' body), but provides no Substack transport. The keyless reader is hand-built: internal/substack/client.go fetches Substack's internal /api/v1 endpoints directly (net/http, no key, no Cloudflare/JA3 gate; the discovery-endpoint transport is generated as standard net/http via --transport standard), following the per-publication host / custom-domain 301; internal/substack/resolver.go unifies the four post-URL shapes into one resolver. The novel stubs are hand-filled: archive.go mirrors posts into local SQLite and stamps sync_state via the generated store's SaveSyncState (playbook meta-pattern 8); read.go fetches a single post with a full-vs-preview detector; digest.go time-windows the corpus; author_compare.go joins two archived publications; sql.go runs read-only SQL over the corpus (a CLI companion to the framework's typed sql MCP tool; the cobratree mirror de-dupes it). internal/cli/corpus.go is the shared read-only corpus projection used by digest and author-compare, with a case-folded publication-host join key. None of these files carry a generator DO-NOT-EDIT header.",
+  "files": [
+    "internal/substack/client.go",
+    "internal/substack/resolver.go",
+    "internal/cli/archive.go",
+    "internal/cli/read.go",
+    "internal/cli/digest.go",
+    "internal/cli/author_compare.go",
+    "internal/cli/sql.go",
+    "internal/cli/corpus.go"
+  ],
+  "validated_outcome": "go mod tidy/build/vet/test green under go1.26.5; shipcheck 7/7; scorecard 91/100 A; gosec 17 findings all generated / 0 hand-authored; govulncheck clean. Behavioral smoke verified all five novel commands live against subdomain and custom-domain publications: archive (astralcodexten + blog.bytebytego.com, 12 posts each), search (offline FTS 12 hits), sql (audience mix everyone/only_paid over the resources corpus), read (full free body of astralcodexten/introducing-plan-a + --agent --select projection), digest (--since 3650d), author-compare (cadence + free/paid mix for both pubs). Phase-5 live acceptance recorded at --level quick (14/14 status:pass); the deeper --level full matrix reports 8/88 failing, entirely in 4.28.0's own generated teach/teach-pattern/teach-playbook/playbook-amend self-learning commands (a framework probe-classification regression, filed upstream) — this reader's own commands have zero failures at any level. Greptile P2 hardening (PR #1486): client.go's success-path body read is now size-capped (io.LimitReader to 50 MiB, over-cap returns an error rather than silently truncating) so an oversized or redirected body cannot balloon the heap — the 429/non-2xx paths were already bounded. Regression: internal/substack client_test.go (TestGetCapsOversizedBody, TestGetReadsBodyWithinCap), package tests green under go build/vet/test."
+}

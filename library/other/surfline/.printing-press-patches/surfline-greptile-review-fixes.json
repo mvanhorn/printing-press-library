@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "surfline-greptile-review-fixes",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260614-164025-61e51520",
+  "base_printing_press_version": "4.24.0",
+  "summary": "topSwell skips a component when EITHER height or period is non-positive; redact-credential list carries no duplicate field.",
+  "reason": "A swell with height 0 but period > 0 has zero energy yet passed the AND guard and could surface as the top swell (0 ft at a real period) in now/rank; the OR guard drops any component carrying no meaningful signal. The credential-redaction list had AccessToken registered twice (a no-op under the dedup map but a copy-paste hazard that would mis-mask a future field).",
+  "files": ["internal/cli/surfline_forecast.go", "internal/client/client.go"],
+  "validated_outcome": "go build/vet/test all pass; topSwell unit behavior unchanged for valid swells."
+}

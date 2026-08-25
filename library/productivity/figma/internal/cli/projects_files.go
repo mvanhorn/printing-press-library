@@ -9,8 +9,10 @@ import (
 
 func newProjectsFilesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "files",
-		Short: "Get file JSON, images, and other file-related content.",
+		Use:         "files",
+		Short:       "Get file JSON, images, and other file-related content.",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newProjectsFilesGetProjectCmd(flags))

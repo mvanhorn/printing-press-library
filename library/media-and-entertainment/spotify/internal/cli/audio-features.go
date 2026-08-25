@@ -9,9 +9,11 @@ import (
 
 func newAudioFeaturesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "audio-features",
-		Short:  "Manage audio features",
-		Hidden: true,
+		Use:         "audio-features",
+		Short:       "Manage audio features command groups",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newAudioFeaturesGetCmd(flags))

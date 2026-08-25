@@ -19,10 +19,10 @@ func newScoreboardPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "scoreboard <sport> <league>",
 		Short: "Get scoreboard for a sport and league with optional date filtering",
-		Long:  "Shortcut for 'scoreboard get'. Get scoreboard for a sport and league with optional date filtering",
-		Example: `  espn-pp-cli scoreboard football nfl
-  espn-pp-cli scoreboard basketball nba --dates 20250115
-  espn-pp-cli scoreboard football college-football --groups 50 --json`,
+		Long:  "Get scoreboard for a sport and league with optional date filtering",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
+		Example:     "  espn-pp-cli scoreboard example-value example-value",
+		Annotations: map[string]string{"pp:endpoint": "scoreboard.get", "pp:method": "GET", "pp:path": "/{sport}/{league}/scoreboard", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -30,34 +30,56 @@ func newScoreboardPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/{sport}/{league}/scoreboard"
-			if len(args) < 1 {
-				return usageErr(fmt.Errorf("sport is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "sport"))
+			if len(args) < 1 || args[0] == "" {
+				// JSON envelope: {error, usage}. Written first; the
+				// usageErr return preserves exit code 2 across modes.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "sport is required",
+						"usage": fmt.Sprintf("%s <%s>", cmd.CommandPath(), "sport"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("sport is required\nUsage: %s <%s>", cmd.CommandPath(), "sport"))
 			}
 			path = replacePathParam(path, "sport", args[0])
-			if len(args) < 2 {
-				return usageErr(fmt.Errorf("league is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "league"))
+			if len(args) < 2 || args[1] == "" {
+				// JSON envelope: {error, usage}. Written first; the
+				// usageErr return preserves exit code 2 across modes.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "league is required",
+						"usage": fmt.Sprintf("%s <%s>", cmd.CommandPath(), "league"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("league is required\nUsage: %s <%s>", cmd.CommandPath(), "league"))
 			}
 			path = replacePathParam(path, "league", args[1])
 			params := map[string]string{}
 			if flagDates != "" {
-				params["dates"] = fmt.Sprintf("%v", flagDates)
+				params["dates"] = formatCLIParamValue(flagDates)
 			}
 			if flagLimit != 0 {
-				params["limit"] = fmt.Sprintf("%v", flagLimit)
+				params["limit"] = formatCLIParamValue(flagLimit)
 			}
 			if flagGroups != 0 {
-				params["groups"] = fmt.Sprintf("%v", flagGroups)
+				params["groups"] = formatCLIParamValue(flagGroups)
 			}
-			data, prov, err := resolveRead(c, flags, "scoreboard", false, path, params)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "scoreboard", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
-			// Print provenance to stderr
-			{
+			// Honor --limit when the API accepts but ignores ?limit=N.
+			data = truncateJSONArray(data, flagLimit)
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				if json.Unmarshal(data, &countItems) != nil {
 					// Single object, not an array
@@ -65,18 +87,17 @@ func newScoreboardPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// CSV bypasses JSON pipe path so --csv works when piped
-			if flags.csv {
-				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-			}
-			// For JSON output, wrap with provenance envelope
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// For JSON output, wrap with provenance envelope. --select wins over
+			// --compact when both are set; --compact only runs when no explicit
+			// fields were requested. Explicit format flags (--csv, --quiet, --plain)
+			// opt out of the auto-JSON path so piped consumers that asked for a
+			// non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -96,7 +117,7 @@ func newScoreboardPromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagDates, "dates", "", "Date or date range in YYYYMMDD or YYYYMMDD-YYYYMMDD format")

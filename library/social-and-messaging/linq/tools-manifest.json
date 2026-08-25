@@ -1,0 +1,597 @@
+{
+  "api_name": "linq",
+  "base_url": "https://api.linqapp.com/api/partner",
+  "description": "Community-curated OpenAPI 3.1 blueprint for the Linq Partner API, derived from https://docs.linqapp.com/api and cross-checked against github.com/linq-team/linq-go/api.md. The blueprint is generic and contains no private deployment-specific behavior or examples.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "LINQ_API_V3_API_KEY",
+      "LINQ_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "LINQ_API_V3_API_KEY",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true
+      },
+      {
+        "name": "LINQ_API_KEY",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true
+      }
+    ],
+    "key_url": "https://dashboard.linqapp.com/sandbox-signup"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "attachments_delete-an",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: attachmentId. Destructive.",
+      "method": "DELETE",
+      "path": "/v3/attachments/{attachmentId}",
+      "params": [
+        {
+          "name": "attachmentId",
+          "type": "string",
+          "location": "path",
+          "description": "Attachment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "attachments_get-metadata",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: attachmentId. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/v3/attachments/{attachmentId}",
+      "params": [
+        {
+          "name": "attachmentId",
+          "type": "string",
+          "location": "path",
+          "description": "Attachment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "attachments_pre-upload-afile",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Returns the new GenericObject.",
+      "method": "POST",
+      "path": "/v3/attachments",
+      "params": []
+    },
+    {
+      "name": "capability_check-imessage",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Returns the new GenericObject.",
+      "method": "POST",
+      "path": "/v3/capability/check_imessage",
+      "params": []
+    },
+    {
+      "name": "capability_check-rcscapability",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Returns the new GenericObject.",
+      "method": "POST",
+      "path": "/v3/capability/check_rcs",
+      "params": []
+    },
+    {
+      "name": "chats_create-anew",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Returns the new GenericObject.",
+      "method": "POST",
+      "path": "/v3/chats",
+      "params": []
+    },
+    {
+      "name": "chats_get-achat-by-id",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: chatId. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/v3/chats/{chatId}",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "Chat id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_list-all",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Optional: limit, cursor, from (plus 3 more). Returns array of GenericObject.",
+      "method": "GET",
+      "path": "/v3/chats",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "From"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "To"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        }
+      ]
+    },
+    {
+      "name": "chats_update-achat",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: chatId. Returns the updated GenericObject.",
+      "method": "PUT",
+      "path": "/v3/chats/{chatId}",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "Chat id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_leave_agroup-chat",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: chatId. Returns the new GenericObject.",
+      "method": "POST",
+      "path": "/v3/chats/{chatId}/leave",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "Chat id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_location_get-data",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: chatId. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/v3/chats/{chatId}/location",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "Chat id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_location_request-sharing",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: chatId. Returns the new GenericObject.",
+      "method": "POST",
+      "path": "/v3/chats/{chatId}/location/request",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "Chat id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_messages_get-from-achat",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: chatId. Optional: limit, cursor, from (plus 3 more). Returns array of GenericObject.",
+      "method": "GET",
+      "path": "/v3/chats/{chatId}/messages",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "Chat id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "From"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "To"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        }
+      ]
+    },
+    {
+      "name": "chats_messages_send-amessage-to-an-existing-chat",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: chatId. Returns the new GenericObject.",
+      "method": "POST",
+      "path": "/v3/chats/{chatId}/messages",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "Chat id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_participants_add-aparticipant-to-achat",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: chatId. Returns the new GenericObject.",
+      "method": "POST",
+      "path": "/v3/chats/{chatId}/participants",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "Chat id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_participants_remove-aparticipant-from-achat",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: chatId. Returns the GenericObject. Destructive.",
+      "method": "DELETE",
+      "path": "/v3/chats/{chatId}/participants",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "Chat id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_read_mark-chat-as",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: chatId. Returns the new GenericObject.",
+      "method": "POST",
+      "path": "/v3/chats/{chatId}/read",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "Chat id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_share-contact-card_share-your-contact-card-with-achat",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: chatId. Returns the new GenericObject.",
+      "method": "POST",
+      "path": "/v3/chats/{chatId}/share_contact_card",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "Chat id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_typing_start-indicator",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: chatId. Returns the new GenericObject.",
+      "method": "POST",
+      "path": "/v3/chats/{chatId}/typing",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "Chat id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_typing_stop-indicator",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: chatId. Returns the GenericObject. Destructive.",
+      "method": "DELETE",
+      "path": "/v3/chats/{chatId}/typing",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "Chat id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_voicememo_send-avoice-memo-to-achat",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: chatId. Returns the new GenericObject.",
+      "method": "POST",
+      "path": "/v3/chats/{chatId}/voicememo",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "Chat id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contact-card_get",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Returns array of GenericObject.",
+      "method": "GET",
+      "path": "/v3/contact_card",
+      "params": []
+    },
+    {
+      "name": "contact-card_setup",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Returns the new GenericObject.",
+      "method": "POST",
+      "path": "/v3/contact_card",
+      "params": []
+    },
+    {
+      "name": "contact-card_update",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Returns the updated GenericObject.",
+      "method": "PATCH",
+      "path": "/v3/contact_card",
+      "params": []
+    },
+    {
+      "name": "messages_delete-amessage-from-system",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: messageId. Destructive.",
+      "method": "DELETE",
+      "path": "/v3/messages/{messageId}",
+      "params": [
+        {
+          "name": "messageId",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_edit-the-content-of-amessage-part",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: messageId. Returns the updated GenericObject.",
+      "method": "PATCH",
+      "path": "/v3/messages/{messageId}",
+      "params": [
+        {
+          "name": "messageId",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_get-amessage-by-id",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: messageId. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/v3/messages/{messageId}",
+      "params": [
+        {
+          "name": "messageId",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_reactions_add-or-remove-areaction-to-amessage",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: messageId. Returns the new GenericObject.",
+      "method": "POST",
+      "path": "/v3/messages/{messageId}/reactions",
+      "params": [
+        {
+          "name": "messageId",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_thread_get-all-messages-in-athread",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: messageId. Optional: limit, cursor, from (plus 3 more). Returns array of GenericObject.",
+      "method": "GET",
+      "path": "/v3/messages/{messageId}/thread",
+      "params": [
+        {
+          "name": "messageId",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "From"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "To"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        }
+      ]
+    },
+    {
+      "name": "phone-numbers_list",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Returns array of GenericObject.",
+      "method": "GET",
+      "path": "/v3/phone_numbers",
+      "params": []
+    },
+    {
+      "name": "phonenumbers_list-phone-numbers-deprecated",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Returns array of GenericObject.",
+      "method": "GET",
+      "path": "/v3/phonenumbers",
+      "params": []
+    },
+    {
+      "name": "webhook-events_list-available-types",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Returns array of GenericObject.",
+      "method": "GET",
+      "path": "/v3/webhook-events",
+      "params": []
+    },
+    {
+      "name": "webhook-subscriptions_create-anew",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Returns the new GenericObject.",
+      "method": "POST",
+      "path": "/v3/webhook-subscriptions",
+      "params": []
+    },
+    {
+      "name": "webhook-subscriptions_delete-awebhook-subscription",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: subscriptionId. Destructive.",
+      "method": "DELETE",
+      "path": "/v3/webhook-subscriptions/{subscriptionId}",
+      "params": [
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "Subscription id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhook-subscriptions_get-awebhook-subscription-by-id",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: subscriptionId. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/v3/webhook-subscriptions/{subscriptionId}",
+      "params": [
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "Subscription id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhook-subscriptions_list-all",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Returns array of GenericObject.",
+      "method": "GET",
+      "path": "/v3/webhook-subscriptions",
+      "params": []
+    },
+    {
+      "name": "webhook-subscriptions_update-awebhook-subscription",
+      "description": "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md. Required: subscriptionId. Returns the updated GenericObject.",
+      "method": "PUT",
+      "path": "/v3/webhook-subscriptions/{subscriptionId}",
+      "params": [
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "Subscription id",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

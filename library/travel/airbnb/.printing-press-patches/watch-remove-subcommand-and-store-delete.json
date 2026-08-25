@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "watch-remove-subcommand-and-store-delete",
+  "applied_at": "2026-06-13",
+  "base_run_id": "2026-05-03T06:03:12.15145Z",
+  "base_printing_press_version": "3.6.1",
+  "summary": "`watch remove <listing-url-or-id>` deletes a watchlist entry, backed by store.DeleteWatchlistItem(listingURL) which DELETEs by the UNIQUE listing_url under writeMu and returns rows-affected. A full URL matches verbatim; a bare id is resolved to its stored URL by scanning the watchlist. Removing an absent listing is a not-found (exit 3), not a silent success.",
+  "reason": "The watchlist had add/list/check but no removal path, so a watched listing could only be taken off by hand-editing the DB. The delete keys on listing_url (the UNIQUE column) to hit exactly one row; id-resolution exists because the bare room id is what `watch list` surfaces. A regen must keep DeleteWatchlistItem on the hand-written store/rental.go (next to the other watchlist mutators, under writeMu), not on generated store.go.",
+  "files": [
+    "internal/cli/watch.go",
+    "internal/store/rental.go",
+    "internal/store/rental_test.go"
+  ],
+  "validated_outcome": "go build/vet green; store test seeds one watchlist row, DeleteWatchlistItem returns 1 and COUNT drops to 0, second delete returns 0 with no error.",
+  "upstream_issue": ""
+}

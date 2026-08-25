@@ -1,0 +1,196 @@
+{
+  "api_name": "judgeme",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "judge-me-pp-cli",
+      "url": "https://github.com/mvanhorn/printing-press-library/tree/main/library/marketing/judge-me",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 39,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [
+    "Judge.me repeats page 100 after the 10,000-row cap.",
+    "Every review count must name its population.",
+    "Body hash is the local syndication-dedup key."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-30T05:46:05Z",
+  "novel_features": [
+    {
+      "name": "Completeness-safe mirror",
+      "command": "sync",
+      "description": "Mirror the complete review corpus and refuse success when unique IDs do not equal Judge.me's live count.",
+      "rationale": "The API silently repeats page 100 after 10,000 rows, so safe sync requires loop detection, partitioning, deduplication, and count assertions.",
+      "example": "judgeme-pp-cli sync --resources reviews --full --max-pages 1 --agent",
+      "why_it_matters": "Use this before any analysis that depends on corpus completeness.",
+      "group": "Verified local corpus"
+    },
+    {
+      "name": "Filtered corpus export",
+      "command": "reviews export",
+      "description": "Export explicit published, hidden, pending, or all populations as JSON or CSV.",
+      "rationale": "A verified local mirror enables fast, repeatable filtering without another fragile full-API traversal.",
+      "example": "judgeme-pp-cli reviews export --population published --rating 5 --csv --dry-run",
+      "why_it_matters": "Use this to hand a bounded, provenance-labeled review slice to downstream analysis tools.",
+      "group": "Verified local corpus"
+    },
+    {
+      "name": "Population census",
+      "command": "reviews populations",
+      "description": "Count storefront-visible and internal moderation populations with unambiguous labels.",
+      "rationale": "Judge.me returns reviews the storefront does not show, so one raw total is operationally misleading.",
+      "example": "judgeme-pp-cli reviews populations --agent --dry-run",
+      "why_it_matters": "Use this whenever published-vs-hidden population differences affect a report or decision.",
+      "group": "Population integrity"
+    },
+    {
+      "name": "Syndication clusters",
+      "command": "reviews syndication",
+      "description": "Find identical normalized review bodies attached to multiple products.",
+      "rationale": "Body hashes in the local mirror expose bundle syndication that row-level API data obscures.",
+      "example": "judgeme-pp-cli reviews syndication --population all --min-products 2 --agent --dry-run",
+      "why_it_matters": "Use this before attributing customer language to a specific SKU or product.",
+      "group": "Population integrity"
+    },
+    {
+      "name": "Unique-body view",
+      "command": "reviews unique-bodies",
+      "description": "Return one deterministic representative per normalized review body while retaining source row counts.",
+      "rationale": "Deduplicating by body hash prevents syndicated copies from dominating VoC analysis.",
+      "example": "judgeme-pp-cli reviews unique-bodies --population published --agent --dry-run",
+      "why_it_matters": "Use this when independent customer voices matter more than API row count.",
+      "group": "Population integrity"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Completeness-safe mirror",
+      "command": "sync",
+      "description": "Mirror the complete review corpus and refuse success when unique IDs do not equal Judge.me's live count.",
+      "rationale": "The API silently repeats page 100 after 10,000 rows, so safe sync requires loop detection, partitioning, deduplication, and count assertions.",
+      "example": "judgeme-pp-cli sync --resources reviews --full --max-pages 1 --agent",
+      "why_it_matters": "Use this before any analysis that depends on corpus completeness.",
+      "group": "Verified local corpus"
+    },
+    {
+      "name": "Filtered corpus export",
+      "command": "reviews export",
+      "description": "Export explicit published, hidden, pending, or all populations as JSON or CSV.",
+      "rationale": "A verified local mirror enables fast, repeatable filtering without another fragile full-API traversal.",
+      "example": "judgeme-pp-cli reviews export --population published --rating 5 --csv --dry-run",
+      "why_it_matters": "Use this to hand a bounded, provenance-labeled review slice to downstream analysis tools.",
+      "group": "Verified local corpus"
+    },
+    {
+      "name": "Population census",
+      "command": "reviews populations",
+      "description": "Count storefront-visible and internal moderation populations with unambiguous labels.",
+      "rationale": "Judge.me returns reviews the storefront does not show, so one raw total is operationally misleading.",
+      "example": "judgeme-pp-cli reviews populations --agent --dry-run",
+      "why_it_matters": "Use this whenever published-vs-hidden population differences affect a report or decision.",
+      "group": "Population integrity"
+    },
+    {
+      "name": "Syndication clusters",
+      "command": "reviews syndication",
+      "description": "Find identical normalized review bodies attached to multiple products.",
+      "rationale": "Body hashes in the local mirror expose bundle syndication that row-level API data obscures.",
+      "example": "judgeme-pp-cli reviews syndication --population all --min-products 2 --agent --dry-run",
+      "why_it_matters": "Use this before attributing customer language to a specific SKU or product.",
+      "group": "Population integrity"
+    },
+    {
+      "name": "Unique-body view",
+      "command": "reviews unique-bodies",
+      "description": "Return one deterministic representative per normalized review body while retaining source row counts.",
+      "rationale": "Deduplicating by body hash prevents syndicated copies from dominating VoC analysis.",
+      "example": "judgeme-pp-cli reviews unique-bodies --population published --agent --dry-run",
+      "why_it_matters": "Use this when independent customer voices matter more than API row count.",
+      "group": "Population integrity"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "JUDGEME_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Judge.me",
+    "headline": "A completeness-verified Judge.me review corpus with explicit populations and syndication-aware exports.",
+    "value_prop": "Wrap the full Judge.me API while defending review workflows against the silent 10,000-row pagination loop. Sync once into a documented SQLite mirror, then export, count, and deduplicate published or internal review populations with provenance on every agent response.",
+    "auth_narrative": "Set JUDGEME_API_KEY to the private token and JUDGEME_SHOP_DOMAIN to the store's myshopify.com domain. The private token is sent only in the X-Api-Token header and is redacted from logs; it is never placed in a request URL.",
+    "quickstart": [
+      {
+        "command": "judgeme-pp-cli doctor --dry-run",
+        "comment": "Check configuration without contacting Judge.me."
+      },
+      {
+        "command": "judgeme-pp-cli sync --resources reviews --full --agent",
+        "comment": "Build the verified local review mirror before analysis."
+      },
+      {
+        "command": "judgeme-pp-cli reviews populations --agent",
+        "comment": "Confirm which population each count represents."
+      },
+      {
+        "command": "judgeme-pp-cli reviews export --population published --rating 5 --csv",
+        "comment": "Export a storefront-visible analysis slice."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Sync stops after detecting a repeated page.",
+        "fix": "Rerun `judgeme-pp-cli sync --resources reviews --full`; the safe paginator will partition and must match `/reviews/count` before committing."
+      },
+      {
+        "symptom": "A report count is higher than the storefront count.",
+        "fix": "Pass `--population published`; the default `all` population includes reviews Judge.me does not show on the storefront."
+      },
+      {
+        "symptom": "Product-level VoC contains identical language across bundle SKUs.",
+        "fix": "Run `judgeme-pp-cli reviews syndication --agent`, then use `judgeme-pp-cli reviews unique-bodies --population published`."
+      }
+    ],
+    "when_to_use": "Use this CLI for Judge.me review synchronization, moderation inspection, export, storefront-widget access, and syndication-aware customer-language analysis. Prefer the local review mirror when exact corpus completeness or repeatable filtering matters.",
+    "anti_triggers": [
+      "Do not use this CLI to infer which syndicated product association is the true one.",
+      "Do not use raw `reviews index` pagination as proof of full-corpus completeness.",
+      "Do not use mutation commands without reviewing the dry-run and passing the explicit apply flag."
+    ],
+    "recipes": [
+      {
+        "title": "Narrow a published corpus for an agent",
+        "command": "judgeme-pp-cli reviews export --population published --agent --select meta.source,meta.synced_at,results.id,results.rating,results.body",
+        "explanation": "Return only storefront-visible review fields needed for downstream analysis."
+      },
+      {
+        "title": "Measure population differences",
+        "command": "judgeme-pp-cli reviews populations --agent",
+        "explanation": "Compare all, published, pending, and hidden review populations."
+      },
+      {
+        "title": "Find bundle syndication",
+        "command": "judgeme-pp-cli reviews syndication --min-products 2 --agent",
+        "explanation": "Identify one body hash associated with multiple products."
+      },
+      {
+        "title": "Export independent voices",
+        "command": "judgeme-pp-cli reviews unique-bodies --population published --csv",
+        "explanation": "Produce one representative row per normalized review body."
+      }
+    ],
+    "trigger_phrases": [
+      "sync all Judge.me reviews safely",
+      "export published Judge.me reviews",
+      "count hidden Judge.me reviews",
+      "deduplicate syndicated review bodies",
+      "use Judge.me",
+      "run Judge.me"
+    ]
+  }
+}

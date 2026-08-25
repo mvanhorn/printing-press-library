@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "granola-db-schema-discoverability",
+  "applied_at": "2026-07-29",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "summary": "The local SQLite store is a queried-directly interface, so its schema must be discoverable from the CLI: `db schema` prints the store path, tables, and columns, and the docs name the two columns sessions guess wrong (meetings.row_source, folders.title). Inspection is scoped to the CLI's own store on purpose — no flag aims it at an arbitrary file — which is what lets the open be both WAL-current and side-effect-free. The incremental-sync fallback warning fires only when --since was passed explicitly, because the automatic last-synced checkpoint reaches the non-incremental resources on every routine run and warning on a default the user never chose is noise.",
+  "reason": "Transcript mining showed agent sessions querying data.db with sqlite3 for questions the commands don't cover, guessing column names from convention and failing (source for row_source, name for folders' title), then probing PRAGMA table_info to recover. Without a published contract every new session repeats that loop. Scoping to the owned store is the load-bearing constraint: on a file the process does not own, SQLite offers only two opens and each gives up something a reader was promised — a WAL-aware open materializes a -shm in someone else's directory, and an immutable open silently serves a pre-checkpoint snapshot. There is no third option, so a regen that re-adds a target flag re-opens a dilemma with no correct answer. The sync warning half: folders and notes declare no temporal filter, so every routine incremental sync emitted the same resource_not_incremental warning pair without the user asking for --since at all.",
+  "files": [
+    "internal/cli/db.go",
+    "internal/cli/db_test.go",
+    "internal/cli/root.go",
+    "internal/cli/sync.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "db schema --json lists meetings.row_source and folders.title against a fresh temp store and exits not-found (not generic 1) with a run-sync hint when the store is absent; sync --agent with no --since emits no resource_not_incremental events while --since still does."
+}

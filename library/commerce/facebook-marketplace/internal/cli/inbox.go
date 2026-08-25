@@ -15,6 +15,7 @@ func newInboxCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.AddCommand(newInboxListCmd(flags))
+	cmd.AddCommand(newInboxThreadCmd(flags))
 	cmd.AddCommand(newInboxMessageSellerCmd(flags))
 	cmd.AddCommand(newInboxSellerThreadsCmd(flags))
 	cmd.AddCommand(newInboxSellerThreadsPageCmd(flags))

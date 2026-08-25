@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/ticketmaster-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260712-180417-tm-reprint428",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

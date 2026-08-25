@@ -1,0 +1,1214 @@
+{
+ "version": "1",
+ "summary": {
+  "target_url": "https://portal.iclasspro.com/scottsdalegymnastics/",
+  "captured_at": "2026-08-05T13:52:00Z",
+  "entry_count": 13,
+  "api_entry_count": 13,
+  "noise_entry_count": 0,
+  "host_distribution": {
+   "app.iclasspro.com": 13
+  }
+ },
+ "reachability": {
+  "mode": "standard_http",
+  "confidence": 0.95,
+  "reasons": [
+   "probe-reachability: stdlib HTTP 200 application/json",
+   "probe-reachability: surf-chrome HTTP 200",
+   "13/13 captured entries returned 200 with no challenge sentinel"
+  ],
+  "evidence": [
+   {
+    "entry_index": 1,
+    "method": "POST",
+    "host": "app.iclasspro.com",
+    "path": "/api/jwt/v1/organizations",
+    "status": 200,
+    "content_type": "application/json",
+    "reason": "CORRECTED: prior CAPTCHA marker was the org-settings field recaptchaPublic (a registration-form site key), not a challenge response"
+   }
+  ]
+ },
+ "protocols": [
+  {
+   "label": "rest_json",
+   "confidence": 0.75,
+   "evidence": [
+    {
+     "entry_index": 0,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/count-cart-detailed/1/4254438890",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "JSON HTTP request/response without specialized protocol markers"
+    },
+    {
+     "entry_index": 1,
+     "method": "POST",
+     "host": "app.iclasspro.com",
+     "path": "/api/jwt/v1/organizations",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "JSON HTTP request/response without specialized protocol markers"
+    },
+    {
+     "entry_index": 2,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/bookings/1",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "JSON HTTP request/response without specialized protocol markers"
+    },
+    {
+     "entry_index": 3,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/levels/active/1",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "JSON HTTP request/response without specialized protocol markers"
+    },
+    {
+     "entry_index": 4,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/class-programs/1",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "JSON HTTP request/response without specialized protocol markers"
+    },
+    {
+     "entry_index": 5,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/instructors/1/classes",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "JSON HTTP request/response without specialized protocol markers"
+    },
+    {
+     "entry_index": 6,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/classes",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "JSON HTTP request/response without specialized protocol markers"
+    },
+    {
+     "entry_index": 7,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/sessions",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "JSON HTTP request/response without specialized protocol markers"
+    },
+    {
+     "entry_index": 8,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/classes",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "JSON HTTP request/response without specialized protocol markers"
+    },
+    {
+     "entry_index": 9,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/parties/create/1",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "JSON HTTP request/response without specialized protocol markers"
+    },
+    {
+     "entry_index": 10,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/camp-programs/1",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "JSON HTTP request/response without specialized protocol markers"
+    },
+    {
+     "entry_index": 11,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/camps",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "JSON HTTP request/response without specialized protocol markers"
+    },
+    {
+     "entry_index": 12,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/camps/2035",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "JSON HTTP request/response without specialized protocol markers"
+    }
+   ]
+  }
+ ],
+ "auth": {
+  "candidates": [
+   {
+    "type": "none",
+    "confidence": 0.95
+   }
+  ]
+ },
+ "protections": [
+  {
+   "label": "captcha",
+   "confidence": 0.85,
+   "evidence": [
+    {
+     "entry_index": 1,
+     "method": "POST",
+     "host": "app.iclasspro.com",
+     "path": "/api/jwt/v1/organizations",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "CAPTCHA marker"
+    }
+   ]
+  }
+ ],
+ "endpoint_clusters": [
+  {
+   "host": "app.iclasspro.com",
+   "method": "POST",
+   "path": "/api/jwt/v1/organizations",
+   "count": 1,
+   "statuses": [
+    200
+   ],
+   "content_types": [
+    "application/json"
+   ],
+   "size_class": "medium",
+   "request_shape": {
+    "kind": "unknown"
+   },
+   "response_shape": {
+    "kind": "unknown"
+   },
+   "normalization_flags": [
+    "single-sample",
+    "single-status"
+   ],
+   "confidence": "low",
+   "evidence": [
+    {
+     "entry_index": 1,
+     "method": "POST",
+     "host": "app.iclasspro.com",
+     "path": "/api/jwt/v1/organizations",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "host": "app.iclasspro.com",
+   "method": "GET",
+   "path": "/api/open/v1/scottsdalegymnastics/bookings/{booking_id}",
+   "count": 1,
+   "statuses": [
+    200
+   ],
+   "content_types": [
+    "application/json"
+   ],
+   "size_class": "medium",
+   "request_shape": {},
+   "response_shape": {
+    "kind": "object",
+    "fields": [
+     {
+      "name": "classAndCampSortBy",
+      "type": "string",
+      "required": true
+     },
+     {
+      "name": "data",
+      "type": "array",
+      "required": true
+     },
+     {
+      "name": "errors",
+      "type": "array",
+      "required": true
+     },
+     {
+      "name": "message",
+      "type": "string",
+      "required": true
+     }
+    ]
+   },
+   "low_confidence_parameters": [
+    {
+     "name": "booking_id",
+     "segment": "1",
+     "position": 5,
+     "reason": "single-sample small integer path segment"
+    }
+   ],
+   "normalization_flags": [
+    "single-sample",
+    "single-status"
+   ],
+   "confidence": "low",
+   "evidence": [
+    {
+     "entry_index": 2,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/bookings/1",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "host": "app.iclasspro.com",
+   "method": "GET",
+   "path": "/api/open/v1/scottsdalegymnastics/camp-programs/{camp_program_id}",
+   "count": 1,
+   "statuses": [
+    200
+   ],
+   "content_types": [
+    "application/json"
+   ],
+   "size_class": "small",
+   "request_shape": {},
+   "response_shape": {
+    "kind": "object",
+    "fields": [
+     {
+      "name": "data",
+      "type": "array",
+      "required": true
+     },
+     {
+      "name": "errors",
+      "type": "array",
+      "required": true
+     },
+     {
+      "name": "message",
+      "type": "string",
+      "required": true
+     }
+    ]
+   },
+   "low_confidence_parameters": [
+    {
+     "name": "camp_program_id",
+     "segment": "1",
+     "position": 5,
+     "reason": "single-sample small integer path segment"
+    }
+   ],
+   "normalization_flags": [
+    "single-sample",
+    "single-status"
+   ],
+   "confidence": "low",
+   "evidence": [
+    {
+     "entry_index": 10,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/camp-programs/1",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "host": "app.iclasspro.com",
+   "method": "GET",
+   "path": "/api/open/v1/scottsdalegymnastics/camps",
+   "count": 1,
+   "statuses": [
+    200
+   ],
+   "content_types": [
+    "application/json"
+   ],
+   "size_class": "small",
+   "request_shape": {},
+   "response_shape": {
+    "kind": "object",
+    "fields": [
+     {
+      "name": "campTypeName",
+      "type": "string",
+      "required": true
+     },
+     {
+      "name": "campTypeNamePlural",
+      "type": "string",
+      "required": true
+     },
+     {
+      "name": "data",
+      "type": "array",
+      "required": true
+     },
+     {
+      "name": "errors",
+      "type": "array",
+      "required": true
+     },
+     {
+      "name": "message",
+      "type": "string",
+      "required": true
+     },
+     {
+      "name": "totalRecords",
+      "type": "integer",
+      "required": true
+     }
+    ]
+   },
+   "normalization_flags": [
+    "single-sample",
+    "single-status"
+   ],
+   "confidence": "low",
+   "evidence": [
+    {
+     "entry_index": 11,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/camps",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "host": "app.iclasspro.com",
+   "method": "GET",
+   "path": "/api/open/v1/scottsdalegymnastics/camps/{camp_id}",
+   "count": 1,
+   "statuses": [
+    200
+   ],
+   "content_types": [
+    "application/json"
+   ],
+   "size_class": "medium",
+   "request_shape": {},
+   "response_shape": {
+    "kind": "object",
+    "fields": [
+     {
+      "name": "data",
+      "type": "object",
+      "required": true
+     },
+     {
+      "name": "errors",
+      "type": "array",
+      "required": true
+     },
+     {
+      "name": "message",
+      "type": "string",
+      "required": true
+     }
+    ]
+   },
+   "low_confidence_parameters": [
+    {
+     "name": "camp_id",
+     "segment": "2035",
+     "position": 5,
+     "reason": "single-sample small integer path segment"
+    }
+   ],
+   "normalization_flags": [
+    "single-sample",
+    "single-status"
+   ],
+   "confidence": "low",
+   "evidence": [
+    {
+     "entry_index": 12,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/camps/2035",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "host": "app.iclasspro.com",
+   "method": "GET",
+   "path": "/api/open/v1/scottsdalegymnastics/class-programs/{class_program_id}",
+   "count": 1,
+   "statuses": [
+    200
+   ],
+   "content_types": [
+    "application/json"
+   ],
+   "size_class": "small",
+   "request_shape": {},
+   "response_shape": {
+    "kind": "object",
+    "fields": [
+     {
+      "name": "data",
+      "type": "array",
+      "required": true
+     },
+     {
+      "name": "errors",
+      "type": "array",
+      "required": true
+     },
+     {
+      "name": "message",
+      "type": "string",
+      "required": true
+     }
+    ]
+   },
+   "low_confidence_parameters": [
+    {
+     "name": "class_program_id",
+     "segment": "1",
+     "position": 5,
+     "reason": "single-sample small integer path segment"
+    }
+   ],
+   "normalization_flags": [
+    "single-sample",
+    "single-status"
+   ],
+   "confidence": "low",
+   "evidence": [
+    {
+     "entry_index": 4,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/class-programs/1",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "host": "app.iclasspro.com",
+   "method": "GET",
+   "path": "/api/open/v1/scottsdalegymnastics/classes",
+   "count": 2,
+   "statuses": [
+    200
+   ],
+   "content_types": [
+    "application/json"
+   ],
+   "size_class": "medium",
+   "request_shape": {},
+   "response_shape": {
+    "kind": "unknown"
+   },
+   "normalization_flags": [
+    "single-status"
+   ],
+   "confidence": "low",
+   "evidence": [
+    {
+     "entry_index": 6,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/classes",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    },
+    {
+     "entry_index": 8,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/classes",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "host": "app.iclasspro.com",
+   "method": "GET",
+   "path": "/api/open/v1/scottsdalegymnastics/count-cart-detailed/{count_cart_detailed_id}/{count_cart_detailed_id_2}",
+   "count": 1,
+   "statuses": [
+    200
+   ],
+   "content_types": [
+    "application/json"
+   ],
+   "size_class": "small",
+   "request_shape": {},
+   "response_shape": {
+    "kind": "object",
+    "fields": [
+     {
+      "name": "data",
+      "type": "object",
+      "required": true
+     },
+     {
+      "name": "errors",
+      "type": "array",
+      "required": true
+     },
+     {
+      "name": "message",
+      "type": "string",
+      "required": true
+     }
+    ]
+   },
+   "low_confidence_parameters": [
+    {
+     "name": "count_cart_detailed_id",
+     "segment": "1",
+     "position": 5,
+     "reason": "single-sample small integer path segment"
+    }
+   ],
+   "normalization_flags": [
+    "single-sample",
+    "single-status"
+   ],
+   "confidence": "low",
+   "evidence": [
+    {
+     "entry_index": 0,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/count-cart-detailed/1/4254438890",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "host": "app.iclasspro.com",
+   "method": "GET",
+   "path": "/api/open/v1/scottsdalegymnastics/instructors/{instructor_id}/classes",
+   "count": 1,
+   "statuses": [
+    200
+   ],
+   "content_types": [
+    "application/json"
+   ],
+   "size_class": "small",
+   "request_shape": {},
+   "response_shape": {
+    "kind": "object",
+    "fields": [
+     {
+      "name": "data",
+      "type": "array",
+      "required": true
+     },
+     {
+      "name": "errors",
+      "type": "array",
+      "required": true
+     },
+     {
+      "name": "message",
+      "type": "string",
+      "required": true
+     }
+    ]
+   },
+   "low_confidence_parameters": [
+    {
+     "name": "instructor_id",
+     "segment": "1",
+     "position": 5,
+     "reason": "single-sample small integer path segment"
+    }
+   ],
+   "normalization_flags": [
+    "single-sample",
+    "single-status"
+   ],
+   "confidence": "low",
+   "evidence": [
+    {
+     "entry_index": 5,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/instructors/1/classes",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "host": "app.iclasspro.com",
+   "method": "GET",
+   "path": "/api/open/v1/scottsdalegymnastics/levels/active/{active_id}",
+   "count": 1,
+   "statuses": [
+    200
+   ],
+   "content_types": [
+    "application/json"
+   ],
+   "size_class": "medium",
+   "request_shape": {},
+   "response_shape": {
+    "kind": "object",
+    "fields": [
+     {
+      "name": "data",
+      "type": "array",
+      "required": true
+     },
+     {
+      "name": "errors",
+      "type": "array",
+      "required": true
+     },
+     {
+      "name": "message",
+      "type": "string",
+      "required": true
+     }
+    ]
+   },
+   "low_confidence_parameters": [
+    {
+     "name": "active_id",
+     "segment": "1",
+     "position": 6,
+     "reason": "single-sample small integer path segment"
+    }
+   ],
+   "normalization_flags": [
+    "single-sample",
+    "single-status"
+   ],
+   "confidence": "low",
+   "evidence": [
+    {
+     "entry_index": 3,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/levels/active/1",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "host": "app.iclasspro.com",
+   "method": "GET",
+   "path": "/api/open/v1/scottsdalegymnastics/parties/create/{create_id}",
+   "count": 1,
+   "statuses": [
+    200
+   ],
+   "content_types": [
+    "application/json"
+   ],
+   "size_class": "small",
+   "request_shape": {},
+   "response_shape": {
+    "kind": "object",
+    "fields": [
+     {
+      "name": "data",
+      "type": "object",
+      "required": true
+     },
+     {
+      "name": "errors",
+      "type": "array",
+      "required": true
+     },
+     {
+      "name": "message",
+      "type": "string",
+      "required": true
+     }
+    ]
+   },
+   "low_confidence_parameters": [
+    {
+     "name": "create_id",
+     "segment": "1",
+     "position": 6,
+     "reason": "single-sample small integer path segment"
+    }
+   ],
+   "normalization_flags": [
+    "single-sample",
+    "single-status"
+   ],
+   "confidence": "low",
+   "evidence": [
+    {
+     "entry_index": 9,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/parties/create/1",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "host": "app.iclasspro.com",
+   "method": "GET",
+   "path": "/api/open/v1/scottsdalegymnastics/sessions",
+   "count": 1,
+   "statuses": [
+    200
+   ],
+   "content_types": [
+    "application/json"
+   ],
+   "size_class": "small",
+   "request_shape": {},
+   "response_shape": {
+    "kind": "object",
+    "fields": [
+     {
+      "name": "data",
+      "type": "array",
+      "required": true
+     },
+     {
+      "name": "errors",
+      "type": "array",
+      "required": true
+     },
+     {
+      "name": "message",
+      "type": "string",
+      "required": true
+     }
+    ]
+   },
+   "normalization_flags": [
+    "single-sample",
+    "single-status"
+   ],
+   "confidence": "low",
+   "evidence": [
+    {
+     "entry_index": 7,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/sessions",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  }
+ ],
+ "request_sequences": [
+  {
+   "label": "observed_api_flow",
+   "confidence": 0.35,
+   "evidence": [
+    {
+     "entry_index": 0,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/count-cart-detailed/1/4254438890",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "observed API request order"
+    },
+    {
+     "entry_index": 1,
+     "method": "POST",
+     "host": "app.iclasspro.com",
+     "path": "/api/jwt/v1/organizations",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "observed API request order"
+    },
+    {
+     "entry_index": 2,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/bookings/1",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "observed API request order"
+    },
+    {
+     "entry_index": 3,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/levels/active/1",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "observed API request order"
+    },
+    {
+     "entry_index": 4,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/class-programs/1",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "observed API request order"
+    },
+    {
+     "entry_index": 5,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/instructors/1/classes",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "observed API request order"
+    },
+    {
+     "entry_index": 6,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/classes",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "observed API request order"
+    },
+    {
+     "entry_index": 7,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/sessions",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "observed API request order"
+    }
+   ],
+   "notes": [
+    "Capture order used; timing unavailable."
+   ]
+  }
+ ],
+ "pagination": [
+  {
+   "location": "query",
+   "name": "limit",
+   "confidence": 0.75,
+   "evidence": [
+    {
+     "entry_index": 6,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/classes",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "pagination-like query parameter"
+    },
+    {
+     "entry_index": 8,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/classes",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "pagination-like query parameter"
+    },
+    {
+     "entry_index": 11,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/camps",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "pagination-like query parameter"
+    }
+   ]
+  },
+  {
+   "location": "query",
+   "name": "page",
+   "confidence": 0.75,
+   "evidence": [
+    {
+     "entry_index": 6,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/classes",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "pagination-like query parameter"
+    },
+    {
+     "entry_index": 8,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/classes",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "pagination-like query parameter"
+    },
+    {
+     "entry_index": 11,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/camps",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "pagination-like query parameter"
+    }
+   ]
+  }
+ ],
+ "candidate_commands": [
+  {
+   "name": "create_organizations",
+   "resource": "organizations",
+   "confidence": 0.55,
+   "rationale": "Derived from observed POST /api/jwt/v1/organizations traffic.",
+   "evidence": [
+    {
+     "entry_index": 1,
+     "method": "POST",
+     "host": "app.iclasspro.com",
+     "path": "/api/jwt/v1/organizations",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "name": "get_active",
+   "resource": "active",
+   "confidence": 0.55,
+   "rationale": "Derived from observed GET /api/open/v1/scottsdalegymnastics/levels/active/{active_id} traffic.",
+   "evidence": [
+    {
+     "entry_index": 3,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/levels/active/1",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "name": "get_bookings",
+   "resource": "bookings",
+   "confidence": 0.55,
+   "rationale": "Derived from observed GET /api/open/v1/scottsdalegymnastics/bookings/{booking_id} traffic.",
+   "evidence": [
+    {
+     "entry_index": 2,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/bookings/1",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "name": "get_camp_programs",
+   "resource": "camp_programs",
+   "confidence": 0.55,
+   "rationale": "Derived from observed GET /api/open/v1/scottsdalegymnastics/camp-programs/{camp_program_id} traffic.",
+   "evidence": [
+    {
+     "entry_index": 10,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/camp-programs/1",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "name": "get_camps",
+   "resource": "camps",
+   "confidence": 0.55,
+   "rationale": "Derived from observed GET /api/open/v1/scottsdalegymnastics/camps/{camp_id} traffic.",
+   "evidence": [
+    {
+     "entry_index": 12,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/camps/2035",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "name": "get_class_programs",
+   "resource": "class_programs",
+   "confidence": 0.55,
+   "rationale": "Derived from observed GET /api/open/v1/scottsdalegymnastics/class-programs/{class_program_id} traffic.",
+   "evidence": [
+    {
+     "entry_index": 4,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/class-programs/1",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "name": "get_classes",
+   "resource": "classes",
+   "confidence": 0.55,
+   "rationale": "Derived from observed GET /api/open/v1/scottsdalegymnastics/instructors/{instructor_id}/classes traffic.",
+   "evidence": [
+    {
+     "entry_index": 5,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/instructors/1/classes",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "name": "get_count_cart_detailed",
+   "resource": "count_cart_detailed",
+   "confidence": 0.55,
+   "rationale": "Derived from observed GET /api/open/v1/scottsdalegymnastics/count-cart-detailed/{count_cart_detailed_id}/{count_cart_detailed_id_2} traffic.",
+   "evidence": [
+    {
+     "entry_index": 0,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/count-cart-detailed/1/4254438890",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "name": "get_create",
+   "resource": "create",
+   "confidence": 0.55,
+   "rationale": "Derived from observed GET /api/open/v1/scottsdalegymnastics/parties/create/{create_id} traffic.",
+   "evidence": [
+    {
+     "entry_index": 9,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/parties/create/1",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "name": "list_camps",
+   "resource": "camps",
+   "confidence": 0.55,
+   "rationale": "Derived from observed GET /api/open/v1/scottsdalegymnastics/camps traffic.",
+   "evidence": [
+    {
+     "entry_index": 11,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/camps",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "name": "list_classes",
+   "resource": "classes",
+   "confidence": 0.55,
+   "rationale": "Derived from observed GET /api/open/v1/scottsdalegymnastics/classes traffic.",
+   "evidence": [
+    {
+     "entry_index": 6,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/classes",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    },
+    {
+     "entry_index": 8,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/classes",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  },
+  {
+   "name": "list_sessions",
+   "resource": "sessions",
+   "confidence": 0.55,
+   "rationale": "Derived from observed GET /api/open/v1/scottsdalegymnastics/sessions traffic.",
+   "evidence": [
+    {
+     "entry_index": 7,
+     "method": "GET",
+     "host": "app.iclasspro.com",
+     "path": "/api/open/v1/scottsdalegymnastics/sessions",
+     "status": 200,
+     "content_type": "application/json",
+     "reason": "endpoint cluster member"
+    }
+   ]
+  }
+ ],
+ "generation_hints": []
+}

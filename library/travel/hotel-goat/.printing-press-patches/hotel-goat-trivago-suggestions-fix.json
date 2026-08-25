@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "hotel-goat-trivago-suggestions-fix",
+  "applied_at": "2026-08-19",
+  "base_run_id": "20260523-203231",
+  "base_printing_press_version": "4.13.0",
+  "summary": "Fix Trivago source after upstream MCP API change: server removed trivago-search-suggestions, so the CLI now searches trivago-accommodation-search by destination query; tolerate localized review_count strings and the missing booking_url field.",
+  "reason": "Trivago's public MCP server (mcp.trivago.com/mcp, serverInfo 'trivago Accommodation Search' v0.4.0) dropped the trivago-search-suggestions tool. The CLI's suggestion->area flow therefore returned 'tool not found' and every --source trivago/both run yielded zero results. The current server only exposes trivago-accommodation-search (now takes a free-form query and resolves the destination itself) and trivago-accommodation-radius-search. The response schema also changed: review_count is now a localized string (\u002225,429\u0022) and booking_url is no longer returned (only accommodation_url).",
+  "files": [
+    "internal/trivago/client.go",
+    "internal/trivago/client_test.go",
+    "internal/trivago/merge.go",
+    "internal/cli/hotel_helpers.go"
+  ],
+  "validated_outcome": "Live dogfood against San Francisco 2026-09-15/17 returned 25 Trivago-only accommodations with parsed review counts (25,429) and populated booking links; go test ./... passes; go vet clean. Suggestions/AreaSearch flow removed; Search(query) added."
+}

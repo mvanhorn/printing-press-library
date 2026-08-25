@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "add-project-updates-write-surface",
+  "applied_at": "2026-06-29",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Add project-updates create/list commands so agents can post status updates (health + markdown body) to Linear projects via the projectUpdateCreate mutation; require at least one of --body*/--health; include projectId inside input before the dry-run guard so preview matches the live mutation payload; guard empty projectID after resolveProjectFlag in both list and create so an unresolvable project name yields a clean usage error rather than a confusing API error.",
+  "reason": "Linear's ProjectUpdate feature (status posts carrying a health enum and markdown body) had no CLI surface. Agents running weekly project reviews need to write project updates without dropping into raw GraphQL. Without the body/health guard an agent can fire the mutation with an empty payload. Without projectId inside input in the dry-run preview, agents inspecting input to confirm the target project find it absent, diverging from the live mutation shape. resolveProjectFlag can return (\"\", nil) when a project name fails to resolve; without the empty-ID guard the list command would fire a query with projectId: \"\" producing a confusing API error instead of a actionable usage message.",
+  "files": [
+    "internal/cli/project_updates.go",
+    "internal/cli/root.go",
+    "SKILL.md"
+  ]
+}

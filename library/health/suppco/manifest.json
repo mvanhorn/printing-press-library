@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "suppco-pp-mcp",
+  "display_name": "Suppco",
+  "version": "0.1.0",
+  "description": "Read-only SuppCo stack facts with a deterministic, provenance-bearing regimen snapshot export.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/suppco-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/suppco-pp-mcp",
+      "args": [],
+      "env": {
+        "SUPPCO_ACCESS_TOKEN": "${user_config.suppco_access_token}"
+      }
+    }
+  },
+  "user_config": {
+    "suppco_access_token": {
+      "type": "string",
+      "title": "SUPPCO_ACCESS_TOKEN",
+      "description": "Sets SUPPCO_ACCESS_TOKEN for the Suppco MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

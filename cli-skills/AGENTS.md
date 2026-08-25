@@ -21,6 +21,6 @@ After editing `library/<cat>/<slug>/SKILL.md`, the post-merge `generate-skills.y
 
 ## Why this directory exists
 
-`cli-skills/` is the install surface for `npx -y skills@latest add pp-<slug>` and the `@mvanhorn/printing-press` npm installer. Skill consumers (Claude Code, agent frameworks) read from here. `library/` is the human-authored source of truth; this directory is the consumable output.
+`cli-skills/` is the install surface for `npx -y skills@latest add pp-<slug>` and the `@mvanhorn/printing-press-library` npm installer. Skill consumers (Claude Code, agent frameworks) read from here. `library/` is the human-authored source of truth; this directory is the consumable output.
 
 See the repo-root [`AGENTS.md`](../AGENTS.md) → **"Generated artifacts: `registry.json`, `cli-skills/`"** for the full convention.

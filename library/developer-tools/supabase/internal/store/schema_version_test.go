@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"errors"
 	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -92,11 +93,10 @@ func TestSchemaVersion_RefusesNewerDB(t *testing.T) {
 	}
 }
 
-// TestMigrate_ConcurrentFreshDB exercises the BEGIN IMMEDIATE migration
-// transaction. Without it, N goroutines opening the same fresh DB in
-// parallel race per CREATE TABLE statement and trip SQLITE_BUSY despite
-// the busy_timeout. With it, they serialize on the RESERVED lock
-// acquired at BEGIN time and every Open succeeds.
+// TestMigrate_ConcurrentFreshDB exercises explicit WAL initialization and the
+// BEGIN IMMEDIATE migration transaction. WAL must not run as a DSN pragma:
+// fresh connections execute those before database/sql returns them, outside
+// the SQLITE_BUSY retry boundary.
 func TestMigrate_ConcurrentFreshDB(t *testing.T) {
 	if testing.Short() {
 		t.Skip("concurrent migration test can take up to migrationLockTimeout under contention")
@@ -108,10 +108,15 @@ func TestMigrate_ConcurrentFreshDB(t *testing.T) {
 	const n = 8
 	errs := make(chan error, n)
 	var wg sync.WaitGroup
+	var ready sync.WaitGroup
+	start := make(chan struct{})
 	wg.Add(n)
+	ready.Add(n)
 	for i := 0; i < n; i++ {
 		go func() {
 			defer wg.Done()
+			ready.Done()
+			<-start
 			s, err := Open(dbPath)
 			if err != nil {
 				errs <- err
@@ -120,11 +125,26 @@ func TestMigrate_ConcurrentFreshDB(t *testing.T) {
 			s.Close()
 		}()
 	}
+	ready.Wait()
+	close(start)
 	wg.Wait()
 	close(errs)
 
 	for err := range errs {
 		t.Fatalf("concurrent Open failed: %v", err)
+	}
+
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open migrated database: %v", err)
+	}
+	defer raw.Close()
+	var journalMode string
+	if err := raw.QueryRow(`PRAGMA journal_mode`).Scan(&journalMode); err != nil {
+		t.Fatalf("read journal mode: %v", err)
+	}
+	if journalMode != "wal" {
+		t.Fatalf("journal mode = %q, want wal", journalMode)
 	}
 }
 
@@ -218,6 +238,9 @@ func TestMigrate_RejectsNewerDBImmediately(t *testing.T) {
 
 	if err == nil {
 		t.Fatalf("expected Open to refuse a newer-schema DB")
+	}
+	if !strings.Contains(err.Error(), "schema version 999 is newer") {
+		t.Fatalf("Open returned the wrong rejection under contention: %v", err)
 	}
 	// The fast-path goal: rejection must arrive well under
 	// migrationLockTimeout. 5s leaves headroom over the WAL init race

@@ -14,6 +14,9 @@ func newProgramsCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.AddCommand(newProgramsGetCmd(flags))
+	// PATCH(program-hacktivity): expose the web app's project-specific
+	// hacktivity endpoint as an explicit command.
+	cmd.AddCommand(newProgramsHacktivityCmd(flags))
 	cmd.AddCommand(newProgramsListCmd(flags))
 	cmd.AddCommand(newProgramsListScopesCmd(flags))
 	// PATCH: Register Phase 3 local analysis subcommands.

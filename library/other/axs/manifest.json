@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "axs-pp-mcp",
+  "display_name": "SRAM AXS",
+  "version": "0.0.0",
+  "description": "SRAM AXS CLI for bikes, components, registrations, ride activities, and synced component-summary analytics.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/axs-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/axs-pp-mcp",
+      "args": [],
+      "env": {
+        "SRAM_AXS_TOKEN": "${user_config.sram_axs_token}"
+      }
+    }
+  },
+  "user_config": {
+    "sram_axs_token": {
+      "type": "string",
+      "title": "SRAM_AXS_TOKEN",
+      "description": "Sets SRAM_AXS_TOKEN for the SRAM AXS MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

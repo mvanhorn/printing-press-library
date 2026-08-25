@@ -45,6 +45,13 @@ const (
 	watchPageUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
 )
 
+// aliasRevalidateTimeout bounds the track-list probe that guards fallback
+// alias cache hits against staleness. A cache hit must stay fast: when
+// YouTube is slow or unreachable the probe fails within this deadline and
+// the cached substitute is served, instead of every default invocation
+// hanging for the full 15s HTTP client timeout.
+const aliasRevalidateTimeout = 3 * time.Second
+
 type transcriptSegment struct {
 	StartMs    int64  `json:"start_ms"`
 	DurationMs int64  `json:"duration_ms"`
@@ -102,15 +109,21 @@ type json3Response struct {
 	Events []json3Event `json:"events"`
 }
 
+// PATCH(amend-2026-07-30: first-guess usability) — when --lang is not
+// explicitly set, fall back to the only available caption language instead of
+// hard-failing on non-English videos; add --format markdown|text so consumers
+// don't hand-roll segment-JSON converters.
+
 func newYoutubeVideosTranscriptCmd(flags *rootFlags) *cobra.Command {
 	var lang string
 	var noCache bool
+	var format string
 
 	cmd := &cobra.Command{
 		Use:         "videos-transcript <videoId|url>",
 		Short:       "Fetch video transcript via InnerTube (no OAuth needed)",
-		Example:     "  youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --lang en\n  youtube-pp-cli youtube videos-transcript 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Example:     "  youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --lang en\n  youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --format markdown\n  youtube-pp-cli youtube videos-transcript 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "videoId=dQw4w9WgXcQ", "pp:typed-exit-codes": "0,2,3,5"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -118,6 +131,12 @@ func newYoutubeVideosTranscriptCmd(flags *rootFlags) *cobra.Command {
 			videoID := parseVideoID(strings.TrimSpace(args[0]))
 			if videoID == "" {
 				return usageErr(fmt.Errorf("could not extract a video ID from %q", args[0]))
+			}
+			switch format {
+			case "json", "markdown", "text":
+				// valid
+			default:
+				return usageErr(fmt.Errorf("invalid --format value %q: must be json, markdown, or text", format))
 			}
 
 			if dryRunOK(flags) {
@@ -129,13 +148,53 @@ func newYoutubeVideosTranscriptCmd(flags *rootFlags) *cobra.Command {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 20*time.Second)
 			defer cancel()
 
-			// 1. Cache lookup unless --no-cache
+			// 1. Cache lookup unless --no-cache. Alias rows written after a
+			// language fallback carry the resolved language under the
+			// requested (default) key; they satisfy default-lang requests
+			// but must not satisfy an explicit --lang that doesn't match.
+			langExplicit := cmd.Flags().Changed("lang")
 			if !noCache {
-				if cached, ok := readTranscriptCache(ctx, videoID, lang); ok {
-					fmt.Fprintln(cmd.ErrOrStderr(), "(from cache)")
-					enc := json.NewEncoder(cmd.OutOrStdout())
-					enc.SetIndent("", "  ")
-					return enc.Encode(cached)
+				if cached, ok := readTranscriptCache(ctx, videoID, lang); ok && cachedTranscriptUsable(cached, lang, langExplicit) {
+					if langMatches(cached.Language, lang) {
+						// Normal row: the cache holds exactly what was
+						// asked for. Serve it with zero requests.
+						fmt.Fprintln(cmd.ErrOrStderr(), "(from cache)")
+						return renderTranscript(cmd.OutOrStdout(), cached, format)
+					}
+					// Alias row: the cache holds a fallback substitute, not
+					// the requested language. Revalidate the track list with
+					// a single player request so captions published in the
+					// requested language after the fallback replace the
+					// substitute instead of being masked forever. The probe
+					// carries its own short deadline: a cache hit must stay
+					// fast, so when YouTube is slow or unreachable the probe
+					// gives up quickly and the cached substitute is served
+					// (same degraded path as any other fetch failure).
+					probeCtx, probeCancel := context.WithTimeout(ctx, aliasRevalidateTimeout)
+					tracks, terr := fetchCaptionTracks(probeCtx, videoID)
+					probeCancel()
+					upgrade, found := aliasUpgradeTrack(tracks, terr, lang)
+					if !found {
+						fmt.Fprintf(cmd.ErrOrStderr(), "(no %q captions; using cached %s transcript)\n", lang, cached.Language)
+						fmt.Fprintln(cmd.ErrOrStderr(), "(from cache)")
+						return renderTranscript(cmd.OutOrStdout(), cached, format)
+					}
+					kind := "manual"
+					if upgrade.Kind == "asr" {
+						kind = "asr"
+					}
+					result, ferr := fetchJSON3Transcript(ctx, upgrade, videoID, lang, kind)
+					if ferr != nil {
+						fmt.Fprintf(cmd.ErrOrStderr(), "(%q captions exist but fetching them failed: %v; using cached %s transcript)\n", lang, ferr, cached.Language)
+						fmt.Fprintln(cmd.ErrOrStderr(), "(from cache)")
+						return renderTranscript(cmd.OutOrStdout(), cached, format)
+					}
+					// Replace the alias row with the genuine transcript:
+					// the INSERT OR REPLACE under the requested key
+					// overwrites the substitute.
+					fmt.Fprintf(cmd.ErrOrStderr(), "(%q captions now available; replacing cached %s fallback)\n", lang, cached.Language)
+					writeTranscriptCache(ctx, result)
+					return renderTranscript(cmd.OutOrStdout(), result, format)
 				}
 			}
 
@@ -148,35 +207,120 @@ func newYoutubeVideosTranscriptCmd(flags *rootFlags) *cobra.Command {
 				return apiErr(fmt.Errorf("video has no captions"))
 			}
 
-			// 3. Pick the track matching --lang.
+			// 3. Pick the track matching --lang. When --lang was left at its
+			// default and doesn't match, fall back to the only available
+			// caption language rather than hard-failing: the caller didn't
+			// ask for English, the flag default did.
+			effLang := lang
 			picked, perr := pickCaptionTrack(tracks, lang)
 			if perr != nil {
-				return apiErr(perr)
+				if langExplicit {
+					return apiErr(perr)
+				}
+				fallback, fberr := pickSoleLanguageTrack(tracks)
+				if fberr != nil {
+					return apiErr(fmt.Errorf("%v; pass --lang to pick one", perr))
+				}
+				picked = fallback
+				effLang = picked.LanguageCode
+				fmt.Fprintf(cmd.ErrOrStderr(), "(no %q captions; using the only available track: %s)\n", lang, trackLabel(picked))
 			}
 			kind := "manual"
 			if picked.Kind == "asr" {
 				kind = "asr"
 			}
 
+			// 3b. The fallback resolved a different language than the cache
+			// lookup key. Re-check the cache under the resolved language so
+			// a transcript cached by an earlier run (e.g. an explicit
+			// --lang run, or a pre-alias version of this CLI) is reused
+			// instead of re-fetched — and backfill the alias row so the next
+			// default-lang invocation serves from cache (after the single
+			// track-list revalidation that guards alias staleness above).
+			if effLang != lang && !noCache {
+				if cached, ok := readTranscriptCache(ctx, videoID, effLang); ok {
+					writeTranscriptCache(ctx, cached, lang)
+					fmt.Fprintln(cmd.ErrOrStderr(), "(from cache)")
+					return renderTranscript(cmd.OutOrStdout(), cached, format)
+				}
+			}
+
 			// 4. Fetch the json3 transcript.
-			result, ferr := fetchJSON3Transcript(ctx, picked, videoID, lang, kind)
+			result, ferr := fetchJSON3Transcript(ctx, picked, videoID, effLang, kind)
 			if ferr != nil {
 				return apiErr(ferr)
 			}
 
-			// 5. Write-through cache (best effort)
-			writeTranscriptCache(ctx, result)
+			// 5. Write-through cache (best effort). After a fallback, write
+			// the row under both the resolved language and the requested
+			// (default) key so subsequent default-lang runs hit the cache.
+			cacheKeys := []string{effLang}
+			if effLang != lang {
+				cacheKeys = append(cacheKeys, lang)
+			}
+			writeTranscriptCache(ctx, result, cacheKeys...)
 
-			enc := json.NewEncoder(cmd.OutOrStdout())
-			enc.SetIndent("", "  ")
-			return enc.Encode(result)
+			return renderTranscript(cmd.OutOrStdout(), result, format)
 		},
 	}
 
-	cmd.Flags().StringVar(&lang, "lang", "en", "Caption language code")
+	cmd.Flags().StringVar(&lang, "lang", "en", "Caption language code (auto-falls back to the only available language when left at the default)")
 	cmd.Flags().BoolVar(&noCache, "no-cache", false, "Skip cache and force fresh fetch")
+	cmd.Flags().StringVar(&format, "format", "json", "Output format: json (segments), markdown (timestamped lines), text (plain transcript)")
 
 	return cmd
+}
+
+// pickSoleLanguageTrack returns the best track when every available caption
+// track shares one language (prefer manual over asr). It errors when tracks
+// span multiple languages — that choice belongs to the caller.
+func pickSoleLanguageTrack(tracks []captionTrack) (*captionTrack, error) {
+	var picked *captionTrack
+	for i := range tracks {
+		t := &tracks[i]
+		if picked != nil && t.LanguageCode != picked.LanguageCode {
+			return nil, fmt.Errorf("multiple caption languages available")
+		}
+		if picked == nil || (picked.Kind == "asr" && t.Kind != "asr") {
+			picked = t
+		}
+	}
+	if picked == nil {
+		return nil, fmt.Errorf("no caption tracks")
+	}
+	return picked, nil
+}
+
+func trackLabel(t *captionTrack) string {
+	if t.Kind == "asr" {
+		return t.LanguageCode + " (asr)"
+	}
+	return t.LanguageCode
+}
+
+// renderTranscript writes a transcript in the requested --format. json keeps
+// the historical segment envelope; markdown emits timestamped lines ready to
+// paste into a doc; text emits the plain concatenated transcript.
+func renderTranscript(w io.Writer, r *transcriptResult, format string) error {
+	switch format {
+	case "markdown":
+		var b strings.Builder
+		fmt.Fprintf(&b, "# Transcript — %s\n\n", r.VideoID)
+		fmt.Fprintf(&b, "_language: %s (%s)_\n\n", r.Language, r.Kind)
+		for _, s := range r.Segments {
+			sec := s.StartMs / 1000
+			fmt.Fprintf(&b, "**[%02d:%02d]** %s\n", sec/60, sec%60, s.Text)
+		}
+		_, err := io.WriteString(w, b.String())
+		return err
+	case "text":
+		_, err := fmt.Fprintln(w, r.Text)
+		return err
+	default:
+		enc := json.NewEncoder(w)
+		enc.SetIndent("", "  ")
+		return enc.Encode(r)
+	}
 }
 
 // transcriptHTTPClient returns a fresh client. We avoid the Data-API client
@@ -550,7 +694,13 @@ func readTranscriptCache(ctx context.Context, videoID, lang string) (*transcript
 	return &result, true
 }
 
-func writeTranscriptCache(ctx context.Context, result *transcriptResult) {
+// writeTranscriptCache stores the result under one or more cache keys.
+// With no explicit keys it uses the result's own language (the historical
+// behavior). After a language fallback the caller passes both the resolved
+// language and the requested default so future default-lang lookups hit.
+// The stored blob always carries the true Language; the key is only the
+// lookup handle.
+func writeTranscriptCache(ctx context.Context, result *transcriptResult, cacheKeys ...string) {
 	db, err := transcriptDB(ctx)
 	if err != nil {
 		return
@@ -560,7 +710,44 @@ func writeTranscriptCache(ctx context.Context, result *transcriptResult) {
 	if err != nil {
 		return
 	}
-	_, _ = db.DB().ExecContext(ctx,
-		`INSERT OR REPLACE INTO transcripts (video_id, lang, kind, json, fetched_at) VALUES (?, ?, ?, ?, ?)`,
-		result.VideoID, result.Language, result.Kind, blob, time.Now().Unix())
+	if len(cacheKeys) == 0 {
+		cacheKeys = []string{result.Language}
+	}
+	for _, key := range cacheKeys {
+		_, _ = db.DB().ExecContext(ctx,
+			`INSERT OR REPLACE INTO transcripts (video_id, lang, kind, json, fetched_at) VALUES (?, ?, ?, ?, ?)`,
+			result.VideoID, key, result.Kind, blob, time.Now().Unix())
+	}
+}
+
+// aliasUpgradeTrack decides what to do on a cache hit against a fallback
+// alias row. It returns (track, true) when the requested language is now
+// available upstream and the cached substitute should be replaced with the
+// genuine transcript; it returns (nil, false) — keep serving the cached
+// substitute — when the track list could not be fetched (offline included)
+// or still contains no requested-language track.
+func aliasUpgradeTrack(tracks []captionTrack, fetchErr error, lang string) (*captionTrack, bool) {
+	if fetchErr != nil || len(tracks) == 0 {
+		return nil, false
+	}
+	picked, err := pickCaptionTrack(tracks, lang)
+	if err != nil {
+		return nil, false
+	}
+	return picked, true
+}
+
+// cachedTranscriptUsable reports whether a cached row satisfies this
+// request. Default-lang requests accept whatever the row resolved to
+// (including fallback alias rows); an explicit --lang only accepts a row
+// whose actual language matches, so an alias row can never mask the
+// "no caption track matches" contract of an explicit request.
+func cachedTranscriptUsable(cached *transcriptResult, lang string, explicit bool) bool {
+	if cached == nil {
+		return false
+	}
+	if !explicit {
+		return true
+	}
+	return langMatches(cached.Language, lang)
 }

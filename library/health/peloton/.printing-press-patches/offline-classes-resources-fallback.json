@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "offline-classes-resources-fallback",
+  "applied_at": "2026-08-19",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "offlineClass (internal/cli/offline.go) falls back to the generic resources table (via the new offlineClassFromResources) when neither the \"classes\" nor \"catalog_classes\" provider_payloads family has a fact for a given id -- every synced class lands in the generic resources table via the flat classes list sync, so an id present there is still reachable even when its provider_payloads row is missing for any reason. newOfflineIntervalsCmd was also switched from a direct offlineFact(cmd, \"classes\", rideID) call to offlineClass(cmd, rideID) so it gets the same catalog_classes/resources fallback chain offline_classes_show/structure already had -- it was previously the one caller that bypassed even the pre-existing catalog_classes fallback. Any future offline command that looks up a class by ride_id must go through offlineClass, not a direct offlineFact call, or it regresses to erroring on ids the local store actually has.",
+  "reason": "CARRIED 4 in the round-11 verification report: resources(resource_type='classes') had 48,743 rows but provider_payloads(family='classes') had only 48,646 -- a 97-row gap where offline_classes_show errored \"stored catalog_classes fact not found\" (a family name the caller never asked about, since it's whichever fallback happened to run last) for ids the sync store had genuinely synced. The report noted the two stores agreeing was \"coincidence of both being populated, not because the readers consult the sync store\", and suggested pointing the offline class readers at resources or falling back to it on a cache miss.",
+  "files": [
+    "internal/cli/offline.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green; existing offline_test.go coverage (TestOfflineQueriesUseOnlyU3FactsAndCaveatGaps) continues to pass unchanged, confirming the fallback chain doesn't disturb the primary provider_payloads path for ids that do have a fact there."
+}

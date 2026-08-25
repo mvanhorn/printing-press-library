@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "wahoo-pp-mcp",
+  "display_name": "Wahoo Cloud API",
+  "version": "0.0.0",
+  "description": "Every Wahoo Cloud API capability, plus the local training database and offline analysis Wahoo's app never gives you.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/wahoo-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/wahoo-pp-mcp",
+      "args": [],
+      "env": {
+        "WAHOO_OAUTH2": "${user_config.wahoo_oauth2}"
+      }
+    }
+  },
+  "user_config": {
+    "wahoo_oauth2": {
+      "type": "string",
+      "title": "WAHOO_OAUTH2",
+      "description": "Sets WAHOO_OAUTH2 for the Wahoo Cloud MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

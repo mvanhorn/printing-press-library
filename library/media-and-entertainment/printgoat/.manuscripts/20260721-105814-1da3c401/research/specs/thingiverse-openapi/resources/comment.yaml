@@ -1,0 +1,282 @@
+Root:
+  get:
+    tags:
+      - Comment
+    summary: Get the latest comments
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+    responses:
+      '200':
+        description: The list of comments
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/comment_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+  post:
+    tags:
+      - Comment
+    summary: Reply to a comment
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/commentIdPathParam"
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - body
+              - recaptcha_token
+              - target_type
+              - target_id
+            properties:
+              body:
+                description: Set the body of the reply
+                type: string
+                example: Hello world! 
+              recaptcha_token:
+                description: Set the recaptcha token to confirm that the user is not a bot
+                type: string
+              target_type:
+                description: What is the type this comment should be posted on (thing, make, etc)
+                type: string
+                example: "thing"
+              target_id:
+                example: 10
+                type: integer
+              parent_id:
+                type: integer
+                description: If it's a nested comment, set the id of the parent comment here. (optional!)
+    responses:
+      '200':
+        description: The comment object
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/comment_schema.yaml'
+      '400':
+        $ref : "../responses/badrequest.yaml"
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Restore:
+  post:
+    tags:
+      - Comment
+    summary: Restore a deleted comment
+    security:
+        - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/commentIdPathParam"
+    responses:
+      '200':
+        description: Restored comment
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/comment_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+ById:
+  get:
+    tags:
+      - Comment
+    summary: Get a comment by id
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/commentIdPathParam"
+    responses:
+      '200':
+        description: An object representing the comment requested
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/comment_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+  patch:
+    tags:
+      - Comment
+    summary: Update a comment
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/commentIdPathParam"
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/comment_schema.yaml'
+    responses:
+      '200':
+        description: Updated a comment
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/comment_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+  delete:
+    tags:
+      - Comment
+    summary: Softdelete a comment
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/commentIdPathParam"
+    responses:
+      '200':
+        $ref : "../responses/ok.yaml"
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Replies:
+  get:
+    tags:
+      - Comment
+    summary: Get replies of a certain comment
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/commentIdPathParam"
+    responses:
+      '200':
+        description: The list of comment replies
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/comment_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Reply:
+  post:
+    tags:
+      - Comment
+    summary: Reply to a comment
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/commentIdPathParam"
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - body
+              - recaptcha_token
+            properties:
+              body:
+                description: Set the body of the reply
+                type: string
+                example: "This is a new message!"
+              recaptcha_token:
+                description: Set the recaptcha token to confirm that the user is not a bot
+                type: string
+    responses:
+      '200':
+        description: A new reply to a comment
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/comment_schema.yaml'
+      '400':
+        $ref : "../responses/badrequest.yaml"
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Spam:
+  post:
+    tags:
+      - Comment
+    summary: Mark comment as a spam
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/commentIdPathParam"
+    responses:
+      '200':
+        description: The marked comment
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/comment_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Markdown:
+  post:
+    tags:
+      - Comment
+    summary: Convert text to markdown
+    security:
+      - BearerAuth: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - body
+            properties:
+              body:
+                description: Text
+                type: string
+                example: Some text
+    responses:
+      '200':
+        description: The marked text
+        content:
+          application/json:
+            schema:
+              type: string
+              example: <div>Some text</div>
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"

@@ -9,10 +9,11 @@ import (
 
 func newNewsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "news",
-		Short:  "Everything about your News",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "news",
+		Short:       "Everything about your News",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newNewsCreateItemCmd(flags))

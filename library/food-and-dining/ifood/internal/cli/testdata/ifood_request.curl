@@ -1,0 +1,4 @@
+curl 'https://www.ifood.com.br/site-api/v1/customers/me' \
+  -H 'Authorization: Bearer synthetic-fixture-token' \
+  -H 'X-Ifood-Device-Id: synthetic-device-id' \
+  -H 'Accept: application/json'

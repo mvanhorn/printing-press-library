@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "everbee",
+  "run_id": "20260711-203553-d9c009c7",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 101,
+  "tests_passed": 101,
+  "tests_skipped": 64,
+  "auth_context": {
+    "type": "api_key"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "soccer-goat-espn-live-endpoints-are-search-v2-and-overview",
+  "applied_at": "2026-07-12",
+  "base_run_id": "20260712-074136",
+  "base_printing_press_version": "4.27.1",
+  "summary": "ESPN athlete resolution must not filter common/v3/search by sport=<name> (that returns count:0); use type=player, or the richer multi-sport search/v2 endpoint. Per-athlete stats/splits/recent-form come from .../athletes/<id>/overview.",
+  "reason": "The generated ESPN lookup queried common/v3/search with sport=soccer, which the endpoint answers with count:0 (it wants type=player), producing a 100% 'no ESPN athlete result' miss. We moved to search/v2 (live, multi-sport, typed rows) and guard resolution on soccer+name-match to avoid resolving the wrong athlete since search/v2 has no sport filter. A doctor canary flags any future silent drift.",
+  "files": [
+    "internal/source/espn/espn.go",
+    "internal/report/report.go",
+    "internal/cli/player.go",
+    "internal/cli/doctor.go",
+    "internal/cli/doctor_espn.go"
+  ],
+  "validated_outcome": "player 'joao neves' returns sources.espn ok with athleteId 355061, non-empty season stats and per-competition splits (Portugal teamId 482), and recent games; team reports enrich ESPN for the top players by market value within a budget; doctor's ESPN Source canary reports healthy.",
+  "upstream_issue": ""
+}

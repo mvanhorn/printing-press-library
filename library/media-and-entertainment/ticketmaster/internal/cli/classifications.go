@@ -9,8 +9,11 @@ import (
 
 func newClassificationsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "classifications",
-		Short: "Manage classifications",
+		Use:         "classifications",
+		Short:       "List and get classifications",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newClassificationsGetCmd(flags))

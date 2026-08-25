@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "rentalcarspain",
+  "run_id": "20260713-084638-059f7c9e",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 102,
+  "tests_passed": 102,
+  "tests_skipped": 73,
+  "auth_context": {
+    "type": "none"
+  }
+}

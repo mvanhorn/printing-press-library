@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "axs-summary-value-types",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260614-174950-dcc2e342",
+  "base_printing_press_version": "4.24.0",
+  "summary": "AXS summary views must preserve semantic firmware strings, zero-valued readings, the latest independently sampled values, and fields stored at either supported summary level.",
+  "reason": "Dotted firmware versions cannot be JSON numbers, 0% battery is valid data, and summary records do not always carry every field at the same time or nesting level; incorrect assumptions can erase or undercount known values.",
+  "files": [
+    "internal/cli/battery.go",
+    "internal/cli/firmware_check.go",
+    "internal/cli/wear.go"
+  ],
+  "validated_outcome": "Firmware versions retain every segment, zero readings remain present, newer partial summaries no longer erase known values, and wear counts fall back to top-level summary fields; regression tests plus Go test, vet, and build pass."
+}

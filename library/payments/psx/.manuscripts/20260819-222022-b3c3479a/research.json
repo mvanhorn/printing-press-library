@@ -1,0 +1,323 @@
+{
+  "api_name": "psx",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "psxdata",
+      "url": "https://github.com/mtauha/psxdata",
+      "language": "Python",
+      "install_method": "",
+      "stars": 19,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "PSX-MCP-Server",
+      "url": "https://github.com/ahad-raza24/PSX-MCP-Server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 5,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "psx-mcp",
+      "url": "https://github.com/revolutionarybukhari/psx-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "PSX-Data-Api",
+      "url": "https://github.com/AbdulSami455/PSX-Data-Api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 11,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "psx-mcp-server",
+      "url": "https://github.com/ahmedraza-96/psx-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-19T17:47:48Z",
+  "novel_features": [
+    {
+      "name": "Corporate-action digest",
+      "command": "actions",
+      "description": "See every announcement, payout, AGM date and circuit-breaker event for the symbols you track, in one place.",
+      "rationale": "Joins four separate mirrored feeds against your local watchlist; no PSX endpoint returns them together and no other tool wraps any of them.",
+      "example": "psx-pp-cli actions --watchlist --since 7d --agent",
+      "why_it_matters": "Reach for this when the question is 'did anything happen to my names', instead of running four searches and merging them by hand.",
+      "group": "Cross-surface joins"
+    },
+    {
+      "name": "Snapshot delta",
+      "command": "diff",
+      "description": "Show what changed in price, volume and valuation metrics between two synced snapshots.",
+      "rationale": "Requires retained local snapshots; the portal serves only a current view, so no upstream call can answer it.",
+      "example": "psx-pp-cli diff --since 7d --agent",
+      "why_it_matters": "Use this when the user asks what moved since last week rather than what the price is right now.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Local watchlist",
+      "command": "watchlist",
+      "description": "Keep a saved symbol set and price it on demand, with change measured from the day you added each name.",
+      "rationale": "PSX has no user accounts at all, so a persistent per-user symbol set can only exist locally.",
+      "example": "psx-pp-cli watchlist prices --agent",
+      "why_it_matters": "Use this to give an otherwise stateless market portal a memory of which names the user actually cares about.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Baseline-relative anomaly scan",
+      "command": "unusual",
+      "description": "Find names trading abnormally against their own trailing history, not just the day's biggest movers.",
+      "rationale": "Needs a per-symbol local baseline of median and dispersion; the portal's movers list ranks raw change with no reference point.",
+      "example": "psx-pp-cli unusual --baseline 30d --top 20 --agent",
+      "why_it_matters": "Use this to separate a genuine volume spike from a name that always trades that way.",
+      "group": "Baselines the portal never keeps"
+    },
+    {
+      "name": "Sector rotation",
+      "command": "rotation",
+      "description": "Rank sectors by movement over a window and name the constituents that drove each move.",
+      "rationale": "Requires sector snapshots joined to symbol-level bars over time; the upstream sector feed is volume-only and point-in-time.",
+      "example": "psx-pp-cli rotation --window 30d --top 5 --agent",
+      "why_it_matters": "Use this for 'what is leading and lagging, and why' instead of a bare current-volume ranking.",
+      "group": "Baselines the portal never keeps"
+    },
+    {
+      "name": "Valuation drift",
+      "command": "drift",
+      "description": "Trace one symbol's PE, dividend yield, market cap or free float across time.",
+      "rationale": "Built from accumulated local screener snapshots; the screener exposes the metrics but retains no history.",
+      "example": "psx-pp-cli drift OGDC --metric pe --since 90d --agent",
+      "why_it_matters": "Use this when the question is about the trajectory of a multiple, not its current value.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Futures basis",
+      "command": "basis",
+      "description": "Compare futures-board prices against the regular spot board to see premium or discount per symbol.",
+      "rationale": "Fetches two different market boards and computes a spread neither endpoint returns; every other tool reads at most one board.",
+      "example": "psx-pp-cli basis --market DFC --top 20 --agent",
+      "why_it_matters": "Use this for carry and roll questions that require crossing PSX's separate market boards.",
+      "group": "Cross-surface joins"
+    },
+    {
+      "name": "Regulatory document search",
+      "command": "docs search",
+      "description": "Search PSX regulatory documents, listing guides and notices by keyword, with last-updated dates.",
+      "rationale": "Builds a local full-text index over the corporate site's document map; the site itself offers no search across its PDF library.",
+      "example": "psx-pp-cli docs search \"rule book\" --agent",
+      "why_it_matters": "Use this to locate the governing PSX rule, guide or notice for a question instead of browsing the corporate site by hand.",
+      "group": "Cross-surface joins"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Corporate-action digest",
+      "command": "actions",
+      "description": "See every announcement, payout, AGM date and circuit-breaker event for the symbols you track, in one place.",
+      "rationale": "Joins four separate mirrored feeds against your local watchlist; no PSX endpoint returns them together and no other tool wraps any of them.",
+      "example": "psx-pp-cli actions --watchlist --since 7d --agent",
+      "why_it_matters": "Reach for this when the question is 'did anything happen to my names', instead of running four searches and merging them by hand.",
+      "group": "Cross-surface joins"
+    },
+    {
+      "name": "Snapshot delta",
+      "command": "diff",
+      "description": "Show what changed in price, volume and valuation metrics between two synced snapshots.",
+      "rationale": "Requires retained local snapshots; the portal serves only a current view, so no upstream call can answer it.",
+      "example": "psx-pp-cli diff --since 7d --agent",
+      "why_it_matters": "Use this when the user asks what moved since last week rather than what the price is right now.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Local watchlist",
+      "command": "watchlist",
+      "description": "Keep a saved symbol set and price it on demand, with change measured from the day you added each name.",
+      "rationale": "PSX has no user accounts at all, so a persistent per-user symbol set can only exist locally.",
+      "example": "psx-pp-cli watchlist prices --agent",
+      "why_it_matters": "Use this to give an otherwise stateless market portal a memory of which names the user actually cares about.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Baseline-relative anomaly scan",
+      "command": "unusual",
+      "description": "Find names trading abnormally against their own trailing history, not just the day's biggest movers.",
+      "rationale": "Needs a per-symbol local baseline of median and dispersion; the portal's movers list ranks raw change with no reference point.",
+      "example": "psx-pp-cli unusual --baseline 30d --top 20 --agent",
+      "why_it_matters": "Use this to separate a genuine volume spike from a name that always trades that way.",
+      "group": "Baselines the portal never keeps"
+    },
+    {
+      "name": "Sector rotation",
+      "command": "rotation",
+      "description": "Rank sectors by movement over a window and name the constituents that drove each move.",
+      "rationale": "Requires sector snapshots joined to symbol-level bars over time; the upstream sector feed is volume-only and point-in-time.",
+      "example": "psx-pp-cli rotation --window 30d --top 5 --agent",
+      "why_it_matters": "Use this for 'what is leading and lagging, and why' instead of a bare current-volume ranking.",
+      "group": "Baselines the portal never keeps"
+    },
+    {
+      "name": "Valuation drift",
+      "command": "drift",
+      "description": "Trace one symbol's PE, dividend yield, market cap or free float across time.",
+      "rationale": "Built from accumulated local screener snapshots; the screener exposes the metrics but retains no history.",
+      "example": "psx-pp-cli drift OGDC --metric pe --since 90d --agent",
+      "why_it_matters": "Use this when the question is about the trajectory of a multiple, not its current value.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Futures basis",
+      "command": "basis",
+      "description": "Compare futures-board prices against the regular spot board to see premium or discount per symbol.",
+      "rationale": "Fetches two different market boards and computes a spread neither endpoint returns; every other tool reads at most one board.",
+      "example": "psx-pp-cli basis --market DFC --top 20 --agent",
+      "why_it_matters": "Use this for carry and roll questions that require crossing PSX's separate market boards.",
+      "group": "Cross-surface joins"
+    },
+    {
+      "name": "Regulatory document search",
+      "command": "docs search",
+      "description": "Search PSX regulatory documents, listing guides and notices by keyword, with last-updated dates.",
+      "rationale": "Builds a local full-text index over the corporate site's document map; the site itself offers no search across its PDF library.",
+      "example": "psx-pp-cli docs search \"rule book\" --agent",
+      "why_it_matters": "Use this to locate the governing PSX rule, guide or notice for a question instead of browsing the corporate site by hand.",
+      "group": "Cross-surface joins"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Pakistan Stock Exchange",
+    "headline": "Every PSX data-portal surface in one Go binary, plus the local price history the exchange itself throws away.",
+    "value_prop": "The PSX data portal renders only what is true right now and keeps nothing for you. This CLI mirrors the instrument master, screener metrics, sector aggregates and market snapshots into local SQLite, so longitudinal questions the portal structurally cannot answer become one command: what changed since last week (diff), which names are abnormal against their own history (unusual), and when a valuation multiple compressed (drift). Announcements, payouts and OHLCV history are read live rather than mirrored. No API key, no account, no browser.",
+    "auth_narrative": "PSX publishes no API and requires no credentials. Every endpoint this CLI uses is unauthenticated plain HTTP, so there is nothing to configure before your first command. The CLI paces itself to stay within the portal's observed politeness ceiling.",
+    "quickstart": [
+      {
+        "command": "psx-pp-cli doctor",
+        "comment": "confirm the portal is reachable before anything else"
+      },
+      {
+        "command": "psx-pp-cli sync --resources symbols",
+        "comment": "pull the instrument master once so symbol lookups work offline"
+      },
+      {
+        "command": "psx-pp-cli quote OGDC",
+        "comment": "price a single name to confirm live data flows"
+      },
+      {
+        "command": "psx-pp-cli watchlist track OGDC LUCK ENGRO",
+        "comment": "save the names you actually follow"
+      },
+      {
+        "command": "psx-pp-cli snapshot take",
+        "comment": "record a point-in-time snapshot; diff, drift, unusual and rotation all read what this stores, so run it on a schedule"
+      },
+      {
+        "command": "psx-pp-cli actions --watchlist --since 7d",
+        "comment": "the payoff: every corporate action across your names in one call"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "history returns far more rows than the date range you asked for",
+        "fix": "expected: PSX ignores date parameters server-side and always returns the full series, so the CLI filters locally after fetching"
+      },
+      {
+        "symptom": "intraday returns ticks dated before today",
+        "fix": "the symbol did not trade today; the portal serves the last active session, and 'market status' shows the age of the latest tick"
+      },
+      {
+        "symptom": "diff, drift, unusual or rotation report no history",
+        "fix": "these read snapshots, not sync. Run 'psx-pp-cli snapshot take' on a schedule: diff and rotation need 2 captures, unusual needs 3 or more"
+      },
+      {
+        "symptom": "sync --resources announcements (or payouts, history) fails",
+        "fix": "expected: those surfaces are read live and are not mirrored. Syncable resources are symbols, sectors, screener, indices, debt, eligible-scrips and circuit-breakers"
+      },
+      {
+        "symptom": "requests start failing after a large fan-out",
+        "fix": "lower --rate-limit; the portal publishes no limit and the CLI targets a conservative 2 requests per second by default"
+      },
+      {
+        "symptom": "an HTML-backed command returns zero rows after a portal redesign",
+        "fix": "run 'doctor' to confirm reachability, then report the table whose headers changed; extraction is keyed on header text, not column position"
+      }
+    ],
+    "when_to_use": "Use this CLI for any question about Pakistan Stock Exchange instruments, prices, indices, sectors, valuation metrics, corporate actions or debt instruments. It is strongest when the question is longitudinal or cross-entity, because it keeps a local mirror the exchange portal does not. Note that longitudinal commands (diff, drift, unusual, rotation) read snapshots captured by 'snapshot take', so run that on a schedule before expecting trend answers. It is strictly read-only: PSX exposes no write surface and this CLI never mutates anything upstream.",
+    "anti_triggers": [
+      "Do not use this CLI to place, modify or cancel trades. PSX exposes no order-entry surface and this CLI is strictly read-only.",
+      "Do not use it for non-PSX markets. It covers Pakistan Stock Exchange only, not NSE India, NYSE, or crypto venues.",
+      "Do not use it for real-time streaming or tick-by-tick execution data. The portal is poll-based and the CLI paces requests conservatively.",
+      "Do not use it as a source of investment advice or Shariah-compliance verdicts. It reports exchange data; interpretation is the caller's responsibility.",
+      "Do not use it for portfolio profit-and-loss against purchase prices. PSX exposes no trade or cost-basis data."
+    ],
+    "recipes": [
+      {
+        "title": "Weekly corporate-action sweep for your holdings",
+        "command": "psx-pp-cli actions --watchlist --since 7d --agent --select symbol,kind,date,headline",
+        "explanation": "Joins announcements, payouts, AGM dates and breaker events for saved symbols, narrowed with --select so an agent reads four fields instead of a large nested payload."
+      },
+      {
+        "title": "Find genuinely abnormal volume, not just big movers",
+        "command": "psx-pp-cli unusual --baseline 30d --top 20 --agent",
+        "explanation": "Ranks each name against its own trailing median and dispersion, so a thin scrip doubling on tiny size does not crowd out a real institutional print."
+      },
+      {
+        "title": "Trace a valuation multiple over a quarter",
+        "command": "psx-pp-cli drift OGDC --metric pe --since 90d --agent",
+        "explanation": "Reads accumulated screener snapshots to show when the multiple moved, which the portal cannot answer at all."
+      },
+      {
+        "title": "See which constituents drove a sector",
+        "command": "psx-pp-cli rotation --window 30d --top 5 --agent",
+        "explanation": "Ranks sectors by change over the window and attributes each move to its largest contributors."
+      },
+      {
+        "title": "Check futures premium to spot",
+        "command": "psx-pp-cli basis --market DFC --top 20 --agent",
+        "explanation": "Fetches the futures and regular boards and computes the per-symbol spread and percent premium."
+      },
+      {
+        "title": "Find the governing PSX rulebook or guide",
+        "command": "psx-pp-cli docs search \"shariah compliant\" --agent --select title,url,updated",
+        "explanation": "Full-text search across the corporate site's document map, returning just the fields an agent needs to cite a source."
+      }
+    ],
+    "trigger_phrases": [
+      "KSE-100 level today",
+      "quote OGDC",
+      "what changed in my PSX watchlist",
+      "PSX dividend announcements this week",
+      "which PSX sector is leading",
+      "Pakistan Stock Exchange historical data",
+      "use psx",
+      "run psx",
+      "PSX listing rules PDF"
+    ]
+  }
+}

@@ -16,6 +16,7 @@ func newBibliotecaCercaCmd(flags *rootFlags) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:         "cerca",
+		Args:        rejectPositionalArgs,
 		Short:       "Cerca nel Catalogo Bibliografico (archivio 205).",
 		Example:     "  ars-sicilia-pp-cli biblioteca cerca --autore \"Sciascia\" --json",
 		Annotations: map[string]string{"pp:endpoint": "biblioteca.cerca", "mcp:read-only": "true"},
@@ -50,5 +51,6 @@ func newBibliotecaCercaCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagISIS, "isis-query", "", "Espressione ISIS grezza (escape hatch).")
 	cmd.Flags().IntVar(&flagLimit, "limit", 10, "Max risultati da scaricare.")
 	cmd.Flags().IntVar(&flagMaxPages, "max-pages", 0, "Pagine massime (0 = auto).")
+	cmd.Flags().String("escludi", "", "Escludi i documenti che contengono questo termine (ISIS NOT).")
 	return cmd
 }

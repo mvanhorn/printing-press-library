@@ -87,6 +87,47 @@ func TestStoreWrite_NoSQLITE_BUSY_HighConcurrency(t *testing.T) {
 	}
 }
 
+// TestUpsertBatch_RollbackReportsZeroStored verifies that a later generic-row
+// failure cannot report earlier rows as stored when the enclosing transaction
+// rolls them all back.
+func TestUpsertBatch_RollbackReportsZeroStored(t *testing.T) {
+	s, err := Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	if _, err := s.DB().Exec(`
+		CREATE TRIGGER fail_second_generic_insert
+		BEFORE INSERT ON resources
+		WHEN NEW.id = 'second'
+		BEGIN
+			SELECT RAISE(ABORT, 'synthetic batch failure');
+		END;
+	`); err != nil {
+		t.Fatalf("create failure trigger: %v", err)
+	}
+
+	stored, _, err := s.UpsertBatch("untyped", []json.RawMessage{
+		json.RawMessage(`{"id":"first"}`),
+		json.RawMessage(`{"id":"second"}`),
+	})
+	if err == nil {
+		t.Fatal("expected synthetic batch failure")
+	}
+	if stored != 0 {
+		t.Fatalf("stored = %d, want 0 because the transaction rolled back", stored)
+	}
+
+	count, err := s.Count("untyped")
+	if err != nil {
+		t.Fatalf("count persisted rows: %v", err)
+	}
+	if count != 0 {
+		t.Fatalf("persisted row count = %d, want 0", count)
+	}
+}
+
 // TestStoreWrite_PanicReleasesLock confirms that a panic inside a locked
 // section unwinds via defer s.writeMu.Unlock() so subsequent writers can
 // proceed. A leaked lock would deadlock the second call indefinitely.
@@ -314,9 +355,9 @@ func TestUpsertBatch_PopulatesDiffTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "branches_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "branches_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "branches_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("diff", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -356,9 +397,9 @@ func TestUpsertBatch_PopulatesMergeTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "branches_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "branches_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "branches_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("merge", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -398,9 +439,9 @@ func TestUpsertBatch_PopulatesPushTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "branches_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "branches_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "branches_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("push", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -440,9 +481,9 @@ func TestUpsertBatch_PopulatesResetTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "branches_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "branches_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "branches_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("reset", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -482,9 +523,9 @@ func TestUpsertBatch_PopulatesBranchesRestoreTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "branches_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "branches_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "branches_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("branches_restore", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -566,9 +607,9 @@ func TestUpsertBatch_PopulatesEntitlementsTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "organizations_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "organizations_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "organizations_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("entitlements", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -608,9 +649,9 @@ func TestUpsertBatch_PopulatesMembersTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "organizations_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "organizations_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "organizations_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("members", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -650,9 +691,9 @@ func TestUpsertBatch_PopulatesProjectClaimTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "organizations_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "organizations_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "organizations_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("project_claim", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -692,9 +733,9 @@ func TestUpsertBatch_PopulatesOrganizationsProjectsTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "organizations_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "organizations_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "organizations_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("organizations_projects", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -732,9 +773,9 @@ func TestUpsertBatch_SetsOrganizationsProjectsParentID(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "child-001", "parent_id": "parent-A"}`),
-		json.RawMessage(`{"id": "child-002", "parent_id": "parent-A"}`),
-		json.RawMessage(`{"id": "child-003", "parent_id": "parent-B"}`),
+		json.RawMessage(`{"id": "child-001", "organizations_id": "parent-A", "parent_id": "parent-A"}`),
+		json.RawMessage(`{"id": "child-002", "organizations_id": "parent-A", "parent_id": "parent-A"}`),
+		json.RawMessage(`{"id": "child-003", "organizations_id": "parent-B", "parent_id": "parent-B"}`),
 	}
 	if _, _, err := s.UpsertBatch("organizations_projects", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -808,9 +849,9 @@ func TestUpsertBatch_PopulatesActionsTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("actions", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -848,9 +889,9 @@ func TestUpsertBatch_SetsActionsParentID(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "child-001", "parent_id": "parent-A"}`),
-		json.RawMessage(`{"id": "child-002", "parent_id": "parent-A"}`),
-		json.RawMessage(`{"id": "child-003", "parent_id": "parent-B"}`),
+		json.RawMessage(`{"id": "child-001", "projects_id": "parent-A", "parent_id": "parent-A"}`),
+		json.RawMessage(`{"id": "child-002", "projects_id": "parent-A", "parent_id": "parent-A"}`),
+		json.RawMessage(`{"id": "child-003", "projects_id": "parent-B", "parent_id": "parent-B"}`),
 	}
 	if _, _, err := s.UpsertBatch("actions", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -868,6 +909,35 @@ func TestUpsertBatch_SetsActionsParentID(t *testing.T) {
 	}
 }
 
+func TestUpsertBatch_TypedFailurePreservesGenericResource(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := []json.RawMessage{json.RawMessage(`{"id": "orphan-action"}`)}
+	stored, extractFailures, err := s.UpsertBatch("actions", items)
+	if err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+	if stored != 1 || extractFailures != 0 {
+		t.Fatalf("UpsertBatch returned stored=%d extractFailures=%d, want 1, 0", stored, extractFailures)
+	}
+
+	var generic, typed int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resources WHERE resource_type = ?`, "actions").Scan(&generic); err != nil {
+		t.Fatalf("count resources: %v", err)
+	}
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM actions`).Scan(&typed); err != nil {
+		t.Fatalf("count actions: %v", err)
+	}
+	if generic != 1 || typed != 0 {
+		t.Fatalf("generic=%d typed=%d, want 1, 0", generic, typed)
+	}
+}
+
 // TestUpsertBatch_PopulatesAdvisorsTable verifies that UpsertBatch
 // dispatches paginated items into both the generic resources table AND the
 // typed advisors table. Regression for issue #268: before the fix, paginated
@@ -882,9 +952,9 @@ func TestUpsertBatch_PopulatesAdvisorsTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("advisors", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -924,9 +994,9 @@ func TestUpsertBatch_PopulatesAnalyticsTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("analytics", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -966,9 +1036,9 @@ func TestUpsertBatch_PopulatesApiKeysTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("api_keys", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1008,9 +1078,9 @@ func TestUpsertBatch_PopulatesBillingTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("billing", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1050,9 +1120,9 @@ func TestUpsertBatch_PopulatesProjectsBranchesTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("projects_branches", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1092,9 +1162,9 @@ func TestUpsertBatch_PopulatesClaimTokenTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("claim_token", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1134,9 +1204,9 @@ func TestUpsertBatch_PopulatesCliTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("cli", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1176,9 +1246,9 @@ func TestUpsertBatch_PopulatesConfigTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("config", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1218,9 +1288,9 @@ func TestUpsertBatch_PopulatesCustomHostnameTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("custom_hostname", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1260,9 +1330,9 @@ func TestUpsertBatch_PopulatesDatabaseTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("database", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1302,9 +1372,9 @@ func TestUpsertBatch_PopulatesFunctionsTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("functions", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1344,9 +1414,9 @@ func TestUpsertBatch_PopulatesHealthTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("health", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1386,9 +1456,9 @@ func TestUpsertBatch_PopulatesJitAccessTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("jit_access", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1428,9 +1498,9 @@ func TestUpsertBatch_PopulatesNetworkBansTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("network_bans", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1470,9 +1540,9 @@ func TestUpsertBatch_PopulatesNetworkRestrictionsTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("network_restrictions", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1512,9 +1582,9 @@ func TestUpsertBatch_PopulatesPauseTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("pause", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1554,9 +1624,9 @@ func TestUpsertBatch_PopulatesPgsodiumTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("pgsodium", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1596,9 +1666,9 @@ func TestUpsertBatch_PopulatesPostgrestTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("postgrest", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1638,9 +1708,9 @@ func TestUpsertBatch_PopulatesReadReplicasTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("read_replicas", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1680,9 +1750,9 @@ func TestUpsertBatch_PopulatesReadonlyTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("readonly", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1722,9 +1792,9 @@ func TestUpsertBatch_PopulatesProjectsRestoreTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("projects_restore", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1764,9 +1834,9 @@ func TestUpsertBatch_PopulatesSecretsTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("secrets", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1806,9 +1876,9 @@ func TestUpsertBatch_PopulatesSslEnforcementTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("ssl_enforcement", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1848,9 +1918,9 @@ func TestUpsertBatch_PopulatesStorageTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("storage", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1890,9 +1960,9 @@ func TestUpsertBatch_PopulatesTypesTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("types", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1932,9 +2002,9 @@ func TestUpsertBatch_PopulatesUpgradeTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("upgrade", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -1974,9 +2044,9 @@ func TestUpsertBatch_PopulatesVanitySubdomainTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-002", "projects_id": "test-parent-001"}`),
+		json.RawMessage(`{"id": "test-003", "projects_id": "test-parent-001"}`),
 	}
 	if _, _, err := s.UpsertBatch("vanity_subdomain", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)

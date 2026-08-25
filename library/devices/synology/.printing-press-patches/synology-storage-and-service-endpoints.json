@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "synology-storage-and-service-endpoints",
+  "applied_at": "2026-08-24",
+  "base_run_id": "20260824-135140",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Point the storage and service commands at the endpoints DSM actually implements, and declare the response path each one reads.",
+  "reason": "Four generated endpoints did not exist and answered DSM error 101 or 103. `storage disks`, `storage pools` and `storage volumes` all come from one Storage Manager call, `SYNO.Storage.CGI.Storage&method=load_info&version=1`, reading the `disks`, `storagePools` and `volumes` keys of the same payload; `system services` needs `SYNO.Core.Service&method=get&version=3`, where `method=list` answers 103. Six response paths were wrong on top of that (`disks`, `storagePools`, `volumes`, `smartInfo`, `items`, `service`), which is why the SMART table in particular printed empty.",
+  "files": [
+    "spec.yaml"
+  ],
+  "validated_outcome": "Live against a DS415+: `storage disks` returns the drive array, `storage pools` and `storage volumes` return their own rows from the same call, `system services` lists services, and `storage smart` renders a populated table.",
+  "upstream_issue": null
+}

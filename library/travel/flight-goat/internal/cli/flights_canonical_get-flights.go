@@ -18,9 +18,9 @@ func newFlightsCanonicalGetFlightsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "get-flights <ident>",
 		Aliases:     []string{"get"},
-		Short:       "When the ident parameter is a code that could map to multiple other codes, this endpoint returns an array of...",
-		Example:     "  flight-goat-pp-cli flights canonical get-flights example-value",
-		Annotations: map[string]string{"pp:endpoint": "canonical.get-flights", "mcp:read-only": "true"},
+		Short:       "When the ident parameter is a code that could map to multiple other codes",
+		Example:     "  flight-goat-pp-cli flights canonical get-flights B6109",
+		Annotations: map[string]string{"pp:endpoint": "canonical.get-flights", "pp:method": "GET", "pp:path": "/flights/{ident}/canonical", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -35,37 +35,45 @@ func newFlightsCanonicalGetFlightsCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validIdentType {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "ident-type", flagIdentType, allowedIdentType)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagIdentType, "ident-type", allowedIdentType)
 				}
 			}
+			path := "/flights/{ident}/canonical"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("ident is required\nUsage: %s <%s>", cmd.CommandPath(), "ident"))
+			}
+			path = replacePathParam(path, "ident", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/flights/{ident}/canonical"
-			path = replacePathParam(path, "ident", args[0])
 			params := map[string]string{}
 			if flagIdentType != "" {
-				params["ident_type"] = fmt.Sprintf("%v", flagIdentType)
+				params["ident_type"] = formatCLIParamValue(flagIdentType)
 			}
 			if flagCountryCode != "" {
-				params["country_code"] = fmt.Sprintf("%v", flagCountryCode)
+				params["country_code"] = formatCLIParamValue(flagCountryCode)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "canonical", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "canonical", false, path, params, nil, "idents", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -91,7 +99,7 @@ func newFlightsCanonicalGetFlightsCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagIdentType, "ident-type", "", "Type of ident provided in the ident parameter (one of: designator, registration)")

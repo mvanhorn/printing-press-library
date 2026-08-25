@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "offline-classes-list-form-caveat",
+  "applied_at": "2026-08-19",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "offline_classes_structure and offline_intervals (internal/cli/offline.go) route a missing segments/intervals field through classSegmentsMissingCaveat instead of a single hardcoded caveat string. It distinguishes two causes that otherwise collapse into the same misleading message: a class synced only via the bulk catalog list endpoint (classIsListForm -- detected by the ABSENCE of a top-level \"ride\" object, the same signal nestedIDContainerKeys[\"classes\"]=\"ride\" uses to resolve a detail response's id) never carries segments/target_metrics_data at all, so \"no segments\" there means \"never detail-fetched\", not \"this class genuinely has none\". A detail-shaped fact (top-level \"ride\" present) that still lacks segments is the genuine empty case and keeps a distinct, narrower message. Any future caveat-generation code for a stored class fact must keep routing through this helper rather than re-introducing a single generic \"no segment list\" string, or the caveat becomes misleading again for the common case (a class synced but not yet detail-fetched).",
+  "reason": "Round-11 verification NEW 1 (see classes-detail-dependent-sync.json for the primary fix, the classes_detail dependent sync) also flagged the caveat text itself as actively misdirecting: it fires for 99.8% of a real account's synced classes and reads as \"this class has no segments\" when the truth is \"this class was synced in list form and its segments were never fetched\". The report offered this as an at-minimum fix alongside the dependent sync, since even with the dependent sync in place, an account's bounded/resumable backfill can take several calls to fully catch up (--max-parents), during which not-yet-reached classes still need an accurate caveat rather than a misleading one.",
+  "files": [
+    "internal/cli/offline.go",
+    "internal/cli/offline_test.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. TestOfflineQueriesUseOnlyU3FactsAndCaveatGaps extended with a ride-d fixture (top-level \"ride\" present, no segments) alongside the existing ride-c fixture (no \"ride\" key at all): asserts ride-c's structure caveat mentions \"catalog list form only\" and NOT the genuine-empty message, and ride-d's caveat is the genuine-empty message and NOT the list-form message."
+}

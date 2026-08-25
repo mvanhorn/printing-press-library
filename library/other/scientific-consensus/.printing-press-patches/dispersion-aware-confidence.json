@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "dispersion-aware-confidence",
+  "applied_at": "2026-08-19",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Confidence must fall when the corpus disagrees with itself, not only when it is small: stanceDispersion measures how divided the stance distribution is and confidence is reduced by dispersionWeight (0.35) times that figure, with mixed and inconclusive works counting as dissent rather than as neutral mass. A corpus so one-sided that no refuting and no mixed work survived is flagged near_unanimous at |score| >= 0.98, because zero dissent is evidence that dissent was filtered out rather than that none exists.",
+  "reason": "confidence() scaled with corpus size and citation mass without asking whether the corpus agreed with itself, so thirty works split evenly reported higher confidence than eight unanimous ones, and a corpus of thirty inconclusive works plus one supporting work reported near-full confidence on a single readable abstract.",
+  "files": [
+    "internal/scengine/score.go",
+    "internal/scengine/confidence_test.go"
+  ],
+  "validated_outcome": "Table-driven tests in confidence_test.go: with phase4ConfidenceEnabled off, TestConfidenceBaseline reproduces the pre-penalty numbers exactly (1e-6 epsilon) across unanimous, evenly-split, thin and empty corpora; TestStanceDispersion pins seven distributions including one directional work among thirty unknowns and mixed-works-count-as-dissent; TestStanceDispersionMonotonic asserts dispersion never reverses as dissent rises; TestConfidenceSmallUnanimousBeatsLargeDivided pins the ordering invariant the change exists to create; TestConfidenceInconclusiveMassIsPenalized asserts 1 supporting + 30 inconclusive loses confidence."
+}

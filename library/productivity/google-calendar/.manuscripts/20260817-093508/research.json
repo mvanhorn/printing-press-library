@@ -1,0 +1,238 @@
+{
+  "api_name": "google-calendar",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "gcalcli",
+      "url": "https://github.com/insanum/gcalcli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "google-calendar-mcp",
+      "url": "https://github.com/nspady/google-calendar-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-google-multi",
+      "url": "https://github.com/bakissation/mcp-google-multi",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-17T09:45:00Z",
+  "novel_features": [
+    {
+      "name": "Conflict verdict engine",
+      "command": "conflicts",
+      "description": "One command answers 'am I double-booked?' across every account, and refuses to give a confident all-clear over partial or stale data.",
+      "rationale": "Implements a reviewed verdict contract (fresh-or-downgrade, busy-only, tz-normalized, mirror-aware) across three live accounts — no cache, no single-account blind spots.",
+      "example": "google-calendar-pp-cli conflicts --from 2026-08-18 --to 2026-08-25 --agent",
+      "why_it_matters": "Reach for this whenever asserting schedule truth to a human — its downgrade semantics make the answer citable.",
+      "group": "Verdict contracts"
+    },
+    {
+      "name": "Open-slot enumeration",
+      "command": "slots",
+      "description": "Ranked open windows of a requested duration across all accounts, computed from live freebusy under the same busy semantics as conflicts.",
+      "rationale": "Google has no find-a-time endpoint; interval inversion across tz-normalized sources is exactly what ad-hoc arithmetic gets subtly wrong.",
+      "example": "google-calendar-pp-cli slots --duration 90m --from 2026-08-18 --to 2026-08-22 --agent",
+      "why_it_matters": "Use when proposing meeting times — 'open' carries coverage evidence, not guesswork.",
+      "group": "Verdict contracts"
+    },
+    {
+      "name": "Safe-mutation contract",
+      "command": "events update",
+      "description": "Writes take an etag precondition and return the pre-image plus a structured inverse operation, so every change is cleanly reversible and race-safe.",
+      "rationale": "If the human edited the event mid-flight, the write fails cleanly instead of clobbering; undo evidence rides in the response.",
+      "example": "google-calendar-pp-cli events update primary evt123 --account ads --start 2026-08-19T15:00:00-06:00 --if-etag \"abc\" --json",
+      "why_it_matters": "Use for any mutation an agent must be able to echo-with-undo to its principal.",
+      "group": "Safe writes"
+    },
+    {
+      "name": "Stateless change sweep",
+      "command": "changes",
+      "description": "Everything that moved, appeared, or was cancelled across all accounts since a caller-held watermark — deletions included.",
+      "rationale": "The CLI holds no state; the watermark is the caller's, so change detection stays lawful under a no-local-cache rule.",
+      "example": "google-calendar-pp-cli changes --since 2026-08-17T07:00:00Z --agent",
+      "why_it_matters": "Run between full sweeps to catch mid-day schedule movement cheaply.",
+      "group": "Governance and drift"
+    },
+    {
+      "name": "Manifest reconciliation",
+      "command": "manifest check",
+      "description": "Diffs live calendar reality across all accounts against the approved calendars.yaml — new, missing, or permission-drifted calendars become findings.",
+      "rationale": "The manifest is the governance root; silent drift would quietly poison every downstream verdict.",
+      "example": "google-calendar-pp-cli manifest check --json",
+      "why_it_matters": "Schedule this as hygiene; run it before trusting any multi-account verdict after account changes.",
+      "group": "Governance and drift"
+    },
+    {
+      "name": "Recurring-series deviations",
+      "command": "events exceptions",
+      "description": "Instances of recurring events that moved or were cancelled in a window — the routine-deviation surprises, isolated.",
+      "rationale": "No endpoint lists deviations; comparing originalStartTime vs start and cancelled status across accounts is in-process logic.",
+      "example": "google-calendar-pp-cli events exceptions --from 2026-08-18 --to 2026-08-25 --agent",
+      "why_it_matters": "Use in look-ahead sweeps: deviations from routine are the highest-yield surprise class.",
+      "group": "Governance and drift"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Conflict verdict engine",
+      "command": "conflicts",
+      "description": "One command answers 'am I double-booked?' across every account, and refuses to give a confident all-clear over partial or stale data.",
+      "rationale": "Implements a reviewed verdict contract (fresh-or-downgrade, busy-only, tz-normalized, mirror-aware) across three live accounts — no cache, no single-account blind spots.",
+      "example": "google-calendar-pp-cli conflicts --from 2026-08-18 --to 2026-08-25 --agent",
+      "why_it_matters": "Reach for this whenever asserting schedule truth to a human — its downgrade semantics make the answer citable.",
+      "group": "Verdict contracts"
+    },
+    {
+      "name": "Open-slot enumeration",
+      "command": "slots",
+      "description": "Ranked open windows of a requested duration across all accounts, computed from live freebusy under the same busy semantics as conflicts.",
+      "rationale": "Google has no find-a-time endpoint; interval inversion across tz-normalized sources is exactly what ad-hoc arithmetic gets subtly wrong.",
+      "example": "google-calendar-pp-cli slots --duration 90m --from 2026-08-18 --to 2026-08-22 --agent",
+      "why_it_matters": "Use when proposing meeting times — 'open' carries coverage evidence, not guesswork.",
+      "group": "Verdict contracts"
+    },
+    {
+      "name": "Safe-mutation contract",
+      "command": "events update",
+      "description": "Writes take an etag precondition and return the pre-image plus a structured inverse operation, so every change is cleanly reversible and race-safe.",
+      "rationale": "If the human edited the event mid-flight, the write fails cleanly instead of clobbering; undo evidence rides in the response.",
+      "example": "google-calendar-pp-cli events update primary evt123 --account ads --start 2026-08-19T15:00:00-06:00 --if-etag \"abc\" --json",
+      "why_it_matters": "Use for any mutation an agent must be able to echo-with-undo to its principal.",
+      "group": "Safe writes"
+    },
+    {
+      "name": "Stateless change sweep",
+      "command": "changes",
+      "description": "Everything that moved, appeared, or was cancelled across all accounts since a caller-held watermark — deletions included.",
+      "rationale": "The CLI holds no state; the watermark is the caller's, so change detection stays lawful under a no-local-cache rule.",
+      "example": "google-calendar-pp-cli changes --since 2026-08-17T07:00:00Z --agent",
+      "why_it_matters": "Run between full sweeps to catch mid-day schedule movement cheaply.",
+      "group": "Governance and drift"
+    },
+    {
+      "name": "Manifest reconciliation",
+      "command": "manifest check",
+      "description": "Diffs live calendar reality across all accounts against the approved calendars.yaml — new, missing, or permission-drifted calendars become findings.",
+      "rationale": "The manifest is the governance root; silent drift would quietly poison every downstream verdict.",
+      "example": "google-calendar-pp-cli manifest check --json",
+      "why_it_matters": "Schedule this as hygiene; run it before trusting any multi-account verdict after account changes.",
+      "group": "Governance and drift"
+    },
+    {
+      "name": "Recurring-series deviations",
+      "command": "events exceptions",
+      "description": "Instances of recurring events that moved or were cancelled in a window — the routine-deviation surprises, isolated.",
+      "rationale": "No endpoint lists deviations; comparing originalStartTime vs start and cancelled status across accounts is in-process logic.",
+      "example": "google-calendar-pp-cli events exceptions --from 2026-08-18 --to 2026-08-25 --agent",
+      "why_it_matters": "Use in look-ahead sweeps: deviations from routine are the highest-yield surprise class.",
+      "group": "Governance and drift"
+    }
+  ],
+  "narrative": {
+    "display_name": "Google Calendar",
+    "headline": "The multi-account Google Calendar layer for agents that must never surprise a human.",
+    "value_prop": "Role-scoped OAuth profiles (a read-only account literally cannot write, by token), a conflicts engine whose all-clear carries coverage evidence, and mutations that are idempotent, etag-guarded, undo-bearing, and structurally incapable of emailing attendees. Built as the calendar substrate for an always-on personal-assistant agent; useful to anyone juggling multiple Google accounts from scripts.",
+    "auth_narrative": "Auth is per-profile installed-app OAuth: you supply a client.json from your own Google Cloud project, then run auth --account \u003cname\u003e once per account. Each profile declares a role — readonly profiles request calendar.readonly only, so write scopes never exist on that token. Tokens live in the configured token dir, never in the repo.",
+    "quickstart": [
+      {
+        "command": "google-calendar-pp-cli accounts auth --account personal",
+        "comment": "One browser round per account; the profile's role decides which scopes are requested"
+      },
+      {
+        "command": "google-calendar-pp-cli accounts",
+        "comment": "Confirm every profile authenticated and show each token's role"
+      },
+      {
+        "command": "google-calendar-pp-cli calendars --json",
+        "comment": "Merged calendar list across all accounts — the raw material for your manifest"
+      },
+      {
+        "command": "google-calendar-pp-cli agenda --from 2026-08-18 --to 2026-08-19 --agent",
+        "comment": "Tomorrow across every account, with per-source freshness stamps"
+      },
+      {
+        "command": "google-calendar-pp-cli conflicts --from 2026-08-18 --to 2026-08-25 --agent",
+        "comment": "The verdict: double-bookings, suspected mirrors, and coverage ('checked N of M')"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "invalid_grant or token expired shortly after setup",
+        "fix": "The OAuth app is still in Testing mode — publish it to Production in the Google Cloud console, then re-run auth for each account"
+      },
+      {
+        "symptom": "403 accessNotConfigured on first call",
+        "fix": "Enable the Google Calendar API on the Cloud project that issued your client.json"
+      },
+      {
+        "symptom": "conflicts reports 'checked N of M sources'",
+        "fix": "A source failed or served stale evidence — run doctor and manifest check before trusting an all-clear"
+      },
+      {
+        "symptom": "update/delete refused with attendee-guard error",
+        "fix": "By design: attendee-bearing events are never mutated by this CLI; change them in the Calendar UI"
+      }
+    ],
+    "when_to_use": "Reach for this CLI whenever schedule truth spans more than one Google account: conflict sweeps, availability questions, agenda merges, and gated calendar writes performed on a human's behalf. It is deliberately stateless — every answer is a live read with freshness evidence, so it suits agents whose answers must be citable.",
+    "recipes": [
+      {
+        "title": "Morning conflict sweep",
+        "command": "google-calendar-pp-cli conflicts --from today --to +7d --agent",
+        "explanation": "The daily verdict: overlaps, mirrors flagged separately, and an explicit coverage line."
+      },
+      {
+        "title": "Narrow a verbose agenda for context-poor consumers",
+        "command": "google-calendar-pp-cli agenda --from today --to +2d --agent --select events.summary,events.start,events.account",
+        "explanation": "Dotted-path narrowing keeps multi-account agenda payloads small enough for tight agent contexts."
+      },
+      {
+        "title": "Find 90 minutes this week",
+        "command": "google-calendar-pp-cli slots --duration 90m --from today --to +5d --between 09:00-17:00 --agent",
+        "explanation": "Ranked open windows under the same busy semantics as conflicts — no false frees."
+      },
+      {
+        "title": "What moved since 7am",
+        "command": "google-calendar-pp-cli changes --since 2026-08-17T07:00:00Z --agent",
+        "explanation": "Stateless mid-day sweep; cancellations included."
+      },
+      {
+        "title": "Reversible reschedule",
+        "command": "google-calendar-pp-cli events update primary evt123 --account ads --start 2026-08-19T15:00:00-06:00 --if-etag \"etag-from-read\" --json",
+        "explanation": "Fails cleanly if the event changed since you read it; response carries the pre-image and inverse op."
+      }
+    ],
+    "trigger_phrases": [
+      "am I double-booked",
+      "check my calendars for conflicts",
+      "find me an open slot",
+      "what changed on my calendar",
+      "merge my google calendars",
+      "use google-calendar",
+      "run google-calendar-pp-cli"
+    ]
+  }
+}

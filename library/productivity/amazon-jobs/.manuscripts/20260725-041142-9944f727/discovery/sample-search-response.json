@@ -1,0 +1,69 @@
+{
+  "error": null,
+  "hits": 2022,
+  "facets": {},
+  "content": {
+    "sidebar": {},
+    "search_results": {}
+  },
+  "jobs": [
+    {
+      "basic_qualifications": "- 3+ years of non-internship professional software development experience<br/>- 2+ years of non-internship design or architecture (design patterns, reliability and scaling) of new and existing systems experience<br/>- Experience programming with at least one software programming language<br/>- 2+ years of non-internship professional software development experience<br/>- 2+ years of designing or architecting (design patterns, reliability and scaling) of new and existing systems experience<br/>- 3+ years of administrative experience in networking, storage systems, operating systems and hands-on systems engineering experience<br/>- Knowledge of systems engineering fundamentals (networking, storage, operating systems)<br/>- Bachelor's degree in Computer Science, Computer Engineering, Electrical Engineering or a related field<br/>- Experience programming with at least one modern language such as C++, C#, Java,<br/>- Python, Golang, PowerShell, Ruby",
+      "business_category": "aws",
+      "city": "Austin",
+      "company_name": "Annapurna Labs (U.S.) Inc.",
+      "country_code": "USA",
+      "description": "We're seeking a Software Development Engineer to help architect, build, and operate the<br/>infrastructure that accelerates silicon development at Annapurna Labs. In this role, you'll<br/>contribute to the platforms, tooling, and automation that enable our chip design teams to iterate<br/>faster, validate more thoroughly, and bring transformative silicon to market. You'll work at the<br/>intersection of cloud infrastructure, high-performance computing, and electronic design<br/>automation—building systems that directly impact AWS's ability to innovate in custom silicon.<br/>This is a unique opportunity to grow your skills in infrastructure that supports chip development<br/>while working with world-class engineers across hardware, software, and operations disciplines.<br/><br/>Key job responsibilities<br/>Customer-Focused Infrastructure Development<br/>• Partner with silicon design, verification, emulation, and software teams to understand<br/>their development workflows, pain points, and iteration cycles.<br/>• Build tooling and automation that eliminates manual toil and reduces time-to-results.<br/>• Gather continuous feedback from internal customers and rapidly iterate on solutions.<br/>Benchmark infrastructure based on silicon development workflows to provide internal<br/>customers with the optimal resources for silicon development.<br/>Own Platform Delivery and Operations<br/>• Design, implement, and operate cloud infrastructure and high-performance computing<br/>clusters using schedulers like Slurm.<br/>• Build and maintain CI/CD pipelines for infrastructure-as-code and service deployments<br/>with comprehensive testing and safe rollback mechanisms.<br/>• Take ownership of platform reliability, performance, and cost efficiency from initial design<br/>through production operation.<br/>Drive Results Through Automation and Observability<br/>• Develop monitoring, diagnostics, and alerting systems that surface actionable insights on<br/>efficiency, utilization, reliability, and cost trends.<br/>• Establish incident response processes, runbooks, and documentation that enable<br/>operational excellence.<br/>• Proactively anticipate system failures and implement preventive measures, reducing<br/>operational toil and improving system resilience.<br/><br/>A day in the life<br/>Each day you will work with some of the best engineers in the industry to develop Machine<br/>Learning Accelerators. On-site in Austin, Texas, you will be part of the team that develops<br/>custom silicon and contribute to the infrastructure that enables this innovation.<br/>You might start your day investigating anomalies in job completion rates or resource utilization<br/>patterns. You could spend your morning collaborating with a design verification team to optimize<br/>their regression workflows, identifying bottlenecks and proposing improvements. In the<br/>afternoon, you might be building new tooling that simplifies infrastructure access for emulation<br/>teams, or contributing to monitoring dashboards that give teams real-time visibility into their<br/>development velocity.<br/>You'll participate in design reviews, contribute to postmortems when incidents occur, and<br/>continuously refine the systems that accelerate the path from RTL to silicon. Throughout the<br/>day, you'll balance immediate customer needs—unblocking a team waiting for compute capacity<br/>—with longer-term platform investments. You'll write code, review infrastructure-as-code<br/>changes, and collaborate across teams who depend on the systems you build.<br/>Take a look inside our labs to see what you will learn at Annapurna Labs:<br/>• https://www.aboutamazon.com/news/aws/take-a-look-inside-the-lab-where-aws-makes-<br/>custom-chips<br/>• https://youtu.be/rViVFrQg4Hk<br/><br/>About the team<br/>At Annapurna Labs, your infrastructure work directly enables breakthrough innovations in<br/>custom silicon that power AWS and transform industries. You'll collaborate with world-class chip<br/>designers, verification engineers, and software developers who are pushing the boundaries of<br/>what's possible. We offer the resources and scale of AWS with the innovation culture and<br/>technical depth of a focused silicon team.<br/>If you're passionate about building infrastructure that accelerates innovation, thrive on customer<br/>obsession and ownership, and want to see your work enable the next generation of AWS silicon<br/>—we want to hear from you",
+      "department_cost_center": null,
+      "description_short": "We're seeking a Software Development Engineer to help architect, build, and operate theinfrastructure that accelerates silicon development at Annapurna Labs. In this role, you'llcontribute to the platforms,",
+      "display_distance": null,
+      "id": "0ecf4be7-c39d-4839-87ab-44eb66b1190c",
+      "id_icims": "10483953",
+      "is_intern": null,
+      "is_manager": null,
+      "job_category": "Software Development",
+      "job_family": "Software Development",
+      "job_function_id": null,
+      "job_path": "/en/jobs/10483953/software-development-engineer-silicon-development-infrastructure",
+      "job_schedule_type": "full-time",
+      "location": "US, TX, Austin",
+      "locations": [
+        "{\"normalizedStateName\":\"Texas\",\"normalizedCountryCode\":\"USA\",\"city\":\"Austin\",\"countryIso3a\":\"USA\",\"countryIso2a\":\"US\",\"locationNonStemming\":\"United States, TX, Austin\",\"coordinates\":\"30.26759,-97.74299\",\"normalizedCountyName\":\"Travis\",\"type\":\"ONSITE\",\"normalizedCountryName\":\"United States\",\"normalizedLocation\":\"Austin, Texas, USA\",\"location\":\"US, TX, Austin\",\"region\":\"TX\",\"buildingCodeList\":[\"AUS16\"],\"normalizedCityName\":\"Austin\"}"
+      ],
+      "normalized_location": "Austin, Texas, USA",
+      "optional_search_labels": [
+        "aws.team-annapurna-labs"
+      ],
+      "posted_date": "July 24, 2026",
+      "preferred_qualifications": "- 3+ years of full software development life cycle, including coding standards, code reviews, source control management, build processes, testing, and operations experience<br/>- Bachelor's degree in computer science or equivalent<br/>- Experience with Linux/Unix<br/>- Experience in automating, deploying, and supporting large-scale infrastructure<br/>- Experience building services using AWS products<br/>- Experience with CI/CD pipelines build processes<br/>- Experience programming with at least one modern language such as Python, Ruby, Golang, Java, C++, C#, Rust with demonstrated ability to write production-quality, maintainable code<br/>- • Experience utilizing AWS cloud solutions in a DevOps environment with infrastructure as code (CloudFormation, Terraform, CDK)<br/>- • Experience with high-performance computing (HPC) clusters using workload schedulers like Slurm<br/>- • Familiarity with semiconductor development workflows or electronic design automation (EDA) environments<br/>- • Experience with monitoring, observability, and incident management at scale<br/><br/>Amazon is an equal opportunity employer and does not discriminate on the basis of protected veteran status, disability, or other legally protected status.<br/><br/>Our inclusive culture empowers Amazonians to deliver the best results for our customers. If you have a disability and need a workplace accommodation or adjustment during the application and hiring process, including support for the interview or onboarding process, please visit <a href=\"https://amazon.jobs/content/en/how-we-hire/accommodations\">https://amazon.jobs/content/en/how-we-hire/accommodations</a> for more information. If the country/region you’re applying in isn’t listed, please contact your Recruiting Partner.<br/><br/><p><span style=\"color: rgb(35, 47, 62)\" class=\"ProseMirror-FontColor\">The base salary range for this position is listed below. Your Amazon package will include sign-on payments and restricted stock units (RSUs). Final compensation will be determined based on factors including experience, qualifications, and location. Amazon also offers comprehensive benefits including health insurance (medical, dental, vision, prescription, Basic Life &amp; AD&amp;D insurance and option for Supplemental life plans, EAP, Mental Health Support, Medical Advice Line, Flexible Spending Accounts, Adoption and Surrogacy Reimbursement coverage), 401(k) matching, paid time off, and parental leave. Learn more about our benefits at </span><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://amazon.jobs/en/benefits\"><span style=\"color: rgb(35, 47, 62)\" class=\"ProseMirror-FontColor\">https://amazon.jobs/en/benefits</span></a><span style=\"color: rgb(35, 47, 62)\" class=\"ProseMirror-FontColor\">.</span></p><br/><br/>USA, TX, Austin - 143,700.00 - 194,400.00 USD annually",
+      "primary_search_label": "aws.team-aws-cloud-management",
+      "source_system": "JobCreator",
+      "state": "TX",
+      "title": "Software Development Engineer - Silicon Development Infrastructure",
+      "university_job": null,
+      "updated_time": "19 minutes",
+      "url_next_step": "https://account.amazon.jobs/jobs/10483953/apply",
+      "team": {
+        "id": null,
+        "business_category_id": null,
+        "identifier": null,
+        "label": "team-aws-cloud-management",
+        "created_at": null,
+        "updated_at": null,
+        "image_file_name": null,
+        "image_content_type": null,
+        "image_file_size": null,
+        "image_updated_at": null,
+        "thumbnail_file_name": null,
+        "thumbnail_content_type": null,
+        "thumbnail_file_size": null,
+        "thumbnail_updated_at": null,
+        "hide_jobs": null,
+        "title": null,
+        "headline": null,
+        "description": null
+      }
+    }
+  ],
+  "job_posting_search_request": "{\"jobPostingSearchRequest\":{\"query\":\"software engineer\",\"excludeFacets\":[{\"name\":\"businessCategory\",\"values\":[{\"name\":\"a-confidential-job\"}]},{\"name\":\"isPostedExternally\",\"values\":[{\"name\":\"0\"}]},{\"name\":\"isUnsearchable\",\"values\":[{\"name\":\"1\"}]}],\"filterFacets\":[],\"start\":0,\"size\":\"1\",\"sort\":{\"sortOrder\":\"DESCENDING\",\"sortType\":\"CREATED_DATE\"},\"location\":null,\"accessLevel\":\"EXTERNAL\",\"includeFacets\":[],\"locationFacets\":[],\"jobTypeFacets\":[],\"contentFilterFacets\":[],\"treatment\":\"OM\"}}"
+}

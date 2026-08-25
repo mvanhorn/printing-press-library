@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "tock-cancel-ui-flow",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260712-223206",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Preserve Tock cancellation with an HTTP-first direct-404-only Chrome fallback, an exactly-one-candidate UI phase machine, and privacy-safe outcome-unknown handling after irreversible dispatch.",
+  "reason": "Tock removed the captured receipt/cancel POST endpoint while retaining a working two-step receipt UI. A reprint must keep ambiguous HTTP outcomes from issuing a second mutation, prove reservation identity and canonical page state before trusted clicks, and prevent automatic retries when the final cancellation click was dispatched but its result cannot be proved.",
+  "files": [
+    "internal/cli/cancel.go",
+    "internal/cli/cancel_test.go",
+    "internal/source/tock/booking.go",
+    "internal/source/tock/client.go",
+    "internal/source/tock/chrome_cancel.go",
+    "internal/source/tock/booking_test.go",
+    "internal/source/tock/chrome_cancel_test.go"
+  ],
+  "validated_outcome": "Client.Cancel fixtures cover the direct-404 fallback boundary before and after CSRF retry, every ambiguous non-trigger, preserved legacy status semantics, exact candidate invariants and dispatch-time identity revalidation across both UI phases, idempotent zero-click success, identity and heading proofs, occlusion, navigation loss on both sides of irreversible dispatch, cancel-state privacy, and a distinct public outcome_unknown category that forbids network-style automatic retry."
+}

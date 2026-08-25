@@ -46,6 +46,85 @@ func TestGetListsByStoreMatchesStoreIDsExactly(t *testing.T) {
 	}
 }
 
+func TestSyncFromUserDataPersistsProductUpc(t *testing.T) {
+	t.Parallel()
+
+	st, err := Open(&config.Config{Path: filepath.Join(t.TempDir(), "config.toml")})
+	if err != nil {
+		t.Fatalf("Open returned error: %v", err)
+	}
+	defer st.Close()
+
+	const barcode = "049000028904"
+	if err := st.SyncFromUserData(&pb.PBUserDataResponse{
+		ShoppingListsResponse: &pb.ShoppingListsResponse{
+			NewLists: []*pb.ShoppingList{
+				{
+					Identifier: "list-1",
+					Name:       "Groceries",
+					Items: []*pb.ListItem{
+						{Identifier: "item-1", ListId: "list-1", Name: "Cola", ProductUpc: barcode},
+					},
+				},
+			},
+		},
+	}); err != nil {
+		t.Fatalf("SyncFromUserData returned error: %v", err)
+	}
+
+	item, err := st.FindItemByID("list-1", "item-1")
+	if err != nil {
+		t.Fatalf("FindItemByID returned error: %v", err)
+	}
+	if item.ProductUpc != barcode {
+		t.Fatalf("ProductUpc = %q, want %q", item.ProductUpc, barcode)
+	}
+}
+
+func TestSearchFTSPrefixQueriesQuotePunctuation(t *testing.T) {
+	t.Parallel()
+
+	st, err := Open(&config.Config{Path: filepath.Join(t.TempDir(), "config.toml")})
+	if err != nil {
+		t.Fatalf("Open returned error: %v", err)
+	}
+	defer st.Close()
+
+	if _, err := st.db.Exec(`INSERT INTO lists (id, name) VALUES ('list-1', 'Groceries')`); err != nil {
+		t.Fatalf("insert list: %v", err)
+	}
+	if _, err := st.db.Exec(`INSERT INTO items (id, list_id, name) VALUES ('item-1', 'list-1', 'Example Value')`); err != nil {
+		t.Fatalf("insert item: %v", err)
+	}
+	if _, err := st.db.Exec(`INSERT INTO recipes (id, name) VALUES ('recipe-1', 'Example Value Recipe')`); err != nil {
+		t.Fatalf("insert recipe: %v", err)
+	}
+
+	items, err := st.SearchItems("example-value")
+	if err != nil {
+		t.Fatalf("SearchItems returned error for punctuation query: %v", err)
+	}
+	if len(items) != 1 {
+		t.Fatalf("SearchItems punctuation result = %#v, want one tokenized match", items)
+	}
+	recipes, err := st.SearchRecipesByName("example-value")
+	if err != nil {
+		t.Fatalf("SearchRecipesByName returned error for punctuation query: %v", err)
+	}
+	if len(recipes) != 1 {
+		t.Fatalf("SearchRecipesByName punctuation result = %#v, want one tokenized match", recipes)
+	}
+
+	items, err = st.SearchItems("example")
+	if err != nil || len(items) != 1 {
+		t.Fatalf("SearchItems prefix result = %#v, err %v, want one match", items, err)
+	}
+	recipes, err = st.SearchRecipesByName("example")
+	if err != nil || len(recipes) != 1 {
+		t.Fatalf("SearchRecipesByName prefix result = %#v, err %v, want one match", recipes, err)
+	}
+}
+
 func TestGetMissingIngredientsEscapesLikeWildcards(t *testing.T) {
 	t.Parallel()
 

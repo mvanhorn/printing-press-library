@@ -1,0 +1,133 @@
+{
+  "api_name": "ticketdata",
+  "base_url": "https://data.ticketdata.com/api",
+  "description": "Every TicketData price signal for any event, performer, or venue, plus a local price-history store for trend math, drift alerts, and cross-event comparisons no ticket tool ships.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "events_get",
+      "description": "Get an event's current get-in price, forecast, N-day change, marketplace links, and venue/performer detail. Required: id.",
+      "method": "GET",
+      "path": "/events/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "TicketData numeric event id (e.g. 22323960)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_history",
+      "description": "Get the full get-in-price time series for an event (hundreds of points), plus per-zone series and on/presale dates. Required: id.",
+      "method": "GET",
+      "path": "/events/{id}/price-history",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "TicketData numeric event id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_sections",
+      "description": "List the section names catalogued for an event. Required: id. Returns array.",
+      "method": "GET",
+      "path": "/events/{id}/zones/sections",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "TicketData numeric event id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "performers_get",
+      "description": "Get a performer's stats (upcoming events, avg/min/max get-in price) and resale/social links. Required: slug.",
+      "method": "GET",
+      "path": "/performers/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Performer slug (e.g. ariana-grande, world-cup-soccer)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "performers_search",
+      "description": "Resolve a search query to the best-matching performer. Required: query.",
+      "method": "GET",
+      "path": "/performers/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Performer name to search for (e.g. 'ariana grande')",
+          "required": true,
+          "aliases": [
+            "q"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "venues_get",
+      "description": "Get a venue's stats (upcoming events, location). Required: slug.",
+      "method": "GET",
+      "path": "/venues/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Venue slug (e.g. state-farm-arena, lumen-field)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "venues_search",
+      "description": "Resolve a search query to the best-matching venue. Required: query.",
+      "method": "GET",
+      "path": "/venues/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Venue name to search for (e.g. 'state farm arena')",
+          "required": true,
+          "aliases": [
+            "q"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,311 @@
+openapi: 3.0.0
+info:
+  contact: {}
+  description: This REST API provides endpoints to search for trending tickers and
+    get ticker details.
+  termsOfService: http://swagger.io/terms/
+  title: TickerTrends API
+  version: 2.1.0
+paths:
+  /api/v1/trending-tickers:
+    get:
+      description: Retrieve trending data for specific tickers, including rank and
+        change. Returns aggregated trend scores and activity levels across different
+        time intervals.
+      operationId: get-ticker-trend-data
+      parameters:
+        - description: 'Time interval for aggregating trend data. Supported values:
+            10m (10 minutes), 1h (1 hour), 1d (1 day). Required.'
+          in: query
+          name: interval
+          required: true
+          schema:
+            type: string
+        - description: Comma-separated list of stock ticker symbols (e.g., AAPL,MSFT,TSLA)
+            to retrieve trend data for. Required.
+          in: query
+          name: tickers
+          required: true
+          schema:
+            type: string
+        - description: 'Data source filter for trend calculation. Supported values:
+            all (all sources combined), clickstream (user interaction data), logo
+            (logo request data). Required.'
+          in: query
+          name: source
+          required: true
+          schema:
+            type: string
+        - description: Time window for trend analysis. Optional custom timeframe specification
+            for filtering results by specific date ranges.
+          in: query
+          name: timeframe
+          schema:
+            type: string
+        - description: 'Page number for pagination. Zero-indexed (0 = first page,
+            1 = second page, etc.). Default: 0'
+          in: query
+          name: page
+          schema:
+            type: integer
+        - description: 'Number of results per page. Default: 1000. Maximum: 1000'
+          in: query
+          name: pagesize
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Trending data with engagement metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api_httpapi.tickerTrendAPIResponse'
+        '400':
+          description: Bad request - missing or invalid required parameters (interval,
+            tickers, or source)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api_httpapi.tickerTrendAPIResponse'
+      security:
+        - ApiKeyAuth: []
+      summary: Get Ticker Trend Data
+      tags:
+        - Ticker Trends
+  /api/v1/trending-tickers/list:
+    get:
+      description: Retrieve a list of trending tickers based on various metrics. Returns
+        securities ordered by trending score across different time intervals.
+      operationId: get-ticker-trend-list-data
+      parameters:
+        - description: Deprecated. Use timeframe instead. Time interval for aggregating
+            trend data.
+          in: query
+          name: interval
+          required: true
+          schema:
+            type: string
+        - description: Optional comma-separated list of ticker symbols to filter results.
+            If omitted, returns all trending tickers.
+          in: query
+          name: tickers
+          schema:
+            type: string
+        - description: 'Data source filter for trend calculation. Supported values:
+            all (all sources combined), clickstream (user interaction data), logo
+            (logo request data). Required.'
+          in: query
+          name: source
+          required: true
+          schema:
+            type: string
+        - description: 'Time interval for trend aggregation. Supported values: 10m
+            (10 minutes), 1h (1 hour), 1d (1 day). Default: 1d'
+          in: query
+          name: timeframe
+          schema:
+            type: string
+        - description: Start time filter in 24-hour format (e.g., 09:15, 14:30). Use
+            with date_from for precise time ranges.
+          in: query
+          name: time_from
+          schema:
+            type: string
+        - description: End time filter in 24-hour format (e.g., 16:00, 22:30). Use
+            with date_to for precise time ranges.
+          in: query
+          name: time_to
+          schema:
+            type: string
+        - description: Start date filter in ISO 8601 format (e.g., 2024-12-30, 2024-01-15).
+            Use with time_from for precise ranges.
+          in: query
+          name: date_from
+          schema:
+            type: string
+        - description: End date filter in ISO 8601 format (e.g., 2024-12-30, 2024-01-31).
+            Use with time_to for precise ranges.
+          in: query
+          name: date_to
+          schema:
+            type: string
+        - description: 'Page number for pagination. Zero-indexed (0 = first page,
+            1 = second page, etc.). Default: 0'
+          in: query
+          name: page
+          schema:
+            type: integer
+        - description: 'Number of results per page. Default: 1000. Maximum: 1000'
+          in: query
+          name: pagesize
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Ranked list of trending tickers with engagement scores
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.TrendingTickersListAPIResponse'
+        '400':
+          description: Bad request - missing or invalid source parameter, or invalid
+            date/time format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.TrendingTickersListAPIResponse'
+      security:
+        - ApiKeyAuth: []
+      summary: Get Trending Tickers List
+      tags:
+        - Ticker Trends
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      in: query
+      name: token
+      type: apiKey
+  schemas:
+    api_httpapi.tickerTrendAPIResponse:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/api_httpapi.tickerTrendData'
+          type: array
+        ok:
+          example: true
+          type: boolean
+      type: object
+    api_httpapi.tickerTrendData:
+      properties:
+        exchange:
+          example: NASDAQ
+          type: string
+        metrics:
+          items:
+            $ref: '#/components/schemas/api_httpapi.tickerTrendMetrics'
+          type: array
+        ticker:
+          example: AAPL
+          type: string
+      type: object
+    api_httpapi.tickerTrendMetrics:
+      properties:
+        count:
+          example: 1523
+          type: integer
+        count_mavg:
+          example: 1245.67
+          type: number
+        market_count_average:
+          example: 92.1
+          type: number
+        scaled_count:
+          example: 98.5
+          type: number
+        scaled_count_mavg:
+          example: 87.3
+          type: number
+        time_bucket:
+          example: '2024-01-09T10:00:00Z'
+          type: string
+      type: object
+    bzhttp.Error:
+      properties:
+        code:
+          $ref: '#/components/schemas/bzhttp.ErrorCode'
+        id:
+          type: string
+        value:
+          type: string
+      type: object
+    bzhttp.ErrorCode:
+      enum:
+        - unsupported_message_type
+        - database_query_error
+        - json_unmarshaling_error
+        - no_data_found
+        - no_matching_endpoint
+        - bad_request
+        - db_error
+        - internal_server_error
+        - auth_failed
+        - forbidden
+        - failed_dependency
+        - service_unavailable
+        - upstream_api_error
+      type: string
+      x-enum-varnames:
+        - ErrorUnsupportedMessageType
+        - ErrorDBQueryError
+        - ErrorJSONUnmarshaling
+        - ErrorNoDataFound
+        - ErrorNoMatchingEndpoint
+        - ErrorBadRequest
+        - ErrorDBError
+        - ErrorInternalServerError
+        - ErrorAuthFailed
+        - ErrorForbidden
+        - ErrorFailedDependency
+        - ErrorServiceUnavailable
+        - ErrorUpstreamAPIError
+    bzhttp.Resp:
+      properties:
+        data:
+          additionalProperties: true
+          type: object
+        errors:
+          items:
+            $ref: '#/components/schemas/bzhttp.Error'
+          type: array
+        ok:
+          type: boolean
+      type: object
+    models.Security:
+      properties:
+        exchange:
+          example: NASDAQ
+          type: string
+        name:
+          example: Apple Inc
+          type: string
+        ticker:
+          example: AAPL
+          type: string
+      type: object
+    models.TrendingTickersListAPIResponse:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/models.TrendingTickersListData'
+          type: array
+        ok:
+          example: true
+          type: boolean
+      type: object
+    models.TrendingTickersListData:
+      properties:
+        count:
+          example: 1523
+          type: integer
+        pct_chg:
+          example: 15
+          type: integer
+        security:
+          $ref: '#/components/schemas/models.Security'
+      type: object
+servers:
+  - url: https://api.benzinga.com
+    description: PROD

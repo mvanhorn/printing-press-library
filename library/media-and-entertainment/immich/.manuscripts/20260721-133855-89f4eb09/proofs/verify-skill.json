@@ -1,0 +1,13 @@
+{
+  "cli_dir": "/Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-133855-89f4eb09/working/immich-pp-cli",
+  "skill_path": "/Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-133855-89f4eb09/working/immich-pp-cli/SKILL.md",
+  "checks_run": [
+    "skill-guard-literals",
+    "flag-names",
+    "flag-commands",
+    "positional-args",
+    "unknown-command"
+  ],
+  "recipes_checked": 18,
+  "findings": []
+}

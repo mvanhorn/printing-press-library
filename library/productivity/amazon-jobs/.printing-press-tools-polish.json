@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-07-25T05:10:21.355818Z",
+  "cli_dir": "\u003ccli-dir\u003e/amazon-jobs-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "learnings list: Short is brief-but-precise for a read that lists recorded learnings; already carries mcp:read-only and rich Examples. teach.go is a DO-NOT-EDIT generated learn-loop file, so a richer Short must come from the generator template (retro candidate), not a hand-edit that regen would wipe."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-25T04:45:11.033181Z"
+  }
+}

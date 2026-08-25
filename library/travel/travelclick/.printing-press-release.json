@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "travelclick",
+  "cli_name": "travelclick-pp-cli",
+  "version": "2026.8.2",
+  "released_at": "2026-08-21T09:10:51Z",
+  "source_commit": "b6357e247080787066b80ee9efa239ff5f8bbe0e",
+  "printing_press_version": "4.30.3",
+  "run_id": "20260820-153504-d88b22af",
+  "changes": [
+    {
+      "title": "docs(travelclick): document the corporate-code-to-rates-search gap",
+      "pr": 1776,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1776",
+      "commit": "b6357e247080787066b80ee9efa239ff5f8bbe0e"
+    }
+  ]
+}

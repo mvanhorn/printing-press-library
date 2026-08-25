@@ -1,0 +1,758 @@
+{
+  "api_name": "respondio",
+  "base_url": "https://api.respond.io/v2",
+  "description": "Every Respond.io feature, plus an offline mirror and SQL that answers inbox questions no single API call can.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {RESPOND_IO_API_TOKEN}",
+    "env_vars": [
+      "RESPOND_IO_API_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "RESPOND_IO_API_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "comment_create",
+      "description": "Create an internal comment on a contact. Required: identifier, text.",
+      "method": "POST",
+      "path": "/contact/{identifier}/comment",
+      "params": [
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "Contact identifier",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Comment text (mention users with {{@user.ID}})",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contact_add-tags",
+      "description": "Add tags to a contact. Required: identifier. Optional: tags.",
+      "method": "POST",
+      "path": "/contact/{identifier}/tag",
+      "params": [
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "Contact identifier",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tag names to add (1-10 tags)"
+        }
+      ]
+    },
+    {
+      "name": "contact_create",
+      "description": "Create a new contact (identifier must be email: or phone:). Required: identifier. Optional: firstName, lastName, phone (plus 3 more). Returns the new Contact.",
+      "method": "POST",
+      "path": "/contact/{identifier}",
+      "params": [
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "New contact identifier - email:addr or phone:+num",
+          "required": true
+        },
+        {
+          "name": "firstName",
+          "type": "string",
+          "location": "body",
+          "description": "firstName"
+        },
+        {
+          "name": "lastName",
+          "type": "string",
+          "location": "body",
+          "description": "lastName"
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "location": "body",
+          "description": "phone"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "email"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "language"
+        },
+        {
+          "name": "countryCode",
+          "type": "string",
+          "location": "body",
+          "description": "countryCode"
+        }
+      ]
+    },
+    {
+      "name": "contact_delete",
+      "description": "Delete a contact. Required: identifier. Destructive.",
+      "method": "DELETE",
+      "path": "/contact/{identifier}",
+      "params": [
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "Contact identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contact_get",
+      "description": "Get a contact by identifier (id:123, email:user@example.com, phone:+1234567890). Required: identifier. Returns the Contact.",
+      "method": "GET",
+      "path": "/contact/{identifier}",
+      "params": [
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "Contact identifier - id:N, email:addr, or phone:+num",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contact_list",
+      "description": "List contacts with optional search and filters. Required body: search, filter, timezone (the CLI supplies wildcard defaults). Optional: limit, cursorId (query params). Returns array of Contact.",
+      "method": "POST",
+      "path": "/contact/list",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text search across contacts. Required by the API; the CLI defaults to \"\" (matches every contact)",
+          "required": true
+        },
+        {
+          "name": "filter",
+          "type": "object",
+          "location": "body",
+          "description": "Filter expression. Required by the API; the CLI defaults to the wildcard {\"$and\":[]}. Supply a custom filter with --stdin",
+          "required": true
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "body",
+          "description": "Timezone for the filter evaluation. Required by the API; the CLI defaults to UTC",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max contacts to return (1-100). Query parameter only: the API silently ignores it in the body"
+        },
+        {
+          "name": "cursorId",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination cursor from previous response. Query parameter only: the API silently ignores it in the body"
+        }
+      ]
+    },
+    {
+      "name": "contact_list-channels",
+      "description": "List all channels connected to a contact. Required: identifier. Optional: limit, cursorId. Returns array of ContactChannel.",
+      "method": "GET",
+      "path": "/contact/{identifier}/channels",
+      "params": [
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "Contact identifier",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max channels to return"
+        },
+        {
+          "name": "cursorId",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "contact_merge",
+      "description": "Merge two contacts into one. Required: contactIds.",
+      "method": "POST",
+      "path": "/contact/merge",
+      "params": [
+        {
+          "name": "contactIds",
+          "type": "array",
+          "location": "body",
+          "description": "Two contact IDs to merge [id1, id2]",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contact_remove-tags",
+      "description": "Remove tags from a contact. Required: identifier. Optional: tags. Destructive.",
+      "method": "DELETE",
+      "path": "/contact/{identifier}/tag",
+      "params": [
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "Contact identifier",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tag names to remove"
+        }
+      ]
+    },
+    {
+      "name": "contact_update",
+      "description": "Update an existing contact. Required: identifier. Optional: firstName, lastName, phone (plus 3 more). Returns the updated Contact.",
+      "method": "PUT",
+      "path": "/contact/{identifier}",
+      "params": [
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "Contact identifier",
+          "required": true
+        },
+        {
+          "name": "firstName",
+          "type": "string",
+          "location": "body",
+          "description": "firstName"
+        },
+        {
+          "name": "lastName",
+          "type": "string",
+          "location": "body",
+          "description": "lastName"
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "location": "body",
+          "description": "phone"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "email"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "language"
+        },
+        {
+          "name": "countryCode",
+          "type": "string",
+          "location": "body",
+          "description": "countryCode"
+        }
+      ]
+    },
+    {
+      "name": "contact_update-lifecycle",
+      "description": "Update a contact's lifecycle stage. Required: identifier. Optional: name.",
+      "method": "POST",
+      "path": "/contact/{identifier}/lifecycle/update",
+      "params": [
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "Contact identifier",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New lifecycle stage name (empty to remove)"
+        }
+      ]
+    },
+    {
+      "name": "contact_upsert",
+      "description": "Create or update a contact keyed by email/phone identifier. Required: identifier. Optional: firstName, lastName, phone (plus 3 more). Returns the new Contact.",
+      "method": "POST",
+      "path": "/contact/create_or_update/{identifier}",
+      "params": [
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "Contact identifier - email:addr or phone:+num",
+          "required": true
+        },
+        {
+          "name": "firstName",
+          "type": "string",
+          "location": "body",
+          "description": "firstName"
+        },
+        {
+          "name": "lastName",
+          "type": "string",
+          "location": "body",
+          "description": "lastName"
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "location": "body",
+          "description": "phone"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "email"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "language"
+        },
+        {
+          "name": "countryCode",
+          "type": "string",
+          "location": "body",
+          "description": "countryCode"
+        }
+      ]
+    },
+    {
+      "name": "conversation_assign",
+      "description": "Assign or unassign a conversation. Required: identifier. Optional: assignee.",
+      "method": "POST",
+      "path": "/contact/{identifier}/conversation/assignee",
+      "params": [
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "Contact identifier",
+          "required": true
+        },
+        {
+          "name": "assignee",
+          "type": "string",
+          "location": "body",
+          "description": "User ID or email to assign, or empty/null to unassign"
+        }
+      ]
+    },
+    {
+      "name": "conversation_update-status",
+      "description": "Open or close a conversation. Required: identifier. Optional: status, category, summary.",
+      "method": "POST",
+      "path": "/contact/{identifier}/conversation/status",
+      "params": [
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "Contact identifier",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "open or close"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "body",
+          "description": "Closing category when closing"
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "location": "body",
+          "description": "Closing summary when closing"
+        }
+      ]
+    },
+    {
+      "name": "message_get",
+      "description": "Get a message by ID. Required: identifier, messageId. Returns the Message.",
+      "method": "GET",
+      "path": "/contact/{identifier}/message/{messageId}",
+      "params": [
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "Contact identifier",
+          "required": true
+        },
+        {
+          "name": "messageId",
+          "type": "int",
+          "location": "path",
+          "description": "Message ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "message_list",
+      "description": "List messages for a contact. Required: identifier. Optional: limit, cursorId. Returns array of Message.",
+      "method": "GET",
+      "path": "/contact/{identifier}/message/list",
+      "params": [
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "Contact identifier",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max messages to return"
+        },
+        {
+          "name": "cursorId",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "message_send",
+      "description": "Send a message to a contact. Required: identifier. Optional: channelId, message.",
+      "method": "POST",
+      "path": "/contact/{identifier}/message",
+      "params": [
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "Contact identifier",
+          "required": true
+        },
+        {
+          "name": "channelId",
+          "type": "int",
+          "location": "body",
+          "description": "Channel to send through (optional)"
+        },
+        {
+          "name": "message",
+          "type": "object",
+          "location": "body",
+          "description": "Message payload (type, text, attachment, template, etc.)"
+        }
+      ]
+    },
+    {
+      "name": "space_create-custom-field",
+      "description": "Create a custom field definition. Required: name. Optional: slug, description, dataType (plus 1 more). Returns the new CustomField.",
+      "method": "POST",
+      "path": "/space/custom_field",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Field name",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "body",
+          "description": "Unique slug"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "description"
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "body",
+          "description": "text, list, checkbox, email, number, url, date, or time"
+        },
+        {
+          "name": "allowedValues",
+          "type": "array",
+          "location": "body",
+          "description": "Allowed values for list data type"
+        }
+      ]
+    },
+    {
+      "name": "space_create-tag",
+      "description": "Create a workspace tag. Required: name. Optional: description, colorCode, emoji. Returns the new SpaceTag.",
+      "method": "POST",
+      "path": "/space/tag",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Tag name",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "description"
+        },
+        {
+          "name": "colorCode",
+          "type": "string",
+          "location": "body",
+          "description": "Hex color code"
+        },
+        {
+          "name": "emoji",
+          "type": "string",
+          "location": "body",
+          "description": "emoji"
+        }
+      ]
+    },
+    {
+      "name": "space_delete-tag",
+      "description": "Delete a workspace tag. Required: name. Destructive.",
+      "method": "DELETE",
+      "path": "/space/tag",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Tag name to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "space_get-custom-field",
+      "description": "Get a custom field by ID. Required: id. Returns the CustomField.",
+      "method": "GET",
+      "path": "/space/custom_field/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Custom field ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "space_get-user",
+      "description": "Get a user by ID. Required: id. Returns the SpaceUser.",
+      "method": "GET",
+      "path": "/space/user/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "User ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "space_list-channels",
+      "description": "List all channels in the workspace. Optional: limit, cursorId. Returns array of SpaceChannel.",
+      "method": "GET",
+      "path": "/space/channel",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max channels to return"
+        },
+        {
+          "name": "cursorId",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "space_list-closing-notes",
+      "description": "List closing note categories. Returns array of ClosingNote.",
+      "method": "GET",
+      "path": "/space/closing_notes",
+      "params": []
+    },
+    {
+      "name": "space_list-custom-fields",
+      "description": "List all custom field definitions. Optional: limit, cursorId. Returns array of CustomField.",
+      "method": "GET",
+      "path": "/space/custom_field",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max fields to return"
+        },
+        {
+          "name": "cursorId",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "space_list-templates",
+      "description": "List message templates for a channel. Required: channelId. Optional: limit, cursorId. Returns array of WhatsAppTemplate.",
+      "method": "GET",
+      "path": "/space/channel/{channelId}/template",
+      "params": [
+        {
+          "name": "channelId",
+          "type": "int",
+          "location": "path",
+          "description": "Channel ID",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max templates to return"
+        },
+        {
+          "name": "cursorId",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "space_list-users",
+      "description": "List users in the workspace. Optional: limit, cursorId. Returns array of SpaceUser.",
+      "method": "GET",
+      "path": "/space/user",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max users to return"
+        },
+        {
+          "name": "cursorId",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "space_update-tag",
+      "description": "Update a workspace tag. Required: currentName. Optional: name, description, colorCode (plus 1 more). Returns the updated SpaceTag.",
+      "method": "PUT",
+      "path": "/space/tag",
+      "params": [
+        {
+          "name": "currentName",
+          "type": "string",
+          "location": "body",
+          "description": "Current tag name to update",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New tag name"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "description"
+        },
+        {
+          "name": "colorCode",
+          "type": "string",
+          "location": "body",
+          "description": "colorCode"
+        },
+        {
+          "name": "emoji",
+          "type": "string",
+          "location": "body",
+          "description": "emoji"
+        }
+      ]
+    }
+  ]
+}

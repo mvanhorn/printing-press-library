@@ -1,0 +1,9 @@
+{
+  "command": "axs-pp-cli bikes list --json",
+  "exit_code": 0,
+  "status": "pass",
+  "pii_policy": "raw output not persisted",
+  "json_type": "dict",
+  "bikes_count": 2,
+  "has_first_id": true
+}

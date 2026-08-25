@@ -21,9 +21,10 @@ type DeliverSink struct {
 }
 
 // ParseDeliverSink parses a --deliver value. Supported schemes:
-//   stdout          -> default, no redirection
-//   file:<path>     -> write output atomically to <path>
-//   webhook:<url>   -> POST output body to <url>
+//
+//	stdout          -> default, no redirection
+//	file:<path>     -> write output atomically to <path>
+//	webhook:<url>   -> POST output body to <url>
 //
 // Returns an error for unknown schemes with a message naming the
 // supported set, so agents see a structured refusal rather than a
@@ -74,7 +75,7 @@ func deliverFile(path string, body []byte) error {
 	// file if the process is interrupted mid-write.
 	dir := filepath.Dir(path)
 	if dir != "" && dir != "." {
-		if err := os.MkdirAll(dir, 0o755); err != nil {
+		if err := os.MkdirAll(dir, 0o700); err != nil {
 			return fmt.Errorf("creating deliver dir: %w", err)
 		}
 	}

@@ -1,0 +1,6 @@
+{ "schema_version":2, "id":"ars-sicilia-ddl-firmatari", "applied_at":"2026-06-28",
+  "base_run_id":"20260528-181840", "base_printing_press_version":"4.18.0",
+  "summary":"ddl get espone un campo 'firmatari' strutturato (array {nome, gruppo}) parsato dal corpo del documento: forma a bullet 'Nome (Gruppo)' (con gruppo parlamentare) e forma relazione 'presentato dai deputati: A, B, C'.",
+  "reason":"I firmatari di un DDL non erano in un campo: stavano nel testo. Ora sono leggibili in modo strutturato senza richieste extra (riusa il body gia' scaricato da get).",
+  "files":["internal/cli/ddl_iter.go","internal/cli/icaro_helpers.go"],
+  "validated_outcome":"ddl get 18 1089 -> 6 firmatari con gruppo; 1147 -> 11; 1153 governativo -> Schifani Renato + Arico'." }

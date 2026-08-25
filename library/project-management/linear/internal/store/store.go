@@ -35,6 +35,7 @@ type relationRef struct {
 
 type issueState struct {
 	Name string `json:"name"`
+	Type string `json:"type"`
 }
 
 type issuePayload struct {
@@ -42,6 +43,7 @@ type issuePayload struct {
 	Title       string      `json:"title"`
 	Description string      `json:"description"`
 	StateName   string      `json:"stateName"`
+	StateType   string      `json:"stateType"`
 	State       issueState  `json:"state"`
 	Priority    int         `json:"priority"`
 	AssigneeID  string      `json:"assigneeId"`
@@ -215,6 +217,7 @@ func (s *Store) migrate() error {
 			title TEXT,
 			description TEXT,
 			state_name TEXT,
+			state_type TEXT,
 			priority INTEGER,
 			assignee_id TEXT,
 			team_id TEXT,
@@ -286,7 +289,7 @@ func (s *Store) migrate() error {
 	}
 	for table, cols := range map[string]map[string]string{
 		"issues": {
-			"identifier": "TEXT", "title": "TEXT", "description": "TEXT", "state_name": "TEXT", "priority": "INTEGER",
+			"identifier": "TEXT", "title": "TEXT", "description": "TEXT", "state_name": "TEXT", "state_type": "TEXT", "priority": "INTEGER",
 			"assignee_id": "TEXT", "team_id": "TEXT", "project_id": "TEXT", "cycle_id": "TEXT", "updated_at": "TEXT",
 			"created_at": "TEXT", "estimate": "REAL", "due_date": "TEXT",
 		},
@@ -448,6 +451,9 @@ func (s *Store) UpsertIssue(id, identifier, title string, data json.RawMessage) 
 	if payload.StateName == "" {
 		payload.StateName = payload.State.Name
 	}
+	if payload.StateType == "" {
+		payload.StateType = payload.State.Type
+	}
 	if payload.AssigneeID == "" {
 		payload.AssigneeID = payload.Assignee.ID
 	}
@@ -467,9 +473,9 @@ func (s *Store) UpsertIssue(id, identifier, title string, data json.RawMessage) 
 	defer tx.Rollback()
 	_, err = tx.Exec(
 		`INSERT OR REPLACE INTO issues
-		(id, data, identifier, title, description, state_name, priority, assignee_id, team_id, project_id, cycle_id, updated_at, created_at, estimate, due_date, synced_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
-		id, string(data), payload.Identifier, payload.Title, payload.Description, payload.StateName, payload.Priority,
+		(id, data, identifier, title, description, state_name, state_type, priority, assignee_id, team_id, project_id, cycle_id, updated_at, created_at, estimate, due_date, synced_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+		id, string(data), payload.Identifier, payload.Title, payload.Description, payload.StateName, payload.StateType, payload.Priority,
 		payload.AssigneeID, payload.TeamID, payload.ProjectID, payload.CycleID, payload.UpdatedAt, payload.CreatedAt,
 		payload.Estimate, payload.DueDate,
 	)
@@ -625,7 +631,7 @@ func (s *Store) ListIssues(filter map[string]string, limit int) ([]json.RawMessa
 		limit = 200
 	}
 	where, args := buildFilters(filter, map[string]string{
-		"state_name": "state_name", "assignee_id": "assignee_id", "team_id": "team_id",
+		"state_name": "state_name", "state_type": "state_type", "assignee_id": "assignee_id", "team_id": "team_id",
 		"project_id": "project_id", "cycle_id": "cycle_id", "priority": "priority",
 		"identifier": "identifier",
 	})
@@ -659,6 +665,16 @@ func (s *Store) ListTeams() ([]json.RawMessage, error) {
 	return s.queryJSON(`SELECT data FROM teams ORDER BY name, key`)
 }
 
+// ListWorkflowStates returns synced workflow states, optionally filtered by
+// team UUID. Ordered by position so board order is stable for agents picking
+// a target state.
+func (s *Store) ListWorkflowStates(teamID string) ([]json.RawMessage, error) {
+	if teamID != "" {
+		return s.queryJSON(`SELECT data FROM workflow_states WHERE team_id = ? ORDER BY position`, teamID)
+	}
+	return s.queryJSON(`SELECT data FROM workflow_states ORDER BY team_id, position`)
+}
+
 func (s *Store) ListUsers() ([]json.RawMessage, error) {
 	return s.queryJSON(`SELECT data FROM users ORDER BY active DESC, display_name, name, email`)
 }
@@ -668,6 +684,31 @@ func (s *Store) ListIssueLabels(limit int) ([]json.RawMessage, error) {
 		limit = 200
 	}
 	return s.queryJSON(`SELECT data FROM issue_labels ORDER BY COALESCE(team_key, ''), name LIMIT ?`, limit)
+}
+
+func (s *Store) ListIssueLabelsForTeam(limit int, team string, includeGlobal bool) ([]json.RawMessage, error) {
+	if limit <= 0 {
+		limit = 200
+	}
+	includeGlobalValue := 0
+	if includeGlobal {
+		includeGlobalValue = 1
+	}
+	return s.queryJSON(`SELECT data FROM issue_labels
+		WHERE lower(COALESCE(team_id, '')) = lower(?)
+			OR lower(COALESCE(team_key, '')) = lower(?)
+			OR lower(COALESCE(team_name, '')) = lower(?)
+			OR (? = 1
+				AND COALESCE(team_id, '') = ''
+				AND COALESCE(team_key, '') = ''
+				AND COALESCE(team_name, '') = '')
+		ORDER BY CASE
+				WHEN lower(COALESCE(team_id, '')) = lower(?)
+					OR lower(COALESCE(team_key, '')) = lower(?)
+					OR lower(COALESCE(team_name, '')) = lower(?)
+				THEN 0 ELSE 1 END,
+			COALESCE(team_key, ''), name
+		LIMIT ?`, team, team, team, includeGlobalValue, team, team, team, limit)
 }
 
 func (s *Store) GetByID(table string, id string) (json.RawMessage, error) {

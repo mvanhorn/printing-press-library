@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "google-trends-trending-rpc-fix",
+  "applied_at": "2026-07-13",
+  "base_run_id": "20260713-105453-29114a9d",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Corrected the Trending Now batchexecute rpcid from DqDTgb (the page's geo-picker dropdown) to Tnt4U (the real trending-terms RPC); still a documented known gap, not a full fix.",
+  "reason": "The original implementation called rpcid DqDTgb, which live testing showed returns the /trending page's country-picker dropdown list (e.g. [\"AL\",\"Albania\",\"albania\"]), not trending search terms -- a misidentification during initial HAR-based research. The real trending RPC (Tnt4U, also present in the HAR capture but previously unexamined) takes an empty [] request body, with geo scoping carried entirely by the session's f.sid/bl tokens from the /trending?geo=<geo> page load. Also added the Referer/X-Same-Domain headers a real browser sends, and added a fallback session-id bootstrap key: Google's /trending page now embeds the session id under \"FdrFJe\" rather than the originally-documented \"f.sid\" key (both patterns are now checked, longest/most-specific first). Despite matching the captured request shape exactly, the live server still returns an explicit batchexecute error frame (\"e\",4) instead of data -- this remains a genuine unresolved gap (see README Troubleshooting: 'trends trending fails with server returned an error frame'). Also hardened parseTrendingBatchExecute to fail loudly with ErrTrendingParseFailed on an explicit error frame instead of silently falling through to a low-confidence heuristic scraper that was extracting structural tokens (RPC ids, garbage strings) as if they were real trending terms.",
+  "files": ["internal/gtrends/trending.go"],
+  "validated_outcome": "Live: trends trending now fails with a clear, typed error instead of silently returning garbage data; confirmed the old DqDTgb path returned a geo list, not trending terms.",
+  "upstream_issue": null
+}

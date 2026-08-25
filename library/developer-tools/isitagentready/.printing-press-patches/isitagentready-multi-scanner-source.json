@@ -1,0 +1,64 @@
+{
+  "schema_version": 2,
+  "id": "isitagentready-multi-scanner-source",
+  "applied_at": "2026-08-24",
+  "base_run_id": "20260622-061602-6c74c750",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Added is-agentic.com as a second scanner source: --source flag, provenance on every stored scan, RFC 9457 error mapping, source-aware guards, a process-wide shared rate limiter for the second host, and the crossref cross-scanner comparison command.",
+  "reason": "Agent-readiness has two independent public scanners and they disagree by construction — isitagentready.com reports a Level 0-5 over five fixed categories, is-agentic.com a score 0-100 over a per-site denominator that excludes non-applicable checks. The generator models one host and one scoring model per CLI, so the second source, its RFC 9457 problem+json error surface, and the deliberately-unmerged cross-scanner view are hand-authored. Every stored scan now carries its source so history, diff, gate, compare, batch and open-advice refuse to mix two incompatible scales instead of silently averaging them.",
+  "files": [
+    "internal/store/store.go",
+    "internal/store/agentic.go",
+    "internal/store/agentic_test.go",
+    "internal/cli/agentic.go",
+    "internal/cli/agentic_render.go",
+    "internal/cli/agentic_test.go",
+    "internal/cli/crossref.go",
+    "internal/cli/crossref_test.go",
+    "internal/cli/root.go",
+    "internal/cli/scanhelpers.go",
+    "internal/cli/check.go",
+    "internal/cli/check_render_test.go",
+    "internal/cli/report.go",
+    "internal/cli/advice.go",
+    "internal/cli/gate.go",
+    "internal/cli/gate_test.go",
+    "internal/cli/history.go",
+    "internal/cli/diff.go",
+    "internal/cli/compare.go",
+    "internal/cli/batch.go",
+    "internal/cli/open_advice.go",
+    "internal/cli/guide.go"
+  ],
+  "call_sites": [
+    "store.FilterSource(",
+    "SourceOrDefault()",
+    "store.BuildCrossRef(",
+    "store.EvaluateAgenticGate(",
+    "classifyAgenticError(",
+    "newAgenticClient(",
+    "renderScanFor(",
+    "resetAgenticClient("
+  ],
+  "validated_outcome": "Under GOTOOLCHAIN=go1.26.7: gofmt clean, go build, go vet, go test ./... (323 tests) and go test -race all pass; govulncheck reports no vulnerabilities; the public library's verify_skill.py passes all checks. Live dogfood against both hosts confirms the is-agentic 404/400 mapping (exit 3/2, upstream resolution passed through verbatim), cross-source store isolation, the gate threshold guards (exit 2 both ways), and crossref rendering with one scanner missing (exit 0). Round 2 (Greptile P1 review) additionally fixed and covered: `check --source is-agentic` in HUMAN mode now renders the native score/issues instead of an all-zero \"Level 0\" summary (store.ParseReport unmarshals the foreign body without error), and every is-agentic request in a process shares ONE client and therefore ONE limiter so the 4-worker compare/batch fan-out cannot exceed the advertised 2 req/s public-report budget. Both regressions are covered by tests proven to fail against the pre-fix code. NOTE: `cli-printing-press publish validate` still fails three checks — manifest schema_version 1, phase5 marker missing source_fingerprint, and a canonical install-section drift in SKILL.md. All three fail IDENTICALLY (same error strings) on the untouched upstream base print, so this amend is validation-neutral; clearing them requires a reprint, not an amend.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/4348",
+  "findings_addressed": [
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5",
+    "F6",
+    "F7",
+    "F8",
+    "F9",
+    "F10",
+    "F11"
+  ],
+  "deferred_to_upstream": [
+    {
+      "feature": "The spec can route to a second host (per-resource and per-endpoint base_url) but cannot describe that host as an independent source: default_rate_limit exists only at spec level, with no per-resource or per-endpoint equivalent, no notion of a rate budget shared process-wide across a fan-out, and no error-model concept at all. The is-agentic client is therefore hand-authored — a single memoized client.Client with BaseURL overridden after construction, one shared limiter clamped to the advertised 2 req/s budget that every concurrent caller queues behind, and its own RFC 9457 problem+json classifier mapping 404/400/429 to distinct exit codes.",
+      "reason": "Temporary and structural, not API-specific. Once the Printing Press can declare an additional read-only source with its own rate-limit budget and error model, this hand-authored client and its error mapping should be regenerated from the spec instead of patched back in on every reprint."
+    }
+  ]
+}

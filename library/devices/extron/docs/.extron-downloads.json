@@ -1,0 +1,68 @@
+[
+  {
+    "file": "brochure/mav_plus_series_revE.pdf",
+    "title": "MAV Plus Series",
+    "category": "Brochure",
+    "url": "/download/files/brochure/mav_plus_series_revE.pdf",
+    "rev": "E",
+    "date": "Apr. 16, 2008",
+    "size": "2541 KB",
+    "size_bytes": 2602041,
+    "downloaded_at": "2026-08-11T17:39:37Z"
+  },
+  {
+    "file": "declaration-of-conformity/72-308-01_B.pdf",
+    "title": "MAV Plus Series",
+    "category": "Declaration of Conformity",
+    "url": "/download/files/declaration/72-308-01_B.pdf",
+    "rev": "B",
+    "date": "Aug. 16, 2019",
+    "size": "381 KB",
+    "size_bytes": 389639,
+    "downloaded_at": "2026-08-11T17:39:37Z"
+  },
+  {
+    "file": "brochure/72-308-01_B.pdf",
+    "title": "MAV Plus Series",
+    "category": "Brochure",
+    "url": "/download/files/declaration/72-308-01_B.pdf",
+    "rev": "B",
+    "date": "Aug. 16, 2019",
+    "size": "381 KB",
+    "size_bytes": 389639,
+    "downloaded_at": "2026-08-11T17:39:37Z"
+  },
+  {
+    "file": "declaration-of-conformity/mav_plus_series_revE.pdf",
+    "title": "MAV Plus Series",
+    "category": "Declaration of Conformity",
+    "url": "/download/files/brochure/mav_plus_series_revE.pdf",
+    "rev": "E",
+    "date": "Apr. 16, 2008",
+    "size": "2541 KB",
+    "size_bytes": 2602041,
+    "downloaded_at": "2026-08-11T17:39:37Z"
+  },
+  {
+    "file": "manual/mav_plus_series_revE.pdf",
+    "title": "MAV Plus Series",
+    "category": "Manual",
+    "url": "/download/files/brochure/mav_plus_series_revE.pdf",
+    "rev": "E",
+    "date": "Apr. 16, 2008",
+    "size": "2541 KB",
+    "size_bytes": 2602041,
+    "downloaded_at": "2026-08-11T17:39:37Z"
+  },
+  {
+    "file": "manual/72-308-01_B.pdf",
+    "title": "MAV Plus Series",
+    "category": "Manual",
+    "url": "/download/files/declaration/72-308-01_B.pdf",
+    "rev": "B",
+    "date": "Aug. 16, 2019",
+    "size": "381 KB",
+    "size_bytes": 389639,
+    "downloaded_at": "2026-08-11T17:39:37Z"
+  }
+]

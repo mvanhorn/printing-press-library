@@ -25,11 +25,18 @@ func newImagesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "images <file_key>",
-		Short:       "Renders images from a file. If no error occurs, `'images'` will be populated with a map from node IDs to URLs of the...",
-		Long:        "Shortcut for 'images get'. Renders images from a file. If no error occurs, `'images'` will be populated with a map from node IDs to URLs of the...",
+		Short:       "Renders images from a file.",
+		Long:        "Renders images from a file.",
 		Example:     "  figma-pp-cli images your-token-here --ids example-value",
 		Annotations: map[string]string{"pp:endpoint": "images.get", "pp:method": "GET", "pp:path": "/v1/images/{file_key}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with a required flag/body prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only reads fall through so a bare call still executes; positional
+			// commands keep their existing usageErr (exit 2 + JSON envelope).
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("ids") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "ids")
 			}
@@ -43,7 +50,7 @@ func newImagesPromotedCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validFormat {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "format", flagFormat, allowedFormat)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagFormat, "format", allowedFormat)
 				}
 			}
 			c, err := flags.newClient()
@@ -68,45 +75,45 @@ func newImagesPromotedCmd(flags *rootFlags) *cobra.Command {
 			path = replacePathParam(path, "file_key", args[0])
 			params := map[string]string{}
 			if flagIds != "" {
-				params["ids"] = fmt.Sprintf("%v", flagIds)
+				params["ids"] = formatCLIParamValue(flagIds)
 			}
 			if flagVersion != "" {
-				params["version"] = fmt.Sprintf("%v", flagVersion)
+				params["version"] = formatCLIParamValue(flagVersion)
 			}
 			if flagScale != 0.0 {
-				params["scale"] = fmt.Sprintf("%v", flagScale)
+				params["scale"] = formatCLIParamValue(flagScale)
 			}
 			if flagFormat != "" {
-				params["format"] = fmt.Sprintf("%v", flagFormat)
+				params["format"] = formatCLIParamValue(flagFormat)
 			}
 			if flagSvgOutlineText != false {
-				params["svg_outline_text"] = fmt.Sprintf("%v", flagSvgOutlineText)
+				params["svg_outline_text"] = formatCLIParamValue(flagSvgOutlineText)
 			}
 			if flagSvgIncludeId != false {
-				params["svg_include_id"] = fmt.Sprintf("%v", flagSvgIncludeId)
+				params["svg_include_id"] = formatCLIParamValue(flagSvgIncludeId)
 			}
 			if flagSvgIncludeNodeId != false {
-				params["svg_include_node_id"] = fmt.Sprintf("%v", flagSvgIncludeNodeId)
+				params["svg_include_node_id"] = formatCLIParamValue(flagSvgIncludeNodeId)
 			}
 			if flagSvgSimplifyStroke != false {
-				params["svg_simplify_stroke"] = fmt.Sprintf("%v", flagSvgSimplifyStroke)
+				params["svg_simplify_stroke"] = formatCLIParamValue(flagSvgSimplifyStroke)
 			}
 			if flagContentsOnly != false {
-				params["contents_only"] = fmt.Sprintf("%v", flagContentsOnly)
+				params["contents_only"] = formatCLIParamValue(flagContentsOnly)
 			}
 			if flagUseAbsoluteBounds != false {
-				params["use_absolute_bounds"] = fmt.Sprintf("%v", flagUseAbsoluteBounds)
+				params["use_absolute_bounds"] = formatCLIParamValue(flagUseAbsoluteBounds)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "images", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "images", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
-			// Print provenance to stderr
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				if json.Unmarshal(data, &countItems) != nil {
 					// Single object, not an array
@@ -114,14 +121,12 @@ func newImagesPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// CSV bypasses JSON pipe path so --csv works when piped
-			if flags.csv {
-				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-			}
 			// For JSON output, wrap with provenance envelope. --select wins over
 			// --compact when both are set; --compact only runs when no explicit
-			// fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// fields were requested. Explicit format flags (--csv, --quiet, --plain)
+			// opt out of the auto-JSON path so piped consumers that asked for a
+			// non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -153,12 +158,12 @@ func newImagesPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagVersion, "version", "", "A specific version ID to get. Omitting this will get the current version of the file.")
 	cmd.Flags().Float64Var(&flagScale, "scale", 0.0, "A number between 0.01 and 4, the image scaling factor.")
 	cmd.Flags().StringVar(&flagFormat, "format", "png", "A string enum for the image output format. (one of: jpg, png, svg, pdf)")
-	cmd.Flags().BoolVar(&flagSvgOutlineText, "svg-outline-text", true, "Whether text elements are rendered as outlines (vector paths) or as `<text>` elements in SVGs. Rendering text...")
+	cmd.Flags().BoolVar(&flagSvgOutlineText, "svg-outline-text", true, "Whether text elements are rendered as outlines (vector paths) or as `<text>` elements in SVGs.")
 	cmd.Flags().BoolVar(&flagSvgIncludeId, "svg-include-id", false, "Whether to include id attributes for all SVG elements. Adds the layer name to the `id` attribute of an svg element.")
-	cmd.Flags().BoolVar(&flagSvgIncludeNodeId, "svg-include-node-id", false, "Whether to include node id attributes for all SVG elements. Adds the node id to a `data-node-id` attribute of an svg...")
+	cmd.Flags().BoolVar(&flagSvgIncludeNodeId, "svg-include-node-id", false, "Whether to include node id attributes for all SVG elements.")
 	cmd.Flags().BoolVar(&flagSvgSimplifyStroke, "svg-simplify-stroke", true, "Whether to simplify inside/outside strokes and use stroke attribute if possible instead of `<mask>`.")
-	cmd.Flags().BoolVar(&flagContentsOnly, "contents-only", true, "Whether content that overlaps the node should be excluded from rendering. Passing false (i.e., rendering overlaps)...")
-	cmd.Flags().BoolVar(&flagUseAbsoluteBounds, "use-absolute-bounds", false, "Use the full dimensions of the node regardless of whether or not it is cropped or the space around it is empty. Use...")
+	cmd.Flags().BoolVar(&flagContentsOnly, "contents-only", true, "Whether content that overlaps the node should be excluded from rendering. Passing false (i.e.")
+	cmd.Flags().BoolVar(&flagUseAbsoluteBounds, "use-absolute-bounds", false, "Use the full dimensions of the node regardless of whether or not it is cropped or the space around it is empty.")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

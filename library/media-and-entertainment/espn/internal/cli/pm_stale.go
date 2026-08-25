@@ -6,11 +6,72 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/internal/store"
 	"github.com/spf13/cobra"
 )
+
+// staleTimestampFields lists every JSON key the press considers a
+// modification timestamp when looking for stale items. Order matters:
+// the WHERE/ORDER BY and the Go-side scan iterate this list in order,
+// so the first key present on a row wins. Includes the historical
+// updatedAt/updated_at pair plus variants commonly seen in mainstream
+// APIs (Asana modified_at, Notion last_edited_time, Stripe updated, etc.)
+// so a `stale` query against any of them returns real data instead of
+// silently empty results.
+var staleTimestampFields = []string{
+	"updatedAt",
+	"updated_at",
+	"updatedDate",
+	"modifiedAt",
+	"modified_at",
+	"lastModified",
+	"last_modified",
+	"lastEditedTime",
+	"last_edited_time",
+	"updated",
+	"last_updated",
+}
+
+// buildStaleTimestampPredicate emits SQL clauses that match a row whose
+// modification timestamp is older than cutoff and sort rows by the
+// earliest non-null timestamp the row exposes.
+//
+// Each field needs two placeholders because the JSON value can be a
+// text RFC 3339 string (most APIs: Asana modified_at, Notion
+// last_edited_time, etc.) or a numeric Unix epoch (Stripe `updated`).
+// SQLite's type-class ordering puts numbers unconditionally below text,
+// so without a typeof gate a numeric `updated` would always satisfy
+// `... < <text-cutoff>` and every Stripe row would falsely show stale.
+// The caller binds (cutoffStr, cutoffEpoch) per field in order.
+//
+// The ORDER BY uses COALESCE rather than a multi-column sort because
+// SQLite places NULLs first under ASC, so a multi-column list would
+// float rows from APIs that don't populate the leading field above
+// rows that do, breaking the oldest-first guarantee in any mixed-API
+// store. Within a single API the value type is consistent, so COALESCE
+// produces stable per-API chronological ordering; mixed-type stores
+// still group by type-class but stay deterministic.
+//
+// Centralising the field list keeps WHERE / ORDER BY / in-Go scan in
+// lockstep.
+func buildStaleTimestampPredicate() (whereClause, orderClause string, placeholderPairs int) {
+	whereParts := make([]string, 0, len(staleTimestampFields))
+	coalesceArgs := make([]string, 0, len(staleTimestampFields))
+	for _, f := range staleTimestampFields {
+		extract := fmt.Sprintf("json_extract(data, '$.%s')", f)
+		whereParts = append(whereParts, fmt.Sprintf(
+			"((typeof(%s) = 'text' AND %s < ?) OR (typeof(%s) IN ('integer','real') AND %s < ?))",
+			extract, extract, extract, extract,
+		))
+		coalesceArgs = append(coalesceArgs, extract)
+	}
+	return strings.Join(whereParts, " OR "),
+		"COALESCE(" + strings.Join(coalesceArgs, ", ") + ") ASC",
+		len(whereParts)
+}
 
 func newStaleCmd(flags *rootFlags) *cobra.Command {
 	var days int
@@ -34,35 +95,37 @@ the specified number of days. Useful for identifying forgotten or blocked work.`
 
   # Output as JSON
   espn-pp-cli stale --days 30 --json`,
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if flags.dryRun {
-				return nil
-			}
-
 			if dbPath == "" {
 				dbPath = defaultDBPath("espn-pp-cli")
 			}
 
-			db, err := store.Open(dbPath)
+			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'espn-pp-cli sync' first.", err)
 			}
 			defer db.Close()
 
-			cutoff := time.Now().AddDate(0, 0, -days).Format(time.RFC3339)
+			maybeEmitSyncHints(cmd, db, "", flags.maxAge)
 
-			// Query resources table for items not updated since cutoff
-			query := `SELECT id, resource_type, data FROM resources
-				WHERE json_extract(data, '$.updatedAt') < ?
-				   OR json_extract(data, '$.updated_at') < ?`
-			qArgs := []any{cutoff, cutoff}
+			cutoffTime := time.Now().AddDate(0, 0, -days)
+			cutoffStr := cutoffTime.Format(time.RFC3339)
+			cutoffEpoch := cutoffTime.Unix()
+
+			whereClause, orderClause, n := buildStaleTimestampPredicate()
+			query := "SELECT id, resource_type, data FROM resources WHERE (" + whereClause + ")"
+			qArgs := make([]any, 0, n*2+4)
+			for i := 0; i < n; i++ {
+				qArgs = append(qArgs, cutoffStr, cutoffEpoch)
+			}
 
 			if team != "" {
 				query += ` AND (json_extract(data, '$.teamId') = ? OR json_extract(data, '$.team_id') = ? OR json_extract(data, '$.team') = ?)`
 				qArgs = append(qArgs, team, team, team)
 			}
 
-			query += ` ORDER BY json_extract(data, '$.updatedAt') ASC, json_extract(data, '$.updated_at') ASC`
+			query += " ORDER BY " + orderClause
 
 			// Get total count first
 			countQuery := "SELECT COUNT(*) FROM (" + query + ")"
@@ -115,11 +178,17 @@ the specified number of days. Useful for identifying forgotten or blocked work.`
 
 				updatedAt := ""
 				daysSince := days
-				for _, key := range []string{"updatedAt", "updated_at", "updatedDate"} {
+				for _, key := range staleTimestampFields {
 					if v, ok := obj[key]; ok {
 						updatedAt = fmt.Sprintf("%v", v)
-						if t, err := time.Parse(time.RFC3339, updatedAt); err == nil {
-							daysSince = int(now.Sub(t).Hours() / 24)
+						switch ts := v.(type) {
+						case string:
+							if t, err := time.Parse(time.RFC3339, ts); err == nil {
+								daysSince = int(now.Sub(t).Hours() / 24)
+							}
+						case float64:
+							// JSON numbers decode to float64 (Stripe-style Unix epoch seconds).
+							daysSince = int(now.Sub(time.Unix(int64(ts), 0)).Hours() / 24)
 						}
 						break
 					}
@@ -134,15 +203,16 @@ the specified number of days. Useful for identifying forgotten or blocked work.`
 				})
 			}
 
-			if flags.asJSON {
+			if wantsMachineOutput(flags) {
+				if flags.csv || flags.plain || flags.quiet {
+					return printJSONFiltered(cmd.OutOrStdout(), items, flags)
+				}
 				result := map[string]any{
 					"total_count": totalCount,
 					"showing":     len(items),
 					"items":       items,
 				}
-				enc := json.NewEncoder(cmd.OutOrStdout())
-				enc.SetIndent("", "  ")
-				return enc.Encode(result)
+				return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 			}
 
 			if len(items) == 0 {
@@ -170,7 +240,7 @@ the specified number of days. Useful for identifying forgotten or blocked work.`
 
 	cmd.Flags().IntVar(&days, "days", 30, "Number of days without update to consider stale")
 	cmd.Flags().StringVar(&team, "team", "", "Filter by team identifier")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/espn-pp-cli/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum items to show")
 
 	return cmd

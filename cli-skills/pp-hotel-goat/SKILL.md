@@ -21,7 +21,7 @@ metadata:
      silently overwritten on the next regen. Edit the library/ source instead.
      See the repository agent guide, section "Generated artifacts: registry.json, cli-skills/". -->
 
-# Google Hotels — Printing Press CLI
+# Hotel GOAT — Printing Press CLI
 
 ## Prerequisites: Install the CLI
 
@@ -34,7 +34,7 @@ This skill drives the `hotel-goat-pp-cli` binary. **You must verify the CLI is i
 2. Verify: `hotel-goat-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/travel/hotel-goat/cmd/hotel-goat-pp-cli@latest

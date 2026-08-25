@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "grants-eligibility-filter-needs-page-full-truncation-warning",
+  "applied_at": "2026-07-24",
+  "base_run_id": "20260705-183000",
+  "base_printing_press_version": "4.25.0",
+  "summary": "The --eligibility client-side filter in the search command only sees results from the first fetched page; when a full page is returned, users must be warned that matching opportunities on subsequent pages may be silently missed.",
+  "reason": "The --closing-before and --min-award filters already emit page-full truncation warnings, but --eligibility was missing the same guard. A user running 'search cancer --rows 15 --eligibility \"small business\"' against a full first page receives no indication that matching grants may exist on pages 2 and beyond. Grants.gov offers no server-side applicant-type filtering, so the filter is purely client-side and shares the same truncation hazard as the other two. The two guards are deliberately independent rather than combined with a boolean OR: when a user passes both --min-award and --eligibility, each warning must name its own flag, otherwise the user assumes only one filter was truncated. A regen must preserve this warning as a reprint-guard, not as a line-level diff.",
+  "files": ["internal/cli/search.go"],
+  "validated_outcome": "search cancer --rows 15 --eligibility \"small business\" now emits a stderr warning when initialFetched == rows, advising the user to increase --rows; go build, go vet and go test all pass."
+}

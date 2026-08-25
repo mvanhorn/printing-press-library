@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "fix-unvalidated-cookie-jar-scope",
+  "applied_at": "2026-08-19",
+  "base_run_id": "20260812-144651-60addfc5",
+  "base_printing_press_version": "unstamped (pre-4.28.0, no .printing-press.json in this tree)",
+  "summary": "Fixed two rounds of a real P1 security finding from Greptile's review of the publish PR (mvanhorn/printing-press-library#1767): internal/client/client.go's New() seeded the real Concur session cookie (JWT/_csrf) into the HTTP client's cookie jar scoped to whatever cfg.BaseURL currently was, with no check that BaseURL actually pointed at concursolutions.com over HTTPS. Round 1 fixed the wrong-host case (a --base-url/CONCUR_BASE_URL pointed at an unrelated domain). Greptile's re-review on that fix caught a narrower follow-up the round-1 fix missed: a genuinely-Concur hostname reached over plain http:// would still pass the host-only check and leak the cookie in cleartext. Round 2 added the https-scheme requirement.",
+  "reason": "Round 1: Greptile's review verified the unrestricted base URL flows directly into SeedCookieJar and is also used to construct relative request URLs. Round 2: Greptile's review of the round-1 fix verified 'When base_url or CONCUR_BASE_URL uses http:// with a Concur-family hostname, this hostname-only predicate accepts it and New seeds non-Secure session cookies into the jar, causing relative requests to transmit the user's Concur credentials in cleartext.' Fix: baseURLIsTrustedConcurHost(rawURL) now requires u.Scheme == \"https\" in addition to the concursolutions.com host check; an http:// URL -- even a genuinely Concur one -- is treated as untrusted, warns on stderr, and skips seeding. The already-persisted cookie jar (LoadCookieJar) is unaffected -- those cookies carry their own correct domain fields from capture time; this fix is specifically about the additional credential the client layer seeds on top of that.",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "changes": [
+    {
+      "file": "internal/client/client.go",
+      "description": "Added concurCookieDomain constant and baseURLIsTrustedConcurHost(rawURL) helper. New()'s SeedCookieJar call is now gated on that check; an untrusted base URL with a stored credential prints a warning to stderr and skips seeding instead of leaking the cookie to that host."
+    }
+  ],
+  "validated_outcome": "go build, go vet ./..., and go test ./... all clean after both rounds. Functional check, all three cases: (1) real https base URL (www-us2.api.concursolutions.com) seeds the cookie with no warning, unchanged from before; (2) CONCUR_BASE_URL=http://example.com (wrong host) warns and skips seeding; (3) CONCUR_BASE_URL=http://us2.concursolutions.com (right host, wrong scheme -- the round-2 finding's exact scenario) also now warns and skips seeding, confirmed via 'doctor' showing 'warning: base URL \"http://us2.concursolutions.com\" is not an https concursolutions.com host -- not sending your Concur session cookie to it'.",
+  "upstream_issue": null
+}

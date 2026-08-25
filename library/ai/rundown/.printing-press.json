@@ -1,0 +1,120 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-22T12:37:28.621424Z",
+  "printing_press_version": "4.31.1",
+  "api_name": "rundown",
+  "display_name": "The Rundown University",
+  "cli_name": "rundown-pp-cli",
+  "creator": {
+    "handle": "amrbody71-commits",
+    "name": "Abdelrahman Shaaban"
+  },
+  "owner": "amrbody71-commits",
+  "printer": "amrbody71-commits",
+  "printer_name": "Abdelrahman Shaaban",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:ece95ffff2d6fd145a8e7f379801729369127f73e62a5ba9098c78ca2a9f3ab4",
+  "run_id": "20260822-120000-rundown01",
+  "category": "ai",
+  "description": "Search the community's AI workflows offline, and rank them by week - two things the site's own API cannot do.",
+  "mcp_binary": "rundown-pp-mcp",
+  "mcp_tool_count": 4,
+  "mcp_public_tool_count": 4,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Time-windowed top workflows",
+      "command": "top",
+      "description": "Rank the highest-upvoted workflows inside a time window like 7d or 30d."
+    },
+    {
+      "name": "Use-case finder",
+      "command": "use-cases",
+      "description": "Answer 'are there any workflows for X' by blending the server's semantic search with local full-text search, then ranking by upvotes."
+    },
+    {
+      "name": "Full workflow reader",
+      "command": "show",
+      "description": "Print one workflow in full - body, tools, industries, author and comments - in a single call."
+    },
+    {
+      "name": "Community digest",
+      "command": "digest",
+      "description": "Summarise a time window: how many workflows landed, the top posts, the most-used tools and the busiest authors."
+    },
+    {
+      "name": "Tool adoption ranking",
+      "command": "tools rank",
+      "description": "Rank AI tools by how often they appear in workflows and by the upvotes those workflows earned."
+    },
+    {
+      "name": "Tool co-occurrence stacks",
+      "command": "stack",
+      "description": "Show which other tools appear alongside a given tool, so you can see the stacks people really run."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Time-windowed top workflows",
+      "command": "top",
+      "description": "Rank the highest-upvoted workflows inside a time window like 7d or 30d."
+    },
+    {
+      "name": "Use-case finder",
+      "command": "use-cases",
+      "description": "Answer 'are there any workflows for X' by blending the server's semantic search with local full-text search, then ranking by upvotes."
+    },
+    {
+      "name": "Full workflow reader",
+      "command": "show",
+      "description": "Print one workflow in full - body, tools, industries, author and comments - in a single call."
+    },
+    {
+      "name": "Community digest",
+      "command": "digest",
+      "description": "Summarise a time window: how many workflows landed, the top posts, the most-used tools and the busiest authors."
+    },
+    {
+      "name": "Tool adoption ranking",
+      "command": "tools rank",
+      "description": "Rank AI tools by how often they appear in workflows and by the upvotes those workflows earned."
+    },
+    {
+      "name": "Tool co-occurrence stacks",
+      "command": "stack",
+      "description": "Show which other tools appear alongside a given tool, so you can see the stacks people really run."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 37,
+    "total": 37,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 96,
+      "grade": "A (1 of 25 dimensions unverified: live_api_verification)",
+      "total": 96
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

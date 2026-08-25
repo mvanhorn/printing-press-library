@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-08-06",
+  "base_run_id": "20260805-132802",
+  "patches": [
+    {
+      "id": "auth-login-portal-payload",
+      "summary": "The customer login now sends the payload the portal actually sends: account (not portal), plus type:\"customer\" and multipleLoginSupport.",
+      "reason": "The generated login posted {email, password, portal} to /api/jwt/v1/login. iClassPro answers \"Account is required\" because the account key is `account`, and omitting `type` returns \"Server Error\". No public docs describe this endpoint; the shape was lifted from the portal bundle (AuthService.login in main.*.js) and verified against the live endpoint with throwaway credentials, which advanced the error to \"Invalid login\".",
+      "files": [
+        "internal/cli/iclasspro_auth.go"
+      ],
+      "verified_against": "portal.iclasspro.com/nadoclub — login succeeds and stores a session token"
+    },
+    {
+      "id": "gated-reads-via-jwt-api",
+      "summary": "Reads for sign-in-gated accounts route to the JWT API with a Bearer header instead of replaying the token as an Open API query param.",
+      "reason": "The Open API ignores customer sessions entirely: /api/open/v1/{account}/classes answers \"Please sign in to see classes.\" with or without a token, so gated accounts returned zero rows even after a successful login. The signed-in portal reads the same catalog from https://app.iclasspro.com/api/jwt/v1 with Authorization: Bearer and no account segment in the path (the account rides in the token). The rewrite lives in the shared read funnel so every generated command inherits it, with the novel-command helper delegating to the same code.",
+      "files": [
+        "internal/cli/iclasspro_common.go",
+        "internal/cli/data_source.go"
+      ],
+      "verified_against": "nadoclub — 118 classes read and synced where the previous build returned 0"
+    }
+  ],
+  "notes": "Both patches target undocumented surfaces. If the press regenerates this CLI, re-apply them before trusting any sign-in-gated account: a silent regression looks like an empty catalog, not an error."
+}

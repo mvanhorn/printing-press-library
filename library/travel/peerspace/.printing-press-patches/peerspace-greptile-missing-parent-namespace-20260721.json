@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "peerspace-greptile-missing-parent-namespace-20260721",
+  "applied_at": "2026-07-21",
+  "base_run_id": "20260716-123216-7a9be8d4",
+  "base_printing_press_version": "4.28.0",
+  "summary": "When parent field is missing, resourceStorageID falls back to sync/path-injected parent_id (and matching scope FK keys) so two parent-scoped syncs of the same child do not share __missing_parent__. Adds storage_id_test.go.",
+  "reason": "Greptile P1 + tmchow: missing parents still collide under shared sentinel (PR #1552 discussion_r3617776947).",
+  "files": [
+    "internal/store/store.go",
+    "internal/store/storage_id_test.go"
+  ],
+  "validated_outcome": "go test ./internal/store/ -count=1"
+}

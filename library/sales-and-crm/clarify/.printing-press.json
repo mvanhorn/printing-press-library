@@ -1,0 +1,138 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-17T19:20:42.819355Z",
+  "printing_press_version": "4.30.3",
+  "api_name": "clarify",
+  "display_name": "Clarify",
+  "cli_name": "clarify-pp-cli",
+  "creator": {
+    "handle": "ndearborn68",
+    "name": "Isaac Marks"
+  },
+  "contributors": [],
+  "printer": "ndearborn68",
+  "printer_name": "Isaac Marks",
+  "spec_path": "spec.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:63ca244854dec8d48dbf74dca9905eb44eb1bcfb75fb5582690414e02ea06246",
+  "run_id": "20260817-102905-ca271321",
+  "category": "sales-and-crm",
+  "description": "Every Clarify API operation as a typed command, plus the morning briefing, meeting prep, and pipeline analytics the autonomous CRM knows about but cannot run.",
+  "mcp_binary": "clarify-pp-mcp",
+  "mcp_tool_count": 75,
+  "mcp_ready": "full",
+  "api_version": "0.1",
+  "auth_type": "api_key",
+  "auth_preference": "apiKey",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "endpoint_template_vars": [
+    "campaignId",
+    "entity",
+    "id",
+    "object",
+    "workspace"
+  ],
+  "novel_features": [
+    {
+      "name": "Meeting prep pack",
+      "command": "prep",
+      "description": "One command before a call: the meeting's attendees, their company, open deals, and transcript excerpts from past meetings with that company."
+    },
+    {
+      "name": "Morning briefing",
+      "command": "brief",
+      "description": "Start-of-day overview: today's meetings joined to their companies, open deals, and yesterday's record activity, on one screen."
+    },
+    {
+      "name": "Follow-up gaps",
+      "command": "followup",
+      "description": "The dropped-ball list: meetings with no subsequent activity, comment, or task on the linked deal or company."
+    },
+    {
+      "name": "Stale-deal report",
+      "command": "stale",
+      "description": "Open deals with no activity in N days, grouped by pipeline stage."
+    },
+    {
+      "name": "Record dossier",
+      "command": "dossier",
+      "description": "A complete background bundle on any record: fields, relationships, activities, comments, and related meetings with transcript references, in one compact payload."
+    },
+    {
+      "name": "Pipeline velocity",
+      "command": "velocity",
+      "description": "Per-stage dwell time and stage-to-stage conversion counts, accrued from a local stage-history table across repeated runs (the first run reports the current stage distribution)."
+    },
+    {
+      "name": "Duplicate finder",
+      "command": "dupes",
+      "description": "Finds likely duplicate people or companies by shared email, domain, or normalized name, and prints ready-to-run merge commands."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Meeting prep pack",
+      "command": "prep",
+      "description": "One command before a call: the meeting's attendees, their company, open deals, and transcript excerpts from past meetings with that company."
+    },
+    {
+      "name": "Morning briefing",
+      "command": "brief",
+      "description": "Start-of-day overview: today's meetings joined to their companies, open deals, and yesterday's record activity, on one screen."
+    },
+    {
+      "name": "Follow-up gaps",
+      "command": "followup",
+      "description": "The dropped-ball list: meetings with no subsequent activity, comment, or task on the linked deal or company."
+    },
+    {
+      "name": "Stale-deal report",
+      "command": "stale",
+      "description": "Open deals with no activity in N days, grouped by pipeline stage."
+    },
+    {
+      "name": "Record dossier",
+      "command": "dossier",
+      "description": "A complete background bundle on any record: fields, relationships, activities, comments, and related meetings with transcript references, in one compact payload."
+    },
+    {
+      "name": "Pipeline velocity",
+      "command": "velocity",
+      "description": "Per-stage dwell time and stage-to-stage conversion counts, accrued from a local stage-history table across repeated runs (the first run reports the current stage distribution)."
+    },
+    {
+      "name": "Duplicate finder",
+      "command": "dupes",
+      "description": "Finds likely duplicate people or companies by shared email, domain, or normalized name, and prints ready-to-run merge commands."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 99.15966386554622,
+    "passed": 118,
+    "total": 119,
+    "failed": 1,
+    "data_pipeline": true,
+    "verdict": "WARN"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 97,
+      "grade": "A (1 of 25 dimensions unverified: live_api_verification)",
+      "total": 97
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

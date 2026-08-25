@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "quentli-webhooks-health-hook",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260805-194716-31db2fb2",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Attach the novel 'webhooks health' command under the generator-owned 'webhooks' parent via a registerNovelCommand hook.",
+  "reason": "The webhooks novel feature conflicts with the generated webhooks resource command, so the generator skipped the novel stub; a hook mounted in init() wires the health child without editing root.go.",
+  "files": ["internal/cli/webhooks_health.go"]
+}

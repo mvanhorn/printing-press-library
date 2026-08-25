@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "chrome-cookie-names-arrive-encoded-and-unspaced",
+  "applied_at": "2026-08-03",
+  "base_run_id": "20260512-151223",
+  "base_printing_press_version": "4.5.1",
+  "summary": "Cookie-header parsing must not assume a space after the separator, and must resolve percent-encoded cookie names to their canonical spelling.",
+  "reason": "Neither assumption holds for this CLI's real inputs. The browser-cookie backends emit \"a=1;b=2\" with no space, so splitting on \"; \" collapses the whole header into one entry and every required-cookie lookup misses. Independently, Chrome persists several Alaska session cookies under percent-encoded names while requiredAuthCookies() looks them up canonically, so those never match even once splitting is correct. Together they made `auth login --chrome` unable to authenticate at all: login reported the required cookies missing, fell through to the live-session path, and every subsequent API call returned HTTP 406.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/auth_cookie_test.go"
+  ],
+  "validated_outcome": "auth_cookie_test.go fails on the pre-fix parser and passes after. Verified live end to end: login composes a 7-cookie header and validates, doctor reports reachable instead of 406, and flights search returns real fare data."
+}

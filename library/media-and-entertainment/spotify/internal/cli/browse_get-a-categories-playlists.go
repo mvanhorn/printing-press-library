@@ -6,6 +6,7 @@
 package cli
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 )
 
@@ -26,6 +27,9 @@ func newBrowseGetACategoriesPlaylistsCmd(flags *rootFlags) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
+			}
+			if !validSpotifyID(bareID(args[0])) {
+				return usageErr(fmt.Errorf("%q is not a Spotify category ID (expected 22 base62 chars)", args[0]))
 			}
 			payload := deprecatedStubPayload("GET /browse/categories/{category_id}/playlists",
 				"Spotify's category-playlists endpoint is unavailable to new apps. The parent 'browse categories' list still works — use that for category discovery and Spotify's app for the playlist drilldown.")

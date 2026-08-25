@@ -1,0 +1,33 @@
+type: object
+properties:
+  auth:
+    type: string
+  hash:
+    type: string
+  host:
+    type: string
+  hostname:
+    type: string
+  href:
+    type: string
+  path:
+    type: string
+  pathname:
+    type: string
+  protocol:
+    type: string
+  search:
+    type: string
+  slashes:
+    type: boolean
+  port:
+    oneOf:
+      - type: string
+      - type: integer
+  query:
+    oneOf:
+      - type: string
+      - type: integer
+      - type: array
+        items:
+          type: string

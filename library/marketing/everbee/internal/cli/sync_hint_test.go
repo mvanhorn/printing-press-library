@@ -27,7 +27,7 @@ func newSyncHintTestStore(t *testing.T) *store.Store {
 
 func newSyncHintTestCmd() (*cobra.Command, *bytes.Buffer) {
 	var stderr bytes.Buffer
-	cmd := &cobra.Command{Use: "github.com/mvanhorn/printing-press-library/library/marketing/everbee"}
+	cmd := &cobra.Command{Use: "everbee-pp-cli"}
 	cmd.SetErr(&stderr)
 	return cmd, &stderr
 }

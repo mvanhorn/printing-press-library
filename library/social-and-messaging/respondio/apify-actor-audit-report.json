@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/respondio-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260805-222426-ffd268a6",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

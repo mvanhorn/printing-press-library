@@ -6,7 +6,7 @@ Pulls your workspace into a local SQLite store with FTS5 search and runs compoun
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 
-Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
+Contributors: [@ericlitman](https://github.com/ericlitman) (Eric Litman), [@tmchow](https://github.com/tmchow) (Trevin Chow), [@rob-coco](https://github.com/rob-coco) (Rob Coco).
 
 ## Install
 
@@ -37,7 +37,7 @@ npx -y @mvanhorn/printing-press-library install linear --agent claude-code --age
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/project-management/linear/cmd/linear-pp-cli@latest
@@ -255,6 +255,15 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   linear-pp-cli issues create --title "Test ticket" --team ENG --trust-mode strict
   ```
+- **Parent and sub-issue linking** — Create child issues and set, change, or clear parent links without leaving the CLI for raw GraphQL.
+
+  _Reach for this when an agent is creating issue trees, epics, or follow-up hierarchies and needs parentage wired safely._
+
+  ```bash
+  linear-pp-cli issues create --title "Child task" --team ENG --parent ENG-123 --description-file /tmp/body.md --agent
+  linear-pp-cli issues edit ENG-124 --parent ENG-123 --agent
+  linear-pp-cli issues edit ENG-124 --no-parent --agent
+  ```
 - **Team-safe issue labels** — Discover labels that are valid for the target Linear team, including global labels, before creating or editing issues.
 
   _Reach for this before passing label UUIDs to `issues create` or `issues edit`; Linear rejects labels owned by another team, and the CLI now preflights label ownership before mutating._
@@ -263,6 +272,20 @@ These capabilities aren't available in any other tool for this API.
   linear-pp-cli labels list --team ENG --agent --select id,name,global,team.key
   linear-pp-cli issues create --title "Title" --team ENG --label <global-or-eng-label-id> --agent
   ```
+- **Project and initiative name resolution** — Resolve portfolio objects by human name before writing issue relationships.
+
+  _Reach for this when a user gives an issue identifier plus a project or initiative name. `--project` is UUID-only; use `--project-name` when the input is a human project name._
+
+  ```bash
+  linear-pp-cli projects list --agent --select id,name,team.key,state,url
+  linear-pp-cli projects search "Autonomous Backlog Manager & Dispatch Governance" --team SYMPH --agent --select id,name,team.key,initiative.name,url
+  linear-pp-cli initiatives list --agent --select id,name,status,url
+  linear-pp-cli initiatives search "Dispatch Governance" --agent --select id,name,status,url
+  linear-pp-cli issues edit SYMPH-795 --project-name "Autonomous Backlog Manager & Dispatch Governance" --dry-run --agent
+  linear-pp-cli issues edit SYMPH-795 --project-name "Autonomous Backlog Manager & Dispatch Governance" --agent
+  ```
+
+  `--project-name` always performs a live Linear read to resolve the UUID, even when the surrounding issue write is a dry-run. Use `projects search` first when the name is partial; writes require a normalized exact project-name match.
 - **Shell-safe Linear writes with media** — Create and update issue descriptions, comments, and Linear docs without putting Markdown bodies on the shell command line.
 
   _Reach for this whenever a body contains newlines, quotes, backticks, `$()` expansions, shell commands, images, logs, or agent-generated Markdown._
@@ -280,8 +303,13 @@ These capabilities aren't available in any other tool for this API.
 
   ```bash
   linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.name,url
+  linear-pp-cli issues ENG-123,ENG-124 --agent --data-source live --select identifier,title,description,state.name,url
   linear-pp-cli comments list --issue ENG-123 --agent
   ```
+
+  Comma-separated issue reads preserve caller order, de-duplicate identifiers, and fail the whole request when any member cannot be read. A single identifier keeps the existing object-shaped `results`; multiple identifiers return an array.
+
+  Canonical forms remain `issues <ID>`, `documents <ref>`, and `comments add`. For compatibility with common agent phrasing, the CLI also accepts `issues get|view|show <ID>`, `documents get|view <ref>`, and `comments create` with the same flags and behavior. `documents show` is intentionally unsupported.
 
 ## Usage
 
@@ -342,6 +370,9 @@ Manage initiative-to-projects
 Manage initiatives
 
 - **`linear-pp-cli initiatives <id>`** - Get a single initiative
+- **`linear-pp-cli initiatives list`** - List Linear initiatives
+- **`linear-pp-cli initiatives search <query>`** - Search Linear initiatives by name
+- **`linear-pp-cli initiatives resolve <name>`** - Resolve one Linear initiative name to its UUID
 
 ### integrations
 
@@ -397,6 +428,9 @@ Manage project-statuses
 Manage projects
 
 - **`linear-pp-cli projects <id>`** - Get a single project
+- **`linear-pp-cli projects list`** - List Linear projects
+- **`linear-pp-cli projects search <query>`** - Search Linear projects by name
+- **`linear-pp-cli projects resolve <name>`** - Resolve one Linear project name to its UUID
 
 ### release-notes
 
@@ -499,6 +533,9 @@ Agent recipes:
 # Full current issue body; compact output strips descriptions unless selected
 linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.name,url
 
+# Several current issue bodies in caller order
+linear-pp-cli issues ENG-123,ENG-124 --agent --data-source live --select identifier,title,description,state.name,url
+
 # Safe multiline writes; body files preserve shell snippets literally
 linear-pp-cli comments add --issue ENG-123 --body-file /tmp/comment.md --agent
 ```
@@ -556,10 +593,10 @@ linear-pp-cli bottleneck --team ENG --data-source local
 linear-pp-cli issues list --assignee me --data-source local
 
 # Mutate — write-back keeps the store fresh, no re-sync needed
-linear-pp-cli issues create --title "..." --team ENG --pp-session $SESSION
+linear-pp-cli issues create --title "..." --team ENG --pp-session "$SESSION"
 
 # Verify from local
-linear-pp-cli issues list --data-source local --pp-session $SESSION
+linear-pp-cli issues list --data-source local --pp-session "$SESSION"
 
 # Refresh every ~30 minutes for long sessions
 linear-pp-cli sync

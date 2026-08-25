@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-08-01",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "id": "ars-sicilia-atti-numero",
+  "summary": "Flag `--numero` aggiunto a `odg cerca`, `mozioni cerca`, `interrogazioni cerca`, `interpellanze cerca` e `risoluzioni cerca`: qualifica il numero sul campo NUMORD, gia' presente nella FieldMap dei cinque archivi. Prima esisteva solo su ddl (NUMDDL) e leggi (LEGNUM).",
+  "reason": "Partendo da una notizia il numero dell'atto e' spesso l'unico dato certo, e senza il flag l'unica via era passarlo come testo libero. La free-text aggancia pero' ogni documento che cita quel numero, ordinati dal piu' recente, quindi l'atto cercato puo' finire oltre il --limit: `mozioni cerca --testo \"143\"` mette la mozione 143 in 17a posizione su 19, invisibile col limite di default, e il risultato si legge come 'l'atto non esiste'. Un campione fortunato (ODG 419, che come testo libero esce da solo) aveva fatto sembrare l'aggiramento sufficiente; su mozioni non lo e'.",
+  "files": [
+    "internal/cli/odg_cerca.go",
+    "internal/cli/mozioni_cerca.go",
+    "internal/cli/interrogazioni_cerca.go",
+    "internal/cli/interpellanze_cerca.go",
+    "internal/cli/risoluzioni_cerca.go"
+  ],
+  "validated_outcome": "leg 18: `mozioni cerca --numero 143` -> query (18.LEGISL E 143.NUMORD), un solo risultato, la mozione sul deposito di scorie (con --testo \"143\" era 17a su 19); `odg cerca --numero 419` -> ODG sul DEFR; `interrogazioni cerca --numero 1235` -> un solo risultato (con --testo era 2o). ddl e leggi invariati."
+}

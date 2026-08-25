@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "recall-piped-output-keeps-disclaimer",
+  "applied_at": "2026-07-08",
+  "base_run_id": "20260707-200719-bf61d987",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Recall command human output (class legend + disclaimer guardrail) must render even when stdout is piped; machine JSON is emitted only on an explicit --json/--agent request, never on a bare non-terminal stdout.",
+  "reason": "The generated recall search branch auto-switched to the machine JSON envelope whenever stdout was not a TTY (`!isTerminal(...) && !csv && !quiet && !plain`). Piping plain-text output (e.g. `check aspirin | head`) therefore bypassed the human-format branch that prints the FDA class legend and the 'not medical advice' disclaimer — the health-data safety contract. The check gates on explicit machine-format intent (--json/--agent) instead of TTY detection, so piped plain-text consumers keep the guardrail. Same fix applied to the no-records path for consistency.",
+  "files": [
+    "internal/cli/recalls.go"
+  ],
+  "validated_outcome": "`check aspirin | cat` shows the class legend + disclaimer; `check aspirin --json | cat` still emits the raw openFDA envelope; no-records piped output stays text + disclaimer. go test ./internal/cli passes."
+}

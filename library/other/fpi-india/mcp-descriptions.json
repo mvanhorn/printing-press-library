@@ -1,0 +1,12 @@
+{
+  "descriptions": {
+    "net_investment_latest": "Latest fortnight FPI net-investment snapshot: equity, debt, hybrid, mutual fund, and AIF flows for the most recently published reporting period.",
+    "net_investment_quarterly": "Quarterly FPI net-investment details for the current calendar year, broken out by asset class across each completed quarter.",
+    "registry_categories": "FPI category-wise registration counts: how many registered Foreign Portfolio Investors fall into each SEBI registration category.",
+    "registry_list": "List of registered Foreign Portfolio Investors and Foreign Institutional Investors currently on NSDL's registry.",
+    "registry_pendency": "DDP-wise pendency of FPI registration applications: how many applications are awaiting action at each Designated Depository Participant.",
+    "sector_list": "Fortnightly sector-wise FPI investment activity: net inflow/outflow by industry sector for the most recent reporting fortnight.",
+    "trades_debt": "Trade-wise debt data of FPI activity: individual debt trade records reported by Foreign Portfolio Investors.",
+    "trades_equity": "Trade-wise equity data of FPI activity: individual equity trade records reported by Foreign Portfolio Investors."
+  }
+}

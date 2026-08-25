@@ -29,10 +29,12 @@ func newExchangeRatesGetRateIdCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/exchange_rates/{rate_id}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("rate_id is required\nUsage: %s <%s>", cmd.CommandPath(), "rate_id"))
 			}
-			path = replacePathParam(path, "rate_id", args[1])
+			path = replacePathParam(path, "rate_id", args[0])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

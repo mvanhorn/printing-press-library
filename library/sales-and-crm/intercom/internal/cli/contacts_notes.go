@@ -9,9 +9,10 @@ import (
 
 func newContactsNotesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "notes",
-		Short: "Everything about your Notes",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "notes",
+		Short:       "Everything about your Notes",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newContactsNotesCreateCmd(flags))

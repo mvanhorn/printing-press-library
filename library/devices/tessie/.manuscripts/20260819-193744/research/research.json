@@ -1,0 +1,44 @@
+{
+  "run_id": "20260819-193744",
+  "api": "tessie",
+  "cli_name": "tessie-pp-cli",
+  "base_url": "https://api.tessie.com",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {token}",
+    "env_var": "TESSIE_API_TOKEN"
+  },
+  "sources": [
+    "https://developer.tessie.com/reference/quick-start",
+    "https://developer.tessie.com/reference/authentication",
+    "https://developer.tessie.com/reference/get-all-vehicles",
+    "https://developer.tessie.com/reference/get-vehicle",
+    "https://developer.tessie.com/reference/get-battery",
+    "https://developer.tessie.com/reference/wake"
+  ],
+  "summary": "Tessie is a single-token REST API over Tesla vehicle data and commands. Endpoints are VIN-keyed under https://api.tessie.com/vehicles and /{vin}/... The /vehicles list nests the latest live state in a per-vehicle last_state object (display_name, state, vehicle_config, charge_state); /{vin}/state returns a flat Tesla-style state object. Auth is a single access token sent as an Authorization: Bearer header (Token from TESSIE_API_TOKEN).",
+  "novel_features": [
+    {
+      "name": "assume-vehicle",
+      "command": "use",
+      "path": "use",
+      "summary": "tessie use <name-or-vin> persists an assumed vehicle (matched by display name, VIN, or VIN suffix) to a small mode-600 JSON store beside the config; vehicle state/battery/location/wake subcommands then fall back to that VIN when none is passed. tessie current prints the assumed car.",
+      "description": "Persist an assumed vehicle so later vehicle subcommands target it without repeating a VIN.",
+      "example": "tessie-pp-cli use VCK5YJ3E1EA000001 --json",
+      "happy_args": "name-or-vin=VCK5YJ3E1EA000001",
+      "commands": ["use", "current"]
+    }
+  ],
+  "narrative": {
+    "commands": {
+      "use Car": "sets the persisted assumed vehicle to the car named Car",
+      "current": "shows the persisted assumed vehicle",
+      "vehicle state": "with no VIN positional, resolves to the assumed vehicle and returns live state"
+    },
+    "examples": [
+      "tessie-pp-cli use VCK5YJ3E1EA000001",
+      "tessie-pp-cli current"
+    ]
+  }
+}

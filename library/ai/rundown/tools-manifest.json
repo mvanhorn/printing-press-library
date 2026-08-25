@@ -1,0 +1,153 @@
+{
+  "api_name": "rundown",
+  "base_url": "https://app.therundown.ai/api/community",
+  "description": "Search the community's AI workflows offline, and rank them by week - two things the site's own API cannot do.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "rundown-pp-cli/0.1.0 (+https://printingpress.dev)"
+    },
+    {
+      "name": "Accept",
+      "value": "application/json"
+    }
+  ],
+  "tools": [
+    {
+      "name": "comments_list",
+      "description": "List comments on a workflow post. Required: post_id. Optional: cursor. Returns array of Comment.",
+      "method": "GET",
+      "path": "/posts/{post_id}/comments",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "post_id",
+          "type": "string",
+          "location": "path",
+          "description": "Post UUID",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "leaderboard_list",
+      "description": "This week's top contributors by points (server always returns the weekly window).",
+      "method": "GET",
+      "path": "/leaderboard",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "posts_list",
+      "description": "List community workflow posts with server-side filters. Optional: sort (default: new), type, query (plus 5 more). Returns array of Post.",
+      "method": "GET",
+      "path": "/posts?sort=new",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Ranking: new (default, complete + stable paging), top, or recommended. Note: recommended is personalised and omits ~13% of posts, so it is a poor choice for sync."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Post type: workflow, question, or win"
+        },
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text search across titles and bodies (server-side, semantic)",
+          "aliases": [
+            "q"
+          ]
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to a single tag slug, e.g. aimemory"
+        },
+        {
+          "name": "tool",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to workflows using a tool slug, e.g. claude-code (see: rundown-pp-cli tools)"
+        },
+        {
+          "name": "industry",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to an industry slug, e.g. software-technology"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (server caps at 50)"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque pagination cursor from a previous response"
+        }
+      ]
+    },
+    {
+      "name": "tools_list",
+      "description": "List every tool slug the community can tag a workflow with. Returns array of Tool.",
+      "method": "GET",
+      "path": "/tools",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Time-windowed top workflows",
+      "command": "top",
+      "description": "Rank the highest-upvoted workflows inside a time window like 7d or 30d."
+    },
+    {
+      "name": "Use-case finder",
+      "command": "use-cases",
+      "description": "Answer 'are there any workflows for X' by blending the server's semantic search with local full-text search, then ranking by upvotes."
+    },
+    {
+      "name": "Full workflow reader",
+      "command": "show",
+      "description": "Print one workflow in full - body, tools, industries, author and comments - in a single call."
+    },
+    {
+      "name": "Community digest",
+      "command": "digest",
+      "description": "Summarise a time window: how many workflows landed, the top posts, the most-used tools and the busiest authors."
+    },
+    {
+      "name": "Tool adoption ranking",
+      "command": "tools rank",
+      "description": "Rank AI tools by how often they appear in workflows and by the upvotes those workflows earned."
+    },
+    {
+      "name": "Tool co-occurrence stacks",
+      "command": "stack",
+      "description": "Show which other tools appear alongside a given tool, so you can see the stacks people really run."
+    }
+  ]
+}

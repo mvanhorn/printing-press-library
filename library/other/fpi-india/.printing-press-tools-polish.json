@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-07-10T10:19:06.327291Z",
+  "cli_dir": "\u003ccli-dir\u003e/fpi-india-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (internal/learn templates); needs generator-template fix"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-10T10:17:17.969554Z"
+  }
+}

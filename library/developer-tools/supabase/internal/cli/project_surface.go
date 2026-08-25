@@ -76,17 +76,24 @@ func parseProjectRef(rawURL string) string {
 // key when useSecret is true (required for Auth Admin and RLS-bypassing
 // operations), else uses the publishable/anon key.
 func (p *projectSurface) do(ctx context.Context, method, path string, body io.Reader, useSecret bool) ([]byte, int, error) {
+	respBody, status, _, err := p.doWithHeaders(ctx, method, path, body, useSecret)
+	return respBody, status, err
+}
+
+// doWithHeaders is the header-preserving variant used by runtime APIs whose
+// pagination contract is carried outside the JSON body.
+func (p *projectSurface) doWithHeaders(ctx context.Context, method, path string, body io.Reader, useSecret bool) ([]byte, int, http.Header, error) {
 	full := p.BaseURL + path
 	req, err := http.NewRequestWithContext(ctx, method, full, body)
 	if err != nil {
-		return nil, 0, fmt.Errorf("building request: %w", err)
+		return nil, 0, nil, fmt.Errorf("building request: %w", err)
 	}
 	key := p.APIKey
 	if useSecret && p.SecretKey != "" {
 		key = p.SecretKey
 	}
 	if key == "" {
-		return nil, 0, configErr(fmt.Errorf("no project API key available for %s", path))
+		return nil, 0, nil, configErr(fmt.Errorf("no project API key available for %s", path))
 	}
 	// Supabase project APIs require both apikey header AND Authorization Bearer
 	// (with the same value for service_role to unlock admin endpoints).
@@ -97,17 +104,17 @@ func (p *projectSurface) do(ctx context.Context, method, path string, body io.Re
 	}
 	resp, err := p.httpClient.Do(req)
 	if err != nil {
-		return nil, 0, fmt.Errorf("%s %s: %w", method, path, err)
+		return nil, 0, nil, fmt.Errorf("%s %s: %w", method, path, err)
 	}
 	defer resp.Body.Close()
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, resp.StatusCode, fmt.Errorf("reading response: %w", err)
+		return nil, resp.StatusCode, resp.Header.Clone(), fmt.Errorf("reading response: %w", err)
 	}
 	if resp.StatusCode >= 400 {
-		return respBody, resp.StatusCode, &projectAPIError{Method: method, Path: path, StatusCode: resp.StatusCode, Body: string(respBody)}
+		return respBody, resp.StatusCode, resp.Header.Clone(), &projectAPIError{Method: method, Path: path, StatusCode: resp.StatusCode, Body: string(respBody)}
 	}
-	return respBody, resp.StatusCode, nil
+	return respBody, resp.StatusCode, resp.Header.Clone(), nil
 }
 
 // projectAPIError carries HTTP status for typed exit codes from project-surface calls.

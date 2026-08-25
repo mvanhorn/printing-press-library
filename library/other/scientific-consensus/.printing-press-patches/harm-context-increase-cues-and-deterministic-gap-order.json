@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "harm-context-increase-cues-and-deterministic-gap-order",
+  "applied_at": "2026-07-04",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Stance classification must exclude harm-context 'increas*' phrasing (risk/mortality/morbidity/incidence) from support cues via an RE2-safe match-window re-inspection (never lookahead), evidence strength is a design+volume label with no directional input, gaps population probes iterate in sorted order for stable output, and drift's >=2-year minimum span lives in a directly testable validator.",
+  "reason": "Go's RE2 regexp has no lookahead, and count-subtraction between overlapping cue regexes misclassified harm findings like 'associated with increased mortality' as support; map-order iteration made gaps output differ across identical runs.",
+  "files": [
+    "internal/scengine/stance.go",
+    "internal/scengine/score.go",
+    "internal/cli/gaps.go",
+    "internal/cli/drift.go"
+  ],
+  "validated_outcome": "Table-driven tests: 'increased risk/mortality/incidence' phrasing classifies as refuting while 'increased survival' still supports; drift rejects spans of 0-1 years with a usage error and accepts 2+."
+}

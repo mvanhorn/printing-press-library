@@ -9,11 +9,11 @@ package cli
 
 import "github.com/spf13/cobra"
 
-// newProjectsGroupCmd wires `projects get` + `projects burndown`.
+// newProjectsGroupCmd wires `projects get` + portfolio helpers.
 func newProjectsGroupCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "projects",
-		Short:       "Linear projects: get + burndown projection",
+		Short:       "Linear projects: get, list, search, resolve, and burndown projection",
 		Annotations: map[string]string{"pp:typed-exit-codes": "0,2"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
@@ -21,6 +21,9 @@ func newProjectsGroupCmd(flags *rootFlags) *cobra.Command {
 	get.Use = "get <id>"
 	get.Short = "Get a single project"
 	cmd.AddCommand(get)
+	cmd.AddCommand(newProjectsListCmd(flags))
+	cmd.AddCommand(newProjectsSearchCmd(flags))
+	cmd.AddCommand(newProjectsResolveCmd(flags))
 	cmd.AddCommand(newProjectsBurndownCmd(flags))
 	return cmd
 }
@@ -38,11 +41,11 @@ func newCyclesGroupCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
-// newInitiativesGroupCmd wires `initiatives get` + `initiatives health`.
+// newInitiativesGroupCmd wires `initiatives get` + portfolio helpers.
 func newInitiativesGroupCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "initiatives",
-		Short:       "Linear initiatives: get + portfolio health rollup",
+		Short:       "Linear initiatives: get, list, search, resolve, and portfolio health rollup",
 		Annotations: map[string]string{"pp:typed-exit-codes": "0,2"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
@@ -50,6 +53,9 @@ func newInitiativesGroupCmd(flags *rootFlags) *cobra.Command {
 	get.Use = "get <id>"
 	get.Short = "Get a single initiative"
 	cmd.AddCommand(get)
+	cmd.AddCommand(newInitiativesListCmd(flags))
+	cmd.AddCommand(newInitiativesSearchCmd(flags))
+	cmd.AddCommand(newInitiativesResolveCmd(flags))
 	cmd.AddCommand(newInitiativesHealthCmd(flags))
 	return cmd
 }

@@ -1,0 +1,75 @@
+{
+  "schema_version": 2,
+  "id": "remove-confirmed-broken-endpoints",
+  "applied_at": "2026-08-19",
+  "base_run_id": "20260812-144651-60addfc5",
+  "base_printing_press_version": "unstamped (pre-4.28.0, no .printing-press.json in this tree)",
+  "summary": "Removed 4 commands confirmed genuinely broken against the live tenant, re-verified with a freshly-refreshed cookie session to rule out session expiry as the cause: attendee-types (top-level command), attendees search (subcommand of attendees), expense-types fields (subcommand of expense-types), and reports form-fields (subcommand of reports, found during the retry's full live gate). Kept attendees add/list, expense-types list, and the rest of reports.* (create/get/list/submit/update), which are unaffected siblings. A 4th and 5th command from an earlier same-day investigation (payment-types, expense-types list itself) were re-tested and confirmed WORKING once auth was refreshed -- those were false alarms from session expiry, not removed.",
+  "reason": "attendee-types (GET /v4/attendeetypes) returns HTTP 403: 'The OAuth Consumer must have one of these roles: Web Services Administrator, Expense Configuration Admin, or Expense Configuration Restricted.' This was already documented in concur-spec.yaml as AUTH-GATED from a 2026-08-17 investigation (a personal cookie session cannot hold an admin-role OAuth consumer grant), but the command itself was shipped anyway without an honest-failure guard -- unlike available-expenses, which got one for an analogous confirmed-dead-path reason. attendees search (GET /attendees/v4/attendees) returns HTTP 404 regardless of auth freshness -- no working alternative path was found this session. expense-types fields (GET /expenseconfig/v4/expensetypes/{id}/formfields) and reports form-fields (GET /expenseconfig/v4/reportformfields) both return HTTP 500 with the identical error body ('Internal server error. Please contact system administrator.') even with valid input and fresh auth; sibling endpoints in the same config area (expense-types list) work fine with the same session, ruling out an auth/session cause. reports form-fields was only discovered after the first removal pass, during the publish retry's --level full live gate re-run. User explicitly chose removal for all four (over investigating further, disclosing as a Known Gap, or publishing without disclosure) after re-verification with fresh auth confirmed each is real, not a session-expiry artifact.",
+  "files": [
+    "internal/cli/promoted_attendee-types.go",
+    "internal/cli/attendees_search.go",
+    "internal/cli/expense_types_fields.go",
+    "internal/cli/reports_form_fields.go",
+    "internal/cli/root.go",
+    "internal/cli/attendees.go",
+    "internal/cli/expense_types.go",
+    "internal/cli/reports.go",
+    "internal/cli/root_test.go",
+    "concur-spec.yaml",
+    "SKILL.md",
+    "README.md"
+  ],
+  "changes": [
+    {
+      "file": "internal/cli/promoted_attendee-types.go",
+      "description": "Deleted -- implemented the confirmed-403 attendee-types command."
+    },
+    {
+      "file": "internal/cli/attendees_search.go",
+      "description": "Deleted -- implemented the confirmed-404 attendees search subcommand."
+    },
+    {
+      "file": "internal/cli/expense_types_fields.go",
+      "description": "Deleted -- implemented the confirmed-500 expense-types fields subcommand."
+    },
+    {
+      "file": "internal/cli/root.go",
+      "description": "Removed the rootCmd.AddCommand(newAttendeeTypesPromotedCmd(flags)) registration."
+    },
+    {
+      "file": "internal/cli/attendees.go",
+      "description": "Removed the cmd.AddCommand(newAttendeesSearchCmd(flags)) registration; add/list registrations kept."
+    },
+    {
+      "file": "internal/cli/expense_types.go",
+      "description": "Removed the cmd.AddCommand(newExpenseTypesFieldsCmd(flags)) registration; list registration kept."
+    },
+    {
+      "file": "internal/cli/reports_form_fields.go",
+      "description": "Deleted -- implemented the confirmed-500 reports form-fields subcommand."
+    },
+    {
+      "file": "internal/cli/reports.go",
+      "description": "Removed the cmd.AddCommand(newReportsFormFieldsCmd(flags)) registration; create/get/list/submit/update registrations kept."
+    },
+    {
+      "file": "internal/cli/root_test.go",
+      "description": "Removed 'attendee-types', 'attendees search', 'expense-types fields', and 'reports form-fields' from TestDeclaredAPISurfaceReachable's hardcoded expected command-path list, matching the actual (reduced) command surface."
+    },
+    {
+      "file": "concur-spec.yaml",
+      "description": "Removed the attendee_types resource block entirely (its only endpoint was the removed command), the attendees.search endpoint (attendees.list/add kept), the expense_types.fields endpoint (expense_types.list kept), and the reports.form_fields endpoint (reports.create/get/list/submit/update kept). Each removal left an explanatory comment with the live-test evidence, dated, so a future regen or investigation has the context without needing to re-derive it."
+    },
+    {
+      "file": "SKILL.md",
+      "description": "Removed the attendee_types command-reference section and the attendees-search/expense-types-fields bullets. Replaced attendee-types as the canonical --json/--select/--dry-run/--agent demo command (2 occurrences) with payment-types (confirmed working), including correcting the --select example fields to payment-types' real field names (paymentTypeId, paymentTypeName, description) rather than carrying over attendee-types' field names."
+    },
+    {
+      "file": "README.md",
+      "description": "Same set of removals as SKILL.md, plus the ### attendee_types command-reference heading, and the same attendee-types -> payment-types swap (5 occurrences) in the Output Formats section, including the --select field-name correction."
+    }
+  ],
+  "validated_outcome": "go build, go vet ./..., and go test ./... all clean (including the corrected TestDeclaredAPISurfaceReachable) after both removal passes. Manually re-verified all 4 originally-suspect commands with a freshly-refreshed cookie session before deciding scope: payment-types and expense-types list confirmed WORKING (kept); attendee-types (403, admin-role-gated) and attendees search (404) confirmed BROKEN (removed). Additionally discovered and confirmed expense-types fields broken (500 with a real ID) during this re-verification pass and included it in the first removal round. reports form-fields (also 500) was discovered one layer later, during the publish retry's full live gate re-run, and removed in a second pass with the user's explicit go-ahead. The replacement payment-types --select example was run live and confirmed to return the documented field names exactly.",
+  "upstream_issue": null
+}

@@ -1,0 +1,154 @@
+# learn no-entities escape: catalog contents (cameras, lenses, collections) are per-user data; no stable cross-user entity vocabulary exists to seed
+name: lightroom-classic
+description: "Query Adobe Lightroom Classic catalogs (.lrcat) from the terminal — strictly read-only"
+version: "0.1.0"
+source: local-sqlite
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/lightroom-classic-pp-cli/config.toml"
+
+learn:
+  synonyms:
+    "flagged": "picked"
+    "starred": "rated"
+
+resources:
+  photos:
+    description: "Find and inspect photos in the catalog"
+    endpoints:
+      find:
+        method: GET
+        path: "/photos"
+        description: "Search photos by date, rating, pick, label, keyword, collection, camera, lens, and EXIF criteria"
+        example: "  lightroom-classic-pp-cli find --rating \">=4\" --since 2026-06-01 --json"
+        params:
+          - name: since
+            type: string
+            description: "Earliest capture date (YYYY-MM-DD)"
+          - name: until
+            type: string
+            description: "Latest capture date (YYYY-MM-DD)"
+          - name: date
+            type: string
+            description: "Exact capture day (YYYY-MM-DD)"
+          - name: rating
+            type: string
+            description: "Rating filter, e.g. '>=4', '5', '>0'"
+          - name: picked
+            type: bool
+            description: "Only flagged picks"
+          - name: rejected
+            type: bool
+            description: "Only rejected photos"
+          - name: label
+            type: string
+            description: "Color label"
+          - name: keyword
+            type: string
+            description: "Keyword name"
+          - name: collection
+            type: string
+            description: "Collection name"
+          - name: camera
+            type: string
+            description: "Camera model substring"
+          - name: lens
+            type: string
+            description: "Lens substring"
+          - name: iso
+            type: string
+            description: "ISO filter, e.g. '>=1600'"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max photos returned"
+        response:
+          type: array
+          item: Photo
+  catalog:
+    description: "Catalog-level listings and health"
+    endpoints:
+      collections:
+        method: GET
+        path: "/collections"
+        description: "List collections with image counts"
+        response:
+          type: array
+          item: Collection
+      keywords:
+        method: GET
+        path: "/keywords"
+        description: "List keywords with image counts"
+        response:
+          type: array
+          item: Keyword
+      cameras:
+        method: GET
+        path: "/cameras"
+        description: "List camera bodies with counts and first/last-seen dates"
+        response:
+          type: array
+          item: Gear
+      lenses:
+        method: GET
+        path: "/lenses"
+        description: "List lenses with counts and first/last-seen dates"
+        response:
+          type: array
+          item: Gear
+
+types:
+  Photo:
+    fields:
+      - name: id
+        type: int
+      - name: capture_time
+        type: string
+      - name: rating
+        type: float
+      - name: pick
+        type: int
+      - name: color_label
+        type: string
+      - name: file_format
+        type: string
+      - name: camera
+        type: string
+      - name: lens
+        type: string
+      - name: iso
+        type: int
+      - name: aperture
+        type: string
+      - name: shutter
+        type: string
+      - name: focal_length
+        type: float
+      - name: path
+        type: string
+  Collection:
+    fields:
+      - name: name
+        type: string
+      - name: image_count
+        type: int
+  Keyword:
+    fields:
+      - name: name
+        type: string
+      - name: image_count
+        type: int
+  Gear:
+    fields:
+      - name: name
+        type: string
+      - name: image_count
+        type: int
+      - name: first_seen
+        type: string
+      - name: last_seen
+        type: string

@@ -1,14 +1,13 @@
 # YouTube CLI
 
-**Search YouTube in bulk, grab transcripts, get embed snippets — for the photo-keywords-to-blog-post workflow.**
+**A self-maintained competitor-monitoring machine for YouTube: the read surfaces that matter for market and competitor research plus a local databank of channel histories, snapshots, comments, and packaging assets - market data hours old, not weeks.**
 
-A trimmed read-only YouTube Data API v3 CLI built for local research workflows. Bulk search from stdin, transcript fetching via timedtext (no OAuth needed), embed snippet generation, and a heuristic-based `videos related` that still works despite the 2023 deprecation.
+The YouTube Data API v3 read surfaces that matter for market and competitor research with complete parameter wiring, feeding a local SQLite databank designed for competitor monitoring: `watch` your ~15 competitors, `monitor` refreshes them for ~20-40 quota units per run, and `velocity`, `growth`, `breakouts`, `comments-mine`, and `packaging` turn the accumulated snapshots into current market intelligence that lagging analytics platforms deliver one to two weeks late.
 
-Learn more at [YouTube Data API v3](https://developers.google.com/youtube/v3).
-
-**Sample use case:** [justinwfu/pictovideo](https://github.com/justinwfu/pictovideo) — photo-keywords → candidate-video → embedded blog draft pipeline using this CLI.
+Learn more at [YouTube](https://www.youtube.com).
 
 Created by [@justinwfu](https://github.com/justinwfu) (Justin).
+Contributors: [@vieGPT](https://github.com/vieGPT) (Maximus).
 
 ## Install
 
@@ -39,7 +38,7 @@ npx -y @mvanhorn/printing-press-library install youtube --agent claude-code --ag
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/youtube/cmd/youtube-pp-cli@latest
@@ -77,7 +76,6 @@ Inside a Hermes chat session:
 Restart the Hermes session or gateway if the newly installed skill is not visible immediately.
 
 ## Install for OpenClaw
-
 Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
 
 ```bash
@@ -104,7 +102,9 @@ Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple S
 If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
 
 
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/youtube/cmd/youtube-pp-mcp@latest
+```
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
@@ -125,130 +125,297 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
-API-key only — set `YOUTUBE_API_KEY` and you're done. Read-only public-data operations only (10,000 quota units/day default). Write operations are not configured; this CLI is for discovery and research, not channel management.
+Set YOUTUBE_API_KEY to a YouTube Data API v3 key (create one at console.cloud.google.com under APIs & Services > Credentials), or store it once with `auth set-token`. A key in the environment overrides the stored one - if `doctor` shows auth_source env and calls fail with HTTP 400 'API key not valid', the environment copy is stale: unset it or update it. Read-only public-data operations only; no OAuth anywhere.
 
 ## Quick Start
 
 ```bash
-# Verify the API key and reachability.
-youtube-pp-cli doctor
+# Health check: key present, API reachable, cache status - works before any credential is set
+youtube-pp-cli doctor --dry-run
 
-# Single-term search.
-youtube-pp-cli youtube search-list --q "sourdough scoring" --max-results 5 --json
+# Resolve a competitor channel and see its lifetime totals
+youtube-pp-cli youtube channels-list --part statistics,snippet --for-handle @mkbhd
 
-# Bulk search from positional args — the photo-keywords -> videos shape (use --stdin to read from a file/pipe instead).
-youtube-pp-cli youtube search-bulk "sourdough scoring" "latte art" --top 3 --json
+# Put the channel on the watchlist (drop --dry-run to save); backfill seeds its full history
+youtube-pp-cli watch add @mkbhd --dry-run
 
-# Fetch the transcript to verify topic relevance before picking the video.
-youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --lang en
+# Preview the refresh of every watched channel; run it on a schedule to keep the databank current
+youtube-pp-cli monitor --dry-run
 
-# Get a markdown embed snippet for the blog draft.
-youtube-pp-cli youtube videos-embed dQw4w9WgXcQ --format markdown
-
-# Find more candidates similar to a video you've already picked.
-youtube-pp-cli youtube videos-related dQw4w9WgXcQ --limit 5
+# Which tracked videos are gaining views fastest right now
+youtube-pp-cli velocity --json
 
 ```
-
-## Known Gaps
-
-- **Enum flag values aren't validated client-side.** Flags like `--order`, `--safe-search`, `--video-duration`, and similar carry a "one of:" hint in `--help`, but the CLI passes whatever string you supply straight to the API. An invalid value comes back as an HTTP 400 from YouTube rather than a local "unknown value" error. Use the documented values from `--help` to avoid the round-trip.
 
 ## Unique Features
 
 These capabilities aren't available in any other tool for this API.
 
-### Blog-post composition
-- **`youtube search-bulk`** — Take a list of search terms from stdin or args, return top-N YouTube videos per term in one JSON document with titles, channels, embed URLs, and thumbnails.
+### Competitor monitoring machine
+- **`watch`** — Register the competitor channels your monitoring machine tracks, in a typed watchlist table you own.
 
-  _When you have N search terms from an upstream pipeline (image labels, photo tags, scraped keywords), reach for this instead of looping single searches._
-
-  ```bash
-  youtube-pp-cli youtube search-bulk "sourdough scoring" "latte art" --top 3
-  ```
-- **`youtube videos-transcript`** — Fetch the spoken-content transcript of a YouTube video using the timedtext endpoint. Works for auto-generated and manual captions on any public video. Caches into the local store.
-
-  _Read the transcript before deciding whether a candidate video actually fits the topic of the blog post or photo._
+  _Defines the tracked market once; every later monitoring command runs against it without re-specifying channels._
 
   ```bash
-  youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --lang en --json
+  youtube-pp-cli watch add @mkbhd --json
   ```
-- **`youtube videos-embed`** — Print embed HTML, iframe, or markdown-style embed for a video ID. Direct copy-paste into a blog draft.
+- **`monitor`** — Refresh every watched channel in one run: stats snapshot, new uploads, re-snapshot of recent video statistics.
 
-  _Once you've picked a video for the blog, get the embed snippet without remembering the exact iframe URL pattern._
+  _One command keeps the databank current, so market answers are hours old instead of weeks old._
 
   ```bash
-  youtube-pp-cli youtube videos-embed dQw4w9WgXcQ --format markdown
+  youtube-pp-cli monitor --json
   ```
+- **`velocity`** — See which tracked videos are gaining views fastest right now, computed from real between-snapshot deltas.
 
-### Reachability mitigation
-- **`youtube videos-related`** — Find videos related to a target video using topicDetails + same-channel + tag overlap from the local store. Best-effort replacement for the deprecated relatedToVideoId parameter.
-
-  _When one candidate video is on-topic but you want more like it, this is the working stand-in for the deprecated parameter._
+  _Current market movement - what is taking off today, not what took off two weeks ago._
 
   ```bash
-  youtube-pp-cli youtube videos-related dQw4w9WgXcQ --limit 10 --json
+  youtube-pp-cli velocity --json
   ```
+- **`growth`** — Channel-level subscriber, view, and upload-count deltas between dated local snapshots.
 
-### Audience signal
-- **`youtube videos-comments`** — Fetch top comments on a video, ranked locally by likeCount. Pulls up to 5 pages from commentThreads.list and sorts so most-liked floats regardless of API order.
-
-  _Use to gauge whether a video is actually well-received before embedding, or to surface viewer-supplied context the description doesn't mention._
+  _Tells an agent whether a competitor is accelerating without any external history service._
 
   ```bash
-  youtube-pp-cli youtube videos-comments dQw4w9WgXcQ --top 10
+  youtube-pp-cli growth @mkbhd --json
   ```
+- **`backfill`** — Pull a channel's complete upload history with statistics into the local databank in one command.
 
-### Channel discovery
-- **`youtube channel-uploads`** — List a channel's most recent uploads in one call. Resolves @handle or channelId, walks the auto-generated uploads playlist, returns video IDs + titles + publish times.
-
-  _Replaces the manual two-step lookup. Pairs naturally with --for-handle workflows._
+  _Run once per competitor; every later question about that channel is answered offline for free._
 
   ```bash
-  youtube-pp-cli youtube channel-uploads @veritasium --top 10
+  youtube-pp-cli backfill @mkbhd --json
   ```
+- **`workspace`** — Named databanks: keep the competitor machine in one database and explore a new niche in another, switching instantly.
+
+  _Lets an agent spin up a clean research sandbox per niche without risking the production watchlist databank._
+
+  ```bash
+  youtube-pp-cli workspace list --json
+  ```
+- **`auth keys`** — Store multiple named YouTube API keys, switch between them instantly, and optionally fail over automatically via --rotate when one runs out of quota.
+
+  _An agent can finish large collection jobs without human intervention when the first key's daily quota is spent._
+
+  ```bash
+  youtube-pp-cli auth keys list --json
+  ```
+
+### Fresh market discovery
+- **`breakouts`** — Chain search filters into a matrix (terms x upload window x duration x region), join results to channel size, and rank fresh high-momentum videos.
+
+  _Finds niche breakouts days after upload, weeks before they reach lagging analytics platforms._
+
+  ```bash
+  youtube-pp-cli breakouts "berlin history" --days 14 --json
+  ```
+- **`comments-mine`** — Sync comments into a typed full-text-searchable table and report top-liked comments, keyword frequencies, and audience questions.
+
+  _Fast audience signal from data you own - what viewers praise, ask, and complain about across a channel._
+
+  ```bash
+  youtube-pp-cli comments-mine @mkbhd --json
+  ```
+- **`packaging`** — Collect titles, thumbnails (downloaded as local image files), and hook text from transcript openings into a packaging table.
+
+  _Hands a multimodal agent everything it needs for thumbnail and hook analysis without any scraping or manual collection._
+
+  ```bash
+  youtube-pp-cli packaging @mkbhd --json
+  ```
+
+## Recipes
+
+### Stand up the monitoring machine
+
+```bash
+youtube-pp-cli watch add @mkbhd --json
+```
+
+Add each competitor once; backfill seeds history and every monitor run keeps them current
+
+### What moved today
+
+```bash
+youtube-pp-cli velocity --agent --select items.title,items.views_per_day
+```
+
+Between-snapshot view velocity for tracked videos, narrowed to the fields an agent needs
+
+### Fresh breakouts in a niche
+
+```bash
+youtube-pp-cli breakouts "berlin history" --days 14 --json
+```
+
+Chained filter matrix joined to channel size - high views-per-subscriber uploads from the last two weeks
+
+### Packaging dossier for the agent
+
+```bash
+youtube-pp-cli packaging @mkbhd --json
+```
+
+Titles, local thumbnail files, and hook text side by side, ready for multimodal packaging analysis
+
+### What the audience keeps asking
+
+```bash
+youtube-pp-cli comments-mine @mkbhd --json
+```
+
+Top-liked comments, keyword frequencies, and extracted questions from the synced comment table
 
 ## Usage
 
 Run `youtube-pp-cli --help` for the full command reference and flag list.
 
+## Paths & environment variables
+
+This CLI separates local files into four path kinds:
+
+| Kind | Contents |
+|------|----------|
+| `config` | User-editable settings such as `config.toml` and saved profiles |
+| `data` | Durable local data: `credentials.toml`, `data.db`, cookies, browser-session proof files, and other auth sidecars |
+| `state` | Runtime state such as persisted queries, jobs, and `teach.log` |
+| `cache` | Regenerable HTTP/cache files |
+
+Each kind resolves independently. The ladder is:
+
+1. Per-kind env var: `YOUTUBE_CONFIG_DIR`, `YOUTUBE_DATA_DIR`, `YOUTUBE_STATE_DIR`, or `YOUTUBE_CACHE_DIR`
+2. `--home <dir>` for this invocation
+3. `YOUTUBE_HOME` for a flat relocated root
+4. XDG env vars: `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`
+5. Platform defaults matching existing installs
+
+For containers and agent sandboxes, prefer a single relocated root:
+
+```bash
+export YOUTUBE_HOME=/srv/youtube
+youtube-pp-cli doctor
+```
+
+Under `YOUTUBE_HOME=/srv/youtube`, the four dirs resolve to `/srv/youtube/config`, `/srv/youtube/data`, `/srv/youtube/state`, and `/srv/youtube/cache`.
+
+MCP servers do not receive CLI flags from the host. Put relocation in the host `env` block:
+
+```json
+{
+  "mcpServers": {
+    "youtube": {
+      "command": "youtube-pp-mcp",
+      "env": {
+        "YOUTUBE_HOME": "/srv/youtube"
+      }
+    }
+  }
+}
+```
+
+Precedence matters in fleets: an ambient per-kind variable such as `YOUTUBE_DATA_DIR` overrides an explicit `--home` for that kind. Use `YOUTUBE_HOME` or the per-kind variables for durable fleet relocation; treat `--home` as the weaker per-invocation lever.
+
+Relocation is one-way. Unsetting `YOUTUBE_HOME` does not move files back to platform defaults, and `doctor` cannot find credentials left under a former root. Move the files manually before unsetting relocation variables.
+
+Existing installs keep working because the platform-default rung matches the legacy layout. On the first auth write, stored secrets leave `config.toml` and are consolidated into `credentials.toml` under the data directory. Run `youtube-pp-cli doctor --fail-on warn` to check path and credential-location warnings in automation.
+
 ## Commands
 
-### YouTube Data API v3 endpoints
+### youtube
 
-- **`youtube-pp-cli youtube channels-list`** - List channels by `--id`, `--for-handle`, `--for-username`, `--mine`, or `--managed-by-me`.
-- **`youtube-pp-cli youtube comment-threads-list`** - List top-level comment threads, filterable by video, channel, or thread id.
-- **`youtube-pp-cli youtube playlist-items-list`** - List items in a playlist by `--playlist-id` or `--id`.
-- **`youtube-pp-cli youtube playlists-list`** - List playlists by `--channel-id`, `--id`, or `--mine`.
-- **`youtube-pp-cli youtube search-list`** - Search videos, channels, and playlists with full filter support (`--q`, `--order`, `--type`, etc.).
-- **`youtube-pp-cli youtube videos-list`** - List videos by `--id`, `--chart`, or `--my-rating`.
+Manage youtube
 
-### Novel commands (not in the API)
+- **`youtube-pp-cli youtube activities-list`** - Retrieves a list of resources, possibly filtered.
+- **`youtube-pp-cli youtube captions-list`** - Retrieves a list of resources, possibly filtered.
+- **`youtube-pp-cli youtube channel-sections-list`** - Retrieves a list of resources, possibly filtered.
+- **`youtube-pp-cli youtube channels-list`** - Retrieves a list of resources, possibly filtered.
+- **`youtube-pp-cli youtube comment-threads-list`** - Retrieves a list of top-level comment threads, filterable by video, channel, or thread id. Public read-only when filtered by videoId, channelId, or id; moderationStatus filtering is OAuth-only and not exposed here.
+- **`youtube-pp-cli youtube i18n-languages-list`** - Retrieves a list of resources, possibly filtered.
+- **`youtube-pp-cli youtube i18n-regions-list`** - Retrieves a list of resources, possibly filtered.
+- **`youtube-pp-cli youtube playlist-items-list`** - Retrieves a list of resources, possibly filtered.
+- **`youtube-pp-cli youtube playlists-list`** - Retrieves a list of resources, possibly filtered.
+- **`youtube-pp-cli youtube search-list`** - Retrieves a list of search resources
+- **`youtube-pp-cli youtube video-categories-list`** - Retrieves a list of resources, possibly filtered.
+- **`youtube-pp-cli youtube videos-list`** - Retrieves a list of resources, possibly filtered.
 
-- **`youtube-pp-cli youtube search-bulk`** - Search multiple terms in one call; top-N per term.
-- **`youtube-pp-cli youtube videos-transcript`** - Fetch a video's transcript via timedtext (no OAuth).
-- **`youtube-pp-cli youtube videos-embed`** - Print HTML, iframe, or markdown embed snippet for a video.
-- **`youtube-pp-cli youtube videos-related`** - Find related videos via topic + channel + tag overlap (replaces deprecated `relatedToVideoId`).
-- **`youtube-pp-cli youtube videos-comments`** - Top comments on a video, ranked locally by likeCount.
-- **`youtube-pp-cli youtube channel-uploads`** - List a channel's most recent uploads in one call (resolves `@handle` → uploads playlist).
+
+### Self-learning loop
+
+This CLI caches per-question discovery so repeat queries skip the walk and structurally similar queries get answered via entity substitution. The loop also self-captures: every invocation is journaled locally, and failed-flag corrections plus fresh teaches surface as candidates on the next `recall` for confirm/reject judgment. Agents call `recall` before discovery and fire `teach &` after answering. See the `## Automatic learning` section in `SKILL.md` for the full protocol.
+
+- **`youtube-pp-cli recall <query>`** - Look up cached resources for a query before running discovery
+- **`youtube-pp-cli teach`** - Record a query -> resource mapping (silent on success, safe to background with `&`)
+- **`youtube-pp-cli learnings list`** - Inspect taught rows
+- **`youtube-pp-cli learnings forget <query>`** - Undo a teach
+- **`youtube-pp-cli learnings candidates`** - List auto-captured candidates awaiting confirm/reject
+- **`youtube-pp-cli learnings stats`** - Local loop metrics: recall hit rate, teach-to-reuse, playbook resolution, candidate counts
+- **`youtube-pp-cli teach-pattern`** - Install a query/resource template up front
+- **`youtube-pp-cli teach-lookup`** - Add an entity mapping (e.g. country code, team alias) for pattern substitution
+
+Pass `--no-learn` or set `YOUTUBE_NO_LEARN=true` to disable the loop for deterministic flows.
+
+The local store's schema version stamp is one-way: once this version of `youtube-pp-cli` opens the database, older binaries refuse it with a version error — upgrade the binary rather than downgrading.
+
+## The analyst databank (SQL schema)
+
+Every analyst command writes into one local SQLite databank — the file `doctor --json` reports
+as the store path. The filename is scoped by the active API key (`data-<hash>.db`); `workspace`
+switches between entirely separate databank files. Agents query it two ways: the MCP `sql` tool
+(read-only, validated) and the MCP `search` / CLI `search` full-text surface.
+
+| Table | One row per | Key columns |
+|---|---|---|
+| `yt_watchlist` | tracked competitor channel | `channel_id`, `handle`, `title`, `note`, `added_at`, `last_monitored_at` |
+| `yt_channel_snapshots` | channel per capture time | `channel_id`, `captured_at`, `subscriber_count`, `view_count`, `video_count` |
+| `yt_videos` | known video (dimension table) | `video_id`, `channel_id`, `title`, `published_at`, `duration_seconds`, `is_short`, `description` |
+| `yt_video_snapshots` | video per capture time | `video_id`, `captured_at`, `view_count`, `like_count`, `comment_count` |
+| `yt_comments` | synced comment | `comment_id`, `video_id`, `channel_id`, `author`, `text`, `like_count`, `published_at`, `is_reply` |
+| `yt_comments_fts` | FTS5 index over `yt_comments.text` | `MATCH` queries; kept in sync by insert/update/delete triggers |
+| `yt_packaging` | collected packaging asset | `video_id`, `channel_id`, `title`, `thumb_url`, `thumb_path`, `hook_text`, `view_count`, `captured_at`, `hook_error`, `thumb_error` |
+| `yt_monitor_runs` | one `monitor` run | `run_id`, `started_at`, `finished_at`, `channels`, `new_videos`, `video_snapshots`, `comments_synced`, `quota_units_est` |
+
+`monitor`, `backfill`, `breakouts`, `comments-mine`, and `packaging` feed these tables
+automatically (write-through); `velocity` and `growth` are computed from consecutive
+`yt_video_snapshots` / `yt_channel_snapshots` rows — two runs on different days are the
+minimum for a non-empty answer.
+
+Example queries (all verified against a live-populated store):
+
+```sql
+-- What moved: views per video from the latest snapshots
+SELECT s.video_id, v.title, s.view_count, s.captured_at
+FROM yt_video_snapshots s JOIN yt_videos v USING(video_id)
+ORDER BY s.captured_at DESC, s.view_count DESC LIMIT 20;
+
+-- Audience signal: most-liked comments mentioning a topic (FTS5)
+SELECT c.like_count, c.author, c.text
+FROM yt_comments_fts f JOIN yt_comments c ON c.rowid = f.rowid
+WHERE yt_comments_fts MATCH 'gemini' ORDER BY c.like_count DESC LIMIT 10;
+
+-- Growth rate per tracked channel between first and last snapshot
+SELECT channel_id,
+       MAX(subscriber_count) - MIN(subscriber_count) AS subs_delta,
+       MIN(captured_at) AS first_seen, MAX(captured_at) AS last_seen
+FROM yt_channel_snapshots GROUP BY channel_id;
+```
 
 ## Output Formats
 
 ```bash
 # Human-readable table (default in terminal, JSON when piped)
-youtube-pp-cli youtube channels-list
+youtube-pp-cli youtube activities-list --part snippet
 
 # JSON for scripting and agents
-youtube-pp-cli youtube channels-list --json
-
+youtube-pp-cli youtube activities-list --part snippet --json
 # Filter to specific fields
-youtube-pp-cli youtube channels-list --json --select id,name,status
+youtube-pp-cli youtube activities-list --part snippet --json --select contentDetails,etag,id
 
 # Dry run — show the request without sending
-youtube-pp-cli youtube channels-list --dry-run
+youtube-pp-cli youtube activities-list --part snippet --dry-run
 
 # Agent mode — JSON + compact + no prompts in one flag
-youtube-pp-cli youtube channels-list --agent
+youtube-pp-cli youtube activities-list --part snippet --agent
 ```
 
 ## Agent Usage
@@ -257,7 +424,7 @@ This CLI is designed for AI agent consumption:
 
 - **Non-interactive** - never prompts, every input is a flag
 - **Pipeable** - `--json` output to stdout, errors to stderr
-- **Filterable** - `--select id,name` returns only fields you need
+- **Filterable** - `--select <field>[,<field>...]` returns only fields you need
 - **Previewable** - `--dry-run` shows the request without sending
 - **Read-only by default** - this CLI does not create, update, delete, publish, send, or mutate remote resources
 - **Offline-friendly** - sync/search commands can use the local SQLite store when available
@@ -275,7 +442,7 @@ Verifies configuration, credentials, and connectivity to the API.
 
 ## Configuration
 
-Config file: `~/.config/youtube-pp-cli/config.toml`
+Run `youtube-pp-cli doctor` to see the resolved config, data, state, and cache directories. The platform-default config path is `~/.config/youtube-pp-cli/config.toml`; `--home`, `YOUTUBE_HOME`, and per-kind env vars can relocate it.
 
 Static request headers can be configured under `headers`; per-command header overrides take precedence.
 
@@ -284,6 +451,10 @@ Environment variables:
 | Name | Kind | Required | Description |
 | --- | --- | --- | --- |
 | `YOUTUBE_API_KEY` | per_call | Yes | Set to your API credential. |
+
+### agentcookie (optional)
+
+If you use agentcookie to sync secrets across machines, this CLI auto-adopts agentcookie-managed credentials with no extra setup. When the daemon writes to this CLI's config, `youtube-pp-cli doctor` reports `agentcookie: detected` and `auth status` labels the source as `agentcookie`. Skip this section if you don't use agentcookie - the CLI works the same as any other.
 
 ## Troubleshooting
 **Authentication errors (exit code 4)**
@@ -294,20 +465,19 @@ Environment variables:
 - Run the `list` command to see available items
 
 ### API-specific
-
-- **`videos transcript` returns RequestBlocked** — Run from a residential IP (your laptop). YouTube blocks AWS/GCP/Azure IPs from the timedtext endpoint.
-- **`videos related` returns no results for a fresh video ID** — Run `youtube-pp-cli youtube videos-list --id <id> --parts topicDetails,snippet` first to populate topic/tag data in the local store, then retry.
-- **`search` returns HTTP 403 quotaExceeded** — Daily quota (10,000 units) is exhausted. search.list costs 100 units per call, videos.list costs 1. Switch to cached results via `youtube-pp-cli sql \"SELECT * FROM search_results WHERE query='...'\"`.
-
----
+- **HTTP 400 'API key not valid' although auth set-token succeeded** — An environment YOUTUBE_API_KEY is overriding the stored key - run doctor to check auth_source, then unset or update the env var
+- **velocity or growth report 'need at least 2 snapshots'** — They compare dated snapshots - run `youtube-pp-cli monitor` again later (or schedule it); deltas appear from the second run onward
+- **search or breakouts stop working while other commands still do** — search.list has its own 100-calls-per-day bucket (each page and each matrix cell costs one call) - narrow the filter matrix or wait for the daily reset
+- **packaging rows missing thumbnails or hook text** — Thumbnail download needs network access and hook text needs an available transcript - rerun `packaging` for those videos; rows record which asset failed
+- **quota exhausted mid-backfill or mid-sweep** — Add a second key with `auth keys add <name> <key>` and switch with `auth keys use <name>` (or pass --rotate on the long-running command) - quota is per key
 
 ## Sources & Inspiration
 
 This CLI was built by studying these projects and resources:
 
-- [**Bin-Huang/youtube-data-cli**](https://github.com/Bin-Huang/youtube-data-cli) — JavaScript
-- [**pauling-ai/youtube-mcp-server**](https://github.com/pauling-ai/youtube-mcp-server) — Python
-- [**jdepoix/youtube-transcript-api**](https://github.com/jdepoix/youtube-transcript-api) — Python
-- [**djthorpe/ytapi**](https://github.com/djthorpe/ytapi) — Go
+- [**youtube-data-cli**](https://github.com/Bin-Huang/youtube-data-cli) — JavaScript
+- [**youtube-mcp-server**](https://github.com/pauling-ai/youtube-mcp-server) — Python
+- [**youtube-data-mcp-server**](https://github.com/icraft2170/youtube-data-mcp-server) — TypeScript
+- [**youtube-data-api**](https://github.com/SMAPPNYU/youtube-data-api) — Python
 
 Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)

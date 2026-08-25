@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-08-09T10:40:08.861635Z",
+  "cli_dir": "\u003ccli-dir\u003e/scrape-creators",
+  "findings": [
+    {
+      "kind": "email",
+      "file": "README.md",
+      "line": 672,
+      "column": 516,
+      "matched_span": "support@scrapecreators.com",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "README command-reference bullet for 'youtube list-video-3' quoting the vendor's endpoint description verbatim: 'This is inferred, not an official YouTube sponsor field. Feedback welcome: support@scrapecreators.com' — Scrape Creators' own published support address from their OpenAPI docs, not a customer value."
+    }
+  ],
+  "findings_count_before": 1
+}

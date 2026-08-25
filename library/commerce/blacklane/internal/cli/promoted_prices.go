@@ -18,9 +18,10 @@ func newPricesPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyDuration int
 
 	cmd := &cobra.Command{
-		Use:         "prices",
-		Short:       "Request prices for a journey (raw body; see 'quote' for a friendly interface)",
-		Long:        "Request prices for a journey (raw body; see 'quote' for a friendly interface)",
+		Use:   "prices",
+		Short: "Request prices for a journey (raw body; see 'quote' for a friendly interface)",
+		Long:  "Request prices for a journey (raw body; see 'quote' for a friendly interface)",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
 		Example:     "  blacklane-pp-cli prices --service-category example-value",
 		Annotations: map[string]string{"pp:endpoint": "prices.create", "pp:method": "POST", "pp:path": "/prices"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -48,25 +49,26 @@ func newPricesPromotedCmd(flags *rootFlags) *cobra.Command {
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
+			bodyMap := map[string]any{}
+			var body any = bodyMap
 			if bodyServiceCategory != "" {
-				body["serviceCategory"] = bodyServiceCategory
+				bodyMap["serviceCategory"] = bodyServiceCategory
 			}
 			if bodyServiceType != "" {
-				body["serviceType"] = bodyServiceType
+				bodyMap["serviceType"] = bodyServiceType
 			}
 			if bodyDepartAt != "" {
-				body["departAt"] = bodyDepartAt
+				bodyMap["departAt"] = bodyDepartAt
 			}
 			if bodyDuration != 0 {
-				body["duration"] = bodyDuration
+				bodyMap["duration"] = bodyDuration
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 
-			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			var partialFailure *partialFailureReport
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {
 				partialFailure = detectPartialFailure(data)
@@ -117,7 +119,7 @@ func newPricesPromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&bodyServiceCategory, "service-category", "prebooked", "Service category (prebooked)")

@@ -16,8 +16,8 @@ func newCompaniesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "companies <search_build_id>",
-		Short:       "Search for companies matching a name; returns identifyingName domains usable with reviews fetch",
-		Long:        "Shortcut for 'companies search'. Search for companies matching a name; returns identifyingName domains usable with reviews fetch",
+		Short:       "Search for companies matching a name; returns identifyingName domains usable with reviews-fetch",
+		Long:        "Shortcut for 'companies search'. Search for companies matching a name; returns identifyingName domains usable with reviews-fetch",
 		Example:     "  trustpilot-pp-cli companies 550e8400-e29b-41d4-a716-446655440000 --query example-value",
 		Annotations: map[string]string{"pp:endpoint": "companies.search", "pp:method": "GET", "pp:path": "/_next/data/{search_build_id}/search.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {

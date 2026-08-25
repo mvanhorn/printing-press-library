@@ -1,0 +1,2768 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://forkable.com/mc/",
+    "entry_count": 319,
+    "api_entry_count": 75,
+    "noise_entry_count": 244,
+    "host_distribution": {
+      "analytics.google.com": 5,
+      "c.contentsquare.net": 5,
+      "c.us.heap-api.com": 2,
+      "cdn.filestackcontent.com": 72,
+      "cdn.plaid.com": 1,
+      "cdn.us.heap-api.com": 2,
+      "connect.facebook.net": 1,
+      "d.adroll.com": 19,
+      "dpm.demdex.net": 2,
+      "dsum-sec.casalemedia.com": 1,
+      "eb2.3lift.com": 1,
+      "fonts.googleapis.com": 1,
+      "fonts.gstatic.com": 1,
+      "forkable.com": 151,
+      "ib.adnxs.com": 1,
+      "idsync.rlcdn.com": 2,
+      "image2.pubmatic.com": 1,
+      "k-aeu1.contentsquare.net": 10,
+      "maps.googleapis.com": 8,
+      "maps.gstatic.com": 4,
+      "match.sharethrough.com": 1,
+      "ml314.com": 1,
+      "p.typekit.net": 1,
+      "pixel.rubiconproject.com": 1,
+      "pixel.tapad.com": 2,
+      "ps.eyeota.net": 1,
+      "rtb-csync.smartadserver.com": 1,
+      "s.adroll.com": 5,
+      "srm.ba.contentsquare.net": 1,
+      "sync.outbrain.com": 1,
+      "sync.taboola.com": 1,
+      "t.contentsquare.net": 1,
+      "ups.analytics.yahoo.com": 1,
+      "us-u.openx.net": 1,
+      "use.typekit.net": 7,
+      "www.googletagmanager.com": 1,
+      "x.bidswitch.net": 2
+    },
+    "http_version_distribution": {
+      "h2": 283,
+      "h3": 27,
+      "http/1.1": 9
+    },
+    "time_start": "2026-07-17T17:03:26.71Z",
+    "time_end": "2026-07-17T17:04:03.44Z"
+  },
+  "secondary_hosts": [
+    {
+      "host": "analytics.google.com",
+      "count": 5,
+      "reason": "telemetry host"
+    },
+    {
+      "host": "c.contentsquare.net",
+      "count": 4,
+      "reason": "non-primary host"
+    },
+    {
+      "host": "c.us.heap-api.com",
+      "count": 1,
+      "reason": "non-primary host"
+    },
+    {
+      "host": "k-aeu1.contentsquare.net",
+      "count": 10,
+      "reason": "non-primary host"
+    },
+    {
+      "host": "maps.googleapis.com",
+      "count": 2,
+      "reason": "non-primary host"
+    },
+    {
+      "host": "srm.ba.contentsquare.net",
+      "count": 1,
+      "reason": "non-primary host"
+    }
+  ],
+  "reachability": {
+    "mode": "browser_required",
+    "confidence": 0.9,
+    "reasons": [
+      "CAPTCHA challenge observed"
+    ],
+    "evidence": [
+      {
+        "entry_index": 3,
+        "method": "GET",
+        "host": "forkable.com",
+        "path": "/mc/js/app.563ff288.js",
+        "status": 200,
+        "content_type": "application/javascript",
+        "reason": "CAPTCHA marker"
+      }
+    ]
+  },
+  "protocols": [
+    {
+      "label": "websocket",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "entry_index": 124,
+          "method": "GET",
+          "host": "forkable.com",
+          "path": "/cable",
+          "status": 101,
+          "content_type": "x-unknown",
+          "reason": "websocket upgrade"
+        }
+      ]
+    },
+    {
+      "label": "graphql",
+      "confidence": 0.92,
+      "evidence": [
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 94,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 95,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 96,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 109,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 110,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 111,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 114,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 115,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/public/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 116,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 123,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 125,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 127,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 141,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 151,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 152,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 153,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 165,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 166,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 167,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 168,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 169,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 170,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 171,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 172,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 173,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 174,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 175,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 176,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 177,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 178,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 179,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 180,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 181,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 182,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 183,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 184,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 185,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 186,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 187,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 188,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 189,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 190,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 191,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 192,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 206,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/public/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 207,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 208,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 209,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 210,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 211,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 212,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 284,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 312,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 313,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 314,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        }
+      ]
+    },
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 30,
+          "method": "GET",
+          "host": "forkable.com",
+          "path": "/api/v2/csrf_token",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 41,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/mapsjs/gen_204",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 126,
+          "method": "POST",
+          "host": "srm.ba.contentsquare.net",
+          "path": "/exist",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    },
+    {
+      "label": "html_scrape",
+      "confidence": 0.55,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "forkable.com",
+          "path": "/mc/",
+          "status": 304,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "api_key",
+        "confidence": 0.7,
+        "query_names": [
+          "key"
+        ],
+        "evidence": [
+          {
+            "entry_index": 31,
+            "method": "GET",
+            "host": "maps.googleapis.com",
+            "path": "/maps/api/js",
+            "status": 200,
+            "content_type": "text/javascript",
+            "reason": "auth-like query parameter"
+          }
+        ]
+      }
+    ]
+  },
+  "protections": [
+    {
+      "label": "captcha",
+      "confidence": 0.85,
+      "evidence": [
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "forkable.com",
+          "path": "/mc/js/app.563ff288.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "CAPTCHA marker"
+        }
+      ]
+    }
+  ],
+  "endpoint_clusters": [
+    {
+      "host": "c.contentsquare.net",
+      "method": "POST",
+      "path": "/v2/events",
+      "count": 4,
+      "statuses": [
+        204
+      ],
+      "content_types": [
+        "text/plain"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "unknown"
+      },
+      "response_shape": {},
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 107,
+          "method": "POST",
+          "host": "c.contentsquare.net",
+          "path": "/v2/events",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 149,
+          "method": "POST",
+          "host": "c.contentsquare.net",
+          "path": "/v2/events",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 282,
+          "method": "POST",
+          "host": "c.contentsquare.net",
+          "path": "/v2/events",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 317,
+          "method": "POST",
+          "host": "c.contentsquare.net",
+          "path": "/v2/events",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "c.us.heap-api.com",
+      "method": "POST",
+      "path": "/api/capture/v2/track",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "text/plain"
+      ],
+      "size_class": "small",
+      "request_shape": {
+        "kind": "unknown"
+      },
+      "response_shape": {
+        "kind": "unknown"
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 47,
+          "method": "POST",
+          "host": "c.us.heap-api.com",
+          "path": "/api/capture/v2/track",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "forkable.com",
+      "method": "GET",
+      "path": "/api/v2/csrf_token",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "token",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 30,
+          "method": "GET",
+          "host": "forkable.com",
+          "path": "/api/v2/csrf_token",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "forkable.com",
+      "method": "POST",
+      "path": "/api/v2/graphql",
+      "count": 54,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "query",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "variables",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "data",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-csrf-token"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 94,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 95,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 96,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 109,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 110,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 111,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 114,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 116,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 123,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 125,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 127,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 141,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 151,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 152,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 153,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 165,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 166,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 167,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 168,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 169,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 170,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 171,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 172,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 173,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 174,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 175,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 176,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 177,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 178,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 179,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 180,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 181,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 182,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 183,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 184,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 185,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 186,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 187,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 188,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 189,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 190,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 191,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 192,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 207,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 208,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 209,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 210,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 211,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 212,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 284,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 312,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 313,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 314,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "forkable.com",
+      "method": "POST",
+      "path": "/api/v2/public/graphql",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "query",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "variables",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "data",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "x-csrf-token"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 115,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/public/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 206,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/public/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "k-aeu1.contentsquare.net",
+      "method": "POST",
+      "path": "/v2/recording",
+      "count": 10,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "text/plain"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "unknown"
+      },
+      "response_shape": {},
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 50,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 108,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 148,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 150,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 205,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 283,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 309,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 310,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 315,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 318,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "maps.googleapis.com",
+      "method": "GET",
+      "path": "/maps/api/js",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "text/javascript"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "unknown"
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 31,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "maps.googleapis.com",
+      "method": "GET",
+      "path": "/maps/api/mapsjs/gen_204",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "unknown"
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 41,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/mapsjs/gen_204",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "srm.ba.contentsquare.net",
+      "method": "POST",
+      "path": "/exist",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {
+        "kind": "unknown"
+      },
+      "response_shape": {
+        "kind": "unknown"
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 126,
+          "method": "POST",
+          "host": "srm.ba.contentsquare.net",
+          "path": "/exist",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "request_sequences": [
+    {
+      "label": "observed_api_flow",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 30,
+          "method": "GET",
+          "host": "forkable.com",
+          "path": "/api/v2/csrf_token",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 31,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 41,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/mapsjs/gen_204",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 47,
+          "method": "POST",
+          "host": "c.us.heap-api.com",
+          "path": "/api/capture/v2/track",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 50,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 94,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 95,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        }
+      ],
+      "notes": [
+        "HAR timing available for at least one request."
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "create_events",
+      "resource": "events",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /v2/events traffic.",
+      "evidence": [
+        {
+          "entry_index": 107,
+          "method": "POST",
+          "host": "c.contentsquare.net",
+          "path": "/v2/events",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 149,
+          "method": "POST",
+          "host": "c.contentsquare.net",
+          "path": "/v2/events",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 282,
+          "method": "POST",
+          "host": "c.contentsquare.net",
+          "path": "/v2/events",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 317,
+          "method": "POST",
+          "host": "c.contentsquare.net",
+          "path": "/v2/events",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_exist",
+      "resource": "exist",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /exist traffic.",
+      "evidence": [
+        {
+          "entry_index": 126,
+          "method": "POST",
+          "host": "srm.ba.contentsquare.net",
+          "path": "/exist",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_graphql",
+      "resource": "graphql",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/v2/graphql traffic.",
+      "evidence": [
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 94,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 95,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 96,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 109,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 110,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 111,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 114,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 116,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 123,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 125,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 127,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 141,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 151,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 152,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 153,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 165,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 166,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 167,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 168,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 169,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 170,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 171,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 172,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 173,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 174,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 175,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 176,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 177,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 178,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 179,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 180,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 181,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 182,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 183,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 184,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 185,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 186,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 187,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 188,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 189,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 190,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 191,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 192,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 207,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 208,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 209,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 210,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 211,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 212,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 284,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 312,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 313,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 314,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_recording",
+      "resource": "recording",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /v2/recording traffic.",
+      "evidence": [
+        {
+          "entry_index": 50,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 108,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 148,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 150,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 205,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 283,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 309,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 310,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 315,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 318,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_track",
+      "resource": "track",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/capture/v2/track traffic.",
+      "evidence": [
+        {
+          "entry_index": 47,
+          "method": "POST",
+          "host": "c.us.heap-api.com",
+          "path": "/api/capture/v2/track",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_csrf_token",
+      "resource": "csrf_token",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/v2/csrf_token traffic.",
+      "evidence": [
+        {
+          "entry_index": 30,
+          "method": "GET",
+          "host": "forkable.com",
+          "path": "/api/v2/csrf_token",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_gen_204",
+      "resource": "gen_204",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /maps/api/mapsjs/gen_204 traffic.",
+      "evidence": [
+        {
+          "entry_index": 41,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/mapsjs/gen_204",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_js",
+      "resource": "js",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /maps/api/js traffic.",
+      "evidence": [
+        {
+          "entry_index": 31,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "generation_hints": [
+    "requires_page_context",
+    "requires_protected_client",
+    "weak_schema_confidence"
+  ],
+  "warnings": [
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 107,
+          "method": "POST",
+          "host": "c.contentsquare.net",
+          "path": "/v2/events",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 108,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 109,
+          "method": "POST",
+          "host": "forkable.com",
+          "path": "/api/v2/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 148,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 149,
+          "method": "POST",
+          "host": "c.contentsquare.net",
+          "path": "/v2/events",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 150,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 205,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 282,
+          "method": "POST",
+          "host": "c.contentsquare.net",
+          "path": "/v2/events",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 283,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 309,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 310,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 315,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 317,
+          "method": "POST",
+          "host": "c.contentsquare.net",
+          "path": "/v2/events",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 318,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 48,
+          "method": "OPTIONS",
+          "host": "c.us.heap-api.com",
+          "path": "/api/capture/v2/track",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 50,
+          "method": "POST",
+          "host": "k-aeu1.contentsquare.net",
+          "path": "/v2/recording",
+          "status": 200,
+          "content_type": "text/plain",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 17,
+          "method": "GET",
+          "host": "forkable.com",
+          "path": "/mc/fonts/forkable.6a69ff21.ttf",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 204,
+          "method": "GET",
+          "host": "forkable.com",
+          "path": "/mc/fonts/BlackTie-Regular-webfont.34790d75.woff2",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    }
+  ]
+}

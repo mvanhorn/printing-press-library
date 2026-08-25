@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "id": "available-expenses-honest-failure",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260812-144651-60addfc5",
+  "base_printing_press_version": "unstamped (pre-4.28.0, no .printing-press.json in this tree)",
+  "summary": "Five commands depend on the confirmed-nonexistent \"Available Expenses\" REST/GraphQL surface (directly, or transitively via the also company-token-gated trips/Itinerary v4 API). Each now fails fast with an honest, specific error in live mode instead of a cryptic HTML 404 passthrough. --dry-run is unaffected and still previews the command shape against mock/local data. A regen must preserve this guard, not silently restore a live network attempt against a path with no confirmed backend.",
+  "reason": "available_expenses.* was LOW-confidence at generation (resource-name-only guess, no fetched URI template) and is now CONFIRMED wrong: live-tested 404 with no official alternative found on developer.concur.com (it is a web-UI-only concept; the Aug 12 discovery report already flagged this risk). expenses.tag, available-expenses.move, available-expenses.link-to-trip, and trips.reconcile all read or write against this same nonexistent resource (the latter two also depend on trips/Itinerary v4, separately confirmed company-token-gated). Per the shipcheck rule that ship-with-gaps requires a gap to need live access not available in-session -- that exception no longer applies now that live access was used and confirmed the path dead. Deleting these commands outright would silently drop 2 of the 6 approved novel/transcendence features without user sign-off; failing fast with a clear message preserves the command surface and its documentation value while being honest about live-mode capability.",
+  "files": [
+    "internal/cli/available_expenses_list.go",
+    "internal/cli/available_expenses_move.go",
+    "internal/cli/expenses_tag.go",
+    "internal/cli/available_expenses_link_to_trip.go",
+    "internal/cli/trips_reconcile.go"
+  ],
+  "changes": [
+    {
+      "file": "internal/cli/available_expenses_list.go",
+      "description": "Added an early `if !flags.dryRun { return notFoundErr(...) }` guard after flag validation, before the network call."
+    },
+    {
+      "file": "internal/cli/available_expenses_move.go",
+      "description": "Same guard pattern, mutating-command wording."
+    },
+    {
+      "file": "internal/cli/expenses_tag.go",
+      "description": "Same guard pattern, placed after the --yes confirmation check."
+    },
+    {
+      "file": "internal/cli/available_expenses_link_to_trip.go",
+      "description": "Same guard pattern; message covers both the available-expenses and trips/company-token dependency."
+    },
+    {
+      "file": "internal/cli/trips_reconcile.go",
+      "description": "Same guard pattern; message covers both dependencies. This one is read-only (mcp:read-only: true) so no --yes gate, guard placed after flag validation."
+    }
+  ],
+  "validated_outcome": "Live: `available-expenses list --user-id <id>` now returns a clear one-line error (exit code 3) instead of an HTML gateway 404 body. `expenses tag ... --dry-run --yes` still produces its full preview output unaffected (request-preview line, dry-run notice, mock matched_count summary). `trips reconcile --trip ... --user-id ...` (live) returns the compound-dependency error.",
+  "upstream_issue": null
+}

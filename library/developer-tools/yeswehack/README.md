@@ -11,13 +11,13 @@ Learn more at [YesWeHack](https://api.yeswehack.com).
 The recommended path installs both the `yeswehack-pp-cli` binary and the `pp-yeswehack` agent skill in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install yeswehack
+npx -y @mvanhorn/printing-press-library install yeswehack
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install yeswehack --cli-only
+npx -y @mvanhorn/printing-press-library install yeswehack --cli-only
 ```
 
 

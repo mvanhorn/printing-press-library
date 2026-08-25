@@ -35,10 +35,14 @@ func newTiptapExtractCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 			id := args[0]
-			c, err := openGranolaCache()
+			// PATCH(dual-path-store-read): store first, cache fallback. The
+			// TipTap blob itself is cache-only; --as markdown falls back to
+			// the store's notes_markdown and --as plain to notes_plain.
+			c, err := openGranolaRead(cmd.Context())
 			if err != nil {
 				return err
 			}
+			defer c.Close()
 			d := c.DocumentByID(id)
 			if d == nil {
 				return notFoundErr(fmt.Errorf("meeting %s not in cache", id))

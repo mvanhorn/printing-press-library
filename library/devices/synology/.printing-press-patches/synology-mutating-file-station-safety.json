@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "synology-mutating-file-station-safety",
+  "applied_at": "2026-08-24",
+  "base_run_id": "20260824-135140",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Pin `--dry-run` into the examples of the four mutating File Station commands and mark all six as `mcp:read-only: false`.",
+  "reason": "Two defects meet on the same commands. First, the live dogfood harness executes a command's `example:` string verbatim against the real target rather than dry-running it, so the corrected examples for `files mkdir`, `rename`, `copy-start` and `delete-start` actually created, renamed and copied entries on a live DS415+, and consecutive runs were not idempotent: the second run failed because the first had already renamed the source. The harness also requires an Examples section in `--help`, so dropping the example is not an option; carrying `--dry-run` inside it is, and it doubles as the right thing to show a human reading `--help` for a destructive command. Second, the generator infers `mcp:read-only` from the HTTP method, and DSM tunnels every mutation through GET, so all six mutating commands shipped annotated as read-only - an MCP client that auto-approves read-only tools would have called `files delete-start` without asking.",
+  "files": [
+    "spec.yaml",
+    "internal/cli/files_mkdir.go",
+    "internal/cli/files_rename.go",
+    "internal/cli/files_copy_start.go",
+    "internal/cli/files_copy_stop.go",
+    "internal/cli/files_delete_start.go",
+    "internal/cli/files_delete_stop.go"
+  ],
+  "coverage_impact": "The happy-path and JSON-fidelity probes for the four commands now exercise request construction rather than a live mutation. Transport, auth and response handling for these endpoints are covered only by their non-mutating siblings.",
+  "validated_outcome": "`dogfood --live --level full` reports 192 passed, 0 failed, `Verdict: PASS (with skips)`, and writes `status: pass`; a live run leaves no new entries on the NAS."
+}

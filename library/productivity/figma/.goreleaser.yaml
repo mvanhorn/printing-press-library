@@ -23,7 +23,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w
+      - -s -w -X main.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -42,10 +42,10 @@ checksum:
 brews:
   - name: figma-pp-cli
     repository:
-      owner: giacaglia
+      owner: giuliano-giacaglia
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Every Figma endpoint, plus codegen-ready frame extracts, comments audit, orphans finder, tokens diff, and webhook..."
+    description: "Every Figma endpoint, plus codegen-ready frame extracts, comments audit, orphans finder, tokens diff"
     install: |
       bin.install "figma-pp-cli"
       bin.install "figma-pp-mcp"

@@ -1,0 +1,127 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-11T14:45:46.637641Z",
+  "printing_press_version": "4.28.0",
+  "api_name": "bambu",
+  "display_name": "Bambu Local",
+  "cli_name": "bambu-pp-cli",
+  "creator": {
+    "handle": "twidtwid",
+    "name": "Todd Dailey"
+  },
+  "owner": "twidtwid",
+  "printer": "twidtwid",
+  "printer_name": "Todd Dailey",
+  "spec_path": "bambu-spec.yaml",
+  "spec_format": "internal",
+  "spec_kind": "synthetic",
+  "spec_checksum": "sha256:ff5d4350306a650407fc3af2abe20bac0807ba9b5495ed27ac1b3a7d236419a3",
+  "run_id": "20260711-063302-c519dd7c",
+  "category": "devices",
+  "description": "Agent-ready Bambu print monitoring with exact plate previews and start/finish payloads.",
+  "mcp_binary": "bambu-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "BAMBU_SERIAL",
+    "BAMBU_ACCESS_CODE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "BAMBU_SERIAL",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false,
+      "description": "Bambu printer serial used for discovery filtering, MQTT topics, and certificate identity checks."
+    },
+    {
+      "name": "BAMBU_ACCESS_CODE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true,
+      "description": "Local LAN access code used to authenticate directly to the printer."
+    }
+  ],
+  "auth_title": "Bambu local LAN credentials",
+  "auth_description": "The printer serial and LAN access code are both required. They are used only for direct private-LAN MQTT and FTPS connections.",
+  "novel_features": [
+    {
+      "name": "Calibrated completion forecast",
+      "command": "job eta",
+      "description": "Correct the printer's finish estimate using the error pattern from prior runs of the same job."
+    },
+    {
+      "name": "Filament runway",
+      "command": "ams runway",
+      "description": "Estimate whether the active AMS tray can cover the current plate's remaining weight, with explicit unknown output when tray estimates or multi-material mapping are ambiguous."
+    },
+    {
+      "name": "Failure correlation matrix",
+      "command": "history failure-correlations",
+      "description": "Rank the printer, filament, plate, firmware, speed, and temperature contexts most associated with failed jobs."
+    },
+    {
+      "name": "Print-stage timeline",
+      "command": "job timeline",
+      "description": "Reconstruct one print's stages, pauses, layers, temperature recovery, and errors as an ordered timeline."
+    },
+    {
+      "name": "Firmware field drift",
+      "command": "printer field-diff",
+      "description": "Compare first and latest persisted redacted MQTT schemas for added, removed, and type-changed fields across a selected window."
+    },
+    {
+      "name": "Repeat-job comparison",
+      "command": "job repeats",
+      "description": "Compare duration, pauses, material, errors, and outcomes across repeated runs of the same plate."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Calibrated completion forecast",
+      "command": "job eta",
+      "description": "Correct the printer's finish estimate using the error pattern from prior runs of the same job."
+    },
+    {
+      "name": "Filament runway",
+      "command": "ams runway",
+      "description": "Estimate whether the active AMS tray can cover the current plate's remaining weight, with explicit unknown output when tray estimates or multi-material mapping are ambiguous."
+    },
+    {
+      "name": "Failure correlation matrix",
+      "command": "history failure-correlations",
+      "description": "Rank the printer, filament, plate, firmware, speed, and temperature contexts most associated with failed jobs."
+    },
+    {
+      "name": "Print-stage timeline",
+      "command": "job timeline",
+      "description": "Reconstruct one print's stages, pauses, layers, temperature recovery, and errors as an ordered timeline."
+    },
+    {
+      "name": "Firmware field drift",
+      "command": "printer field-diff",
+      "description": "Compare first and latest persisted redacted MQTT schemas for added, removed, and type-changed fields across a selected window."
+    },
+    {
+      "name": "Repeat-job comparison",
+      "command": "job repeats",
+      "description": "Compare duration, pauses, material, errors, and outcomes across repeated runs of the same plate."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 38,
+    "total": 38,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 76,
+      "grade": "B",
+      "total": 76
+    }
+  }
+}

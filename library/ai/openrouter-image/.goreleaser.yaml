@@ -1,0 +1,51 @@
+version: 2
+project_name: openrouter-image-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: openrouter-image-pp-cli
+    main: ./cmd/openrouter-image-pp-cli
+    binary: openrouter-image-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/ai/openrouter-image/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: openrouter-image-pp-mcp
+    main: ./cmd/openrouter-image-pp-mcp
+    binary: openrouter-image-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: openrouter-image-pp-cli
+    repository:
+      owner: neal-kyle
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every image model on OpenRouter, one key: generate, rank, estimate, and batch with a local cost ledger."
+    install: |
+      bin.install "openrouter-image-pp-cli"
+      bin.install "openrouter-image-pp-mcp"

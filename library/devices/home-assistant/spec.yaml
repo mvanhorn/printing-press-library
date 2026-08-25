@@ -1,0 +1,157 @@
+openapi: "3.0.3"
+info:
+  title: Home Assistant
+  x-display-name: Home Assistant
+  version: "2026.7"
+  description: >-
+    Curated stock Home Assistant REST surface. Administrative registry and
+    configuration operations use the generated raw WebSocket escape hatch when
+    a Core installation exposes them.
+servers:
+  - url: "{server}"
+    variables:
+      server:
+        default: http://homeassistant.local:8123
+security:
+  - BearerAuth: []
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Home Assistant long-lived access token
+  schemas:
+    JSON:
+      type: object
+      additionalProperties: true
+paths:
+  /api/config:
+    get:
+      tags: [system]
+      operationId: getSystemInfo
+      summary: Get Home Assistant configuration and version
+      responses: {"200": {description: OK, content: {application/json: {schema: {$ref: '#/components/schemas/JSON'}}}}}
+  /api/components:
+    get:
+      tags: [system]
+      operationId: listComponents
+      summary: List loaded components
+      responses: {"200": {description: OK}}
+  /api/states:
+    get:
+      tags: [state]
+      operationId: listStates
+      summary: List current entity states
+      responses: {"200": {description: OK}}
+  /api/states/{entityId}:
+    parameters:
+      - {name: entityId, in: path, required: true, schema: {type: string}}
+    get:
+      tags: [state]
+      operationId: getState
+      summary: Get an entity state
+      responses: {"200": {description: OK}}
+    post:
+      tags: [state]
+      operationId: setState
+      summary: Set a state for a custom entity
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/JSON'}}}}
+      responses: {"200": {description: OK}}
+    delete:
+      tags: [state]
+      operationId: deleteState
+      summary: Remove a custom entity state
+      responses: {"200": {description: OK}}
+  /api/services:
+    get:
+      tags: [service]
+      operationId: listServices
+      summary: List service domains and services
+      responses: {"200": {description: OK}}
+  /api/services/{domain}/{service}:
+    parameters:
+      - {name: domain, in: path, required: true, schema: {type: string}}
+      - {name: service, in: path, required: true, schema: {type: string}}
+    post:
+      tags: [service]
+      operationId: callService
+      summary: Call a Home Assistant service
+      requestBody: {required: false, content: {application/json: {schema: {$ref: '#/components/schemas/JSON'}}}}
+      responses: {"200": {description: OK}}
+  /api/events:
+    get:
+      tags: [event]
+      operationId: listEvents
+      summary: List event types
+      responses: {"200": {description: OK}}
+  /api/events/{eventType}:
+    parameters:
+      - {name: eventType, in: path, required: true, schema: {type: string}}
+    post:
+      tags: [event]
+      operationId: fireEvent
+      summary: Fire an event
+      requestBody: {required: false, content: {application/json: {schema: {$ref: '#/components/schemas/JSON'}}}}
+      responses: {"200": {description: OK}}
+  /api/history/period/{timestamp}:
+    parameters:
+      - {name: timestamp, in: path, required: true, schema: {type: string}}
+      - {name: filter_entity_id, in: query, schema: {type: string}}
+      - {name: end_time, in: query, schema: {type: string}}
+    get:
+      tags: [history]
+      operationId: listHistory
+      summary: Get entity history for a time window
+      responses: {"200": {description: OK}}
+  /api/logbook/{timestamp}:
+    parameters:
+      - {name: timestamp, in: path, required: true, schema: {type: string}}
+      - {name: entity, in: query, schema: {type: string}}
+      - {name: end_time, in: query, schema: {type: string}}
+    get:
+      tags: [logbook]
+      operationId: listLogbook
+      summary: Get a logbook time window
+      responses: {"200": {description: OK}}
+  /api/template:
+    post:
+      tags: [template]
+      operationId: renderTemplate
+      summary: Render a Home Assistant template
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/JSON'}}}}
+      responses: {"200": {description: OK}}
+  /api/config/core/check_config:
+    post:
+      tags: [config]
+      operationId: validateConfig
+      summary: Validate Home Assistant configuration
+      responses: {"200": {description: OK}}
+  /api/error_log:
+    get:
+      tags: [logs]
+      operationId: getErrorLog
+      summary: Get current error log
+      responses: {"200": {description: OK}}
+  /api/calendars:
+    get:
+      tags: [calendar]
+      operationId: listCalendars
+      summary: List calendars
+      responses: {"200": {description: OK}}
+  /api/calendars/{calendarId}:
+    parameters:
+      - {name: calendarId, in: path, required: true, schema: {type: string}}
+      - {name: start, in: query, required: true, schema: {type: string}}
+      - {name: end, in: query, required: true, schema: {type: string}}
+    get:
+      tags: [calendar]
+      operationId: listCalendarEvents
+      summary: List calendar events
+      responses: {"200": {description: OK}}
+  /api/intent/handle:
+    post:
+      tags: [intent]
+      operationId: handleIntent
+      summary: Handle an Assist intent
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/JSON'}}}}
+      responses: {"200": {description: OK}}

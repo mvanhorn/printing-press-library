@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "jules-pp-mcp",
+  "display_name": "Jules",
+  "version": "1.0.0-alpha",
+  "description": "Jules Planning & Progress API for async coding tasks",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/jules-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/jules-pp-mcp",
+      "args": [],
+      "env": {
+        "JULES_API_KEY": "${user_config.jules_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "jules_api_key": {
+      "type": "string",
+      "title": "Jules API key",
+      "description": "Sets JULES_API_KEY for the Jules MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

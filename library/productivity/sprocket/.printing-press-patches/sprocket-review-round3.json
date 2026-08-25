@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "sprocket-review-round3",
+  "applied_at": "2026-06-29",
+  "base_run_id": "20260617-211906-50f83ca4",
+  "base_printing_press_version": "4.24.0",
+  "summary": "away marks cancelled games with [CANCELLED] (parity with eventRow/next); since-snapshot path is scoped per club via clubKeyFromBaseURL so multi-club runs no longer overwrite each other and report spurious 'Added'.",
+  "reason": "Third review round found two real output defects: away's carpool list silently included cancelled games, and the since snapshot was club-agnostic (a regression from the SPROCKET_CLUB multi-club enhancement).",
+  "files": ["internal/cli/away.go","internal/cli/since.go","internal/cli/sprocket_schedule_test.go"],
+  "validated_outcome": "go test ./internal/cli/... passes incl. TestAwayRowMarksCancelled, TestClubKeyFromBaseURL."
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-anteprime-derivate",
+  "applied_at": "2026-08-23",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.30.3",
+  "summary": "Ogni anteprima `--dry-run` deriva dagli stessi parametri della ricerca vera, invece di ricomporli per conto suo. `get` mostra la ricerca che aggancia il documento invece di un URL composto a mano; `sync` elenca gli archivi che sincronizzerebbe davvero invece di una stringa fissa; `ddl iter`, `legge cronologia`, `deputato profilo`, `commissione dossier` e `gruppi` prendono i parametri da una funzione condivisa col percorso vivo.",
+  "reason": "Due erano gia' sbagliate. `get --dry-run` annunciava `doc221-1.jsp?icaDocId=N&legisl=18&numero=1185`: una `N` letterale al posto dell'id e due parametri che quell'URL non porta — non una richiesta diversa da quella vera, ma nessuna richiesta — e taceva che il comando fa due passi, di cui il secondo dipende dal primo. `sync --dry-run` diceva `would_sync: \"all 12 ARS archives\"` anche con `--resources ddl`, contraddicendo il campo `resources` stampato una riga sopra. Le altre cinque coincidevano, ma i parametri erano scritti due volte, una per l'anteprima e una per il vivo: e' la forma da cui sono nate le sette divergenze /bd/ chiuse dalla patch ars-sicilia-bd-form-unica, e lasciarla in piedi altrove significava aspettare che la stessa cosa ricapitasse.",
+  "files": [
+    "internal/cli/icaro_helpers.go",
+    "internal/cli/sync.go",
+    "internal/cli/ddl_iter.go",
+    "internal/cli/legge_cronologia.go",
+    "internal/cli/deputato_profilo.go",
+    "internal/cli/commissione_dossier.go",
+    "internal/cli/gruppi.go",
+    "internal/wwwclient/gruppi.go"
+  ],
+  "validated_outcome": "IL PERCORSO VIVO NON CAMBIA, verificato per confronto col binario precedente su 15 casi (`ddl iter` su due legislature, `legge cronologia` su due, `deputato profilo` con e senza --data, `commissione dossier` per codice e per nome, `gruppi elenco`/`get`/--deputato, i tre `get` e `ddl stralci`): 15 su 15 identici byte per byte, stdout, stderr e codice d'uscita, escluso il solo timestamp anti-cache nell'URL della scheda, che cambia anche fra due esecuzioni dello stesso binario di riferimento. ANTEPRIME: `ddl get 18 1185 --dry-run` ora da' la query `(18.LEGISL E 1185.NUMDDL)` con l'URL vero della ricerca e una nota che dichiara il secondo passo non anteprimabile; `sync --resources ddl --dry-run` da' `would_sync: [\"ddl\"]`, senza filtro ne elenca 12, e con un filtro inesistente da' lista vuota piu' la nota che la sincronizzazione fallirebbe, come fa il percorso vivo."
+}

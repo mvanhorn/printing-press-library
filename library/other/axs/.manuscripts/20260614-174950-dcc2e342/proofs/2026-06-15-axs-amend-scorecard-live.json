@@ -1,0 +1,105 @@
+{
+  "live_check": {
+    "passed": 5,
+    "failed": 1,
+    "skipped": 0,
+    "features": [
+      {
+        "name": "Firmware summary check",
+        "command": "firmware-check",
+        "example": "axs-pp-cli firmware-check --json",
+        "status": "pass",
+        "output_sample": "[]\n"
+      },
+      {
+        "name": "Battery dashboard",
+        "command": "battery",
+        "example": "axs-pp-cli battery --json",
+        "status": "pass",
+        "output_sample": "[]\n"
+      },
+      {
+        "name": "Component wear rollup",
+        "command": "wear",
+        "example": "axs-pp-cli wear --json --select device_type,device_label,shift_count,fd_shift_count,rd_shift_count",
+        "status": "pass",
+        "output_sample": "[]\n"
+      },
+      {
+        "name": "Ride shift log",
+        "command": "shifts",
+        "example": "axs-pp-cli shifts --totals --json",
+        "status": "pass",
+        "output_sample": "{\n  \"rides\": 0,\n  \"total_fd_shifts\": 0,\n  \"total_rd_shifts\": 0\n}\n"
+      },
+      {
+        "name": "Unified garage view",
+        "command": "garage",
+        "example": "axs-pp-cli garage",
+        "status": "fail",
+        "reason": "exit 4: Error: GET /bikes/ returned HTTP 401: {\"detail\":\"Authentication credentials were not provided.\"}\nhint: check your token. Set it with: axs-pp-cli auth set-token \u003ctoken\u003e\n      or: export SRAM_AXS_TOKEN=\u003cyour-token\u003e\n      Run 'axs-pp-cli doctor' to check auth status."
+      },
+      {
+        "name": "Since last sync",
+        "command": "since",
+        "example": "axs-pp-cli since 7d",
+        "status": "pass",
+        "output_sample": "{\n  \"window\": \"7d\",\n  \"since\": \"2026-06-08T05:13:43Z\",\n  \"items\": []\n}\n"
+      }
+    ],
+    "binary_refresh": {
+      "action": "fresh_fallback",
+      "stage_path": "/tmp/axs-pp-cli/build/stage/bin/axs-pp-cli",
+      "binary_path": "/tmp/axs-pp-cli/axs-pp-cli",
+      "reason": "same-name runnable binary is newer than Go sources"
+    },
+    "ran_at": "2026-06-15T05:13:43.776031Z",
+    "checked": 6,
+    "evaluated": 6,
+    "pass_rate_pct": 83
+  },
+  "scorecard": {
+    "api_name": "axs",
+    "steinberger": {
+      "output_modes": 10,
+      "auth": 10,
+      "error_handling": 10,
+      "terminal_ux": 10,
+      "readme": 10,
+      "doctor": 10,
+      "agent_native": 10,
+      "mcp_quality": 10,
+      "mcp_description_quality": 5,
+      "mcp_token_efficiency": 7,
+      "mcp_remote_transport": 10,
+      "mcp_tool_design": 0,
+      "mcp_surface_strategy": 0,
+      "local_cache": 10,
+      "cache_freshness": 5,
+      "breadth": 9,
+      "vision": 10,
+      "workflows": 10,
+      "insight": 10,
+      "agent_workflow_readiness": 9,
+      "path_validity": 7,
+      "auth_protocol": 10,
+      "data_pipeline_integrity": 10,
+      "sync_correctness": 10,
+      "type_fidelity": 4,
+      "dead_code": 5,
+      "live_api_verification": 0,
+      "total": 91,
+      "percentage": 91
+    },
+    "competitor_scores": null,
+    "overall_grade": "A",
+    "gap_report": [
+      "MCP: 21 tools (1 public, 20 auth-required) — readiness: full"
+    ],
+    "unscored_dimensions": [
+      "mcp_tool_design",
+      "mcp_surface_strategy",
+      "live_api_verification"
+    ]
+  }
+}

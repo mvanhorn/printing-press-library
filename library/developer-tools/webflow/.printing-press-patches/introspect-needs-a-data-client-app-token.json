@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "introspect-needs-a-data-client-app-token",
+  "applied_at": "2026-07-28",
+  "base_run_id": "20260728-073020-15799c7c",
+  "base_printing_press_version": "4.29.0",
+  "summary": "GET /token/introspect only accepts a Data Client App bearer token; it answers HTTP 500 for site and workspace tokens, so it is tier-gated for live dogfood and its help says which credential class it needs.",
+  "reason": "Webflow's spec states the requirement in the operation description, but the generator has no way to turn that prose into a credential-tier gate, so live dogfood probes the command with whatever token is configured and records two failures that are neither CLI defects nor fixable from this side. The 500 (rather than 401/403) also means no error-classification heuristic can recognise it. A regen must re-apply the tier annotation or the acceptance gate will fail again for the same non-reason.",
+  "files": ["internal/cli/token_introspect.go"],
+  "validated_outcome": "With --auth-tier site-token the command is skipped and the live matrix reports 255/255; without the annotation it failed 2/257 on upstream HTTP 500.",
+  "upstream_issue": ""
+}

@@ -39,6 +39,9 @@ func newCategoriesPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if len(cats) == 0 {
+				if flags.asJSON {
+					return printJSONFiltered(cmd.OutOrStdout(), []any{}, flags)
+				}
 				fmt.Fprintln(cmd.OutOrStdout(), "No categories found — run 'anylist-pp-cli sync' first")
 				return nil
 			}

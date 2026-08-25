@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-approvato-senza-gurs",
+  "applied_at": "2026-08-21",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "Say so when a `ddl iter` timeline ends at the Assembly vote with no Gazzetta event, because the laws archive publishes later than the bills archive.",
+  "reason": "The two archives lag by different amounts — measured on 2026-08-21 with `novita`, bills reached 24 days and laws 30. Someone starting from a recently approved bill gets a timeline that stops at 'Approvato dall'Assemblea' or 'Inviato Presidenza della Regione', looks for the law, does not find it, and cannot tell 'not promulgated yet' from 'not indexed yet'. This is the same gap `legge cronologia` covers from the other side, and it points at the same command. The trigger is structural rather than an invented day threshold: when the source has recorded publication, a 'Pubblicazione Gurs' event is present in the iter. Verified on four bills approved and promulgated long ago (17/733, 17/587, 18/4991, 18/1030) — all four carry it. Bill 6030, approved 29 July 2026 and published in the Gazzetta on 7 August, does not, and is the only one of six sampled bills where the note appears; a bill that never reached the floor (18/1171) does not get it either, since the approval event is missing. A second suggestion from the same report — warning up front about the wall-clock cost of a full-year `leggi cerca` — was deliberately not implemented: the estimate would be guesswork before the search runs, a `--fast` flag would be a second spelling of a low `--limit` (which now declares truncation), and the measured cost belongs in the docs, where it was added.",
+  "files": [
+    "internal/cli/ddl_iter.go",
+    "internal/cli/ddl_iter_test.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "`ddl iter 18 6030` gains the note naming the approval date (29 lug 2026) and pointing at `novita --archivi leggi`; `ddl iter 17 733`, `17 587`, `18 4991`, `18 1030` (all carrying a Pubblicazione Gurs event) and `18 1171` (never approved) do not. The existing stralcio note on 6030 is preserved alongside it. `go test ./...`, `go vet ./...`, `gofmt -l` and `cli-printing-press verify-skill` all clean.",
+  "upstream_issue": null
+}

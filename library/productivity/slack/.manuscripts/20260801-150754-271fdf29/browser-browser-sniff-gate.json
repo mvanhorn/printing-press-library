@@ -1,0 +1,11 @@
+{
+  "run_id": "20260801-150754-271fdf29",
+  "sources": [
+    {
+      "source_name": "slack",
+      "decision": "declined",
+      "reason": "user chose official OpenAPI (slackapi/slack-api-specs) enrichment over browser-sniff; internal-client surface needs xoxc/xoxd session auth, off-axis for this bot-token CLI",
+      "asked_at": "2026-08-01T19:55:27Z"
+    }
+  ]
+}

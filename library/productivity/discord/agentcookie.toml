@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "discord-pp-cli"
+display_name = "Discord"
+description = "Preview of the Discord v10 HTTP API specification. See https://discord.com/developers/docs for more details."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/discord-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+DISCORD_BOT_TOKEN = true

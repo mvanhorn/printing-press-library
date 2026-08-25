@@ -25,7 +25,7 @@ This skill drives the `linear-pp-cli` binary. **Do not invoke a command named `l
 2. Verify: `linear-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/project-management/linear/cmd/linear-pp-cli@latest
@@ -37,8 +37,10 @@ If `--version` reports "command not found" after install, the runtime cannot see
 
 - Add `--agent` to commands unless a human-readable table is explicitly needed. It implies JSON, compact output, non-interactive mode, no color, and confirmation-safe scripting.
 - Use `--data-source live` for closeout/state/description checks where current truth matters. Use `issues search` for duplicate checks; it refreshes stale issue search data or fails visibly. Use `--data-source local` or `similar` only when stale/offline local duplicate search is intentional.
-- A missing `description` in compact output does not mean an empty issue body. Request it explicitly: `linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.name,url`.
-- Before passing label UUIDs to `issues create` or `issues edit`, run `linear-pp-cli labels list --team ENG --agent --select id,name,global,team.key`. Use only global labels or labels owned by the target issue team; the CLI preflights label ownership and refuses cross-team labels before mutating.
+- Fields omitted from compact output are not absent from the issue. Request them explicitly, including nested labels: `linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.name,labels.nodes.id,labels.nodes.name,url`.
+- Fetch several known issues in one call with comma-separated identifiers: `linear-pp-cli issues ENG-123,ENG-124 --agent`. The result array preserves caller order and removes duplicate identifiers; a missing member fails the whole read instead of returning a partial set.
+- Prefer the canonical read and comment forms shown here. Common agent phrasing is accepted without changing behavior: `issues get|view|show ENG-123`, `documents get|view <ref>`, and `comments create` are compatibility aliases for `issues ENG-123`, `documents <ref>`, and `comments add`. The aliases accept the same global flags, comma reads, body files, targets, and media flags as their canonical commands; there is deliberately no `documents show` alias.
+- `--label` is UUID-only; `--label-name` resolves an exact label name at write time (team-owned or workspace-global). Before passing UUIDs to `issues create` or `issues edit`, run `linear-pp-cli labels list --team ENG --agent --select id,name,global,team.key`. The CLI preflights ownership and refuses cross-team labels before mutating.
 - Never pass multiline Markdown, shell snippets, GraphQL, logs, backticks, `$()` expansions, or media-rich content as inline shell arguments. Write the body to a file or stdin and use the `*-file` / `*-stdin` flags below.
 
 ## When to Use This CLI
@@ -152,14 +154,42 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   linear-pp-cli issues create --title "Test ticket" --team ENG --trust-mode strict
   ```
-- **Team-safe issue labels** — Discover labels that are valid for the target Linear team, including global labels, before creating or editing issues.
+- **Parent and sub-issue linking** — Create child issues and set, change, or clear parent links without leaving the CLI for raw GraphQL.
 
-  _Reach for this before passing label UUIDs to `issues create` or `issues edit`; Linear rejects labels owned by another team, and the CLI preflights label ownership before mutating._
+  _Reach for this when an agent is creating issue trees, epics, or follow-up hierarchies and needs parentage wired safely._
+
+  ```bash
+  linear-pp-cli issues create --title "Child task" --team ENG --parent ENG-123 --description-file /tmp/body.md --agent
+  linear-pp-cli issues edit ENG-124 --parent ENG-123 --agent
+  linear-pp-cli issues edit ENG-124 --no-parent --agent
+  ```
+- **Team-safe issue labels** — Discover labels that are valid for the target Linear team, including global labels, then attach them by UUID or exact name.
+
+  _Reach for this before attaching labels. `--label` is UUID-only; use `--label-name` when the input is a human label name. Linear rejects labels owned by another team, and the CLI preflights ownership before mutating._
 
   ```bash
   linear-pp-cli labels list --team ENG --agent --select id,name,global,team.key
   linear-pp-cli issues create --title "Title" --team ENG --label <global-or-eng-label-id> --agent
+  linear-pp-cli issues create --title "Title" --team ENG --label-name "kind:bug" --label-name "source:user-report" --agent
+  linear-pp-cli issues edit ENG-123 --label-name "area:review-tooling" --dry-run --agent
+  linear-pp-cli issues edit ENG-123 --label-name "area:review-tooling" --agent
   ```
+
+  `--label-name` always performs a live Linear read to resolve the UUID, even when the surrounding issue write is a dry-run. Writes require a normalized exact label-name match. Team-owned labels and workspace-global labels (no team) both resolve; labels owned by another team do not. `--label` and `--label-name` can be combined; resolved IDs are de-duplicated before the mutation. On create, the CLI verifies the mutation's returned label IDs and fails visibly if Linear did not attach the requested set; the exit-5 agent envelope includes `created_issue.id`, `created_issue.identifier`, and `created_issue.url` so the remote issue remains recoverable if local persistence is unavailable.
+- **Project and initiative name resolution** — Resolve portfolio objects by human name before writing issue relationships.
+
+  _Reach for this when a user gives an issue identifier plus a project or initiative name. `--project` is UUID-only; use `--project-name` when the input is a human project name._
+
+  ```bash
+  linear-pp-cli projects list --agent --select id,name,team.key,state,url
+  linear-pp-cli projects search "Autonomous Backlog Manager & Dispatch Governance" --team SYMPH --agent --select id,name,team.key,initiative.name,url
+  linear-pp-cli initiatives list --agent --select id,name,status,url
+  linear-pp-cli initiatives search "Dispatch Governance" --agent --select id,name,status,url
+  linear-pp-cli issues edit SYMPH-795 --project-name "Autonomous Backlog Manager & Dispatch Governance" --dry-run --agent
+  linear-pp-cli issues edit SYMPH-795 --project-name "Autonomous Backlog Manager & Dispatch Governance" --agent
+  ```
+
+  `--project-name` always performs a live Linear read to resolve the UUID, even when the surrounding issue write is a dry-run. Use `projects search` first when the name is partial; writes require a normalized exact project-name match.
 - **Shell-safe Linear writes with media** — Create and update issue descriptions, comments, and Linear docs without putting Markdown bodies on the shell command line.
 
   _Reach for this whenever a body contains newlines, quotes, backticks, `$()` expansions, shell commands, images, logs, or agent-generated Markdown._
@@ -176,11 +206,44 @@ These capabilities aren't available in any other tool for this API.
   ```
 
   `documents create` requires exactly one parent (`--issue`, `--project`, `--team`, `--initiative`, `--cycle`, `--release`, or `--folder`); `--team` accepts a key such as `ENG` or a UUID. `issues edit --media`, `comments edit --media`, and `documents edit --media` with no body/content flag fetch the existing Markdown live and append uploaded media links. Images become Markdown image embeds; non-images become Markdown links. Add `--media-public` only when the uploaded asset must be reachable outside the Linear workspace.
-- **Current issue reads and comments** — Read full issue bodies and discussion without falling back to stale local state.
+- **Current issue reads and comments** — Read full issue bodies and discussion without falling back to stale local state. `comments list` takes the issue positionally (preferred) or via `--issue`.
 
   ```bash
-  linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.name,url
-  linear-pp-cli comments list --issue ENG-123 --agent
+  linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.id,state.name,labels.nodes.id,labels.nodes.name,url
+  linear-pp-cli issues ENG-123,ENG-124 --agent --data-source live --select identifier,title,description,state.name,url
+  linear-pp-cli comments list ENG-123 --agent
+  linear-pp-cli comments list --issue ENG-123 --agent --limit 100
+  ```
+- **State transitions** — Move an issue between workflow states without raw SQL, GraphQL, or `api` spelunking. The exact recipe:
+
+  1. List the states for the issue's team: `workflow-states list --team <key>` (alias: `states list`).
+  2. Pick the target by `name` or `type` and copy its `id` UUID.
+  3. Pass that UUID to `issues edit --state`.
+
+  ```bash
+  linear-pp-cli workflow-states list --team ENG --agent --select id,name,type
+  linear-pp-cli issues edit ENG-123 --state <state-uuid> --agent
+  ```
+
+  Or skip the lookup entirely with one-command transitions resolved against the issue's own team:
+
+  ```bash
+  linear-pp-cli issues edit ENG-123 --state-name "In Progress" --agent
+  linear-pp-cli issues edit ENG-123 --state-type started --agent   # usage error if the team has several 'started' states
+  ```
+
+  `issues create` takes the same trio, resolved against `--team`, so an issue can open directly in the right state. `--state` requires a UUID (a non-UUID value is a usage error pointing at `--state-name`):
+
+  ```bash
+  linear-pp-cli issues create --title "..." --team ENG --state-name "In Progress" --agent
+  ```
+
+  Do not use `linear-pp-cli api` or `linear-pp-cli sql` for workflow states — `api` only exposes generated REST-shaped interfaces (currently `integrations`), not Linear GraphQL objects.
+- **Linear document reads** — `documents <ref>` accepts every identifier form Linear surfaces: the document UUID, the bare `slugId` (`f7f48ab36080`), the full URL slug (`my-runbook-f7f48ab36080`), or the entire document URL. Copy whichever you have; no slug trimming or parsing shims needed.
+
+  ```bash
+  linear-pp-cli documents my-runbook-f7f48ab36080 --agent --select title,updatedAt,content
+  linear-pp-cli documents "https://linear.app/<org>/document/my-runbook-f7f48ab36080" --agent
   ```
 
 ## Command Reference
@@ -220,6 +283,9 @@ These capabilities aren't available in any other tool for this API.
 **initiatives** — Manage initiatives
 
 - `linear-pp-cli initiatives <id>` — Get a single initiative
+- `linear-pp-cli initiatives list` — List Linear initiatives
+- `linear-pp-cli initiatives search <query>` — Search Linear initiatives by name
+- `linear-pp-cli initiatives resolve <name>` — Resolve one Linear initiative name to its UUID
 
 **integrations** — Manage integrations
 
@@ -254,9 +320,20 @@ These capabilities aren't available in any other tool for this API.
 
 - `linear-pp-cli project-statuses <id>` — Get a single projectstatus
 
+**project-updates** — Create and list Linear project updates (status posts on a project)
+
+- `linear-pp-cli project-updates list --project <uuid> --agent` — List project updates for a project
+- `linear-pp-cli project-updates list --project-name "My Project" --limit 10 --agent` — List updates by project name
+- `linear-pp-cli project-updates create --project <uuid> --body-file /tmp/update.md --health onTrack --agent` — Post a project update with markdown body
+- `linear-pp-cli project-updates create --project-name "My Project" --body "Sprint on track." --health onTrack --agent` — Post update by project name
+- `linear-pp-cli project-updates create --project <uuid> --body-stdin --health atRisk --agent < /tmp/update.md` — Post update from stdin
+
 **projects** — Manage projects
 
 - `linear-pp-cli projects <id>` — Get a single project
+- `linear-pp-cli projects list` — List Linear projects
+- `linear-pp-cli projects search <query>` — Search Linear projects by name
+- `linear-pp-cli projects resolve <name>` — Resolve one Linear project name to its UUID
 
 **release-notes** — Manage release-notes
 
@@ -298,6 +375,10 @@ These capabilities aren't available in any other tool for this API.
 
 - `linear-pp-cli users` — Get a single user
 
+**workflow-states** — List Linear workflow states (alias: `states`)
+
+- `linear-pp-cli workflow-states list --team ENG --agent --select id,name,type` — List a team's states with the UUIDs `issues edit --state` needs
+
 
 ### Finding the right command
 
@@ -310,6 +391,7 @@ linear-pp-cli which "<capability in your own words>"
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
 For duplicate checks, `linear-pp-cli which "search issues by text" --agent` should point to `issues search`; use that instead of inventing `issues search --help` fallbacks or raw SQL. If the local issue cache is stale, `issues search` refreshes it or fails with a typed freshness error; agents should not jump to raw GraphQL just because the cache was stale.
+For parent/sub-issue linking, `linear-pp-cli which "set issue parent" --agent` should point to `issues edit --parent`.
 
 ## Recipes
 
@@ -399,7 +481,7 @@ Commands fall into three categories with different data-source semantics. Use `-
 
 - `labels list --team ENG`
 - Default (`--data-source auto`) reads live and returns global labels plus labels owned by the named team. `--data-source local` reads the synced `issue_labels` table after `linear-pp-cli sync`.
-- Use the returned IDs for `issues create --label` or `issues edit --label`; cross-team label IDs are rejected before the issue mutation is sent.
+- Use the returned IDs for `issues create --label` or `issues edit --label`, or skip the UUID lookup with `--label-name` on create/edit. Cross-team label IDs and names owned by another team are rejected before the issue mutation is sent.
 
 **The budget-conscious agent loop:**
 
@@ -412,10 +494,10 @@ linear-pp-cli today
 linear-pp-cli bottleneck --team ENG --data-source local
 
 # 3. Mutate — write-back keeps the store fresh
-linear-pp-cli issues create --title "..." --team ENG --pp-session $SESSION
+linear-pp-cli issues create --title "..." --team ENG --pp-session "$SESSION"
 
 # 4. Verify the mutation from local (no extra API call)
-linear-pp-cli issues list --data-source local --pp-session $SESSION
+linear-pp-cli issues list --data-source local --pp-session "$SESSION"
 
 # 5. Re-sync every ~30 minutes if the session is long
 linear-pp-cli sync
@@ -429,7 +511,13 @@ Every `issues create` records the new ticket in a local `pp_created` table tagge
 
 Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color --yes`.
 
-- **Pipeable** — JSON on stdout, errors on stderr
+- **Pipeable** — JSON on stdout. Failures are JSON too: in `--agent`/`--json` mode every typed error (usage, not-found, auth, API, rate-limit, config) is a one-line envelope on stdout, so piping stdout straight into a JSON parser is always safe:
+
+  ```json
+  {"error":"document \"missing-doc\" not found","code":3,"type":"not_found"}
+  ```
+
+  The process still exits with the typed code from the Exit Codes table; `type` is the machine-readable name for it (`usage`, `not_found`, `auth`, `api`, `partial_failure`, `rate_limit`, `config`). No `2>&1 | python json` defensive wrappers needed on read paths.
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
 
   ```bash

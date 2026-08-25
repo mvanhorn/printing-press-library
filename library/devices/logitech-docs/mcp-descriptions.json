@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "categories_list": "List the top-level Logitech support categories (Mice and Pointers, Keyboards, Webcams, Gaming, Video Collaboration, and so on). Takes no parameters. Returns an array of Category objects with id, name, description, html_url, and position. Call this first when you need a category id to narrow sections_list; prefer articles_search or the docs command when you already know the product name or keyword."
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "square",
+  "cli_name": "square-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-21T08:34:06Z",
+  "source_commit": "ed6adaf1f079e7e8dba1c04cdd60be0995533a42",
+  "printing_press_version": "4.30.0",
+  "run_id": "20260804-231253-e3946f62",
+  "changes": [
+    {
+      "title": "feat(square): add square",
+      "pr": 1661,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1661",
+      "commit": "ed6adaf1f079e7e8dba1c04cdd60be0995533a42"
+    }
+  ]
+}

@@ -26,7 +26,7 @@ const (
 func main() {
 	s := server.NewMCPServer(
 		"Spotify Web",
-		"1.0.0",
+		version,
 		server.WithToolCapabilities(false),
 	)
 

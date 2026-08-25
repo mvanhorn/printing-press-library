@@ -1,0 +1,234 @@
+name: faa-registry
+display_name: FAA Aircraft Registry
+description: |-
+  CLI for the FAA Civil Aviation Registry. Look up any US-registered aircraft by
+  N-number, serial number, owner name, make/model, engine, dealer, or state/county
+  via the live registry.faa.gov inquiry app — and sync the FAA's daily Releasable
+  Aircraft Database (all ~315K active registrations, ~383K deregistered records,
+  ~126K reserved N-numbers, plus aircraft-model and engine reference data) into a
+  local SQLite store for instant offline search, fleet reports, Mode S hex
+  decoding, and expiring-registration alerts.
+version: "0.1.0"
+cli_description: "Look up any US aircraft by tail number from the terminal — live FAA registry inquiries plus a daily-synced offline copy of the full registry for fleet queries, Mode S hex decoding, and expiration alerts no other tool has."
+base_url: https://registry.faa.gov
+spec_source: sniffed
+http_transport: standard
+category: travel
+website_url: https://registry.faa.gov/aircraftinquiry/
+
+auth:
+  type: none
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+
+config:
+  format: toml
+  path: "~/.config/faa-registry-pp-cli/config.toml"
+
+cache:
+  enabled: true
+
+mcp:
+  transport: [stdio]
+
+resources:
+  aircraft:
+    description: Live FAA registry lookups for individual aircraft (registration detail pages).
+    endpoints:
+      lookup:
+        method: GET
+        path: /aircraftinquiry/Search/NNumberResult
+        no_auth: true
+        description: Look up an aircraft's full registration record by N-number (tail number, with or without the leading N).
+        response_format: html
+        params:
+          - name: NNumberTxt
+            flag_name: n-number
+            in: query
+            required: true
+            type: string
+            description: "US registration N-number, e.g. N172SP (leading N optional)"
+      by-serial:
+        method: GET
+        path: /aircraftinquiry/Search/SerialNumberResult
+        no_auth: true
+        description: Find aircraft by manufacturer serial number.
+        response_format: html
+        params:
+          - name: Serialtxt
+            flag_name: serial
+            in: query
+            required: true
+            type: string
+            description: "Manufacturer serial number, e.g. 17280005"
+          - name: sort_option
+            flag_name: sort
+            in: query
+            required: false
+            type: string
+            description: "Sort order: 1=N-number, 2=serial, 3=manufacturer, 4=model, 5=name"
+
+  owners:
+    description: Live registry searches by registered owner name.
+    endpoints:
+      search:
+        method: GET
+        path: /aircraftinquiry/Search/NameResult
+        no_auth: true
+        description: List all aircraft registered to an owner name (paginated).
+        response_format: html
+        params:
+          - name: nametxt
+            flag_name: name
+            in: query
+            required: true
+            type: string
+            description: "Registered owner name, e.g. DELTA AIR LINES"
+          - name: sort_option
+            flag_name: sort
+            in: query
+            required: false
+            type: string
+            description: "Sort order: 1=N-number, 2=serial, 3=manufacturer, 4=model, 5=name"
+          - name: Page
+            flag_name: page
+            in: query
+            required: false
+            type: string
+            description: "Result page number (results paginate server-side)"
+
+  models:
+    description: Live registry searches by aircraft make/model and reference data.
+    endpoints:
+      search:
+        method: GET
+        path: /aircraftinquiry/Search/MakeModelResult
+        no_auth: true
+        description: Search the aircraft model reference by manufacturer and model name, including the number of aircraft assigned to each model code.
+        response_format: html
+        params:
+          - name: Mfrtxt
+            flag_name: manufacturer
+            in: query
+            required: true
+            type: string
+            description: "Manufacturer name, e.g. CIRRUS"
+          - name: Modeltxt
+            flag_name: model
+            in: query
+            required: false
+            type: string
+            description: "Model name, e.g. SR22"
+          - name: Page
+            flag_name: page
+            in: query
+            required: false
+            type: string
+            description: "Result page number"
+
+  engines:
+    description: Live engine-reference searches.
+    endpoints:
+      search:
+        method: GET
+        path: /aircraftinquiry/Search/EngineReferenceResult
+        no_auth: true
+        description: Search the engine reference table by engine manufacturer and model.
+        response_format: html
+        params:
+          - name: MfrNametxt
+            flag_name: manufacturer
+            in: query
+            required: true
+            type: string
+            description: "Engine manufacturer name, e.g. LYCOMING"
+          - name: Modeltxt
+            flag_name: model
+            in: query
+            required: false
+            type: string
+            description: "Engine model, e.g. IO-360"
+
+  dealers:
+    description: Live dealer-certificate searches.
+    endpoints:
+      search:
+        method: GET
+        path: /aircraftinquiry/Search/DealerResult
+        no_auth: true
+        description: Search FAA dealer certificates by dealer name.
+        response_format: html
+        params:
+          - name: Dealertxt
+            flag_name: name
+            in: query
+            required: true
+            type: string
+            description: "Dealer name to search"
+
+  documents:
+    description: Live document-index searches (recorded documents for collateral like airframes and engines).
+    endpoints:
+      search:
+        method: GET
+        path: /aircraftinquiry/Search/DocumentIndexResult
+        no_auth: true
+        description: Search the FAA document index by collateral identifier.
+        response_format: html
+        params:
+          - name: Colltxt
+            flag_name: collateral
+            in: query
+            required: true
+            type: string
+            description: "Collateral search text (e.g. serial number or N-number)"
+
+  regions:
+    description: Live registry searches by geography.
+    endpoints:
+      by-state:
+        method: GET
+        path: /aircraftinquiry/Search/StateCountyResult
+        no_auth: true
+        description: List aircraft registered in a state and county (paginated).
+        response_format: html
+        params:
+          - name: StateName
+            flag_name: state
+            in: query
+            required: true
+            type: string
+            description: "Two-letter state code, e.g. WA"
+          - name: CountyName
+            flag_name: county
+            in: query
+            required: false
+            type: string
+            description: "County name within the state, e.g. KING"
+          - name: Page
+            flag_name: page
+            in: query
+            required: false
+            type: string
+            description: "Result page number"
+      by-country:
+        method: GET
+        path: /aircraftinquiry/Search/CountryResult
+        no_auth: true
+        description: List US-registered aircraft whose owners are located in a given country.
+        response_format: html
+        params:
+          - name: Countrytxt
+            flag_name: country
+            in: query
+            required: true
+            type: string
+            description: "Country name, e.g. CANADA"
+          - name: Page
+            flag_name: page
+            in: query
+            required: false
+            type: string
+            description: "Result page number"

@@ -1,0 +1,558 @@
+name: travelclick
+description: "Direct-from-hotel rate search for TravelClick/iHotelier booking-engine properties. Search availability, find the cheapest night in a date range, validate corporate/group codes, and look up hotel info -- never books, never handles guest PII or payment."
+version: 0.1.0
+category: travel
+base_url: https://api.travelclick.com
+spec_source: sniffed
+auth:
+    type: bearer_token
+    header: Authorization
+    format: "Bearer {token}"
+    env_vars:
+        - TRAVELCLICK_TOKEN
+    env_var_specs:
+        - name: TRAVELCLICK_TOKEN
+          kind: per_call
+          required: true
+          sensitive: true
+          inferred: true
+auth_warnings:
+    - "The booking widget mints this token client-side via an OAuth2 client_credentials grant (issuer 'travelclick', app TCBE4/WEB4) during page bootstrap. The exact token-mint endpoint was not isolated during discovery (it fires before any capture hook can attach) -- so this CLI cannot mint its own token yet. Capture one from a browser DevTools session (Network tab, filter for api.travelclick.com, copy the Authorization header value) and set TRAVELCLICK_TOKEN. Tokens observed a ~1 hour TTL (exp - iat = 3600s)."
+config:
+    format: toml
+    path: ~/.config/travelclick-pp-cli/config.toml
+learn:
+    ticker_patterns:
+        - "^[0-9]{4,7}$"
+    entity_lookup_seeds:
+        hotel_id:
+            - canonical: "102306"
+              aliases: ["made hotel", "made hotel nyc", "made", "made nyc"]
+resources:
+    rates:
+        description: "Search room availability and rate plans for specific dates, or scan a date range for the cheapest night."
+        endpoints:
+            search:
+                method: GET
+                path: /ibe-shop/v1/hotel/{hotel_id}/avail
+                description: "Search available rooms and rate plans for a hotel between check-in and check-out."
+                example: "  travelclick-pp-cli rates search 102306 --check-in 2026-09-15 --check-out 2026-09-18"
+                happy_args: "hotel_id=102306;--check-in=2026-09-15;--check-out=2026-09-18"
+                params:
+                    - name: hotel_id
+                      type: string
+                      required: true
+                      positional: true
+                      description: "TravelClick numeric hotel ID (e.g. 102306 for Made Hotel NYC). Found in the hotel's booking URL: bookings.travelclick.com/{hotel_id}."
+                    - name: dateIn
+                      flag_name: check-in
+                      type: string
+                      required: true
+                      description: "Check-in date, YYYY-MM-DD."
+                      format: date
+                    - name: dateOut
+                      flag_name: check-out
+                      type: string
+                      required: true
+                      description: "Check-out date, YYYY-MM-DD."
+                      format: date
+                    - name: adults
+                      type: int
+                      required: false
+                      default: 2
+                      description: "Number of adults for the room."
+                    - name: infants
+                      type: int
+                      required: false
+                      default: 0
+                      description: "Number of infants (does not count against occupancy)."
+                    - name: rooms
+                      type: int
+                      required: false
+                      default: 1
+                      description: "Number of rooms to search."
+                    - name: currency
+                      type: string
+                      required: false
+                      default: USD
+                      description: "ISO currency code for displayed rates."
+                    - name: lang
+                      type: string
+                      required: false
+                      default: EN_US
+                      description: "Locale code for room/amenity text."
+                    - name: partnerIdentifier
+                      flag_name: channel
+                      type: string
+                      required: false
+                      default: Web4_Desktop
+                      description: "Booking-engine channel identifier the widget itself sends. Leave at the default unless you know why you'd change it."
+                    - name: bookerIdentifier
+                      type: string
+                      required: false
+                      default: ""
+                      description: "Optional OTA/travel-agent booker attribution ID. Leave blank for a direct search."
+                response:
+                    type: array
+                    item: AvailRoomStay
+                response_path: roomStays
+            calendar:
+                method: POST
+                path: /ibe-shop/v1/hotel/{hotel_id}/basicavail/multi-room
+                description: "Scan a date range (up to ~60 days) for the lowest available rate per night -- use this to find the cheapest night to check in before running a full search."
+                example: "  travelclick-pp-cli rates calendar 102306 --from 2026-09-01 --to 2026-10-31"
+                happy_args: "hotel_id=102306;--from=2026-09-01;--to=2026-09-30"
+                params:
+                    - name: hotel_id
+                      type: string
+                      required: true
+                      positional: true
+                      description: "TravelClick numeric hotel ID."
+                request_content_type: application/json
+                body:
+                    - name: hotelCode
+                      type: int
+                      required: true
+                      description: "Same numeric ID as hotel_id -- the API expects it in both the path and the body."
+                    - name: dateIn
+                      flag_name: from
+                      type: string
+                      required: true
+                      description: "Start of the scan window, YYYY-MM-DD."
+                      format: date
+                    - name: dateOut
+                      flag_name: to
+                      type: string
+                      required: true
+                      description: "End of the scan window, YYYY-MM-DD. Windows longer than ~60 days may be truncated by the API."
+                      format: date
+                    - name: lang
+                      type: string
+                      required: false
+                      default: EN_US
+                      description: "Locale code."
+                    - name: currency
+                      type: string
+                      required: false
+                      default: USD
+                      description: "ISO currency code for displayed rates."
+                    - name: bookerIdentifier
+                      type: string
+                      required: false
+                      default: ""
+                      description: "Optional OTA/travel-agent booker attribution ID."
+                    - name: partnerIdentifier
+                      flag_name: channel
+                      type: string
+                      required: false
+                      default: Web4_Desktop
+                      description: "Booking-engine channel identifier."
+                    - name: multiRoomOccupancy
+                      type: array
+                      required: true
+                      description: "Occupancy per room being scanned. The widget always sends exactly one entry for a single-room calendar scan."
+                      fields:
+                          - name: adults
+                            type: string
+                            required: true
+                            default: "2"
+                            description: "Adults for this room (sent as a string by the upstream API)."
+                          - name: children
+                            type: int
+                            required: false
+                            default: 0
+                            description: "Children for this room."
+                          - name: infant
+                            type: string
+                            required: false
+                            default: "0"
+                            description: "Infants for this room (sent as a string by the upstream API)."
+                response:
+                    type: array
+                    item: MultiRoomDate
+                response_path: dates
+    codes:
+        description: "Validate special rate codes (corporate/rate-access or group-attendee) against a hotel before applying them to a search."
+        endpoints:
+            validate_corporate:
+                method: GET
+                path: /ibe-codes/v1/hotel/{hotel_id}/specialcodes/corporate/{code}
+                description: "Check whether a corporate / rate-access code is valid for this hotel. Returns 200 when valid; returns a structured error (surfaced by the CLI) when the code is unrecognized."
+                example: "  travelclick-pp-cli codes validate-corporate 102306 ACME2026"
+                happy_args: "hotel_id=102306;code=ACME2026"
+                params:
+                    - name: hotel_id
+                      type: string
+                      required: true
+                      positional: true
+                      description: "TravelClick numeric hotel ID."
+                    - name: code
+                      type: string
+                      required: true
+                      positional: true
+                      description: "Corporate / rate-access code to validate."
+                response:
+                    type: object
+                    item: CodeValidationError
+            validate_group:
+                method: GET
+                path: /ibe-codes/v1/hotel/{hotel_id}/specialcodes/group/attendee/{code}
+                description: "Check whether a group-attendee code is valid for this hotel. Returns 200 when valid; returns a structured error (surfaced by the CLI) when the code is unrecognized."
+                example: "  travelclick-pp-cli codes validate-group 102306 CONF2026"
+                happy_args: "hotel_id=102306;code=CONF2026"
+                params:
+                    - name: hotel_id
+                      type: string
+                      required: true
+                      positional: true
+                      description: "TravelClick numeric hotel ID."
+                    - name: code
+                      type: string
+                      required: true
+                      positional: true
+                      description: "Group-attendee code to validate."
+                response:
+                    type: object
+                    item: CodeValidationError
+    hotel:
+        description: "Read-only hotel property information: address, policies, check-in/out times, and amenities. No PII, no reservation data."
+        endpoints:
+            info:
+                method: GET
+                path: /ibe-entity/v1/hotel/{hotel_id}/info
+                description: "Fetch a hotel's public profile: name, address, geolocation, check-in/out times, accepted cards, and textual policies (cancellation, pets, parking, resort/curation fees)."
+                example: "  travelclick-pp-cli hotel 102306"
+                happy_args: "hotel_id=102306"
+                params:
+                    - name: hotel_id
+                      type: string
+                      required: true
+                      positional: true
+                      description: "TravelClick numeric hotel ID."
+                    - name: lang
+                      type: string
+                      required: false
+                      default: EN_US
+                      description: "Locale code for description/policy text."
+                response:
+                    type: object
+                    item: HotelInfo
+types:
+    AllRoomType:
+        fields:
+            - name: amenities
+              type: array
+              description: "Room amenity list (icons + labels), e.g. bathrobes, WiFi, city view."
+            - name: available
+              type: bool
+            - name: availableInventoryThreshold
+              type: integer
+            - name: averageMemberRates
+              type: array
+              description: "Loyalty-member rate plans, when the hotel's loyalty program is enabled. Empty for anonymous search."
+            - name: averageRates
+              type: '[]ref:RatePlanRate'
+              description: "Rate plans for this room type at the searched dates, with the roomUpgradeList upsell detail."
+            - name: description
+              type: string
+            - name: displayUrgencyMessage
+              type: bool
+            - name: mainImage
+              type: object
+            - name: media
+              type: array
+            - name: nightlyRates
+              type: '[]ref:NightlyRate'
+              description: "Per-night price + tax + fee breakdown across the stay, one entry per (night, rate plan) pair."
+            - name: pmsRoomExternalCode
+              type: string
+            - name: roomExternalCode
+              type: string
+              description: "Short room-type code used by the property's PMS (e.g. STNDRD, DELUXE, SUPROR)."
+            - name: roomFeatures
+              type: array
+              description: "Structured occupancy/bed/size facts (people count, bed type, square footage)."
+            - name: roomTypeCode
+              type: string
+            - name: roomTypeName
+              type: string
+              description: "Human room-type name, e.g. Standard, Superior, Deluxe, Master Suite."
+            - name: sortOrder
+              type: integer
+    AvailRoomStay:
+        fields:
+            - name: timeSpan
+              type: ref:TimeSpan
+            - name: roomTypes
+              type: '[]ref:RoomType'
+              description: "Room types available for the searched dates, each with its own rate plans."
+            - name: allRoomTypes
+              type: '[]ref:AllRoomType'
+              description: "Same room list as roomTypes, richer per-rate detail (room-upgrade offers, quantity remaining)."
+            - name: ratePlans
+              type: '[]ref:RatePlan'
+              description: "Flat catalog of every rate plan referenced above, with the cancellation policy, guarantee policy, and full description each rate plan code points to."
+            - name: roomCategories
+              type: array
+            - name: packageCategories
+              type: array
+            - name: packageTypes
+              type: array
+            - name: mandatoryServices
+              type: array
+    Availability:
+        fields:
+            - name: availStatus
+              type: string
+              description: "e.g. AvailableForSale."
+    CancellationPolicy:
+        fields:
+            - name: nonRefundable
+              type: bool
+            - name: policyCode
+              type: string
+            - name: policyDescription
+              type: string
+            - name: cancellationDeadlines
+              type: array
+    CodeValidationError:
+        fields:
+            - name: errors
+              type: array
+              description: "Present when the code is not valid. Each entry has errorCode (e.g. INVALID_CORP_ID, INVALID_GROUP_CODE) and errorMessage."
+            - name: errorId
+              type: string
+              description: "Support-tracking ID for this validation attempt."
+    GuaranteePolicy:
+        fields:
+            - name: policyCode
+              type: string
+            - name: policyType
+              type: string
+            - name: policyDescription
+              type: string
+            - name: acceptTender
+              type: string
+    HotelInfo:
+        fields:
+            - name: hotelCode
+              type: integer
+            - name: hotelName
+              type: string
+            - name: webAddress
+              type: string
+            - name: starRating
+              type: string
+            - name: chainInfo
+              type: array
+            - name: maxRoomsPerBooking
+              type: integer
+            - name: currentCurrency
+              type: object
+            - name: currentLanguage
+              type: object
+            - name: occupancyInfo
+              type: object
+              description: "Max adults/children/occupancy per room, min/max child age."
+            - name: timeZone
+              type: object
+            - name: address
+              type: object
+              description: "Street address, city, state, postal code, country, phone/fax."
+            - name: position
+              type: object
+              description: "latitude/longitude."
+            - name: policies
+              type: object
+              description: "checkInTime, checkOutTime, accepted card types, and textualPolicies (terms & conditions, cancellation, pets, parking, resort/curation fees)."
+            - name: generalInformation
+              type: object
+              description: "Hotel description (long + short), driving directions, nearby airports."
+            - name: loyaltyEnabled
+              type: bool
+            - name: creditCardMode
+              type: string
+    LengthOfStay:
+        fields:
+            - name: maxLOS
+              type: integer
+            - name: maxLOSType
+              type: string
+            - name: minLOS
+              type: integer
+            - name: minLOSType
+              type: string
+    MultiRoomDate:
+        fields:
+            - name: date
+              type: string
+            - name: isAvailable
+              type: bool
+            - name: lengthOfStay
+              type: ref:LengthOfStay
+            - name: rate
+              type: ref:Rate
+              description: "Lowest available rate for this date."
+            - name: availability
+              type: '[]ref:Availability'
+    NightlyRate:
+        fields:
+            - name: date
+              type: string
+            - name: ratePlanCode
+              type: string
+            - name: amtTotal
+              type: number
+              description: "Total charge for this night including tax."
+            - name: amtBeforeTax
+              type: number
+            - name: baseRateWithoutAnyTax
+              type: number
+            - name: totalTax
+              type: number
+            - name: totalServiceChargeExclusive
+              type: number
+              description: "Per-night mandatory service/resort/curation fee not included in amtTotal's base rate but added to the guest's final charge."
+            - name: totalResortFeeExclusive
+              type: number
+            - name: discount
+              type: number
+            - name: discountType
+              type: string
+    Rate:
+        fields:
+            - name: minRate
+              type: number
+            - name: lowestMinRate
+              type: number
+            - name: discount
+              type: number
+            - name: discountOnLowestMinRate
+              type: number
+            - name: rateExternalCode
+              type: string
+            - name: ratePlanCode
+              type: string
+            - name: ratePlanCurrency
+              type: string
+            - name: ratePlanType
+              type: string
+            - name: roomExternalCode
+              type: string
+            - name: roomTypeCode
+              type: string
+    RatePlan:
+        fields:
+            - name: ratePlanCode
+              type: string
+            - name: ratePlanName
+              type: string
+              description: "Marketing name shown to guests, e.g. 'Book early and save!', 'Best Available Rate', 'Breakfast Package'."
+            - name: ratePlanType
+              type: string
+            - name: ratePlanCategory
+              type: string
+              description: "Promotional or Rack."
+            - name: ratePlanDescription
+              type: string
+            - name: leadRate
+              type: number
+            - name: rateExternalCode
+              type: string
+              description: "Short code, e.g. BAR (Best Available Rate), thks15, 3LOS, BFAST2."
+            - name: pmsRateExternalCode
+              type: string
+            - name: cancellationPolicy
+              type: ref:CancellationPolicy
+            - name: guaranteePolicy
+              type: ref:GuaranteePolicy
+            - name: merchandisedPromoData
+              type: object
+              description: "Promo banner text: saleText, labelText, valueAddedText, merchandisingTerms."
+            - name: isAllowWebRoomUpgrade
+              type: bool
+            - name: confidential
+              type: bool
+            - name: default
+              type: bool
+            - name: available
+              type: bool
+            - name: sortOrder
+              type: integer
+    RatePlanRate:
+        fields:
+            - name: ratePlanCode
+              type: string
+            - name: ratePlanType
+              type: string
+            - name: rate
+              type: number
+              description: "Average nightly rate across the stay for this room + rate plan combination."
+            - name: discount
+              type: number
+            - name: discountTotal
+              type: number
+            - name: rateExternalCode
+              type: string
+            - name: pmsRateExternalCode
+              type: string
+            - name: ratePlanCategory
+              type: string
+            - name: quantityRemaining
+              type: string
+            - name: showPromotionBanner
+              type: bool
+            - name: merchandisedPromoData
+              type: object
+            - name: roomUpgradeList
+              type: array
+              description: "Room types this rate plan can be upgraded into, when allowWebRoomUpgrade is true."
+            - name: allowWebRoomUpgrade
+              type: bool
+            - name: available
+              type: bool
+    RoomType:
+        fields:
+            - name: roomTypeCode
+              type: string
+            - name: roomTypeName
+              type: string
+            - name: roomExternalCode
+              type: string
+            - name: pmsRoomExternalCode
+              type: string
+            - name: description
+              type: string
+            - name: sortOrder
+              type: integer
+            - name: available
+              type: bool
+            - name: averageRates
+              type: '[]ref:RatePlanRate'
+            - name: averageMemberRates
+              type: array
+            - name: nightlyRates
+              type: '[]ref:NightlyRate'
+            - name: roomFeatures
+              type: array
+            - name: amenities
+              type: array
+            - name: mainImage
+              type: object
+            - name: media
+              type: array
+            - name: roomUpgradeOptions
+              type: array
+            - name: quantityRemaining
+              type: string
+            - name: displayUrgencyMessage
+              type: bool
+    TimeSpan:
+        fields:
+            - name: start
+              type: string
+            - name: end
+              type: string
+            - name: duration
+              type: integer
+              description: "Length of stay in nights."

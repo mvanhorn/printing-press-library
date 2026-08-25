@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "cli-owned-workos-session",
+  "applied_at": "2026-08-03",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "summary": "The CLI holds its own Granola session obtained through the device authorization grant; it must never borrow another client's token chain.",
+  "reason": "Every credential on the machine belongs to someone else. Granola's data-encryption key moved into an entitlement-gated Keychain group, so the desktop's live token in supabase.json.enc is unreadable, and the plaintext files it used to leave behind stopped being written. What remains are the desktop app's and the browser's own chains, and the WorkOS refresh endpoint is single-use: refreshing one signs that client out mid-session. A regen must therefore keep a CLI-owned session as the primary auth path and keep the D6 refusal intact for every desktop-owned source.",
+  "validated_outcome": "Device grant verified live against Granola 7.465.0: it returns a refreshable session accepted by /v2/get-documents and by the transcript, panel and document-list endpoints. Granola's own proxy /v1/refresh-access-token renews it and was observed returning the same refresh token rather than a rotated one; the CLI persists whatever comes back regardless, because the WorkOS endpoint behind it is single-use.",
+  "files": [
+    "internal/granola/clisession.go",
+    "internal/granola/clisession_unix.go",
+    "internal/granola/clisession_windows.go",
+    "internal/granola/deviceauth.go",
+    "internal/granola/workos.go",
+    "internal/cli/auth_login.go",
+    "internal/cli/auth.go"
+  ]
+}

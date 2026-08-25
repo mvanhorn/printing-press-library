@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "rotation-marker-means-started-not-broken",
+  "applied_at": "2026-08-04",
+  "base_run_id": "granola-20260607-01",
+  "base_printing_press_version": "0.61.0",
+  "summary": "A single-use refresh chain needs an exclusion marker, and that marker records that a rotation started -- which is either one running now or one that died. Only the second is a fault, so liveness must be judged (staleness/ownership), never inferred from presence alone.",
+  "reason": "Treating any marker as breakage made every concurrent command fail with 'run auth login' while a healthy refresh was in flight, and pointed the user at the one command that then deleted the in-flight marker and allowed a double exchange. A regen that reintroduces presence-equals-broken, or an ownership-blind marker delete on save, recreates both.",
+  "validated_outcome": "Mutation-verified: the durability-refusal test fails against code with the refusal removed, and a concurrent save no longer clears a live rotation's marker. go test -race clean.",
+  "files": [
+    "internal/granola/clisession.go",
+    "internal/granola/workos.go",
+    "internal/cli/auth.go"
+  ]
+}

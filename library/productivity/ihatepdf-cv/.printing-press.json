@@ -1,0 +1,108 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-22T04:33:26.114906Z",
+  "printing_press_version": "4.31.1",
+  "api_name": "ihatepdf-cv",
+  "display_name": "ihatepdf.cv",
+  "cli_name": "ihatepdf-cv-pp-cli",
+  "creator": {
+    "handle": "SomSamantray",
+    "name": "Som Samantray"
+  },
+  "owner": "somsamantray",
+  "printer": "SomSamantray",
+  "printer_name": "Som Samantray",
+  "spec_path": "spec.yaml",
+  "spec_format": "openapi3",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:8dc0104b49d0ba2518c57c74a6d62f823e3076433aa921f0977290258f072f04",
+  "run_id": "20260822-095304-45ca41a1",
+  "category": "productivity",
+  "description": "Private PDF operations for agents, scripts, and offline pipelines.",
+  "mcp_binary": "ihatepdf-cv-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Privacy audit before sharing",
+      "command": "privacy-scan",
+      "description": "Find content and metadata risks before a PDF leaves your machine."
+    },
+    {
+      "name": "Integrity trail",
+      "command": "fingerprint",
+      "description": "Record SHA-256, SHA-1, and MD5 hashes for inputs and outputs."
+    },
+    {
+      "name": "Agent-native inspection",
+      "command": "inspect",
+      "description": "Expose PDF structure, metadata, and hashes as compact JSON."
+    },
+    {
+      "name": "Local PDF text search",
+      "command": "search",
+      "description": "Search extracted text across local PDFs and return matching snippets."
+    },
+    {
+      "name": "Local PDF catalog",
+      "command": "catalog index",
+      "description": "Index PDF paths, hashes, page counts, and extracted text in a local SQLite catalog."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Privacy audit before sharing",
+      "command": "privacy-scan",
+      "description": "Find content and metadata risks before a PDF leaves your machine."
+    },
+    {
+      "name": "Integrity trail",
+      "command": "fingerprint",
+      "description": "Record SHA-256, SHA-1, and MD5 hashes for inputs and outputs."
+    },
+    {
+      "name": "Agent-native inspection",
+      "command": "inspect",
+      "description": "Expose PDF structure, metadata, and hashes as compact JSON."
+    },
+    {
+      "name": "Local PDF text search",
+      "command": "search",
+      "description": "Search extracted text across local PDFs and return matching snippets."
+    },
+    {
+      "name": "Local PDF catalog",
+      "command": "catalog index",
+      "description": "Index PDF paths, hashes, page counts, and extracted text in a local SQLite catalog."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 100,
+    "passed": 39,
+    "total": 39,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 90,
+      "grade": "A",
+      "total": 90
+    }
+  }
+}

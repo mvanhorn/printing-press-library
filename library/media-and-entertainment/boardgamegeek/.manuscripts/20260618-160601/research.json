@@ -1,0 +1,37 @@
+{
+  "api_name": "boardgamegeek",
+  "novelty_score": 6,
+  "alternatives": [
+    {"name": "lcosmin/boardgamegeek", "url": "https://github.com/lcosmin/boardgamegeek", "language": "Python", "stars": 230, "command_count": 0},
+    {"name": "philsstein/bgg_api", "url": "https://github.com/philsstein/bgg_api", "language": "Python", "stars": 90, "command_count": 0},
+    {"name": "beefsack/go-bgg", "url": "https://github.com/beefsack/go-bgg", "language": "Go", "stars": 22, "command_count": 0},
+    {"name": "nuztalgia/bgg (bgg-cli)", "url": "https://github.com/Nuztalgia/bgg", "language": "Python", "stars": 5, "command_count": 1},
+    {"name": "MarkusFox/bgg-mcp", "url": "https://github.com/MarkusFox/bgg-mcp", "language": "TypeScript", "stars": 1, "command_count": 0}
+  ],
+  "novel_features": [
+    {"name": "Full-Text Game Search", "command": "search", "description": "FTS5 search across locally synced games, expansions, and accessories", "rationale": "Requires a domain SQLite index over synced thing rows; the XMLAPI2 search is name-prefix only, so offline full-text lookup is something the raw API cannot do"},
+    {"name": "Local Analytics", "command": "analytics", "description": "Aggregate queries (group-by, counts, averages) over locally synced BoardGameGeek data", "rationale": "Only possible with a local SQLite store populated from the API; BGG exposes no aggregate endpoints"},
+    {"name": "Compound Workflows", "command": "workflow", "description": "Chain multiple API operations (search then thing-detail then collection) in one invocation", "rationale": "Combines several boardgamegeek.com/xmlapi2 calls behind one agent-friendly command"}
+  ],
+  "gaps": [
+    {"area": "sync", "detail": "BGG XML places ids in element attributes (<item id=\"13\">), which normalize to @id; the profiler's IDField inference looks for id/_id keys, so synced rows have no extractable id and offline sync/cache is incomplete. Live queries are unaffected. A sync follow-up would map @id to id."},
+    {"area": "auth", "detail": "As of 2025-07-02 the XMLAPI2 requires a registered-application Bearer token (approval can take a week). Public anonymous access is gone, so a live smoke test is gated on token approval."},
+    {"area": "examples", "detail": "The generated analytics command ships generic placeholder examples that are not BoardGameGeek-specific."}
+  ],
+  "patterns": [],
+  "narrative": {
+    "quickstart": [
+      {"command": "boardgamegeek-pp-cli searches --query catan", "description": "Search for games by name across the BGG database"},
+      {"command": "boardgamegeek-pp-cli thing --id 13 --stats 1", "description": "Full detail for a game (Catan, id 13) including rating and rank stats"},
+      {"command": "boardgamegeek-pp-cli hot --type boardgame", "description": "The live BoardGameGeek Hot list for board games"},
+      {"command": "boardgamegeek-pp-cli doctor", "description": "Check CLI health and API reachability"}
+    ],
+    "recipes": [
+      {"command": "boardgamegeek-pp-cli user --name Aldie --buddies 1", "description": "A public user profile including the buddy list"},
+      {"command": "boardgamegeek-pp-cli collection --username Aldie --own 1 --stats 1", "description": "A user's owned game collection with per-game rating and rank"},
+      {"command": "boardgamegeek-pp-cli plays --username Aldie", "description": "Logged play sessions for a user"}
+    ]
+  },
+  "recommendation": "proceed",
+  "researched_at": "2026-06-18T16:06:01Z"
+}

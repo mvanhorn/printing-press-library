@@ -183,20 +183,30 @@ func accommodationToHotel(ctx context.Context, t Accommodation, targetCurrency s
 		Longitude:     t.Longitude,
 		HotelClass:    t.HotelRating,
 		Rating:        rating,
-		Reviews:       t.ReviewCount,
+		Reviews:       ParseReviewCount(string(t.ReviewCount)),
 		PricePerNight: displayPrice,
 		Currency:      currency,
 		Amenities:     splitCSV(t.Amenities),
 		Prices: []parser.OTAPrice{{
 			Source: source,
 			Price:  displayPrice,
-			Link:   t.BookingURL,
+			Link:   bookingLink(t),
 		}},
-		BookingURLs: parser.BookingURLs{Primary: t.BookingURL, HotelURL: t.URL},
+		BookingURLs: parser.BookingURLs{Primary: bookingLink(t), HotelURL: t.URL},
 		Images:      imgs,
 		Description: t.Description,
 		Thumbnail:   t.Image,
 	}
+}
+
+// bookingLink returns the best usable booking URL for an accommodation.
+// The current Trivago API no longer returns a separate booking_url field —
+// only accommodation_url — so BookingURL defaults to that.
+func bookingLink(t Accommodation) string {
+	if t.BookingURL != "" {
+		return t.BookingURL
+	}
+	return t.URL
 }
 
 func splitCSV(s string) []string {

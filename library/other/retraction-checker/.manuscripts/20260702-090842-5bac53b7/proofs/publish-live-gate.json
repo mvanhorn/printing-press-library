@@ -1,0 +1,770 @@
+{
+  "dir": "C:/Users/LACI/printing-press/library/retraction-checker",
+  "binary": "C:\\Users\\LACI\\printing-press\\library\\retraction-checker\\build\\stage\\bin\\retraction-checker-pp-cli.exe",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 46,
+  "passed": 46,
+  "failed": 0,
+  "skipped": 35,
+  "commands": [
+    "check",
+    "doctor",
+    "export",
+    "feedback list",
+    "import",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "scan",
+    "search",
+    "superseded",
+    "sync",
+    "watch",
+    "which",
+    "workflow archive",
+    "workflow status",
+    "works get",
+    "works search"
+  ],
+  "tests": [
+    {
+      "command": "check",
+      "kind": "help",
+      "args": [
+        "check",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check whether a single scientific paper has been retracted. Accepts a DOI or a PMID\n(PMIDs are resolved to a DOI via the NCBI ID Converter first). Reports retraction\nstatus, update type, date, source, and the retraction notice reference. Keyless.\n\nUsage:\n  retraction-checker-pp-cli check \u003cdoi|pmid\u003e [flags]\n\nExamples:\n  retraction-checker-pp-cli check 10.1016/j.micpro.2020.103768 --json\n\nFlags:\n  -h, --help            help for check\n      --mailto string   Contact email for the Crossref polite pool (better rate limits)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'retraction-checker-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "check",
+      "kind": "happy_path",
+      "args": [
+        "check",
+        "10.1016/j.micpro.2020.103768",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"input\": \"10.1016/j.micpro.2020.103768\",\n  \"doi\": \"10.1016/j.micpro.2020.103768\",\n  \"title\": \"RETRACTED: Cross-Cultural communication of language learning social software based on FPGA and transfer learning\",\n  \"retracted\": true,\n  \"update_type\": \"retraction\",\n  \"date\": \"2021-03-01\",\n  \"source\": \"publisher\",\n  \"notice_doi\": \"10.1016/j.micpro.2020.103768\",\n  \"notice_url\": \"https://doi.org/10.1016/j.micpro.2020.103768\",\n  \"published\": \"2021-03\",\n  \"signals\": [\n    \"crossref-update:retraction\",\n    \"title-prefix\"\n  ]\n}\n"
+    },
+    {
+      "command": "check",
+      "kind": "json_fidelity",
+      "args": [
+        "check",
+        "10.1016/j.micpro.2020.103768",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"input\": \"10.1016/j.micpro.2020.103768\",\n  \"doi\": \"10.1016/j.micpro.2020.103768\",\n  \"title\": \"RETRACTED: Cross-Cultural communication of language learning social software based on FPGA and transfer learning\",\n  \"retracted\": true,\n  \"update_type\": \"retraction\",\n  \"date\": \"2021-03-01\",\n  \"source\": \"publisher\",\n  \"notice_doi\": \"10.1016/j.micpro.2020.103768\",\n  \"notice_url\": \"https://doi.org/10.1016/j.micpro.2020.103768\",\n  \"published\": \"2021-03\",\n  \"signals\": [\n    \"crossref-update:retraction\",\n    \"title-prefix\"\n  ]\n}\n"
+    },
+    {
+      "command": "check",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  retraction-checker-pp-cli doctor [flags]\n\nExamples:\n  retraction-checker-pp-cli doctor\n  retraction-checker-pp-cli doctor --json\n  retraction-checker-pp-cli doctor --fail-on warn\n  retraction-checker-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'retraction-checker-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: C:\\Users\\LACI\\AppData\\Local\\Temp\\printing-press-subprocess-1753616831\\.config\\retraction-checker-pp-cli\\config.toml\n  base_url: https://api.crossref.org\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: C:\\Users\\LACI\\AppData\\Local\\Temp\\printing-press-subprocess-1753616831\\.local\\share\\retraction-checker-pp-cli\\data.db\n    schema_version: 4\n    db_bytes: 4096\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'retraction-checker-pp-cli sync' to hydrate.\n  Paths:\n    config: C:\\Users\\LACI\\AppData\\Local\\Temp\\printing-press-subprocess-1753616831\\.config\\retraction-checker-pp-cli (XDG_CONFIG_HOME)\n    data: C:\\Users\\LACI\\AppData\\Local\\Temp\\printing-press-subprocess-1753616831\\.local\\share\\retraction-checker-pp-cli (XDG_DATA_HOME)\n    state: C:\\Users\\LACI\\AppData\\Local\\Temp\\printing-press-subprocess-1753616831\\.local\\state\\retraction-checker-pp-cli (XDG_STATE_HOME)\n    cache: C:\\Users\\LACI\\AppData\\Local\\Temp\\printing-press-subprocess-1753616831\\.cache\\retraction-checker-pp-cli (XDG_CACHE_HOME)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://api.crossref.org\",\n  \"cache\": {\n    \"db_bytes\": 49152,\n    \"db_path\": \"C:\\\\Users\\\\LACI\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-1753616831\\\\.local\\\\share\\\\retraction-checker-pp-cli\\\\data.db\",\n    \"hint\": \"sync_state is empty; run 'retraction-checker-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 4,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"C:\\\\Users\\\\LACI\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-1753616831\\\\.config\\\\retraction-checker-pp-cli\\\\config.toml\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"C:\\\\Users\\\\LACI\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-1753616831\\\\.cache\\\\retraction-checker-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"C:\\\\Users\\\\LACI\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-1753616831\\\\.config\\\\retraction-checker-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"C:\\\\Users\\\\LACI\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-1753616831\\\\.local\\\\share\\\\retraction-checker-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"C:\\\\Users\\\\LACI\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-1753616831\\\\.local\\\\state\\\\retraction-checker-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "export",
+      "kind": "help",
+      "args": [
+        "export",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Export paginated API data to a local file. Supports JSONL (one JSON object\nper line, streaming-friendly) and JSON (array). JSONL is recommended for\nlarge datasets as it has no memory pressure.\n\nUsage:\n  retraction-checker-pp-cli export \u003cresource\u003e [id] [flags]\n\nExamples:\n  # Export all items as JSONL (streaming, recommended for large datasets)\n  retraction-checker-pp-cli export \u003cresource\u003e --format jsonl --output data.jsonl\n\n  # Export with limit\n  retraction-checker-pp-cli export \u003cresource\u003e --format jsonl --limit 1000\n\n  # Pipe to another tool\n  retraction-checker-pp-cli export \u003cresource\u003e --format jsonl | jq '.id'\n\nFlags:\n      --format string   Output format: jsonl or json (default \"jsonl\")\n  -h, --help            help for export\n      --limit int       Maximum records to export (0 = unlimited)\n      --no-cache        Bypass response cache for fresh data\n  -o, --output string   Output file path (default: stdout)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'retraction-checker-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "export",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "error_path",
+      "args": [
+        "export",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: unknown resource \"__printing_press_invalid__\"; valid: works\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  retraction-checker-pp-cli feedback list [flags]\n\nExamples:\n  retraction-checker-pp-cli feedback list\n  retraction-checker-pp-cli feedback list --limit 5\n  retraction-checker-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'retraction-checker-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  retraction-checker-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  retraction-checker-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  retraction-checker-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | retraction-checker-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'retraction-checker-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  retraction-checker-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  retraction-checker-pp-cli profile delete my-defaults --yes\n  retraction-checker-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'retraction-checker-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  retraction-checker-pp-cli profile list [flags]\n\nExamples:\n  retraction-checker-pp-cli profile list\n  retraction-checker-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'retraction-checker-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile, --config, and --home, which are never\ncaptured: they control profile/config resolution and would never apply).\n\nUsage:\n  retraction-checker-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  retraction-checker-pp-cli profile save my-defaults --json --compact\n  retraction-checker-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'retraction-checker-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  retraction-checker-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  retraction-checker-pp-cli profile show my-defaults\n  retraction-checker-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'retraction-checker-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  retraction-checker-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  retraction-checker-pp-cli profile use my-defaults\n  retraction-checker-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'retraction-checker-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "scan",
+      "kind": "help",
+      "args": [
+        "scan",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Scan a bibliography or reading list for retracted papers. The file may contain one\nDOI or PMID per line (blank lines and lines starting with # or % are skipped), or\nbe a BibTeX (.bib) file whose doi fields are extracted automatically. Each entry is\nchecked against Crossref; retracted entries are flagged. Keyless.\n\nUsage:\n  retraction-checker-pp-cli scan \u003cfile\u003e [flags]\n\nExamples:\n  retraction-checker-pp-cli scan refs.bib --json\n\nFlags:\n  -h, --help            help for scan\n      --mailto string   Contact email for the Crossref polite pool (better rate limits)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'retraction-checker-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "scan",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [scan] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "scan",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [scan] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "scan",
+      "kind": "error_path",
+      "args": [
+        "scan",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: reading __printing_press_invalid__: open __printing_press_invalid__: The system cannot find the file specified.\n"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  retraction-checker-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  retraction-checker-pp-cli search \"error timeout\"\n\n  # Force local search only\n  retraction-checker-pp-cli search \"payment failed\" --data-source local\n\n  # Search a specific resource type locally\n  retraction-checker-pp-cli search \"critical\" --type transactions --data-source local\n\n  # JSON output for piping\n  retraction-checker-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     SQLite database file path (default: resolved data directory data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'retraction-checker-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "superseded",
+      "kind": "help",
+      "args": [
+        "superseded",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Given a DOI, look up the paper's title and publication year in Crossref, then query\nOpenAlex for related research on the same topic published afterwards, ranked by\ncitation count. Use --query to override the search terms and --from-year to change\nthe cutoff. Keyless; both Crossref and OpenAlex require no API key.\n\nUsage:\n  retraction-checker-pp-cli superseded \u003cdoi\u003e [flags]\n\nExamples:\n  retraction-checker-pp-cli superseded 10.1016/j.micpro.2020.103768 --json\n\nFlags:\n  -h, --help            help for superseded\n      --limit int       Maximum related works to return (default 10)\n      --mailto string   Contact email for the Crossref/OpenAlex polite pool\n      --query string    Override the topic search terms (defaults to the paper's title)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'retraction-checker-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "superseded",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [superseded] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "superseded",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [superseded] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "superseded",
+      "kind": "error_path",
+      "args": [
+        "superseded",
+        "--query",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Usage:\n  retraction-checker-pp-cli superseded \u003cdoi\u003e [flags]\n\nExamples:\n  retraction-checker-pp-cli superseded 10.1016/j.micpro.2020.103768 --json\n\nFlags:\n  -h, --help            help for superseded\n      --limit int       Maximum related works to return (default 10)\n      --mailto string   Contact email for the Crossref/OpenAlex polite pool\n      --query string    Override the topic search terms (defaults to the paper's title)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'retraction-checker-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\nError: a DOI argument is required\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  retraction-checker-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  retraction-checker-pp-cli sync\n\n  # Sync specific resources only\n  retraction-checker-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  retraction-checker-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  retraction-checker-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  retraction-checker-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  retraction-checker-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    SQLite database file path (default: resolved data directory data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, stat…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"works\"}\n{\"event\":\"sync_complete\",\"resource\":\"works\",\"total\":1,\"duration_ms\":7634}\n{\"event\":\"sync_summary\",\"total_records\":1,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":7634}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"works\"}\n{\"event\":\"sync_warning\",\"resource\":\"works\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"works\",\"total\":1,\"duration_ms\":4998}\n{\"event\":\"sync_summary\",\"total_records\":1,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":4998}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "watch",
+      "kind": "help",
+      "args": [
+        "watch",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Persist a baseline of retraction notices for a topic and, on each subsequent run,\nreport notices that are new since the baseline. The first run establishes the\nbaseline and reports nothing as new. Use --reset to clear the stored baseline.\nState is kept under your user config directory. Keyless.\n\nUsage:\n  retraction-checker-pp-cli watch \u003ctopic\u003e [flags]\n\nExamples:\n  retraction-checker-pp-cli watch \"machine learning\" --json\n\nFlags:\n  -h, --help            help for watch\n      --mailto string   Contact email for the Crossref polite pool (better rate limits)\n      --reset           Clear the stored baseline for this topic before running\n      --rows int        Number of recent retraction notices to track (default 50)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'retraction-checker-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [watch] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "watch",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [watch] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "watch",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  retraction-checker-pp-cli which [query] [flags]\n\nExamples:\n  retraction-checker-pp-cli which \"stale tickets\"\n  retraction-checker-pp-cli which \"bottleneck\"\n  retraction-checker-pp-cli which --limit 1 \"send message\"\n  retraction-checker-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'retraction-checker-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  retraction-checker-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  retraction-checker-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  retraction-checker-pp-cli workflow archive --full\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'retraction-checker-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"works\"}\n{\"event\":\"sync_warning\",\"resource\":\"works\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"works\",\"total\":1,\"duration_ms\":5581}\nArchived 1 items across 1 resources to C:\\Users\\LACI\\AppData\\Local\\Temp\\printing-press-subprocess-1753616831\\.local\\share\\retraction-checker-pp-cli\\data.db\n  works: 1 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 1,\n  \"store_path\": \"C:\\\\Users\\\\LACI\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-1753616831\\\\.local\\\\share\\\\retraction-checker-pp-cli\\\\data.db\",\n  \"timestamp\": \"2026-07-03T09:57:04Z\",\n  \"total_items\": 1\n}\n{\"event\":\"sync_start\",\"resource\":\"works\"}\n{\"event\":\"sync_warning\",\"resource\":\"works\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"works\",\"total\":1,\"duration_ms\":5200}\n  works: 1 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  retraction-checker-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  retraction-checker-pp-cli workflow status\n\n  # Show status as JSON\n  retraction-checker-pp-cli workflow status --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'retraction-checker-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  works                          1 items\n\n  Total: 1 items\n  Store: C:\\Users\\LACI\\AppData\\Local\\Temp\\printing-press-subprocess-1753616831\\.local\\share\\retraction-checker-pp-cli\\data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"works\": 1\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "works get",
+      "kind": "help",
+      "args": [
+        "works",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a single work by DOI\n\nUsage:\n  retraction-checker-pp-cli works get \u003cdoi\u003e [flags]\n\nExamples:\n  retraction-checker-pp-cli works get 10.1016/j.micpro.2020.103768\n\nFlags:\n  -h, --help            help for get\n      --mailto string   Contact email for the Crossref polite pool\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'retraction-checker-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "works get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"doi\" at depth 0"
+    },
+    {
+      "command": "works get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"doi\" at depth 0"
+    },
+    {
+      "command": "works get",
+      "kind": "error_path",
+      "args": [
+        "works",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /works/__printing_press_invalid__ returned HTTP 404: Resource not found.\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "works search",
+      "kind": "help",
+      "args": [
+        "works",
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search or filter scholarly works\n\nUsage:\n  retraction-checker-pp-cli works search [flags]\n\nAliases:\n  search, list\n\nExamples:\n  retraction-checker-pp-cli works search\n\nFlags:\n      --all             Fetch all pages\n      --filter string   Crossref filter expression.\n  -h, --help            help for search\n      --mailto string   Contact email for the Crossref polite pool (better rate limits)\n      --offset string   Result offset for pagination (default \"0\")\n      --order string    Sort order (one of: asc, desc)\n      --query string    Free-text query across title, author, and metadata\n      --rows int        Number of results to return (max 1000) (default 20)\n      --select string   Comma-separated fields to return (reduces payload size)\n      --sort string     Field to sort by (one of: relevance, updated, published, deposited, is-referenced-by-count)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'retraction-checker-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "works search",
+      "kind": "happy_path",
+      "args": [
+        "works",
+        "search"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"message\":{\"facets\":{},\"items\":[{\"DOI\":\"10.1007/978-3-658-17671-6_18-1\",\"ISBN\":[\"9783658176716\",\"9783658176716\"],\"URL\":\"https://doi.org/10.1007/978-3-658-17671-6_18-1\",\"assertion\":[{\"group\":{\"label\":\"Chapter History\",\"name\":\"\u003credacted\u003e\"},\"label\":\"Received\",\"name\":\"\u003credacted\u003e\",\"order\":1,\"value\":\"17 November 2017, 00:00:00\"},{\"group\":{\"label\":\"Chapter History\",\"name\":\"\u003credacted\u003e\"},\"label\":\"Accepted\",\"name\":\"\u003credacted\u003e\",\"order\":2,\"value\":\"29 May 2018, 00:00:00\"},{\"group\":{\"label\":\"Chapter History\",\"name\":\"\u003credacted\u003e\"},\"label\":\"First Online\",\"name\":\"\u003credacted\u003e\",\"order\":3,\"value\":\"3 November 2018\"}],\"author\":[{\"affiliation\":[],\"family\":\"Howaldt\",\"given\":\"Jürgen\",\"role\":[{\"role\":\"author\",\"vocabulary\":\"crossref\"}],\"sequence\":\"first\"},{\"affiliation\":[],\"family\":\"Schwarz\",\"given\":\"Michael\",\"role\":[{\"role\":\"author\",\"vocabulary\":\"crossref\"}],\"sequence\":\"additional\"}],\"container-title\":[\"Handbuch Innovationsforschung\"],\"content-domain\":{\"crossmark-restriction\":false,\"domain\":[\"link.springer.com\"]},\"created\":{\"date-parts\":[[2018,11,15]],\"date-time\":\"2018-11-15T06:01:17Z\",\"timestamp\":1542261677000},\"deposited\":{\"date-parts\":[[2024,7,12]],\"date-time\":\"2024-07-12T11:34:36Z\",\"timestamp\":1720784076000},\"indexed\":{\"date-parts\":[[2025,3,28]],\"date-time\":\"2025-03-28T05:01:47Z\",\"timestamp\":1743138107987,\"version\":\"3.40.3\"},\"is-referenced-by-count\":2,\"isbn-type\":[{\"type\":\"print\",\"value\":\"9783658176716\"},{\"type\":\"electronic\",\"value\":\"9783658176716\"}],\"issued\":{\"date-parts\":[[2018,11,3]]},\"language\":\"de\",\"license\":[{\"URL\":\"http://www.springer.com/tdm\",\"content-version\":\"tdm\",\"delay-in-days\":0,\"start\":{\"date-parts\":[[2018,11,3]],\"date-time\":\"2018-11-03T00:00:00Z\",\"timestamp\":1541203200000}}],\"link\":[{\"URL\":\"http://link.springer.com/content/pdf/10.1007/978-3-658-17671-6_18-1\",\"content-type\":\"unspecified\",\"content-version\":\"vor\",\"intended-application\":\"similarity-checking\"}],\"member\":\"297\",\"page\":\"1-17\",\"prefix\":\"10.1007\",\"published\":{\"date-parts\":[[2018,11,3]]},\"published-online\":{\"date-parts\":[[2018,11,3]]},\"published-print\":{\"date-parts\":[[2019]]},\"publisher\":\"Springer Fachmedien Wiesbaden\",\"publisher-location\":\"Wiesbaden\",\"reference\":[{\"author\":\"J Aderhold\",\"first-page\":\"14\",\"key\":\"18-1_CR1\",\"unstructured\":\"Aderhold, Jens. 2016. Im Labyrinth sozialer Innovation. Deutungsprobleme politischer EntscheiderInnen, wissenschaftlicher Institutionen und gesellschaftlicher AkteurInnen. In Neu! Besser! Billiger! Soziale Innovation als leeres Versprechen? Hrsg. Katharina Meichenitsch, Michaela Neumayer und Martin Schenk, 14–45. Wien: Mandelbaum Verlag.\",\"volume-title\":\"Neu! Besser! Billiger! Soziale Innovation als leeres Versprechen?\",\"year\":\"2016\"},{\"DOI\":\"10.1007/978-3-319-13773-5\",\"author\":\"MS Archer\",\"doi-asserted-by\":\"publisher\",\"key\":\"18-1_CR2\",\"unstructured\":\"Archer, Margaret S. 2015. Generative mechanisms transforming the social order. Cham/Heidelberg/New York/Dordrecht/London: Springer.\",\"volume-title\":\"Generative mechanisms transforming the social order\",\"year\":\"2015\"},{\"key\":\"18-1_CR3\",\"unstructured\":\"Avelino, Flor, Julia Wittmayer, Alex Haxeltine, René Kemp, Tim O’Riordan, Paul Weaver, Derk Loorbach, und Jan Rotman. 2014. Game-changers and transformative social innovation. The case of the economic crisis and the new economy, TRANSIT working paper. http://www.transitsocialinnovation.eu/content/original/TRANSIT%20outputs/91%20Gamechangers_TSI_Avelino_etal_TRANSIT_workingpaper_2014.pdf . Zugegriffen am 08.04.2016.\"},{\"DOI\":\"10.1017/S004727941600009X\",\"author\":\"N Ayob\",\"doi-asserted-by\":\"publisher\",\"first-page\":\"635\",\"issue\":\"4\",\"journal-title\":\"Journal of Social Policy\",\"key\":\"18-1_CR4\",\"unstructured\":\"Ayob, Noorseha, Simon Teasdale, und Kylie Fagan. 2016. How social innovation ‚came to be‘: Tracing the evolution of a contested concept. Journal of Social Policy 45(4): 635–653.\",\"volume\":\"45\",\"year\":\"2016\"},{\"key\":\"18-1_CR5\",\"unstructured\":\"BEPA Report. 2010. Empowering people, driving change. Social innovation in the European Union. Bureau of European Policy Advisers, European Commission. http://www…[truncated]"
+    },
+    {
+      "command": "works search",
+      "kind": "json_fidelity",
+      "args": [
+        "works",
+        "search",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"message\":{\"facets\":{},\"items\":[{\"DOI\":\"10.1007/978-3-658-17671-6_18-1\",\"ISBN\":[\"9783658176716\",\"9783658176716\"],\"URL\":\"https://doi.org/10.1007/978-3-658-17671-6_18-1\",\"assertion\":[{\"group\":{\"label\":\"Chapter History\",\"name\":\"\u003credacted\u003e\"},\"label\":\"Received\",\"name\":\"\u003credacted\u003e\",\"order\":1,\"value\":\"17 November 2017, 00:00:00\"},{\"group\":{\"label\":\"Chapter History\",\"name\":\"\u003credacted\u003e\"},\"label\":\"Accepted\",\"name\":\"\u003credacted\u003e\",\"order\":2,\"value\":\"29 May 2018, 00:00:00\"},{\"group\":{\"label\":\"Chapter History\",\"name\":\"\u003credacted\u003e\"},\"label\":\"First Online\",\"name\":\"\u003credacted\u003e\",\"order\":3,\"value\":\"3 November 2018\"}],\"author\":[{\"affiliation\":[],\"family\":\"Howaldt\",\"given\":\"Jürgen\",\"role\":[{\"role\":\"author\",\"vocabulary\":\"crossref\"}],\"sequence\":\"first\"},{\"affiliation\":[],\"family\":\"Schwarz\",\"given\":\"Michael\",\"role\":[{\"role\":\"author\",\"vocabulary\":\"crossref\"}],\"sequence\":\"additional\"}],\"container-title\":[\"Handbuch Innovationsforschung\"],\"content-domain\":{\"crossmark-restriction\":false,\"domain\":[\"link.springer.com\"]},\"created\":{\"date-parts\":[[2018,11,15]],\"date-time\":\"2018-11-15T06:01:17Z\",\"timestamp\":1542261677000},\"deposited\":{\"date-parts\":[[2024,7,12]],\"date-time\":\"2024-07-12T11:34:36Z\",\"timestamp\":1720784076000},\"indexed\":{\"date-parts\":[[2025,3,28]],\"date-time\":\"2025-03-28T05:01:47Z\",\"timestamp\":1743138107987,\"version\":\"3.40.3\"},\"is-referenced-by-count\":2,\"isbn-type\":[{\"type\":\"print\",\"value\":\"9783658176716\"},{\"type\":\"electronic\",\"value\":\"9783658176716\"}],\"issued\":{\"date-parts\":[[2018,11,3]]},\"language\":\"de\",\"license\":[{\"URL\":\"http://www.springer.com/tdm\",\"content-version\":\"tdm\",\"delay-in-days\":0,\"start\":{\"date-parts\":[[2018,11,3]],\"date-time\":\"2018-11-03T00:00:00Z\",\"timestamp\":1541203200000}}],\"link\":[{\"URL\":\"http://link.springer.com/content/pdf/10.1007/978-3-658-17671-6_18-1\",\"content-type\":\"unspecified\",\"content-version\":\"vor\",\"intended-application\":\"similarity-checking\"}],\"member\":\"297\",\"page\":\"1-17\",\"prefix\":\"10.1007\",\"published\":{\"date-parts\":[[2018,11,3]]},\"published-online\":{\"date-parts\":[[2018,11,3]]},\"published-print\":{\"date-parts\":[[2019]]},\"publisher\":\"Springer Fachmedien Wiesbaden\",\"publisher-location\":\"Wiesbaden\",\"reference\":[{\"author\":\"J Aderhold\",\"first-page\":\"14\",\"key\":\"18-1_CR1\",\"unstructured\":\"Aderhold, Jens. 2016. Im Labyrinth sozialer Innovation. Deutungsprobleme politischer EntscheiderInnen, wissenschaftlicher Institutionen und gesellschaftlicher AkteurInnen. In Neu! Besser! Billiger! Soziale Innovation als leeres Versprechen? Hrsg. Katharina Meichenitsch, Michaela Neumayer und Martin Schenk, 14–45. Wien: Mandelbaum Verlag.\",\"volume-title\":\"Neu! Besser! Billiger! Soziale Innovation als leeres Versprechen?\",\"year\":\"2016\"},{\"DOI\":\"10.1007/978-3-319-13773-5\",\"author\":\"MS Archer\",\"doi-asserted-by\":\"publisher\",\"key\":\"18-1_CR2\",\"unstructured\":\"Archer, Margaret S. 2015. Generative mechanisms transforming the social order. Cham/Heidelberg/New York/Dordrecht/London: Springer.\",\"volume-title\":\"Generative mechanisms transforming the social order\",\"year\":\"2015\"},{\"key\":\"18-1_CR3\",\"unstructured\":\"Avelino, Flor, Julia Wittmayer, Alex Haxeltine, René Kemp, Tim O’Riordan, Paul Weaver, Derk Loorbach, und Jan Rotman. 2014. Game-changers and transformative social innovation. The case of the economic crisis and the new economy, TRANSIT working paper. http://www.transitsocialinnovation.eu/content/original/TRANSIT%20outputs/91%20Gamechangers_TSI_Avelino_etal_TRANSIT_workingpaper_2014.pdf . Zugegriffen am 08.04.2016.\"},{\"DOI\":\"10.1017/S004727941600009X\",\"author\":\"N Ayob\",\"doi-asserted-by\":\"publisher\",\"first-page\":\"635\",\"issue\":\"4\",\"journal-title\":\"Journal of Social Policy\",\"key\":\"18-1_CR4\",\"unstructured\":\"Ayob, Noorseha, Simon Teasdale, und Kylie Fagan. 2016. How social innovation ‚came to be‘: Tracing the evolution of a contested concept. Journal of Social Policy 45(4): 635–653.\",\"volume\":\"45\",\"year\":\"2016\"},{\"key\":\"18-1_CR5\",\"unstructured\":\"BEPA Report. 2010. Empowering people, driving change. Social innovation in the European Union. Bureau of European Policy Advisers, European Commission. http://www…[truncated]"
+    },
+    {
+      "command": "works search",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-07-03T09:56:30.3911148Z"
+}

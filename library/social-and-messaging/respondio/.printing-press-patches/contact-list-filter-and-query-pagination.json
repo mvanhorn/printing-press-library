@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "contact-list-filter-and-query-pagination",
+  "applied_at": "2026-08-11",
+  "base_run_id": "20260805-222426-ffd268a6",
+  "base_printing_press_version": "4.30.1",
+  "summary": "POST /contact/list needs the wildcard search/filter/timezone body from every entry point (flags and --stdin alike), accepts limit and cursorId only as query parameters, and reports the next page in pagination.next as either a bare integer or a URL whose cursorId must clear the same positive-integer check a bare one does.",
+  "reason": "Respond.io answers HTTP 400 when any of the three body members is missing, and silently ignores a body limit/cursorId — so pages come back at the server default of 10 and the cursor never advances. A pager that does not set its own limit and does not notice a non-advancing cursor therefore truncates or duplicates without saying which.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/contact_list.go",
+    "internal/cli/contact_list_test.go",
+    "internal/cli/pagination_cursor_test.go",
+    "tools-manifest.json"
+  ],
+  "validated_outcome": "Before: sync and `contact list` both errored with HTTP 400; once the body was accepted, limit was ignored and the --all cursor never advanced. After: `contact list --limit 3` returns 3 items with status 200 and a full sync hydrates contact with zero warnings; the mirror row count matches an independent manual walk of the API's cursor pagination exactly (28 pages of 100, unique-id verified). Full suite 952 passed; go build and go vet clean."
+}

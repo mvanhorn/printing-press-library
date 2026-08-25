@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "ridewithgps-dogfood-tier-and-fixtures",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260616-213832-c533c1eb",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Tier-gate org-only POI read commands and add a --since fixture to sync-json.",
+  "reason": "POI list/get are reserved for organization accounts (HTTP 403 on personal accounts) — tagged pp:requires-tier=org so dogfood skips them honestly. sync-json requires --since; added pp:happy-args so the live matrix supplies the initial-sync sentinel.",
+  "files": [
+    "internal/cli/points_of_interest_list.go",
+    "internal/cli/points_of_interest_get-point-of-interest.go",
+    "internal/cli/promoted_sync-json.go"
+  ],
+  "validated_outcome": "Live dogfood 136/136 after the changes (POI skipped, sync-json passes with --since)."
+}

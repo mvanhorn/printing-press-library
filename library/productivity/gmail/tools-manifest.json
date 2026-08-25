@@ -1,0 +1,310 @@
+{
+  "api_name": "gmail",
+  "base_url": "https://gmail.googleapis.com",
+  "description": "Mailbox cleanup that can prove itself \u2014 preview, confirm, undo, verify \u2014 from a binary that structurally cannot send email.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "GMAIL_OAUTH2C"
+    ],
+    "env_var_specs": [
+      {
+        "name": "GMAIL_OAUTH2C",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "history_list",
+      "description": "Lists the history of all changes to the given mailbox. History results are returned in chronological order (increasing `historyId`). Required: userId. Optional: historyTypes, labelId, maxResults (plus 2 more). Returns array of History.",
+      "method": "GET",
+      "path": "/gmail/v1/users/{userId}/history",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "The user's email address. The special value `me` can be used to indicate the authenticated user.",
+          "required": true
+        },
+        {
+          "name": "historyTypes",
+          "type": "array",
+          "location": "query",
+          "description": "History types to be returned by the function"
+        },
+        {
+          "name": "labelId",
+          "type": "string",
+          "location": "query",
+          "description": "Only return messages with a label matching the ID."
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of history records to return. This field defaults to 100. The maximum allowed value for this field is 500."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Page token to retrieve a specific page of results in the list."
+        },
+        {
+          "name": "startHistoryId",
+          "type": "string",
+          "location": "query",
+          "description": "Required. Returns history records after the specified `startHistoryId`. The supplied `startHistoryId` should be obtained from the `historyId` of a message, thread, or previous `list` response. History IDs increase chronologically but are not contiguous with random gaps in between valid IDs. Supplying an invalid or out of date `startHistoryId` typically returns an `HTTP 404` error code. A `historyId` is typically valid for at least a week, but in some rare circumstances may be valid for only a few hours. If you receive an `HTTP 404` error response, your application should perform a full sync. If you receive no `nextPageToken` in the response, there are no updates to retrieve and you can store the returned `historyId` for a future request."
+        }
+      ]
+    },
+    {
+      "name": "labels_get",
+      "description": "Gets the specified label. Required: userId, id. Returns the Label.",
+      "method": "GET",
+      "path": "/gmail/v1/users/{userId}/labels/{id}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "The user's email address. The special value `me` can be used to indicate the authenticated user.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the label to retrieve.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "labels_list",
+      "description": "Lists all labels in the user's mailbox. Required: userId. Returns array of Label.",
+      "method": "GET",
+      "path": "/gmail/v1/users/{userId}/labels",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "The user's email address. The special value `me` can be used to indicate the authenticated user.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_get",
+      "description": "Gets the specified message. Required: userId, id. Optional: format, metadataHeaders. Returns array of string.",
+      "method": "GET",
+      "path": "/gmail/v1/users/{userId}/messages/{id}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "The user's email address. The special value `me` can be used to indicate the authenticated user.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the message to retrieve. This ID is usually retrieved using `messages.list`. The ID is also contained in the result when a message is inserted (`messages.insert`) or imported (`messages.import`).",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "The format to return the message in."
+        },
+        {
+          "name": "metadataHeaders",
+          "type": "array",
+          "location": "query",
+          "description": "When given and format is `METADATA`, only include headers specified."
+        }
+      ]
+    },
+    {
+      "name": "messages_list",
+      "description": "Lists the messages in the user's mailbox. Required: userId. Optional: includeSpamTrash, labelIds, maxResults (plus 2 more). Returns array of Message.",
+      "method": "GET",
+      "path": "/gmail/v1/users/{userId}/messages",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "The user's email address. The special value `me` can be used to indicate the authenticated user.",
+          "required": true
+        },
+        {
+          "name": "includeSpamTrash",
+          "type": "bool",
+          "location": "query",
+          "description": "Include messages from `SPAM` and `TRASH` in the results."
+        },
+        {
+          "name": "labelIds",
+          "type": "array",
+          "location": "query",
+          "description": "Only return messages with labels that match all of the specified label IDs. Messages in a thread might have labels that other messages in the same thread don't have. To learn more, see [Manage labels on messages and threads](https://developers.google.com/gmail/api/guides/labels#manage_labels_on_messages_threads)."
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of messages to return. This field defaults to 100. The maximum allowed value for this field is 500."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Page token to retrieve a specific page of results in the list."
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Only return messages matching the specified query. Supports the same query format as the Gmail search box. For example, `'from:someuser@example.com rfc822msgid: is:unread'`. Parameter cannot be used when accessing the api using the gmail.metadata scope."
+        }
+      ]
+    },
+    {
+      "name": "messages_attachments_get",
+      "description": "Gets the specified message attachment. Required: userId, messageId, id. Returns the MessagePartBody.",
+      "method": "GET",
+      "path": "/gmail/v1/users/{userId}/messages/{messageId}/attachments/{id}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "The user's email address. The special value `me` can be used to indicate the authenticated user.",
+          "required": true
+        },
+        {
+          "name": "messageId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the message containing the attachment.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the attachment.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "threads_get",
+      "description": "Gets the specified thread. Required: userId, id. Optional: format, metadataHeaders. Returns array of Message.",
+      "method": "GET",
+      "path": "/gmail/v1/users/{userId}/threads/{id}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "The user's email address. The special value `me` can be used to indicate the authenticated user.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the thread to retrieve.",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "The format to return the messages in."
+        },
+        {
+          "name": "metadataHeaders",
+          "type": "array",
+          "location": "query",
+          "description": "When given and format is METADATA, only include headers specified."
+        }
+      ]
+    },
+    {
+      "name": "threads_list",
+      "description": "Lists the threads in the user's mailbox. Required: userId. Optional: includeSpamTrash, labelIds, maxResults (plus 2 more). Returns array of Thread.",
+      "method": "GET",
+      "path": "/gmail/v1/users/{userId}/threads",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "The user's email address. The special value `me` can be used to indicate the authenticated user.",
+          "required": true
+        },
+        {
+          "name": "includeSpamTrash",
+          "type": "bool",
+          "location": "query",
+          "description": "Include threads from `SPAM` and `TRASH` in the results."
+        },
+        {
+          "name": "labelIds",
+          "type": "array",
+          "location": "query",
+          "description": "Only return threads with labels that match all of the specified label IDs."
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of threads to return. This field defaults to 100. The maximum allowed value for this field is 500."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Page token to retrieve a specific page of results in the list."
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Only return threads matching the specified query. Supports the same query format as the Gmail search box. For example, `'from:someuser@example.com rfc822msgid: is:unread'`. Parameter cannot be used when accessing the api using the gmail.metadata scope."
+        }
+      ]
+    },
+    {
+      "name": "users_profile_get-profile",
+      "description": "Gets the current user's Gmail profile. Required: userId. Returns the Profile.",
+      "method": "GET",
+      "path": "/gmail/v1/users/{userId}/profile",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "The user's email address. The special value `me` can be used to indicate the authenticated user.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

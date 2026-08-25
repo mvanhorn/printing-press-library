@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "qsys-multi-segment-slug-path",
+  "applied_at": "2026-08-24",
+  "base_run_id": "20260824-192635-14fb8c13",
+  "base_printing_press_version": "4.31.1",
+  "summary": "product page/resources slug params keep their slashes: each segment is escaped individually instead of PathEscape on the whole value.",
+  "reason": "The spec's own happy_args slug (installed/network/cx-q-series/cx-q-2k4) spans multiple URL segments; www.qsys.com returns 404 for %2F-encoded slashes, so the generated replacePathParam broke the command's documented usage.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/product_page.go",
+    "internal/cli/product_resources.go"
+  ],
+  "validated_outcome": "product page and product resources succeed live against power-amplifiers installed/network/cx-q-series/cx-q-2k4; full live dogfood repassed."
+}

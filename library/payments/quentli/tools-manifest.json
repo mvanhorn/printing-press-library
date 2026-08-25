@@ -1,0 +1,2567 @@
+{
+  "api_name": "quentli",
+  "base_url": "https://api.quentli.com",
+  "description": "Every Quentli payments, invoicing, and SAT tax-billing endpoint, plus offline collection, reconciliation, and at-risk-subscription intelligence no other Quentli tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "QUENTLI_SECRET_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "QUENTLI_SECRET_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "auth-links_create",
+      "description": "Generates a one-time authenticated URL that signs the customer into the payment portal. Required: input. Returns the new CreateAuthLinkPayload.",
+      "method": "POST",
+      "path": "/v1/auth-links",
+      "params": [
+        {
+          "name": "input-customer-id",
+          "wire_name": "input.customerId",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier of the customer to create an auth link for.",
+          "required": true
+        },
+        {
+          "name": "input-url",
+          "wire_name": "input.url",
+          "type": "string",
+          "location": "body",
+          "description": "Optional target URL to redirect the customer to after authentication."
+        }
+      ]
+    },
+    {
+      "name": "customer-portal-session_create",
+      "description": "Generates a one-time authenticated URL that signs the customer into the portal at a supported destination. Required: input. Returns the new CreateCustomerPortalSessionPayload.",
+      "method": "POST",
+      "path": "/v1/customer-portal-session",
+      "params": [
+        {
+          "name": "input",
+          "type": "string",
+          "location": "body",
+          "description": "Input",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_create",
+      "description": "Creates a new customer. Required: input. Returns the new CreateCustomerPayload.",
+      "method": "POST",
+      "path": "/v1/customers",
+      "params": [
+        {
+          "name": "input-accepted-service-agreement",
+          "wire_name": "input.acceptedServiceAgreement",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the customer has accepted the service agreement."
+        },
+        {
+          "name": "input-assignee-id",
+          "wire_name": "input.assigneeId",
+          "type": "string",
+          "location": "body",
+          "description": "Member id assigned to manage this customer."
+        },
+        {
+          "name": "input-email",
+          "wire_name": "input.email",
+          "type": "string",
+          "location": "body",
+          "description": "Email address of the customer."
+        },
+        {
+          "name": "input-metadata",
+          "wire_name": "input.metadata",
+          "type": "array",
+          "location": "body",
+          "description": "Custom metadata entries attached to the customer."
+        },
+        {
+          "name": "input-name",
+          "wire_name": "input.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the customer.",
+          "required": true
+        },
+        {
+          "name": "input-opted-out-whatsapp-at",
+          "wire_name": "input.optedOutWhatsappAt",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time when the customer opted out of WhatsApp reminders."
+        },
+        {
+          "name": "input-phone-number",
+          "wire_name": "input.phoneNumber",
+          "type": "string",
+          "location": "body",
+          "description": "Primary WhatsApp phone number of the customer, preferably E.164."
+        },
+        {
+          "name": "input-secondary-phone-number",
+          "wire_name": "input.secondaryPhoneNumber",
+          "type": "string",
+          "location": "body",
+          "description": "Secondary phone number for reminders and announcements."
+        },
+        {
+          "name": "input-skip-tax-invoice",
+          "wire_name": "input.skipTaxInvoice",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether tax invoice generation should be skipped for this customer."
+        },
+        {
+          "name": "input-tags",
+          "wire_name": "input.tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Tag names to associate with this customer."
+        },
+        {
+          "name": "input-username",
+          "wire_name": "input.username",
+          "type": "string",
+          "location": "body",
+          "description": "Optional username used for login and identification. If omitted and auto-increment usernames are enabled, one is generated."
+        }
+      ]
+    },
+    {
+      "name": "customers_get-by-id",
+      "description": "Returns a customer by id. Required: id.",
+      "method": "GET",
+      "path": "/v1/customers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the customer.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_list",
+      "description": "Returns customers. Optional: filter, skip (default: 0), take (default: 20) (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/customers",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "A `qs`-encoded `customerFilter` object."
+        },
+        {
+          "name": "skip",
+          "type": "float",
+          "location": "query",
+          "description": "Pagination offset."
+        },
+        {
+          "name": "take",
+          "type": "float",
+          "location": "query",
+          "description": "Pagination limit."
+        },
+        {
+          "name": "orderBy",
+          "type": "string",
+          "location": "query",
+          "description": "A `qs`-encoded `customerOrderBy` object."
+        }
+      ]
+    },
+    {
+      "name": "customers_update",
+      "description": "Updates editable fields of an existing customer by id. Required: id, input. Returns the updated UpdateCustomerPayload.",
+      "method": "PATCH",
+      "path": "/v1/customers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the customer.",
+          "required": true
+        },
+        {
+          "name": "input-data-accepted-service-agreement",
+          "wire_name": "input.data.acceptedServiceAgreement",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether service agreement is accepted."
+        },
+        {
+          "name": "input-data-assignee-id",
+          "wire_name": "input.data.assigneeId",
+          "type": "string",
+          "location": "body",
+          "description": "Member id assigned to this customer."
+        },
+        {
+          "name": "input-data-email",
+          "wire_name": "input.data.email",
+          "type": "string",
+          "location": "body",
+          "description": "Updated email address."
+        },
+        {
+          "name": "input-data-email-verified",
+          "wire_name": "input.data.emailVerified",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether email is verified."
+        },
+        {
+          "name": "input-data-has-changed-password",
+          "wire_name": "input.data.hasChangedPassword",
+          "type": "bool",
+          "location": "body",
+          "description": "Flag indicating password was changed."
+        },
+        {
+          "name": "input-data-meta",
+          "wire_name": "input.data.meta",
+          "type": "object",
+          "location": "body",
+          "description": "Flat metadata map. Null/empty values remove keys."
+        },
+        {
+          "name": "input-data-metadata",
+          "wire_name": "input.data.metadata",
+          "type": "array",
+          "location": "body",
+          "description": "Metadata entries to upsert. Null values delete keys."
+        },
+        {
+          "name": "input-data-name",
+          "wire_name": "input.data.name",
+          "type": "string",
+          "location": "body",
+          "description": "Updated customer name."
+        },
+        {
+          "name": "input-data-opted-out-whatsapp-at",
+          "wire_name": "input.data.optedOutWhatsappAt",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time when customer opted out from WhatsApp."
+        },
+        {
+          "name": "input-data-password",
+          "wire_name": "input.data.password",
+          "type": "string",
+          "location": "body",
+          "description": "New customer password."
+        },
+        {
+          "name": "input-data-phone-number",
+          "wire_name": "input.data.phoneNumber",
+          "type": "string",
+          "location": "body",
+          "description": "Updated primary WhatsApp phone number (E.164)."
+        },
+        {
+          "name": "input-data-phone-number-verified",
+          "wire_name": "input.data.phoneNumberVerified",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether phone number is verified."
+        },
+        {
+          "name": "input-data-reply-with-assistant",
+          "wire_name": "input.data.replyWithAssistant",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether assistant replies are enabled for this customer."
+        },
+        {
+          "name": "input-data-secondary-phone-number",
+          "wire_name": "input.data.secondaryPhoneNumber",
+          "type": "string",
+          "location": "body",
+          "description": "Updated secondary phone number (E.164)."
+        },
+        {
+          "name": "input-data-signature",
+          "wire_name": "input.data.signature",
+          "type": "string",
+          "location": "body",
+          "description": "Base64 or URL signature payload."
+        },
+        {
+          "name": "input-data-skip-tax-invoice",
+          "wire_name": "input.data.skipTaxInvoice",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to skip tax invoices."
+        },
+        {
+          "name": "input-data-tags",
+          "wire_name": "input.data.tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Updated tag list."
+        },
+        {
+          "name": "input-data-tos-ip",
+          "wire_name": "input.data.tosIp",
+          "type": "string",
+          "location": "body",
+          "description": "IP captured when terms are accepted."
+        },
+        {
+          "name": "input-data-username",
+          "wire_name": "input.data.username",
+          "type": "string",
+          "location": "body",
+          "description": "Updated username."
+        },
+        {
+          "name": "input-otp",
+          "wire_name": "input.otp",
+          "type": "string",
+          "location": "body",
+          "description": "Verification code required for sensitive changes."
+        }
+      ]
+    },
+    {
+      "name": "customers_payment-methods_customers-get",
+      "description": "Returns confirmed, non-deleted payment methods for a customer. Required: customerId.",
+      "method": "GET",
+      "path": "/v1/customers/{customerId}/payment_methods",
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the customer.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_tax-profiles_customers-create",
+      "description": "Creates a fiscal profile for a customer. Required: customerId, input. Returns the new SetCustomerTaxInfoPayload.",
+      "method": "POST",
+      "path": "/v1/customers/{customerId}/tax-profiles",
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the customer.",
+          "required": true
+        },
+        {
+          "name": "input-tax-info-city",
+          "wire_name": "input.taxInfo.city",
+          "type": "string",
+          "location": "body",
+          "description": "Fiscal address city."
+        },
+        {
+          "name": "input-tax-info-default",
+          "wire_name": "input.taxInfo.default",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this should become the default tax profile."
+        },
+        {
+          "name": "input-tax-info-default-usage",
+          "wire_name": "input.taxInfo.defaultUsage",
+          "type": "string",
+          "location": "body",
+          "description": "Default CFDI usage code.",
+          "required": true
+        },
+        {
+          "name": "input-tax-info-inner-number",
+          "wire_name": "input.taxInfo.innerNumber",
+          "type": "string",
+          "location": "body",
+          "description": "Fiscal address interior number."
+        },
+        {
+          "name": "input-tax-info-legal-name",
+          "wire_name": "input.taxInfo.legalName",
+          "type": "string",
+          "location": "body",
+          "description": "Legal name from the Constancia de Situacion Fiscal.",
+          "required": true
+        },
+        {
+          "name": "input-tax-info-neighborhood",
+          "wire_name": "input.taxInfo.neighborhood",
+          "type": "string",
+          "location": "body",
+          "description": "Fiscal address neighborhood."
+        },
+        {
+          "name": "input-tax-info-outer-number",
+          "wire_name": "input.taxInfo.outerNumber",
+          "type": "string",
+          "location": "body",
+          "description": "Fiscal address exterior number."
+        },
+        {
+          "name": "input-tax-info-state",
+          "wire_name": "input.taxInfo.state",
+          "type": "string",
+          "location": "body",
+          "description": "Fiscal address state."
+        },
+        {
+          "name": "input-tax-info-street",
+          "wire_name": "input.taxInfo.street",
+          "type": "string",
+          "location": "body",
+          "description": "Fiscal address street."
+        },
+        {
+          "name": "input-tax-info-tax-id",
+          "wire_name": "input.taxInfo.taxId",
+          "type": "string",
+          "location": "body",
+          "description": "RFC.",
+          "required": true
+        },
+        {
+          "name": "input-tax-info-tax-system",
+          "wire_name": "input.taxInfo.taxSystem",
+          "type": "string",
+          "location": "body",
+          "description": "SAT tax regime code.",
+          "required": true
+        },
+        {
+          "name": "input-tax-info-zip",
+          "wire_name": "input.taxInfo.zip",
+          "type": "string",
+          "location": "body",
+          "description": "Fiscal address ZIP code.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_tax-profiles_customers-delete",
+      "description": "Soft-deletes a fiscal profile for a customer. Required: customerId, id. Returns the DeleteCustomerTaxInfoPayload. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/customers/{customerId}/tax-profiles/{id}",
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the customer.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the customer tax profile.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_tax-profiles_customers-update",
+      "description": "Updates a fiscal profile for a customer. Required: customerId, id, input. Returns the updated SetCustomerTaxInfoPayload.",
+      "method": "PATCH",
+      "path": "/v1/customers/{customerId}/tax-profiles/{id}",
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the customer.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the customer tax profile.",
+          "required": true
+        },
+        {
+          "name": "input-data-city",
+          "wire_name": "input.data.city",
+          "type": "string",
+          "location": "body",
+          "description": "Fiscal address city."
+        },
+        {
+          "name": "input-data-default",
+          "wire_name": "input.data.default",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this should become the default tax profile."
+        },
+        {
+          "name": "input-data-default-usage",
+          "wire_name": "input.data.defaultUsage",
+          "type": "string",
+          "location": "body",
+          "description": "Default CFDI usage code.",
+          "required": true
+        },
+        {
+          "name": "input-data-inner-number",
+          "wire_name": "input.data.innerNumber",
+          "type": "string",
+          "location": "body",
+          "description": "Fiscal address interior number."
+        },
+        {
+          "name": "input-data-legal-name",
+          "wire_name": "input.data.legalName",
+          "type": "string",
+          "location": "body",
+          "description": "Legal name from the Constancia de Situacion Fiscal.",
+          "required": true
+        },
+        {
+          "name": "input-data-neighborhood",
+          "wire_name": "input.data.neighborhood",
+          "type": "string",
+          "location": "body",
+          "description": "Fiscal address neighborhood."
+        },
+        {
+          "name": "input-data-outer-number",
+          "wire_name": "input.data.outerNumber",
+          "type": "string",
+          "location": "body",
+          "description": "Fiscal address exterior number."
+        },
+        {
+          "name": "input-data-state",
+          "wire_name": "input.data.state",
+          "type": "string",
+          "location": "body",
+          "description": "Fiscal address state."
+        },
+        {
+          "name": "input-data-street",
+          "wire_name": "input.data.street",
+          "type": "string",
+          "location": "body",
+          "description": "Fiscal address street."
+        },
+        {
+          "name": "input-data-tax-id",
+          "wire_name": "input.data.taxId",
+          "type": "string",
+          "location": "body",
+          "description": "RFC.",
+          "required": true
+        },
+        {
+          "name": "input-data-tax-system",
+          "wire_name": "input.data.taxSystem",
+          "type": "string",
+          "location": "body",
+          "description": "SAT tax regime code.",
+          "required": true
+        },
+        {
+          "name": "input-data-zip",
+          "wire_name": "input.data.zip",
+          "type": "string",
+          "location": "body",
+          "description": "Fiscal address ZIP code.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "discounts_create",
+      "description": "Creates a new reusable discount. Required: input. Returns the new CreateDiscountPayload.",
+      "method": "POST",
+      "path": "/v1/discounts",
+      "params": [
+        {
+          "name": "input-active",
+          "wire_name": "input.active",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the discount is active."
+        },
+        {
+          "name": "input-amount-off",
+          "wire_name": "input.amountOff",
+          "type": "int",
+          "location": "body",
+          "description": "Fixed discount amount in minor currency units. Required when type is FIXED."
+        },
+        {
+          "name": "input-codes",
+          "wire_name": "input.codes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Redeemable codes that grant this discount. Codes are uppercased automatically."
+        },
+        {
+          "name": "input-description",
+          "wire_name": "input.description",
+          "type": "string",
+          "location": "body",
+          "description": "Optional description."
+        },
+        {
+          "name": "input-expires-at",
+          "wire_name": "input.expiresAt",
+          "type": "string",
+          "location": "body",
+          "description": "Optional expiration date."
+        },
+        {
+          "name": "input-max-applications",
+          "wire_name": "input.maxApplications",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of times this discount can be applied."
+        },
+        {
+          "name": "input-name",
+          "wire_name": "input.name",
+          "type": "string",
+          "location": "body",
+          "description": "Display name of the discount.",
+          "required": true
+        },
+        {
+          "name": "input-one-off",
+          "wire_name": "input.oneOff",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this discount is single-use."
+        },
+        {
+          "name": "input-percentage-off",
+          "wire_name": "input.percentageOff",
+          "type": "float",
+          "location": "body",
+          "description": "Percentage to discount (0-100). Required when type is PERCENTAGE."
+        },
+        {
+          "name": "input-type",
+          "wire_name": "input.type",
+          "type": "string",
+          "location": "body",
+          "description": "Whether the discount is a fixed amount (FIXED) or a percentage (PERCENTAGE).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "discounts_delete",
+      "description": "Deletes a discount and all associated discount codes. Required: id. Returns the DeleteDiscountPayload. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/discounts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the discount.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "discounts_get-by-id",
+      "description": "Returns a single discount by id. Required: id.",
+      "method": "GET",
+      "path": "/v1/discounts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the discount.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "discounts_list",
+      "description": "Returns reusable discounts for the organization. One-off discounts are excluded. Optional: filter, skip (default: 0), take (default: 20) (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/discounts",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "A `qs`-encoded `discountFilter` object."
+        },
+        {
+          "name": "skip",
+          "type": "float",
+          "location": "query",
+          "description": "Pagination offset."
+        },
+        {
+          "name": "take",
+          "type": "float",
+          "location": "query",
+          "description": "Pagination limit."
+        },
+        {
+          "name": "orderBy",
+          "type": "string",
+          "location": "query",
+          "description": "A `qs`-encoded `discountOrderBy` object."
+        }
+      ]
+    },
+    {
+      "name": "discounts_update",
+      "description": "Updates editable fields of an existing discount by id. Required: id. Optional: active, amountOff, codes (plus 7 more). Returns the updated UpdateDiscountPayload.",
+      "method": "PATCH",
+      "path": "/v1/discounts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the discount.",
+          "required": true
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the discount is active."
+        },
+        {
+          "name": "amountOff",
+          "type": "int",
+          "location": "body",
+          "description": "Fixed discount amount in minor currency units. Required when type is FIXED."
+        },
+        {
+          "name": "codes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Replaces all existing codes with this list. Codes are uppercased automatically."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Optional description."
+        },
+        {
+          "name": "expiresAt",
+          "type": "string",
+          "location": "body",
+          "description": "Optional expiration date."
+        },
+        {
+          "name": "maxApplications",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of times this discount can be applied."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Display name of the discount."
+        },
+        {
+          "name": "oneOff",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this discount is single-use."
+        },
+        {
+          "name": "percentageOff",
+          "type": "float",
+          "location": "body",
+          "description": "Percentage to discount (0-100). Required when type is PERCENTAGE."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Whether the discount is a fixed amount (FIXED) or a percentage (PERCENTAGE)."
+        }
+      ]
+    },
+    {
+      "name": "invoices_cancel",
+      "description": "Cancels an unpaid invoice by id. Required: id. Returns the CancelInvoicePayload. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/invoices/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the invoice.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "invoices_create",
+      "description": "Creates a new invoice for a customer. Required: input. Returns the new CreateInvoicePayload.",
+      "method": "POST",
+      "path": "/v1/invoices",
+      "params": [
+        {
+          "name": "input-allow-offtime-payment",
+          "wire_name": "input.allowOfftimePayment",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the customer can pay before the due date."
+        },
+        {
+          "name": "input-beneficiary-id",
+          "wire_name": "input.beneficiaryId",
+          "type": "string",
+          "location": "body",
+          "description": "Optional identifier of a different customer who is the actual beneficiary of the invoice."
+        },
+        {
+          "name": "input-collection-method",
+          "wire_name": "input.collectionMethod",
+          "type": "string",
+          "location": "body",
+          "description": "How payment is collected: SEND_REMINDER sends a notification, AUTOMATIC charges a saved payment method, NONE does nothing.",
+          "required": true
+        },
+        {
+          "name": "input-customer-id",
+          "wire_name": "input.customerId",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier of the customer being invoiced.",
+          "required": true
+        },
+        {
+          "name": "input-discounts",
+          "wire_name": "input.discounts",
+          "type": "array",
+          "location": "body",
+          "description": "Discounts to apply to this invoice."
+        },
+        {
+          "name": "input-due-date",
+          "wire_name": "input.dueDate",
+          "type": "string",
+          "location": "body",
+          "description": "Date when the invoice is due for payment.",
+          "required": true
+        },
+        {
+          "name": "input-expire-date",
+          "wire_name": "input.expireDate",
+          "type": "string",
+          "location": "body",
+          "description": "Optional date after which the invoice can no longer be paid. Must be after dueDate."
+        },
+        {
+          "name": "input-items",
+          "wire_name": "input.items",
+          "type": "array",
+          "location": "body",
+          "description": "Line items for the invoice. Each must reference an existing concept or provide an inline concept.",
+          "required": true
+        },
+        {
+          "name": "input-metadata",
+          "wire_name": "input.metadata",
+          "type": "array",
+          "location": "body",
+          "description": "Custom key-value metadata to attach to the invoice."
+        },
+        {
+          "name": "input-modifiers",
+          "wire_name": "input.modifiers",
+          "type": "array",
+          "location": "body",
+          "description": "Price modifiers (early payment discounts or late payment interest) to apply to this invoice."
+        },
+        {
+          "name": "input-subscription-id",
+          "wire_name": "input.subscriptionId",
+          "type": "string",
+          "location": "body",
+          "description": "Optional subscription this invoice belongs to."
+        }
+      ]
+    },
+    {
+      "name": "invoices_get-by-id",
+      "description": "Returns an invoice by id. Required: id.",
+      "method": "GET",
+      "path": "/v1/invoices/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the invoice.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "invoices_list",
+      "description": "Returns invoices. Optional: filter, skip (default: 0), take (default: 20) (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/invoices",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "A `qs`-encoded `invoiceFilter` object."
+        },
+        {
+          "name": "skip",
+          "type": "float",
+          "location": "query",
+          "description": "Pagination offset."
+        },
+        {
+          "name": "take",
+          "type": "float",
+          "location": "query",
+          "description": "Pagination limit."
+        },
+        {
+          "name": "orderBy",
+          "type": "string",
+          "location": "query",
+          "description": "A `qs`-encoded `invoiceOrderBy` object."
+        }
+      ]
+    },
+    {
+      "name": "invoices_update",
+      "description": "Updates editable fields of an existing invoice by id. Required: id, input. Returns the updated UpdateInvoicePayload.",
+      "method": "PATCH",
+      "path": "/v1/invoices/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the invoice.",
+          "required": true
+        },
+        {
+          "name": "input-data-beneficiary-id",
+          "wire_name": "input.data.beneficiaryId",
+          "type": "string",
+          "location": "body",
+          "description": "Beneficiary id"
+        },
+        {
+          "name": "input-data-collection-method",
+          "wire_name": "input.data.collectionMethod",
+          "type": "string",
+          "location": "body",
+          "description": "Collection method"
+        },
+        {
+          "name": "input-data-discounts",
+          "wire_name": "input.data.discounts",
+          "type": "array",
+          "location": "body",
+          "description": "Discounts"
+        },
+        {
+          "name": "input-data-due-date",
+          "wire_name": "input.data.dueDate",
+          "type": "string",
+          "location": "body",
+          "description": "Due date"
+        },
+        {
+          "name": "input-data-expire-date",
+          "wire_name": "input.data.expireDate",
+          "type": "string",
+          "location": "body",
+          "description": "Expire date"
+        },
+        {
+          "name": "input-data-items",
+          "wire_name": "input.data.items",
+          "type": "array",
+          "location": "body",
+          "description": "Items"
+        },
+        {
+          "name": "input-data-meta",
+          "wire_name": "input.data.meta",
+          "type": "object",
+          "location": "body",
+          "description": "Meta"
+        },
+        {
+          "name": "input-data-metadata",
+          "wire_name": "input.data.metadata",
+          "type": "array",
+          "location": "body",
+          "description": "Metadata"
+        },
+        {
+          "name": "input-data-modifiers",
+          "wire_name": "input.data.modifiers",
+          "type": "array",
+          "location": "body",
+          "description": "Modifiers"
+        }
+      ]
+    },
+    {
+      "name": "invoices_mark-paid_invoices",
+      "description": "Manually marks an invoice as paid, creating a payment record. Required: id, input. Returns the new MarkInvoiceAsPaidPayload.",
+      "method": "POST",
+      "path": "/v1/invoices/{id}/mark-paid",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the invoice.",
+          "required": true
+        },
+        {
+          "name": "input-external-type-id",
+          "wire_name": "input.externalTypeId",
+          "type": "string",
+          "location": "body",
+          "description": "External type id"
+        },
+        {
+          "name": "input-payment-time",
+          "wire_name": "input.paymentTime",
+          "type": "string",
+          "location": "body",
+          "description": "Payment time"
+        }
+      ]
+    },
+    {
+      "name": "invoices_payment-link_invoices-get",
+      "description": "Returns an authenticated payment link for the invoice. Required: id.",
+      "method": "GET",
+      "path": "/v1/invoices/{id}/payment-link",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the invoice.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "invoices_payments_invoices-apply",
+      "description": "Applies a full or partial existing or external payment to an invoice. Required: id, input. Returns the new ApplyInvoicePaymentPayload.",
+      "method": "POST",
+      "path": "/v1/invoices/{id}/payments/apply",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the invoice.",
+          "required": true
+        },
+        {
+          "name": "input-existing-payment-payment-id",
+          "wire_name": "input.existingPayment.paymentId",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier of an existing payment to apply.",
+          "required": true
+        },
+        {
+          "name": "input-existing-payment-settled-amount",
+          "wire_name": "input.existingPayment.settledAmount",
+          "type": "int",
+          "location": "body",
+          "description": "Amount to settle against the invoice in minor units.",
+          "required": true
+        },
+        {
+          "name": "input-new-payment-amount",
+          "wire_name": "input.newPayment.amount",
+          "type": "int",
+          "location": "body",
+          "description": "Payment amount in minor units.",
+          "required": true
+        },
+        {
+          "name": "input-new-payment-external-type-id",
+          "wire_name": "input.newPayment.externalTypeId",
+          "type": "string",
+          "location": "body",
+          "description": "External payment type identifier."
+        },
+        {
+          "name": "input-new-payment-payment-time",
+          "wire_name": "input.newPayment.paymentTime",
+          "type": "string",
+          "location": "body",
+          "description": "When the external payment was received."
+        }
+      ]
+    },
+    {
+      "name": "invoices_reminders_invoices-send",
+      "description": "Sends a payment reminder for an invoice through the requested channel. Required: id, input. Returns the new SendPaymentReminderPayload.",
+      "method": "POST",
+      "path": "/v1/invoices/{id}/reminders",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the invoice.",
+          "required": true
+        },
+        {
+          "name": "input-channel",
+          "wire_name": "input.channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel used to send the reminder.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "invoices_try-payment_invoices",
+      "description": "Attempts to charge the invoice using the associated payment method. Required: id. Returns the new RetryInvoicePaymentPayload.",
+      "method": "POST",
+      "path": "/v1/invoices/{id}/try-payment",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the invoice.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payment-concepts_create",
+      "description": "Creates a new product or service in the catalog. Required: input. Returns the new CreatePaymentConceptPayload.",
+      "method": "POST",
+      "path": "/v1/payment-concepts",
+      "params": [
+        {
+          "name": "input-active",
+          "wire_name": "input.active",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this concept is immediately available for use."
+        },
+        {
+          "name": "input-amount",
+          "wire_name": "input.amount",
+          "type": "float",
+          "location": "body",
+          "description": "Unit price in minor currency units (e.g. cents).",
+          "required": true
+        },
+        {
+          "name": "input-amount-editable",
+          "wire_name": "input.amountEditable",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether customers can customize the price."
+        },
+        {
+          "name": "input-charge-each",
+          "wire_name": "input.chargeEach",
+          "type": "float",
+          "location": "body",
+          "description": "Number of intervals between charges (deprecated: use recurrentDetail instead)."
+        },
+        {
+          "name": "input-collection-interval",
+          "wire_name": "input.collectionInterval",
+          "type": "string",
+          "location": "body",
+          "description": "Time interval unit for recurring charges (deprecated: use recurrentDetail instead)."
+        },
+        {
+          "name": "input-currency",
+          "wire_name": "input.currency",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 4217 currency code. Defaults to the organization currency."
+        },
+        {
+          "name": "input-description",
+          "wire_name": "input.description",
+          "type": "string",
+          "location": "body",
+          "description": "Optional longer description of the product or service."
+        },
+        {
+          "name": "input-display-name",
+          "wire_name": "input.displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Display name of the concept shown to customers.",
+          "required": true
+        },
+        {
+          "name": "input-group-id",
+          "wire_name": "input.groupId",
+          "type": "string",
+          "location": "body",
+          "description": "Optional identifier of the group to assign this concept to."
+        },
+        {
+          "name": "input-metadata",
+          "wire_name": "input.metadata",
+          "type": "array",
+          "location": "body",
+          "description": "Optional key-value metadata entries to attach to the concept."
+        },
+        {
+          "name": "input-one-off",
+          "wire_name": "input.oneOff",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this concept is a one-time custom charge."
+        },
+        {
+          "name": "input-quantity-editable",
+          "wire_name": "input.quantityEditable",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether customers can customize the quantity."
+        },
+        {
+          "name": "input-recurrent-detail-charge-each",
+          "wire_name": "input.recurrentDetail.chargeEach",
+          "type": "float",
+          "location": "body",
+          "description": "Number of intervals between charges.",
+          "required": true
+        },
+        {
+          "name": "input-recurrent-detail-collection-interval",
+          "wire_name": "input.recurrentDetail.collectionInterval",
+          "type": "string",
+          "location": "body",
+          "description": "Time interval unit for recurring charges.",
+          "required": true
+        },
+        {
+          "name": "input-recurrent-detail-tolerance-days",
+          "wire_name": "input.recurrentDetail.toleranceDays",
+          "type": "float",
+          "location": "body",
+          "description": "Grace days after the due date before the invoice expires."
+        },
+        {
+          "name": "input-sku",
+          "wire_name": "input.sku",
+          "type": "string",
+          "location": "body",
+          "description": "Optional unique SKU for internal identification."
+        },
+        {
+          "name": "input-tax-info-description",
+          "wire_name": "input.taxInfo.description",
+          "type": "string",
+          "location": "body",
+          "description": "Tax description override."
+        },
+        {
+          "name": "input-tax-info-product-key",
+          "wire_name": "input.taxInfo.productKey",
+          "type": "string",
+          "location": "body",
+          "description": "SAT product key."
+        },
+        {
+          "name": "input-tax-info-tax-rate",
+          "wire_name": "input.taxInfo.taxRate",
+          "type": "float",
+          "location": "body",
+          "description": "Tax rate as a decimal between 0 and 1."
+        },
+        {
+          "name": "input-tax-info-taxability",
+          "wire_name": "input.taxInfo.taxability",
+          "type": "string",
+          "location": "body",
+          "description": "SAT taxability code."
+        },
+        {
+          "name": "input-tax-info-unit-key",
+          "wire_name": "input.taxInfo.unitKey",
+          "type": "string",
+          "location": "body",
+          "description": "SAT unit key."
+        },
+        {
+          "name": "input-tax-info-unit-name",
+          "wire_name": "input.taxInfo.unitName",
+          "type": "string",
+          "location": "body",
+          "description": "Unit name override."
+        },
+        {
+          "name": "input-tolerance-days",
+          "wire_name": "input.toleranceDays",
+          "type": "float",
+          "location": "body",
+          "description": "Grace days after due date (deprecated: use recurrentDetail instead)."
+        }
+      ]
+    },
+    {
+      "name": "payment-concepts_get-by-id",
+      "description": "Returns a single payment concept by id. Required: id.",
+      "method": "GET",
+      "path": "/v1/payment-concepts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the payment concept.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payment-concepts_list",
+      "description": "Returns payment concepts for the organization. One-off concepts are excluded. Optional: filter, skip (default: 0), take (default: 20) (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/payment-concepts",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "A `qs`-encoded `conceptFilter` object."
+        },
+        {
+          "name": "skip",
+          "type": "float",
+          "location": "query",
+          "description": "Pagination offset."
+        },
+        {
+          "name": "take",
+          "type": "float",
+          "location": "query",
+          "description": "Pagination limit."
+        },
+        {
+          "name": "orderBy",
+          "type": "string",
+          "location": "query",
+          "description": "A `qs`-encoded `conceptOrderBy` object."
+        }
+      ]
+    },
+    {
+      "name": "payment-concepts_update",
+      "description": "Updates editable fields of an existing payment concept by id. Required: id, input. Returns the updated UpdatePaymentConceptPayload.",
+      "method": "PATCH",
+      "path": "/v1/payment-concepts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the payment concept.",
+          "required": true
+        },
+        {
+          "name": "input-data-active",
+          "wire_name": "input.data.active",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the concept should be active."
+        },
+        {
+          "name": "input-data-amount",
+          "wire_name": "input.data.amount",
+          "type": "float",
+          "location": "body",
+          "description": "Updated unit price in minor currency units."
+        },
+        {
+          "name": "input-data-amount-editable",
+          "wire_name": "input.data.amountEditable",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether customers can customize the price."
+        },
+        {
+          "name": "input-data-archived-at",
+          "wire_name": "input.data.archivedAt",
+          "type": "string",
+          "location": "body",
+          "description": "Set to a date to archive, null to unarchive."
+        },
+        {
+          "name": "input-data-archived-by-id",
+          "wire_name": "input.data.archivedById",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier of the user archiving the concept."
+        },
+        {
+          "name": "input-data-charge-each",
+          "wire_name": "input.data.chargeEach",
+          "type": "float",
+          "location": "body",
+          "description": "Deprecated: use recurrentDetail instead."
+        },
+        {
+          "name": "input-data-collection-interval",
+          "wire_name": "input.data.collectionInterval",
+          "type": "string",
+          "location": "body",
+          "description": "Deprecated: use recurrentDetail instead."
+        },
+        {
+          "name": "input-data-currency",
+          "wire_name": "input.data.currency",
+          "type": "string",
+          "location": "body",
+          "description": "Updated ISO 4217 currency code."
+        },
+        {
+          "name": "input-data-description",
+          "wire_name": "input.data.description",
+          "type": "string",
+          "location": "body",
+          "description": "Updated description. Pass null to clear."
+        },
+        {
+          "name": "input-data-display-name",
+          "wire_name": "input.data.displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Updated display name of the concept."
+        },
+        {
+          "name": "input-data-group-id",
+          "wire_name": "input.data.groupId",
+          "type": "string",
+          "location": "body",
+          "description": "Updated group identifier. Pass null to remove from group."
+        },
+        {
+          "name": "input-data-meta",
+          "wire_name": "input.data.meta",
+          "type": "object",
+          "location": "body",
+          "description": "Alternative flat metadata map. Null values delete the key."
+        },
+        {
+          "name": "input-data-metadata",
+          "wire_name": "input.data.metadata",
+          "type": "array",
+          "location": "body",
+          "description": "Metadata entries to upsert or delete."
+        },
+        {
+          "name": "input-data-quantity-editable",
+          "wire_name": "input.data.quantityEditable",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether customers can customize the quantity."
+        },
+        {
+          "name": "input-data-sku",
+          "wire_name": "input.data.sku",
+          "type": "string",
+          "location": "body",
+          "description": "Updated SKU. Pass null to clear."
+        },
+        {
+          "name": "input-data-tolerance-days",
+          "wire_name": "input.data.toleranceDays",
+          "type": "float",
+          "location": "body",
+          "description": "Deprecated: use recurrentDetail instead."
+        }
+      ]
+    },
+    {
+      "name": "payment-methods_delete",
+      "description": "Deletes a payment method by id. Required: id. Returns the DeletePaymentMethodPayload. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/payment-methods/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the payment method.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payment-sessions_create",
+      "description": "Creates a hosted payment session. Resolves or creates the customer and returns an authenticated payment URL. Required: input.",
+      "method": "POST",
+      "path": "/v1/payment-sessions",
+      "params": [
+        {
+          "name": "input-amount",
+          "wire_name": "input.amount",
+          "type": "float",
+          "location": "body",
+          "description": "Total amount in minor currency units (used when items are not provided)."
+        },
+        {
+          "name": "input-cancel-url",
+          "wire_name": "input.cancelUrl",
+          "type": "string",
+          "location": "body",
+          "description": "URL to redirect to if the payer cancels."
+        },
+        {
+          "name": "input-currency",
+          "wire_name": "input.currency",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 4217 currency code (used when items are not provided)."
+        },
+        {
+          "name": "input-customer-email",
+          "wire_name": "input.customer.email",
+          "type": "string",
+          "location": "body",
+          "description": "Customer email address."
+        },
+        {
+          "name": "input-customer-external-id",
+          "wire_name": "input.customer.externalId",
+          "type": "string",
+          "location": "body",
+          "description": "External ID used to match or create the customer."
+        },
+        {
+          "name": "input-customer-force-update",
+          "wire_name": "input.customer.forceUpdate",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to treat the provided customer contact fields as authoritative. If another customer in the organization has the provided email or phone number, that field is unset from the other customer and set on the resolved customer."
+        },
+        {
+          "name": "input-customer-metadata",
+          "wire_name": "input.customer.metadata",
+          "type": "array",
+          "location": "body",
+          "description": "Metadata entries to attach to the customer."
+        },
+        {
+          "name": "input-customer-name",
+          "wire_name": "input.customer.name",
+          "type": "string",
+          "location": "body",
+          "description": "Customer full name.",
+          "required": true
+        },
+        {
+          "name": "input-customer-phone-number",
+          "wire_name": "input.customer.phoneNumber",
+          "type": "string",
+          "location": "body",
+          "description": "Customer phone number in E.164 format."
+        },
+        {
+          "name": "input-description",
+          "wire_name": "input.description",
+          "type": "string",
+          "location": "body",
+          "description": "Payment description (used when items are not provided)."
+        },
+        {
+          "name": "input-display-mode",
+          "wire_name": "input.displayMode",
+          "type": "string",
+          "location": "body",
+          "description": "How the payment UI is presented."
+        },
+        {
+          "name": "input-expires-at",
+          "wire_name": "input.expiresAt",
+          "type": "string",
+          "location": "body",
+          "description": "Optional expiration time for the session."
+        },
+        {
+          "name": "input-items",
+          "wire_name": "input.items",
+          "type": "array",
+          "location": "body",
+          "description": "Line items to include in the session. Overrides amount/currency/description if provided."
+        },
+        {
+          "name": "input-metadata",
+          "wire_name": "input.metadata",
+          "type": "array",
+          "location": "body",
+          "description": "Metadata entries to attach to the session."
+        },
+        {
+          "name": "input-return-url",
+          "wire_name": "input.returnUrl",
+          "type": "string",
+          "location": "body",
+          "description": "URL to redirect to after successful payment."
+        }
+      ]
+    },
+    {
+      "name": "payment-sessions_get-by-id",
+      "description": "Returns a payment session by id. Required: id.",
+      "method": "GET",
+      "path": "/v1/payment-sessions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the payment session.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payments_create",
+      "description": "Creates a direct payment against a saved payment method. Optionally attempts to process it immediately. Required: input. Returns the new CreatePaymentPayload.",
+      "method": "POST",
+      "path": "/v1/payments",
+      "params": [
+        {
+          "name": "input-amount",
+          "wire_name": "input.amount",
+          "type": "float",
+          "location": "body",
+          "description": "Payment amount in minor currency units.",
+          "required": true
+        },
+        {
+          "name": "input-currency",
+          "wire_name": "input.currency",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 4217 currency code.",
+          "required": true
+        },
+        {
+          "name": "input-customer-id",
+          "wire_name": "input.customerId",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier of the customer to charge.",
+          "required": true
+        },
+        {
+          "name": "input-description",
+          "wire_name": "input.description",
+          "type": "string",
+          "location": "body",
+          "description": "Human-readable description of the payment.",
+          "required": true
+        },
+        {
+          "name": "input-make-attempt",
+          "wire_name": "input.makeAttempt",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to immediately attempt to process the payment."
+        },
+        {
+          "name": "input-meta",
+          "wire_name": "input.meta",
+          "type": "object",
+          "location": "body",
+          "description": "Optional metadata key-value pairs.",
+          "required": true
+        },
+        {
+          "name": "input-payment-method-id",
+          "wire_name": "input.paymentMethodId",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier of the payment method to use.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payments_get-by-id",
+      "description": "Returns a payment by id. Required: id.",
+      "method": "GET",
+      "path": "/v1/payments/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the payment.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payments_list",
+      "description": "Returns payments for the organization. Optional: filter, skip (default: 0), take (default: 20) (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/payments",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "A `qs`-encoded `paymentFilter` object."
+        },
+        {
+          "name": "skip",
+          "type": "float",
+          "location": "query",
+          "description": "Pagination offset."
+        },
+        {
+          "name": "take",
+          "type": "float",
+          "location": "query",
+          "description": "Pagination limit."
+        },
+        {
+          "name": "orderBy",
+          "type": "string",
+          "location": "query",
+          "description": "A `qs`-encoded `paymentOrderBy` object."
+        }
+      ]
+    },
+    {
+      "name": "payments_receipt_payments-send",
+      "description": "Sends a payment receipt through the requested channels. Required: id, input. Returns the new SendPaymentReceiptPayload.",
+      "method": "POST",
+      "path": "/v1/payments/{id}/receipt",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the payment.",
+          "required": true
+        },
+        {
+          "name": "input-channels",
+          "wire_name": "input.channels",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Channels used to send the receipt.",
+          "required": true
+        },
+        {
+          "name": "input-email",
+          "wire_name": "input.email",
+          "type": "string",
+          "location": "body",
+          "description": "Email address to send the receipt to."
+        }
+      ]
+    },
+    {
+      "name": "refunds_create",
+      "description": "Refunds a completed payment, fully or partially. Required: input. Returns the new CreateRefundArgs.",
+      "method": "POST",
+      "path": "/v1/refunds",
+      "params": [
+        {
+          "name": "input-amount",
+          "wire_name": "input.amount",
+          "type": "float",
+          "location": "body",
+          "description": "Refund amount in minor currency units.",
+          "required": true
+        },
+        {
+          "name": "input-custom-refund-reason",
+          "wire_name": "input.customRefundReason",
+          "type": "string",
+          "location": "body",
+          "description": "Optional reason for the refund."
+        },
+        {
+          "name": "input-payment-id",
+          "wire_name": "input.paymentId",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier of the payment to refund.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "setup-sessions_create",
+      "description": "Creates a hosted session for enrolling a payment method. Resolves or creates the customer and returns an authenticated setup URL. Required: input.",
+      "method": "POST",
+      "path": "/v1/setup-sessions",
+      "params": [
+        {
+          "name": "input-cancel-url",
+          "wire_name": "input.cancelUrl",
+          "type": "string",
+          "location": "body",
+          "description": "URL to redirect to if the customer cancels."
+        },
+        {
+          "name": "input-customer-email",
+          "wire_name": "input.customer.email",
+          "type": "string",
+          "location": "body",
+          "description": "Customer email address."
+        },
+        {
+          "name": "input-customer-external-id",
+          "wire_name": "input.customer.externalId",
+          "type": "string",
+          "location": "body",
+          "description": "External ID used to match or create the customer."
+        },
+        {
+          "name": "input-customer-force-update",
+          "wire_name": "input.customer.forceUpdate",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to overwrite existing customer fields."
+        },
+        {
+          "name": "input-customer-metadata",
+          "wire_name": "input.customer.metadata",
+          "type": "array",
+          "location": "body",
+          "description": "Metadata entries to attach to the customer."
+        },
+        {
+          "name": "input-customer-name",
+          "wire_name": "input.customer.name",
+          "type": "string",
+          "location": "body",
+          "description": "Customer full name.",
+          "required": true
+        },
+        {
+          "name": "input-customer-phone-number",
+          "wire_name": "input.customer.phoneNumber",
+          "type": "string",
+          "location": "body",
+          "description": "Customer phone number in E.164 format."
+        },
+        {
+          "name": "input-display-mode",
+          "wire_name": "input.displayMode",
+          "type": "string",
+          "location": "body",
+          "description": "How the setup UI is presented."
+        },
+        {
+          "name": "input-return-url",
+          "wire_name": "input.returnUrl",
+          "type": "string",
+          "location": "body",
+          "description": "URL to redirect to after successful setup."
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_cancel",
+      "description": "Cancels an active subscription by id. Required: id, input. Returns the CancelSubscriptionPayload. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/subscriptions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the subscription.",
+          "required": true
+        },
+        {
+          "name": "input-custom-cancel-reason",
+          "wire_name": "input.customCancelReason",
+          "type": "string",
+          "location": "body",
+          "description": "Custom cancel reason"
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_create",
+      "description": "Creates a new recurring subscription for a customer. Required: input. Returns the new CreateSubscriptionPayload.",
+      "method": "POST",
+      "path": "/v1/subscriptions",
+      "params": [
+        {
+          "name": "input-beneficiary-id",
+          "wire_name": "input.beneficiaryId",
+          "type": "string",
+          "location": "body",
+          "description": "Optional identifier of a different customer who is the actual beneficiary."
+        },
+        {
+          "name": "input-collection-method",
+          "wire_name": "input.collectionMethod",
+          "type": "string",
+          "location": "body",
+          "description": "How payment is collected: SEND_REMINDER sends a notification, AUTOMATIC charges a saved payment method, NONE does nothing.",
+          "required": true
+        },
+        {
+          "name": "input-customer-id",
+          "wire_name": "input.customerId",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier of the customer who will be charged.",
+          "required": true
+        },
+        {
+          "name": "input-description",
+          "wire_name": "input.description",
+          "type": "string",
+          "location": "body",
+          "description": "Human-readable description of the subscription. Auto-generated from item names when omitted."
+        },
+        {
+          "name": "input-discounts",
+          "wire_name": "input.discounts",
+          "type": "array",
+          "location": "body",
+          "description": "Discounts to apply to generated invoices."
+        },
+        {
+          "name": "input-invoices",
+          "wire_name": "input.invoices",
+          "type": "array",
+          "location": "body",
+          "description": "Pre-defined invoices with explicit due dates and items. Mutually exclusive with `items`."
+        },
+        {
+          "name": "input-items",
+          "wire_name": "input.items",
+          "type": "array",
+          "location": "body",
+          "description": "Recurring items whose invoices are auto-generated on each collection date. Mutually exclusive with `invoices`."
+        },
+        {
+          "name": "input-modifiers",
+          "wire_name": "input.modifiers",
+          "type": "array",
+          "location": "body",
+          "description": "Price modifiers (early payment discounts or late payment interest) to apply to every generated invoice."
+        },
+        {
+          "name": "input-next-collection-date",
+          "wire_name": "input.nextCollectionDate",
+          "type": "string",
+          "location": "body",
+          "description": "Date of the first (or next) charge. Required when using recurring `items`."
+        },
+        {
+          "name": "input-number-of-payments",
+          "wire_name": "input.numberOfPayments",
+          "type": "float",
+          "location": "body",
+          "description": "Total number of invoices to generate before the subscription ends. Null means indefinite."
+        },
+        {
+          "name": "input-only-automatic-collection",
+          "wire_name": "input.onlyAutomaticCollection",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this subscription only allows automatic payment collection."
+        },
+        {
+          "name": "input-payment-method-id",
+          "wire_name": "input.paymentMethodId",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier of the payment method to use for automatic collection. Falls back to the customer's default method."
+        },
+        {
+          "name": "input-recurrent-detail-charge-each",
+          "wire_name": "input.recurrentDetail.chargeEach",
+          "type": "float",
+          "location": "body",
+          "description": "Number of intervals between charges.",
+          "required": true
+        },
+        {
+          "name": "input-recurrent-detail-collection-interval",
+          "wire_name": "input.recurrentDetail.collectionInterval",
+          "type": "string",
+          "location": "body",
+          "description": "Time interval unit (e.g. MONTH, WEEK).",
+          "required": true
+        },
+        {
+          "name": "input-recurrent-detail-tolerance-days",
+          "wire_name": "input.recurrentDetail.toleranceDays",
+          "type": "int",
+          "location": "body",
+          "description": "Grace days after the due date before the invoice expires."
+        },
+        {
+          "name": "input-tax-profile-id",
+          "wire_name": "input.taxProfileId",
+          "type": "string",
+          "location": "body",
+          "description": "Optional tax profile to use for invoice generation."
+        },
+        {
+          "name": "input-template-id",
+          "wire_name": "input.templateId",
+          "type": "string",
+          "location": "body",
+          "description": "Optional template to use for subscription messaging."
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_get-by-id",
+      "description": "Returns a subscription by id. Required: id.",
+      "method": "GET",
+      "path": "/v1/subscriptions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the subscription.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_list",
+      "description": "Returns subscriptions. Optional: filter, skip (default: 0), take (default: 20) (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/subscriptions",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "A `qs`-encoded `subscriptionFilter` object."
+        },
+        {
+          "name": "skip",
+          "type": "float",
+          "location": "query",
+          "description": "Pagination offset."
+        },
+        {
+          "name": "take",
+          "type": "float",
+          "location": "query",
+          "description": "Pagination limit."
+        },
+        {
+          "name": "orderBy",
+          "type": "string",
+          "location": "query",
+          "description": "A `qs`-encoded `subscriptionOrderBy` object."
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_update",
+      "description": "Updates editable fields of an existing subscription by id. Required: id, input. Returns the updated UpdateSubscriptionPayload.",
+      "method": "PATCH",
+      "path": "/v1/subscriptions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the subscription.",
+          "required": true
+        },
+        {
+          "name": "input-data-beneficiary-id",
+          "wire_name": "input.data.beneficiaryId",
+          "type": "string",
+          "location": "body",
+          "description": "Beneficiary id"
+        },
+        {
+          "name": "input-data-collection-method",
+          "wire_name": "input.data.collectionMethod",
+          "type": "string",
+          "location": "body",
+          "description": "Collection method"
+        },
+        {
+          "name": "input-data-description",
+          "wire_name": "input.data.description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "input-data-discounts",
+          "wire_name": "input.data.discounts",
+          "type": "array",
+          "location": "body",
+          "description": "Discounts"
+        },
+        {
+          "name": "input-data-invoices",
+          "wire_name": "input.data.invoices",
+          "type": "array",
+          "location": "body",
+          "description": "Invoices"
+        },
+        {
+          "name": "input-data-is-active",
+          "wire_name": "input.data.isActive",
+          "type": "bool",
+          "location": "body",
+          "description": "Is active"
+        },
+        {
+          "name": "input-data-items",
+          "wire_name": "input.data.items",
+          "type": "array",
+          "location": "body",
+          "description": "Items"
+        },
+        {
+          "name": "input-data-last-collection-date",
+          "wire_name": "input.data.lastCollectionDate",
+          "type": "string",
+          "location": "body",
+          "description": "Last collection date"
+        },
+        {
+          "name": "input-data-modifiers",
+          "wire_name": "input.data.modifiers",
+          "type": "array",
+          "location": "body",
+          "description": "Modifiers"
+        },
+        {
+          "name": "input-data-next-collection-date",
+          "wire_name": "input.data.nextCollectionDate",
+          "type": "string",
+          "location": "body",
+          "description": "Next collection date"
+        },
+        {
+          "name": "input-data-number-of-payments",
+          "wire_name": "input.data.numberOfPayments",
+          "type": "float",
+          "location": "body",
+          "description": "Number of payments"
+        },
+        {
+          "name": "input-data-only-automatic-collection",
+          "wire_name": "input.data.onlyAutomaticCollection",
+          "type": "bool",
+          "location": "body",
+          "description": "Only automatic collection"
+        },
+        {
+          "name": "input-data-tax-profile-id",
+          "wire_name": "input.data.taxProfileId",
+          "type": "string",
+          "location": "body",
+          "description": "Tax profile id"
+        }
+      ]
+    },
+    {
+      "name": "tax-invoices_create",
+      "description": "Creates a tax invoice for an invoice or payment. Required: input. Returns the new CreateTaxInvoicePayload.",
+      "method": "POST",
+      "path": "/v1/tax-invoices",
+      "params": [
+        {
+          "name": "input-customer-tax-info-id",
+          "wire_name": "input.customerTaxInfoId",
+          "type": "string",
+          "location": "body",
+          "description": "Customer tax profile to use."
+        },
+        {
+          "name": "input-date",
+          "wire_name": "input.date",
+          "type": "string",
+          "location": "body",
+          "description": "Tax invoice issue date."
+        },
+        {
+          "name": "input-exchange-rate",
+          "wire_name": "input.exchangeRate",
+          "type": "float",
+          "location": "body",
+          "description": "Exchange rate for non-MXN invoices."
+        },
+        {
+          "name": "input-invoice-id",
+          "wire_name": "input.invoiceId",
+          "type": "string",
+          "location": "body",
+          "description": "Invoice to fiscalize."
+        },
+        {
+          "name": "input-is-public-invoice",
+          "wire_name": "input.isPublicInvoice",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this is a public/global invoice."
+        },
+        {
+          "name": "input-payment-id",
+          "wire_name": "input.paymentId",
+          "type": "string",
+          "location": "body",
+          "description": "Payment to fiscalize."
+        },
+        {
+          "name": "input-substitute-of-id",
+          "wire_name": "input.substituteOfId",
+          "type": "string",
+          "location": "body",
+          "description": "Tax invoice being substituted, if any."
+        },
+        {
+          "name": "input-type",
+          "wire_name": "input.type",
+          "type": "string",
+          "location": "body",
+          "description": "Tax invoice type."
+        }
+      ]
+    },
+    {
+      "name": "tax-invoices_get-by-id",
+      "description": "Returns a tax invoice by id. Required: id.",
+      "method": "GET",
+      "path": "/v1/tax-invoices/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the tax invoice.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tax-invoices_list",
+      "description": "Returns tax invoices for the organization. Optional: filter, skip (default: 0), take (default: 20) (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/tax-invoices",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "A `qs`-encoded `taxInvoiceFilter` object."
+        },
+        {
+          "name": "skip",
+          "type": "float",
+          "location": "query",
+          "description": "Pagination offset."
+        },
+        {
+          "name": "take",
+          "type": "float",
+          "location": "query",
+          "description": "Pagination limit."
+        },
+        {
+          "name": "orderBy",
+          "type": "string",
+          "location": "query",
+          "description": "A `qs`-encoded `taxInvoiceOrderBy` object."
+        }
+      ]
+    },
+    {
+      "name": "tax-invoices_cancel_tax-invoices",
+      "description": "Requests cancellation of an issued tax invoice. Required: id, input. Returns the new CancelTaxInvoicePayload.",
+      "method": "POST",
+      "path": "/v1/tax-invoices/{id}/cancel",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the tax invoice.",
+          "required": true
+        },
+        {
+          "name": "input-motive",
+          "wire_name": "input.motive",
+          "type": "string",
+          "location": "body",
+          "description": "SAT cancellation motive code.",
+          "required": true
+        },
+        {
+          "name": "input-substitute-tax-invoice-id",
+          "wire_name": "input.substituteTaxInvoiceId",
+          "type": "string",
+          "location": "body",
+          "description": "Replacement tax invoice id for motive 01."
+        }
+      ]
+    },
+    {
+      "name": "webhook-events_list",
+      "description": "Returns webhook delivery events for the organization. Optional: filter, skip (default: 0), take (default: 20) (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/webhook-events",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "A `qs`-encoded `webhookEventFilter` object."
+        },
+        {
+          "name": "skip",
+          "type": "float",
+          "location": "query",
+          "description": "Pagination offset."
+        },
+        {
+          "name": "take",
+          "type": "float",
+          "location": "query",
+          "description": "Pagination limit."
+        },
+        {
+          "name": "orderBy",
+          "type": "string",
+          "location": "query",
+          "description": "A `qs`-encoded `webhookEventOrderBy` object."
+        }
+      ]
+    },
+    {
+      "name": "webhook-events_retry_webhook-events",
+      "description": "Manually retries delivery for a webhook event. Required: id. Returns the new RetryWebhookEventPayload.",
+      "method": "POST",
+      "path": "/v1/webhook-events/{id}/retry",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the webhook event.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_create",
+      "description": "Creates a webhook endpoint for the organization. Required: input. Returns array of WebhookEnabledEvent.",
+      "method": "POST",
+      "path": "/v1/webhooks",
+      "params": [
+        {
+          "name": "input-description",
+          "wire_name": "input.description",
+          "type": "string",
+          "location": "body",
+          "description": "Optional user-defined description."
+        },
+        {
+          "name": "input-enabled-events",
+          "wire_name": "input.enabledEvents",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Event types to send to this webhook.",
+          "required": true
+        },
+        {
+          "name": "input-secret",
+          "wire_name": "input.secret",
+          "type": "string",
+          "location": "body",
+          "description": "Secret used to sign webhook calls."
+        },
+        {
+          "name": "input-url",
+          "wire_name": "input.url",
+          "type": "string",
+          "location": "body",
+          "description": "Destination URL that will receive webhook calls.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_delete",
+      "description": "Soft-deletes a webhook endpoint. Required: id. Returns array of WebhookEnabledEvent. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/webhooks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the webhook.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_get-by-id",
+      "description": "Returns a webhook by id. Required: id.",
+      "method": "GET",
+      "path": "/v1/webhooks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the webhook.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_list",
+      "description": "Returns webhook endpoints for the organization. Optional: filter, skip (default: 0), take (default: 20) (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/webhooks",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "A `qs`-encoded `webhookFilter` object."
+        },
+        {
+          "name": "skip",
+          "type": "float",
+          "location": "query",
+          "description": "Pagination offset."
+        },
+        {
+          "name": "take",
+          "type": "float",
+          "location": "query",
+          "description": "Pagination limit."
+        },
+        {
+          "name": "orderBy",
+          "type": "string",
+          "location": "query",
+          "description": "A `qs`-encoded `webhookOrderBy` object."
+        }
+      ]
+    },
+    {
+      "name": "webhooks_update",
+      "description": "Updates a webhook endpoint. Required: id, input. Returns array of WebhookEnabledEvent.",
+      "method": "PATCH",
+      "path": "/v1/webhooks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the webhook.",
+          "required": true
+        },
+        {
+          "name": "input-data-description",
+          "wire_name": "input.data.description",
+          "type": "string",
+          "location": "body",
+          "description": "Updated description."
+        },
+        {
+          "name": "input-data-enabled-events",
+          "wire_name": "input.data.enabledEvents",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Replacement enabled events."
+        },
+        {
+          "name": "input-data-secret",
+          "wire_name": "input.data.secret",
+          "type": "string",
+          "location": "body",
+          "description": "Updated signing secret."
+        },
+        {
+          "name": "input-data-status",
+          "wire_name": "input.data.status",
+          "type": "string",
+          "location": "body",
+          "description": "Updated webhook status."
+        },
+        {
+          "name": "input-data-url",
+          "wire_name": "input.data.url",
+          "type": "string",
+          "location": "body",
+          "description": "Updated destination URL."
+        }
+      ]
+    }
+  ]
+}

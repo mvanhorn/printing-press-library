@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "layers-runtime-contracts",
+  "applied_at": "2026-08-03",
+  "base_run_id": "20260803-133603",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Preserve required Layers defaults, process-only community scope, and truthful local search behavior.",
+  "reason": "The generated CLI omitted required portal query defaults after reprint and treated community lookup as a unified live search endpoint.",
+  "files": [
+    "internal/config/config.go",
+    "internal/config/community_header_test.go",
+    "internal/cli/promoted_context.go",
+    "internal/cli/home_list_layers_agenda.go",
+    "internal/cli/home_list_layers_atendimentos.go",
+    "internal/cli/home_list_layers_comunicados.go",
+    "internal/cli/search.go",
+    "internal/cli/search_layers_test.go",
+    "README.md"
+  ],
+  "validated_outcome": "The live portal matrix passed 16 of 16 checks, secure live verify passed 42 of 42, and full live dogfood passed 120 of 120 non-skipped checks."
+}

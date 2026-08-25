@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "select-that-matches-nothing-is-an-error",
+  "applied_at": "2026-08-13",
+  "base_run_id": "20260707-145126",
+  "base_printing_press_version": "4.27.1",
+  "summary": "A --select projection that matches no field anywhere must fail loudly (exit 2, plus a diagnostic naming the fields that were available) instead of falling through to the untouched payload.",
+  "reason": "The projection helper treated a total miss as 'nothing to filter' and returned the full response with exit 0, so a mis-rooted path — --select results.tracks.items.name, where paths are relative to the data and not to the {meta, results} envelope — read as success while emitting exactly the payload --select exists to avoid. The failure is silent and expensive: a caller piping to jq sees an empty result and retries, and an agent pays for the whole response every time. A partial match is still honoured; only a total miss is an error, so legitimate mixed selections are unaffected. The available-field list is capped so the diagnostic cannot become its own token burn on a deeply wrapped payload. The diagnostic itself rides the normal envelope on stdout, because available_fields is data a caller wants to parse; a one-line prose explanation goes to stderr alongside it, so the CLI's documented 'errors on stderr' contract still holds for a human who typed the wrong path.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/root.go",
+    "internal/cli/root_test.go"
+  ],
+  "validated_outcome": "Live: --select results.tracks.items.name on spotify-web-search went from a 1750-byte payload with exit 0 to a bounded diagnostic with exit 2; --select tracks.items.name still projects normally. The three existing filterFields cases that asserted the silent-empty contract were updated to the new one.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Fail-on-total-miss for --select in the shared projection template, so every printed CLI reports a mis-rooted path instead of returning the full payload with exit 0.",
+      "reason": "The silent passthrough is generator-template behavior, not Spotify-specific; this local patch should be superseded once the template owns it."
+    }
+  ]
+}

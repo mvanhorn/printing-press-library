@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "synology-real-examples",
+  "applied_at": "2026-08-24",
+  "base_run_id": "20260824-135140",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Replace twelve placeholder examples with values DSM accepts, including the JSON-array form `files stat --path` requires.",
+  "reason": "The generated examples carried `example-resource` and `example-value` throughout. `files stat --path` in particular takes a JSON array of paths rather than a bare path, so its example failed the client-side JSON check before a request was ever built; the five mutating File Station commands had the same problem on `--path`, `--folder-path` and `--name`. An example that cannot run is worse than no example, because dogfood counts it as covered.",
+  "files": [
+    "spec.yaml"
+  ],
+  "validated_outcome": "`dogfood` reports `Examples: 10/10 (PASS)`."
+}

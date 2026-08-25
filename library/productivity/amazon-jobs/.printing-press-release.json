@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "amazon-jobs",
+  "cli_name": "amazon-jobs-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-21T04:59:06Z",
+  "source_commit": "6d90ecb5f220733624e9e1249d344352bd864fc7",
+  "printing_press_version": "4.29.0",
+  "run_id": "20260725-041142-9944f727",
+  "changes": [
+    {
+      "title": "feat(amazon-jobs): add amazon-jobs",
+      "pr": 1768,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1768",
+      "commit": "6d90ecb5f220733624e9e1249d344352bd864fc7"
+    }
+  ]
+}

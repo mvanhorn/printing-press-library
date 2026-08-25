@@ -266,6 +266,97 @@ token_expiry = 2026-06-08T12:00:00Z
 	}
 }
 
+func TestDoctorReportsOAuth2RefreshFailureReason(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/2/oauth2/token":
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			_, _ = w.Write([]byte(`{"error":"invalid_grant","error_description":"refresh token expired"}`))
+		case "/2/users/me":
+			http.Error(w, "expired", http.StatusUnauthorized)
+		case xAppOnlyProbePath:
+			http.Error(w, "missing app token", http.StatusUnauthorized)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+	oldEndpoint := client.OAuth2TokenEndpoint
+	client.OAuth2TokenEndpoint = server.URL + "/2/oauth2/token"
+	defer func() { client.OAuth2TokenEndpoint = oldEndpoint }()
+
+	home := t.TempDir()
+	configPath := writeDoctorConfig(t, t.TempDir(), server.URL, `oauth2_user_token = "doctor-stale"
+refresh_token = "doctor-refresh"
+client_id = "doctor-client"
+`)
+
+	report := runDoctorJSON(t, home, configPath)
+	userLane := laneFromReport(t, report, "oauth2_user_context")
+	if got, _ := userLane["status"].(string); got != "invalid" {
+		t.Fatalf("oauth2_user_context status = %q, want invalid (lane=%#v)", got, userLane)
+	}
+	if userLane["refresh_attempted"] != true {
+		t.Fatalf("refresh_attempted = %#v, want true (lane=%#v)", userLane["refresh_attempted"], userLane)
+	}
+	if refreshErr, _ := userLane["refresh_error"].(string); !strings.Contains(refreshErr, "invalid_grant") {
+		t.Fatalf("refresh_error should include sanitized upstream reason, got %q", refreshErr)
+	}
+	if hint, _ := userLane["hint"].(string); !strings.Contains(hint, "oauth2-login") {
+		t.Fatalf("hint should point to oauth2-login, got %q", hint)
+	}
+	out, err := json.Marshal(report)
+	if err != nil {
+		t.Fatalf("marshal report: %v", err)
+	}
+	for _, secret := range []string{"doctor-stale", "doctor-refresh"} {
+		if strings.Contains(string(out), secret) {
+			t.Fatalf("doctor report leaked secret %q: %s", secret, out)
+		}
+	}
+}
+
+func TestDoctorReportsOAuth2RefreshFailureWhenStoredTokenLooksAppOnly(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/2/oauth2/token":
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = w.Write([]byte(`{"error":"invalid_request","error_description":"Value passed for the token was invalid."}`))
+		case "/2/users/me":
+			http.Error(w, xUnsupportedAppOnlyBody, http.StatusForbidden)
+		case xAppOnlyProbePath:
+			http.Error(w, "missing app token", http.StatusUnauthorized)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+	oldEndpoint := client.OAuth2TokenEndpoint
+	client.OAuth2TokenEndpoint = server.URL + "/2/oauth2/token"
+	defer func() { client.OAuth2TokenEndpoint = oldEndpoint }()
+
+	configPath := writeDoctorConfig(t, t.TempDir(), server.URL, `oauth2_user_token = "doctor-app-only"
+refresh_token = "doctor-refresh"
+client_id = "doctor-client"
+`)
+	report := runDoctorJSON(t, t.TempDir(), configPath)
+	userLane := laneFromReport(t, report, "oauth2_user_context")
+	if got, _ := userLane["classification"].(string); got != "app_only_token_used_for_user_context" {
+		t.Fatalf("classification = %q, want app_only_token_used_for_user_context (lane=%#v)", got, userLane)
+	}
+	if userLane["refresh_attempted"] != true {
+		t.Fatalf("refresh_attempted = %#v, want true (lane=%#v)", userLane["refresh_attempted"], userLane)
+	}
+	if refreshErr, _ := userLane["refresh_error"].(string); !strings.Contains(refreshErr, "invalid_request") {
+		t.Fatalf("refresh_error should include sanitized upstream reason, got %q", refreshErr)
+	}
+	if hint, _ := userLane["hint"].(string); !strings.Contains(hint, "oauth2-login") {
+		t.Fatalf("hint should point to oauth2-login, got %q", hint)
+	}
+}
+
 func TestBuildAuthLaneReportProbesAPILanesConcurrently(t *testing.T) {
 	t.Setenv("HOME", t.TempDir())
 

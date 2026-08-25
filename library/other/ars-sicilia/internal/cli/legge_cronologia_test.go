@@ -3,8 +3,30 @@
 
 package cli
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestNovelLeggeCronologiaCommandTODO(t *testing.T) {
 	t.Skip("TODO: implement table-driven tests for legge cronologia")
+}
+
+// Il messaggio di "legge non trovata" deve cambiare a seconda che --anno sia
+// stato dato: con --anno già fornito il consiglio "aggiungi --anno" descrive un
+// caso diverso da quello in corso e manda sulla strada sbagliata.
+func TestLeggeNonTrovataMsg(t *testing.T) {
+	senza := leggeNonTrovataMsg(18, 21, 0)
+	if !strings.Contains(senza, "aggiungi --anno") {
+		t.Errorf("senza --anno l'hint di disambiguazione deve restare: %q", senza)
+	}
+	con := leggeNonTrovataMsg(18, 21, 2026)
+	if strings.Contains(con, "aggiungi --anno") {
+		t.Errorf("con --anno già fornito l'hint non deve ricomparire: %q", con)
+	}
+	for _, atteso := range []string{"anno=2026", "novita --archivi leggi", "ddl iter"} {
+		if !strings.Contains(con, atteso) {
+			t.Errorf("il messaggio con --anno deve citare %q: %q", atteso, con)
+		}
+	}
 }

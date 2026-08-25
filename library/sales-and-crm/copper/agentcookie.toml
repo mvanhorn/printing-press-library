@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "copper-pp-cli"
+display_name = "Copper"
+description = "The Copper CRM command line no one else built: full CRUD plus a local database, weighted pipeline forecasting, stale-deal detection, and the bulk operations Copper's own API refuses to provide."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/copper-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+COPPER_API_KEY = true

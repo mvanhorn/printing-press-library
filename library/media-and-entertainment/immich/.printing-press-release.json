@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "immich",
+  "cli_name": "immich-pp-cli",
+  "version": "2026.8.13",
+  "released_at": "2026-08-21T08:31:57Z",
+  "source_commit": "790604ed93373b51d5718b4c7036c6e3d1dd4fef",
+  "printing_press_version": "4.29.0",
+  "run_id": "20260721-133855-89f4eb09",
+  "changes": [
+    {
+      "title": "feat(immich): add immich",
+      "pr": 1561,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1561",
+      "commit": "790604ed93373b51d5718b4c7036c6e3d1dd4fef"
+    }
+  ]
+}

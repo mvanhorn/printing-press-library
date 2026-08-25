@@ -12,25 +12,48 @@ import (
 )
 
 func newYoutubeVideosListCmd(flags *rootFlags) *cobra.Command {
+	var flagPart string
 	var flagChart string
 	var flagHl string
 	var flagId string
 	var flagLocale string
 	var flagMaxHeight int
+	var flagMaxResults int
 	var flagMaxWidth int
 	var flagMyRating string
+	var flagOnBehalfOfContentOwner string
+	var flagPageToken string
 	var flagRegionCode string
 	var flagVideoCategoryId string
-	var flagPart string
-	var flagMaxResults int
 	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "videos-list",
 		Short:       "Retrieves a list of resources, possibly filtered.",
-		Example:     "  youtube-pp-cli youtube videos-list",
-		Annotations: map[string]string{"pp:endpoint": "youtube.videos-list", "pp:method": "GET", "pp:path": "/youtube/v3/videos", "mcp:read-only": "true"},
+		Example:     "  youtube-pp-cli youtube videos-list --part snippet,statistics --chart mostPopular --max-results 5",
+		Annotations: map[string]string{"pp:happy-args": "--part=snippet,statistics;--chart=mostPopular;--max-results=5", "pp:endpoint": "youtube.videos-list", "pp:method": "GET", "pp:path": "/youtube/v3/videos", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
+			}
+			if !cmd.Flags().Changed("part") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "part")
+			}
 			if cmd.Flags().Changed("chart") {
 				allowedChart := []string{"chartUnspecified", "mostPopular"}
 				validChart := false
@@ -41,7 +64,7 @@ func newYoutubeVideosListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validChart {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "chart", flagChart, allowedChart)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagChart, "chart", allowedChart)
 				}
 			}
 			if cmd.Flags().Changed("my-rating") {
@@ -54,48 +77,64 @@ func newYoutubeVideosListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validMyRating {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "my-rating", flagMyRating, allowedMyRating)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagMyRating, "my-rating", allowedMyRating)
 				}
 			}
+			path := "/youtube/v3/videos"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/youtube/v3/videos"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "youtube", path, map[string]string{
-				"chart":           fmt.Sprintf("%v", flagChart),
-				"hl":              fmt.Sprintf("%v", flagHl),
-				"id":              fmt.Sprintf("%v", flagId),
-				"locale":          fmt.Sprintf("%v", flagLocale),
-				"maxHeight":       fmt.Sprintf("%v", flagMaxHeight),
-				"maxWidth":        fmt.Sprintf("%v", flagMaxWidth),
-				"myRating":        fmt.Sprintf("%v", flagMyRating),
-				"regionCode":      fmt.Sprintf("%v", flagRegionCode),
-				"videoCategoryId": fmt.Sprintf("%v", flagVideoCategoryId),
-				"part":            flagPart,
-				"maxResults":      fmt.Sprintf("%d", flagMaxResults),
-			}, nil, flagAll, "pagetoken", "nextPageToken", "")
-			if err != nil {
-				return classifyAPIError(err, flags)
+			if flagPart != "" {
+				path = appendArrayQueryParam(path, "part", flagPart, "form", true)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			if flagId != "" {
+				path = appendArrayQueryParam(path, "id", flagId, "form", true)
+			}
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "youtube", path, map[string]string{
+				"chart":                  formatCLIParamValue(flagChart),
+				"hl":                     formatCLIParamValue(flagHl),
+				"locale":                 formatCLIParamValue(flagLocale),
+				"maxHeight":              formatCLIParamValue(flagMaxHeight),
+				"maxResults":             formatCLIParamValue(flagMaxResults),
+				"maxWidth":               formatCLIParamValue(flagMaxWidth),
+				"myRating":               formatCLIParamValue(flagMyRating),
+				"onBehalfOfContentOwner": formatCLIParamValue(flagOnBehalfOfContentOwner),
+				"pageToken":              formatCLIParamValue(flagPageToken),
+				"regionCode":             formatCLIParamValue(flagRegionCode),
+				"videoCategoryId":        formatCLIParamValue(flagVideoCategoryId),
+			}, nil, flagAll, "pageToken", "page_token", "maxResults", 0, "nextPageToken", "", "items", cmd.ErrOrStderr())
+			if err != nil {
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
+			}
+			outputData := collectionItemsForOutput(data, path)
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				_ = json.Unmarshal(outputData, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, map[string]bool{"ageGating": true, "contentDetails": true, "etag": true, "fileDetails": true, "id": true, "kind": true, "liveStreamingDetails": true, "localizations": true, "monetizationDetails": true, "player": true, "processingDetails": true, "projectDetails": true, "recordingDetails": true, "snippet": true, "statistics": true, "status": true, "suggestions": true, "topicDetails": true})
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+				if wrapErr != nil {
+					return wrapErr
+				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
 				if wrapErr != nil {
 					return wrapErr
 				}
@@ -104,7 +143,7 @@ func newYoutubeVideosListCmd(flags *rootFlags) *cobra.Command {
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -114,20 +153,26 @@ func newYoutubeVideosListCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"ageGating": true, "contentDetails": true, "etag": true, "fileDetails": true, "id": true, "kind": true, "liveStreamingDetails": true, "localizations": true, "monetizationDetails": true, "player": true, "processingDetails": true, "projectDetails": true, "recordingDetails": true, "snippet": true, "statistics": true, "status": true, "suggestions": true, "topicDetails": true})
 		},
 	}
+	cmd.Flags().StringVar(&flagPart, "part", "", "The *part* parameter specifies a comma-separated list of one or more video resource properties that the API response")
 	cmd.Flags().StringVar(&flagChart, "chart", "", "Return the videos that are in the specified chart. (one of: chartUnspecified, mostPopular)")
-	cmd.Flags().StringVar(&flagHl, "hl", "", "Stands for 'host language'. Specifies the localization language of the metadata to be filled into snippet.localized....")
+	cmd.Flags().StringVar(&flagHl, "hl", "", "Stands for 'host language'. Specifies the localization language of the metadata to be filled into snippet.localized.")
 	cmd.Flags().StringVar(&flagId, "id", "", "Return videos with the given ids.")
 	cmd.Flags().StringVar(&flagLocale, "locale", "", "Locale")
 	cmd.Flags().IntVar(&flagMaxHeight, "max-height", 0, "Max height")
+	cmd.Flags().IntVar(&flagMaxResults, "max-results", 0, "The *maxResults* parameter specifies the maximum number of items that should be returned in the result set.")
 	cmd.Flags().IntVar(&flagMaxWidth, "max-width", 0, "Return the player with maximum height specified in")
 	cmd.Flags().StringVar(&flagMyRating, "my-rating", "", "Return videos liked/disliked by the authenticated user. Does not support RateType.RATED_TYPE_NONE. (one of: none, like, dislike)")
+	cmd.Flags().StringVar(&flagOnBehalfOfContentOwner, "on-behalf-of-content-owner", "", "*Note:* This parameter is intended exclusively for YouTube content partners.")
+	cmd.Flags().StringVar(&flagPageToken, "page-token", "", "The *pageToken* parameter identifies a specific page in the result set that should be returned.")
 	cmd.Flags().StringVar(&flagRegionCode, "region-code", "", "Use a chart that is specific to the specified region")
 	cmd.Flags().StringVar(&flagVideoCategoryId, "video-category-id", "", "Use chart that is specific to the specified video category")
-	cmd.Flags().StringVar(&flagPart, "part", "snippet", "Comma-separated list of resource parts the response should include (e.g. snippet, contentDetails, statistics).")
-	cmd.Flags().IntVar(&flagMaxResults, "max-results", 25, "Maximum number of results to return per page (1-50).")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

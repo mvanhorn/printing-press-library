@@ -1,0 +1,204 @@
+name: forkable
+description: "Read-only CLI and MCP server for the Forkable office-lunch platform (forkable.com/api/v2 GraphQL), reverse-engineered from the my-account app."
+version: "0.1.0"
+base_url: "https://forkable.com"
+category: food-and-dining
+
+# Forkable's private API is GraphQL-over-HTTP. Every data call is
+# POST /api/v2/graphql with a query string body, plus an x-csrf-token header
+# (fetched from /api/v2/csrf_token) and the browser session cookie. Auth is
+# a browser session: import Chrome cookies, fetch a CSRF token per run.
+http_transport: standard
+
+required_headers:
+  - name: Accept
+    value: "application/json"
+  - name: Origin
+    value: "https://forkable.com"
+  - name: Referer
+    value: "https://forkable.com/mc/"
+
+auth:
+  type: cookie
+  cookie_domain: forkable.com
+  login_url: "https://forkable.com/mc/"
+  login_complete_selector: "a[href*=logout]"
+  verify_path: "/api/v2/csrf_token"
+
+resources:
+  # --- CSRF handshake helper (public: the token endpoint itself needs no auth) ---
+  csrf:
+    endpoints:
+      token:
+        method: GET
+        path: /api/v2/csrf_token
+        no_auth: true
+        response_format: json
+        description: "Fetch a CSRF token. Read-only. Used as the handshake before authenticated GraphQL queries and as the reachability/health probe."
+
+  # --- Current user / account ---
+  account:
+    endpoints:
+      me:
+        method: POST
+        path: /api/v2/graphql
+        response_format: json
+        description: "Show the authenticated Forkable user: profile, roles, dietary preferences (likes/dislikes/restrictions), companies, managed clubs, and delegations."
+        body:
+          properties:
+            query:
+              type: string
+              required: true
+              description: "GraphQL document. Defaults to the full current-user query; override to select different fields."
+              default: "query { me  { id firstName lastName fullName isGuest roles settings imageUrl email phone mealClubAutoOrder active restrictions validCreditCard likes dislikes tips hasChangedMeal hasOptedIn compactView addressInfo hasOpenedDashboard lastMealOn createdAt permissions isFamilyUser mfaEnabled online mustBeOnline accessScope isBuffetEnabled hasPersonalBuffetClubs totalFailedCharges claimed invitation { uuid } permissionSetsGrouped { label value } remainingLateOrdersMonthOf isGuestLinkRequestsEnabled companies { id settings { allowUsersToJoinClubs } } allManagedClubs { id active forBuffet forFamily userRoles isGuestLinkRequestsEnabled hasFutureGuestLinkRequests } availableDelegations { id delegatorId delegatorName delegatorEmail delegatorImageUrl permissions } } }"
+            variables:
+              type: object
+              description: "GraphQL variables JSON (usually empty for this query)."
+
+  # --- Deliveries (dated meal deliveries with orders, menus, receipts) ---
+  deliveries:
+    endpoints:
+      list:
+        method: POST
+        path: /api/v2/graphql
+        response_format: json
+        description: "List your meal deliveries from a given date forward, including per-delivery orders, chosen menu items, receipts, and delivery windows. Override --query to change the 'from' date."
+        body:
+          properties:
+            query:
+              type: string
+              required: true
+              description: "GraphQL document for myDeliveries. The from: date defaults to a placeholder; edit the query to set your date (YYYY-MM-DD)."
+              default: "query { myDeliveries (from: \"2026-01-01\") { id state simpleState forDeliveryAt deliveryWindow isReadOnly mealClubId copayAmount isPreferred afternoon serviceWindow { baseTime name } allowanceType weeklyAllowance weeklyAllowanceAvailable estimatedArrivalAt availableMenuIds pastLateOrderDeadline canRequestChanges address { street city formatted } orders { id state updatedAt forDeliveryAt serviceFee total isReorderable forBuffet isSplitted mealGroups { label value } menu { id name uuid } tally { label value } pieces { id date itemId menuId name imageUrl userId userFullName state autoOrder price description dietLevel group } venue { id name displayName capacity } } club { id name copay allowanceType market { currencySettings { currency } } } userReceipt { id isCopay subtotal feesTotal due copayAmount fees { type fee } } } }"
+            variables:
+              type: object
+              description: "GraphQL variables JSON."
+      in_progress_ids:
+        method: POST
+        path: /api/v2/graphql
+        response_format: json
+        description: "List IDs of deliveries currently in progress."
+        body:
+          properties:
+            query:
+              type: string
+              required: true
+              description: "GraphQL document."
+              default: "query { myInProgressDeliveryIds }"
+            variables:
+              type: object
+              description: "GraphQL variables JSON."
+
+  # --- Menus (restaurant menus with items, sections, modifiers, ratings) ---
+  menus:
+    endpoints:
+      get:
+        method: POST
+        path: /api/v2/graphql
+        response_format: json
+        description: "Get menu(s) with venue, sections, items, prices, dietary levels, ratings, and modifiers. Requires menu ids and a clubId inlined in the query; edit --query with values from your deliveries (availableMenuIds) and clubs (mealClubsAs)."
+        body:
+          properties:
+            query:
+              type: string
+              required: true
+              description: "GraphQL document for menus(ids, clubId). Replace the placeholder ids/clubId with real values."
+              default: "query { menus (ids: 0, clubId: 0) { id name displayName disableSpecialInstructions ratingCount isNewForUser venue { id capacity name displayName } optionSets { id price } sections { id name description items { id menuId name description price ingredientTags modifierIds imageUrl averageRating dietLevel userRating modifiers { id name optionSetId min max free required hidden options { id name price ingredientTags } } } } } }"
+            variables:
+              type: object
+              description: "GraphQL variables JSON."
+
+  # --- Meal clubs (teams / offices with delivery, billing, membership) ---
+  clubs:
+    endpoints:
+      list:
+        method: POST
+        path: /api/v2/graphql
+        response_format: json
+        description: "List meal clubs (teams/offices) you belong to or manage, with delivery address, delivery days, allowances, billing/payment settings, and memberships. Override --query roles to filter by role."
+        body:
+          properties:
+            query:
+              type: string
+              required: true
+              description: "GraphQL document for mealClubsAs(roles). Defaults to all roles."
+              default: "query { mealClubsAs (roles: [\"member\",\"organizer\",\"accountant\",\"assistant\"]) { id primaryMealClubId name isInternal active isResidential forBuffet market { id countryCode } deliveryAddress { formattedAddress } deliveryNotes deliveryDays deliveryApt utensils userRoles organizerUserId assistantIds accountantIds copay copayAllowance allowanceType dailyAllowances clubCoversAllFees allowanceMealLimit hidePrices invoicePeriod hasCc creditCard { id type last4 expMonth expYear isExpired } paymentEmail settings { weekendService } isGuestLinkRequestsEnabled allowLateMeals } me { memberships { mealClubId id user { id fullName isGuest } copayAllowance } } }"
+            variables:
+              type: object
+              description: "GraphQL variables JSON."
+
+  # --- Buffet delivery addresses ---
+  buffet_addresses:
+    endpoints:
+      list:
+        method: POST
+        path: /api/v2/graphql
+        response_format: json
+        description: "List your buffet delivery addresses (street, city, postal code, coordinates, club)."
+        body:
+          properties:
+            query:
+              type: string
+              required: true
+              description: "GraphQL document."
+              default: "query { myBuffetAddresses { addressId street streetName streetNumber city postalCode region lat lng formattedAddress notes apartment mealClubId } me { lastSearchedBuffetAddress { addressId street city postalCode region lat lng formattedAddress mealClubId } } }"
+            variables:
+              type: object
+              description: "GraphQL variables JSON."
+
+  # --- Meal generation scores (auto-selection ranking) ---
+  meal_scores:
+    endpoints:
+      list:
+        method: POST
+        path: /api/v2/graphql
+        response_format: json
+        description: "Show meal auto-selection scores (menuId, itemId, score) for a delivery and user across candidate menus. Requires deliveryId, userId, and menuIds inlined in the query."
+        body:
+          properties:
+            query:
+              type: string
+              required: true
+              description: "GraphQL document for mealGenerationScores(deliveryId, userId, menuIds). Replace placeholders with real values from your deliveries."
+              default: "query { mealGenerationScores (deliveryId: 0, userId: 0, menuIds: [0]) { menuId itemId score } }"
+            variables:
+              type: object
+              description: "GraphQL variables JSON."
+
+  # --- Venue usage (per-venue usage over a date range) ---
+  venue_usage:
+    endpoints:
+      get:
+        method: POST
+        path: /api/v2/graphql
+        response_format: json
+        description: "Get per-venue usage keyed by venue id over a date range. Requires venue ids and from/to dates inlined in the query."
+        body:
+          properties:
+            query:
+              type: string
+              required: true
+              description: "GraphQL document for venueUsage(ids, from, to). Replace placeholders with real venue ids and dates."
+              default: "query { venueUsage (ids: [0], from: \"2026-01-01\", to: \"2026-01-01\") }"
+            variables:
+              type: object
+              description: "GraphQL variables JSON."
+
+  # --- Notifications ---
+  notifications:
+    endpoints:
+      list:
+        method: POST
+        path: /api/v2/graphql
+        response_format: json
+        description: "List account notifications shown in the my-account app (title, description, links, publish window)."
+        body:
+          properties:
+            query:
+              type: string
+              required: true
+              description: "GraphQL document."
+              default: "query { myNotifications { date title description imageLink faqLink links publishedAt isPreview isPublished forMultipleLocations includedClubIds excludedClubIds includedMarketIds forRegularClubs forBuffet showInMc } }"
+            variables:
+              type: object
+              description: "GraphQL variables JSON."

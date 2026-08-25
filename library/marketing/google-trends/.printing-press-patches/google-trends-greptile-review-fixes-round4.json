@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "google-trends-greptile-review-fixes-round4",
+  "applied_at": "2026-07-14",
+  "base_run_id": "20260713-105453-29114a9d",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Fixed 1 follow-up finding from Greptile's round-4 review: gt_keyword_query's ID was made scope-unique in round 2, but the stored record (and trends stale's output) still didn't carry category/property/compare_scope, so two scoped rows for the same keyword rendered identically with no way to tell which one was stale.",
+  "reason": "Persisted Category/Property/CompareScope on gtKeywordQueryRecord (populated at the same trends_interest.go write site already threading these values through for gt_interest_point), and surfaced them in trends stale's output struct so distinct scoped rows for the same keyword are visibly distinguishable instead of looking like duplicates.",
+  "files": [
+    "internal/cli/gtrends_records.go",
+    "internal/cli/trends_interest.go",
+    "internal/cli/trends_stale.go"
+  ],
+  "validated_outcome": "Live dogfood full matrix: 65/65 pass. Manually confirmed live: syncing coffee under category 0 then category 71 produces two trends stale rows, now distinguishable by their category field instead of appearing as duplicates.",
+  "upstream_issue": null
+}

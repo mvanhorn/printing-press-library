@@ -5,12 +5,13 @@ package cli
 
 import (
 	"fmt"
-	"github.com/mvanhorn/printing-press-library/library/project-management/plane/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/project-management/plane/internal/config"
-	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
 	"runtime"
+
+	"github.com/mvanhorn/printing-press-library/library/project-management/plane/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/project-management/plane/internal/config"
+	"github.com/spf13/cobra"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
@@ -39,16 +40,15 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 		Example: "  plane-pp-cli auth setup\n  plane-pp-cli auth setup --launch",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			w := cmd.OutOrStdout()
-			fmt.Fprintln(w, "Get a key at: https://app.plane.so/profile/api-tokens")
-			fmt.Fprintln(w, "  Plane Cloud: Profile → API tokens. Self-hosted: Workspace settings → API tokens. Send as header `X-API-Key: <token>` (NOT `Authorization: Bearer`).")
+			fmt.Fprintln(w, "See API docs: https://plane.so")
 			fmt.Fprintln(w, "")
 			fmt.Fprintln(w, "Then set:")
-			fmt.Fprintln(w, "  export PLANE_API_KEY_AUTHENTICATION=\"<your-token>\"")
+			fmt.Fprintln(w, "  export PLANE_API_KEY_AUTHENTICATION=\"your-token-here\"")
 			fmt.Fprintln(w, "  plane-pp-cli auth set-token <token>")
 			if !launch {
 				return nil
 			}
-			launchURL := "https://app.plane.so/profile/api-tokens"
+			launchURL := "https://plane.so"
 			if cliutil.IsVerifyEnv() {
 				fmt.Fprintf(w, "would launch: %s\n", launchURL)
 				return nil
@@ -132,7 +132,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:     "set-token <token>",
-		Short:   "Save an API token to the config file",
+		Short:   "Save an API token to the credentials file",
 		Example: "  plane-pp-cli auth set-token YOUR_TOKEN_HERE",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -156,17 +156,35 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}
 
-			// JSON envelope: {saved, config_path}.
+			savePath := credentialSavePath(cfg)
+			// JSON envelope: {saved, config_path, credentials_path}.
 			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+				out := map[string]any{
 					"saved":       true,
 					"config_path": cfg.Path,
-				}, flags)
+				}
+				if !cfg.AgentcookieManagedByExternalStore() {
+					out["credentials_path"] = savePath
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Token saved to %s\n", cfg.Path)
+			fmt.Fprintf(cmd.OutOrStdout(), "Token saved to %s\n", savePath)
 			return nil
 		},
 	}
+}
+
+func credentialSavePath(cfg *config.Config) string {
+	if cfg != nil && cfg.AgentcookieManagedByExternalStore() {
+		return cfg.Path
+	}
+	if path, err := cliutil.CredentialsFilePath(); err == nil {
+		return path
+	}
+	if cfg != nil {
+		return cfg.Path
+	}
+	return ""
 }
 
 func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {

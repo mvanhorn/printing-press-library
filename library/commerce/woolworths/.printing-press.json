@@ -1,0 +1,121 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-24T11:24:28.4374283Z",
+  "printing_press_version": "4.31.1",
+  "api_name": "woolworths",
+  "display_name": "Woolworths",
+  "cli_name": "woolworths-pp-cli",
+  "creator": {
+    "handle": "therichardgill",
+    "name": "Richard Gill"
+  },
+  "owner": "therichardgill",
+  "printer": "therichardgill",
+  "printer_name": "Richard Gill",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:be5654d4874beece008b5568b22c513d69bb522c2e2399bb58583f706f4dc1dc",
+  "run_id": "20260823-194004-c3040891",
+  "category": "commerce",
+  "description": "Every Woolworths catalogue, specials, store and trolley surface, plus a local price history that can tell a genuine half-price from an inflated was-price.",
+  "mcp_binary": "woolworths-pp-mcp",
+  "mcp_tool_count": 16,
+  "mcp_public_tool_count": 13,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Genuine-special verdict",
+      "command": "real-special",
+      "description": "Tells you whether an advertised special is genuinely cheap or just a lower number next to an inflated was-price."
+    },
+    {
+      "name": "Half-price cycle forecast",
+      "command": "cycle",
+      "description": "Estimates when a product's next half-price window is likely to open, from its own recorded discount episodes."
+    },
+    {
+      "name": "Cheaper substitute finder",
+      "command": "swap",
+      "description": "Ranks in-stock alternatives by unit price normalised across different measure bases, so per-100g and per-1kg tiles compare correctly."
+    },
+    {
+      "name": "Basket costing from a list",
+      "command": "basket",
+      "description": "Prices a whole shopping list, showing which lines moved since the last time you ran it and what it did to the total."
+    },
+    {
+      "name": "Specials rollover diff",
+      "command": "specials-diff",
+      "description": "Shows what entered and left each specials group since your last sync, with how long since each entrant was last discounted."
+    },
+    {
+      "name": "Multi-buy effective unit price",
+      "command": "multibuy",
+      "description": "Works out what a multi-buy offer actually costs per unit at the quantity it demands, versus buying singly or buying a larger pack."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Genuine-special verdict",
+      "command": "real-special",
+      "description": "Tells you whether an advertised special is genuinely cheap or just a lower number next to an inflated was-price."
+    },
+    {
+      "name": "Half-price cycle forecast",
+      "command": "cycle",
+      "description": "Estimates when a product's next half-price window is likely to open, from its own recorded discount episodes."
+    },
+    {
+      "name": "Cheaper substitute finder",
+      "command": "swap",
+      "description": "Ranks in-stock alternatives by unit price normalised across different measure bases, so per-100g and per-1kg tiles compare correctly."
+    },
+    {
+      "name": "Basket costing from a list",
+      "command": "basket",
+      "description": "Prices a whole shopping list, showing which lines moved since the last time you ran it and what it did to the total."
+    },
+    {
+      "name": "Specials rollover diff",
+      "command": "specials-diff",
+      "description": "Shows what entered and left each specials group since your last sync, with how long since each entrant was last discounted."
+    },
+    {
+      "name": "Multi-buy effective unit price",
+      "command": "multibuy",
+      "description": "Works out what a multi-buy offer actually costs per unit at the quantity it demands, versus buying singly or buying a larger pack."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 95,
+    "passed": 38,
+    "total": 40,
+    "failed": 2,
+    "data_pipeline": true,
+    "verdict": "WARN"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 83,
+      "grade": "A (1 of 26 dimensions unverified: live_api_verification)",
+      "total": 83
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

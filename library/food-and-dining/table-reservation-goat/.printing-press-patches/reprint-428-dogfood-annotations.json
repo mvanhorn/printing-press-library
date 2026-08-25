@@ -1,0 +1,5 @@
+{ "schema_version": 2, "id": "reprint-428-dogfood-annotations", "applied_at": "2026-07-12",
+  "base_run_id": "20260712-223206", "base_printing_press_version": "4.28.0",
+  "summary": "Annotate the live-network hand commands so the 4.28.0 synthesized-arg dogfood probes suit their design: pp:no-error-path-probe on lenient/best-guess commands (location resolve, earliest), pp:happy-args + a bare dry-run book Example so book's happy_path runs a safe no-op.",
+  "reason": "location resolve intentionally resolves ambiguous input to a best guess (exit 0, no error path); earliest/book make live OpenTable/Tock/Resy calls. book defaults to dry-run unless TRG_ALLOW_BOOK=1, so the bare Example is a safe runnable happy-path. No behavior change — annotations only.",
+  "files": ["internal/cli/location.go", "internal/cli/earliest.go", "internal/cli/book.go"] }

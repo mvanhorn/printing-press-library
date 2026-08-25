@@ -1,0 +1,49 @@
+{
+  "api_name": "paperclip",
+  "display_name": "Paperclip",
+  "researched_at": "2026-07-11T16:46:42Z",
+  "provenance": "vendored-instance-spec",
+  "provenance_note": "Paperclip ships no static OpenAPI file; the running instance serves /api/openapi.json (503 KB) dynamically. The vendored spec.json in this directory was fetched from a live local instance and stamped with sha256:33e77b88f18a5d27bc2333a00939e9f8ec011ccbc10f364e43ba87822644c8ba. spec_url is intentionally left empty to avoid leaking a private host.",
+  "novelty_score": 8,
+  "recommendation": "proceed",
+  "spec_source": {
+    "type": "instance-fetched",
+    "detail": "Vendored from a running Paperclip instance at the time of publish. Future regenerations should re-fetch and update the checksum.",
+    "spec_url": ""
+  },
+  "patterns": [
+    "Self-hosted single-tenant model: one Paperclip instance per workspace.",
+    "Company-scoped path parameters: most read endpoints take {companyId} in the path. Single-tenant deployments auto-resolve from the local companies cache.",
+    "Multi-auth surface: BoardSessionAuth (cookie), BoardApiKeyAuth (bearer), AgentBearerAuth (bearer).",
+    "Issue / Comment graph: issues list + comments list are syncable per companyId; FTS5 over the local store enables offline queries.",
+    "Plain-text LLM helper endpoints: /api/llms/*.txt return text/plain; the CLI bypasses the JSON-guarded resolver for them.",
+    "Local path-parameter shapes: dev instances may return slug-shaped IDs (local-*) instead of canonical UUIDs."
+  ],
+  "gaps": [
+    "Spec is dynamic — a running Paperclip instance is required to reproduce. Vendored snapshot is the closest static representation.",
+    "Some endpoints require destructive or write-flow testing the runner skips (auth rotation, agents approve, work-products update) — Phase 5 covers reads only.",
+    "Two commands (llms list, llms list-agenticonstxt) are text endpoints; documented in .printing-press-patches/."
+  ],
+  "novel_features": [
+    {
+      "name": "Pre-discovery recall loop",
+      "command": "paperclip-pp-cli recall",
+      "description": "Before any discovery fetch, recall checks the local search_learnings table for a previously-taught query->resource mapping."
+    },
+    {
+      "name": "Post-fetch teach loop",
+      "command": "paperclip-pp-cli teach",
+      "description": "After answering a question, fires teach --query --resource --resource-type in the background to record the question -> resource mapping."
+    },
+    {
+      "name": "Candidate confirm/reject flow",
+      "command": "paperclip-pp-cli learnings confirm <id> | learnings reject <id>",
+      "description": "Surfaces trial-then-confirm candidates derived from failed-flag + corrected-retry pairs."
+    },
+    {
+      "name": "CompanyId auto-resolution for single-tenant mirrors",
+      "command": "paperclip-pp-cli search <query>",
+      "description": "When a Paperclip endpoint requires companyId in the path, the CLI reads the first cached row from the local companies table and substitutes it automatically."
+    }
+  ]
+}

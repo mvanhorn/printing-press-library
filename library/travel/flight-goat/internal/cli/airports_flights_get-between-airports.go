@@ -22,9 +22,9 @@ func newAirportsFlightsGetBetweenAirportsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "get-between-airports <id> <dest_id>",
-		Short:       "This endpoint is quite similar to the `FindFlight` operator in prior versions of AeroAPI. Results may include both...",
-		Example:     "  flight-goat-pp-cli airports flights get-between-airports 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "flights.get-between-airports", "mcp:read-only": "true"},
+		Short:       "This endpoint is quite similar to the `FindFlight` operator in prior versions of AeroAPI.",
+		Example:     "  flight-goat-pp-cli airports flights get-between-airports IAH IAH",
+		Annotations: map[string]string{"pp:endpoint": "flights.get-between-airports", "pp:method": "GET", "pp:path": "/airports/{id}/flights/to/{dest_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -39,7 +39,7 @@ func newAirportsFlightsGetBetweenAirportsCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validType {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "type", flagType, allowedType)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagType, "type", allowedType)
 				}
 			}
 			if cmd.Flags().Changed("connection") {
@@ -52,41 +52,49 @@ func newAirportsFlightsGetBetweenAirportsCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validConnection {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "connection", flagConnection, allowedConnection)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagConnection, "connection", allowedConnection)
 				}
 			}
+			path := "/airports/{id}/flights/to/{dest_id}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+			}
+			path = replacePathParam(path, "id", args[0])
+			if len(args) < 2 || args[1] == "" {
+				return usageErr(fmt.Errorf("dest_id is required\nUsage: %s <%s>", cmd.CommandPath(), "dest_id"))
+			}
+			path = replacePathParam(path, "dest_id", args[1])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/airports/{id}/flights/to/{dest_id}"
-			path = replacePathParam(path, "id", args[0])
-			if len(args) < 2 {
-				return usageErr(fmt.Errorf("dest_id is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "dest_id"))
-			}
-			path = replacePathParam(path, "dest_id", args[1])
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "flights", path, map[string]string{
-				"type":       fmt.Sprintf("%v", flagType),
-				"connection": fmt.Sprintf("%v", flagConnection),
-				"start":      fmt.Sprintf("%v", flagStart),
-				"end":        fmt.Sprintf("%v", flagEnd),
-				"max_pages":  fmt.Sprintf("%v", flagMaxPages),
-				"cursor":     fmt.Sprintf("%v", flagCursor),
-			}, nil, flagAll, "cursor", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "flights", path, map[string]string{
+				"type":       formatCLIParamValue(flagType),
+				"connection": formatCLIParamValue(flagConnection),
+				"start":      formatCLIParamValue(flagStart),
+				"end":        formatCLIParamValue(flagEnd),
+				"max_pages":  formatCLIParamValue(flagMaxPages),
+				"cursor":     formatCLIParamValue(flagCursor),
+			}, nil, flagAll, "cursor", "cursor", "", 100, "", "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -112,13 +120,13 @@ func newAirportsFlightsGetBetweenAirportsCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagType, "type", "", "Type of flights to return. (one of: General_Aviation, Airline)")
-	cmd.Flags().StringVar(&flagConnection, "connection", "", "Whether flights should be filtered based on their connection status. If setting start/end date parameters then... (one of: nonstop, onestop)")
-	cmd.Flags().StringVar(&flagStart, "start", "", "The starting date range for flight results. The format is ISO8601 date or datetime, and the bound is inclusive....")
-	cmd.Flags().StringVar(&flagEnd, "end", "", "The ending date range for flight results. The format is ISO8601 date or datetime, and the bound is exclusive....")
+	cmd.Flags().StringVar(&flagConnection, "connection", "", "Whether flights should be filtered based on their connection status. (one of: nonstop, onestop)")
+	cmd.Flags().StringVar(&flagStart, "start", "", "The starting date range for flight results. The format is ISO8601 date or datetime, and the bound is inclusive.")
+	cmd.Flags().StringVar(&flagEnd, "end", "", "The ending date range for flight results. The format is ISO8601 date or datetime, and the bound is exclusive.")
 	cmd.Flags().IntVar(&flagMaxPages, "max-pages", 1, "Maximum number of pages to fetch. This is an upper limit and not a guarantee of how many pages will be returned.")
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Opaque value used to get the next batch of data from a paged collection.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")

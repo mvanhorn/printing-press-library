@@ -16,12 +16,31 @@ func newPhoneCallRedirectsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyPhone string
 
 	cmd := &cobra.Command{
-		Use:         "phone-call-redirects",
-		Short:       "You can use the API to deflect phone calls to the Intercom Messenger.",
-		Long:        "You can use the API to deflect phone calls to the Intercom Messenger.",
+		Use:   "phone-call-redirects",
+		Short: "You can use the API to deflect phone calls to the Intercom Messenger.",
+		Long:  "You can use the API to deflect phone calls to the Intercom Messenger.",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
 		Example:     "  intercom-pp-cli phone-call-redirects --phone example-value",
 		Annotations: map[string]string{"pp:endpoint": "phone-call-redirects.create-phone-switch", "pp:method": "POST", "pp:path": "/phone_call_redirects"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with a required flag/body prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only reads fall through so a bare call still executes; positional
+			// commands keep their existing usageErr (exit 2 + JSON envelope).
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("phone") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "phone")
 			}
@@ -36,23 +55,28 @@ func newPhoneCallRedirectsPromotedCmd(flags *rootFlags) *cobra.Command {
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
+			bodyMap := map[string]any{}
+			var body any = bodyMap
 			if bodyCustomAttributes != "" {
 				var parsedCustomAttributes any
 				if err := json.Unmarshal([]byte(bodyCustomAttributes), &parsedCustomAttributes); err != nil {
 					return fmt.Errorf("parsing --custom-attributes JSON: %w", err)
 				}
-				body["custom_attributes"] = parsedCustomAttributes
+				asMap, ok := parsedCustomAttributes.(map[string]any)
+				if !ok {
+					return fmt.Errorf("--custom-attributes must be a JSON object, got JSON %T", parsedCustomAttributes)
+				}
+				bodyMap["custom_attributes"] = asMap
 			}
 			if bodyPhone != "" {
-				body["phone"] = bodyPhone
+				bodyMap["phone"] = bodyPhone
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 
-			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			var partialFailure *partialFailureReport
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {
 				partialFailure = detectPartialFailure(data)
@@ -60,10 +84,6 @@ func newPhoneCallRedirectsPromotedCmd(flags *rootFlags) *cobra.Command {
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
 				writeMutationResponseToStore(cmd.Context(), "phone-call-redirects", data, "")
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -107,7 +127,7 @@ func newPhoneCallRedirectsPromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&bodyCustomAttributes, "custom-attributes", "", "An object containing the different custom attributes associated to the conversation as key-value pairs.")

@@ -1,0 +1,27 @@
+type: object
+properties:
+  id:
+    type: integer
+    format: int
+  title:
+    type: string
+  body:
+    type: string
+  type:
+    type: string
+  button_name:
+    type: string
+  button_url:
+    type: string
+  background_color:
+    type: string
+  background_image_url:
+    type: string
+  tablet_image_url:
+    type: string
+  mobile_image_url:
+    type: string
+  image_url:
+    type: string
+  thing:
+    $ref: './thing_schema.yaml'

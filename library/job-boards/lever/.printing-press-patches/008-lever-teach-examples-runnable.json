@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "lever-teach-examples-runnable",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-044310",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Makes the teach-family examples actually runnable so the live dogfood gate can exercise them: teach and teach-pattern examples switch from placeholder/backslash-continuation/background-ampersand shape (`--query \"<question>\" ... \\ --resource <id> &`) to single-line concrete commands. teach's JSON success envelope no longer gated behind --quiet (quiet defaults true, which made --json emit nothing and fail the json_fidelity check). Adds .manuscripts/<run-id>/research/research.json synthesized from the manifest's novel_features (the dogfood matrix uses research.json for novel-feature validation).",
+  "reason": "The publish live gate (Step 4.5) failed teach/teach-pattern: the generated example text is documentation-shaped (placeholders, `\\` continuations, `&` background marker), not a runnable command, and teach --json exited 0 with empty stdout. Fixes are template defects; upstream generator should adopt runnable examples + unconditional JSON envelope (see upstream_issue).",
+  "files": [
+    "internal/cli/teach.go",
+    ".manuscripts/20260807-044310/research/research.json"
+  ],
+  "validated_outcome": "Live dogfood gate PASS (65 tests, 0 failed, 40 skipped); publish validate all 11 checks PASS.",
+  "upstream_issue": "cli-printing-press: teach/teach-pattern examples not runnable (placeholders, backslash continuations, trailing &); teach JSON envelope gated behind --quiet defaulting true. Companion engine fix: liveDogfoodExampleArgs parses examples line-by-line and drops backslash-continuation flags."
+}

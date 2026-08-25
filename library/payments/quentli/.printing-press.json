@@ -1,0 +1,120 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-06T02:37:56.720152Z",
+  "printing_press_version": "4.30.1",
+  "api_name": "quentli",
+  "display_name": "Quentli",
+  "cli_name": "quentli-pp-cli",
+  "creator": {
+    "handle": "bobeglz",
+    "name": "bobe"
+  },
+  "owner": "bobeglz",
+  "printer": "bobeglz",
+  "printer_name": "bobe",
+  "spec_path": "quentli-enriched.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:b565dbe081f9ad8737fa07c2042ddfa5c9aad9cf2f0add44b932f5da53071a27",
+  "run_id": "20260805-194716-31db2fb2",
+  "category": "payments",
+  "description": "Every Quentli payments, invoicing, and SAT tax-billing endpoint, plus offline collection, reconciliation, and at-risk-subscription intelligence no other Quentli tool has.",
+  "mcp_binary": "quentli-pp-mcp",
+  "mcp_tool_count": 54,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_preference": "organizationApiKey",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Collection / dunning queue",
+      "command": "dunning",
+      "description": "See every customer with an outstanding or overdue invoice, how much is owed, and the next collection action (send reminder, retry payment, or resend pay link)."
+    },
+    {
+      "name": "Subscriptions at-risk",
+      "command": "subs at-risk",
+      "description": "Surface active subscriptions whose saved payment method is expired, unconfirmed, or deleted, or that have recent failed collection attempts, ranked by recovery urgency."
+    },
+    {
+      "name": "CFDI tax-invoice reconciliation",
+      "command": "reconcile",
+      "description": "Cross-check completed or refunded payments and paid invoices against SAT tax-invoice status (VALID/CANCELED/PENDING) to find timbre gaps before monthly SAT filing."
+    },
+    {
+      "name": "Revenue report",
+      "command": "revenue",
+      "description": "Aggregate payments and refunds by status, type, and currency over a window; see net collected vs returned in localized minor-currency amounts."
+    },
+    {
+      "name": "Webhook delivery health",
+      "command": "webhooks health",
+      "description": "Aggregate webhook delivery events by status per endpoint and surface PAYMENT_ATTEMPT_FAILED events as an operational alert with a retry path."
+    },
+    {
+      "name": "Customer balance drill-down",
+      "command": "customer balance",
+      "description": "Render a one-screen financial snapshot for a single customer: outstanding invoices, active subscriptions, payment methods, and CFDI linkage."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Collection / dunning queue",
+      "command": "dunning",
+      "description": "See every customer with an outstanding or overdue invoice, how much is owed, and the next collection action (send reminder, retry payment, or resend pay link)."
+    },
+    {
+      "name": "Subscriptions at-risk",
+      "command": "subs at-risk",
+      "description": "Surface active subscriptions whose saved payment method is expired, unconfirmed, or deleted, or that have recent failed collection attempts, ranked by recovery urgency."
+    },
+    {
+      "name": "CFDI tax-invoice reconciliation",
+      "command": "reconcile",
+      "description": "Cross-check completed or refunded payments and paid invoices against SAT tax-invoice status (VALID/CANCELED/PENDING) to find timbre gaps before monthly SAT filing."
+    },
+    {
+      "name": "Revenue report",
+      "command": "revenue",
+      "description": "Aggregate payments and refunds by status, type, and currency over a window; see net collected vs returned in localized minor-currency amounts."
+    },
+    {
+      "name": "Webhook delivery health",
+      "command": "webhooks health",
+      "description": "Aggregate webhook delivery events by status per endpoint and surface PAYMENT_ATTEMPT_FAILED events as an operational alert with a retry path."
+    },
+    {
+      "name": "Customer balance drill-down",
+      "command": "customer balance",
+      "description": "Render a one-screen financial snapshot for a single customer: outstanding invoices, active subscriptions, payment methods, and CFDI linkage."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 84,
+    "total": 84,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 96,
+      "grade": "A (1 of 25 dimensions unverified: live_api_verification)",
+      "total": 96
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "productive-sync-pagination-page-number",
+  "applied_at": "2026-07-11",
+  "base_run_id": "20260704-155923-ab89631d",
+  "base_printing_press_version": "4.27.1",
+  "summary": "sync pagination defaults changed from cursor-based (after/\"\") to page-number (page[number]/page) for all 49 resources.",
+  "reason": "The generation-time profiler mis-detected Productive's paginator as cursor-based. Productive lists advance with page[number], so the after-cursor extractor never found a cursor and the numeric page fallback (gated on cursorType==\"page\") never ran — sync stopped after page 1 and left the local SQLite mirror incomplete for larger resources.",
+  "files": ["internal/cli/sync.go"],
+  "validated_outcome": "Live sync of time_entries with the fixed binary fetched 7300+ rows across 70+ pages (was capped at ~100 before)."
+}

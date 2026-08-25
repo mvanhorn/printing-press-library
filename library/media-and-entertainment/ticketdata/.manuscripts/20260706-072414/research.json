@@ -1,0 +1,225 @@
+{
+  "api_name": "ticketdata",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-06T14:38:39Z",
+  "novel_features": [
+    {
+      "name": "Watchlist management",
+      "command": "watch",
+      "description": "Track a set of events locally so one sync re-fetches all their current prices.",
+      "rationale": "TicketData has no list or browse endpoint, so the tracked set can only exist in the local store this CLI owns.",
+      "example": "ticketdata-pp-cli watch add 22323960",
+      "why_it_matters": "Reach for this first: everything downstream (board, drift, stats, compare) reads the watchlist the CLI syncs.",
+      "group": "Local price store that compounds"
+    },
+    {
+      "name": "Watchlist price board",
+      "command": "board",
+      "description": "One sortable table of every watched event: get-in price, N-day change, forecast direction, and where today sits in its own history.",
+      "rationale": "Joins local snapshots and price history across all watched events in one view no single TicketData call returns.",
+      "example": "ticketdata-pp-cli board --sort change --agent",
+      "why_it_matters": "Use it for a whole-watchlist snapshot; for what changed since last sync use drift, for one event's distribution use stats.",
+      "group": "Local price store that compounds"
+    },
+    {
+      "name": "Drift and target alerts",
+      "command": "drift",
+      "description": "Diff the two most recent snapshots per watched event, flag floors that moved past a threshold, and fire price-target hits.",
+      "rationale": "A temporal diff over locally stored snapshots; TicketData exposes no what-changed-since call.",
+      "example": "ticketdata-pp-cli drift --threshold 10 --target 22323960=150 --agent",
+      "why_it_matters": "Use it for what moved since the last sync and for buy-when-it-hits-my-price alerts.",
+      "group": "Local price store that compounds"
+    },
+    {
+      "name": "History stats and best time to buy",
+      "command": "stats",
+      "description": "Historical low/high, median, current percentile, volatility, and the weekday the floor is typically lowest, from the local price series.",
+      "rationale": "Distribution and seasonality math over hundreds of stored points; the site shows only a chart and one forecast number.",
+      "example": "ticketdata-pp-cli stats 22323960 --agent",
+      "why_it_matters": "Use it to judge whether today's get-in price is actually low for one event and which day tends to be cheapest.",
+      "group": "Price intelligence the site chart hides"
+    },
+    {
+      "name": "Cross-event comparison",
+      "command": "compare",
+      "description": "Rank multiple watched events, or all of one performer's watched events, by get-in price and percent change.",
+      "rationale": "Ranks across multiple locally stored event rows; TicketData has no multi-event endpoint.",
+      "example": "ticketdata-pp-cli compare --performer ariana-grande --agent",
+      "why_it_matters": "Use it to pick the cheapest city or date; for a single event's own history use stats.",
+      "group": "Price intelligence the site chart hides"
+    },
+    {
+      "name": "Best-zone opportunity finder",
+      "command": "zones",
+      "description": "Rank an event's zones by current get-in price and by each zone's drop versus its own history to surface the underpriced section.",
+      "rationale": "Cross-zone opportunity ranking from the stored per-zone series; the site shows per-zone charts but never ranks them.",
+      "example": "ticketdata-pp-cli zones 22323960 --agent",
+      "why_it_matters": "Use it to pick a section by value; for the plain section-name catalog use events sections.",
+      "group": "Price intelligence the site chart hides"
+    },
+    {
+      "name": "Offline multi-result search",
+      "command": "search",
+      "description": "Local full-text search across synced events, performers, and venues, returning multiple matches.",
+      "rationale": "TicketData's resolvers return only a single best match; local FTS returns the whole match set.",
+      "example": "ticketdata-pp-cli search \"ariana\" --type performers --agent",
+      "why_it_matters": "Use it to browse offline matches; for the single canonical resolve of a name use performers search or venues search.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Watchlist management",
+      "command": "watch",
+      "description": "Track a set of events locally so one sync re-fetches all their current prices.",
+      "rationale": "TicketData has no list or browse endpoint, so the tracked set can only exist in the local store this CLI owns.",
+      "example": "ticketdata-pp-cli watch add 22323960",
+      "why_it_matters": "Reach for this first: everything downstream (board, drift, stats, compare) reads the watchlist the CLI syncs.",
+      "group": "Local price store that compounds"
+    },
+    {
+      "name": "Watchlist price board",
+      "command": "board",
+      "description": "One sortable table of every watched event: get-in price, N-day change, forecast direction, and where today sits in its own history.",
+      "rationale": "Joins local snapshots and price history across all watched events in one view no single TicketData call returns.",
+      "example": "ticketdata-pp-cli board --sort change --agent",
+      "why_it_matters": "Use it for a whole-watchlist snapshot; for what changed since last sync use drift, for one event's distribution use stats.",
+      "group": "Local price store that compounds"
+    },
+    {
+      "name": "Drift and target alerts",
+      "command": "drift",
+      "description": "Diff the two most recent snapshots per watched event, flag floors that moved past a threshold, and fire price-target hits.",
+      "rationale": "A temporal diff over locally stored snapshots; TicketData exposes no what-changed-since call.",
+      "example": "ticketdata-pp-cli drift --threshold 10 --target 22323960=150 --agent",
+      "why_it_matters": "Use it for what moved since the last sync and for buy-when-it-hits-my-price alerts.",
+      "group": "Local price store that compounds"
+    },
+    {
+      "name": "History stats and best time to buy",
+      "command": "stats",
+      "description": "Historical low/high, median, current percentile, volatility, and the weekday the floor is typically lowest, from the local price series.",
+      "rationale": "Distribution and seasonality math over hundreds of stored points; the site shows only a chart and one forecast number.",
+      "example": "ticketdata-pp-cli stats 22323960 --agent",
+      "why_it_matters": "Use it to judge whether today's get-in price is actually low for one event and which day tends to be cheapest.",
+      "group": "Price intelligence the site chart hides"
+    },
+    {
+      "name": "Cross-event comparison",
+      "command": "compare",
+      "description": "Rank multiple watched events, or all of one performer's watched events, by get-in price and percent change.",
+      "rationale": "Ranks across multiple locally stored event rows; TicketData has no multi-event endpoint.",
+      "example": "ticketdata-pp-cli compare --performer ariana-grande --agent",
+      "why_it_matters": "Use it to pick the cheapest city or date; for a single event's own history use stats.",
+      "group": "Price intelligence the site chart hides"
+    },
+    {
+      "name": "Best-zone opportunity finder",
+      "command": "zones",
+      "description": "Rank an event's zones by current get-in price and by each zone's drop versus its own history to surface the underpriced section.",
+      "rationale": "Cross-zone opportunity ranking from the stored per-zone series; the site shows per-zone charts but never ranks them.",
+      "example": "ticketdata-pp-cli zones 22323960 --agent",
+      "why_it_matters": "Use it to pick a section by value; for the plain section-name catalog use events sections.",
+      "group": "Price intelligence the site chart hides"
+    },
+    {
+      "name": "Offline multi-result search",
+      "command": "search",
+      "description": "Local full-text search across synced events, performers, and venues, returning multiple matches.",
+      "rationale": "TicketData's resolvers return only a single best match; local FTS returns the whole match set.",
+      "example": "ticketdata-pp-cli search \"ariana\" --type performers --agent",
+      "why_it_matters": "Use it to browse offline matches; for the single canonical resolve of a name use performers search or venues search.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "TicketData",
+    "headline": "Every TicketData price signal for any event, performer, or venue, plus a local price-history store for trend math, drift alerts, and cross-event comparisons no ticket tool ships.",
+    "value_prop": "TicketData tracks each event's get-in price (the lowest all-in resale price across marketplaces), its full price history, a forecast, and 3/7/14/30-day change. This CLI exposes all of it as scriptable, agent-native JSON and keeps the raw price series in local SQLite, so `stats` can compute historical lows and volatility, `drift` can alert when a floor drops to your target, `board` can rank your whole watchlist, and `compare` can pick the cheapest date, none of which the website surfaces.",
+    "auth_narrative": "No account or API key. TicketData's public data API is open; this CLI reads it directly.",
+    "quickstart": [
+      {
+        "command": "ticketdata-pp-cli doctor --dry-run",
+        "comment": "Confirm the CLI can reach the TicketData data API."
+      },
+      {
+        "command": "ticketdata-pp-cli performers search --query \"ariana grande\"",
+        "comment": "Resolve a name to its canonical performer and stats."
+      },
+      {
+        "command": "ticketdata-pp-cli events get 22323960 --agent",
+        "comment": "Get an event's current get-in price, forecast, and N-day change."
+      },
+      {
+        "command": "ticketdata-pp-cli watch add 22323960",
+        "comment": "Track the event so sync starts building its local history."
+      },
+      {
+        "command": "ticketdata-pp-cli stats 22323960 --agent",
+        "comment": "See the historical low, percentile, and best day to buy."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "A command returns an empty board or 'no data' for stats/drift/compare",
+        "fix": "Run `ticketdata-pp-cli sync` first; these read the local store, which is empty until you watch events and sync."
+      },
+      {
+        "symptom": "Intermittent HTTP 403 / Cloudflare challenge",
+        "fix": "Retry; the CLI ships a Chrome-fingerprint HTTP transport that clears it. Persistent 403s usually mean a transient challenge, not a block."
+      },
+      {
+        "symptom": "events get returns found=false",
+        "fix": "The event id no longer exists on TicketData. Re-resolve it with `performers search` then look up the performer's current events on the site."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need TicketData's get-in price, price history, forecast, or N-day change for specific events, performers, or venues, and especially when you want to track a set of events over time, compute historical price stats, alert on price drops, or compare events, all offline and scriptable. It is ideal for agents answering 'is this ticket cheap right now', 'when should I buy', or 'which of these dates is cheapest'.",
+    "anti_triggers": [
+      "Do not use this CLI to buy, sell, or list tickets; TicketData is a price tracker, not a marketplace. Use the marketplace buy links from `events get` and complete the purchase there.",
+      "Do not use it to browse or discover all events in a category; TicketData exposes no list/browse API, so this CLI works from event ids and performer/venue slugs you already have or resolve by name.",
+      "Do not use it for primary on-sale ticket purchasing or seat selection; use the marketplace or box office."
+    ],
+    "recipes": [
+      {
+        "title": "Is this ticket cheap right now?",
+        "command": "ticketdata-pp-cli watch add 22323960 \u0026\u0026 ticketdata-pp-cli sync \u0026\u0026 ticketdata-pp-cli stats 22323960 --agent",
+        "explanation": "Track the event, pull its history, and see where today's get-in price sits in its own distribution."
+      },
+      {
+        "title": "Alert me when a floor drops to my price",
+        "command": "ticketdata-pp-cli drift --target 22323960=150 --threshold 8 --agent",
+        "explanation": "Flags target hits and any floor that moved more than 8% since the last sync."
+      },
+      {
+        "title": "Which date is cheapest for this artist?",
+        "command": "ticketdata-pp-cli compare --performer ariana-grande --agent",
+        "explanation": "Ranks all of the performer's watched events by get-in price and percent change."
+      },
+      {
+        "title": "Narrow a large event payload for an agent",
+        "command": "ticketdata-pp-cli events get 22323960 --agent --select tickets.get_in_price,tickets.number_of_listings,forecast_value,price_trend.direction",
+        "explanation": "Pulls only the decision-relevant fields from the verbose event response using dotted select paths."
+      },
+      {
+        "title": "Find the best-value section",
+        "command": "ticketdata-pp-cli zones 22323960 --agent",
+        "explanation": "Ranks the event's zones by current get-in price and by each zone's drop versus its own history."
+      }
+    ],
+    "trigger_phrases": [
+      "get-in price for",
+      "ticketdata price for",
+      "when should I buy tickets to",
+      "price history for",
+      "is this ticket cheap right now",
+      "which date is cheapest for",
+      "use ticketdata",
+      "run ticketdata"
+    ]
+  }
+}

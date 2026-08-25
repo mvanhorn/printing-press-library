@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "catalog-go-1266-vuln-floor",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260514-212234",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Raise the published CLI Go toolchain floor to 1.26.6 so the crypto/tls, encoding/asn1, net/http and net/url standard-library fixes are enforced by go install.",
+  "reason": "govulncheck reported four reachable standard-library vulnerabilities (GO-2026-6218, GO-2026-6090, GO-2026-5972, GO-2026-5026) against the go 1.26.5 directive, all fixed in go1.26.6. README.md and SKILL.md already told users to install with Go 1.26.6 or newer, so the module directive was the one surface still trailing its own documentation.",
+  "files": ["go.mod"],
+  "validated_outcome": "govulncheck ./... reports No vulnerabilities found after the bump. The repo-level .go-version was already 1.26.6, so the CI pincer described for this gate does not apply: no shared file needed to change alongside the module."
+}

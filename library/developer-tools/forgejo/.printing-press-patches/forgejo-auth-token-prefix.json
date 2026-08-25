@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "forgejo-auth-token-prefix",
+  "applied_at": "2026-05-25",
+  "base_run_id": "20260524-172642",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Fix AuthHeader() to return 'token <value>' instead of raw token.",
+  "reason": "Forgejo API requires 'Authorization: token <key>' scheme; missing prefix caused 403 on all authenticated calls.",
+  "files": [
+    "internal/config/config.go"
+  ],
+  "validated_outcome": "fj user get-current returned 200 with is_admin:true after fix."
+}

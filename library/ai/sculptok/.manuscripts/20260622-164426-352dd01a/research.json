@@ -1,0 +1,226 @@
+{
+  "api_name": "sculptok",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-22T22:10:00Z",
+  "novel_features": [
+    {
+      "name": "One-command depth-map generate",
+      "command": "generate depthmap",
+      "description": "Turn a local image into SculptOK depth-map candidates in one command: upload, submit, auto-poll to completion, and download the results.",
+      "rationale": "Chains four async endpoints (upload, submit, poll status, download imgRecords) and persists the job locally; the web app and any single API call force a manual submit-then-refresh-then-download loop.",
+      "example": "sculptok-pp-cli generate depthmap photo.jpg --style pro --dry-run",
+      "why_it_matters": "Reach for this whenever a user wants a depth map or relief from an image without babysitting an async job.",
+      "group": "One-command generation"
+    },
+    {
+      "name": "One-command image-to-STL",
+      "command": "generate stl",
+      "description": "Convert a local image straight to a printable STL with full thickness, width, invert, and scale control, polled to completion and saved.",
+      "rationale": "Wraps upload plus the async /draw/stl/prompt plus polling plus download with the documented print parameters as flags; no single API call returns a finished STL.",
+      "example": "sculptok-pp-cli generate stl logo.png --width-mm 120 --max-thickness 5 --dry-run",
+      "why_it_matters": "Use this to go from a photo or logo to a 3D-printable mesh for lithophanes and relief plaques.",
+      "group": "One-command generation"
+    },
+    {
+      "name": "One-command 3D model generate",
+      "command": "generate threed",
+      "description": "Generate a 3D model from a local image at basic, standard, or high precision, polled and downloaded automatically.",
+      "rationale": "Chains upload, the async /draw/3d/prompt, polling, and download into one persisted job; the API only exposes a submit-then-poll primitive.",
+      "example": "sculptok-pp-cli generate threed bust.jpg --hd-fix high --dry-run",
+      "why_it_matters": "Pick this when the goal is a full 3D model rather than a 2.5D relief.",
+      "group": "One-command generation"
+    },
+    {
+      "name": "Credit-cost preflight estimator",
+      "command": "cost",
+      "description": "Estimate exactly how many credits a draw or a whole batch would cost and compare it against your live balance before spending anything.",
+      "rationale": "Joins the documented per-kind/version cost table with the live /point/info balance; SculptOK has no estimate endpoint and credits are easy to burn on pro/4k draws.",
+      "example": "sculptok-pp-cli cost depthmap --style pro --draw-hd 4k --batch ./photos",
+      "why_it_matters": "Run this before any paid generation to avoid surprise credit burn, especially for batches and 4k/pro draws.",
+      "group": "Credit awareness"
+    },
+    {
+      "name": "Spend analytics by kind and day",
+      "command": "analytics",
+      "description": "Aggregate your locally synced credit events by action type to see where credits actually went.",
+      "rationale": "The API exposes only raw paged credit history with no aggregation; this runs offline over the local SQLite mirror.",
+      "example": "sculptok-pp-cli analytics --type credits --group-by actionType",
+      "why_it_matters": "Use this to understand historical credit spend; pair it with cost for forward estimates.",
+      "group": "Credit awareness"
+    },
+    {
+      "name": "Reconcile credits against jobs",
+      "command": "reconcile",
+      "description": "Cross-check synced credit charges against produced draw jobs to surface credits spent with no matching result.",
+      "rationale": "Joins two separate paged endpoints (credit history and drawing history) locally, which no single API call can do.",
+      "example": "sculptok-pp-cli reconcile --db ./sculptok.db",
+      "why_it_matters": "Reach for this to audit whether every credit charge produced a usable job.",
+      "group": "Credit awareness"
+    },
+    {
+      "name": "Offline job search",
+      "command": "search",
+      "description": "Full-text search your local mirror of draws and credit events by kind, status, or parameters without any API call.",
+      "rationale": "SculptOK has no search endpoint and relief competitors are web-only; this works entirely against the local SQLite store.",
+      "example": "sculptok-pp-cli search \"stl\" --type jobs --limit 20",
+      "why_it_matters": "Use this to find a past job and the settings that produced a good result.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "One-command depth-map generate",
+      "command": "generate depthmap",
+      "description": "Turn a local image into SculptOK depth-map candidates in one command: upload, submit, auto-poll to completion, and download the results.",
+      "rationale": "Chains four async endpoints (upload, submit, poll status, download imgRecords) and persists the job locally; the web app and any single API call force a manual submit-then-refresh-then-download loop.",
+      "example": "sculptok-pp-cli generate depthmap photo.jpg --style pro --dry-run",
+      "why_it_matters": "Reach for this whenever a user wants a depth map or relief from an image without babysitting an async job.",
+      "group": "One-command generation"
+    },
+    {
+      "name": "One-command image-to-STL",
+      "command": "generate stl",
+      "description": "Convert a local image straight to a printable STL with full thickness, width, invert, and scale control, polled to completion and saved.",
+      "rationale": "Wraps upload plus the async /draw/stl/prompt plus polling plus download with the documented print parameters as flags; no single API call returns a finished STL.",
+      "example": "sculptok-pp-cli generate stl logo.png --width-mm 120 --max-thickness 5 --dry-run",
+      "why_it_matters": "Use this to go from a photo or logo to a 3D-printable mesh for lithophanes and relief plaques.",
+      "group": "One-command generation"
+    },
+    {
+      "name": "One-command 3D model generate",
+      "command": "generate threed",
+      "description": "Generate a 3D model from a local image at basic, standard, or high precision, polled and downloaded automatically.",
+      "rationale": "Chains upload, the async /draw/3d/prompt, polling, and download into one persisted job; the API only exposes a submit-then-poll primitive.",
+      "example": "sculptok-pp-cli generate threed bust.jpg --hd-fix high --dry-run",
+      "why_it_matters": "Pick this when the goal is a full 3D model rather than a 2.5D relief.",
+      "group": "One-command generation"
+    },
+    {
+      "name": "Credit-cost preflight estimator",
+      "command": "cost",
+      "description": "Estimate exactly how many credits a draw or a whole batch would cost and compare it against your live balance before spending anything.",
+      "rationale": "Joins the documented per-kind/version cost table with the live /point/info balance; SculptOK has no estimate endpoint and credits are easy to burn on pro/4k draws.",
+      "example": "sculptok-pp-cli cost depthmap --style pro --draw-hd 4k --batch ./photos",
+      "why_it_matters": "Run this before any paid generation to avoid surprise credit burn, especially for batches and 4k/pro draws.",
+      "group": "Credit awareness"
+    },
+    {
+      "name": "Spend analytics by kind and day",
+      "command": "analytics",
+      "description": "Aggregate your locally synced credit events by action type to see where credits actually went.",
+      "rationale": "The API exposes only raw paged credit history with no aggregation; this runs offline over the local SQLite mirror.",
+      "example": "sculptok-pp-cli analytics --type credits --group-by actionType",
+      "why_it_matters": "Use this to understand historical credit spend; pair it with cost for forward estimates.",
+      "group": "Credit awareness"
+    },
+    {
+      "name": "Reconcile credits against jobs",
+      "command": "reconcile",
+      "description": "Cross-check synced credit charges against produced draw jobs to surface credits spent with no matching result.",
+      "rationale": "Joins two separate paged endpoints (credit history and drawing history) locally, which no single API call can do.",
+      "example": "sculptok-pp-cli reconcile --db ./sculptok.db",
+      "why_it_matters": "Reach for this to audit whether every credit charge produced a usable job.",
+      "group": "Credit awareness"
+    },
+    {
+      "name": "Offline job search",
+      "command": "search",
+      "description": "Full-text search your local mirror of draws and credit events by kind, status, or parameters without any API call.",
+      "rationale": "SculptOK has no search endpoint and relief competitors are web-only; this works entirely against the local SQLite store.",
+      "example": "sculptok-pp-cli search \"stl\" --type jobs --limit 20",
+      "why_it_matters": "Use this to find a past job and the settings that produced a good result.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SCULPTOK_API_KEY"
+  },
+  "narrative": {
+    "display_name": "SculptOK",
+    "headline": "The first CLI and MCP for SculptOK: turn a local image into a depth map, printable STL, or 3D model in one command, with credit-cost preflight and a local job store no other tool has.",
+    "value_prop": "SculptOK's web tool is async and credit-metered: you upload, submit a draw, wait, refresh, then download. This CLI collapses that into one command (generate depthmap/stl/threed/restore) that uploads a local image, previews the credit cost, polls to completion, and saves the results. Every draw, credit event, and upload is mirrored into a local SQLite database so you can search past jobs offline, track spend by kind with analytics, and reconcile credits against produced jobs.",
+    "auth_narrative": "SculptOK uses a single API key sent in the apikey header. Create a key in the logged-in SculptOK dashboard (it is shown only once), then set SCULPTOK_API_KEY or run the auth command. Credits are shared with the web app; reads (credits, history, status) are free, while draws cost credits (depth-map 10, pro 2k 15, pro 4k 30; background/HD 2; 3D 10; STL 3).",
+    "quickstart": [
+      {
+        "command": "sculptok-pp-cli doctor --dry-run",
+        "comment": "Health check that works without credentials before anything else."
+      },
+      {
+        "command": "sculptok-pp-cli credits balance",
+        "comment": "Free read: confirm your API key works and see your credit balance."
+      },
+      {
+        "command": "sculptok-pp-cli cost depthmap --style pro --draw-hd 4k",
+        "comment": "See what a draw would cost before spending credits."
+      },
+      {
+        "command": "sculptok-pp-cli generate depthmap photo.jpg --dry-run",
+        "comment": "Dry-run the headline workflow to see the planned upload and draw without spending credits."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Commands return an empty data object or an apikey error",
+        "fix": "Set SCULPTOK_API_KEY to a valid key from the SculptOK dashboard; code 10020 means the key is missing and 10021 means it is invalid."
+      },
+      {
+        "symptom": "A generate command seems to hang",
+        "fix": "Draws are async and queued; raise --timeout or check queue position with draw status --uuid \u003cpromptId\u003e."
+      },
+      {
+        "symptom": "A draw fails with insufficient credits",
+        "fix": "Run cost \u003ckind\u003e first and account credits to confirm balance; draws cost 2-30 credits depending on kind and resolution."
+      },
+      {
+        "symptom": "Offline search or analytics returns nothing",
+        "fix": "Run sync --resources credits,drawings first to populate the local SQLite mirror."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or script needs to turn images into depth maps, reliefs, printable STLs, or 3D models via SculptOK without driving the web UI. It is ideal for batch asset pipelines, credit-aware automation, and answering questions about past jobs and credit spend from a local store.",
+    "anti_triggers": [
+      "Do not use this CLI to edit depth-map geometry by hand; SculptOK generation is AI-driven and the output is post-processed in CAD/CAM tools.",
+      "Do not use this CLI for SculptOK web-app-only tools (AI image generator, pixel upscale, DXF/SVG) that are not part of the public api-open API.",
+      "Do not use this CLI to buy credits or manage billing; credit purchase happens in the SculptOK web dashboard."
+    ],
+    "recipes": [
+      {
+        "title": "Depth map from a photo, picking lean fields",
+        "command": "sculptok-pp-cli generate depthmap portrait.jpg --style pro --agent --select promptId,status,imgRecords",
+        "explanation": "Generates depth-map candidates and returns only the job id, status, and result URLs so an agent does not parse the full job envelope."
+      },
+      {
+        "title": "Printable STL with explicit thickness",
+        "command": "sculptok-pp-cli generate stl logo.png --width-mm 120 --min-thickness 1.6 --max-thickness 5 --invert",
+        "explanation": "Produces a printable STL with documented thickness and width and inverted grayscale for a recessed relief."
+      },
+      {
+        "title": "Clean then carve in one step",
+        "command": "sculptok-pp-cli generate depthmap jewelry.jpg --restore-first --style pro",
+        "explanation": "Runs background removal plus HD restoration first, then depth-maps the cleaned image, persisting both jobs."
+      },
+      {
+        "title": "Estimate a batch before spending",
+        "command": "sculptok-pp-cli cost stl --batch ./photos",
+        "explanation": "Sums the credit cost of converting every image in a folder to STL and compares it to your live balance."
+      },
+      {
+        "title": "Find the settings that worked",
+        "command": "sculptok-pp-cli search \"depthmap\" --type jobs --limit 10 --agent",
+        "explanation": "Searches the local job mirror for past depth-map runs so you can reuse the parameters that produced a good carve."
+      }
+    ],
+    "trigger_phrases": [
+      "make a depth map from this image",
+      "convert this photo to an STL",
+      "generate a 3D relief",
+      "how many SculptOK credits will this cost",
+      "check my SculptOK credits",
+      "use sculptok",
+      "run sculptok"
+    ]
+  }
+}

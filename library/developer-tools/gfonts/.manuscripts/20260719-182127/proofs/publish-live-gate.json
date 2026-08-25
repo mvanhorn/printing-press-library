@@ -1,0 +1,279 @@
+{
+  "dir": "/home/morpheus/printing-press/library/gfonts",
+  "binary": "/home/morpheus/printing-press/library/gfonts/gfonts-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 17,
+  "passed": 17,
+  "failed": 0,
+  "skipped": 11,
+  "commands": [
+    "categories",
+    "download",
+    "info",
+    "list",
+    "random",
+    "search",
+    "trending"
+  ],
+  "tests": [
+    {
+      "command": "categories",
+      "kind": "help",
+      "args": [
+        "categories",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Usage:\n  gfonts categories\n\nList all font categories with font counts.\n\nOptions:\n  (none)\n\nExamples:\n  gfonts categories\n"
+    },
+    {
+      "command": "categories",
+      "kind": "happy_path",
+      "args": [
+        "categories"
+      ],
+      "status": "pass",
+      "output_sample": "Font Categories (1942 total fonts):\n\n  Sans Serif           717 fonts\n  Display              467 fonts\n  Handwriting          358 fonts\n  Serif                349 fonts\n  Monospace            51 fonts\n"
+    },
+    {
+      "command": "categories",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "--json not supported"
+    },
+    {
+      "command": "categories",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "download",
+      "kind": "help",
+      "args": [
+        "download",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Usage:\n  gfonts download \u003cfont\u003e [--variant \u003cvariant\u003e] [--output \u003cdir\u003e] [--show]\n\nDownload font files to a local directory.\n\nOptions:\n  --variant, -v    Download a specific variant (e.g. regular, 700, italic)\n  --output, -o     Output directory (default: the font name)\n  --show, -s       Show download URLs without downloading\n\nExamples:\n  gfonts download \"Inter\" --variant regular --output ./my-fonts\n  gfonts download \"Playfair Display\" --show\n"
+    },
+    {
+      "command": "download",
+      "kind": "happy_path",
+      "args": [
+        "download",
+        "Inter",
+        "--variant",
+        "regular",
+        "--output",
+        "/tmp/gfonts-dogfood-download"
+      ],
+      "status": "pass",
+      "output_sample": "  ✓ /tmp/gfonts-dogfood-download/Inter-regular.ttf\n\nDownloaded 1 file(s) to /tmp/gfonts-dogfood-download/\nFetching CSS for Inter...\nDownloading Inter-regular.ttf...\n"
+    },
+    {
+      "command": "download",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "--json not supported"
+    },
+    {
+      "command": "download",
+      "kind": "error_path",
+      "args": [
+        "download",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Font \"__printing_press_invalid__\" not found.\n"
+    },
+    {
+      "command": "info",
+      "kind": "help",
+      "args": [
+        "info",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Usage:\n  gfonts info \u003cfont\u003e\n\nShow detailed metadata for a specific font family.\n\nOptions:\n  (none)\n\nExamples:\n  gfonts info \"Inter\"\n  gfonts info \"Playfair Display\"\n"
+    },
+    {
+      "command": "info",
+      "kind": "happy_path",
+      "args": [
+        "info",
+        "Inter"
+      ],
+      "status": "pass",
+      "output_sample": "Font: Inter\nCategory: Sans Serif\nDesigner(s): Rasmus Andersson\nPopularity Rank: #5\nTrending Rank: #900\nLast Modified: 2025-09-10\nDate Added: 2020-01-24\nOpen Source: true\nVariants (18): 100, 200, 300, 500, 600, 700, 800, 900, 100i, 200i, 300i, 400, 400i, 500i, 600i, 700i, 800i, 900i\nSubsets (8): menu, cyrillic, cyrillic-ext, greek, greek-ext, latin, latin-ext, vietnamese\n\nFetch download URLs: gfonts download \"Inter\"\n"
+    },
+    {
+      "command": "info",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "--json not supported"
+    },
+    {
+      "command": "info",
+      "kind": "error_path",
+      "args": [
+        "info",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Font \"__printing_press_invalid__\" not found.\n"
+    },
+    {
+      "command": "list",
+      "kind": "help",
+      "args": [
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Usage:\n  gfonts list [--category \u003ccategory\u003e] [--sort \u003csort\u003e] [--limit \u003climit\u003e]\n\nList fonts with optional category filter, sort order, and result limit.\n\nOptions:\n  --category, -c    Filter by category (serif, sans-serif, display, etc.)\n  --sort, -s        Sort by: popularity (default), alpha, date, trending\n  --limit, -n       Number of results (default 20)\n\nExamples:\n  gfonts list --category sans-serif --sort trending --limit 10\n  gfonts list --sort alpha --limit 5\n"
+    },
+    {
+      "command": "list",
+      "kind": "happy_path",
+      "args": [
+        "list",
+        "--category",
+        "sans-serif",
+        "--sort",
+        "trending",
+        "--limit",
+        "10"
+      ],
+      "status": "pass",
+      "output_sample": "Google Fonts [sans-serif] (0 showing of 0):\n\n"
+    },
+    {
+      "command": "list",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "--json not supported"
+    },
+    {
+      "command": "list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "random",
+      "kind": "help",
+      "args": [
+        "random",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Usage:\n  gfonts random [--category \u003ccategory\u003e]\n\nPick a random font, optionally restricted to a category.\n\nOptions:\n  --category, -c    Only pick from this category (serif, sans-serif, display, etc.)\n\nExamples:\n  gfonts random --category display\n  gfonts random\n"
+    },
+    {
+      "command": "random",
+      "kind": "happy_path",
+      "args": [
+        "random",
+        "--category",
+        "display"
+      ],
+      "status": "pass",
+      "output_sample": "🎲 Cherry Swash [Display] by Nataliya Kasatkina — 2 variants (popularity #817)\n   Try: gfonts download \"Cherry Swash\"\n"
+    },
+    {
+      "command": "random",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "--json not supported"
+    },
+    {
+      "command": "random",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Usage:\n  gfonts search \u003cquery\u003e\n\nSearch fonts by name, category, or designer.\n\nOptions:\n  (none)\n\nExamples:\n  gfonts search \"Inter\"\n  gfonts search \"Playfair Display\"\n  gfonts search \"sans-serif\"\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": [
+        "search",
+        "Inter"
+      ],
+      "status": "pass",
+      "output_sample": "Found 29 font(s) matching \"Inter\":\n\n  Abyssinica SIL                           [Serif]  1 variants — SIL International\n  Akatab                                   [Sans Serif]  6 variants — SIL International\n  Alkalami                                 [Serif]  1 variants — SIL International\n  Andika                                   [Sans Serif]  4 variants — SIL International\n  Annapurna SIL                            [Serif]  2 variants — SIL International\n  BJCree                                   [Serif]  4 variants — SIL International\n  Charis SIL                               [Serif]  4 variants — SIL International\n  Dai Banna SIL                            [Serif]  10 variants — SIL International\n  David Libre                              [Serif]  3 variants — Monotype Imaging Inc., SIL International, Meir Sadan\n  Gentium Book Plus                        [Serif]  4 variants — SIL International\n  Gentium Plus                             [Serif]  4 variants — SIL International\n  Harmattan                                [Sans Serif]  4 variants — SIL International\n  Idiqlat                                  [Serif]  3 variants — SIL International\n  Inter                                    [Sans Serif]  18 variants — Rasmus Andersson\n  Inter Tight                              [Sans Serif]  18 variants — Rasmus Andersson\n  Kay Pho Du                               [Serif]  4 variants — SIL International\n  Kedebideri                               [Sans Serif]  6 variants — SIL International\n  Lateef                                   [Serif]  7 variants — SIL International\n  Lisu Bosa                                [Serif]  16 variants — SIL International\n  Mingzat                                  [Sans Serif]  1 variants — SIL International\n  Namdhinggo                               [Serif]  5 variants — SIL International\n  Narnoor                                  [Sans Serif]  5 variants — SIL International\n  Nuosu SIL                                [Sans Serif]  1 variants — SIL International\n  Padauk                                   [Sans Serif]  2 variants — SIL International\n  Ramsina                                  [Serif]  1 variants — SIL International\n\n  ... and 4 more. Refine your search.\n"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "--json not supported"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "output_sample": "No fonts found matching \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "trending",
+      "kind": "help",
+      "args": [
+        "trending",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Usage:\n  gfonts trending\n\nShow the most trending Google Fonts right now.\n\nOptions:\n  (none)\n\nExamples:\n  gfonts trending\n"
+    },
+    {
+      "command": "trending",
+      "kind": "happy_path",
+      "args": [
+        "trending"
+      ],
+      "status": "pass",
+      "output_sample": "Top 15 trending Google Fonts:\n\n    1. Playwrite BR Guides                      [Handwriting]  1 variants — TypeTogether, Veronika Burian, José Scaglione\n    2. Playwrite DE LA Guides                   [Handwriting]  1 variants — TypeTogether, Veronika Burian, José Scaglione\n    3. Noto Sans Siddham                        [Sans Serif]  1 variants — Google\n    4. Playwrite DE SAS Guides                  [Handwriting]  1 variants — TypeTogether, Veronika Burian, José Scaglione\n    5. Noto Sans Bhaiksuki                      [Sans Serif]  1 variants — Google\n    6. Noto Sans Tamil Supplement               [Sans Serif]  1 variants — Google\n    7. Playwrite VN                             [Handwriting]  4 variants — TypeTogether, Veronika Burian, José Scaglione\n    8. Noto Sans Syloti Nagri                   [Sans Serif]  1 variants — Google\n    9. Noto Sans Khudawadi                      [Sans Serif]  1 variants — Google\n   10. Jacquarda Bastarda 9                     [Display]  1 variants — Sarah Cadigan-Fried\n   11. Kdam Thmor Pro                           [Sans Serif]  1 variants — Tep Sovichet, Hak Longdey\n   12. Slackside One                            [Handwriting]  1 variants — Maniackers Design\n   13. Rubik Spray Paint                        [Display]  1 variants — NaN, Luke Prowse\n   14. Elsie                                    [Display]  2 variants — Alejandro Inler\n   15. Noto Serif Tibetan                       [Serif]  9 variants — Google\n"
+    },
+    {
+      "command": "trending",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "--json not supported"
+    },
+    {
+      "command": "trending",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-08-21T11:16:46.897673359Z"
+}

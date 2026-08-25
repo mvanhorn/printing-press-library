@@ -80,6 +80,16 @@ message ListItem {
   repeated string storeIds = 16;
   repeated PBItemPrice prices = 19;
   repeated PBListItemCategoryAssignment categoryAssignments = 20;
+  PBItemQuantity quantityPb = 21;
+  PBItemQuantity priceQuantityPb = 22;
+  bool priceQuantityShouldOverrideItemQuantity = 23;
+  PBItemPackageSize packageSizePb = 24;
+  PBItemPackageSize pricePackageSizePb = 25;
+  bool pricePackageSizeShouldOverrideItemPackageSize = 26;
+  repeated PBItemIngredient ingredients = 27;
+  bool itemQuantityShouldOverrideIngredientQuantity = 28;
+  bool itemPackageSizeShouldOverrideIngredientPackageSize = 29;
+  string productUpc = 30;
   int32 manualSortIndex = 17;
 }
 
@@ -88,6 +98,51 @@ message PBItemPrice {
   string details = 3;
   string storeId = 4;
   string date = 5;
+}
+
+message PBItemQuantity {
+  string amount = 1;
+  string unit = 2;
+  string rawQuantity = 3;
+}
+
+message PBItemPackageSize {
+  string size = 1;
+  string unit = 2;
+  string packageType = 3;
+  string rawPackageSize = 4;
+}
+
+message PBItemQuantityAndPackageSize {
+  PBItemQuantity quantityPb = 1;
+  PBItemPackageSize packageSizePb = 2;
+}
+
+message PBItemIngredient {
+  PBIngredient ingredient = 1;
+  PBItemQuantity quantityPb = 6;
+  PBItemPackageSize packageSizePb = 7;
+  string recipeId = 2;
+  string eventId = 3;
+  string recipeName = 4;
+  string eventDate = 5;
+}
+
+message PBProductLookupResponse {
+  ListItem listItem = 1;
+  string productThumbnailUrl = 2;
+}
+
+message PBRetailProductSubmission {
+  string identifier = 1;
+  double timestamp = 2;
+  string userId = 3;
+  double submissionTimestamp = 4;
+  string productUpc = 5;
+  string productName = 6;
+  PBItemPackageSize productPackageSize = 7;
+  string productRootTag = 8;
+  int32 submissionStatus = 9;
 }
 
 message PBListFolderItem {

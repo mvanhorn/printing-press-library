@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.6.1"
+var version = "2026.8.10"
 
 type rootFlags struct {
 	asJSON        bool
@@ -106,7 +106,13 @@ Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'granola-pp-cli doctor' to verify auth and connectivity.
 See README.md or the bundled SKILL.md for recipes.`,
 		SilenceUsage: true,
-		Version:      version,
+		// PATCH(single-error-output): cmd/granola-pp-cli/main.go already
+		// prints the error and owns the exit code, so leaving cobra's own
+		// printer enabled emitted every failure twice. Harmless when errors
+		// were one line; the migrated-scheme diagnostic is a paragraph, and
+		// duplicating it buries the remedy it exists to deliver.
+		SilenceErrors: true,
+		Version:       version,
 	}
 	rootCmd.SetVersionTemplate("granola-pp-cli {{ .Version }}\n")
 
@@ -225,6 +231,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newWarmCmd(flags))
 	rootCmd.AddCommand(newShowCmd(flags))
 	rootCmd.AddCommand(newStatsCmd(flags))
+	rootCmd.AddCommand(newDBCmd(flags))
 	rootCmd.AddCommand(newCollectCmd(flags))
 	rootCmd.AddCommand(newRecipesCmd(flags))
 	rootCmd.AddCommand(newWorkspacesCmd(flags))

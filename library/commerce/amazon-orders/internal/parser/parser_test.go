@@ -72,7 +72,9 @@ func TestExtractMoneyWithCurrency(t *testing.T) {
 		{"TOTAL ₹1,234.56", 1234.56, "INR", true},
 		{"TOTAL Rs. 999.00", 999.00, "INR", true},
 		{"TOTAL INR 2,500.00", 2500.00, "INR", true},
-		{"TOTAL $51.46", 51.46, "USD", true},
+		// "$" is ambiguous across dollar marketplaces, so currency is left empty
+		// for the caller to fill from MarketplaceCurrency.
+		{"TOTAL $51.46", 51.46, "", true},
 		{"TOTAL £12.34", 12.34, "GBP", true},
 		{"no money", 0, "", false},
 	}

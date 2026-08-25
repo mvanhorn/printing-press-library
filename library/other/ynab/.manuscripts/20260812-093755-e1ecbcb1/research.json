@@ -1,0 +1,191 @@
+{
+  "api_name": "ynab",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "stephendolan/ynab-cli",
+      "url": "https://github.com/stephendolan/ynab-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 43,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "cli-for-ynab",
+      "url": "https://github.com/borsboom/cli-for-ynab",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 59,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ynab-mcp-server",
+      "url": "https://github.com/calebl/ynab-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 140,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-ynab",
+      "url": "https://github.com/klauern/mcp-ynab",
+      "language": "Python",
+      "install_method": "",
+      "stars": 6,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Export balances (ProjectionLab-shaped)",
+      "command": "export balances",
+      "description": "One-shot export of current account balances reshaped into ProjectionLab's expected schema, ready to sync into a net-worth projection tool.",
+      "rationale": "Requires mapping YNAB's account model (type, on/off-budget) into a downstream tool's schema — a real transformation, not a passthrough.",
+      "example": "ynab-pp-cli export balances --format projectionlab --agent",
+      "why_it_matters": "Use this to feed another finance tool's import step; it's the direct replacement for a hand-maintained account-mapping script.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Reconciliation helper",
+      "command": "accounts reconcile",
+      "description": "Diff the local cleared-transaction total against a bank statement balance and surface the transaction(s) most likely responsible for the gap.",
+      "rationale": "Requires summing locally-mirrored cleared transactions and diffing against a user-supplied figure — no API endpoint does this.",
+      "example": "ynab-pp-cli accounts reconcile a1b2c3d4 --statement-balance 1042.17 --agent",
+      "why_it_matters": "Use this monthly instead of eyeballing a statement line by line.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Payee spend profile",
+      "command": "payees profile",
+      "description": "Aggregated monthly spend stats, average transaction size, and typical categories for a single payee.",
+      "rationale": "Requires local aggregation across a payee's full transaction history by month.",
+      "example": "ynab-pp-cli payees profile a1b2c3d4 --period 6m --agent",
+      "why_it_matters": "Use this to understand a recurring payee's spend pattern rather than scanning raw transaction lists.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Export balances (ProjectionLab-shaped)",
+      "command": "export balances",
+      "description": "One-shot export of current account balances reshaped into ProjectionLab's expected schema, ready to sync into a net-worth projection tool.",
+      "rationale": "Requires mapping YNAB's account model (type, on/off-budget) into a downstream tool's schema — a real transformation, not a passthrough.",
+      "example": "ynab-pp-cli export balances --format projectionlab --agent",
+      "why_it_matters": "Use this to feed another finance tool's import step; it's the direct replacement for a hand-maintained account-mapping script.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Reconciliation helper",
+      "command": "accounts reconcile",
+      "description": "Diff the local cleared-transaction total against a bank statement balance and surface the transaction(s) most likely responsible for the gap.",
+      "rationale": "Requires summing locally-mirrored cleared transactions and diffing against a user-supplied figure — no API endpoint does this.",
+      "example": "ynab-pp-cli accounts reconcile a1b2c3d4 --statement-balance 1042.17 --agent",
+      "why_it_matters": "Use this monthly instead of eyeballing a statement line by line.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Payee spend profile",
+      "command": "payees profile",
+      "description": "Aggregated monthly spend stats, average transaction size, and typical categories for a single payee.",
+      "rationale": "Requires local aggregation across a payee's full transaction history by month.",
+      "example": "ynab-pp-cli payees profile a1b2c3d4 --period 6m --agent",
+      "why_it_matters": "Use this to understand a recurring payee's spend pattern rather than scanning raw transaction lists.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "YNAB_API_TOKEN"
+  },
+  "narrative": {
+    "display_name": "YNAB",
+    "headline": "Every YNAB feature, plus a local mirror that makes reconciliation, payee trend analysis, and a ready-made ProjectionLab export instant instead of manual.",
+    "value_prop": "This CLI mirrors your budget locally so bank reconciliation and payee spend history become instant, offline, agent-native commands instead of manual math against a live API and a 200-request-per-hour ceiling. It also ships a one-shot export shaped for downstream net-worth tools like ProjectionLab.",
+    "auth_narrative": "Uses a YNAB Personal Access Token (Account Settings -\u003e Developer Settings -\u003e New Token in the YNAB web app). Set YNAB_API_TOKEN, or run auth login to store it in the OS keychain.",
+    "quickstart": [
+      {
+        "command": "ynab-pp-cli doctor --dry-run",
+        "comment": "Verify the binary and config resolve before touching the network."
+      },
+      {
+        "command": "ynab-pp-cli plans list",
+        "comment": "Find your plan (budget) ID — everything else is scoped to it."
+      },
+      {
+        "command": "ynab-pp-cli categories get 550e8400-e29b-41d4-a716-446655440000",
+        "comment": "See current-month category balances at a glance."
+      },
+      {
+        "command": "ynab-pp-cli export balances --format projectionlab --agent",
+        "comment": "Get current balances shaped for a downstream net-worth tool."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every command",
+        "fix": "Re-check YNAB_API_TOKEN or run 'ynab-pp-cli auth login' — tokens don't expire but can be revoked from YNAB's Developer Settings."
+      },
+      {
+        "symptom": "429 / rate limited",
+        "fix": "YNAB caps tokens at 200 requests/hour. Narrow --since-date on transaction/list calls and avoid re-fetching the same data in a tight loop."
+      },
+      {
+        "symptom": "Amounts look 1000x too large or too small",
+        "fix": "The raw API uses milliunits; this CLI converts to/from whole currency units at the boundary automatically — don't do the math yourself."
+      }
+    ],
+    "when_to_use": "Reach for this CLI for anything touching a YNAB budget: reading balances/categories/transactions, entering or approving transactions, funding categories, and — distinctly — trend/forecast/reconciliation questions that need history the live API doesn't retain.",
+    "anti_triggers": [
+      "Do not use this CLI to manage non-YNAB institutions (bank, brokerage, credit union) directly — it only talks to YNAB.",
+      "Do not use this CLI to create YNAB categories, category groups, or payees — the YNAB API itself doesn't support that; use the YNAB app.",
+      "Do not use 'export balances' as a general-purpose account API; it's shaped specifically for downstream net-worth tooling."
+    ],
+    "recipes": [
+      {
+        "title": "Feed ProjectionLab",
+        "command": "ynab-pp-cli export balances --format projectionlab --agent --select accounts.name,accounts.balance,accounts.type",
+        "explanation": "Narrow the ProjectionLab-shaped export down to just the fields the downstream tool needs, keeping agent context small."
+      },
+      {
+        "title": "Batch-approve pending transactions",
+        "command": "ynab-pp-cli transactions get 550e8400-e29b-41d4-a716-446655440000 --type unapproved --json",
+        "explanation": "List everything awaiting approval before approving in bulk."
+      },
+      {
+        "title": "Reconcile against a bank statement",
+        "command": "ynab-pp-cli accounts reconcile \u003caccount-id\u003e --statement-balance 1042.17 --agent",
+        "explanation": "Surfaces the exact transaction(s) causing a mismatch instead of scanning line by line."
+      },
+      {
+        "title": "Understand a recurring payee",
+        "command": "ynab-pp-cli payees profile \u003cpayee-id\u003e --period 6m --agent",
+        "explanation": "Shows monthly spend, average transaction size, and typical categories for one payee instead of scanning raw transactions."
+      }
+    ],
+    "trigger_phrases": [
+      "check my YNAB budget",
+      "what's left in my dining category",
+      "sync my YNAB balances",
+      "reconcile my checking account",
+      "will I overspend this month",
+      "export my YNAB balances",
+      "use ynab",
+      "run ynab"
+    ]
+  }
+}

@@ -1,0 +1,266 @@
+{
+  "api_name": "layers",
+  "base_url": "https://api.layers.digital",
+  "description": "School announcements, agenda events, account context, and a private local search surface in one agent-ready CLI.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {LAYERS_TOKEN}",
+    "env_vars": [
+      "LAYERS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "LAYERS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "communities_list_search",
+      "description": "GET /v2/communities/search. Optional: community, limit, skip. Returns the search.",
+      "method": "GET",
+      "path": "/v2/communities/search",
+      "params": [
+        {
+          "name": "community",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "skip",
+          "type": "integer",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "context_list_context",
+      "description": "GET /v1/context. Optional: platform, version. Returns the context.",
+      "method": "GET",
+      "path": "/v1/context",
+      "params": [
+        {
+          "name": "platform",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "home_list_discover",
+      "description": "GET /v1/home/discover. Optional: version. Returns the discover.",
+      "method": "GET",
+      "path": "/v1/home/discover",
+      "params": [
+        {
+          "name": "version",
+          "type": "integer",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "home_list_layers_agenda",
+      "description": "GET /v1/home/getHomeInfo/layers-agenda. Optional: version. Returns the layers_agenda.",
+      "method": "GET",
+      "path": "/v1/home/getHomeInfo/layers-agenda",
+      "params": [
+        {
+          "name": "version",
+          "type": "integer",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "home_list_layers_atendimentos",
+      "description": "GET /v1/home/getHomeInfo/layers-atendimentos. Optional: version. Returns the layers_atendimentos.",
+      "method": "GET",
+      "path": "/v1/home/getHomeInfo/layers-atendimentos",
+      "params": [
+        {
+          "name": "version",
+          "type": "integer",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "home_list_layers_comunicados",
+      "description": "GET /v1/home/getHomeInfo/layers-comunicados. Optional: version. Returns the layers_comunicados.",
+      "method": "GET",
+      "path": "/v1/home/getHomeInfo/layers-comunicados",
+      "params": [
+        {
+          "name": "version",
+          "type": "integer",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "me_list_me",
+      "description": "GET /v1/me. Optional: community, userId. Returns array of MeAgenda.",
+      "method": "GET",
+      "path": "/v1/me",
+      "params": [
+        {
+          "name": "community",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "media_list_icon",
+      "description": "GET /v1/media/app/layers-comunicados/icon. Returns the icon.",
+      "method": "GET",
+      "path": "/v1/media/app/layers-comunicados/icon",
+      "params": []
+    },
+    {
+      "name": "media_list_icon_2",
+      "description": "GET /v1/media/app/layers-agenda/icon. Returns the icon.",
+      "method": "GET",
+      "path": "/v1/media/app/layers-agenda/icon",
+      "params": []
+    },
+    {
+      "name": "media_list_icon_3",
+      "description": "GET /v1/media/app/layers-atendimentos/icon. Returns the icon.",
+      "method": "GET",
+      "path": "/v1/media/app/layers-atendimentos/icon",
+      "params": []
+    },
+    {
+      "name": "notification-badge_list_notification_badge",
+      "description": "GET /v2/notification-badge. Returns the notification_badge.",
+      "method": "GET",
+      "path": "/v2/notification-badge",
+      "params": []
+    },
+    {
+      "name": "post-delivery_create_paginate",
+      "description": "POST /api/v2/post-delivery/paginate. Required: batchSize, filters. Optional: community, userId, next. Returns array of PaginateHit.",
+      "method": "POST",
+      "path": "/api/v2/post-delivery/paginate",
+      "params": [
+        {
+          "name": "community",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "batchSize",
+          "type": "integer",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "next",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "preferences_list_preferences",
+      "description": "GET /v2/preferences. Returns the preferences.",
+      "method": "GET",
+      "path": "/v2/preferences",
+      "params": []
+    },
+    {
+      "name": "preferences_update_preferences",
+      "description": "PUT /v2/preferences. Required: user. Returns the updated preferences.",
+      "method": "PUT",
+      "path": "/v2/preferences",
+      "params": [
+        {
+          "name": "user-apps-launcher-usage-baseline-at",
+          "wire_name": "user.apps.launcherUsage.baselineAt",
+          "type": "integer",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "user-apps-launcher-usage-portals",
+          "wire_name": "user.apps.launcherUsage.portals",
+          "type": "object",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sso_list_me",
+      "description": "GET /v1/sso/account/me. Returns the me.",
+      "method": "GET",
+      "path": "/v1/sso/account/me",
+      "params": []
+    },
+    {
+      "name": "view_create_sync",
+      "description": "POST /v1/view/events/sync. Required: months, since. Optional: community, userId. Returns array of SyncHit.",
+      "method": "POST",
+      "path": "/v1/view/events/sync",
+      "params": [
+        {
+          "name": "community",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "months",
+          "type": "array",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

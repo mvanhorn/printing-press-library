@@ -1,0 +1,86 @@
+name: placeit
+description: "Placeit catalog CLI — search 164k mockup, logo, video, and design templates, with offline mirror and analytics Placeit's UI can't do."
+version: "0.1.0"
+base_url: "https://placeit.net"
+http_transport: browser-chrome
+health_check_path: "/api/v2/get_active_campaigns"
+category: marketing
+
+auth:
+  type: cookie
+  in: cookie
+  cookie_domain: placeit.net
+  cookies:
+    - logged_session
+
+config:
+  format: toml
+  path: "~/.config/placeit-pp-cli/config.toml"
+
+resources:
+  account:
+    description: "Your Placeit account and subscription status (requires a logged-in session)"
+    endpoints:
+      show:
+        method: GET
+        path: "/api/v1/get_user_type_banner"
+        description: "Show the signed-in user's account type and subscription status"
+        response:
+          type: object
+          item: Account
+
+  bookmarks:
+    description: "Templates you've saved/bookmarked on Placeit (requires a logged-in session)"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/v2/bookmarked_stages_from_user"
+        description: "List the signed-in user's bookmarked templates"
+        params:
+          - name: user_id
+            type: int
+            required: true
+            description: "Your Placeit user id (from 'account show')"
+        response:
+          type: object
+          item: BookmarkSet
+
+  campaigns:
+    description: "Active Placeit marketing campaigns and promotions (no login required)"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/v2/get_active_campaigns"
+        no_auth: true
+        description: "List active Placeit campaigns and promotions"
+        response:
+          type: object
+          item: CampaignSet
+
+types:
+  Account:
+    fields:
+      - name: username
+        type: string
+      - name: user_id
+        type: int
+      - name: country
+        type: string
+      - name: has_subscription
+        type: bool
+      - name: subscription_type
+        type: string
+      - name: subscription_name
+        type: string
+      - name: status
+        type: string
+      - name: created_at
+        type: string
+  BookmarkSet:
+    fields:
+      - name: bookmarkedStages
+        type: string
+  CampaignSet:
+    fields:
+      - name: campaigns
+        type: string

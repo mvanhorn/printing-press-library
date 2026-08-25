@@ -1,0 +1,249 @@
+openapi: 3.0.0
+info:
+  contact: {}
+  description: This REST API provides endpoints to search for logos and get logo details.
+  termsOfService: http://swagger.io/terms/
+  title: Logo API
+  version: 2.1.0
+paths:
+  /api/v2.1/logos/sync:
+    get:
+      description: Bulk logos sync. Walks the full logo dataset via page/pagesize
+        (optionally narrowed by updated_since); it is not a per-identifier lookup.
+        To fetch logos for specific securities, use GET /api/v2/logos/search.
+      operationId: logo-bulk-sync
+      parameters:
+        - description: 'Only applies to v2.1 exchange logos (search_keys_type=exchange):
+            comma-separated list of exchange MIC codes to filter by.'
+          in: query
+          name: search_keys
+          schema:
+            type: string
+        - description: Set to exchange to sync v2.1 exchange logos (filtered by search_keys).
+            Omit for the default bulk security-logo sync.
+          in: query
+          name: search_keys_type
+          schema:
+            type: string
+        - description: 'Comma-separated list of logo fields to return. Maximum 12
+            fields. Available: logo_light, logo_dark, logo_vector_light, logo_vector_dark,
+            mark_light, mark_dark, mark_vector_light, mark_vector_dark, mark_composite_light,
+            mark_composite_dark, mark_vector_composite_light, mark_vector_composite_dark,
+            colors'
+          in: query
+          name: fields
+          required: true
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - description: Page number for pagination. Used with pagesize for bulk sync
+            operations.
+          in: query
+          name: page
+          schema:
+            type: integer
+        - description: 'Number of results per page. Default: 100. Maximum: 1000'
+          in: query
+          name: pagesize
+          schema:
+            type: integer
+        - description: Unix timestamp (UTC). Returns logos updated after this timestamp.
+          in: query
+          name: updated_since
+          schema:
+            type: string
+        - description: 'Scale image dimensions in WIDTHxHEIGHT format (e.g., 300x300).
+            Images scale down only, never up. Default: 300x300'
+          in: query
+          name: scale
+          schema:
+            type: string
+        - description: 'Border radius for composite images in percentage. Range 0-50
+            where 50 creates a circle. Default: 0'
+          in: query
+          name: composite_radius
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success response with array of BulkSyncResponse objects in
+            data field
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '400':
+          description: Bad request - invalid or missing parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '404':
+          description: Not found - no logos found matching the criteria
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Bulk logos sync
+      tags:
+        - logos
+  /api/v2/logos/search:
+    get:
+      description: Search Logos
+      operationId: get-search-logos
+      parameters:
+        - description: Comma-separated list of security identifiers. Maximum 100 identifiers.
+            Type depends on search_keys_type parameter.
+          in: query
+          name: search_keys
+          required: true
+          schema:
+            type: string
+        - description: 'Type of identifier being searched. Supported types: symbol
+            (default), cik, cusip, isin'
+          in: query
+          name: search_keys_type
+          schema:
+            type: string
+        - description: 'Comma-separated list of logo fields to return. Maximum 12
+            fields. Available: logo_light, logo_dark, logo_vector_light, logo_vector_dark,
+            mark_light, mark_dark, mark_vector_light, mark_vector_dark, mark_composite_light,
+            mark_composite_dark, mark_vector_composite_light, mark_vector_composite_dark,
+            colors'
+          in: query
+          name: fields
+          required: true
+          schema:
+            type: string
+        - description: If true and no logo exists, generates a composite image based
+            on company name and brand colors
+          in: query
+          name: composite_auto
+          schema:
+            type: boolean
+        - description: 'Border radius for composite images in percentage. Range 0-50
+            where 50 creates a circle. Default: 0'
+          in: query
+          name: composite_radius
+          schema:
+            type: integer
+        - description: 'Scale image dimensions in WIDTHxHEIGHT format (e.g., 300x300).
+            Images scale down only, never up. Default: 300x300'
+          in: query
+          name: scale
+          schema:
+            type: string
+        - description: Maximum width constraint for scaled images in pixels
+          in: query
+          name: max_width
+          schema:
+            type: string
+        - description: If true, adds flutter_compatible=true query parameter to SVG
+            URLs for flutter_svg library compatibility
+          in: query
+          name: flutter_compatible
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Success response with array of LogoClientResponse objects in
+            data field
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '400':
+          description: Bad request - invalid or missing parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '404':
+          description: Not found - no logos found for the specified search keys
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Search Logos
+      tags:
+        - logos
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      in: query
+      name: token
+      type: apiKey
+  schemas:
+    bzhttp.Error:
+      properties:
+        code:
+          $ref: '#/components/schemas/bzhttp.ErrorCode'
+        id:
+          type: string
+        value:
+          type: string
+      type: object
+    bzhttp.ErrorCode:
+      enum:
+        - json_unmarshaling_error
+        - no_data_found
+        - no_matching_endpoint
+        - bad_request
+        - db_error
+        - internal_server_error
+        - auth_failed
+        - forbidden
+        - failed_dependency
+        - service_unavailable
+        - upstream_api_error
+        - unsupported_message_type
+        - database_query_error
+      type: string
+      x-enum-varnames:
+        - ErrorJSONUnmarshaling
+        - ErrorNoDataFound
+        - ErrorNoMatchingEndpoint
+        - ErrorBadRequest
+        - ErrorDBError
+        - ErrorInternalServerError
+        - ErrorAuthFailed
+        - ErrorForbidden
+        - ErrorFailedDependency
+        - ErrorServiceUnavailable
+        - ErrorUpstreamAPIError
+        - ErrorUnsupportedMessageType
+        - ErrorDBQueryError
+    bzhttp.Resp:
+      properties:
+        data:
+          additionalProperties: true
+          type: object
+        errors:
+          items:
+            $ref: '#/components/schemas/bzhttp.Error'
+          type: array
+        ok:
+          type: boolean
+      type: object
+servers:
+  - url: https://api.benzinga.com
+    description: PROD

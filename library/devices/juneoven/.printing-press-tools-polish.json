@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-07-09T14:48:34.418167Z",
+  "cli_dir": "\u003ccli-dir\u003e/juneoven",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Brief but precise: 'learnings list' lists recorded learnings; command carries mcp:read-only and three concrete examples. teach.go is a DO-NOT-EDIT generated file, so any enrichment belongs in the generator template (retro candidate), not a hand-edit."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-09T14:13:42.560646Z"
+  }
+}

@@ -1,0 +1,234 @@
+{
+  "api_name": "immich",
+  "novelty_score": 0,
+  "alternatives": null,
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Shared event album",
+      "command": "album event",
+      "description": "Create or update a reviewable shared event album from explicit Immich search filters.",
+      "rationale": "Combines search, album creation, asset membership, and optional sharing through real Immich endpoints.",
+      "example": "immich-pp-cli album event beach-weekend --from 2025-07-01 --to 2025-07-07 --dry-run --agent",
+      "why_it_matters": "Use it when an agent needs to make a shareable event collection without manually copying asset IDs.",
+      "group": "Shared events"
+    },
+    {
+      "name": "Duplicate resolution plan",
+      "command": "duplicates plan",
+      "description": "Preview native duplicate groups and a deterministic keeper proposal without changing assets.",
+      "rationale": "Uses the native Duplicates API rather than pretending to detect duplicates locally.",
+      "example": "immich-pp-cli duplicates plan --limit 20 --agent",
+      "why_it_matters": "Use it before any destructive duplicate cleanup.",
+      "group": "Safe cleanup"
+    },
+    {
+      "name": "Duplicate resolution apply",
+      "command": "duplicates apply",
+      "description": "Resolve selected native duplicate groups only after an explicit apply confirmation.",
+      "rationale": "Re-fetches groups and calls the real resolve endpoint with a reviewable plan.",
+      "example": "immich-pp-cli duplicates apply group-id --apply --agent",
+      "why_it_matters": "Use it only after reviewing a duplicate plan.",
+      "group": "Safe cleanup"
+    },
+    {
+      "name": "Recurring-month people finder",
+      "command": "people july",
+      "description": "Find one or two people across past Julys using real people and metadata search endpoints.",
+      "rationale": "Turns a recurring personal library question into a bounded date-and-person query.",
+      "example": "immich-pp-cli people july --person me --person dad --years 5 --agent",
+      "why_it_matters": "Use it for questions such as photos of me and Dad from past Julys.",
+      "group": "Family archive"
+    },
+    {
+      "name": "Memory review queue",
+      "command": "memories review",
+      "description": "List recent native memories with their dates and asset counts for an intentional review.",
+      "rationale": "Uses Immich memories and memory-statistics endpoints, not generated prose.",
+      "example": "immich-pp-cli memories review --limit 12 --agent",
+      "why_it_matters": "Use it to revisit what Immich surfaced without paging through the web UI.",
+      "group": "Family archive"
+    },
+    {
+      "name": "Favorites/archive review",
+      "command": "library review",
+      "description": "Review bounded favorite and archived asset search results without mutating the library.",
+      "rationale": "Uses metadata search with explicit filters and preserves a safe read-only first step.",
+      "example": "immich-pp-cli library review --mode favorites --limit 25 --agent",
+      "why_it_matters": "Use it to curate favorites and archived material deliberately.",
+      "group": "Library curation"
+    },
+    {
+      "name": "Stack hygiene review",
+      "command": "stacks review",
+      "description": "Inspect native stacks for empty, singleton, and unusually large groups without changing them.",
+      "rationale": "Uses native stack list/detail endpoints and reports deterministic facts.",
+      "example": "immich-pp-cli stacks review --limit 50 --agent",
+      "why_it_matters": "Use it to understand burst and RAW/JPEG grouping before editing a stack.",
+      "group": "Library curation"
+    },
+    {
+      "name": "Partner and job health",
+      "command": "library health",
+      "description": "Report partner-sharing and worker-queue facts from the configured Immich server.",
+      "rationale": "Combines the real partners, jobs, and queue APIs into a bounded health view.",
+      "example": "immich-pp-cli library health --agent",
+      "why_it_matters": "Use it when a self-hosted photo library feels stale or a shared library is not behaving as expected.",
+      "group": "Self-hosted maintenance"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Shared event album",
+      "command": "album event",
+      "description": "Create or update a reviewable shared event album from explicit Immich search filters.",
+      "rationale": "Combines search, album creation, asset membership, and optional sharing through real Immich endpoints.",
+      "example": "immich-pp-cli album event beach-weekend --from 2025-07-01 --to 2025-07-07 --dry-run --agent",
+      "why_it_matters": "Use it when an agent needs to make a shareable event collection without manually copying asset IDs.",
+      "group": "Shared events"
+    },
+    {
+      "name": "Duplicate resolution plan",
+      "command": "duplicates plan",
+      "description": "Preview native duplicate groups and a deterministic keeper proposal without changing assets.",
+      "rationale": "Uses the native Duplicates API rather than pretending to detect duplicates locally.",
+      "example": "immich-pp-cli duplicates plan --limit 20 --agent",
+      "why_it_matters": "Use it before any destructive duplicate cleanup.",
+      "group": "Safe cleanup"
+    },
+    {
+      "name": "Duplicate resolution apply",
+      "command": "duplicates apply",
+      "description": "Resolve selected native duplicate groups only after an explicit apply confirmation.",
+      "rationale": "Re-fetches groups and calls the real resolve endpoint with a reviewable plan.",
+      "example": "immich-pp-cli duplicates apply group-id --apply --agent",
+      "why_it_matters": "Use it only after reviewing a duplicate plan.",
+      "group": "Safe cleanup"
+    },
+    {
+      "name": "Recurring-month people finder",
+      "command": "people july",
+      "description": "Find one or two people across past Julys using real people and metadata search endpoints.",
+      "rationale": "Turns a recurring personal library question into a bounded date-and-person query.",
+      "example": "immich-pp-cli people july --person me --person dad --years 5 --agent",
+      "why_it_matters": "Use it for questions such as photos of me and Dad from past Julys.",
+      "group": "Family archive"
+    },
+    {
+      "name": "Memory review queue",
+      "command": "memories review",
+      "description": "List recent native memories with their dates and asset counts for an intentional review.",
+      "rationale": "Uses Immich memories and memory-statistics endpoints, not generated prose.",
+      "example": "immich-pp-cli memories review --limit 12 --agent",
+      "why_it_matters": "Use it to revisit what Immich surfaced without paging through the web UI.",
+      "group": "Family archive"
+    },
+    {
+      "name": "Favorites/archive review",
+      "command": "library review",
+      "description": "Review bounded favorite and archived asset search results without mutating the library.",
+      "rationale": "Uses metadata search with explicit filters and preserves a safe read-only first step.",
+      "example": "immich-pp-cli library review --mode favorites --limit 25 --agent",
+      "why_it_matters": "Use it to curate favorites and archived material deliberately.",
+      "group": "Library curation"
+    },
+    {
+      "name": "Stack hygiene review",
+      "command": "stacks review",
+      "description": "Inspect native stacks for empty, singleton, and unusually large groups without changing them.",
+      "rationale": "Uses native stack list/detail endpoints and reports deterministic facts.",
+      "example": "immich-pp-cli stacks review --limit 50 --agent",
+      "why_it_matters": "Use it to understand burst and RAW/JPEG grouping before editing a stack.",
+      "group": "Library curation"
+    },
+    {
+      "name": "Partner and job health",
+      "command": "library health",
+      "description": "Report partner-sharing and worker-queue facts from the configured Immich server.",
+      "rationale": "Combines the real partners, jobs, and queue APIs into a bounded health view.",
+      "example": "immich-pp-cli library health --agent",
+      "why_it_matters": "Use it when a self-hosted photo library feels stale or a shared library is not behaving as expected.",
+      "group": "Self-hosted maintenance"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "IMMICH_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Immich",
+    "headline": "Agent-native control and careful personal-library rituals for a self-hosted Immich instance.",
+    "value_prop": "Covers Immich's official v3 API, the upload/import strengths of immich-go, and the broad raw operations of ImmichMCP, then adds safe personal workflows for events, duplicate cleanup, family time queries, memories, stacks, partners, and jobs.",
+    "auth_narrative": "Set IMMICH_BASE_URL to the API root of your own Immich server and IMMICH_API_KEY to an API key with only the permissions your commands need. The CLI sends the key as x-api-key and never prints it.",
+    "quickstart": [
+      {
+        "command": "immich-pp-cli doctor --dry-run",
+        "comment": "Verify the configured self-hosted URL and API-key prerequisites without a request."
+      },
+      {
+        "command": "immich-pp-cli album event beach-weekend --from 2025-07-01 --to 2025-07-07 --dry-run --agent",
+        "comment": "Preview a shared event-album plan before changing the library."
+      },
+      {
+        "command": "immich-pp-cli duplicates plan --limit 20 --agent",
+        "comment": "Review native duplicate groups before resolving anything."
+      },
+      {
+        "command": "immich-pp-cli library health --agent",
+        "comment": "Check partner and queue facts on the current Immich server."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 or 403 response",
+        "fix": "Create an Immich API key with the least permissions required and export it as IMMICH_API_KEY."
+      },
+      {
+        "symptom": "The self-hosted server cannot be reached",
+        "fix": "Set IMMICH_BASE_URL to the API root reachable from this machine, then run immich-pp-cli doctor."
+      },
+      {
+        "symptom": "A destructive operation was refused",
+        "fix": "Run the corresponding preview command first, then supply the command's explicit apply flag only after reviewing the IDs."
+      }
+    ],
+    "when_to_use": "Use this CLI for your own or a delegated self-hosted Immich library: finding and sharing event photos, safely dealing with duplicates, browsing people/time memories, and checking the health of the host.",
+    "anti_triggers": [
+      "Do not use it against an Immich instance you are not authorized to access.",
+      "Do not run duplicate resolution or asset deletion without reviewing the preview output.",
+      "Do not expect it to replace a local backup of your original photos."
+    ],
+    "recipes": [
+      {
+        "title": "Preview an event album",
+        "command": "immich-pp-cli album event beach-weekend --from 2025-07-01 --to 2025-07-07 --dry-run --agent",
+        "explanation": "See the event-album operation before it writes albums or membership."
+      },
+      {
+        "title": "Plan cleanup",
+        "command": "immich-pp-cli duplicates plan --limit 20 --agent",
+        "explanation": "Inspect native duplicate recommendations in structured output."
+      },
+      {
+        "title": "Review memories",
+        "command": "immich-pp-cli memories review --limit 12 --agent",
+        "explanation": "Read recent native memories as bounded library facts."
+      },
+      {
+        "title": "Check self-hosted health",
+        "command": "immich-pp-cli library health --agent",
+        "explanation": "Combine partner and job queue state in one non-mutating report."
+      }
+    ],
+    "trigger_phrases": [
+      "make a shared album from our beach weekend",
+      "find duplicate screenshots",
+      "show photos of me and Dad from past Julys",
+      "show my Immich memories",
+      "check my Immich server health",
+      "use Immich"
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "compact-must-not-blank-records",
+  "applied_at": "2026-06-27",
+  "base_run_id": "20260509-193944",
+  "base_printing_press_version": "4.0.3",
+  "summary": "compactListFields must keep this CLI's primary record fields (headline/link/source/num/topic/rank/...) and must never collapse a record to an empty object, so --agent (which implies --compact) returns usable data.",
+  "reason": "Techmeme's headline/river/trending records key their content off domain fields outside the generic id/name/title allow-list, so the stock --compact path stripped every field and `search <topic> --agent` returned a list of empty {} objects -- unusable for any agent or downstream source integration.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/helpers_compact_test.go"
+  ],
+  "validated_outcome": "After the fix, `techmeme-pp-cli search \"AI\" --agent` returns 16 records each carrying headline/link/source/num instead of {}; full module test suite passes (92 tests).",
+  "upstream_issue": "The empty-object-on-compact behavior is generator-shaped (compactListFields is generated boilerplate); the allow-list gap and the no-blank guard should also land in cli-printing-press templates so other headline/link-shaped CLIs do not regress."
+}

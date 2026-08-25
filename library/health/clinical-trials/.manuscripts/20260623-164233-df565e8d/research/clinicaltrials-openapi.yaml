@@ -1,0 +1,2836 @@
+openapi: "3.0.3"
+info:
+  title: "ClinicalTrials.gov REST API"
+  description: "This API is made available to provide users meta data, statistics,\
+    \ and the most recent version of the clinical trials available on ClinicalTrials.gov."
+  version: "2.0.5"
+tags:
+- name: "Studies"
+  description: "Related to clinical trial studies"
+- name: "Stats"
+  description: "Data statistics"
+- name: "Version"
+  description: "Version info"
+servers:
+- url: "https://clinicaltrials.gov/api/v2"
+  description: "This server"
+paths:
+  /studies:
+    get:
+      summary: "Studies"
+      description: "Returns data of studies matching query and filter parameters.\
+        \ The studies are returned page by page.\nIf response contains `nextPageToken`,\
+        \ use its value in `pageToken` to get next page.\nThe last page will not contain\
+        \ `nextPageToken`. A page may have empty `studies` array.\nRequest for each\
+        \ subsequent page **must** have the same parameters as for the first page,\
+        \ except\n`countTotal`, `pageSize`, and `pageToken` parameters.\n\nIf neither\
+        \ queries nor filters are set, all studies will be returned.\nIf any query\
+        \ parameter contains only NCT IDs (comma- and/or space-separated), filters\
+        \ are ignored.\n\n`query.*` parameters are in [Essie expression syntax](/find-studies/constructing-complex-search-queries).\n\
+        Those parameters affect ranking of studies, if sorted by relevance. See `sort`\
+        \ parameter for details.\n\n`filter.*` and `postFilter.*` parameters have\
+        \ same effect as there is no aggregation calculation. \nBoth are available\
+        \ just to simplify applying parameters from search request.\nBoth do not affect\
+        \ ranking of studies.\n\nNote: When trying JSON format in your browser, do\
+        \ not set too large `pageSize` parameter, if `fields` is\nunlimited. That\
+        \ may return too much data for the browser to parse and render."
+      tags:
+      - "Studies"
+      operationId: "listStudies"
+      parameters:
+      - name: "format"
+        in: "query"
+        description: "Must be one of the following:\n* `csv`- return CSV table with\
+          \ one page of study data; first page will contain header with column names;\
+          \ available fields are listed on [CSV Download](/data-api/about-api/csv-download)\
+          \ page\n* `json`- return JSON with one page of study data; every study object\
+          \ is placed in a separate line; `markup` type fields format depends on `markupFormat`\
+          \ parameter"
+        required: false
+        schema:
+          type: "string"
+          enum:
+          - "csv"
+          - "json"
+          default: "json"
+      - name: "markupFormat"
+        in: "query"
+        description: "Format of `markup` type fields:\n* `markdown`- [markdown](https://spec.commonmark.org/0.28/)\
+          \ format\n* `legacy`- compatible with classic PRS\n\nApplicable only to\
+          \ `json` format."
+        required: false
+        schema:
+          type: "string"
+          enum:
+          - "markdown"
+          - "legacy"
+          default: "markdown"
+      - name: "query.cond"
+        in: "query"
+        description: "\"Conditions or disease\" query in [Essie expression syntax](/find-studies/constructing-complex-search-queries).\
+          \ See \"ConditionSearch Area\" on [Search Areas](/data-api/about-api/search-areas#ConditionSearch)\
+          \ for more details."
+        required: false
+        schema:
+          type: "string"
+        examples:
+          example1:
+            value: "lung cancer"
+          example2:
+            value: "(head OR neck) AND pain"
+      - name: "query.term"
+        in: "query"
+        description: "\"Other terms\" query in [Essie expression syntax](/find-studies/constructing-complex-search-queries).\
+          \ See \"BasicSearch Area\" on [Search Areas](/data-api/about-api/search-areas#BasicSearch)\
+          \ for more details."
+        required: false
+        schema:
+          type: "string"
+        examples:
+          example1:
+            value: "AREA[LastUpdatePostDate]RANGE[2023-01-15,MAX]"
+      - name: "query.locn"
+        in: "query"
+        description: "\"Location terms\" query in [Essie expression syntax](/find-studies/constructing-complex-search-queries).\
+          \ See \"LocationSearch Area\" on [Search Areas](/data-api/about-api/search-areas#LocationSearch)\
+          \ for more details."
+        required: false
+        schema:
+          type: "string"
+      - name: "query.titles"
+        in: "query"
+        description: "\"Title / acronym\" query in [Essie expression syntax](/find-studies/constructing-complex-search-queries).\
+          \ See \"TitleSearch Area\" on [Search Areas](/data-api/about-api/search-areas#TitleSearch)\
+          \ for more details."
+        required: false
+        schema:
+          type: "string"
+      - name: "query.intr"
+        in: "query"
+        description: "\"Intervention / treatment\" query in [Essie expression syntax](/find-studies/constructing-complex-search-queries).\
+          \ See \"InterventionSearch Area\" on [Search Areas](/data-api/about-api/search-areas#InterventionSearch)\
+          \ for more details."
+        required: false
+        schema:
+          type: "string"
+      - name: "query.outc"
+        in: "query"
+        description: "\"Outcome measure\" query in [Essie expression syntax](/find-studies/constructing-complex-search-queries).\
+          \ See \"OutcomeSearch Area\" on [Search Areas](/data-api/about-api/search-areas#OutcomeSearch)\
+          \ for more details."
+        required: false
+        schema:
+          type: "string"
+      - name: "query.spons"
+        in: "query"
+        description: "\"Sponsor / collaborator\" query in [Essie expression syntax](/find-studies/constructing-complex-search-queries).\
+          \ See \"SponsorSearch Area\" on [Search Areas](/data-api/about-api/search-areas#SponsorSearch)\
+          \ for more details."
+        required: false
+        schema:
+          type: "string"
+      - name: "query.lead"
+        in: "query"
+        description: "Searches in \"LeadSponsorName\" field. See [Study Data Structure](/data-api/about-api/study-data-structure#LeadSponsorName)\
+          \ for more details. The query is in [Essie expression syntax](/find-studies/constructing-complex-search-queries)."
+        required: false
+        schema:
+          type: "string"
+      - name: "query.id"
+        in: "query"
+        description: "\"Study IDs\" query in [Essie expression syntax](/find-studies/constructing-complex-search-queries).\
+          \ See \"IdSearch Area\" on [Search Areas](/data-api/about-api/search-areas#IdSearch)\
+          \ for more details."
+        required: false
+        schema:
+          type: "string"
+      - name: "query.patient"
+        in: "query"
+        description: "See \"PatientSearch Area\" on [Search Areas](/data-api/about-api/search-areas#PatientSearch)\
+          \ for more details."
+        required: false
+        schema:
+          type: "string"
+      - name: "filter.overallStatus"
+        in: "query"
+        style: "pipeDelimited"
+        explode: false
+        description: "Filter by comma- or pipe-separated list of statuses"
+        required: false
+        schema:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Status"
+        examples:
+          example1:
+            value:
+            - "NOT_YET_RECRUITING"
+            - "RECRUITING"
+          example2:
+            value:
+            - "COMPLETED"
+      - name: "filter.geo"
+        in: "query"
+        description: "Filter by geo-function. Currently only distance function is\
+          \ supported.\nFormat: `distance(latitude,longitude,distance)`"
+        required: false
+        schema:
+          type: "string"
+          pattern: "^distance\\(-?\\d+(\\.\\d+)?,-?\\d+(\\.\\d+)?,\\d+(\\.\\d+)?(km|mi)?\\\
+            )$"
+        examples:
+          example1:
+            value: "distance(39.0035707,-77.1013313,50mi)"
+      - name: "filter.ids"
+        in: "query"
+        style: "pipeDelimited"
+        explode: false
+        description: "Filter by comma- or pipe-separated list of NCT IDs (a.k.a. ClinicalTrials.gov\
+          \ identifiers).\nThe provided IDs will be searched in [NCTId](data-api/about-api/study-data-structure#NCTId)\
+          \ and\n[NCTIdAlias](data-api/about-api/study-data-structure#NCTIdAlias)\
+          \ fields."
+        required: false
+        schema:
+          type: "array"
+          items:
+            type: "string"
+            pattern: "^[Nn][Cc][Tt]0*[1-9]\\d{0,7}$"
+        examples:
+          example1:
+            value:
+            - "NCT04852770"
+            - "NCT01728545"
+            - "NCT02109302"
+      - name: "filter.advanced"
+        in: "query"
+        description: "Filter by query in [Essie expression syntax](/find-studies/constructing-complex-search-queries)"
+        required: false
+        schema:
+          type: "string"
+        examples:
+          example1:
+            value: "AREA[StartDate]2022"
+          example2:
+            value: "AREA[MinimumAge]RANGE[MIN, 16 years] AND AREA[MaximumAge]RANGE[16\
+              \ years, MAX]"
+      - name: "filter.synonyms"
+        in: "query"
+        style: "pipeDelimited"
+        explode: false
+        description: "Filter by comma- or pipe-separated list of `area`:`synonym_id`\
+          \ pairs"
+        required: false
+        schema:
+          type: "array"
+          items:
+            type: "string"
+        examples:
+          example1:
+            value:
+            - "ConditionSearch:1651367"
+            - "BasicSearch:2013558"
+      - name: "postFilter.overallStatus"
+        in: "query"
+        style: "pipeDelimited"
+        explode: false
+        description: "Filter by comma- or pipe-separated list of statuses"
+        required: false
+        schema:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Status"
+        examples:
+          example1:
+            value:
+            - "NOT_YET_RECRUITING"
+            - "RECRUITING"
+          example2:
+            value:
+            - "COMPLETED"
+      - name: "postFilter.geo"
+        in: "query"
+        description: "Filter by geo-function. Currently only distance function is\
+          \ supported.\nFormat: `distance(latitude,longitude,distance)`"
+        required: false
+        schema:
+          type: "string"
+          pattern: "^distance\\(-?\\d+(\\.\\d+)?,-?\\d+(\\.\\d+)?,\\d+(\\.\\d+)?(km|mi)?\\\
+            )$"
+        examples:
+          example1:
+            value: "distance(39.0035707,-77.1013313,50mi)"
+      - name: "postFilter.ids"
+        in: "query"
+        style: "pipeDelimited"
+        explode: false
+        description: "Filter by comma- or pipe-separated list of NCT IDs (a.k.a. ClinicalTrials.gov\
+          \ identifiers).\nThe provided IDs will be searched in [NCTId](data-api/about-api/study-data-structure#NCTId)\
+          \ and\n[NCTIdAlias](data-api/about-api/study-data-structure#NCTIdAlias)\
+          \ fields."
+        required: false
+        schema:
+          type: "array"
+          items:
+            type: "string"
+            pattern: "^[Nn][Cc][Tt]0*[1-9]\\d{0,7}$"
+        examples:
+          example1:
+            value:
+            - "NCT04852770"
+            - "NCT01728545"
+            - "NCT02109302"
+      - name: "postFilter.advanced"
+        in: "query"
+        description: "Filter by query in [Essie expression syntax](/find-studies/constructing-complex-search-queries)"
+        required: false
+        schema:
+          type: "string"
+        examples:
+          example1:
+            value: "AREA[StartDate]2022"
+          example2:
+            value: "AREA[MinimumAge]RANGE[MIN, 16 years] AND AREA[MaximumAge]RANGE[16\
+              \ years, MAX]"
+      - name: "postFilter.synonyms"
+        in: "query"
+        style: "pipeDelimited"
+        explode: false
+        description: "Filter by comma- or pipe-separated list of `area`:`synonym_id`\
+          \ pairs"
+        required: false
+        schema:
+          type: "array"
+          items:
+            type: "string"
+        examples:
+          example1:
+            value:
+            - "ConditionSearch:1651367"
+            - "BasicSearch:2013558"
+      - name: "aggFilters"
+        in: "query"
+        description: "Apply aggregation filters, aggregation counts will not be provided.\n\
+          The value is comma- or pipe-separated list of pairs `filter_id`:`space-separated\
+          \ list of option keys` for the checked options."
+        required: false
+        schema:
+          type: "string"
+        examples:
+          example1:
+            value: "results:with,status:com"
+          example2:
+            value: "status:not rec,sex:f,healthy:y"
+      - name: "geoDecay"
+        in: "query"
+        description: "Set proximity factor by distance from `filter.geo` location\
+          \ to the closest [LocationGeoPoint](/data-api/about-api/study-data-structure#LocationGeoPoint)\
+          \ of a study.\nIgnored, if `filter.geo` parameter is not set or response\
+          \ contains more than 10,000 studies."
+        required: false
+        schema:
+          type: "string"
+          pattern: "^func:(gauss|exp|linear),scale:(\\d+(\\.\\d+)?(km|mi)),offset:(\\\
+            d+(\\.\\d+)?(km|mi)),decay:(\\d+(\\.\\d+)?)$"
+          default: "func:exp,scale:300mi,offset:0mi,decay:0.5"
+        examples:
+          example1:
+            value: "func:linear,scale:100km,offset:10km,decay:0.1"
+          example2:
+            value: "func:gauss,scale:500mi,offset:0mi,decay:0.3"
+      - name: "fields"
+        in: "query"
+        style: "pipeDelimited"
+        explode: false
+        description: "If specified, must be non-empty comma- or pipe-separated list\
+          \ of fields to return. If unspecified, all fields will be returned.\nOrder\
+          \ of the fields does not matter.\n\nFor `csv` format, specify list of columns.\
+          \ The column names are available on [CSV Download](/data-api/about-api/csv-download).\n\
+          \nFor `json` format, every list item is either area name, piece name, field\
+          \ name, or special name.\nIf a piece or a field is a branch node, all descendant\
+          \ fields will be included.\nAll area names are available on [Search Areas](/data-api/about-api/search-areas),\n\
+          the piece and field names — on [Data Structure](/data-api/about-api/study-data-structure)\
+          \ and also can be retrieved at `/studies/metadata` endpoint.\nThere is a\
+          \ special name, `@query`, which expands to all fields queried by search."
+        required: false
+        schema:
+          type: "array"
+          minItems: 1
+          items:
+            type: "string"
+            pattern: "^([a-zA-Z][a-zA-Z0-9\\-. ]*)|(@query)$"
+        examples:
+          example1:
+            value:
+            - "NCTId"
+            - "BriefTitle"
+            - "OverallStatus"
+            - "HasResults"
+          example2:
+            value: "ProtocolSection"
+      - name: "sort"
+        in: "query"
+        style: "pipeDelimited"
+        explode: false
+        description: "Comma- or pipe-separated list of sorting options of the studies.\
+          \ The returning studies are not sorted by default for a performance reason.\n\
+          Every list item contains a field/piece name and an optional sort direction\
+          \ (`asc` for ascending or `desc` for descending)\nafter colon character.\n\
+          \nAll piece and field names can be found on [Data Structure](/data-api/about-api/study-data-structure)\
+          \ and also can be retrieved\nat `/studies/metadata` endpoint. Currently,\
+          \ only date and numeric fields are allowed for sorting.\nThere is a special\
+          \ \"field\" `@relevance` to sort by relevance to a search query.\n\nStudies\
+          \ missing sort field are always last. Default sort direction:\n* Date field\
+          \ - `desc`\n* Numeric field - `asc`\n* `@relevance` - `desc`"
+        required: false
+        schema:
+          type: "array"
+          maxItems: 2
+          default: []
+          items:
+            type: "string"
+            pattern: "^(([a-zA-Z][a-zA-Z0-9\\-. ]*)|(@relevance))(:(asc|desc))?$"
+        examples:
+          example1:
+            value:
+            - "@relevance"
+          example2:
+            value:
+            - "LastUpdatePostDate"
+          example3:
+            value:
+            - "EnrollmentCount:desc"
+            - "NumArmGroups"
+      - name: "countTotal"
+        in: "query"
+        description: "Count total number of studies in all pages and return `totalCount`\
+          \ field with first page, if `true`.\nFor CSV, the result can be found in\
+          \ `x-total-count` response header.\nThe parameter is ignored for the subsequent\
+          \ pages."
+        required: false
+        schema:
+          type: "boolean"
+          default: false
+      - name: "pageSize"
+        in: "query"
+        description: "Page size is maximum number of studies to return in response.\
+          \ It does not have to be the same for every page.\nIf not specified or set\
+          \ to 0, the default value will be used. It will be coerced down to  1,000,\
+          \ if greater than that."
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+          minimum: 0
+          default: 10
+        examples:
+          example1:
+            value: 2
+          example2:
+            value: 100
+      - name: "pageToken"
+        in: "query"
+        description: "Token to get next page. Set it to a `nextPageToken` value returned\
+          \ with the previous page in JSON format.\nFor CSV, it can be found in `x-next-page-token`\
+          \ response header.\nDo not specify it for first page."
+        required: false
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedStudies"
+              example:
+                totalCount: 438897
+                studies:
+                - protocolSection:
+                    identificationModule:
+                      nctId: "NCT03540771"
+                      briefTitle: "Introducing Palliative Care (PC) Within the Treatment\
+                        \ of End Stage Liver Disease (ESLD)"
+                    statusModule:
+                      overallStatus: "RECRUITING"
+                  hasResults: false
+                - protocolSection:
+                    identificationModule:
+                      nctId: "NCT03630471"
+                      briefTitle: "Effectiveness of a Problem-solving Intervention\
+                        \ for Common Adolescent Mental Health Problems in India"
+                    statusModule:
+                      overallStatus: "COMPLETED"
+                  hasResults: false
+                - protocolSection:
+                    identificationModule:
+                      nctId: "NCT00587795"
+                      briefTitle: "Orthopedic Study of the Aircast StabilAir Wrist\
+                        \ Fracture Brace"
+                    statusModule:
+                      overallStatus: "TERMINATED"
+                  hasResults: true
+                nextPageToken: "abracadabra"
+        "400":
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/errorMessage"
+  /studies/{nctId}:
+    get:
+      summary: "Single Study"
+      description: "Returns data of a single study."
+      tags:
+      - "Studies"
+      operationId: "fetchStudy"
+      parameters:
+      - name: "nctId"
+        in: "path"
+        description: "NCT Number of a study. If found in [NCTIdAlias](data-api/about-api/study-data-structure#NCTIdAlias)\
+          \ field,\n301 HTTP redirect to the actual study will be returned."
+        required: true
+        schema:
+          type: "string"
+          pattern: "^[Nn][Cc][Tt]0*[1-9]\\d{0,7}$"
+        examples:
+          example1:
+            value: "NCT00841061"
+          example2:
+            value: "NCT04000165"
+      - name: "format"
+        in: "query"
+        description: "Must be one of the following:\n* `csv`- return CSV table; available\
+          \ fields are listed on [CSV Download](/data-api/about-api/csv-download)\n\
+          * `json`- return JSON object; format of `markup` fields depends on `markupFormat`\
+          \ parameter\n* `json.zip`- put JSON object into a .json file and download\
+          \ it as zip archive; field values of type `markup` are in [markdown](https://spec.commonmark.org/0.28/)\
+          \ format\n* `fhir.json` - return FHIR JSON; fields are not customizable;\
+          \ see [Access Data in FHIR](/data-api/fhir)\n* `ris`- return RIS record;\
+          \ available tags are listed on [RIS Download](/data-api/about-api/ris-download)"
+        required: false
+        schema:
+          type: "string"
+          enum:
+          - "csv"
+          - "json"
+          - "json.zip"
+          - "fhir.json"
+          - "ris"
+          default: "json"
+      - name: "markupFormat"
+        in: "query"
+        description: "Format of `markup` type fields:\n* `markdown`- [markdown](https://spec.commonmark.org/0.28/)\
+          \ format\n* `legacy`- compatible with classic PRS\n\nApplicable only to\
+          \ `json` format."
+        required: false
+        schema:
+          type: "string"
+          enum:
+          - "markdown"
+          - "legacy"
+          default: "markdown"
+      - name: "fields"
+        in: "query"
+        style: "pipeDelimited"
+        explode: false
+        description: "If specified, must be non-empty comma- or pipe-separated list\
+          \ of fields to return. If unspecified, all fields will be returned.\nOrder\
+          \ of the fields does not matter.\n\nFor `csv` format, specify list of columns.\
+          \ The column names are available on [CSV Download](/data-api/about-api/csv-download).\n\
+          \nFor `json` and `json.zip` formats, every list item is either area name,\
+          \ piece name, or field name.\nIf a piece or a field is a branch node, all\
+          \ descendant fields will be included.\nAll area names are available on [Search\
+          \ Areas](/data-api/about-api/search-areas),\nthe piece and field names -\
+          \ on [Data Structure](/data-api/about-api/study-data-structure) and also\
+          \ can be retrieved at `/studies/metadata` endpoint.\n\nFor `fhir.json` format,\
+          \ all available fields are returned and this parameter must be unspecified.\n\
+          \nFor `ris` format, specify list of tags. The tag names are available on\
+          \ [RIS Download](/data-api/about-api/ris-download)."
+        required: false
+        schema:
+          type: "array"
+          minItems: 1
+          items:
+            type: "string"
+            pattern: "^[a-zA-Z][a-zA-Z0-9\\-. ]*$"
+        examples:
+          example1:
+            value:
+            - "NCTId"
+            - "BriefTitle"
+            - "Reference"
+          example2:
+            value:
+            - "ConditionsModule"
+            - "EligibilityModule"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            text/csv:
+              schema:
+                $ref: "#/components/schemas/StudiesCsv"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Study"
+            application/zip:
+              schema:
+                $ref: "#/components/schemas/StudiesZip"
+            application/fhir+json:
+              schema:
+                $ref: "#/components/schemas/StudyFhir"
+        "301":
+          description: "Moved Permanently"
+          content: {}
+        "400":
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/errorMessage"
+        "404":
+          description: "Not Found"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/errorMessage"
+  /studies/metadata:
+    get:
+      summary: "Data Model Fields"
+      description: "Returns study data model fields."
+      tags:
+      - "Studies"
+      operationId: "studiesMetadata"
+      parameters:
+      - name: "includeIndexedOnly"
+        in: "query"
+        description: "Include indexed-only fields, if `true`"
+        required: false
+        schema:
+          type: "boolean"
+          default: false
+      - name: "includeHistoricOnly"
+        in: "query"
+        description: "Include fields available only in historic data, if `true`"
+        required: false
+        schema:
+          type: "boolean"
+          default: false
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FieldNodeList"
+        "400":
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/errorMessage"
+  /studies/search-areas:
+    get:
+      summary: "Search Areas"
+      description: "Search Docs and their Search Areas."
+      tags:
+      - "Studies"
+      operationId: "searchAreas"
+      parameters: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchDocumentList"
+        "400":
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/errorMessage"
+  /studies/enums:
+    get:
+      summary: "Enums"
+      description: "Returns enumeration types and their values.\n\nEvery item of the\
+        \ returning array represents enum type and contains the following properties:\n\
+        * `type` - enum type name\n* `pieces` - array of names of all data pieces\
+        \ having the enum type\n* `values` - all available values of the enum; every\
+        \ item contains the following properties:\n  * `value` - data value\n  * `legacyValue`\
+        \ - data value in legacy API\n  * `exceptions` - map from data piece name\
+        \ to legacy value when different from `legacyValue`\n    (some data pieces\
+        \ had special enum values in legacy API)"
+      tags:
+      - "Studies"
+      operationId: "enums"
+      parameters: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnumInfoList"
+        "400":
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/errorMessage"
+  /stats/size:
+    get:
+      summary: "Study Sizes"
+      description: "Statistics of study JSON sizes."
+      tags:
+      - "Stats"
+      operationId: "sizeStats"
+      parameters: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GzipStats"
+        "400":
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/errorMessage"
+  /stats/field/values:
+    get:
+      summary: "Field Values"
+      description: "Value statistics of the study leaf fields."
+      tags:
+      - "Stats"
+      operationId: "fieldValuesStats"
+      parameters:
+      - name: "types"
+        in: "query"
+        style: "pipeDelimited"
+        explode: false
+        description: "Filter by field types"
+        required: false
+        schema:
+          type: "array"
+          default: []
+          items:
+            $ref: "#/components/schemas/FieldStatsType"
+        examples:
+          example1:
+            value:
+            - "ENUM"
+            - "BOOLEAN"
+          example2:
+            value:
+            - "INTEGER"
+            - "NUMBER"
+      - name: "fields"
+        in: "query"
+        style: "pipeDelimited"
+        explode: false
+        description: "Filter by piece names or field paths of leaf fields.\nSee [Data\
+          \ Structure](/data-api/about-api/study-data-structure) for the available\
+          \ values.\n\nIf specified, must be non-empty comma- or pipe-separated list\
+          \ of fields to return."
+        required: false
+        schema:
+          type: "array"
+          minItems: 1
+          items:
+            type: "string"
+            pattern: "^[a-zA-Z][a-zA-Z0-9\\-. ]*$"
+        examples:
+          example1:
+            value:
+            - "Phase"
+          example2:
+            value:
+            - "Condition"
+            - "InterventionName"
+          example3:
+            value:
+            - "protocolSection.armsInterventionsModule.armGroups.interventionNames"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FieldValuesStatsList"
+        "400":
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/errorMessage"
+        "404":
+          description: "Not Found"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/errorMessage"
+  /stats/field/sizes:
+    get:
+      summary: "List Field Sizes"
+      description: "Sizes of list/array fields.\n\nTo search studies by a list field\
+        \ size, use `AREA[FieldName:size]` search operator.\nFor example, [AREA\\\
+        [Phase:size\\] 2](https://clinicaltrials.gov/search?term=AREA%5BPhase:size%5D%202)\n\
+        query finds studies with 2 phases."
+      tags:
+      - "Stats"
+      operationId: "listFieldSizesStats"
+      parameters:
+      - name: "fields"
+        in: "query"
+        style: "pipeDelimited"
+        explode: false
+        description: "Filter by piece names or field paths of leaf fields.\nSee [Data\
+          \ Structure](/data-api/about-api/study-data-structure) for the available\
+          \ values.\n\nIf specified, must be non-empty comma- or pipe-separated list\
+          \ of fields to return.\nIf unspecified, all available stats will be returned."
+        required: false
+        schema:
+          type: "array"
+          items:
+            type: "string"
+            pattern: "^[a-zA-Z][a-zA-Z0-9\\-. ]*$"
+            minLength: 1
+        examples:
+          example1:
+            value:
+            - "Phase"
+          example2:
+            value:
+            - "Condition"
+            - "Intervention"
+          example3:
+            value:
+            - "protocolSection.armsInterventionsModule.armGroups.interventionNames"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListSizesList"
+        "400":
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/errorMessage"
+        "404":
+          description: "Not Found"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/errorMessage"
+  /version:
+    get:
+      summary: "Version"
+      description: "API and data versions.\n\nAPI version follows [Semantic Versioning\
+        \ 2.0.0 Schema](https://semver.org/spec/v2.0.0.html).\nData version is UTC\
+        \ timestamp in `yyyy-MM-dd'T'HH:mm:ss` format."
+      tags:
+      - "Version"
+      operationId: "version"
+      parameters: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Version"
+        "400":
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/errorMessage"
+components:
+  schemas:
+    FieldNode:
+      type: "object"
+      properties:
+        altPieceNames:
+          type: "array"
+          items:
+            type: "string"
+        children:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/FieldNode"
+        dedLink:
+          $ref: "#/components/schemas/WebLink"
+        description:
+          type: "string"
+        historicOnly:
+          type: "boolean"
+        indexedOnly:
+          type: "boolean"
+        isEnum:
+          type: "boolean"
+        maxChars:
+          type: "integer"
+          format: "int32"
+        name:
+          type: "string"
+        nested:
+          type: "boolean"
+        piece:
+          type: "string"
+        rules:
+          type: "string"
+        sourceType:
+          type: "string"
+        synonyms:
+          type: "boolean"
+        title:
+          type: "string"
+        type:
+          type: "string"
+      additionalProperties: false
+      required:
+      - "name"
+      - "piece"
+      - "sourceType"
+      - "type"
+    WebLink:
+      type: "object"
+      properties:
+        label:
+          type: "string"
+        url:
+          type: "string"
+      additionalProperties: false
+      required:
+      - "label"
+      - "url"
+    FieldNodeList:
+      type: "array"
+      items:
+        $ref: "#/components/schemas/FieldNode"
+    SearchDocument:
+      type: "object"
+      properties:
+        areas:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/SearchArea"
+        name:
+          type: "string"
+      additionalProperties: false
+      required:
+      - "areas"
+      - "name"
+    SearchArea:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+        param:
+          type: "string"
+        parts:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/SearchPart"
+        uiLabel:
+          type: "string"
+      additionalProperties: false
+      required:
+      - "name"
+      - "parts"
+    SearchPart:
+      type: "object"
+      properties:
+        isEnum:
+          type: "boolean"
+        isSynonyms:
+          type: "boolean"
+        pieces:
+          type: "array"
+          items:
+            type: "string"
+        type:
+          type: "string"
+        weight:
+          type: "number"
+          format: "float"
+      additionalProperties: false
+      required:
+      - "isEnum"
+      - "isSynonyms"
+      - "pieces"
+      - "type"
+      - "weight"
+    SearchDocumentList:
+      type: "array"
+      items:
+        $ref: "#/components/schemas/SearchDocument"
+    EnumInfo:
+      type: "object"
+      properties:
+        pieces:
+          type: "array"
+          items:
+            type: "string"
+        type:
+          type: "string"
+        values:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/EnumItem"
+      additionalProperties: false
+      required:
+      - "pieces"
+      - "type"
+      - "values"
+    EnumItem:
+      type: "object"
+      properties:
+        exceptions:
+          type: "object"
+        legacyValue:
+          type: "string"
+        value:
+          type: "string"
+      additionalProperties: false
+      required:
+      - "legacyValue"
+      - "value"
+    EnumInfoList:
+      type: "array"
+      items:
+        $ref: "#/components/schemas/EnumInfo"
+    GzipStats:
+      type: "object"
+      properties:
+        averageSizeBytes:
+          type: "integer"
+          format: "int32"
+        largestStudies:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/StudySize"
+        percentiles:
+          type: "object"
+        ranges:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/DistItem"
+        totalStudies:
+          type: "integer"
+          format: "int32"
+      additionalProperties: false
+      required:
+      - "averageSizeBytes"
+      - "largestStudies"
+      - "percentiles"
+      - "ranges"
+      - "totalStudies"
+    StudySize:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        sizeBytes:
+          type: "integer"
+          format: "int32"
+      additionalProperties: false
+      required:
+      - "id"
+      - "sizeBytes"
+    DistItem:
+      type: "object"
+      properties:
+        sizeRange:
+          type: "string"
+        studiesCount:
+          type: "integer"
+          format: "int32"
+      additionalProperties: false
+      required:
+      - "sizeRange"
+      - "studiesCount"
+    ListSizes:
+      type: "object"
+      properties:
+        field:
+          type: "string"
+        maxSize:
+          type: "integer"
+        minSize:
+          type: "integer"
+        piece:
+          type: "string"
+        topSizes:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ListSize"
+        uniqueSizesCount:
+          type: "integer"
+          format: "int64"
+      additionalProperties: false
+      required:
+      - "field"
+      - "piece"
+      - "uniqueSizesCount"
+    ListSize:
+      type: "object"
+      properties:
+        size:
+          type: "integer"
+        studiesCount:
+          type: "integer"
+          format: "int32"
+      additionalProperties: false
+      required:
+      - "size"
+      - "studiesCount"
+    ListSizesList:
+      type: "array"
+      items:
+        $ref: "#/components/schemas/ListSizes"
+    EnumStats:
+      type: "object"
+      properties:
+        field:
+          type: "string"
+        missingStudiesCount:
+          type: "integer"
+          format: "int32"
+        piece:
+          type: "string"
+        topValues:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ValueCount"
+        type:
+          $ref: "#/components/schemas/FieldStatsType"
+        uniqueValuesCount:
+          type: "integer"
+          format: "int64"
+      additionalProperties: false
+      required:
+      - "field"
+      - "missingStudiesCount"
+      - "piece"
+      - "type"
+      - "uniqueValuesCount"
+    ValueCount:
+      type: "object"
+      properties:
+        studiesCount:
+          type: "integer"
+          format: "int32"
+        value:
+          type: "string"
+      additionalProperties: false
+      required:
+      - "studiesCount"
+      - "value"
+    FieldStatsType:
+      type: "string"
+      enum:
+      - "ENUM"
+      - "STRING"
+      - "DATE"
+      - "INTEGER"
+      - "NUMBER"
+      - "BOOLEAN"
+    StringStats:
+      type: "object"
+      properties:
+        field:
+          type: "string"
+        longest:
+          $ref: "#/components/schemas/LongestString"
+        missingStudiesCount:
+          type: "integer"
+          format: "int32"
+        piece:
+          type: "string"
+        topValues:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ValueCount"
+        type:
+          $ref: "#/components/schemas/FieldStatsType"
+        uniqueValuesCount:
+          type: "integer"
+          format: "int64"
+      additionalProperties: false
+      required:
+      - "field"
+      - "missingStudiesCount"
+      - "piece"
+      - "type"
+      - "uniqueValuesCount"
+    LongestString:
+      type: "object"
+      properties:
+        length:
+          type: "integer"
+          format: "int32"
+        nctId:
+          type: "string"
+        value:
+          type: "string"
+      additionalProperties: false
+      required:
+      - "length"
+      - "nctId"
+      - "value"
+    DateStats:
+      type: "object"
+      properties:
+        field:
+          type: "string"
+        formats:
+          type: "array"
+          items:
+            type: "string"
+        max:
+          type: "string"
+        min:
+          type: "string"
+        missingStudiesCount:
+          type: "integer"
+          format: "int32"
+        piece:
+          type: "string"
+        type:
+          $ref: "#/components/schemas/FieldStatsType"
+      additionalProperties: false
+      required:
+      - "field"
+      - "formats"
+      - "missingStudiesCount"
+      - "piece"
+      - "type"
+    IntegerStats:
+      type: "object"
+      properties:
+        avg:
+          type: "number"
+          format: "double"
+        field:
+          type: "string"
+        max:
+          type: "integer"
+          format: "int64"
+        min:
+          type: "integer"
+          format: "int64"
+        missingStudiesCount:
+          type: "integer"
+          format: "int32"
+        piece:
+          type: "string"
+        type:
+          $ref: "#/components/schemas/FieldStatsType"
+      additionalProperties: false
+      required:
+      - "field"
+      - "missingStudiesCount"
+      - "piece"
+      - "type"
+    NumberStats:
+      type: "object"
+      properties:
+        avg:
+          type: "number"
+          format: "double"
+        field:
+          type: "string"
+        max:
+          type: "number"
+          format: "double"
+        min:
+          type: "number"
+          format: "double"
+        missingStudiesCount:
+          type: "integer"
+          format: "int32"
+        piece:
+          type: "string"
+        type:
+          $ref: "#/components/schemas/FieldStatsType"
+      additionalProperties: false
+      required:
+      - "field"
+      - "missingStudiesCount"
+      - "piece"
+      - "type"
+    BooleanStats:
+      type: "object"
+      properties:
+        falseCount:
+          type: "integer"
+          format: "int32"
+        field:
+          type: "string"
+        missingStudiesCount:
+          type: "integer"
+          format: "int32"
+        piece:
+          type: "string"
+        trueCount:
+          type: "integer"
+          format: "int32"
+        type:
+          $ref: "#/components/schemas/FieldStatsType"
+      additionalProperties: false
+      required:
+      - "falseCount"
+      - "field"
+      - "missingStudiesCount"
+      - "piece"
+      - "trueCount"
+      - "type"
+    Version:
+      type: "object"
+      properties:
+        apiVersion:
+          type: "string"
+        dataTimestamp:
+          type: "string"
+      additionalProperties: false
+      required:
+      - "apiVersion"
+    PagedStudies:
+      type: "object"
+      properties:
+        nextPageToken:
+          type: "string"
+        studies:
+          $ref: "#/components/schemas/StudyList"
+        totalCount:
+          type: "integer"
+          format: "int32"
+      additionalProperties: false
+      required:
+      - "studies"
+    Study:
+      type: "object"
+      properties:
+        protocolSection:
+          $ref: "#/components/schemas/ProtocolSection"
+        resultsSection:
+          $ref: "#/components/schemas/ResultsSection"
+        annotationSection:
+          $ref: "#/components/schemas/AnnotationSection"
+        documentSection:
+          $ref: "#/components/schemas/DocumentSection"
+        derivedSection:
+          $ref: "#/components/schemas/DerivedSection"
+        hasResults:
+          type: "boolean"
+    ProtocolSection:
+      type: "object"
+      properties:
+        identificationModule:
+          $ref: "#/components/schemas/IdentificationModule"
+        statusModule:
+          $ref: "#/components/schemas/StatusModule"
+        sponsorCollaboratorsModule:
+          $ref: "#/components/schemas/SponsorCollaboratorsModule"
+        oversightModule:
+          $ref: "#/components/schemas/OversightModule"
+        descriptionModule:
+          $ref: "#/components/schemas/DescriptionModule"
+        conditionsModule:
+          $ref: "#/components/schemas/ConditionsModule"
+        designModule:
+          $ref: "#/components/schemas/DesignModule"
+        armsInterventionsModule:
+          $ref: "#/components/schemas/ArmsInterventionsModule"
+        outcomesModule:
+          $ref: "#/components/schemas/OutcomesModule"
+        eligibilityModule:
+          $ref: "#/components/schemas/EligibilityModule"
+        contactsLocationsModule:
+          $ref: "#/components/schemas/ContactsLocationsModule"
+        referencesModule:
+          $ref: "#/components/schemas/ReferencesModule"
+        ipdSharingStatementModule:
+          $ref: "#/components/schemas/IpdSharingStatementModule"
+    ResultsSection:
+      type: "object"
+      properties:
+        participantFlowModule:
+          $ref: "#/components/schemas/ParticipantFlowModule"
+        baselineCharacteristicsModule:
+          $ref: "#/components/schemas/BaselineCharacteristicsModule"
+        outcomeMeasuresModule:
+          $ref: "#/components/schemas/OutcomeMeasuresModule"
+        adverseEventsModule:
+          $ref: "#/components/schemas/AdverseEventsModule"
+        moreInfoModule:
+          $ref: "#/components/schemas/MoreInfoModule"
+    AnnotationSection:
+      type: "object"
+      properties:
+        annotationModule:
+          $ref: "#/components/schemas/AnnotationModule"
+    DocumentSection:
+      type: "object"
+      properties:
+        largeDocumentModule:
+          $ref: "#/components/schemas/LargeDocumentModule"
+    DerivedSection:
+      type: "object"
+      properties:
+        miscInfoModule:
+          $ref: "#/components/schemas/MiscInfoModule"
+        conditionBrowseModule:
+          $ref: "#/components/schemas/BrowseModule"
+        interventionBrowseModule:
+          $ref: "#/components/schemas/BrowseModule"
+    IdentificationModule:
+      type: "object"
+      properties:
+        nctId:
+          $ref: "#/components/schemas/nct"
+        nctIdAliases:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/nct"
+        orgStudyIdInfo:
+          $ref: "#/components/schemas/OrgStudyIdInfo"
+        secondaryIdInfos:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/SecondaryIdInfo"
+        briefTitle:
+          type: "string"
+        officialTitle:
+          type: "string"
+        acronym:
+          type: "string"
+        organization:
+          $ref: "#/components/schemas/Organization"
+    StatusModule:
+      type: "object"
+      properties:
+        statusVerifiedDate:
+          $ref: "#/components/schemas/PartialDate"
+        overallStatus:
+          $ref: "#/components/schemas/Status"
+        lastKnownStatus:
+          $ref: "#/components/schemas/Status"
+        delayedPosting:
+          type: "boolean"
+        whyStopped:
+          type: "string"
+        expandedAccessInfo:
+          $ref: "#/components/schemas/ExpandedAccessInfo"
+        startDateStruct:
+          $ref: "#/components/schemas/PartialDateStruct"
+        primaryCompletionDateStruct:
+          $ref: "#/components/schemas/PartialDateStruct"
+        completionDateStruct:
+          $ref: "#/components/schemas/PartialDateStruct"
+        studyFirstSubmitDate:
+          type: "string"
+          format: "date"
+        studyFirstSubmitQcDate:
+          type: "string"
+          format: "date"
+        studyFirstPostDateStruct:
+          $ref: "#/components/schemas/DateStruct"
+        resultsWaived:
+          type: "boolean"
+        resultsFirstSubmitDate:
+          type: "string"
+          format: "date"
+        resultsFirstSubmitQcDate:
+          type: "string"
+          format: "date"
+        resultsFirstPostDateStruct:
+          $ref: "#/components/schemas/DateStruct"
+        dispFirstSubmitDate:
+          type: "string"
+          format: "date"
+        dispFirstSubmitQcDate:
+          type: "string"
+          format: "date"
+        dispFirstPostDateStruct:
+          $ref: "#/components/schemas/DateStruct"
+        lastUpdateSubmitDate:
+          type: "string"
+          format: "date"
+        lastUpdatePostDateStruct:
+          $ref: "#/components/schemas/DateStruct"
+    SponsorCollaboratorsModule:
+      type: "object"
+      properties:
+        responsibleParty:
+          $ref: "#/components/schemas/ResponsibleParty"
+        leadSponsor:
+          $ref: "#/components/schemas/Sponsor"
+        collaborators:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Sponsor"
+    OversightModule:
+      type: "object"
+      properties:
+        oversightHasDmc:
+          type: "boolean"
+        isFdaRegulatedDrug:
+          type: "boolean"
+        isFdaRegulatedDevice:
+          type: "boolean"
+        isUnapprovedDevice:
+          type: "boolean"
+        isPpsd:
+          type: "boolean"
+        isUsExport:
+          type: "boolean"
+        fdaaa801Violation:
+          type: "boolean"
+    DescriptionModule:
+      type: "object"
+      properties:
+        briefSummary:
+          type: "string"
+        detailedDescription:
+          type: "string"
+    ConditionsModule:
+      type: "object"
+      properties:
+        conditions:
+          type: "array"
+          items:
+            type: "string"
+        keywords:
+          type: "array"
+          items:
+            type: "string"
+    DesignModule:
+      type: "object"
+      properties:
+        studyType:
+          $ref: "#/components/schemas/StudyType"
+        nPtrsToThisExpAccNctId:
+          type: "integer"
+        expandedAccessTypes:
+          $ref: "#/components/schemas/ExpandedAccessTypes"
+        patientRegistry:
+          type: "boolean"
+        targetDuration:
+          type: "string"
+          pattern: "^\\d+ (Year|Years|Month|Months|Week|Weeks|Day|Days|Hour|Hours|Minute|Minutes)$"
+        phases:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Phase"
+        designInfo:
+          $ref: "#/components/schemas/DesignInfo"
+        bioSpec:
+          $ref: "#/components/schemas/BioSpec"
+        enrollmentInfo:
+          $ref: "#/components/schemas/EnrollmentInfo"
+    ArmsInterventionsModule:
+      type: "object"
+      properties:
+        armGroups:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ArmGroup"
+        interventions:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Intervention"
+    OutcomesModule:
+      type: "object"
+      properties:
+        primaryOutcomes:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Outcome"
+        secondaryOutcomes:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Outcome"
+        otherOutcomes:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Outcome"
+    EligibilityModule:
+      type: "object"
+      properties:
+        eligibilityCriteria:
+          type: "string"
+        healthyVolunteers:
+          type: "boolean"
+        sex:
+          $ref: "#/components/schemas/Sex"
+        genderBased:
+          type: "boolean"
+        genderDescription:
+          type: "string"
+        minimumAge:
+          type: "string"
+          pattern: "^\\d+ (Year|Years|Month|Months|Week|Weeks|Day|Days|Hour|Hours|Minute|Minutes)$"
+        maximumAge:
+          type: "string"
+          pattern: "^\\d+ (Year|Years|Month|Months|Week|Weeks|Day|Days|Hour|Hours|Minute|Minutes)$"
+        stdAges:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/StandardAge"
+        studyPopulation:
+          type: "string"
+        samplingMethod:
+          $ref: "#/components/schemas/SamplingMethod"
+    ContactsLocationsModule:
+      type: "object"
+      properties:
+        centralContacts:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Contact"
+        overallOfficials:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Official"
+        locations:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Location"
+    ReferencesModule:
+      type: "object"
+      properties:
+        references:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Reference"
+        seeAlsoLinks:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/SeeAlsoLink"
+        availIpds:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/AvailIpd"
+    OutcomeMeasuresModule:
+      type: "object"
+      properties:
+        outcomeMeasures:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/OutcomeMeasure"
+    MoreInfoModule:
+      type: "object"
+      properties:
+        limitationsAndCaveats:
+          $ref: "#/components/schemas/LimitationsAndCaveats"
+        certainAgreement:
+          $ref: "#/components/schemas/CertainAgreement"
+        pointOfContact:
+          $ref: "#/components/schemas/PointOfContact"
+    AnnotationModule:
+      type: "object"
+      properties:
+        unpostedAnnotation:
+          $ref: "#/components/schemas/UnpostedAnnotation"
+        violationAnnotation:
+          $ref: "#/components/schemas/ViolationAnnotation"
+    MiscInfoModule:
+      type: "object"
+      properties:
+        versionHolder:
+          type: "string"
+          format: "date"
+        removedCountries:
+          type: "array"
+          items:
+            type: "string"
+        submissionTracking:
+          $ref: "#/components/schemas/SubmissionTracking"
+    UnpostedAnnotation:
+      type: "object"
+      properties:
+        unpostedResponsibleParty:
+          type: "string"
+        unpostedEvents:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/UnpostedEvent"
+    ViolationAnnotation:
+      type: "object"
+      properties:
+        violationEvents:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ViolationEvent"
+    SubmissionTracking:
+      type: "object"
+      properties:
+        estimatedResultsFirstSubmitDate:
+          type: "string"
+          format: "date"
+        firstMcpInfo:
+          $ref: "#/components/schemas/FirstMcpInfo"
+        submissionInfos:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/SubmissionInfo"
+    EnrollmentInfo:
+      type: "object"
+      properties:
+        count:
+          type: "integer"
+        type:
+          $ref: "#/components/schemas/EnrollmentType"
+    BioSpec:
+      type: "object"
+      properties:
+        retention:
+          $ref: "#/components/schemas/BioSpecRetention"
+        description:
+          type: "string"
+    SeeAlsoLink:
+      type: "object"
+      properties:
+        label:
+          type: "string"
+        url:
+          type: "string"
+    FirstMcpInfo:
+      type: "object"
+      properties:
+        postDateStruct:
+          $ref: "#/components/schemas/DateStruct"
+    ExpandedAccessTypes:
+      type: "object"
+      properties:
+        individual:
+          type: "boolean"
+        intermediate:
+          type: "boolean"
+        treatment:
+          type: "boolean"
+    Intervention:
+      type: "object"
+      properties:
+        type:
+          $ref: "#/components/schemas/InterventionType"
+        name:
+          type: "string"
+        description:
+          type: "string"
+        armGroupLabels:
+          type: "array"
+          items:
+            type: "string"
+        otherNames:
+          type: "array"
+          items:
+            type: "string"
+    SecondaryIdInfo:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        type:
+          $ref: "#/components/schemas/SecondaryIdType"
+        domain:
+          type: "string"
+        link:
+          type: "string"
+    AvailIpd:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        type:
+          type: "string"
+        url:
+          type: "string"
+        comment:
+          type: "string"
+    LimitationsAndCaveats:
+      type: "object"
+      properties:
+        description:
+          type: "string"
+    DateStruct:
+      type: "object"
+      properties:
+        date:
+          type: "string"
+          format: "date"
+        type:
+          $ref: "#/components/schemas/DateType"
+    SubmissionInfo:
+      type: "object"
+      properties:
+        releaseDate:
+          type: "string"
+          format: "date"
+        unreleaseDate:
+          type: "string"
+          format: "date"
+        unreleaseDateUnknown:
+          type: "boolean"
+        resetDate:
+          type: "string"
+          format: "date"
+        mcpReleaseN:
+          type: "integer"
+    ExpandedAccessInfo:
+      type: "object"
+      properties:
+        hasExpandedAccess:
+          type: "boolean"
+        nctId:
+          $ref: "#/components/schemas/nct"
+        statusForNctId:
+          $ref: "#/components/schemas/ExpandedAccessStatus"
+    AdverseEventsModule:
+      type: "object"
+      properties:
+        frequencyThreshold:
+          type: "string"
+        timeFrame:
+          type: "string"
+        description:
+          type: "string"
+        allCauseMortalityComment:
+          type: "string"
+        eventGroups:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/EventGroup"
+        seriousEvents:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/AdverseEvent"
+        otherEvents:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/AdverseEvent"
+    ViolationEvent:
+      type: "object"
+      properties:
+        type:
+          $ref: "#/components/schemas/ViolationEventType"
+        description:
+          type: "string"
+        creationDate:
+          type: "string"
+          format: "date"
+        issuedDate:
+          type: "string"
+          format: "date"
+        releaseDate:
+          type: "string"
+          format: "date"
+        postedDate:
+          type: "string"
+          format: "date"
+    ArmGroup:
+      type: "object"
+      properties:
+        label:
+          type: "string"
+        type:
+          $ref: "#/components/schemas/ArmGroupType"
+        description:
+          type: "string"
+        interventionNames:
+          type: "array"
+          items:
+            type: "string"
+    DesignInfo:
+      type: "object"
+      properties:
+        allocation:
+          $ref: "#/components/schemas/DesignAllocation"
+        interventionModel:
+          $ref: "#/components/schemas/InterventionalAssignment"
+        interventionModelDescription:
+          type: "string"
+        primaryPurpose:
+          $ref: "#/components/schemas/PrimaryPurpose"
+        observationalModel:
+          $ref: "#/components/schemas/ObservationalModel"
+        timePerspective:
+          $ref: "#/components/schemas/DesignTimePerspective"
+        maskingInfo:
+          $ref: "#/components/schemas/MaskingBlock"
+    Organization:
+      type: "object"
+      properties:
+        fullName:
+          type: "string"
+        class:
+          $ref: "#/components/schemas/AgencyClass"
+    PointOfContact:
+      type: "object"
+      properties:
+        title:
+          type: "string"
+        organization:
+          type: "string"
+        email:
+          type: "string"
+        phone:
+          type: "string"
+        phoneExt:
+          type: "string"
+    IpdSharingStatementModule:
+      type: "object"
+      properties:
+        ipdSharing:
+          $ref: "#/components/schemas/IpdSharing"
+        description:
+          type: "string"
+        infoTypes:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/IpdSharingInfoType"
+        timeFrame:
+          type: "string"
+        accessCriteria:
+          type: "string"
+        url:
+          type: "string"
+    OrgStudyIdInfo:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        type:
+          $ref: "#/components/schemas/OrgStudyIdType"
+        link:
+          type: "string"
+    ResponsibleParty:
+      type: "object"
+      properties:
+        type:
+          $ref: "#/components/schemas/ResponsiblePartyType"
+        investigatorFullName:
+          type: "string"
+        investigatorTitle:
+          type: "string"
+        investigatorAffiliation:
+          type: "string"
+        oldNameTitle:
+          type: "string"
+        oldOrganization:
+          type: "string"
+    CertainAgreement:
+      type: "object"
+      properties:
+        piSponsorEmployee:
+          type: "boolean"
+        restrictionType:
+          $ref: "#/components/schemas/AgreementRestrictionType"
+        restrictiveAgreement:
+          type: "boolean"
+        otherDetails:
+          type: "string"
+    UnpostedEvent:
+      type: "object"
+      properties:
+        type:
+          $ref: "#/components/schemas/UnpostedEventType"
+        date:
+          type: "string"
+          format: "date"
+        dateUnknown:
+          type: "boolean"
+    Contact:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+        role:
+          $ref: "#/components/schemas/ContactRole"
+        phone:
+          type: "string"
+        phoneExt:
+          type: "string"
+        email:
+          type: "string"
+    PartialDateStruct:
+      type: "object"
+      properties:
+        date:
+          $ref: "#/components/schemas/PartialDate"
+        type:
+          $ref: "#/components/schemas/DateType"
+    Outcome:
+      type: "object"
+      properties:
+        measure:
+          type: "string"
+        description:
+          type: "string"
+        timeFrame:
+          type: "string"
+    OutcomeMeasure:
+      type: "object"
+      properties:
+        type:
+          $ref: "#/components/schemas/OutcomeMeasureType"
+        title:
+          type: "string"
+        description:
+          type: "string"
+        populationDescription:
+          type: "string"
+        reportingStatus:
+          $ref: "#/components/schemas/ReportingStatus"
+        anticipatedPostingDate:
+          $ref: "#/components/schemas/PartialDate"
+        paramType:
+          $ref: "#/components/schemas/MeasureParam"
+        dispersionType:
+          type: "string"
+        unitOfMeasure:
+          type: "string"
+        calculatePct:
+          type: "boolean"
+        timeFrame:
+          type: "string"
+        typeUnitsAnalyzed:
+          type: "string"
+        denomUnitsSelected:
+          type: "string"
+        groups:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/MeasureGroup"
+        denoms:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Denom"
+        classes:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/MeasureClass"
+        analyses:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/MeasureAnalysis"
+    BaselineCharacteristicsModule:
+      type: "object"
+      properties:
+        populationDescription:
+          type: "string"
+        typeUnitsAnalyzed:
+          type: "string"
+        groups:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/MeasureGroup"
+        denoms:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Denom"
+        measures:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/BaselineMeasure"
+    Reference:
+      type: "object"
+      properties:
+        pmid:
+          type: "string"
+        type:
+          $ref: "#/components/schemas/ReferenceType"
+        citation:
+          type: "string"
+        retractions:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Retraction"
+    ParticipantFlowModule:
+      type: "object"
+      properties:
+        preAssignmentDetails:
+          type: "string"
+        recruitmentDetails:
+          type: "string"
+        typeUnitsAnalyzed:
+          type: "string"
+        groups:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/FlowGroup"
+        periods:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/FlowPeriod"
+    LargeDocumentModule:
+      type: "object"
+      properties:
+        noSap:
+          type: "boolean"
+        largeDocs:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/LargeDoc"
+    Location:
+      type: "object"
+      properties:
+        facility:
+          type: "string"
+        status:
+          $ref: "#/components/schemas/RecruitmentStatus"
+        city:
+          $ref: "#/components/schemas/GeoName"
+        state:
+          $ref: "#/components/schemas/GeoName"
+        zip:
+          type: "string"
+        country:
+          type: "string"
+        contacts:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Contact"
+        geoPoint:
+          $ref: "#/components/schemas/GeoPoint"
+    Sponsor:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+        class:
+          $ref: "#/components/schemas/AgencyClass"
+    BrowseModule:
+      type: "object"
+      properties:
+        meshes:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Mesh"
+        ancestors:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Mesh"
+        browseLeaves:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/BrowseLeaf"
+        browseBranches:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/BrowseBranch"
+    Official:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+        affiliation:
+          type: "string"
+        role:
+          $ref: "#/components/schemas/OfficialRole"
+    BrowseLeaf:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        name:
+          type: "string"
+        asFound:
+          type: "string"
+        relevance:
+          $ref: "#/components/schemas/BrowseLeafRelevance"
+    MaskingBlock:
+      type: "object"
+      properties:
+        masking:
+          $ref: "#/components/schemas/DesignMasking"
+        maskingDescription:
+          type: "string"
+        whoMasked:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/WhoMasked"
+    EventGroup:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        title:
+          type: "string"
+        description:
+          type: "string"
+        deathsNumAffected:
+          type: "integer"
+        deathsNumAtRisk:
+          type: "integer"
+        seriousNumAffected:
+          type: "integer"
+        seriousNumAtRisk:
+          type: "integer"
+        otherNumAffected:
+          type: "integer"
+        otherNumAtRisk:
+          type: "integer"
+    Mesh:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        term:
+          type: "string"
+    FlowGroup:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        title:
+          type: "string"
+        description:
+          type: "string"
+    MeasureAnalysis:
+      type: "object"
+      properties:
+        paramType:
+          type: "string"
+        paramValue:
+          type: "string"
+        dispersionType:
+          $ref: "#/components/schemas/AnalysisDispersionType"
+        dispersionValue:
+          type: "string"
+        statisticalMethod:
+          type: "string"
+        statisticalComment:
+          type: "string"
+        pValue:
+          type: "string"
+        pValueComment:
+          type: "string"
+        ciNumSides:
+          $ref: "#/components/schemas/ConfidenceIntervalNumSides"
+        ciPctValue:
+          type: "string"
+        ciLowerLimit:
+          type: "string"
+        ciUpperLimit:
+          type: "string"
+        ciLowerLimitComment:
+          type: "string"
+        ciUpperLimitComment:
+          type: "string"
+        estimateComment:
+          type: "string"
+        testedNonInferiority:
+          type: "boolean"
+        nonInferiorityType:
+          $ref: "#/components/schemas/NonInferiorityType"
+        nonInferiorityComment:
+          type: "string"
+        otherAnalysisDescription:
+          type: "string"
+        groupDescription:
+          type: "string"
+        groupIds:
+          type: "array"
+          items:
+            type: "string"
+    AdverseEvent:
+      type: "object"
+      properties:
+        term:
+          type: "string"
+        organSystem:
+          type: "string"
+        sourceVocabulary:
+          type: "string"
+        assessmentType:
+          $ref: "#/components/schemas/EventAssessment"
+        notes:
+          type: "string"
+        stats:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/EventStats"
+    Retraction:
+      type: "object"
+      properties:
+        pmid:
+          type: "string"
+        source:
+          type: "string"
+    Denom:
+      type: "object"
+      properties:
+        units:
+          type: "string"
+        counts:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/DenomCount"
+    FlowPeriod:
+      type: "object"
+      properties:
+        title:
+          type: "string"
+        milestones:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/FlowMilestone"
+        dropWithdraws:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/DropWithdraw"
+    MeasureGroup:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        title:
+          type: "string"
+        description:
+          type: "string"
+    MeasureClass:
+      type: "object"
+      properties:
+        title:
+          type: "string"
+        denoms:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Denom"
+        categories:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/MeasureCategory"
+    BrowseBranch:
+      type: "object"
+      properties:
+        abbrev:
+          type: "string"
+        name:
+          type: "string"
+    BaselineMeasure:
+      type: "object"
+      properties:
+        title:
+          type: "string"
+        description:
+          type: "string"
+        populationDescription:
+          type: "string"
+        paramType:
+          $ref: "#/components/schemas/MeasureParam"
+        dispersionType:
+          $ref: "#/components/schemas/MeasureDispersionType"
+        unitOfMeasure:
+          type: "string"
+        calculatePct:
+          type: "boolean"
+        denomUnitsSelected:
+          type: "string"
+        denoms:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Denom"
+        classes:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/MeasureClass"
+    LargeDoc:
+      type: "object"
+      properties:
+        typeAbbrev:
+          type: "string"
+        hasProtocol:
+          type: "boolean"
+        hasSap:
+          type: "boolean"
+        hasIcf:
+          type: "boolean"
+        label:
+          type: "string"
+        date:
+          type: "string"
+          format: "date"
+        uploadDate:
+          $ref: "#/components/schemas/DateTimeMinutes"
+        filename:
+          type: "string"
+        size:
+          type: "integer"
+    DropWithdraw:
+      type: "object"
+      properties:
+        type:
+          type: "string"
+        comment:
+          type: "string"
+        reasons:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/FlowStats"
+    DenomCount:
+      type: "object"
+      properties:
+        groupId:
+          type: "string"
+        value:
+          type: "string"
+    EventStats:
+      type: "object"
+      properties:
+        groupId:
+          type: "string"
+        numEvents:
+          type: "integer"
+        numAffected:
+          type: "integer"
+        numAtRisk:
+          type: "integer"
+    MeasureCategory:
+      type: "object"
+      properties:
+        title:
+          type: "string"
+        measurements:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Measurement"
+    FlowMilestone:
+      type: "object"
+      properties:
+        type:
+          type: "string"
+        comment:
+          type: "string"
+        achievements:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/FlowStats"
+    FlowStats:
+      type: "object"
+      properties:
+        groupId:
+          type: "string"
+        comment:
+          type: "string"
+        numSubjects:
+          type: "string"
+        numUnits:
+          type: "string"
+    Measurement:
+      type: "object"
+      properties:
+        groupId:
+          type: "string"
+        value:
+          type: "string"
+        spread:
+          type: "string"
+        lowerLimit:
+          type: "string"
+        upperLimit:
+          type: "string"
+        comment:
+          type: "string"
+    Status:
+      type: "string"
+      enum:
+      - "ACTIVE_NOT_RECRUITING"
+      - "COMPLETED"
+      - "ENROLLING_BY_INVITATION"
+      - "NOT_YET_RECRUITING"
+      - "RECRUITING"
+      - "SUSPENDED"
+      - "TERMINATED"
+      - "WITHDRAWN"
+      - "AVAILABLE"
+      - "NO_LONGER_AVAILABLE"
+      - "TEMPORARILY_NOT_AVAILABLE"
+      - "APPROVED_FOR_MARKETING"
+      - "WITHHELD"
+      - "UNKNOWN"
+    StudyType:
+      type: "string"
+      enum:
+      - "EXPANDED_ACCESS"
+      - "INTERVENTIONAL"
+      - "OBSERVATIONAL"
+    Phase:
+      type: "string"
+      enum:
+      - "NA"
+      - "EARLY_PHASE1"
+      - "PHASE1"
+      - "PHASE2"
+      - "PHASE3"
+      - "PHASE4"
+    Sex:
+      type: "string"
+      enum:
+      - "FEMALE"
+      - "MALE"
+      - "ALL"
+    StandardAge:
+      type: "string"
+      enum:
+      - "CHILD"
+      - "ADULT"
+      - "OLDER_ADULT"
+    SamplingMethod:
+      type: "string"
+      enum:
+      - "PROBABILITY_SAMPLE"
+      - "NON_PROBABILITY_SAMPLE"
+    IpdSharing:
+      type: "string"
+      enum:
+      - "YES"
+      - "NO"
+      - "UNDECIDED"
+    IpdSharingInfoType:
+      type: "string"
+      enum:
+      - "STUDY_PROTOCOL"
+      - "SAP"
+      - "ICF"
+      - "CSR"
+      - "ANALYTIC_CODE"
+    OrgStudyIdType:
+      type: "string"
+      enum:
+      - "NIH"
+      - "FDA"
+      - "VA"
+      - "CDC"
+      - "AHRQ"
+      - "SAMHSA"
+    SecondaryIdType:
+      type: "string"
+      enum:
+      - "NIH"
+      - "FDA"
+      - "VA"
+      - "CDC"
+      - "AHRQ"
+      - "SAMHSA"
+      - "OTHER_GRANT"
+      - "EUDRACT_NUMBER"
+      - "CTIS"
+      - "REGISTRY"
+      - "OTHER"
+    AgencyClass:
+      type: "string"
+      enum:
+      - "NIH"
+      - "FED"
+      - "OTHER_GOV"
+      - "INDIV"
+      - "INDUSTRY"
+      - "NETWORK"
+      - "AMBIG"
+      - "OTHER"
+      - "UNKNOWN"
+    ExpandedAccessStatus:
+      type: "string"
+      enum:
+      - "AVAILABLE"
+      - "NO_LONGER_AVAILABLE"
+      - "TEMPORARILY_NOT_AVAILABLE"
+      - "APPROVED_FOR_MARKETING"
+    DateType:
+      type: "string"
+      enum:
+      - "ACTUAL"
+      - "ESTIMATED"
+    ResponsiblePartyType:
+      type: "string"
+      enum:
+      - "SPONSOR"
+      - "PRINCIPAL_INVESTIGATOR"
+      - "SPONSOR_INVESTIGATOR"
+    DesignAllocation:
+      type: "string"
+      enum:
+      - "RANDOMIZED"
+      - "NON_RANDOMIZED"
+      - "NA"
+    InterventionalAssignment:
+      type: "string"
+      enum:
+      - "SINGLE_GROUP"
+      - "PARALLEL"
+      - "CROSSOVER"
+      - "FACTORIAL"
+      - "SEQUENTIAL"
+    PrimaryPurpose:
+      type: "string"
+      enum:
+      - "TREATMENT"
+      - "PREVENTION"
+      - "DIAGNOSTIC"
+      - "ECT"
+      - "SUPPORTIVE_CARE"
+      - "SCREENING"
+      - "HEALTH_SERVICES_RESEARCH"
+      - "BASIC_SCIENCE"
+      - "DEVICE_FEASIBILITY"
+      - "OTHER"
+    ObservationalModel:
+      type: "string"
+      enum:
+      - "COHORT"
+      - "CASE_CONTROL"
+      - "CASE_ONLY"
+      - "CASE_CROSSOVER"
+      - "ECOLOGIC_OR_COMMUNITY"
+      - "FAMILY_BASED"
+      - "DEFINED_POPULATION"
+      - "NATURAL_HISTORY"
+      - "OTHER"
+    DesignTimePerspective:
+      type: "string"
+      enum:
+      - "RETROSPECTIVE"
+      - "PROSPECTIVE"
+      - "CROSS_SECTIONAL"
+      - "OTHER"
+    BioSpecRetention:
+      type: "string"
+      enum:
+      - "NONE_RETAINED"
+      - "SAMPLES_WITH_DNA"
+      - "SAMPLES_WITHOUT_DNA"
+    EnrollmentType:
+      type: "string"
+      enum:
+      - "ACTUAL"
+      - "ESTIMATED"
+    ArmGroupType:
+      type: "string"
+      enum:
+      - "EXPERIMENTAL"
+      - "ACTIVE_COMPARATOR"
+      - "PLACEBO_COMPARATOR"
+      - "SHAM_COMPARATOR"
+      - "NO_INTERVENTION"
+      - "OTHER"
+    InterventionType:
+      type: "string"
+      enum:
+      - "BEHAVIORAL"
+      - "BIOLOGICAL"
+      - "COMBINATION_PRODUCT"
+      - "DEVICE"
+      - "DIAGNOSTIC_TEST"
+      - "DIETARY_SUPPLEMENT"
+      - "DRUG"
+      - "GENETIC"
+      - "PROCEDURE"
+      - "RADIATION"
+      - "OTHER"
+    ContactRole:
+      type: "string"
+      enum:
+      - "STUDY_CHAIR"
+      - "STUDY_DIRECTOR"
+      - "PRINCIPAL_INVESTIGATOR"
+      - "SUB_INVESTIGATOR"
+      - "CONTACT"
+    OfficialRole:
+      type: "string"
+      enum:
+      - "STUDY_CHAIR"
+      - "STUDY_DIRECTOR"
+      - "PRINCIPAL_INVESTIGATOR"
+      - "SUB_INVESTIGATOR"
+    RecruitmentStatus:
+      type: "string"
+      enum:
+      - "ACTIVE_NOT_RECRUITING"
+      - "COMPLETED"
+      - "ENROLLING_BY_INVITATION"
+      - "NOT_YET_RECRUITING"
+      - "RECRUITING"
+      - "SUSPENDED"
+      - "TERMINATED"
+      - "WITHDRAWN"
+      - "AVAILABLE"
+    ReferenceType:
+      type: "string"
+      enum:
+      - "BACKGROUND"
+      - "RESULT"
+      - "DERIVED"
+    MeasureParam:
+      type: "string"
+      enum:
+      - "GEOMETRIC_MEAN"
+      - "GEOMETRIC_LEAST_SQUARES_MEAN"
+      - "LEAST_SQUARES_MEAN"
+      - "LOG_MEAN"
+      - "MEAN"
+      - "MEDIAN"
+      - "NUMBER"
+      - "COUNT_OF_PARTICIPANTS"
+      - "COUNT_OF_UNITS"
+    MeasureDispersionType:
+      type: "string"
+      enum:
+      - "NA"
+      - "STANDARD_DEVIATION"
+      - "STANDARD_ERROR"
+      - "INTER_QUARTILE_RANGE"
+      - "FULL_RANGE"
+      - "CONFIDENCE_80"
+      - "CONFIDENCE_90"
+      - "CONFIDENCE_95"
+      - "CONFIDENCE_975"
+      - "CONFIDENCE_99"
+      - "CONFIDENCE_OTHER"
+      - "GEOMETRIC_COEFFICIENT"
+    OutcomeMeasureType:
+      type: "string"
+      enum:
+      - "PRIMARY"
+      - "SECONDARY"
+      - "OTHER_PRE_SPECIFIED"
+      - "POST_HOC"
+    ReportingStatus:
+      type: "string"
+      enum:
+      - "NOT_POSTED"
+      - "POSTED"
+    EventAssessment:
+      type: "string"
+      enum:
+      - "NON_SYSTEMATIC_ASSESSMENT"
+      - "SYSTEMATIC_ASSESSMENT"
+    AgreementRestrictionType:
+      type: "string"
+      enum:
+      - "LTE60"
+      - "GT60"
+      - "OTHER"
+    BrowseLeafRelevance:
+      type: "string"
+      enum:
+      - "LOW"
+      - "HIGH"
+    DesignMasking:
+      type: "string"
+      enum:
+      - "NONE"
+      - "SINGLE"
+      - "DOUBLE"
+      - "TRIPLE"
+      - "QUADRUPLE"
+    WhoMasked:
+      type: "string"
+      enum:
+      - "PARTICIPANT"
+      - "CARE_PROVIDER"
+      - "INVESTIGATOR"
+      - "OUTCOMES_ASSESSOR"
+    AnalysisDispersionType:
+      type: "string"
+      enum:
+      - "STANDARD_DEVIATION"
+      - "STANDARD_ERROR_OF_MEAN"
+    ConfidenceIntervalNumSides:
+      type: "string"
+      enum:
+      - "ONE_SIDED"
+      - "TWO_SIDED"
+    NonInferiorityType:
+      type: "string"
+      enum:
+      - "SUPERIORITY"
+      - "NON_INFERIORITY"
+      - "EQUIVALENCE"
+      - "OTHER"
+      - "NON_INFERIORITY_OR_EQUIVALENCE"
+      - "SUPERIORITY_OR_OTHER"
+      - "NON_INFERIORITY_OR_EQUIVALENCE_LEGACY"
+      - "SUPERIORITY_OR_OTHER_LEGACY"
+    UnpostedEventType:
+      type: "string"
+      enum:
+      - "RESET"
+      - "RELEASE"
+      - "UNRELEASE"
+    ViolationEventType:
+      type: "string"
+      enum:
+      - "VIOLATION_IDENTIFIED"
+      - "CORRECTION_CONFIRMED"
+      - "PENALTY_IMPOSED"
+      - "ISSUES_IN_LETTER_ADDRESSED_CONFIRMED"
+    GeoPoint:
+      type: "object"
+      properties:
+        lat:
+          type: "number"
+        lon:
+          type: "number"
+      required:
+      - "lat"
+      - "lon"
+    FieldValuesStatsList:
+      type: "array"
+      items:
+        $ref: "#/components/schemas/FieldValuesStats"
+    FieldValuesStats:
+      anyOf:
+      - $ref: "#/components/schemas/EnumStats"
+      - $ref: "#/components/schemas/StringStats"
+      - $ref: "#/components/schemas/DateStats"
+      - $ref: "#/components/schemas/IntegerStats"
+      - $ref: "#/components/schemas/NumberStats"
+      - $ref: "#/components/schemas/BooleanStats"
+    StudyList:
+      title: "Array of studies"
+      description: "`study` field values of type `markup` are in markdown format.\n"
+      type: "array"
+      items:
+        $ref: "#/components/schemas/Study"
+    StudiesCsv:
+      description: "Study objects in csv file"
+      type: "string"
+    StudiesZip:
+      description: "Study objects as files in zip archive"
+      type: "string"
+    StudyFhir:
+      description: "Study in FHIR JSON format"
+      type: "object"
+    Csv:
+      description: "CSV file"
+      type: "string"
+    nct:
+      type: "string"
+      minLength: 11
+      maxLength: 11
+      description: "NCT number"
+    PartialDate:
+      type: "string"
+      description: "Date in `yyyy`, `yyyy-MM`, or `yyyy-MM-dd` format"
+    DateTimeMinutes:
+      type: "string"
+      description: "Date and time in `yyyy-MM-dd'T'HH:mm` format"
+    GeoName:
+      type: "string"
+      description: "State/province or city name"
+    errorMessage:
+      type: "string"
+      description: "A text message describing an error"
+externalDocs:
+  description: "Introduction on clinicaltrials.gov"
+  url: "https://clinicaltrials.gov/data-about-studies/learn-about-api"

@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-08-17T17:35:52.127632Z",
+  "cli_dir": "\u003ccli-dir\u003e/google-calendar-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-08-17T17:28:45.475893Z"
+  }
+}

@@ -15,9 +15,11 @@ import (
 	"fmt"
 	"html"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/youtube/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/youtube/internal/cliutil"
 
 	"github.com/spf13/cobra"
@@ -66,7 +68,7 @@ func newYoutubePlaylistEnrichCmd(flags *rootFlags) *cobra.Command {
 		Use:         "playlist-enrich <playlistUrlOrId>",
 		Short:       "Resolve a playlist to per-video metadata + transcript + description in one concurrent call",
 		Example:     "  youtube-pp-cli youtube playlist-enrich https://www.youtube.com/playlist?list=PLxxxx --limit 25",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "playlist=UU_x5XG1OV2P6uZZ5FSM9Ttw;--limit=3", "pp:typed-exit-codes": "0,2,3,5"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -98,7 +100,7 @@ func newYoutubePlaylistEnrichCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			c = c.WithContext(cmd.Context())
+			getter := contextualAPIGetter{ctx: cmd.Context(), client: c}
 
 			out := playlistEnrichResponse{
 				PlaylistID: playlistID,
@@ -109,13 +111,13 @@ func newYoutubePlaylistEnrichCmd(flags *rootFlags) *cobra.Command {
 			// 1. Resolve the playlist title (best-effort; playlistItems.list
 			// does not carry it). A failure here is non-fatal — enrichment
 			// proceeds without the title.
-			out.PlaylistTitle = fetchPlaylistTitle(c, playlistID)
+			out.PlaylistTitle = fetchPlaylistTitle(getter, playlistID)
 
 			// 2. Walk the playlist to collect ordered video IDs. Cap the page
 			// walk so a giant playlist doesn't burn quota; we only need enough
 			// items to cover startIndex+limit.
 			needed := startIndex + limit
-			ordered, totalItems, walkWarns, err := walkPlaylistItems(c, playlistID, needed, flags)
+			ordered, totalItems, walkWarns, err := walkPlaylistItems(getter, playlistID, needed, flags)
 			if err != nil {
 				return err
 			}
@@ -143,7 +145,7 @@ func newYoutubePlaylistEnrichCmd(flags *rootFlags) *cobra.Command {
 			window := ordered[startIndex:end]
 
 			// 4. Batch-fetch metadata via videos.list (50 IDs per call).
-			meta, metaWarns := fetchVideoMetadata(c, window)
+			meta, metaWarns := fetchVideoMetadata(getter, window)
 			out.Warnings = append(out.Warnings, metaWarns...)
 
 			// 5. Assemble rows, fanning out transcript fetches concurrently.
@@ -232,6 +234,17 @@ type apiGetter interface {
 	GetWithHeaders(path string, params, headers map[string]string) (json.RawMessage, error)
 }
 
+// contextualAPIGetter adapts the context-aware generated client to the narrow
+// legacy helper interface retained for unit-test fakes.
+type contextualAPIGetter struct {
+	ctx    context.Context
+	client *client.Client
+}
+
+func (g contextualAPIGetter) GetWithHeaders(path string, params, headers map[string]string) (json.RawMessage, error) {
+	return g.client.GetWithHeaders(g.ctx, path, params, headers)
+}
+
 // playlistEntry is one resolved playlist item before metadata enrichment.
 type playlistEntry struct {
 	videoID  string
@@ -309,7 +322,7 @@ func walkPlaylistItems(c apiGetter, playlistID string, needed int, flags *rootFl
 		data, err := c.GetWithHeaders("/youtube/v3/playlistItems", params, nil)
 		if err != nil {
 			if page == 0 {
-				return nil, 0, warnings, classifyAPIError(err, flags)
+				return nil, 0, warnings, classifyAPIError(os.Stderr, err, flags)
 			}
 			warnings = append(warnings, fmt.Sprintf("playlist page %d fetch failed: %v", page+1, err))
 			break

@@ -1,0 +1,64 @@
+{
+  "passed": false,
+  "exit_code": 3,
+  "started_at": "2026-07-12T19:08:36Z",
+  "elapsed_ms": 18248,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-12T19:08:36Z",
+      "elapsed_ms": 14618,
+      "command": "/Users/omarshahine/go/bin/cli-printing-press verify --dir /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-190027-jj-reprint428/working/jimmy-johns-pp-cli --write-manifest /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-190027-jj-reprint428/working/jimmy-johns-pp-cli/.printing-press.json --spec /Users/omarshahine/printing-press/library/jimmy-johns/spec.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-12T19:08:50Z",
+      "elapsed_ms": 13,
+      "command": "/Users/omarshahine/go/bin/cli-printing-press validate-narrative --strict --full-examples --research /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-190027-jj-reprint428/research.json --binary /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-190027-jj-reprint428/working/jimmy-johns-pp-cli/jimmy-johns-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-12T19:08:50Z",
+      "elapsed_ms": 2495,
+      "command": "/Users/omarshahine/go/bin/cli-printing-press dogfood --dir /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-190027-jj-reprint428/working/jimmy-johns-pp-cli --spec /Users/omarshahine/printing-press/library/jimmy-johns/spec.yaml --research-dir /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-190027-jj-reprint428"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-12T19:08:53Z",
+      "elapsed_ms": 21,
+      "command": "/Users/omarshahine/go/bin/cli-printing-press workflow-verify --dir /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-190027-jj-reprint428/working/jimmy-johns-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-12T19:08:53Z",
+      "elapsed_ms": 37,
+      "command": "/Users/omarshahine/go/bin/cli-printing-press apify-audit --dir /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-190027-jj-reprint428/working/jimmy-johns-pp-cli --research-dir /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-190027-jj-reprint428"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-12T19:08:53Z",
+      "elapsed_ms": 710,
+      "command": "/Users/omarshahine/go/bin/cli-printing-press verify-skill --dir /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-190027-jj-reprint428/working/jimmy-johns-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 3,
+      "passed": false,
+      "started_at": "2026-07-12T19:08:54Z",
+      "elapsed_ms": 352,
+      "command": "/Users/omarshahine/go/bin/cli-printing-press scorecard --dir /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-190027-jj-reprint428/working/jimmy-johns-pp-cli --write-manifest /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-190027-jj-reprint428/working/jimmy-johns-pp-cli/.printing-press.json --research-dir /Users/omarshahine/printing-press/.runstate/reprint-0afd6870/runs/20260712-190027-jj-reprint428 --spec /Users/omarshahine/printing-press/library/jimmy-johns/spec.yaml --live-check"
+    }
+  ]
+}

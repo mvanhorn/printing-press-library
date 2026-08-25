@@ -1,0 +1,301 @@
+{
+  "api_name": "woolworths",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "Woolworths-mcp",
+      "url": "https://github.com/elijah-g/Woolworths-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 14,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "aus_grocery_price_database",
+      "url": "https://github.com/tjhowse/aus_grocery_price_database",
+      "language": "Go",
+      "install_method": "",
+      "stars": 40,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "coles_vs_woolies",
+      "url": "https://github.com/MattTimms/coles_vs_woolies",
+      "language": "Python",
+      "install_method": "",
+      "stars": 23,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "au-supermarket-apis",
+      "url": "https://github.com/drkno/au-supermarket-apis",
+      "language": "YAML",
+      "install_method": "",
+      "stars": 31,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "coles-woolworths-mcp-server",
+      "url": "https://github.com/hung-ngm/coles-woolworths-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 35,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Woolies",
+      "url": "https://github.com/tascord/Woolies",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 33,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "grocery-scraper",
+      "url": "https://github.com/Grocermatic/grocery-scraper",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 6,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-23T10:20:00Z",
+  "novel_features": [
+    {
+      "name": "Genuine-special verdict",
+      "command": "real-special",
+      "description": "Tells you whether an advertised special is genuinely cheap or just a lower number next to an inflated was-price.",
+      "rationale": "Requires comparing today's live tile against a local price history the API has no endpoint for.",
+      "example": "woolworths-pp-cli real-special \"tim tam\" --limit 2 --agent",
+      "why_it_matters": "Reach for this instead of reading the SAVE badge: it returns one decided verdict per product rather than raw prices you have to judge yourself.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Half-price cycle forecast",
+      "command": "cycle",
+      "description": "Estimates when a product's next half-price window is likely to open, from its own recorded discount episodes.",
+      "rationale": "Needs a timeseries of half-price episodes that only accumulates locally; no Woolworths endpoint exposes history.",
+      "example": "woolworths-pp-cli cycle 6073909 --agent",
+      "why_it_matters": "Use this to decide buy-one-or-buy-six on a stockpile item, instead of guessing whether the deal returns next month.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Cheaper substitute finder",
+      "command": "swap",
+      "description": "Ranks in-stock alternatives by unit price normalised across different measure bases, so per-100g and per-1kg tiles compare correctly.",
+      "rationale": "Server-side unit-price sorting only orders within a single measure basis, so it breaks on any category that mixes them.",
+      "example": "woolworths-pp-cli swap \"olive oil\" --limit 3 --max-scan-pages 1 --agent",
+      "why_it_matters": "Pick this when the question is which product is genuinely cheaper per unit, not which has the lowest shelf price.",
+      "group": "Unit-price intelligence"
+    },
+    {
+      "name": "Basket costing from a list",
+      "command": "basket",
+      "description": "Prices a whole shopping list, showing which lines moved since the last time you ran it and what it did to the total.",
+      "rationale": "Joins live per-line pricing against local history; the site can show a trolley total but never a trend.",
+      "example": "woolworths-pp-cli basket ./groceries.txt --record=false --agent",
+      "why_it_matters": "Use this to turn a plain-text list into a costed, decided answer in one call instead of dozens of searches.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Specials rollover diff",
+      "command": "specials-diff",
+      "description": "Shows what entered and left each specials group since your last sync, with how long since each entrant was last discounted.",
+      "rationale": "Requires two local snapshots; the specials endpoint returns a flat list with no notion of change.",
+      "example": "woolworths-pp-cli specials-diff --limit 5 --agent",
+      "why_it_matters": "Reach for this on catalogue-rollover day to see only what actually changed rather than re-reading the whole specials list.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Multi-buy effective unit price",
+      "command": "multibuy",
+      "description": "Works out what a multi-buy offer actually costs per unit at the quantity it demands, versus buying singly or buying a larger pack.",
+      "rationale": "The realised per-unit price at the required quantity appears in no API response field; it has to be computed.",
+      "example": "woolworths-pp-cli multibuy chocolate --limit 3 --max-scan-pages 1 --agent",
+      "why_it_matters": "Use this before accepting a 2-for-$9 style offer, since a bigger single pack is often cheaper per unit.",
+      "group": "Unit-price intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Genuine-special verdict",
+      "command": "real-special",
+      "description": "Tells you whether an advertised special is genuinely cheap or just a lower number next to an inflated was-price.",
+      "rationale": "Requires comparing today's live tile against a local price history the API has no endpoint for.",
+      "example": "woolworths-pp-cli real-special \"tim tam\" --limit 2 --agent",
+      "why_it_matters": "Reach for this instead of reading the SAVE badge: it returns one decided verdict per product rather than raw prices you have to judge yourself.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Half-price cycle forecast",
+      "command": "cycle",
+      "description": "Estimates when a product's next half-price window is likely to open, from its own recorded discount episodes.",
+      "rationale": "Needs a timeseries of half-price episodes that only accumulates locally; no Woolworths endpoint exposes history.",
+      "example": "woolworths-pp-cli cycle 6073909 --agent",
+      "why_it_matters": "Use this to decide buy-one-or-buy-six on a stockpile item, instead of guessing whether the deal returns next month.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Cheaper substitute finder",
+      "command": "swap",
+      "description": "Ranks in-stock alternatives by unit price normalised across different measure bases, so per-100g and per-1kg tiles compare correctly.",
+      "rationale": "Server-side unit-price sorting only orders within a single measure basis, so it breaks on any category that mixes them.",
+      "example": "woolworths-pp-cli swap \"olive oil\" --limit 3 --max-scan-pages 1 --agent",
+      "why_it_matters": "Pick this when the question is which product is genuinely cheaper per unit, not which has the lowest shelf price.",
+      "group": "Unit-price intelligence"
+    },
+    {
+      "name": "Basket costing from a list",
+      "command": "basket",
+      "description": "Prices a whole shopping list, showing which lines moved since the last time you ran it and what it did to the total.",
+      "rationale": "Joins live per-line pricing against local history; the site can show a trolley total but never a trend.",
+      "example": "woolworths-pp-cli basket ./groceries.txt --record=false --agent",
+      "why_it_matters": "Use this to turn a plain-text list into a costed, decided answer in one call instead of dozens of searches.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Specials rollover diff",
+      "command": "specials-diff",
+      "description": "Shows what entered and left each specials group since your last sync, with how long since each entrant was last discounted.",
+      "rationale": "Requires two local snapshots; the specials endpoint returns a flat list with no notion of change.",
+      "example": "woolworths-pp-cli specials-diff --limit 5 --agent",
+      "why_it_matters": "Reach for this on catalogue-rollover day to see only what actually changed rather than re-reading the whole specials list.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Multi-buy effective unit price",
+      "command": "multibuy",
+      "description": "Works out what a multi-buy offer actually costs per unit at the quantity it demands, versus buying singly or buying a larger pack.",
+      "rationale": "The realised per-unit price at the required quantity appears in no API response field; it has to be computed.",
+      "example": "woolworths-pp-cli multibuy chocolate --limit 3 --max-scan-pages 1 --agent",
+      "why_it_matters": "Use this before accepting a 2-for-$9 style offer, since a bigger single pack is often cheaper per unit.",
+      "group": "Unit-price intelligence"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Woolworths",
+    "headline": "Every Woolworths catalogue, specials, store and trolley surface, plus a local price history that can tell a genuine half-price from an inflated was-price.",
+    "value_prop": "Woolworths shows you today's price and a SAVE badge, and the badge is exactly what shoppers say they cannot trust. This CLI keeps its own price history in SQLite, so real-special returns a verdict instead of a number, cycle forecasts when the next half-price window opens, and swap ranks alternatives by unit price normalised across measure bases. It needs no API key, no login for the catalogue, and no headless browser. It is read-only apart from adding to a guest trolley.",
+    "auth_narrative": "The catalogue, specials, stores and guest trolley need no account at all - only browser-shaped headers and a cookie jar the CLI warms automatically on first call. Personal surfaces (saved lists, past shops) sit behind Auth0 universal login with MFA, so there is no username/password flow to automate. On macOS and Linux, 'auth login --chrome' imports an existing logged-in Chrome session. On Windows that import is unavailable (the underlying cookie reader does not support it), so saved lists and past shops cannot be used there; the rest of the CLI is unaffected.",
+    "quickstart": [
+      {
+        "command": "woolworths-pp-cli doctor",
+        "comment": "Confirms the cookie-warm transport reaches the API before anything else"
+      },
+      {
+        "command": "woolworths-pp-cli products search --term \"tim tam\" --page-size 5",
+        "comment": "The catalogue works immediately with no key and no login"
+      },
+      {
+        "command": "woolworths-pp-cli swap \"olive oil\" --limit 3 --max-scan-pages 1",
+        "comment": "Unit-price ranking needs no history, so it is useful from the very first run"
+      },
+      {
+        "command": "woolworths-pp-cli specials-diff --refresh",
+        "comment": "Records the first specials snapshot; run it again later to get a real diff"
+      },
+      {
+        "command": "woolworths-pp-cli real-special \"tim tam\" --limit 2",
+        "comment": "Records observations and reports NO-HISTORY until enough accumulate"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "The first command on a new machine takes about 13 seconds",
+        "fix": "Expected. The client warms an Akamai cookie jar once per profile; later commands run in about a second. It is not a fault and needs no action."
+      },
+      {
+        "symptom": "HTTP 403 with an Access Denied HTML body",
+        "fix": "The request went out without browser-shaped headers. Upgrade the CLI rather than setting a custom user agent."
+      },
+      {
+        "symptom": "real-special or cycle reports NO-HISTORY or an empty forecast",
+        "fix": "Expected before history accumulates. Re-run 'real-special \u003cterm\u003e' on the products you care about over several weeks; each run records an observation."
+      },
+      {
+        "symptom": "'sync' reports that a resource failed",
+        "fix": "Only 'settings' syncs blind on this API. Every other list endpoint needs an argument, so price history is built by 'real-special' and 'specials-diff --refresh', not by 'sync'."
+      },
+      {
+        "symptom": "Saved lists or past shops return empty or 401",
+        "fix": "The Auth0 session has expired. Log in to Woolworths in Chrome, then re-run 'auth login --chrome'."
+      },
+      {
+        "symptom": "A page size above 36 returns HTTP 400",
+        "fix": "Woolworths hard-caps page size at 36. Use --limit and let the client paginate."
+      }
+    ],
+    "when_to_use": "Use this CLI for Australian grocery pricing questions that need a decided answer rather than raw product JSON: whether a special is genuine, when a discount is likely to return, which alternative is cheaper per unit, and what a whole shopping list costs versus last time. It is also the right tool for building or costing a trolley programmatically, since the guest trolley works without any account.",
+    "anti_triggers": [
+      "Do not use this CLI for Everyday Rewards points, boosters, or e-receipts - that stack is MFA-gated with short-lived tokens and is not automatable.",
+      "Do not use this CLI to compare against Coles, ALDI or IGA - it covers Woolworths only.",
+      "Do not use this CLI to look up a product by barcode - the barcode endpoint lives on a mobile API whose key is revoked.",
+      "Do not use this CLI to place or pay for an order - it can build a trolley but does not check out.",
+      "Do not use this CLI as a bulk catalogue scraper - it rate-limits deliberately, and walking every category is what gets shoppers IP-banned.",
+      "Do not rely on 'sync' to build price history - on this API only 'settings' syncs blind; the history-recording commands are 'real-special' and 'specials-diff --refresh'.",
+      "Do not use 'auth login --chrome' on Windows - browser-session import is unavailable there, so saved lists and past shops are unreachable on that platform.",
+      "Do not use 'basket --dry-run' to price a list; it only echoes the action. Use '--record=false' for a real run that writes nothing."
+    ],
+    "recipes": [
+      {
+        "title": "Check a special before you buy",
+        "command": "woolworths-pp-cli real-special \"tim tam\" --agent",
+        "explanation": "Returns a verdict per matching product rather than a price you have to interpret."
+      },
+      {
+        "title": "Narrow a large search for an agent",
+        "command": "woolworths-pp-cli products search --term milk --agent --select Products.Products.Name,Products.Products.Price,Products.Products.CupString",
+        "explanation": "A bare search returns hundreds of KB; selecting three dotted paths keeps the response small enough to reason over."
+      },
+      {
+        "title": "Find a cheaper equivalent by real unit price",
+        "command": "woolworths-pp-cli swap \"olive oil\" --limit 10 --agent",
+        "explanation": "Normalises across per-100g and per-1L tiles so the ranking is honest."
+      },
+      {
+        "title": "See what changed on catalogue rollover",
+        "command": "woolworths-pp-cli specials-diff --agent",
+        "explanation": "Only the entrants and departures since your last sync, not the whole specials list."
+      },
+      {
+        "title": "Cost this week's list against last week's",
+        "command": "woolworths-pp-cli basket ./groceries.txt --record=false --agent",
+        "explanation": "Per-line movement plus a basket total compared with the previous run."
+      }
+    ],
+    "trigger_phrases": [
+      "is this woolworths special actually cheap",
+      "when will this go half price again",
+      "cheapest per 100g at woolworths",
+      "what's on special at woolworths this week",
+      "price my woolworths shopping list",
+      "use woolworths",
+      "run woolworths"
+    ]
+  }
+}

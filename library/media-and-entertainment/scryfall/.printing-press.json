@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-21T19:48:38.0000000Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "scryfall",
+  "display_name": "Scryfall",
+  "cli_name": "scryfall-pp-cli",
+  "creator": {
+    "handle": "veltri-23",
+    "name": "Hunter Veltri"
+  },
+  "owner": "veltri-23",
+  "printer": "veltri-23",
+  "printer_name": "Hunter Veltri",
+  "spec_url": "https://github.com/smgoller/scryfall-openapi",
+  "spec_path": ".manuscripts/20260821-194838/proofs/scryfall-spec.yaml",
+  "spec_format": "openapi3",
+  "spec_source": "community",
+  "spec_checksum": "sha256:4bcaaeea1b8339ec656935263dcbd4b38ce68c4c8913a5c9df3be2c632b0fba5",
+  "run_id": "20260821-194838",
+  "category": "media-and-entertainment",
+  "description": "Magic: The Gathering card database CLI: search, prices, rulings, sets, and batch collection valuation against api.scryfall.com (keyless).",
+  "mcp_binary": "scryfall-pp-mcp",
+  "mcp_tool_count": 36,
+  "mcp_ready": "full",
+  "api_version": "2019-07-15",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Batch collection valuation",
+      "command": "cards post-collection --identifiers '[{\"name\":\"Lightning Bolt\"},{\"name\":\"Sol Ring\"}]'",
+      "description": "Price up to 75 cards in one call; the binder/deck-list workflow the API is most used for and the endpoint the community spec was missing."
+    },
+    {
+      "name": "Marketplace ID lookup",
+      "command": "cards get-by-tcgplayer-id <id> / cards get-by-cardmarket-id <id>",
+      "description": "Collectors and store owners work in marketplace IDs, not Scryfall UUIDs."
+    },
+    {
+      "name": "Compact price-first output",
+      "command": "cards get-named --exact 'Sol Ring' --compact",
+      "description": "Name + USD + EUR is the answer; full card JSON on demand."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 31,
+    "total": 31,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 87,
+      "grade": "A",
+      "total": 87
+    }
+  }
+}

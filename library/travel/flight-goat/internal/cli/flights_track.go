@@ -9,8 +9,10 @@ import (
 
 func newFlightsTrackCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "track",
-		Short: "Manage track",
+		Use:         "track",
+		Short:       "Get track for flights",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newFlightsTrackGetFlightCmd(flags))

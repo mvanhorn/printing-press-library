@@ -29,11 +29,13 @@ func newCustomersPaymentMethodsGetCustomersCustomerCustomersCmd(flags *rootFlags
 			}
 
 			path := "/v1/customers/{customer}/payment_methods/{payment_method}"
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
 			path = replacePathParam(path, "customer", args[0])
-			if len(args) < 3 {
+			if len(args) < 2 {
 				return usageErr(fmt.Errorf("payment_method is required\nUsage: %s <%s>", cmd.CommandPath(), "payment_method"))
 			}
-			path = replacePathParam(path, "payment_method", args[2])
+			path = replacePathParam(path, "payment_method", args[1])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

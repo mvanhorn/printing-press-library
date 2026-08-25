@@ -32,7 +32,7 @@ Run 'sync --resource events' first to populate the local store.
   ticketmaster-pp-cli events tour KovZ917Ahkk --on-sale-window 7
   ticketmaster-pp-cli events tour "Florence + The Machine" --json
 `, "\n"),
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:no-error-path-probe": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

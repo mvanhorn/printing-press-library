@@ -14,8 +14,9 @@ import (
 
 // whichEntry is one row of the curated capability index. The index is
 // seeded at generation time from the same NovelFeature list that drives
-// the SKILL.md feature section, so the command a `which` query returns
-// is guaranteed to exist and to match what the skill advertises.
+// the SKILL.md feature section. Catalog patches may add essential API
+// routes that agents need to discover without traversing the help tree.
+// Every indexed command must exist in the generated command tree.
 type whichEntry struct {
 	Command      string `json:"command"`
 	Description  string `json:"description"`
@@ -24,10 +25,11 @@ type whichEntry struct {
 }
 
 // whichIndex is the curated list of capabilities this CLI advertises as
-// its hero features. Endpoint-level commands are discoverable via
-// `--help`; `which` exists to resolve a natural-language capability
-// query to one of the commands the skill says matter most.
+// its hero features plus essential incident-response routes. The full
+// endpoint tree remains discoverable via `--help`; `which` resolves the
+// small set of commands that agents most often need to find directly.
 var whichIndex = []whichEntry{
+	{Command: "organizations issues list-an-organization-s", Description: "List live Sentry issues for an organization or project, including unresolved issues, first seen, last seen, event counts, and user counts.", Group: "Live issue triage", WhyItMatters: "Use this for current issue triage with project, environment, time-window, query, and sort filters."},
 	{Command: "search", Description: "Search synchronized Sentry issues, projects, releases, and operational records from a local index.", Group: "Local incident memory", WhyItMatters: "Use this when an agent needs fast incident context without repeatedly paging the API."},
 	{Command: "analytics", Description: "Run grouped counts and summaries over synced Sentry resources.", Group: "Local incident memory", WhyItMatters: "Use this when a debugging or audit question needs aggregation over synced data."},
 	{Command: "agent-context", Description: "Print the command, auth, output, and endpoint context an agent needs before choosing Sentry operations.", Group: "Agent-native plumbing", WhyItMatters: "Use this before delegating Sentry tasks to an agent that must pick the right command safely."},

@@ -1,0 +1,203 @@
+{
+  "api_name": "cookunity",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-30T02:45:00Z",
+  "novel_features": [
+    {
+      "name": "Macro-constrained meal planner",
+      "command": "plan",
+      "description": "Auto-build a set of meals that collectively hit your protein, calorie, budget, and diet targets — offline, in one command.",
+      "rationale": "Requires arithmetic selection (greedy/knapsack) over the whole locally-mirrored menu with per-meal macros and prices; the web app shows meals one card at a time and can't compose a target-fitting set.",
+      "example": "cookunity-pp-cli plan --protein-min 40 --calories-max 600 --count 8 --diet gluten-free --agent",
+      "why_it_matters": "Reach for this when the user wants a week's worth of meals meeting nutrition or budget constraints instead of hand-picking dishes.",
+      "group": "Local planning that compounds"
+    },
+    {
+      "name": "Week-over-week menu drift",
+      "command": "drift",
+      "description": "See exactly which meals were added, removed, or repriced between two weekly menus.",
+      "rationale": "Requires two locally-stored weekly snapshots keyed by meal id; CookUnity keeps no menu history and the menu rotates weekly.",
+      "example": "cookunity-pp-cli drift --from 2026-07-28 --to 2026-08-04 --json",
+      "why_it_matters": "Use this to track what changed on the new menu without re-scanning 300+ dishes by hand.",
+      "group": "Local planning that compounds"
+    },
+    {
+      "name": "Best-value leaderboard",
+      "command": "value",
+      "description": "Rank meals by nutritional value per dollar (protein-per-dollar, calories-per-dollar) computed from the local mirror.",
+      "rationale": "Combines per-meal macros with per-box-size pricing into a ratio the site never surfaces.",
+      "example": "cookunity-pp-cli value --metric protein-per-dollar --limit 20 --agent",
+      "why_it_matters": "Pick this when the user cares about maximizing protein or calories per dollar across the menu.",
+      "group": "Local planning that compounds"
+    },
+    {
+      "name": "Favorites on this week's menu",
+      "command": "favorites",
+      "description": "Show which of your favorited meals are actually on the current week's menu.",
+      "rationale": "A local query over the synced isFavorite flag intersected with the current menu; the web app makes you scroll to find them.",
+      "example": "cookunity-pp-cli favorites --json",
+      "why_it_matters": "Use this first after a menu drop to see if the user's liked meals are back.",
+      "group": "Agent-native menu queries"
+    },
+    {
+      "name": "Meal comparison",
+      "command": "compare",
+      "description": "Side-by-side macro, price, chef, and allergen comparison of two or more meals.",
+      "rationale": "A local join over selected meal rows with service-specific columns; no web equivalent.",
+      "example": "cookunity-pp-cli compare 3707 3210 --json",
+      "why_it_matters": "Reach for this to decide between specific candidate meals the user already has in mind.",
+      "group": "Agent-native menu queries"
+    },
+    {
+      "name": "Chef roster analytics",
+      "command": "chefs",
+      "description": "Leaderboard of chefs by dish count, average rating, average price, and cuisines on the current menu.",
+      "rationale": "Local aggregation of the chef entity embedded in every meal card; the web app has no chef analytics.",
+      "example": "cookunity-pp-cli chefs --json",
+      "why_it_matters": "Use this to explore the menu by chef or find highly-rated chefs.",
+      "group": "Agent-native menu queries"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Macro-constrained meal planner",
+      "command": "plan",
+      "description": "Auto-build a set of meals that collectively hit your protein, calorie, budget, and diet targets — offline, in one command.",
+      "rationale": "Requires arithmetic selection (greedy/knapsack) over the whole locally-mirrored menu with per-meal macros and prices; the web app shows meals one card at a time and can't compose a target-fitting set.",
+      "example": "cookunity-pp-cli plan --protein-min 40 --calories-max 600 --count 8 --diet gluten-free --agent",
+      "why_it_matters": "Reach for this when the user wants a week's worth of meals meeting nutrition or budget constraints instead of hand-picking dishes.",
+      "group": "Local planning that compounds"
+    },
+    {
+      "name": "Week-over-week menu drift",
+      "command": "drift",
+      "description": "See exactly which meals were added, removed, or repriced between two weekly menus.",
+      "rationale": "Requires two locally-stored weekly snapshots keyed by meal id; CookUnity keeps no menu history and the menu rotates weekly.",
+      "example": "cookunity-pp-cli drift --from 2026-07-28 --to 2026-08-04 --json",
+      "why_it_matters": "Use this to track what changed on the new menu without re-scanning 300+ dishes by hand.",
+      "group": "Local planning that compounds"
+    },
+    {
+      "name": "Best-value leaderboard",
+      "command": "value",
+      "description": "Rank meals by nutritional value per dollar (protein-per-dollar, calories-per-dollar) computed from the local mirror.",
+      "rationale": "Combines per-meal macros with per-box-size pricing into a ratio the site never surfaces.",
+      "example": "cookunity-pp-cli value --metric protein-per-dollar --limit 20 --agent",
+      "why_it_matters": "Pick this when the user cares about maximizing protein or calories per dollar across the menu.",
+      "group": "Local planning that compounds"
+    },
+    {
+      "name": "Favorites on this week's menu",
+      "command": "favorites",
+      "description": "Show which of your favorited meals are actually on the current week's menu.",
+      "rationale": "A local query over the synced isFavorite flag intersected with the current menu; the web app makes you scroll to find them.",
+      "example": "cookunity-pp-cli favorites --json",
+      "why_it_matters": "Use this first after a menu drop to see if the user's liked meals are back.",
+      "group": "Agent-native menu queries"
+    },
+    {
+      "name": "Meal comparison",
+      "command": "compare",
+      "description": "Side-by-side macro, price, chef, and allergen comparison of two or more meals.",
+      "rationale": "A local join over selected meal rows with service-specific columns; no web equivalent.",
+      "example": "cookunity-pp-cli compare 3707 3210 --json",
+      "why_it_matters": "Reach for this to decide between specific candidate meals the user already has in mind.",
+      "group": "Agent-native menu queries"
+    },
+    {
+      "name": "Chef roster analytics",
+      "command": "chefs",
+      "description": "Leaderboard of chefs by dish count, average rating, average price, and cuisines on the current menu.",
+      "rationale": "Local aggregation of the chef entity embedded in every meal card; the web app has no chef analytics.",
+      "example": "cookunity-pp-cli chefs --json",
+      "why_it_matters": "Use this to explore the menu by chef or find highly-rated chefs.",
+      "group": "Agent-native menu queries"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "COOKUNITY_TOKEN"
+  },
+  "narrative": {
+    "display_name": "CookUnity",
+    "headline": "Mirror CookUnity's full weekly menu into a local database so you can plan meals offline — filter by macros, diet, and budget, and diff the menu week over week, none of which the web app can do.",
+    "value_prop": "CookUnity's chef-driven menu is only visible logged-in and online, paginated across hundreds of lazy-loaded cards, with shallow filters that reset on reload. This CLI syncs the entire menu — every meal's macros, chef, price, diet tags, allergens, and ratings — into a local SQLite store, then lets you query it offline: build a macro-constrained meal plan with `plan`, rank best value with `value`, see what changed with `drift`, and search everything with FTS. Every command speaks `--json` for agents.",
+    "auth_narrative": "CookUnity has no public API. Auth is the Auth0 access token your logged-in browser session already holds. Copy it from the browser (DevTools → Network → any subscription.cookunity.com request → the `authorization` header value, which is the raw token with no `Bearer ` prefix) and set `COOKUNITY_TOKEN`. The token lasts about 24 hours; re-copy it when `doctor` reports it expired.",
+    "quickstart": [
+      {
+        "command": "cookunity-pp-cli doctor --dry-run",
+        "comment": "check config and token before syncing"
+      },
+      {
+        "command": "cookunity-pp-cli sync --param date=2026-08-04",
+        "comment": "mirror the full menu for a delivery date into the local store (omit --param to use the next delivery date)"
+      },
+      {
+        "command": "cookunity-pp-cli meals --min-protein 40 --max-calories 600 --json",
+        "comment": "browse the menu offline with macro filters"
+      },
+      {
+        "command": "cookunity-pp-cli plan --protein-min 40 --calories-max 600 --count 8 --diet gluten-free",
+        "comment": "auto-build a week of meals hitting your targets"
+      },
+      {
+        "command": "cookunity-pp-cli value --metric protein-per-dollar --limit 20",
+        "comment": "rank the menu by protein per dollar"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports the token is missing or expired (401)",
+        "fix": "Re-copy the raw `authorization` header value from a logged-in subscription.cookunity.com request and set COOKUNITY_TOKEN; tokens last ~24h."
+      },
+      {
+        "symptom": "sync returns no meals",
+        "fix": "Confirm the date passed via --param date=YYYY-MM-DD is a valid upcoming delivery date (menus publish ~2 weeks ahead) and that COOKUNITY_TOKEN is set."
+      },
+      {
+        "symptom": "meals is empty",
+        "fix": "Run `cookunity-pp-cli sync` first; the meals command reads the local mirror."
+      }
+    ],
+    "when_to_use": "Use this CLI when you want CookUnity's menu as data: to plan meals against macro/diet/budget constraints offline, to compare or rank meals by nutrition and value, to search the menu, or to track how the menu changes week over week. It is ideal for macro-tracking eaters, allergy-constrained households, and anyone who wants to script or feed the menu to an agent.",
+    "anti_triggers": [
+      "Do not use this CLI to place, modify, or cancel a CookUnity order — it is read-only over the menu and account.",
+      "Do not use it to manage billing, subscription plan changes, or delivery addresses.",
+      "Do not use it as a general recipe database; it only covers CookUnity's current prepared-meal menu."
+    ],
+    "recipes": [
+      {
+        "title": "Plan a high-protein gluten-free week",
+        "command": "cookunity-pp-cli plan --protein-min 40 --calories-max 650 --count 8 --diet gluten-free --agent",
+        "explanation": "Selects 8 meals from the synced menu that collectively fit the macro and diet constraints."
+      },
+      {
+        "title": "Find the best protein-per-dollar meals",
+        "command": "cookunity-pp-cli value --metric protein-per-dollar --limit 15 --agent --select name,chefName,protein,finalPrice",
+        "explanation": "Ranks meals by protein per dollar and returns only the fields an agent needs, keeping the payload small."
+      },
+      {
+        "title": "See what changed on the new menu",
+        "command": "cookunity-pp-cli drift --from 2026-07-28 --to 2026-08-04 --json",
+        "explanation": "Diffs two synced weekly snapshots to show added, removed, and repriced meals."
+      },
+      {
+        "title": "Compare two meals head to head",
+        "command": "cookunity-pp-cli compare 3707 3210 --json",
+        "explanation": "Prints a side-by-side macro/price/chef/allergen comparison of the two meal ids."
+      }
+    ],
+    "trigger_phrases": [
+      "plan my cookunity meals",
+      "what's on the cookunity menu",
+      "high protein cookunity meals",
+      "best value cookunity meals",
+      "what changed on cookunity this week",
+      "use cookunity",
+      "run cookunity"
+    ]
+  }
+}

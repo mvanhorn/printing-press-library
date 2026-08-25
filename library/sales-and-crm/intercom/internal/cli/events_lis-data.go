@@ -17,35 +17,53 @@ func newEventsLisDataCmd(flags *rootFlags) *cobra.Command {
 	var flagSummary bool
 
 	cmd := &cobra.Command{
-		Use:         "lis-data",
-		Aliases:     []string{"list"},
-		Short:       "> 🚧 > > Please note that you can only 'list' events that are less than 90 days old.",
+		Use:     "lis-data",
+		Aliases: []string{"list"},
+		Short:   "> 🚧 > > Please note that you can only 'list' events that are less than 90 days old.",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
 		Example:     "  intercom-pp-cli events lis-data --filter example-value --type example-value",
 		Annotations: map[string]string{"pp:endpoint": "events.lis-data", "pp:method": "GET", "pp:path": "/events", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("filter") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "filter")
 			}
 			if !cmd.Flags().Changed("type") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "type")
 			}
+			path := "/events"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/events"
 			params := map[string]string{}
 			if flagFilter != "" {
-				params["filter"] = fmt.Sprintf("%v", flagFilter)
+				params["filter"] = formatCLIParamValue(flagFilter)
 			}
 			if flagType != "" {
-				params["type"] = fmt.Sprintf("%v", flagType)
+				params["type"] = formatCLIParamValue(flagType)
 			}
 			if flagSummary != false {
-				params["summary"] = fmt.Sprintf("%v", flagSummary)
+				params["summary"] = formatCLIParamValue(flagSummary)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "events", false, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "events", false, path, params, nil, "events", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -90,7 +108,7 @@ func newEventsLisDataCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagFilter, "filter", "", "Filter")

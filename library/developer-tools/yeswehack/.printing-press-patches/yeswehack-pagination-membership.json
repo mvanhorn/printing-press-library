@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-07-07",
+  "base_run_id": "20260510-215840",
+  "base_printing_press_version": "4.10.0",
+  "patches": [
+    {
+      "id": "yeswehack-results-per-page",
+      "summary": "Use resultsPerPage for YesWeHack page-size parameters instead of itemsPerPage on researcher-facing list endpoints.",
+      "reason": "The web API ignores itemsPerPage for programs, user reports, events, ranking, and user members; resultsPerPage is the parameter used by the browser and returns the requested page size.",
+      "files": [
+        "internal/cli/programs_list.go",
+        "internal/cli/user_list_reports.go",
+        "internal/cli/promoted_events.go",
+        "internal/cli/promoted_ranking.go",
+        "internal/cli/sync.go",
+        "spec.yaml"
+      ],
+      "validated_outcome": "programs?resultsPerPage=100 returned all 69 currently visible programs on one page, while itemsPerPage was ignored and returned the default 42 rows."
+    },
+    {
+      "id": "yeswehack-page-pagination",
+      "summary": "Teach live --all reads and sync to follow page/nb_pages pagination envelopes.",
+      "reason": "The generated pagination helper only followed cursor-style pagination, so --all stopped after the first YesWeHack page even when pagination.nb_pages reported more pages.",
+      "files": [
+        "internal/cli/helpers.go",
+        "internal/cli/pagination_test.go",
+        "internal/cli/sync.go"
+      ],
+      "validated_outcome": "Unit tests cover page-style pagination, and sync can now advance using pagination.page and pagination.nb_pages."
+    },
+    {
+      "id": "yeswehack-membership-endpoints",
+      "summary": "Expose the browser invitation-page endpoints for hunter membership and current access programs.",
+      "reason": "user list-invitations reads pending invitations only. The YesWeHack invitation page also uses /user/members for membership records and /v2/hunter/access/programs for programs the hunter can currently access.",
+      "files": [
+        "internal/cli/user.go",
+        "internal/cli/user_access_programs_helpers.go",
+        "internal/cli/user_access_programs_helpers_test.go",
+        "internal/cli/user_list_members.go",
+        "internal/cli/user_list_revoked_members.go",
+        "internal/cli/user_list_access_programs.go",
+        "internal/cli/sync.go",
+        "spec.yaml"
+      ],
+      "validated_outcome": "/user/members returned 6 membership records and /v2/hunter/access/programs returned the current access-program set for the authenticated hunter."
+    },
+    {
+      "id": "yeswehack-resource-scoped-access-program-ids",
+      "summary": "Prefix hunter-access-program IDs before local caching.",
+      "reason": "Access-program rows use program slugs as identifiers, which collide with the programs resource in the generic resources table where id is globally unique.",
+      "files": [
+        "internal/cli/user_access_programs_helpers.go",
+        "internal/cli/user_access_programs_helpers_test.go",
+        "internal/cli/sync.go"
+      ],
+      "validated_outcome": "hunter-access-programs rows are stored under resource-scoped IDs such as hunter-access-programs|<slug> instead of overwriting programs rows."
+    },
+    {
+      "id": "yeswehack-program-scope-cache",
+      "summary": "Cache per-program scope rows as program-scopes with stable local IDs and program slug annotations.",
+      "reason": "programs list-scopes returned rows without generic id/slug/name fields, so write-through caching attempted to store them as programs and skipped every scope row.",
+      "files": [
+        "internal/cli/programs_list_scopes.go",
+        "internal/cli/program_scopes_helpers.go",
+        "internal/cli/program_scopes_helpers_test.go"
+      ],
+      "validated_outcome": "programs list-scopes can now write scope rows into the local store under program-scopes with stable IDs."
+    }
+  ]
+}

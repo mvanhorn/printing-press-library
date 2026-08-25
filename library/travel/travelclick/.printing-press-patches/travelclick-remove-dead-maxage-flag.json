@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "travelclick-remove-dead-maxage-flag",
+  "applied_at": "2026-08-20",
+  "base_run_id": "20260820-153504-d88b22af",
+  "base_printing_press_version": "4.30.3",
+  "summary": "Remove dead --max-age flag from root CLI command.",
+  "reason": "The --max-age flag was registered but unused, pointing to non-existent config struct fields.",
+  "files": ["internal/cli/root.go"],
+  "validated_outcome": "Go build and tests passed cleanly."
+}

@@ -1,0 +1,185 @@
+name: cookunity
+description: "CookUnity CLI — mirror the full weekly meal menu into a local SQLite store for offline meal planning, macro/diet filtering, and week-over-week menu drift."
+version: "0.1.0"
+category: food-and-dining
+base_url: "https://subscription.cookunity.com"
+http_transport: standard
+health_check_path: "/sdui-service/forethought/token"
+
+# The CookUnity web app (subscription.cookunity.com) is a server-driven-UI (SDUI)
+# app. The weekly menu is fetched as SDUI JSON:
+#   GET /sdui-service/web/view/menu/{date}/clustered-results  -> menu chrome + 17 lazy cluster refs
+#   GET /sdui-service/web/view/menu/components/clustered-result?... -> a cluster of MEAL cards
+# Each MEAL card's `.properties` object is a complete meal record (name, chef,
+# price, calories, macros, allergens, diet tags, cuisines, ratings, stock,
+# ingredients, heating instructions). The hand-written sync (Phase 3) walks
+# clustered-results -> each cluster -> extracts MEAL.properties -> dedups by id
+# into the local `meals` table. Account/order/subscription data lives behind a
+# GraphQL endpoint (/subscription-back/graphql/user) and is secondary.
+
+required_headers:
+  - name: platform
+    value: "web"
+
+auth:
+  type: api_key
+  header: "Authorization"
+  format: "{token}"        # raw Auth0 access token, NO "Bearer " prefix
+  in: header
+  env_vars:
+    - COOKUNITY_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/cookunity-pp-cli/config.toml"
+
+learn:
+  entity_lookup_seeds:
+    cuisine:
+      - canonical: american
+        aliases: [american comfort, southwest american]
+      - canonical: italian
+        aliases: [pasta, risotto]
+      - canonical: asian
+        aliases: [pan-asian, thai, authentic thai, traditional chinese, chinese]
+      - canonical: latin american
+        aliases: [latin, mexican]
+      - canonical: indian
+        aliases: []
+      - canonical: caribbean
+        aliases: []
+      - canonical: middle eastern
+        aliases: [israeli, israeli and middle eastern]
+    diet:
+      - canonical: high protein
+        aliases: [high-protein, protein]
+      - canonical: gluten free
+        aliases: [gluten-free, gf, no gluten]
+      - canonical: dairy free
+        aliases: [dairy-free, df, no dairy]
+      - canonical: keto
+        aliases: [ketogenic, low carb, low-carb]
+      - canonical: paleo
+        aliases: []
+      - canonical: vegan
+        aliases: [plant based, plant-powered, plant powered]
+      - canonical: vegetarian
+        aliases: [veggie, meatless]
+    category:
+      - canonical: Meals
+        aliases: [lunch, dinner, entree, entrees]
+      - canonical: Breakfast
+        aliases: [morning, brunch]
+      - canonical: Bundles
+        aliases: [bundle, better together]
+      - canonical: Proteins only
+        aliases: [protein only, protein please]
+      - canonical: Drinks
+        aliases: [beverages, smart sips]
+      - canonical: Treats
+        aliases: [dessert, desserts, little delights]
+  synonyms:
+    "low cal": "low calorie"
+    "hi protein": "high protein"
+  stopwords:
+    - meal
+    - meals
+    - dish
+
+resources:
+  meals:
+    description: "Query the locally-synced CookUnity meal catalog offline"
+    endpoints:
+      # Placeholder endpoint so the resource validates; real `meals` commands
+      # (list/get/search/plan) are hand-built in Phase 3 against the local store.
+      list:
+        method: GET
+        path: "/sdui-service/web/view/menu/components/clustered-result"
+        description: "List meals (hand-built to read the local store; this endpoint is the upstream source)"
+        response:
+          type: array
+          item: Meal
+
+types:
+  Meal:
+    fields:
+      - name: id
+        type: int
+      - name: inventoryId
+        type: string
+      - name: sku
+        type: string
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: chefId
+        type: int
+      - name: chefName
+        type: string
+      - name: price
+        type: float
+      - name: finalPrice
+        type: float
+      - name: calories
+        type: int
+      - name: protein
+        type: float
+      - name: carbs
+        type: float
+      - name: fat
+        type: float
+      - name: fiber
+        type: float
+      - name: sodium
+        type: float
+      - name: sugar
+        type: float
+      - name: saturatedFat
+        type: float
+      - name: servingSize
+        type: string
+      - name: cuisines
+        type: string
+      - name: meatType
+        type: string
+      - name: dietTags
+        type: string
+      - name: allergens
+        type: string
+      - name: stars
+        type: float
+      - name: reviews
+        type: int
+      - name: stock
+        type: int
+      - name: inStock
+        type: bool
+      - name: category
+        type: string
+      - name: isPremiumMeal
+        type: bool
+      - name: publicUrl
+        type: string
+      - name: image
+        type: string
+      - name: heatInstructionsMicrowave
+        type: string
+      - name: heatInstructionsOven
+        type: string
+      - name: ingredients
+        type: string
+      - name: weight
+        type: float
+      - name: deliveryDate
+        type: string
+  MenuView:
+    fields:
+      - name: screen
+        type: string
+      - name: version
+        type: int
+  MealCluster:
+    fields:
+      - name: reference
+        type: string

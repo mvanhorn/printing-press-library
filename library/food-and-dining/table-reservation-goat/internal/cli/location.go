@@ -49,7 +49,7 @@ func newLocationResolveCmd(flags *rootFlags) *cobra.Command {
 			"responses, not errors).",
 		Example: "  table-reservation-goat-pp-cli location resolve 'bellevue, wa' --json\n" +
 			"  table-reservation-goat-pp-cli location resolve bellevue --batch-accept-ambiguous",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:no-error-path-probe": "true"},
 		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			input := args[0]

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "wanderlog-pp-mcp",
+  "display_name": "Wanderlog",
+  "version": "0.0.0",
+  "description": "Clone shared Wanderlog plans into editable trips, then mine guides and places for agent-ready planning.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/wanderlog-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/wanderlog-pp-mcp",
+      "args": [],
+      "env": {
+        "WANDERLOG_COOKIE": "${user_config.wanderlog_cookie}"
+      }
+    }
+  },
+  "user_config": {
+    "wanderlog_cookie": {
+      "type": "string",
+      "title": "WANDERLOG_COOKIE",
+      "description": "Sets WANDERLOG_COOKIE for the Wanderlog MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

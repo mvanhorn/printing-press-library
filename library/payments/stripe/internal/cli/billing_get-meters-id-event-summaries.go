@@ -59,10 +59,12 @@ func newBillingGetMetersIdEventSummariesCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/billing/meters/{id}/event_summaries"
-			if len(args) < 5 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
 			}
-			path = replacePathParam(path, "id", args[4])
+			path = replacePathParam(path, "id", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "billing", path, map[string]string{
 				"customer":              fmt.Sprintf("%v", flagCustomer),
 				"end_time":              fmt.Sprintf("%v", flagEndTime),

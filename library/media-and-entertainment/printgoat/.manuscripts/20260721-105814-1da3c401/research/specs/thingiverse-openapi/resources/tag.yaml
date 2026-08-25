@@ -1,0 +1,125 @@
+Thing:
+  get:
+    tags:
+      - Tag
+    summary: Get the latest things with the specified tag
+    description: Tags are normalized before searching by converting whitespace to underscores and stripping out all characters except alphanumerics, underscores, and dashes ('-').
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/tagPathParam"
+    responses:
+      '200':
+        description: Thing objects
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/thing_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+ById:
+  get:
+    tags:
+      - Tag
+    summary: Return a representation of the given tag
+    description: Tags are normalized before searching by converting whitespace to underscores and stripping out all characters except alphanumerics, underscores, and dashes ('-').
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/tagPathParam"
+    responses:
+      '200':
+        description: Tag objects
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/tag_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Root:
+  get:
+    tags:
+      - Tag
+    summary: Get the list of tags.
+    description: returns a list of all tags in alphabetical order.
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        description: The list of tags.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/tag_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Popular:
+  get:
+    tags:
+      - Tag
+    summary: Get the list of random popular tags.
+    description: returns a list of popular tags which reset every day.
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        description: The list of tags.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/tag_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+SearchByName:
+  get:
+    tags:
+      - Tag
+    summary: Search tags by tag name.
+    description: Returns a list of all tags where the search word is included in the name.
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/tagPathParam"
+    responses:
+      '200':
+        description: The list of tags.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  tag:
+                    type: string
+                  tag_count:
+                    type: integer
+                    format: int
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"

@@ -1,0 +1,2114 @@
+name: peerspace
+description: Discovered API spec for img-peerspace
+version: 0.1.0
+base_url: https://www.peerspace.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "kw_search_space_type" from query: search input'
+    - 'rejected auth candidate "limit" from query: search input'
+    - 'rejected auth candidate "siteToken" from body: request body field'
+config:
+    format: toml
+    path: ~/.config/peerspace-pp-cli/config.toml
+resources:
+    cdn-cgi:
+        description: Operations on rum
+        endpoints:
+            create_rum:
+                method: POST
+                path: /cdn-cgi/rum
+                description: POST /cdn-cgi/rum
+                params: []
+                body:
+                    - name: cls
+                      type: object
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: currentRect
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: bottom
+                              type: number
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: height
+                              type: number
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: left
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: right
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: top
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: width
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: x
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: "y"
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: element
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: path
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: previousRect
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: bottom
+                              type: number
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: height
+                              type: number
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: left
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: right
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: top
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: width
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: x
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: "y"
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: value
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: dt
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: eventType
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: fcp
+                      type: object
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: path
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: value
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: firstContentfulPaint
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: firstPaint
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: inp
+                      type: object
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: idy
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: name
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: path
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: pdn
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: pdy
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: value
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: landingPath
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: lcp
+                      type: object
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: element
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: erd
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: it
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: path
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: rld
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: rlt
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: size
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: url
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: url
+                        - name: value
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: location
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: url
+                    - name: memory
+                      type: object
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: jsHeapSizeLimit
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: totalJSHeapSize
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: usedJSHeapSize
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: nt
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: pageloadId
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: uuid
+                    - name: referrer
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: url
+                    - name: resources
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: siteToken
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: st
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: startTime
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: timingsV2
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: decodedBodySize
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: nextHopProtocol
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: transferSize
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: ttfb
+                      type: object
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: path
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: value
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: versions
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: fl
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: js
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: rum
+                pagination: null
+    entitlements:
+        description: Operations on profiles
+        endpoints:
+            get_profiles:
+                method: GET
+                path: /v1/entitlements/attachments/profiles/{profile_id}
+                description: GET /v1/entitlements/attachments/profiles/{profile_id}
+                params:
+                    - name: profile_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The profile_id path segment
+                      fields: []
+                    - name: timestamp
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Profile
+                pagination: null
+    env:
+        description: Operations on en-US
+        endpoints:
+            get_fr_FR:
+                method: GET
+                path: /v1/env/{env_id}/fr-FR
+                description: GET /v1/env/{env_id}/fr-FR
+                params:
+                    - name: env_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The env_id path segment
+                      fields: []
+                    - name: timestamp
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: FrFR
+                pagination: null
+            list_en_US:
+                method: GET
+                path: /v1/env/web/en-US
+                description: GET /v1/env/web/en-US
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: en_US
+                pagination: null
+            list_fr_FR:
+                method: GET
+                path: /v1/env/keywords/fr-FR
+                description: GET /v1/env/keywords/fr-FR
+                params:
+                    - name: timestamp
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: FrFR2
+                pagination: null
+                response_path: response
+            list_web:
+                method: GET
+                path: /v1/env/web
+                description: GET /v1/env/web
+                params:
+                    - name: timestamp
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: WebMetro
+                pagination: null
+                response_path: metros
+    messages:
+        description: Operations on count
+        endpoints:
+            list_count:
+                method: GET
+                path: /v1/messages/user/threads/count
+                description: GET /v1/messages/user/threads/count
+                params:
+                    - name: is_read
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: to
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Count
+                pagination: null
+    profiles:
+        description: Operations on me
+        endpoints:
+            list_experience:
+                method: GET
+                path: /v1/profiles/me/experience
+                description: GET /v1/profiles/me/experience
+                params:
+                    - name: trigger
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: ExperienceData
+                pagination: null
+                response_path: data
+            list_me:
+                method: GET
+                path: /v1/profiles/me
+                description: GET /v1/profiles/me
+                params:
+                    - name: timestamp
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Me
+                pagination: null
+    projects:
+        description: Operations on details
+        endpoints:
+            get_details:
+                method: GET
+                path: /v1/projects/attachments/collaborator/{collaborator_id}/details
+                description: GET /v1/projects/attachments/collaborator/{collaborator_id}/details
+                params:
+                    - name: collaborator_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The collaborator_id path segment
+                      fields: []
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ns_count
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: DetailProject
+                pagination: null
+                response_path: projects
+            get_fav_board:
+                method: GET
+                path: /v1/projects/attachments/collaborator/{collaborator_id}/xr/fav_board
+                description: GET /v1/projects/attachments/collaborator/{collaborator_id}/xr/fav_board
+                params:
+                    - name: collaborator_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The collaborator_id path segment
+                      fields: []
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: FavBoardAttachment
+                pagination: null
+                response_path: attachments
+    search:
+        description: Operations on listings
+        endpoints:
+            list_dows:
+                method: GET
+                path: /v1/search/default-times/by-activity/meetup/dows
+                description: GET /v1/search/default-times/by-activity/meetup/dows
+                params:
+                    - name: dow
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Dow
+                pagination: null
+            list_list:
+                method: GET
+                path: /v1/search/filters/list
+                description: GET /v1/search/filters/list
+                params:
+                    - name: activity_type
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: ListAmenity
+                pagination: null
+                response_path: amenities
+            list_listings:
+                method: GET
+                path: /v1/search/listings
+                description: GET /v1/search/listings
+                params:
+                    - name: availability
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: bbox_of_interest
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ffilter
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: kw_search_space_type
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: max_guest
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: min_guest
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: place_id
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: price_hourly_max
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: price_hourly_min
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: size
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: use_id
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: variant
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: viewport_location
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: ListingAppliedSuggestedFilter
+                pagination: null
+                response_path: applied_suggested_filters
+types:
+    Attribution:
+        fields:
+            - name: date
+              type: string
+              format: date-time
+            - name: referrer-type
+              type: string
+            - name: tag
+              type: string
+            - name: version
+              type: string
+    CanonicalLocData:
+        fields:
+            - name: administrative_area_level_1
+              type: object
+            - name: administrative_area_level_2
+              type: object
+            - name: country
+              type: object
+            - name: formatted_address
+              type: string
+            - name: locality
+              type: object
+            - name: postal_code
+              type: object
+            - name: route
+              type: object
+            - name: street_number
+              type: object
+            - name: timezone
+              type: object
+    CompleteExp:
+        fields:
+            - name: _id
+              type: string
+            - name: date_completed
+              type: string
+              format: date-time
+            - name: name
+              type: string
+            - name: version
+              type: string
+    Count:
+        fields:
+            - name: in
+              type: ref:In
+            - name: thread_count
+              type: integer
+    DefaultCurrency:
+        fields:
+            - name: code
+              type: string
+            - name: name
+              type: string
+            - name: symbol
+              type: string
+    DetailProject:
+        fields:
+            - name: _id
+              type: string
+            - name: activity
+              type: string
+            - name: canonical_loc_data
+              type: ref:CanonicalLocData
+            - name: count
+              type: integer
+            - name: cover_img_id
+              type: string
+            - name: created
+              type: string
+              format: date-time
+            - name: created_by_sso_id
+              type: string
+            - name: do_not_notify
+              type: bool
+            - name: external_id
+              type: string
+            - name: keyword
+              type: string
+            - name: location
+              type: string
+            - name: modified
+              type: string
+              format: date-time
+            - name: name
+              type: string
+            - name: obj_state
+              type: string
+            - name: schedule
+              type: array
+            - name: seo_index
+              type: bool
+            - name: type
+              type: string
+    Dow:
+        fields:
+            - name: end
+              type: ref:End
+            - name: start
+              type: ref:Start
+    EmailUnsubscribes:
+        fields:
+            - name: all
+              type: bool
+    End:
+        fields:
+            - name: h
+              type: integer
+            - name: m
+              type: integer
+    ExperienceData:
+        fields:
+            - name: _id
+              type: string
+            - name: date_created
+              type: string
+              format: date-time
+            - name: date_expires
+              type: string
+              format: date-time
+            - name: date_modified
+              type: string
+              format: date-time
+            - name: domain
+              type: string
+            - name: metadata
+              type: object
+            - name: name
+              type: string
+            - name: obj_state
+              type: string
+            - name: priority
+              type: integer
+            - name: save_metadata_on_action
+              type: bool
+            - name: target
+              type: string
+            - name: trigger
+              type: string
+            - name: version
+              type: string
+    FavBoardAttachment:
+        fields:
+            - name: _id
+              type: string
+            - name: created
+              type: string
+              format: date-time
+            - name: created_by_sso_id
+              type: string
+            - name: notification_sent
+              type: bool
+            - name: ns
+              type: string
+            - name: project_id
+              type: string
+            - name: value
+              type: string
+    FrFR:
+        fields:
+            - name: acupuncture_spaceDisplay
+              type: string
+            - name: aerial_gymDisplay
+              type: string
+            - name: airplaneDisplay
+              type: string
+            - name: airportDisplay
+              type: string
+            - name: airport_hangerDisplay
+              type: string
+            - name: airstreamDisplay
+              type: string
+            - name: alleyDisplay
+              type: string
+            - name: amphitheaterDisplay
+              type: string
+            - name: antebellum_homeDisplay
+              type: string
+            - name: apartmentDisplay
+              type: string
+            - name: apartment_homeDisplay
+              type: string
+            - name: apartment_loftDisplay
+              type: string
+            - name: arcadeDisplay
+              type: string
+            - name: architecture_studioDisplay
+              type: string
+            - name: art_studioDisplay
+              type: string
+            - name: audition_spaceDisplay
+              type: string
+            - name: auditoriumDisplay
+              type: string
+            - name: auto_shopDisplay
+              type: string
+            - name: backyardDisplay
+              type: string
+            - name: backyard_outdoorDisplay
+              type: string
+            - name: bakeryDisplay
+              type: string
+            - name: ballroomDisplay
+              type: string
+            - name: bank_vaultDisplay
+              type: string
+            - name: banquet_hallDisplay
+              type: string
+            - name: banquet_hall_in_a_hotelDisplay
+              type: string
+            - name: barDisplay
+              type: string
+            - name: bar_in_a_country_clubDisplay
+              type: string
+            - name: bar_in_a_hotelDisplay
+              type: string
+            - name: bar_in_a_motelDisplay
+              type: string
+            - name: bar_loungeDisplay
+              type: string
+            - name: barber_shopDisplay
+              type: string
+            - name: barnDisplay
+              type: string
+            - name: basementDisplay
+              type: string
+            - name: basketball_court_gymnasiumDisplay
+              type: string
+            - name: bathroomDisplay
+              type: string
+            - name: bathtubDisplay
+              type: string
+            - name: bayfront_homeDisplay
+              type: string
+            - name: beachDisplay
+              type: string
+            - name: beach_homeDisplay
+              type: string
+            - name: beauty_barDisplay
+              type: string
+            - name: bedroomDisplay
+              type: string
+            - name: beer_gardenDisplay
+              type: string
+            - name: beer_hallDisplay
+              type: string
+            - name: bike_shopDisplay
+              type: string
+            - name: billiard_hallDisplay
+              type: string
+            - name: bistroDisplay
+              type: string
+            - name: black_box_theaterDisplay
+              type: string
+            - name: blackout_studioDisplay
+              type: string
+            - name: boardroomDisplay
+              type: string
+            - name: boatDisplay
+              type: string
+            - name: bocce_ball_courtDisplay
+              type: string
+            - name: bohemianDisplay
+              type: string
+            - name: bookstoreDisplay
+              type: string
+            - name: boutique_shopDisplay
+              type: string
+            - name: bowling_alleyDisplay
+              type: string
+            - name: boxing_gymDisplay
+              type: string
+            - name: brasserieDisplay
+              type: string
+            - name: breweryDisplay
+              type: string
+            - name: broadcast_studioDisplay
+              type: string
+            - name: brownstoneDisplay
+              type: string
+            - name: bungalowDisplay
+              type: string
+            - name: busDisplay
+              type: string
+            - name: cabaret_theaterDisplay
+              type: string
+            - name: cabinDisplay
+              type: string
+            - name: cafeDisplay
+              type: string
+            - name: campDisplay
+              type: string
+            - name: campgroundDisplay
+              type: string
+            - name: candy_storeDisplay
+              type: string
+            - name: carDisplay
+              type: string
+            - name: car_showroomDisplay
+              type: string
+            - name: carriage_houseDisplay
+              type: string
+            - name: casinoDisplay
+              type: string
+            - name: casting_spaceDisplay
+              type: string
+            - name: castleDisplay
+              type: string
+            - name: cbd_loungeDisplay
+              type: string
+            - name: cellar_roomDisplay
+              type: string
+            - name: cemeteryDisplay
+              type: string
+            - name: ceramics_studioDisplay
+              type: string
+            - name: chaletDisplay
+              type: string
+            - name: chapelDisplay
+              type: string
+            - name: chateauDisplay
+              type: string
+            - name: childrens_spaceDisplay
+              type: string
+            - name: churchDisplay
+              type: string
+            - name: cider_houseDisplay
+              type: string
+            - name: cinemaDisplay
+              type: string
+            - name: classroomDisplay
+              type: string
+            - name: clothing_storeDisplay
+              type: string
+            - name: club_roomDisplay
+              type: string
+            - name: clubhouseDisplay
+              type: string
+            - name: coastal_beachyDisplay
+              type: string
+            - name: cocktail_barDisplay
+              type: string
+            - name: cocktail_loungeDisplay
+              type: string
+            - name: coffee_shopDisplay
+              type: string
+            - name: coffeehouseDisplay
+              type: string
+            - name: colorfulDisplay
+              type: string
+            - name: comedy_clubDisplay
+              type: string
+            - name: commercial_kitchenDisplay
+              type: string
+            - name: community_centerDisplay
+              type: string
+            - name: community_theaterDisplay
+              type: string
+            - name: computer_gaming_centerDisplay
+              type: string
+            - name: computer_labDisplay
+              type: string
+            - name: concert_venueDisplay
+              type: string
+            - name: condoDisplay
+              type: string
+            - name: conference_roomDisplay
+              type: string
+            - name: conservatoryDisplay
+              type: string
+            - name: converted_garageDisplay
+              type: string
+            - name: cooking_schoolDisplay
+              type: string
+            - name: cottageDisplay
+              type: string
+            - name: country_houseDisplay
+              type: string
+            - name: courtroomDisplay
+              type: string
+            - name: courtyardDisplay
+              type: string
+            - name: craftsman_homeDisplay
+              type: string
+            - name: crossfit_gymDisplay
+              type: string
+            - name: cruiseDisplay
+              type: string
+            - name: culinary_spaceDisplay
+              type: string
+            - name: cycling_class_spaceDisplay
+              type: string
+            - name: cycloramaDisplay
+              type: string
+            - name: cyclorama_spaceDisplay
+              type: string
+            - name: dance_clubDisplay
+              type: string
+            - name: dance_studioDisplay
+              type: string
+            - name: daylight_studioDisplay
+              type: string
+            - name: daylight_studio_productionDisplay
+              type: string
+            - name: deckDisplay
+              type: string
+            - name: desertDisplay
+              type: string
+            - name: desert_natureDisplay
+              type: string
+            - name: design_studioDisplay
+              type: string
+            - name: desk_spaceDisplay
+              type: string
+            - name: dinerDisplay
+              type: string
+            - name: dining_areaDisplay
+              type: string
+            - name: dining_hallDisplay
+              type: string
+            - name: distilleryDisplay
+              type: string
+            - name: dive_barDisplay
+              type: string
+            - name: dry_cleaning_shopDisplay
+              type: string
+            - name: dungeonDisplay
+              type: string
+            - name: duplexDisplay
+              type: string
+            - name: editing_studioDisplay
+              type: string
+            - name: entertainment_venueDisplay
+              type: string
+            - name: equestrian_propertyDisplay
+              type: string
+            - name: escape_roomDisplay
+              type: string
+            - name: estateDisplay
+              type: string
+            - name: event_spaceDisplay
+              type: string
+            - name: event_space_in_a_co_workDisplay
+              type: string
+            - name: event_space_in_a_country_clubDisplay
+              type: string
+            - name: event_space_in_a_hotelDisplay
+              type: string
+            - name: event_space_in_a_schoolDisplay
+              type: string
+            - name: event_space_in_an_officeDisplay
+              type: string
+            - name: event_space_loftDisplay
+              type: string
+            - name: event_space_non_profitDisplay
+              type: string
+            - name: event_studioDisplay
+              type: string
+            - name: event_venueDisplay
+              type: string
+            - name: executive_loungeDisplay
+              type: string
+            - name: exhibition_spaceDisplay
+              type: string
+            - name: exteriorDisplay
+              type: string
+            - name: factoryDisplay
+              type: string
+            - name: farmDisplay
+              type: string
+            - name: farmhouseDisplay
+              type: string
+            - name: farmhouse_styleDisplay
+              type: string
+            - name: fashion_studioDisplay
+              type: string
+            - name: fieldsDisplay
+              type: string
+            - name: film_photo_loftDisplay
+              type: string
+            - name: film_studioDisplay
+              type: string
+            - name: fireplaceDisplay
+              type: string
+            - name: fitness_studioDisplay
+              type: string
+            - name: flatDisplay
+              type: string
+            - name: flex_spaceDisplay
+              type: string
+            - name: flower_shopDisplay
+              type: string
+            - name: food_hallDisplay
+              type: string
+            - name: front_porchDisplay
+              type: string
+            - name: galleryDisplay
+              type: string
+            - name: gallery_for_artDisplay
+              type: string
+            - name: game_roomDisplay
+              type: string
+            - name: garageDisplay
+              type: string
+            - name: gardenDisplay
+              type: string
+            - name: gas_stationDisplay
+              type: string
+            - name: gastropubDisplay
+              type: string
+            - name: gathering_spaceDisplay
+              type: string
+            - name: golf_courseDisplay
+              type: string
+            - name: green_screenDisplay
+              type: string
+            - name: green_screen_spaceDisplay
+              type: string
+            - name: greenhouseDisplay
+              type: string
+            - name: grocery_storeDisplay
+              type: string
+            - name: gymDisplay
+              type: string
+            - name: hair_salonDisplay
+              type: string
+            - name: hangarDisplay
+              type: string
+            - name: healing_spaceDisplay
+              type: string
+            - name: home_officeDisplay
+              type: string
+            - name: hookah_loungeDisplay
+              type: string
+            - name: hospitalDisplay
+              type: string
+            - name: hostelDisplay
+              type: string
+            - name: hot_tubDisplay
+              type: string
+            - name: hotel_roomDisplay
+              type: string
+            - name: houseDisplay
+              type: string
+            - name: house_boatDisplay
+              type: string
+            - name: house_for_guestsDisplay
+              type: string
+            - name: ice_cream_shopDisplay
+              type: string
+            - name: indoor_poolDisplay
+              type: string
+            - name: indoor_skate_parkDisplay
+              type: string
+            - name: industrialDisplay
+              type: string
+            - name: industrial_loftDisplay
+              type: string
+            - name: industrial_spaceDisplay
+              type: string
+            - name: infinity_wall_spaceDisplay
+              type: string
+            - name: interrogation_roomDisplay
+              type: string
+            - name: jailDisplay
+              type: string
+            - name: jazz_clubDisplay
+              type: string
+            - name: juice_barDisplay
+              type: string
+            - name: junkyardDisplay
+              type: string
+            - name: karaoke_barDisplay
+              type: string
+            - name: kids_roomDisplay
+              type: string
+            - name: kids_spaceDisplay
+              type: string
+            - name: kitchenDisplay
+              type: string
+            - name: kitchen_in_a_houseDisplay
+              type: string
+            - name: kitchen_in_an_apartmentDisplay
+              type: string
+            - name: laboratoryDisplay
+              type: string
+            - name: lakeDisplay
+              type: string
+            - name: lake_houseDisplay
+              type: string
+            - name: laundromatDisplay
+              type: string
+            - name: lawnDisplay
+              type: string
+            - name: learning_spaceDisplay
+              type: string
+            - name: lecture_hallDisplay
+              type: string
+            - name: libraryDisplay
+              type: string
+            - name: live_shot_studioDisplay
+              type: string
+            - name: live_work_loftDisplay
+              type: string
+            - name: living_areaDisplay
+              type: string
+            - name: lobbyDisplay
+              type: string
+            - name: locker_roomDisplay
+              type: string
+            - name: loftDisplay
+              type: string
+            - name: loungeDisplay
+              type: string
+            - name: lounge_in_a_co_workDisplay
+              type: string
+            - name: lounge_in_a_country_clubDisplay
+              type: string
+            - name: lounge_in_a_hotelDisplay
+              type: string
+            - name: lounge_in_a_motelDisplay
+              type: string
+            - name: luxuryDisplay
+              type: string
+            - name: makeup_studioDisplay
+              type: string
+            - name: mallDisplay
+              type: string
+            - name: manorDisplay
+              type: string
+            - name: manseDisplay
+              type: string
+            - name: mansionDisplay
+              type: string
+            - name: marinaDisplay
+              type: string
+            - name: martial_arts_spaceDisplay
+              type: string
+            - name: massage_roomDisplay
+              type: string
+            - name: media_studioDisplay
+              type: string
+            - name: medical_officeDisplay
+              type: string
+            - name: meditation_spaceDisplay
+              type: string
+            - name: meeting_roomDisplay
+              type: string
+            - name: meeting_room_in_a_co_workDisplay
+              type: string
+            - name: meeting_room_in_a_convention_centerDisplay
+              type: string
+            - name: meeting_room_in_a_hotelDisplay
+              type: string
+            - name: meeting_room_in_an_officeDisplay
+              type: string
+            - name: meeting_studioDisplay
+              type: string
+            - name: metal_shopDisplay
+              type: string
+            - name: mid_centuryDisplay
+              type: string
+            - name: mindfulness_roomDisplay
+              type: string
+            - name: mixing_studioDisplay
+              type: string
+            - name: modernDisplay
+              type: string
+            - name: mosqueDisplay
+              type: string
+            - name: motelDisplay
+              type: string
+            - name: motion_capture_spaceDisplay
+              type: string
+            - name: motorcycleDisplay
+              type: string
+            - name: mountain_homeDisplay
+              type: string
+            - name: movement_studioDisplay
+              type: string
+            - name: multipurpose_spaceDisplay
+              type: string
+            - name: museumDisplay
+              type: string
+            - name: music_barDisplay
+              type: string
+            - name: music_recording_studioDisplay
+              type: string
+            - name: music_studioDisplay
+              type: string
+            - name: music_venueDisplay
+              type: string
+            - name: nail_salonDisplay
+              type: string
+            - name: night_clubDisplay
+              type: string
+            - name: ocean_front_houseDisplay
+              type: string
+            - name: office_desksDisplay
+              type: string
+            - name: office_loftDisplay
+              type: string
+            - name: office_loungeDisplay
+              type: string
+            - name: office_meeting_roomDisplay
+              type: string
+            - name: outdoor_basketball_courtDisplay
+              type: string
+            - name: outdoor_loungeDisplay
+              type: string
+            - name: outdoor_spaceDisplay
+              type: string
+            - name: palaceDisplay
+              type: string
+            - name: parking_garageDisplay
+              type: string
+            - name: parking_lotDisplay
+              type: string
+            - name: parlorDisplay
+              type: string
+            - name: party_hallDisplay
+              type: string
+            - name: patioDisplay
+              type: string
+            - name: patio_seatingDisplay
+              type: string
+            - name: penthouseDisplay
+              type: string
+            - name: performance_hallDisplay
+              type: string
+            - name: performance_spaceDisplay
+              type: string
+            - name: performing_arts_spaceDisplay
+              type: string
+            - name: photo_studioDisplay
+              type: string
+            - name: photo_video_studioDisplay
+              type: string
+            - name: photography_galleryDisplay
+              type: string
+            - name: photography_spaceDisplay
+              type: string
+            - name: physical_therapy_officeDisplay
+              type: string
+            - name: pianoDisplay
+              type: string
+            - name: pilates_studioDisplay
+              type: string
+            - name: ping_pong_hallDisplay
+              type: string
+            - name: pizzeriaDisplay
+              type: string
+            - name: plant_shopDisplay
+              type: string
+            - name: plantationDisplay
+              type: string
+            - name: playground_parkDisplay
+              type: string
+            - name: podcast_spaceDisplay
+              type: string
+            - name: police_stationDisplay
+              type: string
+            - name: poolDisplay
+              type: string
+            - name: pool_hallDisplay
+              type: string
+            - name: pop_up_shopDisplay
+              type: string
+            - name: portrait_studioDisplay
+              type: string
+            - name: pottery_studioDisplay
+              type: string
+            - name: presentation_spaceDisplay
+              type: string
+            - name: presentation_space_in_a_co_workDisplay
+              type: string
+            - name: print_studioDisplay
+              type: string
+            - name: prisonDisplay
+              type: string
+            - name: private_dining_roomDisplay
+              type: string
+            - name: private_work_officeDisplay
+              type: string
+            - name: production_setDisplay
+              type: string
+            - name: production_studioDisplay
+              type: string
+            - name: psych_ward_insane_asylumDisplay
+              type: string
+            - name: pubDisplay
+              type: string
+            - name: race_trackDisplay
+              type: string
+            - name: railroad_yardDisplay
+              type: string
+            - name: rain_roomDisplay
+              type: string
+            - name: ranchDisplay
+              type: string
+            - name: ranch_homeDisplay
+              type: string
+            - name: reception_spaceDisplay
+              type: string
+            - name: recital_spaceDisplay
+              type: string
+            - name: record_storeDisplay
+              type: string
+            - name: recording_studioDisplay
+              type: string
+            - name: rehearsal_dance_spaceDisplay
+              type: string
+            - name: rehearsal_music_spaceDisplay
+              type: string
+            - name: rehearsal_theater_spaceDisplay
+              type: string
+            - name: residenceDisplay
+              type: string
+            - name: restaurantDisplay
+              type: string
+            - name: restaurant_in_a_hotelDisplay
+              type: string
+            - name: restaurant_in_a_motelDisplay
+              type: string
+            - name: restaurant_loungeDisplay
+              type: string
+            - name: restaurant_patioDisplay
+              type: string
+            - name: retail_spaceDisplay
+              type: string
+            - name: retreat_lodgeDisplay
+              type: string
+            - name: rock_barDisplay
+              type: string
+            - name: rock_climbing_gymDisplay
+              type: string
+            - name: rooftopDisplay
+              type: string
+            - name: rooftop_outdoorDisplay
+              type: string
+            - name: row_houseDisplay
+              type: string
+            - name: rusticDisplay
+              type: string
+            - name: rv_camperDisplay
+              type: string
+            - name: saloonDisplay
+              type: string
+            - name: sanctuaryDisplay
+              type: string
+            - name: screening_roomDisplay
+              type: string
+            - name: seamless_backdropDisplay
+              type: string
+            - name: seminar_roomDisplay
+              type: string
+            - name: set_for_photos_filmsDisplay
+              type: string
+            - name: sewing_studioDisplay
+              type: string
+            - name: shedDisplay
+              type: string
+            - name: shipping_container_yardDisplay
+              type: string
+            - name: shopDisplay
+              type: string
+            - name: showroomDisplay
+              type: string
+            - name: single_family_homeDisplay
+              type: string
+            - name: skate_parkDisplay
+              type: string
+            - name: skating_rinkDisplay
+              type: string
+            - name: sky_loungeDisplay
+              type: string
+            - name: soccer_fieldDisplay
+              type: string
+            - name: sorority_houseDisplay
+              type: string
+            - name: sound_stageDisplay
+              type: string
+            - name: sound_studioDisplay
+              type: string
+            - name: spaDisplay
+              type: string
+            - name: speakeasyDisplay
+              type: string
+            - name: sports_barDisplay
+              type: string
+            - name: sports_facilityDisplay
+              type: string
+            - name: sports_venueDisplay
+              type: string
+            - name: stadiumDisplay
+              type: string
+            - name: stageDisplay
+              type: string
+            - name: stairwayDisplay
+              type: string
+            - name: storage_containerDisplay
+              type: string
+            - name: storage_facilityDisplay
+              type: string
+            - name: storefrontDisplay
+              type: string
+            - name: subway_carDisplay
+              type: string
+            - name: swim_schoolDisplay
+              type: string
+            - name: synagogueDisplay
+              type: string
+            - name: tap_roomDisplay
+              type: string
+            - name: tasting_roomDisplay
+              type: string
+            - name: tattoo_studioDisplay
+              type: string
+            - name: tavernDisplay
+              type: string
+            - name: tea_barDisplay
+              type: string
+            - name: teaching_spaceDisplay
+              type: string
+            - name: teahouseDisplay
+              type: string
+            - name: television_studioDisplay
+              type: string
+            - name: templeDisplay
+              type: string
+            - name: tennis_courtDisplay
+              type: string
+            - name: terrace_deckDisplay
+              type: string
+            - name: test_spaceDisplay
+              type: string
+            - name: theaterDisplay
+              type: string
+            - name: theater_for_moviesDisplay
+              type: string
+            - name: theater_in_a_convention_centerDisplay
+              type: string
+            - name: tiki_barDisplay
+              type: string
+            - name: tiny_homeDisplay
+              type: string
+            - name: tipiDisplay
+              type: string
+            - name: townhomeDisplay
+              type: string
+            - name: trailerDisplay
+              type: string
+            - name: trainDisplay
+              type: string
+            - name: train_depotDisplay
+              type: string
+            - name: training_classroomDisplay
+              type: string
+            - name: training_gymDisplay
+              type: string
+            - name: trampoline_parkDisplay
+              type: string
+            - name: treehouseDisplay
+              type: string
+            - name: truckDisplay
+              type: string
+            - name: tudor_houseDisplay
+              type: string
+            - name: vanDisplay
+              type: string
+            - name: vape_loungeDisplay
+              type: string
+            - name: verandaDisplay
+              type: string
+            - name: victorian_apartmentDisplay
+              type: string
+            - name: victorian_houseDisplay
+              type: string
+            - name: video_studioDisplay
+              type: string
+            - name: villaDisplay
+              type: string
+            - name: vineyardDisplay
+              type: string
+            - name: vintageDisplay
+              type: string
+            - name: virtual_reality_studioDisplay
+              type: string
+            - name: warehouseDisplay
+              type: string
+            - name: waterfront_estateDisplay
+              type: string
+            - name: wellness_centerDisplay
+              type: string
+            - name: wellness_spaceDisplay
+              type: string
+            - name: whiskey_barDisplay
+              type: string
+            - name: wine_barDisplay
+              type: string
+            - name: wine_cellarDisplay
+              type: string
+            - name: wineryDisplay
+              type: string
+            - name: woodsDisplay
+              type: string
+            - name: woodworking_spaceDisplay
+              type: string
+            - name: workshop_spaceDisplay
+              type: string
+            - name: workshop_space_in_a_co_workDisplay
+              type: string
+            - name: workshop_space_in_a_hotelDisplay
+              type: string
+            - name: workspaceDisplay
+              type: string
+            - name: wrestling_studioDisplay
+              type: string
+            - name: yachtDisplay
+              type: string
+            - name: yacht_club_event_spaceDisplay
+              type: string
+            - name: yacht_club_restauratDisplay
+              type: string
+            - name: yardDisplay
+              type: string
+            - name: yoga_studioDisplay
+              type: string
+            - name: yurtDisplay
+              type: string
+    FrFR2:
+        fields:
+            - name: display_keyword
+              type: string
+            - name: display_keyword_plural
+              type: string
+            - name: display_use_type
+              type: string
+            - name: dropdown
+              type: string
+            - name: id
+              type: string
+            - name: keyword_type
+              type: string
+            - name: rank
+              type: integer
+            - name: use_subtype
+              type: string
+            - name: use_type
+              type: string
+    Google:
+        fields:
+            - name: accessToken
+              type: string
+            - name: email
+              type: string
+              format: email
+            - name: firstName
+              type: string
+            - name: lastName
+              type: string
+            - name: peopleApiKey
+              type: string
+            - name: sub
+              type: string
+    In:
+        fields:
+            - name: to
+              type: string
+    ListAmenity:
+        fields:
+            - name: canonical_id
+              type: string
+            - name: display_name
+              type: string
+    ListingAppliedSuggestedFilter:
+        fields:
+            - name: category
+              type: string
+              omit_empty: true
+            - name: display_name
+              type: string
+              omit_empty: true
+            - name: estimated_total
+              type: integer
+              omit_empty: true
+            - name: name
+              type: string
+              omit_empty: true
+            - name: rank
+              type: integer
+              omit_empty: true
+    MapCenter:
+        fields:
+            - name: latitude
+              type: number
+            - name: longitude
+              type: number
+            - name: radius
+              type: integer
+    Me:
+        fields:
+            - name: SSOid
+              type: string
+            - name: avatar_id
+              type: string
+            - name: avatar_url
+              type: string
+              format: url
+            - name: bank_account_available
+              type: bool
+            - name: cc_account_available
+              type: bool
+            - name: date_created
+              type: string
+              format: date-time
+            - name: date_first_transactable_guest
+              type: string
+              format: date-time
+            - name: date_modified
+              type: string
+              format: date-time
+            - name: email
+              type: string
+              format: email
+            - name: email_confirmation_attempts_for_today
+              type: integer
+            - name: email_unsubscribes
+              type: ref:EmailUnsubscribes
+            - name: email_verified
+              type: bool
+            - name: ext_user_id
+              type: string
+              format: uuid
+            - name: external_accounts_error
+              type: bool
+            - name: first_name
+              type: string
+            - name: host_forum_access
+              type: string
+            - name: host_heard_from
+              type: array
+            - name: id_verification_sessions
+              type: array
+            - name: intercom_hmac
+              type: string
+            - name: is_host
+              type: bool
+            - name: is_instant_book_eligible_host
+              type: bool
+            - name: is_sms_enabled
+              type: bool
+            - name: last_email_confirmation_attempt_timestamp
+              type: integer
+            - name: last_name
+              type: string
+            - name: last_phone_confirmation_attempt_timestamp
+              type: integer
+            - name: metadata
+              type: ref:Metadata
+            - name: pending_reviews_count
+              type: integer
+            - name: phone
+              type: string
+            - name: phone_confirmation_attempts_for_today
+              type: integer
+            - name: phone_country
+              type: string
+            - name: phone_updated_count
+              type: integer
+            - name: phone_verified
+              type: bool
+            - name: preferred_locale
+              type: string
+            - name: skipped_reviews_count
+              type: integer
+            - name: social
+              type: ref:Social
+            - name: username
+              type: string
+              format: email
+    Metadata:
+        fields:
+            - name: attributions
+              type: '[]ref:Attribution'
+            - name: complete_exps
+              type: '[]ref:CompleteExp'
+    Profile:
+        fields:
+            - name: attachments
+              type: array
+    Social:
+        fields:
+            - name: google
+              type: ref:Google
+    Start:
+        fields:
+            - name: h
+              type: integer
+            - name: m
+              type: integer
+    WebMetro:
+        fields:
+            - name: active
+              type: bool
+            - name: coming_soon
+              type: bool
+            - name: country
+              type: string
+            - name: default_currency
+              type: ref:DefaultCurrency
+            - name: display_name
+              type: string
+            - name: landing_url
+              type: string
+            - name: map_boundaries
+              type: array
+            - name: map_center
+              type: ref:MapCenter
+            - name: name
+              type: string
+            - name: neighborhoods
+              type: array
+            - name: nickname
+              type: string
+            - name: standard_tz_offset
+              type: integer
+            - name: zoom
+              type: integer

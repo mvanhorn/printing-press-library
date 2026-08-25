@@ -5,64 +5,88 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/store"
 	"github.com/spf13/cobra"
 )
 
-// isNilOrEmpty checks whether a JSON object has nil or empty values for
-// common identifier fields (title, name, identifier, id).
-// Also checks nested "document" objects for search result wrappers.
+var spotifyLiveSearchTypes = []string{"album", "artist", "playlist", "track", "show", "episode", "audiobook"}
+
+var searchResponsePaths = []string{
+	"artists.items",
+	"tracks.items",
+	"albums.items",
+	"playlists.items",
+	"shows.items",
+	"episodes.items",
+	"audiobooks.items",
+}
+
+// isNilOrEmpty checks whether a JSON search hit is only an empty shell.
 func isNilOrEmpty(raw json.RawMessage) bool {
 	var obj map[string]interface{}
 	if err := json.Unmarshal(raw, &obj); err != nil {
 		return true
 	}
-	// Check top-level fields
-	for _, key := range []string{"title", "name", "identifier", "id"} {
-		if v, ok := obj[key]; ok {
-			if v == nil {
-				continue
-			}
-			if s, ok := v.(string); ok && strings.TrimSpace(s) != "" {
-				return false
-			}
-			// Non-string, non-nil value (e.g. numeric ID) — keep it
-			if _, ok := v.(string); !ok {
-				return false
-			}
-		}
-	}
-	// Check nested "document" for search result wrappers like {score, document: {name, ...}}
-	if doc, ok := obj["document"]; ok {
-		if docMap, ok := doc.(map[string]interface{}); ok {
-			for _, key := range []string{"title", "name", "identifier", "id", "slug"} {
-				if v, ok := docMap[key]; ok && v != nil {
-					if s, ok := v.(string); ok && strings.TrimSpace(s) != "" {
-						return false
-					}
-					if _, ok := v.(string); !ok {
-						return false
-					}
-				}
-			}
-		}
-	}
-	// If the object has a "score" field, it's likely a search result — keep it
 	if _, ok := obj["score"]; ok {
 		return false
 	}
-	return true
+	return !hasAnyNonEmptySearchValue(obj)
+}
+
+func hasAnyNonEmptySearchValue(v any) bool {
+	switch typed := v.(type) {
+	case nil:
+		return false
+	case string:
+		return strings.TrimSpace(typed) != ""
+	case bool, float64:
+		return true
+	case []any:
+		for _, item := range typed {
+			if hasAnyNonEmptySearchValue(item) {
+				return true
+			}
+		}
+	case map[string]any:
+		for _, item := range typed {
+			if hasAnyNonEmptySearchValue(item) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // extractSearchResults unwraps API search responses by checking common envelope paths.
-func extractSearchResults(data json.RawMessage) []json.RawMessage {
+func extractSearchResults(data json.RawMessage, responsePaths ...string) []json.RawMessage {
 	// Try direct array first
 	var items []json.RawMessage
 	if json.Unmarshal(data, &items) == nil {
 		return items
+	}
+	var aggregated []json.RawMessage
+	foundResponsePath := false
+	for _, responsePath := range responsePaths {
+		if pathData, ok := responsePayloadAtPath(data, responsePath); ok {
+			foundResponsePath = true
+			// Decode each path into a fresh slice. json.Unmarshal may reuse a
+			// slice's backing array, which would let a later path overwrite
+			// RawMessage headers already appended from an earlier path.
+			var pathItems []json.RawMessage
+			if json.Unmarshal(pathData, &pathItems) == nil {
+				aggregated = append(aggregated, pathItems...)
+			}
+		}
+	}
+	if foundResponsePath {
+		return aggregated
 	}
 	// Try common wrapper paths: data, results, items
 	var wrapped map[string]json.RawMessage
@@ -87,22 +111,22 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "search <query>",
 		Short: "Full-text search across synced data or live API",
-		Long: `Search data using FTS5 full-text search on locally synced data,
-or hit the API's search endpoint when available.
+		Long: `Search Spotify's live catalog or locally synced data.
 
-In auto mode (default): uses the API search endpoint if the API has one,
-otherwise searches local data. Falls back to local on network failure.
-In live mode: uses the API search endpoint only.
-In local mode: searches locally synced data only.`,
-		Example: `  # Search (uses API endpoint if available, local FTS otherwise)
+By default, one live request searches albums, artists, playlists, tracks,
+shows, episodes, and audiobooks. Use --type to narrow the live request.
+The local-only types me and chapters bypass the live API. Auto mode falls
+back to local FTS on a network failure; --data-source local always uses FTS.`,
+		Example: `  # Search every Spotify catalog type in one live request
   spotify-pp-cli search "error timeout"
 
+  # Search only artists
+  spotify-pp-cli search "Miles Davis" --type artist
+
   # Force local search only
-  spotify-pp-cli search "payment failed" --data-source local
-
+  spotify-pp-cli search "status" --data-source local
   # Search a specific resource type locally
-  spotify-pp-cli search "critical" --type transactions --data-source local
-
+  spotify-pp-cli search "status" --type albums --data-source local
   # JSON output for piping
   spotify-pp-cli search "critical" --json --limit 20`,
 		Annotations: map[string]string{"mcp:hidden": "true"},
@@ -112,19 +136,87 @@ In local mode: searches locally synced data only.`,
 			}
 			query := args[0]
 			// This API has a search endpoint: GET /search
-			if flags.dataSource != "local" {
+			// Spotify's /search has no equivalent for the local-only types, so
+			// an explicit --data-source live cannot be honored for them. Say so
+			// instead of quietly serving local data under a flag that promises
+			// the opposite; auto still degrades to local FTS as intended.
+			if flags.dataSource == "live" && isLocalOnlySearchType(resourceType) {
+				return usageErr(fmt.Errorf(
+					"--type %s has no live Spotify search; use --data-source local or auto",
+					strings.TrimSpace(strings.ToLower(resourceType)),
+				))
+			}
+			if flags.dataSource != "local" && !isLocalOnlySearchType(resourceType) {
+				// Resolve/validate the catalog type only for requests that
+				// actually reach the API. The whitelist below covers the seven
+				// types /search accepts; the local FTS index holds every synced
+				// resource type, so --data-source local must keep accepting any
+				// --type string instead of being gated by a live-API concern.
+				liveType, err := resolveSpotifyLiveSearchType(resourceType)
+				if err != nil {
+					return usageErr(err)
+				}
 				c, err := flags.newClient()
 				if err != nil {
 					return err
 				}
-				data, getErr := c.Get("/search", map[string]string{
-					"q": query,
+				data, getErr := c.Get(cmd.Context(), "/search", map[string]string{
+					"q":    query,
+					"type": liveType,
 				})
 				if getErr == nil {
 					// Live search succeeded
-					results := extractSearchResults(data)
+					results := extractSearchResults(data, searchResponsePaths...)
 					prov := DataProvenance{Source: "live"}
 					return outputSearchResults(cmd, flags, results, limit, prov)
+				}
+				if strings.Contains(liveType, ",") && isSearchTypeRejection(getErr) {
+					var results []json.RawMessage
+					var excluded []string
+					var abortedType string
+					var fanoutErr error
+					for _, candidate := range spotifyLiveSearchTypes {
+						typeData, typeErr := c.Get(cmd.Context(), "/search", map[string]string{
+							"q":    query,
+							"type": candidate,
+						})
+						if typeErr != nil {
+							if isSearchTypeRejection(typeErr) {
+								excluded = append(excluded, candidate)
+								continue
+							}
+							// Not a per-type rejection (auth, throttling, 5xx,
+							// network). Stop fanning out, but do not discard the
+							// hits earlier candidates already returned. Hand the
+							// failure to getErr so the network-error check below
+							// still governs the auto-mode local fallback.
+							fanoutErr = typeErr
+							abortedType = candidate
+							getErr = typeErr
+							break
+						}
+						results = append(results, extractSearchResults(typeData, searchResponsePaths...)...)
+					}
+					// A total rejection (every candidate refused) is still a hard
+					// error, and so is an abort that collected nothing: both fall
+					// through to the error / local-fallback path below rather than
+					// exiting 0 with an empty result set.
+					if len(excluded) != len(spotifyLiveSearchTypes) && (fanoutErr == nil || len(results) > 0) {
+						for _, excludedType := range excluded {
+							fmt.Fprintf(cmd.ErrOrStderr(), "Live search excluded type %s after Spotify rejected it.\n", excludedType)
+						}
+						if fanoutErr != nil {
+							fmt.Fprintf(cmd.ErrOrStderr(), "Live search stopped at type %s after a non-type error; returning partial results: %v\n", abortedType, fanoutErr)
+						}
+						// Degradation has to survive into the machine envelope,
+						// not just stderr: meta.reason is the documented signal
+						// that this result set is incomplete, and without it a
+						// degraded response is shape-identical to a complete one.
+						return outputSearchResults(cmd, flags, results, limit, DataProvenance{
+							Source: "live",
+							Reason: degradedLiveSearchReason(excluded, abortedType),
+						})
+					}
 				}
 				// Check if it's a network error for auto-mode fallback
 				if flags.dataSource == "live" || !isNetworkError(getErr) {
@@ -145,24 +237,29 @@ In local mode: searches locally synced data only.`,
 			}
 			defer db.Close()
 
+			maybeEmitSyncHints(cmd, db, resourceType, flags.maxAge)
+
 			var results []json.RawMessage
 			switch resourceType {
 			case "albums":
 				results, err = db.SearchAlbums(query, limit)
 			case "audiobooks":
 				results, err = db.SearchAudiobooks(query, limit)
-			case "browse":
-				results, err = db.SearchBrowse(query, limit)
 			case "chapters":
 				results, err = db.SearchChapters(query, limit)
 			case "episodes":
 				results, err = db.SearchEpisodes(query, limit)
-			case "playlists":
-				results, err = db.SearchPlaylists(query, limit)
+			case "me":
+				results, err = db.SearchMe(query, limit)
 			case "shows":
 				results, err = db.SearchShows(query, limit)
 			case "":
-				// Search all FTS-enabled tables individually to avoid duplicates.
+				// Search every FTS-enabled source — typed per-resource tables
+				// AND the generic resources_fts — and dedup by raw JSON so a
+				// row indexed in multiple FTS sources appears once. Without
+				// the generic-search call, rows that landed in resources_fts
+				// but not in any typed FTS table (e.g., a resource whose sync
+				// populated only the generic index) silently return zero.
 				seen := make(map[string]bool)
 				_ = seen // prevent unused error when no FTS tables exist
 				{
@@ -182,19 +279,6 @@ In local mode: searches locally synced data only.`,
 					partial, searchErr := db.SearchAudiobooks(query, limit)
 					if searchErr != nil {
 						return fmt.Errorf("search audiobooks failed: %w", searchErr)
-					}
-					for _, r := range partial {
-						key := string(r)
-						if !seen[key] {
-							seen[key] = true
-							results = append(results, r)
-						}
-					}
-				}
-				{
-					partial, searchErr := db.SearchBrowse(query, limit)
-					if searchErr != nil {
-						return fmt.Errorf("search browse failed: %w", searchErr)
 					}
 					for _, r := range partial {
 						key := string(r)
@@ -231,9 +315,9 @@ In local mode: searches locally synced data only.`,
 					}
 				}
 				{
-					partial, searchErr := db.SearchPlaylists(query, limit)
+					partial, searchErr := db.SearchMe(query, limit)
 					if searchErr != nil {
-						return fmt.Errorf("search playlists failed: %w", searchErr)
+						return fmt.Errorf("search me failed: %w", searchErr)
 					}
 					for _, r := range partial {
 						key := string(r)
@@ -256,9 +340,22 @@ In local mode: searches locally synced data only.`,
 						}
 					}
 				}
+				{
+					partial, searchErr := db.Search(query, limit)
+					if searchErr != nil {
+						return fmt.Errorf("search resources_fts failed: %w", searchErr)
+					}
+					for _, r := range partial {
+						key := string(r)
+						if !seen[key] {
+							seen[key] = true
+							results = append(results, r)
+						}
+					}
+				}
 			default:
-				// Unrecognized type — fall back to generic search
-				results, err = db.Search(query, limit)
+				// Unrecognized type -- filter generic resources by type.
+				results, err = db.Search(query, limit, resourceType)
 			}
 			if err != nil {
 				return fmt.Errorf("search failed: %w", err)
@@ -276,9 +373,76 @@ In local mode: searches locally synced data only.`,
 
 	cmd.Flags().StringVar(&resourceType, "type", "", "Filter by resource type")
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum results to return")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/spotify-pp-cli/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 
 	return cmd
+}
+
+func resolveSpotifyLiveSearchType(resourceType string) (string, error) {
+	normalized := strings.TrimSpace(strings.ToLower(resourceType))
+	switch normalized {
+	case "":
+		return strings.Join(spotifyLiveSearchTypes, ","), nil
+	case "albums":
+		return "album", nil
+	case "artists":
+		return "artist", nil
+	case "playlists":
+		return "playlist", nil
+	case "tracks":
+		return "track", nil
+	case "shows":
+		return "show", nil
+	case "episodes":
+		return "episode", nil
+	case "audiobooks":
+		return "audiobook", nil
+	case "album", "artist", "playlist", "track", "show", "episode", "audiobook":
+		return normalized, nil
+	case "me", "chapters":
+		return "", nil
+	default:
+		return "", fmt.Errorf("invalid --type %q; valid types: album, artist, playlist, track, show, episode, audiobook, me, chapters (plural forms are also accepted)", resourceType)
+	}
+}
+
+func isLocalOnlySearchType(resourceType string) bool {
+	switch strings.TrimSpace(strings.ToLower(resourceType)) {
+	case "me", "chapters":
+		return true
+	default:
+		return false
+	}
+}
+
+// isSearchTypeRejection reports whether Spotify refused the *catalog type* of a
+// /search request. Only HTTP 400 carries that meaning. 401, 403, 404 and 429 are
+// auth, permission, missing-resource and throttling failures: replaying them
+// once per candidate type turns one bad request into seven and then reports a
+// transient or auth problem to the user as permanent type unavailability, so
+// they must propagate on the first request instead. The auth-shaped-400 escape
+// mirrors classifyAPIError, which routes those to the auth path rather than
+// treating them as an ordinary bad request.
+func isSearchTypeRejection(err error) bool {
+	var apiErr *client.APIError
+	if !errors.As(err, &apiErr) || apiErr.StatusCode != http.StatusBadRequest {
+		return false
+	}
+	return !cliutil.LooksLikeAuthError(apiErr.Error())
+}
+
+// degradedLiveSearchReason renders the DataProvenance.Reason for a partial live
+// search. provenanceMeta surfaces it as meta.reason, which is what makes a
+// degraded JSON envelope distinguishable from a complete one.
+func degradedLiveSearchReason(excluded []string, abortedType string) string {
+	var parts []string
+	if len(excluded) > 0 {
+		parts = append(parts, "excluded types: "+strings.Join(excluded, ", "))
+	}
+	if abortedType != "" {
+		parts = append(parts, "stopped at type: "+abortedType)
+	}
+	return strings.Join(parts, "; ")
 }
 
 // outputSearchResults filters, counts, and outputs search results with provenance.
@@ -297,23 +461,39 @@ func outputSearchResults(cmd *cobra.Command, flags *rootFlags, results []json.Ra
 		results = results[:limit]
 	}
 
-	jsonMode := flags.asJSON || !isTerminal(cmd.OutOrStdout())
-
-	// JSON mode always emits a valid envelope, including on no matches —
-	// agents pipe stdout through json.loads / jq and need parseable output
-	// regardless of result count. The filtered slice is built via make
-	// above, so it's non-nil even when empty; json.Marshal renders that
-	// as `[]` rather than `null`.
-	if jsonMode {
+	// Machine/piped mode always emits a valid envelope, including on no
+	// matches — agents pipe stdout through json.loads / jq and need parseable
+	// output regardless of result count. Explicit row formats render the result
+	// array directly so --csv/--plain can produce real tabular output.
+	if !wantsHumanTable(cmd.OutOrStdout(), flags) {
 		data, err := json.Marshal(results)
 		if err != nil {
 			return err
+		}
+		if flags.csv || flags.plain || flags.quiet {
+			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+		}
+		outputFlags := *flags
+		if flags.selectFields != "" {
+			data = filterFields(data, flags.selectFields)
+			outputFlags.selectFields = ""
+			outputFlags.compact = false
+		} else if flags.compact {
+			data = compactFields(data)
+			outputFlags.compact = false
+		}
+		// In agent mode the printer adds the provenance envelope itself, so
+		// wrapping here too would nest two envelopes and let the printer's
+		// assumed "local" label sit above the real source. Hand it the true
+		// provenance and let it wrap once.
+		if agentEnvelopeApplies(&outputFlags) {
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, &outputFlags, provenanceMeta(prov))
 		}
 		wrapped, err := wrapWithProvenance(data, prov)
 		if err != nil {
 			return err
 		}
-		return printOutput(cmd.OutOrStdout(), wrapped, true)
+		return printOutputWithFlags(cmd.OutOrStdout(), wrapped, &outputFlags)
 	}
 
 	if len(results) == 0 {

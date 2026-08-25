@@ -1,0 +1,6 @@
+# Example shopping list for `woolworths-pp-cli basket ./groceries.txt`
+# One item per line. Blank lines and #-comments are ignored.
+full cream milk
+tim tam original
+weet bix
+cadbury dairy milk

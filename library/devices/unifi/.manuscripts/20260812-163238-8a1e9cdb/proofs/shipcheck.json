@@ -1,0 +1,74 @@
+{
+  "passed": false,
+  "exit_code": 3,
+  "verdict": "HOLD",
+  "reason": "scorecard hold: unverified dimensions: live_api_verification",
+  "started_at": "2026-08-12T21:03:06Z",
+  "elapsed_ms": 16748,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-08-12T21:03:06Z",
+      "elapsed_ms": 9989,
+      "command": "/home/node/go/bin/cli-printing-press verify --dir /home/node/printing-press/.runstate/workspace-c52ddf65/runs/20260812-163238-8a1e9cdb/working/unifi-pp-cli --write-manifest /home/node/printing-press/.runstate/workspace-c52ddf65/runs/20260812-163238-8a1e9cdb/working/unifi-pp-cli/.printing-press.json --spec /tmp/unifi-integration-enriched.json --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-08-12T21:03:16Z",
+      "elapsed_ms": 149,
+      "command": "/home/node/go/bin/cli-printing-press validate-narrative --strict --full-examples --research /home/node/printing-press/.runstate/workspace-c52ddf65/runs/20260812-163238-8a1e9cdb/research.json --binary /home/node/printing-press/.runstate/workspace-c52ddf65/runs/20260812-163238-8a1e9cdb/working/unifi-pp-cli/unifi-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-08-12T21:03:16Z",
+      "elapsed_ms": 3160,
+      "command": "/home/node/go/bin/cli-printing-press dogfood --dir /home/node/printing-press/.runstate/workspace-c52ddf65/runs/20260812-163238-8a1e9cdb/working/unifi-pp-cli --spec /tmp/unifi-integration-enriched.json --research-dir /home/node/printing-press/.runstate/workspace-c52ddf65/runs/20260812-163238-8a1e9cdb"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-08-12T21:03:19Z",
+      "elapsed_ms": 11,
+      "command": "/home/node/go/bin/cli-printing-press workflow-verify --dir /home/node/printing-press/.runstate/workspace-c52ddf65/runs/20260812-163238-8a1e9cdb/working/unifi-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-08-12T21:03:19Z",
+      "elapsed_ms": 22,
+      "command": "/home/node/go/bin/cli-printing-press apify-audit --dir /home/node/printing-press/.runstate/workspace-c52ddf65/runs/20260812-163238-8a1e9cdb/working/unifi-pp-cli --research-dir /home/node/printing-press/.runstate/workspace-c52ddf65/runs/20260812-163238-8a1e9cdb"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-08-12T21:03:19Z",
+      "elapsed_ms": 2052,
+      "command": "/home/node/go/bin/cli-printing-press verify-skill --dir /home/node/printing-press/.runstate/workspace-c52ddf65/runs/20260812-163238-8a1e9cdb/working/unifi-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 3,
+      "passed": false,
+      "verdict": "HOLD",
+      "detail": "scorecard hold: unverified dimensions: live_api_verification",
+      "started_at": "2026-08-12T21:03:21Z",
+      "elapsed_ms": 1362,
+      "command": "/home/node/go/bin/cli-printing-press scorecard --dir /home/node/printing-press/.runstate/workspace-c52ddf65/runs/20260812-163238-8a1e9cdb/working/unifi-pp-cli --write-manifest /home/node/printing-press/.runstate/workspace-c52ddf65/runs/20260812-163238-8a1e9cdb/working/unifi-pp-cli/.printing-press.json --research-dir /home/node/printing-press/.runstate/workspace-c52ddf65/runs/20260812-163238-8a1e9cdb --spec /tmp/unifi-integration-enriched.json --live-check"
+    }
+  ]
+}

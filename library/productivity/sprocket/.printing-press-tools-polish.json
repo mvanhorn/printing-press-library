@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-06-18T13:10:54.662021Z",
+  "cli_dir": "\u003ccli-dir\u003e/sprocket-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-06-18T13:02:24.839811Z"
+  }
+}

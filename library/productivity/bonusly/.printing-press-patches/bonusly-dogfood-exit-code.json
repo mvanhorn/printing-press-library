@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "id": "bonusly-dogfood-exit-code",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260810-153232-4e95f81e",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Route error returns in recognition_gap, balance_history, redemptions_list-mine, recognition_search_mine, and recognition_audit through classifyAPIError() instead of a raw `return err`, so live 401s exit with the authoritative auth exit code (4) instead of a generic exit 1.",
+  "reason": "Live dogfood --live was reporting hard FAIL for these 5 commands with a real HTTP 401, even though the exact same commands succeed when run directly with the same session. Root-caused by reading cli-printing-press's own vendored source (module cache, v4.30.3): internal/pipeline/live_dogfood.go's liveDogfoodAuth401() treats exit code 4 (the authErr/classifyAPIError exit code) + \"http 401\" in output as authoritative proof of an auth-shaped failure, then retries once and classifies persistent failure as reasonUnavailableRunnerCredentials (a skip) rather than a hard fail -- but ONLY when the exit code is 4. These 5 commands are 'novel command scaffolds' that never got the classifyAPIError() wrapping the generated (spec-driven) command template applies automatically, so their 401s exited 1 and were never recognized as auth-shaped, always counting as hard failures regardless of cause.",
+  "files": [
+    "internal/cli/recognition_gap.go",
+    "internal/cli/balance_history.go",
+    "internal/cli/redemptions_list-mine.go",
+    "internal/cli/recognition_search_mine.go",
+    "internal/cli/recognition_audit.go"
+  ],
+  "validated_outcome": "cli-printing-press dogfood --live --level full went from 'FAIL: 6-8/123-149 tests failed' to 'PASS: 0/117 tests failed', reproduced twice. publish validate's remaining phase5 failure narrowed from a hard fail to a documented 'hollow coverage' warning for 3 commands (balance history, recognition gap, recognition search-mine) whose live signal genuinely cannot be captured in dogfood's sandboxed subprocess HOME without a captured browser session -- a harness limitation for cookie/browser-session auth types, not a code defect. See internal/pipeline/live_dogfood.go's isBrowserSessionAuthType() and the surrounding comment for cli-printing-press's own documented account of this limitation.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/1573",
+  "deferred_to_upstream": [
+    {
+      "feature": "Generated command template's classifyAPIError() wrapping for 'novel command scaffold' error returns",
+      "reason": "This exit-code gap likely affects every 'novel command scaffold' across every printed CLI, not just bonusly's -- the novel-command template doesn't apply the same classifyAPIError() wrapping the spec-driven command template does. This is a machine-level fix candidate, not a bonusly-specific one."
+    },
+    {
+      "feature": "isBrowserSessionAuthType() recognizing a manifest with a bearer_token primary auth_type that also has a captured cookie credential on the current machine",
+      "reason": "bonusly-pp-cli genuinely supports both bearer-token and cookie auth (see bonusly-cookie-session-auth.json patch); its manifest's auth_type: bearer_token is accurate for the API's documented primary mechanism, but does not fit the single-string isBrowserSessionAuthType() check that live_dogfood.go uses to decide whether to emit a graceful cookie-auth-no-session skip marker instead of penalizing hollow coverage. GitHub issue #1573 (linked above) covers the related auth-401 classification gap this patch fixes; this is a follow-on refinement for CLIs with more than one supported auth mechanism."
+    }
+  ]
+}

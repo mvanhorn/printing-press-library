@@ -1,0 +1,61 @@
+{
+  "api_name": "gl-inet",
+  "base_url": "http://192.168.8.1",
+  "description": "The first maintained CLI for GL.iNet travel routers — named config profiles, travel macros, and version-aware diagnostics no other GL.iNet tool ships.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "clients_list",
+      "description": "List connected clients (ip, mac, name, tx/rx, online).",
+      "method": "GET",
+      "path": "/clients",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "snapshots_list",
+      "description": "Saved config snapshots (local store).",
+      "method": "GET",
+      "path": "/snapshots",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "system_info",
+      "description": "Model, firmware, OpenWrt version, hardware/software capability maps.",
+      "method": "GET",
+      "path": "/system/info",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "system_status",
+      "description": "Live CPU, memory, clients, services, WAN/internet state.",
+      "method": "GET",
+      "path": "/system/status",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "vpn_list",
+      "description": "Configured VPN client tunnels and their status.",
+      "method": "GET",
+      "path": "/vpn/tunnels",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "wifi_status",
+      "description": "Radio states, channels, bands.",
+      "method": "GET",
+      "path": "/wifi/status",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

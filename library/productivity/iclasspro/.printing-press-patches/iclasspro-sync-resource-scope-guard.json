@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "iclasspro-sync-resource-scope-guard",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260805-132802-de816ded",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Keep resource-scoped syncs out of authoritative whole-catalog snapshots.",
+  "reason": "A classes-only or camps-only sync omits the other entity kind by design. Recording it as a full snapshot made drift report every omitted entity as removed.",
+  "files": [
+    "internal/cli/iclasspro_sync.go",
+    "internal/cli/iclasspro_sync_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "PASS: focused whole-catalog eligibility regression, full Go tests, go vet, go build, 134/134 dogfood checks, verify-skill, strict PII audit, supply-chain scan, and publish validation passed.",
+  "findings_addressed": [
+    "Greptile P1: resource-scoped syncs created false removals in drift"
+  ],
+  "publication_status": "pr_open",
+  "reapply_notes": "An authoritative ICP snapshot requires both classes and camps and a non-truncated walk. Scoped or page-capped runs may record openings history and update the generic search cache, but must return run_id 0 and snapshot_recorded false."
+}

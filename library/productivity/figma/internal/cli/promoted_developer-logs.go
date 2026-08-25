@@ -24,8 +24,8 @@ func newDeveloperLogsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "developer-logs",
-		Short:       "Returns a list of developer log entries for REST API and MCP server requests made within the organization. This...",
-		Long:        "Shortcut for 'developer-logs get'. Returns a list of developer log entries for REST API and MCP server requests made within the organization. This...",
+		Short:       "Returns a list of developer log entries for REST API and MCP server requests made within the organization.",
+		Long:        "Returns a list of developer log entries for REST API and MCP server requests made within the organization.",
 		Example:     "  figma-pp-cli developer-logs",
 		Annotations: map[string]string{"pp:endpoint": "developer-logs.get", "pp:method": "POST", "pp:path": "/v1/developer_logs", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -35,6 +35,7 @@ func newDeveloperLogsPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/developer_logs"
+			params := map[string]string{}
 			// HasStore + non-GET falls through to a live API call here
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
@@ -67,17 +68,18 @@ func newDeveloperLogsPromotedCmd(flags *rootFlags) *cobra.Command {
 			if bodyUserEmail != "" {
 				body["user_email"] = bodyUserEmail
 			}
-			data, _, err := c.Post(path, body)
+			data, _, err := c.PostQueryWithParams(cmd.Context(), path, params, body)
+
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
-			// Print provenance to stderr
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				if json.Unmarshal(data, &countItems) != nil {
 					// Single object, not an array
@@ -85,14 +87,12 @@ func newDeveloperLogsPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// CSV bypasses JSON pipe path so --csv works when piped
-			if flags.csv {
-				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-			}
 			// For JSON output, wrap with provenance envelope. --select wins over
 			// --compact when both are set; --compact only runs when no explicit
-			// fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// fields were requested. Explicit format flags (--csv, --quiet, --plain)
+			// opt out of the auto-JSON path so piped consumers that asked for a
+			// non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)

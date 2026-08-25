@@ -1,0 +1,919 @@
+{
+  "dir": "/Users/apple/printing-press/.publish-repo-apple-0b5cfea6/library/ai/notebooklm",
+  "binary": "/Users/apple/printing-press/.publish-repo-apple-0b5cfea6/library/ai/notebooklm/notebooklm-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 50,
+  "passed": 50,
+  "failed": 0,
+  "skipped": 47,
+  "commands": [
+    "chat ask",
+    "chat history",
+    "doctor",
+    "export",
+    "feedback submit",
+    "notebook create",
+    "notebook delete",
+    "notebook get",
+    "notebook list",
+    "notebook rename",
+    "profile list",
+    "profile save",
+    "search",
+    "share show",
+    "source add",
+    "source delete",
+    "source list",
+    "sql",
+    "stats",
+    "studio generate-quiz",
+    "studio list",
+    "sync",
+    "whoami"
+  ],
+  "tests": [
+    {
+      "command": "chat ask",
+      "kind": "help",
+      "args": [
+        "chat",
+        "ask",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Ask a grounded question against notebook sources\n\nUsage:\n  notebooklm-pp-cli chat ask \u003cnotebook\u003e [question] [flags]\n\nExamples:\n  notebooklm-pp-cli chat ask \"Q3 Research\" \"Summarize the key risks\" --json\n  echo \"What changed since last quarter?\" | notebooklm-pp-cli chat ask \"Q3 Research\" --stdin --json\n\nFlags:\n  -h, --help   help for ask\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "chat ask",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [chat ask] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "chat ask",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [chat ask] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "chat ask",
+      "kind": "error_path",
+      "args": [
+        "chat",
+        "ask",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: notebook not found: \"__printing_press_invalid__\"\nhint: Check the notebook id or title; run notebooklm-pp-cli notebook list --json\n"
+    },
+    {
+      "command": "chat history",
+      "kind": "help",
+      "args": [
+        "chat",
+        "history",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List prior chat turns for a notebook conversation\n\nUsage:\n  notebooklm-pp-cli chat history \u003cnotebook\u003e [flags]\n\nExamples:\n  notebooklm-pp-cli chat history \"Q3 Research\" --json\n\nFlags:\n  -h, --help   help for history\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "chat history",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"notebook\" at depth 0"
+    },
+    {
+      "command": "chat history",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"notebook\" at depth 0"
+    },
+    {
+      "command": "chat history",
+      "kind": "error_path",
+      "args": [
+        "chat",
+        "history",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: notebook not found: \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check auth, config, API connectivity, and local cache health\n\nUsage:\n  notebooklm-pp-cli doctor [flags]\n\nExamples:\n  notebooklm-pp-cli doctor\n  notebooklm-pp-cli doctor --json\n  notebooklm-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero on stale (stale), warnings (warn), or errors (error)\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "notebooklm-pp-cli doctor\n  version: 0.2.0-dev\n  config: ok (/var/folders/4c/4s9qrz4s335f5whj7y427ns00000gn/T/printing-press-subprocess-4167242631/.config/notebooklm-pp-cli/config.toml)\n  auth: configured\n  api: reachable\n  cache: empty\n    db_path: /var/folders/4c/4s9qrz4s335f5whj7y427ns00000gn/T/printing-press-subprocess-4167242631/.local/share/notebooklm-pp-cli/cache.db\n    schema_version: 1\n    hint: Cache is empty; run 'notebooklm-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"api\":{\"http_status\":200,\"status\":\"reachable\"},\"auth\":{\"preview\":\"__Secure-BUCKET=***; APISID=***YRsp; HSID=***1XTf; SAPISID=***Pjlu; SID=***0076; SSID=***ftTf; __Secure-1PAPISID=***Pjlu; __Secure-1PSID=***0076; __Secure-3PAPISID=***Pjlu; __Secure-3PSID=***0076; SEARCH_SAMESITE=***rKEB; SNID=***ByeI; AEC=***5-qQ; NID=***GCUQ; SIDCC=***kqUw; __Secure-1PSIDCC=***AjQw; __Secure-1PSIDTS=***aEAA; __Secure-3PSIDCC=***yvPs; __Secure-3PSIDTS=***aEAA; OSID=***0076; __Secure-OSID=***0076; _ga=***3149; _ga_W0LDH41ZCB=***0$h0; _gcl_au=***3192\",\"status\":\"configured\"},\"cache\":{\"db_bytes\":40960,\"db_path\":\"/var/folders/4c/4s9qrz4s335f5whj7y427ns00000gn/T/printing-press-subprocess-4167242631/.local/share/notebooklm-pp-cli/cache.db\",\"hint\":\"Cache is empty; run 'notebooklm-pp-cli sync' to hydrate.\",\"resources\":null,\"schema_version\":1,\"stale_after\":\"6h0m0s\",\"status\":\"empty\"},\"config\":{\"path\":\"/var/folders/4c/4s9qrz4s335f5whj7y427ns00000gn/T/printing-press-subprocess-4167242631/.config/notebooklm-pp-cli/config.toml\",\"status\":\"ok\"},\"go\":\"go1.26.5\",\"session\":\"\u003credacted\u003e\",\"version\":\"0.2.0-dev\"}"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "export",
+      "kind": "help",
+      "args": [
+        "export",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Export cached notebooks to a JSON file for backup or sharing\n\nUsage:\n  notebooklm-pp-cli export [flags]\n\nExamples:\n  notebooklm-pp-cli sync --json\n  notebooklm-pp-cli export --out notebooks-backup.json --json\n\nFlags:\n      --db string    SQLite cache path\n  -h, --help         help for export\n      --out string   Output JSON file path\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "export",
+      "kind": "happy_path",
+      "args": [
+        "export",
+        "--out",
+        "notebooks-backup.json",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"exported\": 0,\n  \"path\": \"notebooks-backup.json\"\n}\n"
+    },
+    {
+      "command": "export",
+      "kind": "json_fidelity",
+      "args": [
+        "export",
+        "--out",
+        "notebooks-backup.json",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"exported\": 0,\n  \"path\": \"notebooks-backup.json\"\n}\n"
+    },
+    {
+      "command": "export",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback submit",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "submit",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Append a feedback note to the local ledger\n\nUsage:\n  notebooklm-pp-cli feedback submit \u003cmessage\u003e [flags]\n\nExamples:\n  notebooklm-pp-cli feedback submit \"search missed notebook by partial title\" --json\n\nFlags:\n  -h, --help   help for submit\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "feedback submit",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"message\" at depth 0"
+    },
+    {
+      "command": "feedback submit",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"message\" at depth 0"
+    },
+    {
+      "command": "feedback submit",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "feedback submit",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"message\" at depth 0"
+    },
+    {
+      "command": "notebook create",
+      "kind": "help",
+      "args": [
+        "notebook",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Create a new notebook with the given title\n\nUsage:\n  notebooklm-pp-cli notebook create [title] [flags]\n\nExamples:\n  notebooklm-pp-cli notebook create \"Q3 Research\" --json\n\nFlags:\n  -h, --help   help for create\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "notebook create",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"title\" at depth 0"
+    },
+    {
+      "command": "notebook create",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"title\" at depth 0"
+    },
+    {
+      "command": "notebook create",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "notebook create",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"title\" at depth 0"
+    },
+    {
+      "command": "notebook delete",
+      "kind": "help",
+      "args": [
+        "notebook",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Permanently delete a notebook and its sources\n\nUsage:\n  notebooklm-pp-cli notebook delete \u003cid-or-title\u003e [flags]\n\nExamples:\n  notebooklm-pp-cli notebook delete \"Old Draft\" --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "notebook delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"id-or-title\" at depth 0"
+    },
+    {
+      "command": "notebook delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"id-or-title\" at depth 0"
+    },
+    {
+      "command": "notebook delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "notebook delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"id-or-title\" at depth 0"
+    },
+    {
+      "command": "notebook get",
+      "kind": "help",
+      "args": [
+        "notebook",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get notebook metadata and source list by id or title\n\nUsage:\n  notebooklm-pp-cli notebook get \u003cid-or-title\u003e [flags]\n\nExamples:\n  notebooklm-pp-cli notebook get \"Q3 Research\" --json\n  notebooklm-pp-cli notebook get --notebook-id abc123def456 --json\n\nFlags:\n  -h, --help                 help for get\n      --notebook-id string   Notebook id when not passed as a positional argument\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "notebook get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"id-or-title\" at depth 0"
+    },
+    {
+      "command": "notebook get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"id-or-title\" at depth 0"
+    },
+    {
+      "command": "notebook get",
+      "kind": "error_path",
+      "args": [
+        "notebook",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: notebook not found: \"__printing_press_invalid__\"\nhint: Check the notebook id or title; run notebooklm-pp-cli notebook list --json\n"
+    },
+    {
+      "command": "notebook list",
+      "kind": "help",
+      "args": [
+        "notebook",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recently viewed notebooks from your Google account\n\nUsage:\n  notebooklm-pp-cli notebook list [flags]\n\nExamples:\n  notebooklm-pp-cli notebook list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "notebook list",
+      "kind": "happy_path",
+      "args": [
+        "notebook",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "null\n"
+    },
+    {
+      "command": "notebook list",
+      "kind": "json_fidelity",
+      "args": [
+        "notebook",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "null\n"
+    },
+    {
+      "command": "notebook list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "notebook rename",
+      "kind": "help",
+      "args": [
+        "notebook",
+        "rename",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Rename an existing notebook to a new title\n\nUsage:\n  notebooklm-pp-cli notebook rename \u003cid-or-title\u003e \u003cnew-title\u003e [flags]\n\nExamples:\n  notebooklm-pp-cli notebook rename \"Q3 Research\" \"Q3 Research (final)\" --json\n\nFlags:\n  -h, --help   help for rename\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "notebook rename",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [notebook rename] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "notebook rename",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [notebook rename] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "notebook rename",
+      "kind": "error_path",
+      "args": [
+        "notebook",
+        "rename",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: accepts 2 arg(s), received 1\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  notebooklm-pp-cli profile list [flags]\n\nExamples:\n  notebooklm-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{}\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{}\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Save current global flags under a profile name\n\nUsage:\n  notebooklm-pp-cli profile save [flags]\n\nExamples:\n  notebooklm-pp-cli profile save --name daily --json --agent\n\nFlags:\n  -h, --help          help for save\n      --name string   Profile name\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "save",
+        "--name",
+        "daily",
+        "--json",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"saved\": \"daily\"\n}\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "save",
+        "--name",
+        "daily",
+        "--json",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"saved\": \"daily\"\n}\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search cached notebooks by title or id (run sync first)\n\nUsage:\n  notebooklm-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  notebooklm-pp-cli sync --json\n  notebooklm-pp-cli search \"quarterly report\" --json\n\nFlags:\n      --db string   SQLite cache path (default: ~/.local/share/notebooklm-pp-cli/cache.db)\n  -h, --help        help for search\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "share show",
+      "kind": "help",
+      "args": [
+        "share",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get public/private sharing status for a notebook\n\nUsage:\n  notebooklm-pp-cli share show \u003cnotebook\u003e [flags]\n\nExamples:\n  notebooklm-pp-cli share show \"Q3 Research\" --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "share show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"notebook\" at depth 0"
+    },
+    {
+      "command": "share show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"notebook\" at depth 0"
+    },
+    {
+      "command": "share show",
+      "kind": "error_path",
+      "args": [
+        "share",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: notebook not found: \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "source add",
+      "kind": "help",
+      "args": [
+        "source",
+        "add",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Add a public URL source to a notebook\n\nUsage:\n  notebooklm-pp-cli source add \u003cnotebook\u003e \u003curl\u003e [flags]\n\nExamples:\n  notebooklm-pp-cli source add \"Q3 Research\" https://en.wikipedia.org/wiki/NotebookLM --json\n\nFlags:\n  -h, --help   help for add\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "source add",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [source add] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "source add",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [source add] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "source add",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "source add",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [source add] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "source delete",
+      "kind": "help",
+      "args": [
+        "source",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a source from a notebook by source id\n\nUsage:\n  notebooklm-pp-cli source delete \u003cnotebook\u003e \u003csource-id\u003e [flags]\n\nExamples:\n  notebooklm-pp-cli source delete \"Q3 Research\" src_abc123 --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "source delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [source delete] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "source delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [source delete] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "source delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "source delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [source delete] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "source list",
+      "kind": "help",
+      "args": [
+        "source",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List URL and document sources attached to a notebook\n\nUsage:\n  notebooklm-pp-cli source list \u003cnotebook\u003e [flags]\n\nExamples:\n  notebooklm-pp-cli source list \"Q3 Research\" --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "source list",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"notebook\" at depth 0"
+    },
+    {
+      "command": "source list",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"notebook\" at depth 0"
+    },
+    {
+      "command": "source list",
+      "kind": "error_path",
+      "args": [
+        "source",
+        "list",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: notebook not found: \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "sql",
+      "kind": "help",
+      "args": [
+        "sql",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Run a read-only SQL query against the local notebook cache\n\nUsage:\n  notebooklm-pp-cli sql [flags]\n\nExamples:\n  notebooklm-pp-cli sql --query 'SELECT id, title FROM notebooks LIMIT 5' --json\n  notebooklm-pp-cli sync --json \u0026\u0026 notebooklm-pp-cli sql --query \"SELECT count(*) AS n FROM notebooks\" --agent\n\nFlags:\n      --db string      SQLite cache path\n  -h, --help           help for sql\n      --limit int      Maximum rows to return (default 1000)\n      --query string   Read-only SQL statement (SELECT or WITH)\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "sql",
+      "kind": "happy_path",
+      "args": [
+        "sql",
+        "--query",
+        "SELECT id, title FROM notebooks LIMIT 5",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"rows\": []\n}\n"
+    },
+    {
+      "command": "sql",
+      "kind": "json_fidelity",
+      "args": [
+        "sql",
+        "--query",
+        "SELECT id, title FROM notebooks LIMIT 5",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"rows\": []\n}\n"
+    },
+    {
+      "command": "sql",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "stats",
+      "kind": "help",
+      "args": [
+        "stats",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Summarize local cache row counts and sync freshness using SQL aggregation\n\nUsage:\n  notebooklm-pp-cli stats [flags]\n\nExamples:\n  notebooklm-pp-cli sync --json\n  notebooklm-pp-cli stats --json\n\nFlags:\n      --db string   SQLite cache path\n  -h, --help        help for stats\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "stats",
+      "kind": "happy_path",
+      "args": [
+        "stats",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"notebooks\": [\n    {\n      \"notebook_count\": 0\n    }\n  ],\n  \"sync\": [\n    {\n      \"groups\": 1,\n      \"resource_type\": \"notebooks\",\n      \"total_count\": 0\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "stats",
+      "kind": "json_fidelity",
+      "args": [
+        "stats",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"notebooks\": [\n    {\n      \"notebook_count\": 0\n    }\n  ],\n  \"sync\": [\n    {\n      \"groups\": 1,\n      \"resource_type\": \"notebooks\",\n      \"total_count\": 0\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "stats",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "studio generate-quiz",
+      "kind": "help",
+      "args": [
+        "studio",
+        "generate-quiz",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Start Studio quiz generation for a notebook\n\nUsage:\n  notebooklm-pp-cli studio generate-quiz \u003cnotebook\u003e [flags]\n\nExamples:\n  notebooklm-pp-cli studio generate-quiz \"Q3 Research\" --wait --json\n\nFlags:\n  -h, --help               help for generate-quiz\n      --timeout duration   Wait timeout (default 2m0s)\n      --wait               Wait for artifact completion\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "studio generate-quiz",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"notebook\" at depth 0"
+    },
+    {
+      "command": "studio generate-quiz",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"notebook\" at depth 0"
+    },
+    {
+      "command": "studio generate-quiz",
+      "kind": "error_path",
+      "args": [
+        "studio",
+        "generate-quiz",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: notebook not found: \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "studio list",
+      "kind": "help",
+      "args": [
+        "studio",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List Studio artifacts generated for a notebook\n\nUsage:\n  notebooklm-pp-cli studio list \u003cnotebook\u003e [flags]\n\nExamples:\n  notebooklm-pp-cli studio list \"Q3 Research\" --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "studio list",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"notebook\" at depth 0"
+    },
+    {
+      "command": "studio list",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"notebook\" at depth 0"
+    },
+    {
+      "command": "studio list",
+      "kind": "error_path",
+      "args": [
+        "studio",
+        "list",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: notebook not found: \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Refresh local notebook cache from live API\n\nUsage:\n  notebooklm-pp-cli sync [flags]\n\nExamples:\n  notebooklm-pp-cli sync --json\n  notebooklm-pp-cli sync --db ~/.local/share/notebooklm-pp-cli/cache.db --resources notebooks\n\nFlags:\n      --db string           SQLite cache path (default: ~/.local/share/notebooklm-pp-cli/cache.db)\n      --full                Full refresh (default behavior)\n  -h, --help                help for sync\n      --resources strings   Resources to sync (default: notebooks)\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"events\": [\n    {\n      \"count\": 0,\n      \"type\": \"page_fetch\"\n    }\n  ],\n  \"ndjson\": false,\n  \"resources\": [\n    \"notebooks\"\n  ],\n  \"synced\": 0\n}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"events\": [\n    {\n      \"count\": 0,\n      \"type\": \"page_fetch\"\n    }\n  ],\n  \"ndjson\": false,\n  \"resources\": [\n    \"notebooks\"\n  ],\n  \"synced\": 0\n}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "whoami",
+      "kind": "help",
+      "args": [
+        "whoami",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show account tier and output language from user settings\n\nUsage:\n  notebooklm-pp-cli whoami [flags]\n\nExamples:\n  notebooklm-pp-cli whoami --json\n\nFlags:\n  -h, --help   help for whoami\n\nGlobal Flags:\n      --agent           Agent-friendly defaults (--json --no-input --yes)\n      --compact         Strip verbose metadata fields from JSON output\n      --config string   Path to config file\n      --csv             Emit CSV when output is tabular\n      --dry-run         Show what would run without calling the API\n      --json            Emit machine-readable JSON\n      --no-color        Disable ANSI color output\n      --no-input        Disable interactive prompts\n      --plain           Plain-text output without formatting\n      --quiet           Suppress non-essential output\n      --select string   Comma-separated JSON fields to include in output\n      --stdin           Read additional input from stdin when supported\n      --yes             Skip confirmation prompts\n"
+    },
+    {
+      "command": "whoami",
+      "kind": "happy_path",
+      "args": [
+        "whoami",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{}\n"
+    },
+    {
+      "command": "whoami",
+      "kind": "json_fidelity",
+      "args": [
+        "whoami",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{}\n"
+    },
+    {
+      "command": "whoami",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-07-21T18:50:15.129498Z"
+}

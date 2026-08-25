@@ -1,0 +1,17 @@
+[multi-spec] base URL host "https://api.parallel.ai" shared; folding per-spec path prefixes into endpoint paths
+info: learn: defaulting self-learning loop on (opt out with learn.disabled: true)
+warning: skipping workflow template workflows/comm_health.go.tmpl: reading template workflows/comm_health.go.tmpl: open templates/workflows/comm_health.go.tmpl: file does not exist
+warning: novel feature command "findall" maps to generated command path; skipping novel stub
+warning: novel feature command "monitors" maps to generated command path; skipping novel stub
+warning: novel feature command "tasks" maps to generated command path; skipping novel stub
+PASS go mod tidy
+PASS ensure safe golang.org/x/net
+PASS govulncheck ./...
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS parallel-pp-cli --help
+PASS parallel-pp-cli version
+PASS parallel-pp-cli doctor
+Generated parallel at /Users/apple/printing-press/.runstate/apple-0b5cfea6/runs/20260720-202045-1a2cb7d8/working/parallel-pp-cli
+Bundled /Users/apple/printing-press/.runstate/apple-0b5cfea6/runs/20260720-202045-1a2cb7d8/working/parallel-pp-cli/build/parallel-pp-mcp-darwin-arm64.mcpb

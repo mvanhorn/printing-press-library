@@ -1,0 +1,86 @@
+# Workflow verification manifest for wanderlog-pp-cli.
+#
+# This is verification configuration, not a CLI capability: it declares which
+# multi-step flows `cli-printing-press workflow-verify` should exercise against
+# a freshly built binary. Every step here runs anonymously — no WANDERLOG_COOKIE
+# — against a public shared plan, and no step mutates anything: the two copy
+# steps run under the global --dry-run.
+#
+# Each step is executed as `<binary> <command> --json`, its stdout+stderr must
+# parse as a single JSON object, and every name in expect_fields must be present
+# as a top-level key.
+
+workflows:
+  - name: Read a shared Wanderlog plan and rehearse copying it
+    primary: true
+    steps:
+      # 1. Inspect a pasted shared link before touching anything, and recover
+      #    the 16-character plan key from the URL.
+      - command: plan preview --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent
+        mode: live
+        expect_fields:
+          - command
+          - source_key
+          - day_sections
+          - blocks
+          - sections
+        extract:
+          plan_key: $.source_key
+
+      # 2. Read the itinerary through the key extracted in step 1. This is the
+      #    step that proves the key round-trips: a broken preview breaks here.
+      - command: plan outline --target-key ${plan_key} --agent
+        mode: live
+        expect_fields:
+          - target_key
+          - title
+          - section_count
+          - block_count
+          - sections
+
+      # 3. Run the consistency checks an agent is expected to run after edits.
+      - command: plan inspect --target-key ${plan_key} --check=counts,unformatted,lodging-coverage,closed-places,text-vs-schedule --agent
+        mode: live
+        expect_fields:
+          - target_key
+          - checks
+          - section_count
+          - block_count
+
+      # 4. Rehearse creating a private copy. --dry-run means no trip is created.
+      - command: plan clone --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --dry-run --agent
+        mode: live
+        expect_fields:
+          - command
+          - dry_run
+          - operations
+          - day_sections
+
+      # 5. Rehearse filling an existing trip from the same source. YOUR_TRIP_KEY
+      #    is a placeholder; under --dry-run no target is written, so the step
+      #    verifies the plan-fill path without needing a trip of our own.
+      - command: plan fill --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --target-key YOUR_TRIP_KEY --dry-run --agent
+        mode: live
+        expect_fields:
+          - command
+          - dry_run
+          - mode
+          - operations
+
+  - name: Discover a capability and check CLI health
+    primary: false
+    steps:
+      # Natural-language capability lookup against the curated index.
+      - command: which lodging
+        mode: local
+        expect_fields:
+          - matches
+
+      # Health check: config path, binary, auth source, connectivity.
+      - command: doctor --agent
+        mode: live
+        expect_fields:
+          - api
+          - auth
+          - config_path
+          - binary

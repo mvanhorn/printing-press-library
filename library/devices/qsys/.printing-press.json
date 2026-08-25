@@ -1,0 +1,137 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-25T01:46:05.578634Z",
+  "printing_press_version": "4.31.1",
+  "api_name": "qsys",
+  "display_name": "Q-SYS",
+  "cli_name": "qsys-pp-cli",
+  "creator": {
+    "handle": "Drummerms",
+    "name": "drummerms"
+  },
+  "owner": "drummerms",
+  "printer": "Drummerms",
+  "printer_name": "drummerms",
+  "spec_path": "spec.yaml",
+  "spec_format": "local-sqlite",
+  "spec_checksum": "sha256:a866716ea78ca836e6a2566a745d1e620126c14b8b0fb0b61aee1dfe90dc6d0c",
+  "run_id": "20260824-192635-14fb8c13",
+  "category": "devices",
+  "description": "Q-SYS specs, configuration, wiring, compatibility, and fault articles in one offline index - answering equipment-list questions no QSC website can take as input.",
+  "mcp_binary": "qsys-pp-mcp",
+  "mcp_tool_count": 12,
+  "mcp_public_tool_count": 12,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Unified product card",
+      "command": "product get",
+      "description": "See a Q-SYS product's specs, configuration pages, wiring guidance, known gotchas, and factory-reset procedure in one record."
+    },
+    {
+      "name": "BOM pre-quote sweep",
+      "command": "bom verify",
+      "description": "One report per model in an equipment list: Designer-version support, end-of-life status, LTS carry date, and spec-sheet availability."
+    },
+    {
+      "name": "BOM known-issue sweep",
+      "command": "bom risks",
+      "description": "Surface every known issue, awareness note, and troubleshooting article that touches any model on an equipment list, filtered to a Designer release."
+    },
+    {
+      "name": "Version-support verdict for a list",
+      "command": "compat check",
+      "description": "Check a whole equipment list against a Q-SYS Designer version and get back what is supported and what is not."
+    },
+    {
+      "name": "Designer release brief",
+      "command": "qds",
+      "description": "For one Q-SYS Designer release: known issues, LTS status and end date, and which hardware was removed."
+    },
+    {
+      "name": "Designer fault-string lookup",
+      "command": "fault",
+      "description": "Paste the literal fault or status string Q-SYS Designer displays and get the article that explains it, plus the models it applies to."
+    },
+    {
+      "name": "Connection guidance by model",
+      "command": "connect",
+      "description": "Get the networking, wiring, and I/O guidance that actually applies to a given model, including third-party application notes."
+    },
+    {
+      "name": "Corpus extraction depth report",
+      "command": "coverage",
+      "description": "Report per source how many pages parsed, how many spec-sheet PDFs were linked versus actually text-extracted, and how many support articles were indexed."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Unified product card",
+      "command": "product get",
+      "description": "See a Q-SYS product's specs, configuration pages, wiring guidance, known gotchas, and factory-reset procedure in one record."
+    },
+    {
+      "name": "BOM pre-quote sweep",
+      "command": "bom verify",
+      "description": "One report per model in an equipment list: Designer-version support, end-of-life status, LTS carry date, and spec-sheet availability."
+    },
+    {
+      "name": "BOM known-issue sweep",
+      "command": "bom risks",
+      "description": "Surface every known issue, awareness note, and troubleshooting article that touches any model on an equipment list, filtered to a Designer release."
+    },
+    {
+      "name": "Version-support verdict for a list",
+      "command": "compat check",
+      "description": "Check a whole equipment list against a Q-SYS Designer version and get back what is supported and what is not."
+    },
+    {
+      "name": "Designer release brief",
+      "command": "qds",
+      "description": "For one Q-SYS Designer release: known issues, LTS status and end date, and which hardware was removed."
+    },
+    {
+      "name": "Designer fault-string lookup",
+      "command": "fault",
+      "description": "Paste the literal fault or status string Q-SYS Designer displays and get the article that explains it, plus the models it applies to."
+    },
+    {
+      "name": "Connection guidance by model",
+      "command": "connect",
+      "description": "Get the networking, wiring, and I/O guidance that actually applies to a given model, including third-party application notes."
+    },
+    {
+      "name": "Corpus extraction depth report",
+      "command": "coverage",
+      "description": "Report per source how many pages parsed, how many spec-sheet PDFs were linked versus actually text-extracted, and how many support articles were indexed."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 41,
+    "total": 41,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 88,
+      "grade": "A",
+      "total": 88
+    }
+  }
+}

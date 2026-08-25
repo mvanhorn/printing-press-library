@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-get-forma-unica",
+  "applied_at": "2026-08-22",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.30.3",
+  "summary": "`<archivio> get` ha una forma sola: `legisl`, `numero`, `data`, `data_iso`, `titolo` e `fonte` stanno in radice sia sulla scheda Icaro sia sulla scheda `/bd/`, invece di stare dentro `fields` sulla prima e in radice sulla seconda. `fields` resta dov'era.",
+  "reason": "I tre archivi migrati a /bd/ hanno due percorsi in `get`: se l'indice Icaro ha il record risponde la scheda Icaro, altrimenti `bdSchedaFallback`. Le due uscite avevano forme diverse, quindi lo stesso `--select numero,data_iso,titolo` rendeva sulla seduta 268 e tornava `{}` con exit 0 sulla 147 — che un agente legge come «il documento non ha quei dati» o come assenza. E il confine fra i due percorsi non e' una proprieta' del documento ma la posizione dell'indice Icaro (il 2026-08-22, sui resoconti, la seduta 232 del 25.02.2026): si sposta quando il portale aggiorna l'indice, quindi non e' nemmeno una regola documentabile — la stessa seduta puo' cambiare forma da un giorno all'altro. `legisl` e `numero` vengono dagli argomenti del comando, che sono interi e autorevoli, invece che da un campo di testo da riparsare; `data` esce grezza cosi' `data_iso` la affianca il passaggio che lo fa gia' per tutti gli altri payload.",
+  "files": [
+    "internal/cli/icaro_helpers.go",
+    "internal/cli/get_shape_test.go"
+  ],
+  "validated_outcome": "`resoconti get 18 147 --agent --select numero,data_iso,titolo` -> {numero: 147, data_iso: \"2024-12-18\", titolo: \"Ordine del giorno della seduta successiva\"}, dove prima dava {}. Stesso --select sulle sedute 232 (Icaro) e 233 (/bd/), i due lati del confine, ora rende su entrambe. Casi omologhi verificati senza regressioni: `ddl get 18 1185`, `leggi get 18 1 --anno 2025`, `interrogazioni get 18 1000`, `odg get 18 551` portano le coordinate in radice e conservano `fields`; `--select fields.Numero,fields.Data` funziona ancora; firmatari, stralcio e la nota multi-documento restano. Su `leggi get` il numero in radice e' un guadagno netto: nei `fields` di quell'archivio non c'era."
+}

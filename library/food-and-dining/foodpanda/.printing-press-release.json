@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "foodpanda",
+  "cli_name": "foodpanda-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-21T05:08:21Z",
+  "source_commit": "7979876b0dc483fcd3decb5f3e28b9bd97806fbd",
+  "printing_press_version": "4.30.1",
+  "run_id": "20260808-044349-820894b7",
+  "changes": [
+    {
+      "title": "feat(foodpanda): add foodpanda",
+      "pr": 1765,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1765",
+      "commit": "7979876b0dc483fcd3decb5f3e28b9bd97806fbd"
+    }
+  ]
+}

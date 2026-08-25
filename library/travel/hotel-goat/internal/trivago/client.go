@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -282,27 +284,82 @@ func truncate(b []byte) string {
 // trivago-accommodation-search and -radius-search output. Prices are
 // returned as preformatted strings (e.g. "$199") because Trivago localizes
 // the currency symbol; callers parse the numeric value with ParsePrice.
+// Field notes for the current API (serverInfo "trivago Accommodation
+// Search" v0.4.0):
+//   - review_count is a localized string ("25,429"); callers use
+//     ParseReviewCount to get the int. ReviewCount's custom
+//     UnmarshalJSON accepts both a bare JSON number and a string so a
+//     schema drift in either direction stays tolerant.
+//   - booking_url is not returned today — only accommodation_url — so
+//     BookingURL falls back to URL (accommodation_url) during decode.
 type Accommodation struct {
-	ID            string  `json:"accommodation_id"`
-	Name          string  `json:"accommodation_name"`
-	URL           string  `json:"accommodation_url"`
-	Address       string  `json:"address"`
-	PostalCode    string  `json:"postal_code"`
-	CountryCity   string  `json:"country_city"`
-	Currency      string  `json:"currency"`
-	PricePerNight string  `json:"price_per_night"`
-	PricePerStay  string  `json:"price_per_stay"`
-	Advertiser    string  `json:"advertisers"`
-	BookingURL    string  `json:"booking_url"`
-	HotelRating   int     `json:"hotel_rating"`
-	ReviewRating  string  `json:"review_rating"`
-	ReviewCount   int     `json:"review_count"`
-	Latitude      float64 `json:"latitude"`
-	Longitude     float64 `json:"longitude"`
-	Distance      string  `json:"distance"`
-	Image         string  `json:"main_image"`
-	Amenities     string  `json:"top_amenities"`
-	Description   string  `json:"description"`
+	ID            string      `json:"accommodation_id"`
+	Name          string      `json:"accommodation_name"`
+	URL           string      `json:"accommodation_url"`
+	Address       string      `json:"address"`
+	PostalCode    string      `json:"postal_code"`
+	CountryCity   string      `json:"country_city"`
+	Currency      string      `json:"currency"`
+	PricePerNight string      `json:"price_per_night"`
+	PricePerStay  string      `json:"price_per_stay"`
+	Advertiser    string      `json:"advertisers"`
+	BookingURL    string      `json:"booking_url"`
+	HotelRating   int         `json:"hotel_rating"`
+	ReviewRating  string      `json:"review_rating"`
+	ReviewCount   ReviewCount `json:"review_count"`
+	Latitude      float64     `json:"latitude"`
+	Longitude     float64     `json:"longitude"`
+	Distance      string      `json:"distance"`
+	Image         string      `json:"main_image"`
+	Amenities     string      `json:"top_amenities"`
+	Description   string      `json:"description"`
+}
+
+// ReviewCount is a tolerance wrapper around Trivago's review_count field,
+// which the current API emits as a localized string ("25,429"). Accepting
+// a bare JSON number too means a server change in either direction won't
+// fail the whole decode. Use ParseReviewCount to get an int.
+type ReviewCount string
+
+// UnmarshalJSON accepts a JSON string or a JSON number.
+func (r *ReviewCount) UnmarshalJSON(b []byte) error {
+	// JSON null is a missing count, not an unsupported type.
+	if bytes.Equal(bytes.TrimSpace(b), []byte("null")) {
+		*r = ""
+		return nil
+	}
+	var s string
+	if err := json.Unmarshal(b, &s); err == nil {
+		*r = ReviewCount(s)
+		return nil
+	}
+	var n json.Number
+	if err := json.Unmarshal(b, &n); err == nil {
+		*r = ReviewCount(n.String())
+		return nil
+	}
+	return fmt.Errorf("trivago: review_count must be a string or number, got %s", b)
+}
+
+// ParseReviewCount returns the integer from a localized review-count
+// string like "25,429", "1.563", or "42". Returns 0 when unparseable.
+func ParseReviewCount(s string) int {
+	if s == "" {
+		return 0
+	}
+	clean := priceRE.FindString(s)
+	if clean == "" {
+		return 0
+	}
+	// Strip thousands separators: keep the rightmost as decimal only when
+	// it has 1-2 trailing digits (a decimal), else drop it. Reviews are
+	// whole numbers, so collapse every , and . except a trailing decimal.
+	if i := strings.LastIndexAny(clean, ",."); i >= 0 && len(clean)-i-1 <= 2 {
+		clean = clean[:i] + strings.ReplaceAll(clean[i+1:], ",", "") + strings.ReplaceAll(clean[:i], ",", "")
+	}
+	cleaned := strings.NewReplacer(",", "", ".", "").Replace(clean)
+	n, _ := strconv.Atoi(cleaned)
+	return n
 }
 
 type Suggestion struct {
@@ -318,6 +375,16 @@ type Suggestion struct {
 type RadiusOpts struct {
 	Lat, Lng           float64
 	RadiusMeters       int
+	Arrival, Departure string
+	Adults, Rooms      int
+}
+
+// SearchOpts are the arguments for the query-based
+// trivago-accommodation-search tool (the current API's primary entry
+// point). The server resolves the query to a destination itself, so no
+// separate suggestions/geocoding step is needed.
+type SearchOpts struct {
+	Query              string
 	Arrival, Departure string
 	Adults, Rooms      int
 }
@@ -343,16 +410,14 @@ func (c *Client) RadiusSearch(ctx context.Context, o RadiusOpts) ([]Accommodatio
 	return decodeAccommodations(raw)
 }
 
-type AreaOpts struct {
-	ID, NS             int
-	Arrival, Departure string
-	Adults, Rooms      int
-}
-
-func (c *Client) AreaSearch(ctx context.Context, o AreaOpts) ([]Accommodation, error) {
+// Search runs trivago-accommodation-search with a free-form destination
+// query. This is the replacement for the old suggestions->area flow: the
+// server dropped trivago-search-suggestions, so resolving `<location>` to
+// an id/ns pair is no longer possible (or necessary) — passing the query
+// string directly returns the same ~50-result candidate set.
+func (c *Client) Search(ctx context.Context, o SearchOpts) ([]Accommodation, error) {
 	args := map[string]any{
-		"id":        o.ID,
-		"ns":        o.NS,
+		"query":     o.Query,
 		"arrival":   o.Arrival,
 		"departure": o.Departure,
 	}
@@ -369,40 +434,6 @@ func (c *Client) AreaSearch(ctx context.Context, o AreaOpts) ([]Accommodation, e
 	return decodeAccommodations(raw)
 }
 
-func (c *Client) Suggestions(ctx context.Context, query string) ([]Suggestion, error) {
-	raw, err := c.callTool(ctx, "trivago-search-suggestions", map[string]any{"query": query})
-	if err != nil {
-		return nil, err
-	}
-	var wrapper struct {
-		StructuredContent struct {
-			Suggestions []Suggestion `json:"suggestions"`
-		} `json:"structuredContent"`
-		Content []struct {
-			Type string `json:"type"`
-			Text string `json:"text"`
-		} `json:"content"`
-	}
-	if err := json.Unmarshal(raw, &wrapper); err != nil {
-		return nil, err
-	}
-	if len(wrapper.StructuredContent.Suggestions) > 0 {
-		return wrapper.StructuredContent.Suggestions, nil
-	}
-	for _, c := range wrapper.Content {
-		if c.Type != "text" {
-			continue
-		}
-		var s struct {
-			Suggestions []Suggestion `json:"suggestions"`
-		}
-		if json.Unmarshal([]byte(c.Text), &s) == nil && len(s.Suggestions) > 0 {
-			return s.Suggestions, nil
-		}
-	}
-	return nil, nil
-}
-
 func decodeAccommodations(raw json.RawMessage) ([]Accommodation, error) {
 	var wrapper struct {
 		StructuredContent struct {
@@ -417,7 +448,11 @@ func decodeAccommodations(raw json.RawMessage) ([]Accommodation, error) {
 		return nil, err
 	}
 	if len(wrapper.StructuredContent.Accommodations) > 0 {
-		return wrapper.StructuredContent.Accommodations, nil
+		acc := wrapper.StructuredContent.Accommodations
+		for i := range acc {
+			acc[i].BookingURL = bookingLink(acc[i])
+		}
+		return acc, nil
 	}
 	for _, c := range wrapper.Content {
 		if c.Type != "text" {
@@ -427,6 +462,9 @@ func decodeAccommodations(raw json.RawMessage) ([]Accommodation, error) {
 			Accommodations []Accommodation `json:"accommodations"`
 		}
 		if json.Unmarshal([]byte(c.Text), &s) == nil && len(s.Accommodations) > 0 {
+			for i := range s.Accommodations {
+				s.Accommodations[i].BookingURL = bookingLink(s.Accommodations[i])
+			}
 			return s.Accommodations, nil
 		}
 	}

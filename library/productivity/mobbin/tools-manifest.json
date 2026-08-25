@@ -1,0 +1,183 @@
+{
+  "api_name": "mobbin",
+  "base_url": "https://mobbin.com",
+  "description": "Every Mobbin screen, flow, and pattern — searchable offline, deckable in one command, with longitudinal drift no Mobbin tool ships.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "visible",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "in": "header",
+    "cookie_domain": "mobbin.com"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "mobbin-pp-cli/0.1.0 (+https://github.com/mvanhorn/cli-printing-press)"
+    },
+    {
+      "name": "Accept",
+      "value": "application/json, text/html, */*"
+    },
+    {
+      "name": "Origin",
+      "value": "https://mobbin.com"
+    },
+    {
+      "name": "Referer",
+      "value": "https://mobbin.com/"
+    }
+  ],
+  "tools": [
+    {
+      "name": "apps_discover",
+      "description": "Paginated discover-page apps. Tabs are latest / popular / animations. Required: tab (default: latest), platform (default: web). Optional: page-index (default: 0).",
+      "method": "POST",
+      "path": "/api/discover/fetch-discover-page-apps",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "tab",
+          "type": "ScreenSearchFilter",
+          "location": "body",
+          "description": "Discover tab: latest, popular, or animations",
+          "required": true
+        },
+        {
+          "name": "platform",
+          "type": "PaginationOptions",
+          "location": "body",
+          "description": "Platform: web, ios, or android",
+          "required": true
+        },
+        {
+          "name": "page-index",
+          "wire_name": "pageIndex",
+          "type": "int",
+          "location": "body",
+          "description": "Zero-based page index"
+        }
+      ]
+    },
+    {
+      "name": "apps_list",
+      "description": "List every app for a platform. Returns a flat array of {id, appName, platform, ...}. Large response (~1,000+ apps); cache locally for autocomplete. Required: platform.",
+      "method": "GET",
+      "path": "/api/searchable-apps/{platform}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "platform",
+          "type": "AppSearchFilter",
+          "location": "path",
+          "description": "Platform: web, ios, or android",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apps_popular",
+      "description": "Popular apps grouped by category with preview screenshots. Web's the default; pair with --platform ios or android for mobile. Required: platform (default: web). Optional: limit-per-category (default: 10).",
+      "method": "POST",
+      "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "platform",
+          "type": "PaginationOptions",
+          "location": "body",
+          "description": "Platform: web, ios, or android",
+          "required": true
+        },
+        {
+          "name": "limit-per-category",
+          "wire_name": "limitPerCategory",
+          "type": "int",
+          "location": "body",
+          "description": "Apps returned per category (max 50)"
+        }
+      ]
+    },
+    {
+      "name": "filters_list",
+      "description": "Full filter taxonomy. Returns the dictionary that powers every search filter — patterns, elements, categories, flow actions, definitions, and content counts.",
+      "method": "POST",
+      "path": "/api/filter-tags/fetch-dictionary-definitions",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "sites_list",
+      "description": "Full searchable-sites list for the web experience.",
+      "method": "POST",
+      "path": "/api/search-bar/fetch-searchable-sites",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "trending_apps",
+      "description": "Trending apps for a platform — what's hot this week on Mobbin. Required: platform (default: web).",
+      "method": "POST",
+      "path": "/api/search-bar/fetch-trending-apps",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "platform",
+          "type": "string",
+          "location": "body",
+          "description": "Platform: web, ios, or android",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "trending_filter-tags",
+      "description": "Trending filter tags — patterns, elements, or categories users search for right now. Required: experience (default: apps). Optional: platform.",
+      "method": "POST",
+      "path": "/api/search-bar/fetch-trending-filter-tags",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "experience",
+          "type": "string",
+          "location": "body",
+          "description": "Either 'apps' (mobile experience) or 'sites' (web).",
+          "required": true
+        },
+        {
+          "name": "platform",
+          "type": "string",
+          "location": "body",
+          "description": "Platform (web/ios/android). Required when experience=apps."
+        }
+      ]
+    },
+    {
+      "name": "trending_keywords",
+      "description": "Trending OCR keywords found inside screenshots — what text-in-screenshots users are searching. Required: platform (default: web).",
+      "method": "POST",
+      "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "platform",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "trending_sites",
+      "description": "Trending web sites (web-only surface).",
+      "method": "POST",
+      "path": "/api/search-bar/fetch-trending-sites",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/developer-tools/namecheap
 
-go 1.23.0
+go 1.26.5
 
 require (
 	github.com/pelletier/go-toml/v2 v2.2.4

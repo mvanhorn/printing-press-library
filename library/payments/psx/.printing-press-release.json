@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "psx",
+  "cli_name": "psx-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-21T05:08:21Z",
+  "source_commit": "970e75e368294cdaa9837ff964a1b82db6310280",
+  "printing_press_version": "4.31.0",
+  "run_id": "20260819-222022-b3c3479a",
+  "changes": [
+    {
+      "title": "feat(psx): add psx",
+      "pr": 1766,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1766",
+      "commit": "970e75e368294cdaa9837ff964a1b82db6310280"
+    }
+  ]
+}

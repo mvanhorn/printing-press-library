@@ -5,10 +5,13 @@ package mcp
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -18,112 +21,137 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/ticketmaster/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/ticketmaster/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/ticketmaster/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/ticketmaster/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/ticketmaster/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/ticketmaster/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/ticketmaster/internal/store"
+)
+
+const (
+	// MCP hosts can fan out tool calls faster than a human CLI session.
+	// Keep them on the same polite-client limiter path instead of disabling
+	// pacing with rate=0; users can still tune human CLI calls with --rate-limit.
+	defaultMCPRateLimit = 2
 )
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("attractions_find",
-			mcplib.WithDescription("Find attractions (artists, sports, packages, plays and so on) and filter your search by name, and much more. Optional: sort (default: relevance,desc), classificationName, classificationId (plus 7 more). Returns array of Attraction."),
+			mcplib.WithDescription("Find attractions (artists, sports, packages, plays and so on) and filter your search by name, and much more. Optional: sort (default: relevance,desc), classificationName, classificationId (plus 9 more). Returns array of Attraction."),
 			mcplib.WithString("sort", mcplib.Description("Sorting order of the search result. Allowable Values : 'name,asc', 'name,desc', 'relevance,asc', 'relevance,desc'")),
-			mcplib.WithString("classificationName", mcplib.Description("Filter attractions by classification name: name of any segment, genre, sub-genre, type, sub-type")),
-			mcplib.WithString("classificationId", mcplib.Description("Filter attractions by classification id: id of any segment, genre, sub-genre, type, sub-type")),
+			mcplib.WithArray("classificationName", mcplib.Description("Filter attractions by classification name: name of any segment, genre, sub-genre, type, sub-type")),
+			mcplib.WithArray("classificationId", mcplib.Description("Filter attractions by classification id: id of any segment, genre, sub-genre, type, sub-type")),
 			mcplib.WithString("keyword", mcplib.Description("Keyword to search on")),
 			mcplib.WithString("id", mcplib.Description("Filter entities by its id")),
 			mcplib.WithString("source", mcplib.Description("Filter entities by its source name")),
 			mcplib.WithString("includeTest", mcplib.Description("True if you want to have entities flag as test in the response.")),
-			mcplib.WithString("page", mcplib.Description("Page number")),
 			mcplib.WithString("size", mcplib.Description("Page size of the response")),
+			mcplib.WithString("locale", mcplib.Description("The locale in ISO code format.")),
+			mcplib.WithString("includeLicensedContent", mcplib.Description("Yes if you want to display licensed content")),
 			mcplib.WithString("includeSpellcheck", mcplib.Description("yes, to include spell check suggestions in the response.")),
+			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/attractions", []mcpParamBinding{{PublicName: "sort", WireName: "sort", Location: "query"}, {PublicName: "classificationName", WireName: "classificationName", Location: "query"}, {PublicName: "classificationId", WireName: "classificationId", Location: "query"}, {PublicName: "keyword", WireName: "keyword", Location: "query"}, {PublicName: "id", WireName: "id", Location: "query"}, {PublicName: "source", WireName: "source", Location: "query"}, {PublicName: "includeTest", WireName: "includeTest", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "size", WireName: "size", Location: "query"}, {PublicName: "includeSpellcheck", WireName: "includeSpellcheck", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/attractions", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: ""}, []mcpParamBinding{{PublicName: "sort", WireName: "sort", Location: "query", Default: "relevance,desc"}, {PublicName: "classificationName", WireName: "classificationName", Location: "query", Default: "\"\""}, {PublicName: "classificationId", WireName: "classificationId", Location: "query", Default: "\"\""}, {PublicName: "keyword", WireName: "keyword", Location: "query"}, {PublicName: "id", WireName: "id", Location: "query"}, {PublicName: "source", WireName: "source", Location: "query"}, {PublicName: "includeTest", WireName: "includeTest", Location: "query", Default: "no"}, {PublicName: "size", WireName: "size", Location: "query", Default: "20"}, {PublicName: "locale", WireName: "locale", Location: "query", Default: "en"}, {PublicName: "includeLicensedContent", WireName: "includeLicensedContent", Location: "query", Default: "no"}, {PublicName: "includeSpellcheck", WireName: "includeSpellcheck", Location: "query", Default: "no"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("attractions_get",
-			mcplib.WithDescription("Get details for a specific attraction using the unique identifier for the attraction. Required: id. Returns the Attraction."),
+			mcplib.WithDescription("Get details for a specific attraction using the unique identifier for the attraction. Required: id. Optional: locale (default: en), includeLicensedContent (default: no). Returns the Attraction."),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("ID of the attraction")),
+			mcplib.WithString("locale", mcplib.Description("The locale in ISO code format.")),
+			mcplib.WithString("includeLicensedContent", mcplib.Description("True if you want to display licensed content")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/attractions/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("GET", "/attractions/{id}", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "locale", WireName: "locale", Location: "query", Default: "en"}, {PublicName: "includeLicensedContent", WireName: "includeLicensedContent", Location: "query", Default: "no"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("classifications_get",
-			mcplib.WithDescription("Get details for a specific segment, genre, or sub-genre using its unique identifier. Required: id. Returns the Classification."),
+			mcplib.WithDescription("Get details for a specific segment, genre, or sub-genre using its unique identifier. Required: id. Optional: locale (default: en), includeLicensedContent (default: no). Returns the Classification."),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("ID of the segment, genre, or sub-genre")),
+			mcplib.WithString("locale", mcplib.Description("The locale in ISO code format.")),
+			mcplib.WithString("includeLicensedContent", mcplib.Description("True if you want to display licensed content")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/classifications/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("GET", "/classifications/{id}", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "locale", WireName: "locale", Location: "query", Default: "en"}, {PublicName: "includeLicensedContent", WireName: "includeLicensedContent", Location: "query", Default: "no"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("classifications_get-genre",
-			mcplib.WithDescription("Get details for a specific genre using its unique identifier. Required: id. Returns the Genre."),
+			mcplib.WithDescription("Get details for a specific genre using its unique identifier. Required: id. Optional: locale (default: en), includeLicensedContent (default: no). Returns the Genre."),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("ID of the genre")),
+			mcplib.WithString("locale", mcplib.Description("The locale in ISO code format.")),
+			mcplib.WithString("includeLicensedContent", mcplib.Description("True if you want to display licensed content")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/classifications/genres/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("GET", "/classifications/genres/{id}", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "locale", WireName: "locale", Location: "query", Default: "en"}, {PublicName: "includeLicensedContent", WireName: "includeLicensedContent", Location: "query", Default: "no"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("classifications_get-segment",
-			mcplib.WithDescription("Get details for a specific segment using its unique identifier. Required: id. Returns the Segment."),
+			mcplib.WithDescription("Get details for a specific segment using its unique identifier. Required: id. Optional: locale (default: en), includeLicensedContent (default: no). Returns the Segment."),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("ID of the segment")),
+			mcplib.WithString("locale", mcplib.Description("The locale in ISO code format.")),
+			mcplib.WithString("includeLicensedContent", mcplib.Description("True if you want to display licensed content")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/classifications/segments/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("GET", "/classifications/segments/{id}", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "locale", WireName: "locale", Location: "query", Default: "en"}, {PublicName: "includeLicensedContent", WireName: "includeLicensedContent", Location: "query", Default: "no"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("classifications_get-subgenre",
-			mcplib.WithDescription("Get details for a specific sub-genre using its unique identifier. Required: id. Returns the Level."),
+			mcplib.WithDescription("Get details for a specific sub-genre using its unique identifier. Required: id. Optional: locale (default: en), includeLicensedContent (default: no). Returns the Level."),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("ID of the subgenre")),
+			mcplib.WithString("locale", mcplib.Description("The locale in ISO code format.")),
+			mcplib.WithString("includeLicensedContent", mcplib.Description("True if you want to display licensed content")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/classifications/subgenres/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("GET", "/classifications/subgenres/{id}", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "locale", WireName: "locale", Location: "query", Default: "en"}, {PublicName: "includeLicensedContent", WireName: "includeLicensedContent", Location: "query", Default: "no"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("classifications_list",
-			mcplib.WithDescription("Find classifications and filter your search by name, and much more. Classifications help define the nature of attractions and events. Optional: sort (default: name,asc), keyword, id (plus 5 more). Returns array of Classification."),
+			mcplib.WithDescription("Find classifications and filter your search by name, and much more. Classifications help define the nature of attractions and events. Optional: sort (default: name,asc), keyword, id (plus 7 more). Returns array of Classification."),
 			mcplib.WithString("sort", mcplib.Description("Sorting order of the search result")),
 			mcplib.WithString("keyword", mcplib.Description("Keyword to search on")),
 			mcplib.WithString("id", mcplib.Description("Filter entities by its id")),
 			mcplib.WithString("source", mcplib.Description("Filter entities by its source name")),
 			mcplib.WithString("includeTest", mcplib.Description("True if you want to have entities flag as test in the response.")),
-			mcplib.WithString("page", mcplib.Description("Page number")),
 			mcplib.WithString("size", mcplib.Description("Page size of the response")),
+			mcplib.WithString("locale", mcplib.Description("The locale in ISO code format.")),
+			mcplib.WithString("includeLicensedContent", mcplib.Description("Yes if you want to display licensed content")),
 			mcplib.WithString("includeSpellcheck", mcplib.Description("yes, to include spell check suggestions in the response.")),
+			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/classifications", []mcpParamBinding{{PublicName: "sort", WireName: "sort", Location: "query"}, {PublicName: "keyword", WireName: "keyword", Location: "query"}, {PublicName: "id", WireName: "id", Location: "query"}, {PublicName: "source", WireName: "source", Location: "query"}, {PublicName: "includeTest", WireName: "includeTest", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "size", WireName: "size", Location: "query"}, {PublicName: "includeSpellcheck", WireName: "includeSpellcheck", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/classifications", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: ""}, []mcpParamBinding{{PublicName: "sort", WireName: "sort", Location: "query", Default: "name,asc"}, {PublicName: "keyword", WireName: "keyword", Location: "query"}, {PublicName: "id", WireName: "id", Location: "query"}, {PublicName: "source", WireName: "source", Location: "query"}, {PublicName: "includeTest", WireName: "includeTest", Location: "query", Default: "no"}, {PublicName: "size", WireName: "size", Location: "query", Default: "20"}, {PublicName: "locale", WireName: "locale", Location: "query", Default: "en"}, {PublicName: "includeLicensedContent", WireName: "includeLicensedContent", Location: "query", Default: "no"}, {PublicName: "includeSpellcheck", WireName: "includeSpellcheck", Location: "query", Default: "no"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("events_get",
-			mcplib.WithDescription("Get details for a specific event using the unique identifier for the event. This includes the venue and location, the attraction(s), and the Ticketmaster Website URL for purchasing tickets for the event. Required: id. Returns the Event."),
+			mcplib.WithDescription("Get details for a specific event using the unique identifier for the event. This includes the venue and location, the attraction(s), and the Ticketmaster Website URL for purchasing tickets for the event. Required: id. Optional: locale (default: en), includeLicensedContent (default: no). Returns the Event."),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("ID of the event")),
+			mcplib.WithString("locale", mcplib.Description("The locale in ISO code format.")),
+			mcplib.WithString("includeLicensedContent", mcplib.Description("True if you want to display licensed content")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/events/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("GET", "/events/{id}", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "locale", WireName: "locale", Location: "query", Default: "en"}, {PublicName: "includeLicensedContent", WireName: "includeLicensedContent", Location: "query", Default: "no"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("events_list",
-			mcplib.WithDescription("Find events and filter your search by location, date, availability, and much more. Optional: sort (default: relevance,desc), startDateTime, endDateTime (plus 31 more). Returns array of Event."),
-			mcplib.WithString("sort", mcplib.Description("Sorting order of the search result. Allowable values : 'name,asc', 'name,desc', 'date,asc', 'date,desc',...")),
+			mcplib.WithDescription("Find events and filter your search by location, date, availability, and much more. Optional: sort (default: relevance,desc), startDateTime, endDateTime (plus 33 more). Returns array of Event."),
+			mcplib.WithString("sort", mcplib.Description("Sorting order of the search result.")),
 			mcplib.WithString("startDateTime", mcplib.Description("Filter events with a start date after this date")),
 			mcplib.WithString("endDateTime", mcplib.Description("Filter events with a start date before this date")),
 			mcplib.WithString("onsaleStartDateTime", mcplib.Description("Filter events with onsale start date after this date")),
@@ -138,8 +166,8 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("attractionId", mcplib.Description("Filter events by attraction id")),
 			mcplib.WithString("segmentId", mcplib.Description("Filter events by segment id")),
 			mcplib.WithString("segmentName", mcplib.Description("Filter events by segment name")),
-			mcplib.WithString("classificationName", mcplib.Description("Filter events by classification name: name of any segment, genre, sub-genre, type, sub-type")),
-			mcplib.WithString("classificationId", mcplib.Description("Filter events by classification id: id of any segment, genre, sub-genre, type, sub-type")),
+			mcplib.WithArray("classificationName", mcplib.Description("Filter events by classification name: name of any segment, genre, sub-genre, type, sub-type")),
+			mcplib.WithArray("classificationId", mcplib.Description("Filter events by classification id: id of any segment, genre, sub-genre, type, sub-type")),
 			mcplib.WithString("marketId", mcplib.Description("Filter events by market id")),
 			mcplib.WithString("promoterId", mcplib.Description("Filter events by promoter id")),
 			mcplib.WithString("dmaId", mcplib.Description("Filter events by dma id")),
@@ -154,28 +182,32 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("id", mcplib.Description("Filter entities by its id")),
 			mcplib.WithString("source", mcplib.Description("Filter entities by its source name")),
 			mcplib.WithString("includeTest", mcplib.Description("True if you want to have entities flag as test in the response.")),
-			mcplib.WithString("page", mcplib.Description("Page number")),
 			mcplib.WithString("size", mcplib.Description("Page size of the response")),
+			mcplib.WithString("locale", mcplib.Description("The locale in ISO code format.")),
+			mcplib.WithString("includeLicensedContent", mcplib.Description("Yes if you want to display licensed content")),
 			mcplib.WithString("includeSpellcheck", mcplib.Description("yes, to include spell check suggestions in the response.")),
+			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/events", []mcpParamBinding{{PublicName: "sort", WireName: "sort", Location: "query"}, {PublicName: "startDateTime", WireName: "startDateTime", Location: "query"}, {PublicName: "endDateTime", WireName: "endDateTime", Location: "query"}, {PublicName: "onsaleStartDateTime", WireName: "onsaleStartDateTime", Location: "query"}, {PublicName: "onsaleOnStartDate", WireName: "onsaleOnStartDate", Location: "query"}, {PublicName: "onsaleOnAfterStartDate", WireName: "onsaleOnAfterStartDate", Location: "query"}, {PublicName: "onsaleEndDateTime", WireName: "onsaleEndDateTime", Location: "query"}, {PublicName: "city", WireName: "city", Location: "query"}, {PublicName: "countryCode", WireName: "countryCode", Location: "query"}, {PublicName: "stateCode", WireName: "stateCode", Location: "query"}, {PublicName: "postalCode", WireName: "postalCode", Location: "query"}, {PublicName: "venueId", WireName: "venueId", Location: "query"}, {PublicName: "attractionId", WireName: "attractionId", Location: "query"}, {PublicName: "segmentId", WireName: "segmentId", Location: "query"}, {PublicName: "segmentName", WireName: "segmentName", Location: "query"}, {PublicName: "classificationName", WireName: "classificationName", Location: "query"}, {PublicName: "classificationId", WireName: "classificationId", Location: "query"}, {PublicName: "marketId", WireName: "marketId", Location: "query"}, {PublicName: "promoterId", WireName: "promoterId", Location: "query"}, {PublicName: "dmaId", WireName: "dmaId", Location: "query"}, {PublicName: "includeTBA", WireName: "includeTBA", Location: "query"}, {PublicName: "includeTBD", WireName: "includeTBD", Location: "query"}, {PublicName: "clientVisibility", WireName: "clientVisibility", Location: "query"}, {PublicName: "latlong", WireName: "latlong", Location: "query"}, {PublicName: "radius", WireName: "radius", Location: "query"}, {PublicName: "unit", WireName: "unit", Location: "query"}, {PublicName: "geoPoint", WireName: "geoPoint", Location: "query"}, {PublicName: "keyword", WireName: "keyword", Location: "query"}, {PublicName: "id", WireName: "id", Location: "query"}, {PublicName: "source", WireName: "source", Location: "query"}, {PublicName: "includeTest", WireName: "includeTest", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "size", WireName: "size", Location: "query"}, {PublicName: "includeSpellcheck", WireName: "includeSpellcheck", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/events", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: ""}, []mcpParamBinding{{PublicName: "sort", WireName: "sort", Location: "query", Default: "relevance,desc"}, {PublicName: "startDateTime", WireName: "startDateTime", Location: "query"}, {PublicName: "endDateTime", WireName: "endDateTime", Location: "query"}, {PublicName: "onsaleStartDateTime", WireName: "onsaleStartDateTime", Location: "query"}, {PublicName: "onsaleOnStartDate", WireName: "onsaleOnStartDate", Location: "query"}, {PublicName: "onsaleOnAfterStartDate", WireName: "onsaleOnAfterStartDate", Location: "query"}, {PublicName: "onsaleEndDateTime", WireName: "onsaleEndDateTime", Location: "query"}, {PublicName: "city", WireName: "city", Location: "query"}, {PublicName: "countryCode", WireName: "countryCode", Location: "query"}, {PublicName: "stateCode", WireName: "stateCode", Location: "query"}, {PublicName: "postalCode", WireName: "postalCode", Location: "query"}, {PublicName: "venueId", WireName: "venueId", Location: "query"}, {PublicName: "attractionId", WireName: "attractionId", Location: "query"}, {PublicName: "segmentId", WireName: "segmentId", Location: "query"}, {PublicName: "segmentName", WireName: "segmentName", Location: "query"}, {PublicName: "classificationName", WireName: "classificationName", Location: "query", Default: "\"\""}, {PublicName: "classificationId", WireName: "classificationId", Location: "query", Default: "\"\""}, {PublicName: "marketId", WireName: "marketId", Location: "query"}, {PublicName: "promoterId", WireName: "promoterId", Location: "query"}, {PublicName: "dmaId", WireName: "dmaId", Location: "query"}, {PublicName: "includeTBA", WireName: "includeTBA", Location: "query", Default: "no if date parameter sent, yes otherwise"}, {PublicName: "includeTBD", WireName: "includeTBD", Location: "query", Default: "no if date parameter sent, yes otherwise"}, {PublicName: "clientVisibility", WireName: "clientVisibility", Location: "query"}, {PublicName: "latlong", WireName: "latlong", Location: "query"}, {PublicName: "radius", WireName: "radius", Location: "query", Default: "50"}, {PublicName: "unit", WireName: "unit", Location: "query", Default: "miles"}, {PublicName: "geoPoint", WireName: "geoPoint", Location: "query"}, {PublicName: "keyword", WireName: "keyword", Location: "query"}, {PublicName: "id", WireName: "id", Location: "query"}, {PublicName: "source", WireName: "source", Location: "query"}, {PublicName: "includeTest", WireName: "includeTest", Location: "query", Default: "no"}, {PublicName: "size", WireName: "size", Location: "query", Default: "20"}, {PublicName: "locale", WireName: "locale", Location: "query", Default: "en"}, {PublicName: "includeLicensedContent", WireName: "includeLicensedContent", Location: "query", Default: "no"}, {PublicName: "includeSpellcheck", WireName: "includeSpellcheck", Location: "query", Default: "no"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("events_images_get",
-			mcplib.WithDescription("Get images for a specific event using the unique identifier for the event. Required: id. Returns the EventImages."),
+			mcplib.WithDescription("Get images for a specific event using the unique identifier for the event. Required: id. Optional: locale (default: en), includeLicensedContent (default: no). Returns array of Image."),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("ID of the event")),
+			mcplib.WithString("locale", mcplib.Description("The locale in ISO code format.")),
+			mcplib.WithString("includeLicensedContent", mcplib.Description("True if you want to display licensed content")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/events/{id}/images", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("GET", "/events/{id}/images", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "locale", WireName: "locale", Location: "query", Default: "en"}, {PublicName: "includeLicensedContent", WireName: "includeLicensedContent", Location: "query", Default: "no"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("suggest_list",
-			mcplib.WithDescription("Find search suggestions and filter your suggestions by location, source, etc. Optional: keyword, source, latlong (plus 11 more)."),
+			mcplib.WithDescription("Find search suggestions and filter your suggestions by location, source, etc. Optional: keyword, source, latlong (plus 13 more)."),
 			mcplib.WithString("keyword", mcplib.Description("Keyword to search on")),
 			mcplib.WithString("source", mcplib.Description("Filter entities by its source name")),
 			mcplib.WithString("latlong", mcplib.Description("Filter events by latitude and longitude, this filter is deprecated and maybe removed in a...")),
@@ -189,27 +221,31 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("includeTBD", mcplib.Description("True, to include event with a date to be defined (TBD)")),
 			mcplib.WithString("segmentId", mcplib.Description("Filter suggestions by segment id")),
 			mcplib.WithString("geoPoint", mcplib.Description("filter events by geoHash")),
+			mcplib.WithString("locale", mcplib.Description("The locale in ISO code format.")),
+			mcplib.WithString("includeLicensedContent", mcplib.Description("Yes if you want to display licensed content")),
 			mcplib.WithString("includeSpellcheck", mcplib.Description("yes, to include spell check suggestions in the response.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/suggest", []mcpParamBinding{{PublicName: "keyword", WireName: "keyword", Location: "query"}, {PublicName: "source", WireName: "source", Location: "query"}, {PublicName: "latlong", WireName: "latlong", Location: "query"}, {PublicName: "radius", WireName: "radius", Location: "query"}, {PublicName: "unit", WireName: "unit", Location: "query"}, {PublicName: "size", WireName: "size", Location: "query"}, {PublicName: "includeFuzzy", WireName: "includeFuzzy", Location: "query"}, {PublicName: "clientVisibility", WireName: "clientVisibility", Location: "query"}, {PublicName: "countryCode", WireName: "countryCode", Location: "query"}, {PublicName: "includeTBA", WireName: "includeTBA", Location: "query"}, {PublicName: "includeTBD", WireName: "includeTBD", Location: "query"}, {PublicName: "segmentId", WireName: "segmentId", Location: "query"}, {PublicName: "geoPoint", WireName: "geoPoint", Location: "query"}, {PublicName: "includeSpellcheck", WireName: "includeSpellcheck", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/suggest", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "keyword", WireName: "keyword", Location: "query"}, {PublicName: "source", WireName: "source", Location: "query"}, {PublicName: "latlong", WireName: "latlong", Location: "query"}, {PublicName: "radius", WireName: "radius", Location: "query", Default: "100"}, {PublicName: "unit", WireName: "unit", Location: "query", Default: "miles"}, {PublicName: "size", WireName: "size", Location: "query", Default: "5"}, {PublicName: "includeFuzzy", WireName: "includeFuzzy", Location: "query", Default: "no"}, {PublicName: "clientVisibility", WireName: "clientVisibility", Location: "query"}, {PublicName: "countryCode", WireName: "countryCode", Location: "query"}, {PublicName: "includeTBA", WireName: "includeTBA", Location: "query", Default: "no if date parameter sent, yes otherwise"}, {PublicName: "includeTBD", WireName: "includeTBD", Location: "query", Default: "no if date parameter sent, yes otherwise"}, {PublicName: "segmentId", WireName: "segmentId", Location: "query"}, {PublicName: "geoPoint", WireName: "geoPoint", Location: "query"}, {PublicName: "locale", WireName: "locale", Location: "query", Default: "en"}, {PublicName: "includeLicensedContent", WireName: "includeLicensedContent", Location: "query", Default: "no"}, {PublicName: "includeSpellcheck", WireName: "includeSpellcheck", Location: "query", Default: "no"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("venues_get",
-			mcplib.WithDescription("Get details for a specific venue using the unique identifier for the venue. Required: id. Returns the Venue."),
+			mcplib.WithDescription("Get details for a specific venue using the unique identifier for the venue. Required: id. Optional: locale (default: en), includeLicensedContent (default: no). Returns the Venue."),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("ID of the venue")),
+			mcplib.WithString("locale", mcplib.Description("The locale in ISO code format.")),
+			mcplib.WithString("includeLicensedContent", mcplib.Description("True if you want to display licensed content")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/venues/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("GET", "/venues/{id}", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "locale", WireName: "locale", Location: "query", Default: "en"}, {PublicName: "includeLicensedContent", WireName: "includeLicensedContent", Location: "query", Default: "no"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("venues_list",
-			mcplib.WithDescription("Find venues and filter your search by name, and much more. Optional: sort (default: relevance,desc), stateCode, countryCode (plus 11 more). Returns array of Venue."),
-			mcplib.WithString("sort", mcplib.Description("Sorting order of the search result. Allowable Values: 'name,asc', 'name,desc', 'relevance,asc', 'relevance,desc',...")),
+			mcplib.WithDescription("Find venues and filter your search by name, and much more. Optional: sort (default: relevance,desc), stateCode, countryCode (plus 13 more). Returns array of Venue."),
+			mcplib.WithString("sort", mcplib.Description("Sorting order of the search result.")),
 			mcplib.WithString("stateCode", mcplib.Description("Filter venues by state / province code")),
 			mcplib.WithString("countryCode", mcplib.Description("Filter venues by country code")),
 			mcplib.WithString("latlong", mcplib.Description("Filter events by latitude and longitude, this filter is deprecated and maybe removed in a...")),
@@ -220,14 +256,16 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("id", mcplib.Description("Filter entities by its id")),
 			mcplib.WithString("source", mcplib.Description("Filter entities by its source name")),
 			mcplib.WithString("includeTest", mcplib.Description("True if you want to have entities flag as test in the response.")),
-			mcplib.WithString("page", mcplib.Description("Page number")),
 			mcplib.WithString("size", mcplib.Description("Page size of the response")),
+			mcplib.WithString("locale", mcplib.Description("The locale in ISO code format.")),
+			mcplib.WithString("includeLicensedContent", mcplib.Description("Yes if you want to display licensed content")),
 			mcplib.WithString("includeSpellcheck", mcplib.Description("yes, to include spell check suggestions in the response.")),
+			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/venues", []mcpParamBinding{{PublicName: "sort", WireName: "sort", Location: "query"}, {PublicName: "stateCode", WireName: "stateCode", Location: "query"}, {PublicName: "countryCode", WireName: "countryCode", Location: "query"}, {PublicName: "latlong", WireName: "latlong", Location: "query"}, {PublicName: "radius", WireName: "radius", Location: "query"}, {PublicName: "unit", WireName: "unit", Location: "query"}, {PublicName: "geoPoint", WireName: "geoPoint", Location: "query"}, {PublicName: "keyword", WireName: "keyword", Location: "query"}, {PublicName: "id", WireName: "id", Location: "query"}, {PublicName: "source", WireName: "source", Location: "query"}, {PublicName: "includeTest", WireName: "includeTest", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "size", WireName: "size", Location: "query"}, {PublicName: "includeSpellcheck", WireName: "includeSpellcheck", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/venues", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: ""}, []mcpParamBinding{{PublicName: "sort", WireName: "sort", Location: "query", Default: "relevance,desc"}, {PublicName: "stateCode", WireName: "stateCode", Location: "query"}, {PublicName: "countryCode", WireName: "countryCode", Location: "query"}, {PublicName: "latlong", WireName: "latlong", Location: "query"}, {PublicName: "radius", WireName: "radius", Location: "query", Default: "50"}, {PublicName: "unit", WireName: "unit", Location: "query", Default: "miles"}, {PublicName: "geoPoint", WireName: "geoPoint", Location: "query"}, {PublicName: "keyword", WireName: "keyword", Location: "query"}, {PublicName: "id", WireName: "id", Location: "query"}, {PublicName: "source", WireName: "source", Location: "query"}, {PublicName: "includeTest", WireName: "includeTest", Location: "query", Default: "no"}, {PublicName: "size", WireName: "size", Location: "query", Default: "20"}, {PublicName: "locale", WireName: "locale", Location: "query", Default: "en"}, {PublicName: "includeLicensedContent", WireName: "includeLicensedContent", Location: "query", Default: "no"}, {PublicName: "includeSpellcheck", WireName: "includeSpellcheck", Location: "query", Default: "no"}}, []string{}),
 	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
@@ -244,7 +282,7 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("sql",
 			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Tables match resource names.")),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='attractions'.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
@@ -271,10 +309,52 @@ type mcpParamBinding struct {
 	PublicName string
 	WireName   string
 	Location   string
+	Default    string
+}
+
+type mcpPageConfig struct {
+	CursorParam    string
+	NextCursorPath string
+}
+
+func formatMCPParamValue(v any) string {
+	switch tv := v.(type) {
+	case string:
+		return tv
+	case bool:
+		return strconv.FormatBool(tv)
+	case float64:
+		if math.IsNaN(tv) || math.IsInf(tv, 0) {
+			return strconv.FormatFloat(tv, 'f', -1, 64)
+		}
+		if math.Trunc(tv) == tv && math.Abs(tv) < 1e15 {
+			return strconv.FormatInt(int64(tv), 10)
+		}
+		return strconv.FormatFloat(tv, 'f', -1, 64)
+	case float32:
+		f := float64(tv)
+		if math.IsNaN(f) || math.IsInf(f, 0) {
+			return strconv.FormatFloat(f, 'f', -1, 32)
+		}
+		if math.Trunc(f) == f && math.Abs(f) < 1e15 {
+			return strconv.FormatInt(int64(f), 10)
+		}
+		return strconv.FormatFloat(f, 'f', -1, 32)
+	default:
+		// Composite values (a native []any / map[string]any from an array or
+		// object param) reach this path when bound to a query or path slot;
+		// JSON-encode them so the wire value is valid JSON rather than Go's
+		// "[a b c]" / "map[...]" rendering. Body params never come through
+		// here — they are stored natively in bodyArgs and marshalled there.
+		if b, err := json.Marshal(v); err == nil {
+			return string(b)
+		}
+		return fmt.Sprintf("%v", v)
+	}
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
+func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, pageConfig mcpPageConfig, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		c, err := newMCPClient()
 		if err != nil {
@@ -294,21 +374,56 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 		pathParams := make(map[string]bool, len(positionalParams))
 		params := make(map[string]string)
 		bodyArgs := make(map[string]any)
+		mcpCursor := ""
+		if pageConfig.CursorParam != "" {
+			knownArgs["cursor"] = true
+			if v, ok := args["cursor"]; ok {
+				s, ok := v.(string)
+				if !ok {
+					return mcplib.NewToolResultError("cursor must be an opaque string returned by a previous MCP response"), nil
+				}
+				mcpCursor = s
+				upstreamCursor, err := bound.UpstreamCursor(s)
+				if err != nil {
+					return mcplib.NewToolResultError(err.Error()), nil
+				}
+				if upstreamCursor != "" {
+					params[pageConfig.CursorParam] = upstreamCursor
+				}
+			}
+		}
+		var headers map[string]string
+		if len(headerOverrides) > 0 {
+			headers = make(map[string]string, len(headerOverrides)+1)
+			for k, v := range headerOverrides {
+				headers[k] = v
+			}
+		}
+		if binaryResponse {
+			if headers == nil {
+				headers = map[string]string{}
+			}
+			headers[client.BinaryResponseHeader] = "true"
+		}
 		for _, binding := range bindings {
 			knownArgs[binding.PublicName] = true
 			v, ok := args[binding.PublicName]
 			if !ok {
-				continue
+				if binding.Default != "" {
+					v = binding.Default
+				} else {
+					continue
+				}
 			}
 			switch binding.Location {
 			case "path":
 				placeholder := "{" + binding.WireName + "}"
 				pathParams[binding.PublicName] = true
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
+				path = strings.Replace(path, placeholder, formatMCPParamValue(v), 1)
 			case "body":
 				bodyArgs[binding.WireName] = v
 			default:
-				params[binding.WireName] = fmt.Sprintf("%v", v)
+				params[binding.WireName] = formatMCPParamValue(v)
 			}
 		}
 		for _, p := range positionalParams {
@@ -318,7 +433,7 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 			}
 			pathParams[p] = true
 			if v, ok := args[p]; ok {
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
+				path = strings.Replace(path, placeholder, formatMCPParamValue(v), 1)
 			}
 		}
 
@@ -330,25 +445,50 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 			case "POST", "PUT", "PATCH":
 				bodyArgs[k] = v
 			default:
-				params[k] = fmt.Sprintf("%v", v)
+				params[k] = formatMCPParamValue(v)
 			}
 		}
 
 		var data json.RawMessage
 		switch method {
 		case "GET":
-			data, err = c.Get(path, params)
+			if len(headers) > 0 {
+				data, err = c.GetWithHeaders(ctx, path, params, headers)
+				break
+			}
+			data, err = c.Get(ctx, path, params)
 		case "POST":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Post(path, body)
+			if len(headers) > 0 {
+				if readOnly {
+					data, _, err = c.PostQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PostWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
+				break
+			}
+			if readOnly {
+				data, _, err = c.PostQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PostWithParams(ctx, path, params, bodyArgs)
+			}
 		case "PUT":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Put(path, body)
+			if len(headers) > 0 {
+				data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				break
+			}
+			data, _, err = c.PutWithParams(ctx, path, params, bodyArgs)
 		case "PATCH":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Patch(path, body)
+			if len(headers) > 0 {
+				data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				break
+			}
+			data, _, err = c.PatchWithParams(ctx, path, params, bodyArgs)
 		case "DELETE":
-			data, _, err = c.Delete(path)
+			if len(headers) > 0 {
+				data, _, err = c.DeleteWithParamsAndHeaders(ctx, path, params, headers)
+				break
+			}
+			data, _, err = c.DeleteWithParams(ctx, path, params)
 		default:
 			return mcplib.NewToolResultError("unsupported method: " + method), nil
 		}
@@ -361,17 +501,20 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
 				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
-					"\n      Set your API key: export TICKETMASTER_API_KEY=<your-key>" +
+					"\n      Set your API key with: export TICKETMASTER_API_KEY=\"your-token-here\"" +
+					"\n      Get a key at: https://developer-acct.ticketmaster.com" +
 					"\n      Run 'ticketmaster-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
 				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your API key." +
-					"\n      Set it with: export TICKETMASTER_API_KEY=<your-key>" +
+					"\n      Set your API key with: export TICKETMASTER_API_KEY=\"your-token-here\"" +
+					"\n      Get a key at: https://developer-acct.ticketmaster.com" +
 					"\n      Run 'ticketmaster-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
-					"\nhint: your credentials are valid but lack access to this resource." +
-					"\n      Set it with: export TICKETMASTER_API_KEY=<your-key>" +
+					"\nhint: your credentials are valid but lack access to this resource. Check that they have the required permissions and match the API's expected auth scheme." +
+					"\n      Set your API key with: export TICKETMASTER_API_KEY=\"your-token-here\"" +
+					"\n      Get a key at: https://developer-acct.ticketmaster.com" +
 					"\n      Run 'ticketmaster-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
@@ -385,49 +528,114 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 			}
 		}
 
-		// For GET responses, wrap bare arrays with count metadata
-		if method == "GET" {
-			trimmed := strings.TrimSpace(string(data))
-			if len(trimmed) > 0 && trimmed[0] == '[' {
-				var items []json.RawMessage
-				if json.Unmarshal(data, &items) == nil {
-					wrapped := map[string]any{
-						"count": len(items),
-						"items": items,
-					}
-					out, _ := json.Marshal(wrapped)
-					return mcplib.NewToolResultText(string(out)), nil
-				}
+		if binaryResponse {
+			encoded := base64.StdEncoding.EncodeToString(data)
+			out, err := json.Marshal(map[string]any{
+				"content_encoding": "base64",
+				"data_base64":      encoded,
+				"byte_count":       len(data),
+			})
+			if err != nil {
+				return mcplib.NewToolResultError(fmt.Sprintf("encoding binary result: %v", err)), nil
 			}
+			if len(out) > bound.MaxBytes {
+				return mcplib.NewToolResultError(fmt.Sprintf("binary response is too large for MCP text output: %d response bytes encode to %d base64 bytes and %d MCP result bytes, exceeding the %d byte budget. Use the companion CLI command with --output <file> to save the payload locally.", len(data), len(encoded), len(out), bound.MaxBytes)), nil
+			}
+			return mcplib.NewToolResultText(string(out)), nil
 		}
-		return mcplib.NewToolResultText(string(data)), nil
+		if pageConfig.CursorParam != "" {
+			return mcpToolPageResultText(method, data, pageConfig, mcpCursor), nil
+		}
+		return mcpToolResultText(method, data), nil
 	}
 }
 
+func mcpToolResultText(method string, data json.RawMessage) *mcplib.CallToolResult {
+	return mcplib.NewToolResultText(bound.EndpointResponse(method, data))
+}
+
+func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string) *mcplib.CallToolResult {
+	return mcplib.NewToolResultText(bound.EndpointPageResponse(method, data, bound.PageOptions{
+		Cursor:         cursor,
+		CursorParam:    pageConfig.CursorParam,
+		NextCursorPath: pageConfig.NextCursorPath,
+	}))
+}
+
 func newMCPClient() (*client.Client, error) {
-	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "ticketmaster-pp-cli", "config.toml")
-	cfg, err := config.Load(cfgPath)
+	cfg, err := newMCPConfig()
+	if err != nil {
+		return nil, err
+	}
+	return newMCPClientFromConfig(cfg), nil
+}
+
+func newMCPConfig() (*config.Config, error) {
+	cfg, err := config.Load("")
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
-	c := client.New(cfg, 30*time.Second, 0)
+	return cfg, nil
+}
+
+func newMCPClientFromConfig(cfg *config.Config) *client.Client {
+	c := client.New(cfg, 60*time.Second, defaultMCPRateLimit)
 	// Agents calling through MCP need fresh data every call. The on-disk
 	// response cache survives across MCP server invocations, so a
 	// DELETE/PATCH followed by a GET would otherwise return the
 	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
 	// constructs its own client and is unaffected.
 	c.NoCache = true
-	return c, nil
+	return c
 }
 
-func dbPath() string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".local", "share", "ticketmaster-pp-cli", "data.db")
+func mcpDBPath() (string, error) {
+	dir, err := cliutil.DataDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, "data.db"), nil
 }
 
-// Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
-// The CLI's defaultDBPath() in the cli package uses the same canonical path.
+type mcpStoreStatusKind string
+
+const (
+	mcpStoreStatusEmpty mcpStoreStatusKind = "empty"
+	mcpStoreStatusReady mcpStoreStatusKind = "ready"
+)
+
+func openMCPReadOnlyStore(path string) (*store.Store, *mcplib.CallToolResult) {
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			return nil, mcplib.NewToolResultError(mcpMissingStoreMessage(path))
+		}
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("checking local data store %s: %v", path, err))
+	}
+	db, err := store.OpenReadOnly(path)
+	if err != nil {
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("opening local data store %s: %v. Run ticketmaster-pp-cli sync to refresh the store, or use live endpoint MCP tools for unsynced data.", path, err))
+	}
+	return db, nil
+}
+
+func mcpMissingStoreMessage(path string) string {
+	return fmt.Sprintf("No local data store found at %s. Run ticketmaster-pp-cli sync before using MCP search/sql, or use live endpoint MCP tools for unsynced data.", path)
+}
+
+func mcpStoreStatus(db *store.Store) (mcpStoreStatusKind, error) {
+	status, err := db.Status()
+	if err != nil {
+		return "", err
+	}
+	if len(status) == 0 {
+		return mcpStoreStatusEmpty, nil
+	}
+	return mcpStoreStatusReady, nil
+}
+
+func mcpEmptyStoreNextStep() string {
+	return "Run ticketmaster-pp-cli sync to populate the local SQLite store before using MCP search/sql."
+}
 
 func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
@@ -441,9 +649,13 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 		limit = int(v)
 	}
 
-	db, err := store.OpenReadOnly(dbPath())
+	path, err := mcpDBPath()
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
+	}
+	db, toolErr := openMCPReadOnlyStore(path)
+	if toolErr != nil {
+		return toolErr, nil
 	}
 	defer db.Close()
 
@@ -451,9 +663,32 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("search failed: %v", err)), nil
 	}
+	storeStatus, err := mcpStoreStatus(db)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
+	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(mcpSearchEnvelope(results, storeStatus))
+}
+
+func mcpSearchEnvelope(results []json.RawMessage, storeStatus mcpStoreStatusKind) map[string]any {
+	if results == nil {
+		results = []json.RawMessage{}
+	}
+	out := map[string]any{
+		"count":        len(results),
+		"results":      results,
+		"store_status": storeStatus,
+		"resumable":    false,
+	}
+	if len(results) == 0 {
+		if storeStatus == mcpStoreStatusEmpty {
+			out["next_step"] = mcpEmptyStoreNextStep()
+		} else {
+			out["next_step"] = "No local search matches. Try a broader query, a lower-specificity FTS expression, or sync again if data may be stale."
+		}
+	}
+	return out
 }
 
 // validateReadOnlyQuery gates the MCP sql tool. The agent contract advertised
@@ -461,22 +696,27 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 // mutating tool lets MCP hosts auto-approve writes and is treated as a real
 // bug per the project's agent-native security model.
 //
-// The gate is an allowlist (SELECT or WITH only) applied AFTER stripping the
-// leading whitespace, line comments, block comments, and semicolons that
-// SQLite itself ignores before parsing. A naive HasPrefix check on a
-// keyword blocklist is bypassable by prefixing the dangerous statement with
-// "/* x */" or "-- x\n" — TrimSpace strips outer whitespace but does not
-// understand SQL comment syntax. Combined with the empirical fact that
-// modernc.org/sqlite's mode=ro does NOT block VACUUM INTO (writes a snapshot
-// to a new file) or ATTACH DATABASE (opens a separate writable handle),
-// such a bypass produces silent exfiltration to an attacker-chosen path.
+// The gate rejects multi-statement input, then applies an allowlist (SELECT or
+// WITH only) AFTER stripping the leading whitespace, line comments, block
+// comments, and semicolons that SQLite itself ignores before parsing. A naive
+// HasPrefix check on a keyword blocklist is bypassable by prefixing the
+// dangerous statement with "/* x */" or "-- x\n"; a naive leading-keyword
+// allowlist is bypassable by appending "; ATTACH DATABASE ...". Combined with
+// the empirical fact that modernc.org/sqlite's mode=ro does NOT block VACUUM
+// INTO (writes a snapshot to a new file) or ATTACH DATABASE (opens a separate
+// writable handle), either bypass produces silent exfiltration to an
+// attacker-chosen path.
 //
 // SELECT and WITH are the only allowed leading keywords. WITH supports
 // SELECT-form CTEs; CTE-wrapped writes ("WITH x AS (...) INSERT ...") are
 // caught by OpenReadOnly's mode=ro one layer down. PRAGMA, ATTACH, VACUUM,
 // and every other DDL/DML keyword fail at this gate before reaching SQLite.
 func validateReadOnlyQuery(query string) error {
-	upper := strings.ToUpper(stripLeadingSQLNoise(query))
+	stripped := stripLeadingSQLNoise(query)
+	if hasTrailingSQLStatement(stripped) {
+		return fmt.Errorf("only a single SELECT or WITH statement is allowed")
+	}
+	upper := strings.ToUpper(stripped)
 	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") {
 		return fmt.Errorf("only SELECT queries are allowed")
 	}
@@ -510,6 +750,97 @@ func stripLeadingSQLNoise(query string) string {
 	}
 }
 
+// hasTrailingSQLStatement reports whether query contains a statement
+// terminator followed by more executable SQL. A trailing semicolon is allowed;
+// a second statement is not. Semicolons inside string literals, quoted
+// identifiers, bracket identifiers, and comments are ignored to match SQLite's
+// parser shape closely enough for this security gate.
+func hasTrailingSQLStatement(query string) bool {
+	inSingle := false
+	inDouble := false
+	inBacktick := false
+	inBracket := false
+	inLineComment := false
+	inBlockComment := false
+
+	for i := 0; i < len(query); i++ {
+		ch := query[i]
+		next := byte(0)
+		if i+1 < len(query) {
+			next = query[i+1]
+		}
+
+		switch {
+		case inLineComment:
+			if ch == '\n' {
+				inLineComment = false
+			}
+			continue
+		case inBlockComment:
+			if ch == '*' && next == '/' {
+				inBlockComment = false
+				i++
+			}
+			continue
+		case inSingle:
+			if ch == '\'' {
+				if next == '\'' {
+					i++
+					continue
+				}
+				inSingle = false
+			}
+			continue
+		case inDouble:
+			if ch == '"' {
+				if next == '"' {
+					i++
+					continue
+				}
+				inDouble = false
+			}
+			continue
+		case inBacktick:
+			if ch == '`' {
+				if next == '`' {
+					i++
+					continue
+				}
+				inBacktick = false
+			}
+			continue
+		case inBracket:
+			if ch == ']' {
+				inBracket = false
+			}
+			continue
+		}
+
+		switch {
+		case ch == '-' && next == '-':
+			inLineComment = true
+			i++
+		case ch == '/' && next == '*':
+			inBlockComment = true
+			i++
+		case ch == '\'':
+			inSingle = true
+		case ch == '"':
+			inDouble = true
+		case ch == '`':
+			inBacktick = true
+		case ch == '[':
+			inBracket = true
+		case ch == ';':
+			if stripLeadingSQLNoise(query[i+1:]) != "" {
+				return true
+			}
+			return false
+		}
+	}
+	return false
+}
+
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
 	query, ok := args["query"].(string)
@@ -521,19 +852,26 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
 
-	db, err := store.OpenReadOnly(dbPath())
+	path, err := mcpDBPath()
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
+	}
+	db, toolErr := openMCPReadOnlyStore(path)
+	if toolErr != nil {
+		return toolErr, nil
 	}
 	defer db.Close()
 
-	rows, err := db.Query(query)
+	rows, err := db.DB().QueryContext(ctx, query)
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("query failed: %v", err)), nil
+		return mcplib.NewToolResultError(mcpSQLQueryError(err)), nil
 	}
 	defer rows.Close()
 
-	cols, _ := rows.Columns()
+	cols, err := rows.Columns()
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading columns: %v", err)), nil
+	}
 	var results []map[string]any
 	for rows.Next() {
 		values := make([]any, len(cols))
@@ -541,26 +879,94 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		for i := range values {
 			ptrs[i] = &values[i]
 		}
-		rows.Scan(ptrs...)
+		if err := rows.Scan(ptrs...); err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("scanning row: %v", err)), nil
+		}
 		row := make(map[string]any)
 		for i, col := range cols {
 			row[col] = values[i]
 		}
 		results = append(results, row)
 	}
+	// rows.Next() stops on a mid-iteration error without failing the loop, so
+	// skipping rows.Err() would return a truncated result set as success.
+	if err := rows.Err(); err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading rows: %v", err)), nil
+	}
+	storeStatus, err := mcpStoreStatus(db)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
+	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(mcpSQLEnvelope(results, cols, storeStatus))
+}
+
+func mcpSQLEnvelope(rows []map[string]any, columns []string, storeStatus mcpStoreStatusKind) map[string]any {
+	if rows == nil {
+		rows = []map[string]any{}
+	}
+	out := map[string]any{
+		"count":        len(rows),
+		"columns":      columns,
+		"rows":         rows,
+		"store_status": storeStatus,
+		"resumable":    false,
+	}
+	if len(rows) == 0 {
+		if storeStatus == mcpStoreStatusEmpty {
+			out["next_step"] = mcpEmptyStoreNextStep()
+		} else {
+			out["next_step"] = "The read-only SQL query returned no rows. Check resource_type filters, json_extract paths, or run sync again if data may be stale."
+		}
+	}
+	return out
+}
+
+func mcpSQLQueryError(err error) string {
+	msg := err.Error()
+	if strings.Contains(strings.ToLower(msg), "no such table") {
+		return fmt.Sprintf("query failed: %v. Synced records live in resources(resource_type, id, data), not one SQL table per resource. Filter by resource_type, for example resource_type='attractions', and read JSON fields with json_extract(data,'$.field').", err)
+	}
+	return fmt.Sprintf("query failed: %v", err)
+}
+
+// toolResultJSON renders v as the indented JSON body of an MCP text result,
+// surfacing a marshal failure as a tool error instead of empty content.
+func toolResultJSON(v any) (*mcplib.CallToolResult, error) {
+	text, err := bound.JSON(v)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("encoding result: %v", err)), nil
+	}
+	return mcplib.NewToolResultText(text), nil
 }
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	paths := map[string]string{}
+	if dir, err := cliutil.ConfigDir(); err == nil {
+		paths["config_dir"] = dir
+	}
+	if dir, err := cliutil.DataDir(); err == nil {
+		paths["data_dir"] = dir
+	}
+	if dir, err := cliutil.StateDir(); err == nil {
+		paths["state_dir"] = dir
+	}
+	if dir, err := cliutil.CacheDir(); err == nil {
+		paths["cache_dir"] = dir
+	}
 	ctx := map[string]any{
 		"api":         "ticketmaster",
-		"description": "Every Discovery v2 endpoint plus offline search, multi-venue watchlists, residency dedup, and on-sale tracking no...",
+		"description": "Every Discovery v2 endpoint plus offline search, multi-venue watchlists, residency dedup, and on-sale tracking no API call exposes.",
 		"archetype":   "generic",
 		"tool_count":  13,
+		"paths":       paths,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion ticketmaster-pp-cli binary.",
+		// learn_protocol is generated from the single shared source of
+		// truth (the exported constant internal/learn.RecallFirstProtocol)
+		// also consumed by the CLI agent-context command, so the MCP and
+		// CLI agent surfaces cannot drift.
+		"learn_protocol": learn.RecallFirstProtocol,
 		"auth": map[string]any{
 			"type": "api_key",
 			"env_vars": []map[string]any{
@@ -572,6 +978,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 					"description": "Set to your API credential.",
 				},
 			},
+			"key_url": "https://developer-acct.ticketmaster.com",
 		},
 		"resources": []map[string]any{
 			{
@@ -596,6 +1003,11 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"searchable":  true,
 			},
 			{
+				"name":        "events.images",
+				"description": "Manage images",
+				"endpoints":   []string{"get"},
+			},
+			{
 				"name":        "suggest",
 				"description": "Manage suggest",
 				"endpoints":   []string{"list"},
@@ -611,7 +1023,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			},
 		},
 		"query_tips": []string{
-			"Pagination uses cursor-based paging. Pass after parameter for subsequent pages.",
+			"Pagination uses cursor-based paging. Pass page parameter for subsequent pages.",
 			"Control page size with the limit parameter (default 100).",
 			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
@@ -620,15 +1032,15 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Multi-venue watchlist sweep", "command": "events upcoming", "description": "Fan out across a venue ID file or list and return one merged, deduplicated, date-sorted event list — the watchlist...", "rationale": "Discovery API has no multi-venue endpoint; pulling per-venue and merging requires a local store and dedup logic.", "via": "mcp-command-mirror"},
-			{"name": "Residency collapse", "command": "events residency", "description": "Collapse runs of same-name + same-venue events into one row per residency with first_date, last_date, night_count,...", "rationale": "Requires cross-row GROUP BY over the local events table; the API returns every performance independently with no...", "via": "mcp-command-mirror"},
-			{"name": "Attraction tour view with on-sale flag", "command": "events tour", "description": "For a given attraction (artist/team/touring show), return every upcoming event sorted by date, with city, venue,...", "rationale": "Joins local events × attractions and parses dates.status.code + sales.public.startDateTime per event; no single API...", "via": "mcp-command-mirror"},
-			{"name": "On-sale-soon scanner", "command": "events on-sale-soon", "description": "Local query for events whose public on-sale falls in the next N days, sorted ascending — the canonical 'presale...", "rationale": "Requires filtering on sales.public.startDateTime against the current time, which is only feasible after the events...", "via": "mcp-command-mirror"},
-			{"name": "Classification bucketing", "command": "events by-classification", "description": "Local join of events × classifications, grouped by segment and genre, with event count and three example events per...", "rationale": "Requires GROUP BY across local events and classifications tables; the API returns one classification per event but...", "via": "mcp-command-mirror"},
-			{"name": "Named persistent watchlists", "command": "events watchlist", "description": "Save, list, run, and remove named filter sets (venue IDs, attraction IDs, segments, DMA IDs) that persist across...", "rationale": "Watchlists are stored locally in a new SQLite table; the API has no concept of named filter sets.", "via": "mcp-command-mirror"},
-			{"name": "Stream-shaped dedup", "command": "events dedup", "description": "Read an event JSON array from stdin or the local store, apply a deduplication strategy (name+venue+date, or...", "rationale": "Mechanical filter that works on any event JSON; agent-friendly because it's stateless and pipeable.", "via": "mcp-command-mirror"},
-			{"name": "Markdown what's-on brief", "command": "events brief", "description": "Render a markdown 'what's on' report grouped by night → venue → events with classification labels and price...", "rationale": "Local query plus mechanical group-by + markdown formatting; no API endpoint produces formatted reports.", "via": "mcp-command-mirror"},
-			{"name": "Price-band distribution", "command": "events price-bands", "description": "Bucket events by priceRanges.min into <$50 / $50-100 / $100-200 / $200+ bands and report count + sample events per...", "rationale": "Pure local SQL aggregation over priceRanges; the API does not aggregate price data.", "via": "mcp-command-mirror"},
+			{"name": "Multi-venue watchlist sweep", "command": "events upcoming", "description": "Fan out across a venue ID file or list and return one merged, deduplicated, date-sorted event list — the watchlist primitive behind any curated 'what's on at my venues' workflow.", "rationale": "Discovery API has no multi-venue endpoint; pulling per-venue and merging requires a local store and dedup logic.", "via": "mcp-command-mirror"},
+			{"name": "Residency collapse", "command": "events residency", "description": "Collapse runs of same-name + same-venue events into one row per residency with first_date, last_date, night_count, and id_list — so a 16-night opera season shows as one entry, not 16.", "rationale": "Requires cross-row GROUP BY over the local events table; the API returns every performance independently with no dedup signal.", "via": "mcp-command-mirror"},
+			{"name": "Attraction tour view with on-sale flag", "command": "events tour", "description": "For a given attraction (artist/team/touring show), return every upcoming event sorted by date, with city, venue, on-sale status, and a flag for events going on-sale within 7 days.", "rationale": "Joins local events × attractions and parses dates.status.code + sales.public.startDateTime per event; no single API call returns this view.", "via": "mcp-command-mirror"},
+			{"name": "On-sale-soon scanner", "command": "events on-sale-soon", "description": "Local query for events whose public on-sale falls in the next N days, sorted ascending — the canonical 'presale watch' view that no API endpoint provides.", "rationale": "Requires filtering on sales.public.startDateTime against the current time, which is only feasible after the events are in the local store.", "via": "mcp-command-mirror"},
+			{"name": "Classification bucketing", "command": "events by-classification", "description": "Local join of events × classifications, grouped by segment and genre, with event count and three example events per leaf — the bucketed view newsletter authors and local-scene trackers reach for.", "rationale": "Requires GROUP BY across local events and classifications tables; the API returns one classification per event but offers no aggregation.", "via": "mcp-command-mirror"},
+			{"name": "Named persistent watchlists", "command": "events watchlist", "description": "Save, list, run, and remove named filter sets (venue IDs, attraction IDs, segments, DMA IDs) that persist across runs in the local SQLite store — the generic primitive any curated 'my venues' workflow composes from.", "rationale": "Watchlists are stored locally in a new SQLite table; the API has no concept of named filter sets.", "via": "mcp-command-mirror"},
+			{"name": "Stream-shaped dedup", "command": "events dedup", "description": "Read an event JSON array from stdin or the local store, apply a deduplication strategy (name+venue+date, or tour-leg), and write the deduped stream to stdout — composes with any upstream command.", "rationale": "Mechanical filter that works on any event JSON; agent-friendly because it's stateless and pipeable.", "via": "mcp-command-mirror"},
+			{"name": "Markdown what's-on brief", "command": "events brief", "description": "Render a markdown 'what's on' report grouped by night → venue → events with classification labels and price bands, suitable for newsletter, Obsidian, iMessage, or agent context.", "rationale": "Local query plus mechanical group-by + markdown formatting; no API endpoint produces formatted reports.", "via": "mcp-command-mirror"},
+			{"name": "Price-band distribution", "command": "events price-bands", "description": "Bucket events by priceRanges.min into <$50 / $50-100 / $100-200 / $200+ bands and report count + sample events per band, grouped by classification.", "rationale": "Pure local SQL aggregation over priceRanges; the API does not aggregate price data.", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
 			{"topic": "Multi-venue watchlist sweep", "insight": "Discovery API has no multi-venue endpoint; pulling per-venue and merging requires a local store and dedup logic."},
@@ -642,8 +1054,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"topic": "Price-band distribution", "insight": "Pure local SQL aggregation over priceRanges; the API does not aggregate price data."},
 		},
 	}
-	data, _ := json.MarshalIndent(ctx, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(ctx)
 }
 
 // RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP

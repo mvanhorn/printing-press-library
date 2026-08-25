@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "synology-dsm-envelope-unwrap",
+  "applied_at": "2026-08-24",
+  "base_run_id": "20260824-135140",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Strip the DSM {\"success\":true,\"data\":{...}} envelope in the client, and unwrap the single row array of a list payload.",
+  "reason": "DSM answers every call with HTTP 200 and an envelope, so the generated client returned the wrapper for every command. That also meant the table renderer, which only fires for a JSON array, never ran anywhere in the CLI. List responses nest one level deeper still ({\"offset\":0,\"total\":14,\"users\":[...]}), so commands without an explicit response path returned an object instead of rows. Unwrapping centrally in the client keeps commands, the local cache, and the MCP server on the same payload.",
+  "files": [
+    "internal/client/synology.go"
+  ],
+  "validated_outcome": "Live calls against a DS415+ return payloads rather than envelopes: `system health` prints uptime fields and `storage disks` renders a table of drives."
+}

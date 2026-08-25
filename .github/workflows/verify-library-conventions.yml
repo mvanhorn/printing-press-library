@@ -113,8 +113,14 @@ jobs:
             .github/scripts/verify-press-version \
             .github/scripts/verify-publish-package \
             .github/scripts/verify-release-ledger \
-            tools/generate-registry
+            tools/generate-registry \
+            tools/generate-skills
           do
+            if [ "$path" = ".github/scripts/verify-publish-package" ] &&
+              ! git diff --quiet "${BASE_REMOTE_REF}...HEAD" -- "$path" ".github/workflows/verify-library-conventions.yml"; then
+              echo "Keeping PR-updated ${path}; this PR is changing the publish-package verifier itself."
+              continue
+            fi
             if git cat-file -e "${BASE_REMOTE_REF}:${path}" 2>/dev/null; then
               git checkout "${BASE_REMOTE_REF}" -- "${path}"
             fi
@@ -257,7 +263,7 @@ jobs:
       # binary that will run after merge.
       - uses: actions/setup-go@v6
         with:
-          go-version: '1.26.4'
+          go-version-file: .go-version
 
       - name: Validate registry source descriptions
         # Reject PRs whose .printing-press.json + .goreleaser.yaml sources would
@@ -310,3 +316,26 @@ jobs:
           fi
           echo "Validating changed CLIs: ${slugs[*]}"
           go run ./tools/generate-registry/main.go --validate "${slugs[@]}"
+
+      - name: Validate library SKILL.md files
+        # Reject PRs that would leave any library/<cat>/<slug>/SKILL.md
+        # missing or empty. Catches the gap at PR time so the post-merge
+        # generate-skills.yml mirror never partial-writes before fataling.
+        # The tool is overlaid from base in "Overlay verifier scripts from
+        # base" above, so a PR branched before the --validate flag existed
+        # still runs the current validator. The file-path invocation form is
+        # required for the same go.mod reason as the registry step above.
+        #
+        # The flag-support guard below solves the overlay bootstrapping
+        # conflict: in the PR that introduces --validate, the overlay swaps
+        # in base's pre-flag tool, which would die with "flag provided but
+        # not defined: -validate". When the checked-out tool predates the
+        # flag, there is nothing to run yet; the step becomes a no-op and
+        # activates automatically once the flag lands on the base branch.
+        run: |
+          set -euo pipefail
+          if ! grep -q 'flag.Bool("validate"' tools/generate-skills/main.go; then
+            echo "generate-skills in tree predates --validate; skipping (activates once the flag is on base)."
+            exit 0
+          fi
+          go run ./tools/generate-skills/main.go --validate

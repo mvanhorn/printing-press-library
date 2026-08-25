@@ -1,0 +1,320 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://www.screener.in/",
+    "captured_at": "2026-08-14T10:30:00Z",
+    "entry_count": 12,
+    "api_entry_count": 2,
+    "noise_entry_count": 10,
+    "host_distribution": {
+      "www.screener.in": 12
+    }
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.65,
+    "reasons": [
+      "no browser-only reachability signals observed"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "www.screener.in",
+          "path": "/api/company/search/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "www.screener.in",
+          "path": "/api/company/1489/chart/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    },
+    {
+      "label": "html_scrape",
+      "confidence": 0.55,
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "www.screener.in",
+          "path": "/api/company/1489/peers/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "www.screener.in",
+          "path": "/company/INFY/consolidated/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "www.screener.in",
+          "path": "/screens/1/the-bull-cartel/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "www.screener.in",
+          "path": "/explore/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "www.screener.in",
+          "path": "/market/IN08/IN0801/IN080101/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "www.screener.in",
+          "path": "/ipo/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "www.screener.in",
+          "path": "/results/latest/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "www.screener.in",
+          "path": "/trades/insiders/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "www.screener.in",
+          "path": "/filings/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "www.screener.in",
+          "path": "/full-text-search/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "chrome_mcp_session",
+        "confidence": 0.95
+      }
+    ]
+  },
+  "endpoint_clusters": [
+    {
+      "host": "www.screener.in",
+      "method": "GET",
+      "path": "/api/company/search/",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "array",
+        "fields": [
+          {
+            "name": "id",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "url",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "www.screener.in",
+          "path": "/api/company/search/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.screener.in",
+      "method": "GET",
+      "path": "/api/company/{company_id}/chart/",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "datasets",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "meta",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "low_confidence_parameters": [
+        {
+          "name": "company_id",
+          "segment": "1489",
+          "position": 2,
+          "reason": "single-sample small integer path segment"
+        }
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "www.screener.in",
+          "path": "/api/company/1489/chart/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "request_sequences": [
+    {
+      "label": "observed_api_flow",
+      "confidence": 0.35,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "www.screener.in",
+          "path": "/api/company/search/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "www.screener.in",
+          "path": "/api/company/1489/chart/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        }
+      ],
+      "notes": [
+        "Capture order used; timing unavailable."
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "get_chart",
+      "resource": "chart",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/company/{company_id}/chart/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "www.screener.in",
+          "path": "/api/company/1489/chart/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_search",
+      "resource": "search",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/company/search/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "www.screener.in",
+          "path": "/api/company/search/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ]
+}

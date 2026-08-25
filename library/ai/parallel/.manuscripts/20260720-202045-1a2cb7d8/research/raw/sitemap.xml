@@ -1,0 +1,658 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+    
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/chat-api-beta/chat-completions</loc>
+    <lastmod>2026-06-16T22:12:13.659Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/extract/extract</loc>
+    <lastmod>2026-06-16T22:12:13.350Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/findall/add-enrichment-to-findall-run</loc>
+    <lastmod>2026-06-16T22:12:13.523Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/findall/cancel-findall-run</loc>
+    <lastmod>2026-06-16T22:12:13.513Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/findall/create-findall-run</loc>
+    <lastmod>2026-06-16T22:12:13.495Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/findall/extend-findall-run</loc>
+    <lastmod>2026-06-16T22:12:13.543Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/findall/fast-entity-search</loc>
+    <lastmod>2026-06-16T22:12:13.476Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/findall/findall-run-result</loc>
+    <lastmod>2026-06-16T22:12:13.553Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/findall/get-findall-run-schema</loc>
+    <lastmod>2026-07-17T23:05:45.068Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/findall/ingest-findall-run</loc>
+    <lastmod>2026-06-16T22:12:13.486Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/findall/retrieve-findall-run-status</loc>
+    <lastmod>2026-06-16T22:12:13.504Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/findall/stream-findall-events</loc>
+    <lastmod>2026-06-16T22:12:13.534Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/monitor/cancel-monitor</loc>
+    <lastmod>2026-06-16T22:12:13.621Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/monitor/create-monitor</loc>
+    <lastmod>2026-06-16T22:12:13.585Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/monitor/list-monitor-events</loc>
+    <lastmod>2026-06-16T22:12:13.631Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/monitor/list-monitors</loc>
+    <lastmod>2026-06-16T22:12:13.576Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/monitor/retrieve-monitor</loc>
+    <lastmod>2026-06-16T22:12:13.595Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/monitor/trigger-monitor-run</loc>
+    <lastmod>2026-06-16T22:12:13.640Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/monitor/update-monitor</loc>
+    <lastmod>2026-06-16T22:12:13.650Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/search/search</loc>
+    <lastmod>2026-06-16T22:12:13.319Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/tasks/add-runs-to-task-group</loc>
+    <lastmod>2026-06-16T22:12:13.395Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/tasks/create-task-group</loc>
+    <lastmod>2026-06-16T22:12:13.359Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/tasks/create-task-run</loc>
+    <lastmod>2026-06-16T22:12:13.415Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/tasks/fetch-task-group-runs</loc>
+    <lastmod>2026-06-16T22:12:13.386Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/tasks/retrieve-task-group</loc>
+    <lastmod>2026-06-16T22:12:13.368Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/tasks/retrieve-task-group-run</loc>
+    <lastmod>2026-06-16T22:12:13.404Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/tasks/retrieve-task-run</loc>
+    <lastmod>2026-06-16T22:12:13.425Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/tasks/retrieve-task-run-input</loc>
+    <lastmod>2026-06-16T22:12:13.447Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/tasks/retrieve-task-run-result</loc>
+    <lastmod>2026-06-16T22:12:13.456Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/tasks/stream-task-group-events</loc>
+    <lastmod>2026-06-16T22:12:13.376Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/tasks/stream-task-run-events</loc>
+    <lastmod>2026-06-16T22:12:13.437Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/api-reference/tasks/stream-task-run-events-1</loc>
+    <lastmod>2026-06-16T22:12:13.467Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/chat-api/chat-quickstart</loc>
+    <lastmod>2026-04-28T17:20:25.641Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/data-integrations/bigquery</loc>
+    <lastmod>2026-04-28T17:20:25.636Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/data-integrations/duckdb</loc>
+    <lastmod>2026-04-28T17:20:25.635Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/data-integrations/overview</loc>
+    <lastmod>2026-04-28T17:20:25.648Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/data-integrations/polars</loc>
+    <lastmod>2026-04-28T17:20:25.642Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/data-integrations/snowflake</loc>
+    <lastmod>2026-04-28T17:20:25.643Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/data-integrations/spark</loc>
+    <lastmod>2026-04-28T17:20:25.644Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/data-integrations/supabase</loc>
+    <lastmod>2026-06-18T20:04:13.390Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/extract/advanced-extract-settings</loc>
+    <lastmod>2026-04-28T17:20:25.685Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/extract/best-practices</loc>
+    <lastmod>2026-04-28T17:20:25.679Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/extract/extract-migration-guide</loc>
+    <lastmod>2026-04-28T17:20:25.683Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/extract/extract-quickstart</loc>
+    <lastmod>2026-04-28T17:20:25.684Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/findall-api/core-concepts/findall-candidates</loc>
+    <lastmod>2026-04-28T17:20:25.678Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/findall-api/core-concepts/findall-generator-pricing</loc>
+    <lastmod>2026-04-28T17:20:25.680Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/findall-api/core-concepts/findall-lifecycle</loc>
+    <lastmod>2026-04-28T17:20:25.681Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/findall-api/entity-search</loc>
+    <lastmod>2026-06-12T21:10:16.853Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/findall-api/features/findall-cancel</loc>
+    <lastmod>2026-06-06T04:35:48.119Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/findall-api/features/findall-enrich</loc>
+    <lastmod>2026-06-06T04:35:48.127Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/findall-api/features/findall-extend</loc>
+    <lastmod>2026-06-06T04:35:48.131Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/findall-api/features/findall-preview</loc>
+    <lastmod>2026-06-06T04:35:48.130Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/findall-api/features/findall-refresh</loc>
+    <lastmod>2026-06-06T04:35:48.149Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/findall-api/features/findall-sse</loc>
+    <lastmod>2026-06-06T04:35:48.132Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/findall-api/features/findall-webhook</loc>
+    <lastmod>2026-06-06T04:35:48.118Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/findall-api/findall-migration-guide</loc>
+    <lastmod>2026-06-06T04:35:48.129Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/findall-api/findall-quickstart</loc>
+    <lastmod>2026-06-12T21:10:16.856Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/getting-started/glossary</loc>
+    <lastmod>2026-07-13T12:56:45.659Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/getting-started/overview</loc>
+    <lastmod>2026-07-13T12:56:45.672Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/getting-started/pricing</loc>
+    <lastmod>2026-07-13T21:05:47.544Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/getting-started/rate-limits</loc>
+    <lastmod>2026-06-03T01:06:53.196Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/account-api</loc>
+    <lastmod>2026-05-20T18:49:08.653Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/agent-skills</loc>
+    <lastmod>2026-05-07T03:56:17.138Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/agentic-payments</loc>
+    <lastmod>2026-04-28T17:20:25.802Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/anthropic-tool-calling</loc>
+    <lastmod>2026-07-13T12:56:45.660Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/aws-marketplace</loc>
+    <lastmod>2026-04-28T17:20:25.793Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/browseruse</loc>
+    <lastmod>2026-06-03T04:00:08.926Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/claude-code-marketplace</loc>
+    <lastmod>2026-05-07T03:56:17.140Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/clawhub</loc>
+    <lastmod>2026-05-07T03:56:17.146Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/cli</loc>
+    <lastmod>2026-07-17T23:05:49.074Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/cursor-marketplace</loc>
+    <lastmod>2026-05-07T03:56:17.142Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/developer-quickstart</loc>
+    <lastmod>2026-04-28T17:20:25.837Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/google-cloud-marketplace</loc>
+    <lastmod>2026-06-23T20:16:57.851Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/google-gemini-enterprise</loc>
+    <lastmod>2026-07-13T12:56:45.658Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/gsuite</loc>
+    <lastmod>2026-04-28T17:20:25.834Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/langchain</loc>
+    <lastmod>2026-07-13T12:56:45.667Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/mcp/programmatic-use</loc>
+    <lastmod>2026-04-28T17:20:25.839Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/mcp/quickstart</loc>
+    <lastmod>2026-04-28T17:20:25.840Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/mcp/search-mcp</loc>
+    <lastmod>2026-04-30T17:49:53.811Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/mcp/task-mcp</loc>
+    <lastmod>2026-04-30T17:49:53.810Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/n8n</loc>
+    <lastmod>2026-04-28T17:20:25.838Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/oauth-provider</loc>
+    <lastmod>2026-04-28T17:20:26.721Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/ollama-tool-calling</loc>
+    <lastmod>2026-07-13T12:56:45.664Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/openai-tool-calling</loc>
+    <lastmod>2026-07-13T12:56:45.665Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/opencode-plugin</loc>
+    <lastmod>2026-04-28T17:20:26.719Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/openrouter</loc>
+    <lastmod>2026-05-07T22:52:30.773Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/pi-extension</loc>
+    <lastmod>2026-05-13T00:31:11.466Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/superhuman</loc>
+    <lastmod>2026-04-28T17:20:26.724Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/vercel</loc>
+    <lastmod>2026-04-28T17:20:26.720Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/integrations/zapier</loc>
+    <lastmod>2026-04-28T17:20:26.730Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/monitor-api/monitor-events</loc>
+    <lastmod>2026-05-07T21:06:20.089Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/monitor-api/monitor-migration-guide</loc>
+    <lastmod>2026-05-08T21:59:31.033Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/monitor-api/monitor-quickstart</loc>
+    <lastmod>2026-05-08T21:59:31.032Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/monitor-api/monitor-slack</loc>
+    <lastmod>2026-05-01T20:58:21.784Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/monitor-api/monitor-task</loc>
+    <lastmod>2026-05-07T21:06:20.094Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/monitor-api/monitor-webhooks</loc>
+    <lastmod>2026-05-07T21:06:20.096Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/monitor-api/quickstart-snapshot</loc>
+    <lastmod>2026-05-07T21:06:20.091Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/resources/changelog</loc>
+    <lastmod>2026-07-13T12:56:45.671Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/resources/crawler</loc>
+    <lastmod>2026-05-20T23:10:56.921Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/resources/faqs</loc>
+    <lastmod>2026-04-28T17:20:26.766Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/resources/source-policy</loc>
+    <lastmod>2026-04-28T17:20:26.767Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/resources/warnings-and-errors</loc>
+    <lastmod>2026-04-28T17:20:26.765Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/resources/webhook-setup</loc>
+    <lastmod>2026-07-07T22:36:15.898Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/search/advanced-search-settings</loc>
+    <lastmod>2026-04-28T17:20:26.766Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/search/best-practices</loc>
+    <lastmod>2026-07-13T12:56:47.352Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/search/migrate-to-parallel</loc>
+    <lastmod>2026-07-13T12:58:18.809Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/search/modes</loc>
+    <lastmod>2026-07-17T17:33:54.291Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/search/search-migration-guide</loc>
+    <lastmod>2026-07-13T12:58:18.810Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/search/search-quickstart</loc>
+    <lastmod>2026-07-13T12:56:47.354Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/service-api/apps/create-app</loc>
+    <lastmod>2026-07-17T23:05:45.488Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/service-api/apps/delete-app</loc>
+    <lastmod>2026-07-17T23:05:45.497Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/service-api/apps/list-apps</loc>
+    <lastmod>2026-07-17T23:05:45.478Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/service-api/balance/add-to-balance</loc>
+    <lastmod>2026-07-17T23:05:45.468Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/service-api/balance/get-balance</loc>
+    <lastmod>2026-07-17T23:05:45.457Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/service-api/keys/create-key</loc>
+    <lastmod>2026-07-17T23:05:45.506Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/service-api/keys/delete-key</loc>
+    <lastmod>2026-07-17T23:05:45.515Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/task-api/best-practices</loc>
+    <lastmod>2026-06-11T21:42:04.141Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/task-api/examples/interactive-research</loc>
+    <lastmod>2026-04-28T17:20:28.368Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/task-api/examples/task-deep-research</loc>
+    <lastmod>2026-06-03T04:00:08.922Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/task-api/examples/task-enrichment</loc>
+    <lastmod>2026-04-28T17:20:28.420Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/task-api/group-api</loc>
+    <lastmod>2026-05-08T03:03:21.185Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/task-api/guides/access-research-basis</loc>
+    <lastmod>2026-04-28T17:20:28.412Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/task-api/guides/choose-a-processor</loc>
+    <lastmod>2026-04-28T17:20:28.418Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/task-api/guides/execute-task-run</loc>
+    <lastmod>2026-04-28T17:20:28.414Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/task-api/guides/interactions</loc>
+    <lastmod>2026-04-28T17:20:28.419Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/task-api/guides/specify-a-task</loc>
+    <lastmod>2026-06-29T17:39:04.378Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/task-api/ingest-api</loc>
+    <lastmod>2026-04-28T17:20:28.420Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/task-api/mcp-tool-call</loc>
+    <lastmod>2026-06-03T04:00:08.927Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/task-api/task-quickstart</loc>
+    <lastmod>2026-04-28T17:20:29.086Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/task-api/task-sse</loc>
+    <lastmod>2026-06-23T20:30:02.100Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.parallel.ai/task-api/webhooks</loc>
+    <lastmod>2026-06-03T04:00:08.924Z</lastmod>
+  </url>
+</urlset>

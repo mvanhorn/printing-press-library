@@ -45,6 +45,8 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/cliutil"
 )
 
 // Sentinel errors for typed-error handling at the CLI boundary.
@@ -57,7 +59,7 @@ var (
 
 	// ErrPaymentRequired signals a venue requires payment-on-book that the CLI
 	// cannot handle (full prepay). Card-required-but-not-prepaid venues
-	// surface a different category (handled by the CLI command via CVC prompt).
+	// surface a different category through the per-booking CVC flow.
 	ErrPaymentRequired = errors.New("tock: venue requires prepayment (out of v0.2 scope)")
 
 	// ErrPastCancellationWindow signals that cancel was called past the
@@ -70,7 +72,79 @@ var (
 	// ErrUpcomingShapeChanged signals that $REDUX_STATE.patron.purchaseSummaries
 	// is missing or wrong shape — Tock SPA-refactor canary.
 	ErrUpcomingShapeChanged = errors.New("tock: $REDUX_STATE.patron.purchaseSummaries missing — Tock SPA may have changed")
+
+	// ErrSlotControlNotFound signals selector/layout drift before checkout.
+	// The wrapped error includes a page-state hint with the interactive
+	// controls that were present so agents can distinguish provider drift from
+	// login walls or challenge pages.
+	ErrSlotControlNotFound = errors.New("tock: requested booking slot control not found")
+
+	// ErrCVCRequired signals that checkout stalled on an unfilled CVC field —
+	// the venue requires per-transaction CVC re-entry and none was provided.
+	ErrCVCRequired = errors.New("tock: venue requires CVC re-entry for this booking")
+
+	// ErrCancelOutcomeUnknown means the irreversible UI confirmation click was
+	// dispatched but the resulting canceled receipt could not be proved. It is
+	// deliberately distinct so callers never automatically retry the mutation.
+	ErrCancelOutcomeUnknown = errors.New("tock: cancellation outcome unknown; do not retry automatically")
+
+	// ErrCancelUIFlow signals a definite, pre-mutation UI-flow failure.
+	ErrCancelUIFlow = errors.New("tock: cancel UI flow failed")
 )
+
+// ChromeBookError is the typed failure envelope for attach-mode booking.
+// PageState is deliberately sanitized before it is stored: it contains a
+// query-free path, booleans, strict time labels, and allowlisted control
+// categories only.
+type ChromeBookError struct {
+	Kind      error
+	Step      string
+	PageState string
+	Cause     error
+}
+
+func (e *ChromeBookError) Error() string {
+	parts := []string{e.Kind.Error()}
+	if e.Step != "" {
+		parts = append(parts, "step="+e.Step)
+	}
+	if e.Cause != nil {
+		parts = append(parts, e.Cause.Error())
+	}
+	if e.PageState != "" {
+		parts = append(parts, "page_state="+e.PageState)
+	}
+	return strings.Join(parts, ": ")
+}
+
+func (e *ChromeBookError) Unwrap() error { return e.Kind }
+
+// cancelTransportError preserves only privacy-safe typed causes. Raw HTTP
+// transport errors often carry the full request URL and therefore never enter
+// the returned error chain.
+type cancelTransportError struct {
+	operation string
+	cause     error
+}
+
+func (e *cancelTransportError) Error() string { return "tock cancel: " + e.operation }
+func (e *cancelTransportError) Unwrap() error { return e.cause }
+
+func newCancelTransportError(operation string, cause error) error {
+	var safeCause error
+	switch {
+	case errors.Is(cause, context.DeadlineExceeded):
+		safeCause = context.DeadlineExceeded
+	case errors.Is(cause, context.Canceled):
+		safeCause = context.Canceled
+	default:
+		var rateLimitErr *cliutil.RateLimitError
+		if errors.As(cause, &rateLimitErr) {
+			safeCause = &cliutil.RateLimitError{RetryAfter: rateLimitErr.RetryAfter}
+		}
+	}
+	return &cancelTransportError{operation: operation, cause: safeCause}
+}
 
 // BookRequest is the user-facing input to Book(). v0.2 returns
 // ErrBookingNotImplemented; this struct exists for API symmetry with
@@ -143,8 +217,10 @@ type UpcomingReservation struct {
 // a real Chrome through the click-flow: venue → slot → checkout → fill CVC
 // → confirm → receipt page → extract confirmation.
 //
-// For card-required venues, req.CVC must be set (the CLI prompts the user
-// interactively). For free venues, CVC is ignored.
+// For card-required venues, req.CVC may be set explicitly. Agent/no-input
+// callers may attempt with an empty value; if checkout remains blocked on an
+// empty CVC field, ChromeBook returns ErrCVCRequired. For free venues, CVC is
+// ignored.
 //
 // Requires Chrome running with --remote-debugging-port=9222 (the same
 // "attach" mode used by `internal/source/opentable/chrome_avail.go`), or
@@ -172,8 +248,10 @@ var hiddenAttrRE = regexp.MustCompile(`(?is)\b(name|value)=["']([^"']*)["']`)
 // without us needing a fresh capture.
 var csrfNamePatterns = []string{"csrf", "xsrf", "authenticity", "requestverification", "antiforgery"}
 
-// Cancel cancels a Tock reservation by form-submitting to
-// /<venue-slug>/receipt/cancel. Two-step: first attempts an empty-body POST.
+// Cancel cancels a Tock reservation HTTP-first by form-submitting to
+// /<venue-slug>/receipt/cancel. A proven direct, non-redirected 404 alone
+// falls back to the receipt UI phase machine. Two-step HTTP behavior first
+// attempts an empty-body POST.
 // On 401/403 (likely CSRF rejection), GETs the receipt page, scrapes hidden
 // inputs whose names look like anti-forgery tokens, and retries the POST
 // with those fields populated. The actual cancellation is verified by
@@ -187,14 +265,21 @@ func (c *Client) Cancel(ctx context.Context, req CancelRequest) (*CancelResponse
 	if req.VenueSlug == "" || req.PurchaseID == 0 {
 		return nil, fmt.Errorf("tock cancel: VenueSlug and PurchaseID are required")
 	}
-	cancelURL := Origin + "/" + url.PathEscape(req.VenueSlug) + "/receipt/cancel?purchaseId=" + fmt.Sprintf("%d", req.PurchaseID)
-	receiptURL := Origin + "/" + url.PathEscape(req.VenueSlug) + "/receipt?purchaseId=" + fmt.Sprintf("%d", req.PurchaseID)
+	baseOrigin := c.baseOrigin()
+	cancelURL := baseOrigin + "/" + url.PathEscape(req.VenueSlug) + "/receipt/cancel?purchaseId=" + fmt.Sprintf("%d", req.PurchaseID)
+	receiptURL := baseOrigin + "/" + url.PathEscape(req.VenueSlug) + "/receipt?purchaseId=" + fmt.Sprintf("%d", req.PurchaseID)
 
 	// First attempt: empty-body POST. Some Tock venues don't enforce CSRF on
 	// the cancel form, in which case this succeeds without an extra GET.
-	resp, body, err := c.postCancelForm(ctx, cancelURL, receiptURL, url.Values{})
+	resp, body, redirects, err := c.postCancelForm(ctx, cancelURL, receiptURL, url.Values{})
 	if err != nil {
 		return nil, err
+	}
+	if resp.StatusCode == http.StatusNotFound && redirects == 0 {
+		if c.cancelViaUI != nil {
+			return c.cancelViaUI(ctx, req)
+		}
+		return c.chromeCancelReservation(ctx, req)
 	}
 	if resp.StatusCode == 401 || resp.StatusCode == 403 {
 		// Likely CSRF rejection. GET the receipt page, scrape any hidden
@@ -206,16 +291,22 @@ func (c *Client) Cancel(ctx context.Context, req CancelRequest) (*CancelResponse
 		if len(tokens) == 0 {
 			return nil, fmt.Errorf("tock cancel: HTTP %d (no anti-forgery tokens found on receipt page; auth may be expired — run `auth login --chrome`)", resp.StatusCode)
 		}
-		resp, body, err = c.postCancelForm(ctx, cancelURL, receiptURL, tokens)
+		resp, body, redirects, err = c.postCancelForm(ctx, cancelURL, receiptURL, tokens)
 		if err != nil {
 			return nil, err
+		}
+		if resp.StatusCode == http.StatusNotFound && redirects == 0 {
+			if c.cancelViaUI != nil {
+				return c.cancelViaUI(ctx, req)
+			}
+			return c.chromeCancelReservation(ctx, req)
 		}
 		if resp.StatusCode == 401 || resp.StatusCode == 403 {
 			return nil, fmt.Errorf("tock cancel: HTTP %d after CSRF retry; auth may be expired or token field name has drifted", resp.StatusCode)
 		}
 	}
 	if resp.StatusCode >= 400 && resp.StatusCode != 410 {
-		return nil, fmt.Errorf("tock cancel returned HTTP %d: %s", resp.StatusCode, truncate(string(body), 200))
+		return nil, fmt.Errorf("tock cancel returned HTTP %d", resp.StatusCode)
 	}
 	if resp.StatusCode == 410 {
 		return nil, fmt.Errorf("%w: HTTP 410", ErrPastCancellationWindow)
@@ -241,26 +332,40 @@ func (c *Client) Cancel(ctx context.Context, req CancelRequest) (*CancelResponse
 
 // postCancelForm POSTs form-encoded values to the cancel URL and reads the
 // full body. Returns the response (caller must NOT close — body is already
-// drained), the body bytes, and any transport error.
-func (c *Client) postCancelForm(ctx context.Context, cancelURL, referer string, fields url.Values) (*http.Response, []byte, error) {
+// drained), the body bytes, the followed-redirect count, and any transport
+// error.
+func (c *Client) postCancelForm(ctx context.Context, cancelURL, referer string, fields url.Values) (*http.Response, []byte, int, error) {
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, cancelURL, strings.NewReader(fields.Encode()))
 	if err != nil {
-		return nil, nil, fmt.Errorf("building tock cancel request: %w", err)
+		return nil, nil, 0, errors.New("tock cancel: request build error")
 	}
 	httpReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	httpReq.Header.Set("Accept", "text/html,application/xhtml+xml")
 	httpReq.Header.Set("Origin", Origin)
 	httpReq.Header.Set("Referer", referer)
-	resp, err := c.do429Aware(httpReq)
+	redirects := 0
+	httpClient := *c.http
+	previousCheckRedirect := httpClient.CheckRedirect
+	httpClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		redirects++
+		if previousCheckRedirect != nil {
+			return previousCheckRedirect(req, via)
+		}
+		if len(via) >= 10 {
+			return errors.New("stopped after 10 redirects")
+		}
+		return nil
+	}
+	resp, err := c.do429AwareWithClient(&httpClient, httpReq)
 	if err != nil {
-		return nil, nil, fmt.Errorf("calling tock cancel: %w", err)
+		return nil, nil, redirects, newCancelTransportError("transport error", err)
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, nil, fmt.Errorf("reading tock cancel response: %w", err)
+		return nil, nil, redirects, newCancelTransportError("response read error", err)
 	}
-	return resp, body, nil
+	return resp, body, redirects, nil
 }
 
 // fetchCancelCSRFTokens GETs the receipt page and scrapes hidden inputs that
@@ -269,21 +374,20 @@ func (c *Client) postCancelForm(ctx context.Context, cancelURL, referer string, 
 func (c *Client) fetchCancelCSRFTokens(ctx context.Context, receiptURL string) (url.Values, error) {
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, receiptURL, nil)
 	if err != nil {
-		return nil, fmt.Errorf("building tock receipt-page request: %w", err)
+		return nil, errors.New("tock cancel: receipt lookup request build error")
 	}
 	httpReq.Header.Set("Accept", "text/html,application/xhtml+xml")
 	resp, err := c.do429Aware(httpReq)
 	if err != nil {
-		return nil, fmt.Errorf("calling tock receipt page: %w", err)
+		return nil, newCancelTransportError("receipt lookup transport error", err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("tock receipt page returned HTTP %d: %s", resp.StatusCode, truncate(string(body), 200))
+		return nil, fmt.Errorf("tock receipt page returned HTTP %d", resp.StatusCode)
 	}
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("reading tock receipt page: %w", err)
+		return nil, newCancelTransportError("receipt lookup read error", err)
 	}
 	return extractCSRFTokens(string(body)), nil
 }

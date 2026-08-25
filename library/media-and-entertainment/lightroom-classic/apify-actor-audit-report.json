@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/lightroom-classic-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260719-202653-490adff0",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

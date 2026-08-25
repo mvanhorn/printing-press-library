@@ -3,8 +3,64 @@
 
 package cli
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestNovelDdlIterCommandTODO(t *testing.T) {
 	t.Skip("TODO: implement table-driven tests for ddl iter")
+}
+
+// Uno stralcio la cui cronologia comincia prima della presentazione porta la
+// nota che lo spiega; un ddl ordinario e uno stralcio con timeline regolare no.
+func TestAvvisoStralcioAnteriore(t *testing.T) {
+	eventi := []iterEvent{
+		{Fase: "commissione", Data: "13 gen 2026"},
+		{Fase: "presentazione", Data: "27.01.26"},
+	}
+	str := &stralcioOut{Etichetta: "Stralcio IV"}
+
+	if got := avvisoStralcioAnteriore(iterReport{Stralcio: str, Eventi: eventi}); got == "" {
+		t.Error("stralcio con evento anteriore alla presentazione: la nota deve esserci")
+	}
+	if got := avvisoStralcioAnteriore(iterReport{Eventi: eventi}); got != "" {
+		t.Errorf("senza stralcio non si dice niente: %q", got)
+	}
+	regolari := []iterEvent{
+		{Fase: "presentazione", Data: "27.01.26"},
+		{Fase: "commissione", Data: "28 gen 2026"},
+	}
+	if got := avvisoStralcioAnteriore(iterReport{Stralcio: str, Eventi: regolari}); got != "" {
+		t.Errorf("stralcio con timeline regolare: niente nota, invece %q", got)
+	}
+}
+
+// Un iter che si ferma all'approvazione non porta la legge: i due archivi
+// hanno ritardi diversi, e senza la nota «approvato ma nessuna legge» si
+// confonde con «non è ancora stata promulgata».
+func TestAvvisoApprovatoSenzaGurs(t *testing.T) {
+	approvato := []iterEvent{
+		{Data: "29 lug 2026", Titolo: "Approvato dall'Assemblea"},
+		{Data: "04 ago 2026", Titolo: "Inviato Presidenza della Regione"},
+	}
+	if got := avvisoApprovatoSenzaGurs(approvato); got == "" {
+		t.Error("approvato senza pubblicazione: la nota deve esserci")
+	} else if !strings.Contains(got, "29 lug 2026") || !strings.Contains(got, "novita --archivi leggi") {
+		t.Errorf("la nota deve datare l'approvazione e indicare dove leggere il ritardo: %q", got)
+	}
+
+	pubblicato := append(append([]iterEvent{}, approvato...),
+		iterEvent{Data: "11 ott 2024", Titolo: "Pubblicazione Gurs n. 45o del 11 ottobre"})
+	if got := avvisoApprovatoSenzaGurs(pubblicato); got != "" {
+		t.Errorf("la fonte ha registrato la Gazzetta: niente nota, invece %q", got)
+	}
+
+	inCommissione := []iterEvent{
+		{Data: "01 lug 2026", Titolo: "Presentazione"},
+		{Data: "02 lug 2026", Titolo: "Assegnato per esame Commissione TERZA"},
+	}
+	if got := avvisoApprovatoSenzaGurs(inCommissione); got != "" {
+		t.Errorf("mai arrivato in Aula: niente nota, invece %q", got)
+	}
 }

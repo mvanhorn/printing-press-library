@@ -1,0 +1,14 @@
+{
+  "id": "foodpanda-output-honesty-doc-sync",
+  "summary": "Reconcile menu-diff comments/help and README with the opt-in snapshot behaviour the code actually has.",
+  "reason": "menu_diff.go carried a comment asserting --save defaults to true and demanding mcp:local-write, contradicting the code two lines below where --save defaults to false; README claimed dish and menu-diff populate snapshots as they run, which stopped being true when snapshots became opt-in.",
+  "files": [
+    "internal/cli/menu_diff.go",
+    "README.md"
+  ],
+  "validated_outcome": "verify-skill passes; dogfood examples check 10/10.",
+  "schema_version": 2,
+  "applied_at": "2026-08-20",
+  "base_run_id": "20260808-044349-820894b7",
+  "base_printing_press_version": "4.30.1"
+}

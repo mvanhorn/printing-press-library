@@ -1,0 +1,28 @@
+# Note personali, valutazioni e materiale di lavoro da NON pubblicare.
+# NB: oggi `publish package` NON rispetta questo file (vedi issue #1381):
+# copia l'intera --dir togliendo solo build/ e binari. Questo .gitignore
+# documenta l'intento e serve se/quando il publish supporterà un allowlist.
+
+# Valutazioni / gap analysis (test personali)
+docs/gap-analysis-*/
+
+# Idee future e annotazioni di lavoro
+docs/future-ideas.md
+docs/evaluation*.md
+
+# Piani di lavoro temporanei
+tasks/
+
+# Database locale sincronizzato e scratch
+*.db
+tmp/
+bin/
+
+# Binari compilati
+/giustizia-amministrativa-pp-cli
+/giustizia-amministrativa-pp-mcp
+# `cli-printing-press verify/emboss --dir .` compila un binario che prende il
+# nome della directory, non quello della CLI: senza questa riga resta non
+# tracciato a ogni giro.
+/giustizia-amministrativa
+build/

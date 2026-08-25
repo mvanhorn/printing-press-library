@@ -1,0 +1,35 @@
+{
+  "api_name": "lever",
+  "novelty_score": 0,
+  "alternatives": null,
+  "gaps": null,
+  "patterns": null,
+  "recommendation": "",
+  "researched_at": "2026-08-07T04:43:10Z",
+  "novel_features": [
+    {
+      "name": "Generic company",
+      "command": "postings list <company>",
+      "description": "Lever public postings are per-company: any company's careers page under jobs.lever.co is addressable with the company slug as a positional argument, so the CLI works for every Lever employer without per-company configuration.",
+      "rationale": ""
+    },
+    {
+      "name": "Company-scoped offline sync",
+      "command": "sync <company>",
+      "description": "Sync a company's public postings into a local SQLite store for offline reads, filtering, and later agent workflows, scoped to the requested company.",
+      "rationale": ""
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Generic company",
+      "command": "postings list <company>",
+      "description": "Lever public postings are per-company: any company's careers page under jobs.lever.co is addressable with the company slug as a positional argument, so the CLI works for every Lever employer without per-company configuration."
+    },
+    {
+      "name": "Company-scoped offline sync",
+      "command": "sync <company>",
+      "description": "Sync a company's public postings into a local SQLite store for offline reads, filtering, and later agent workflows, scoped to the requested company."
+    }
+  ]
+}

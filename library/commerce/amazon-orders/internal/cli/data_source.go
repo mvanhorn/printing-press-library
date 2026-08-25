@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/parser"
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/store"
 )
 
@@ -91,23 +92,29 @@ func attachFreshness(prov DataProvenance, flags *rootFlags) DataProvenance {
 //     declares no per-endpoint header overrides. Without this parameter, store-backed
 //     reads on per-endpoint-versioned APIs silently get the wrong response shape
 //     (cal-com retro #334 F1).
-func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, isList bool, path string, params map[string]string, headers map[string]string) (json.RawMessage, DataProvenance, error) {
+func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, isList bool, path string, params map[string]string, headers map[string]string, localID string) (json.RawMessage, DataProvenance, error) {
 	switch flags.dataSource {
 	case "local":
-		data, prov, err := resolveLocal(ctx, resourceType, isList, path, params, "user_requested")
+		data, prov, err := resolveLocal(ctx, resourceType, isList, path, params, "user_requested", localID)
 		return data, attachFreshness(prov, flags), err
 
 	case "live":
-		data, err := c.GetWithHeaders(path, params, headers)
+		data, err := authenticatedGetWithHeaders(c, path, params, headers)
 		if err != nil {
+			return nil, DataProvenance{}, err
+		}
+		if err := parser.AuthInterstitialError(data); err != nil {
 			return nil, DataProvenance{}, err
 		}
 		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
-		data, err := c.GetWithHeaders(path, params, headers)
+		data, err := authenticatedGetWithHeaders(c, path, params, headers)
 		if err == nil {
-			writeThroughCache(ctx, resourceType, data)
+			if err := parser.AuthInterstitialError(data); err != nil {
+				return nil, DataProvenance{}, err
+			}
+			writeThroughCacheValidated(ctx, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {
@@ -115,7 +122,7 @@ func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resour
 			return nil, DataProvenance{}, err
 		}
 		// Network error — try local fallback
-		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, resourceType, isList, path, params, "api_unreachable")
+		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, resourceType, isList, path, params, "api_unreachable", localID)
 		if fallbackErr != nil {
 			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'amazon-orders-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
 		}
@@ -130,26 +137,32 @@ func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resour
 func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string) (json.RawMessage, DataProvenance, error) {
 	switch flags.dataSource {
 	case "local":
-		data, prov, err := resolveLocal(ctx, resourceType, true, path, params, "user_requested")
+		data, prov, err := resolveLocal(ctx, resourceType, true, path, params, "user_requested", "")
 		return data, attachFreshness(prov, flags), err
 
 	case "live":
-		data, err := paginatedGet(c, path, params, headers, fetchAll, cursorParam, nextCursorPath, hasMoreField)
+		data, err := authenticatedPaginatedGet(c, path, params, headers, fetchAll, cursorParam, nextCursorPath, hasMoreField)
 		if err != nil {
+			return nil, DataProvenance{}, err
+		}
+		if err := parser.AuthInterstitialError(data); err != nil {
 			return nil, DataProvenance{}, err
 		}
 		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
-		data, err := paginatedGet(c, path, params, headers, fetchAll, cursorParam, nextCursorPath, hasMoreField)
+		data, err := authenticatedPaginatedGet(c, path, params, headers, fetchAll, cursorParam, nextCursorPath, hasMoreField)
 		if err == nil {
-			writeThroughCache(ctx, resourceType, data)
+			if err := parser.AuthInterstitialError(data); err != nil {
+				return nil, DataProvenance{}, err
+			}
+			writeThroughCacheValidated(ctx, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {
 			return nil, DataProvenance{}, err
 		}
-		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, resourceType, true, path, params, "api_unreachable")
+		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, resourceType, true, path, params, "api_unreachable", "")
 		if fallbackErr != nil {
 			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'amazon-orders-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
 		}
@@ -157,10 +170,33 @@ func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlag
 	}
 }
 
+func authenticatedGet(c *client.Client, path string, params map[string]string) (json.RawMessage, error) {
+	return authenticatedGetWithHeaders(c, path, params, nil)
+}
+
+func authenticatedGetWithHeaders(c *client.Client, path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
+	noCacheClient := *c
+	noCacheClient.NoCache = true
+	return noCacheClient.GetWithHeaders(path, params, headers)
+}
+
+func authenticatedPaginatedGet(c *client.Client, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string) (json.RawMessage, error) {
+	noCacheClient := *c
+	noCacheClient.NoCache = true
+	return paginatedGet(&noCacheClient, path, params, headers, fetchAll, cursorParam, nextCursorPath, hasMoreField)
+}
+
 // writeThroughCache upserts live API results into the local SQLite store so
 // FTS search covers everything the user has looked up — not just explicit syncs.
 // Best-effort: failures are silently ignored (the live result already succeeded).
 func writeThroughCache(ctx context.Context, resourceType string, data json.RawMessage) {
+	if parser.AuthInterstitialError(data) != nil {
+		return
+	}
+	writeThroughCacheValidated(ctx, resourceType, data)
+}
+
+func writeThroughCacheValidated(ctx context.Context, resourceType string, data json.RawMessage) {
 	db, err := store.OpenWithContext(ctx, defaultDBPath("amazon-orders-pp-cli"))
 	if err != nil {
 		return
@@ -204,7 +240,7 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 // Note: local reads return ALL synced data for the resource type. Endpoint-specific
 // filters (query params, path scoping like /teams/{id}/users) are NOT applied locally.
 // The provenance metadata includes "unscoped":true when params were present but not applied.
-func resolveLocal(ctx context.Context, resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
+func resolveLocal(ctx context.Context, resourceType string, isList bool, path string, params map[string]string, reason string, localID string) (json.RawMessage, DataProvenance, error) {
 	db, err := openStoreForRead(ctx, "amazon-orders-pp-cli")
 	if err != nil {
 		return nil, DataProvenance{}, fmt.Errorf("opening local database: %w\nRun 'amazon-orders-pp-cli sync' first.", err)
@@ -229,14 +265,24 @@ func resolveLocal(ctx context.Context, resourceType string, isList bool, path st
 		// Filter out empty/invalid records (empty arrays, null, whitespace-only)
 		// that can end up in the store from pagination boundary artifacts.
 		var items []json.RawMessage
+		var authErr error
 		for _, r := range raw {
 			trimmed := strings.TrimSpace(string(r))
 			if trimmed == "" || trimmed == "null" || trimmed == "[]" || trimmed == "{}" {
 				continue
 			}
+			if err := parser.AuthInterstitialError(r); err != nil {
+				if authErr == nil {
+					authErr = err
+				}
+				continue
+			}
 			items = append(items, r)
 		}
 		if len(items) == 0 {
+			if authErr != nil {
+				return nil, DataProvenance{}, authErr
+			}
 			return nil, DataProvenance{}, fmt.Errorf("no local data for %q. Run 'amazon-orders-pp-cli sync' first", resourceType)
 		}
 		// Marshal []json.RawMessage into a single JSON array
@@ -247,9 +293,7 @@ func resolveLocal(ctx context.Context, resourceType string, isList bool, path st
 		return data, prov, nil
 	}
 
-	// Get by ID — extract the last path segment as the ID
-	parts := strings.Split(strings.TrimRight(path, "/"), "/")
-	id := parts[len(parts)-1]
+	id := localResourceID(path, localID)
 
 	item, err := db.Get(resourceType, id)
 	if err != nil {
@@ -258,7 +302,18 @@ func resolveLocal(ctx context.Context, resourceType string, isList bool, path st
 	if item == nil {
 		return nil, DataProvenance{}, fmt.Errorf("resource %q with ID %q not found in local store. Run 'amazon-orders-pp-cli sync' first", resourceType, id)
 	}
+	if err := parser.AuthInterstitialError(item); err != nil {
+		return nil, DataProvenance{}, err
+	}
 	return item, prov, nil
+}
+
+func localResourceID(path string, localID string) string {
+	if localID != "" {
+		return localID
+	}
+	parts := strings.Split(strings.TrimRight(path, "/"), "/")
+	return parts[len(parts)-1]
 }
 
 // Ensure time import is used (compilation guard).

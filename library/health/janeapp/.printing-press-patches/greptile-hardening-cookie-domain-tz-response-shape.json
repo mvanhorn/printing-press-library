@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "greptile-hardening-cookie-domain-tz-response-shape",
+  "applied_at": "2026-07-08",
+  "base_run_id": "20260707-170547",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Per-clinic session cookies must use standard cookie-domain scoping (host equals or is a subdomain of the cookie domain, registrable name only), user-entered wall-clock times must be compared in local time against Jane's absolute appointment times, and an unrecognized appointments response shape must hard-error rather than read as empty (an empty list would let conflict-check report a clinic as clear).",
+  "reason": "Jane keeps each clinic on its own subdomain with a separate session, so cookie-domain matching must reject a cookie scoped to another clinic (leahkangas.janeapp.com) or a look-alike host (janeapp.com.attacker.example) — the prior match had a reversed suffix clause. conflict-check/watch compare a naive --at against appointment times; naive inputs on BOTH sides (the candidate in parseFlexibleDate and naive appointment strings in extractTimeFromKeys) are anchored to time.Local, while offset-carrying appointment strings stay absolute, so the comparison is like-for-like and can't shift by the local offset and miss a real overlap. A non-empty appointments object with an unknown wrapper key — or a recognized key (appointments/data/results) whose value is not an array — would report zero appointments and hide bookings/conflicts, so the fetch now returns an error instead of an empty list so safety checks don't run on incomplete data. apptEndKeys widened so the 60m end fallback fires even less often.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/watch.go",
+    "internal/cli/appointments_view.go"
+  ],
+  "validated_outcome": "cookieDomainMatches accepts exact/parent/host-only cookies and rejects cross-clinic, look-alike-host, and bare-TLD domains (table test). go build/vet/test and verify-skill pass."
+}

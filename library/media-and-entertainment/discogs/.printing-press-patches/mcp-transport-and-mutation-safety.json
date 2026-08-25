@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "mcp-transport-and-mutation-safety",
+  "applied_at": "2026-07-20",
+  "base_run_id": "20260711-092456-c0435d15",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Keep the HTTP MCP transport loopback-only by default and require explicit confirmation before the generic executor invokes a mutating endpoint.",
+  "reason": "The MCP server can use the operator's Discogs token, so a public default listener or an unconfirmed generic POST, PUT, PATCH, or DELETE call could expose authenticated remote mutations beyond the CLI's safety boundary.",
+  "files": [
+    "cmd/discogs-pp-mcp/main.go",
+    "cmd/discogs-pp-mcp/main_test.go",
+    "internal/mcp/code_orch.go",
+    "internal/mcp/code_orch_safety_test.go"
+  ],
+  "validated_outcome": "HTTP defaults to 127.0.0.1:7777; discogs_execute advertises destructiveHint=true and blocks non-read endpoints unless confirm=true.",
+  "upstream_issue": ""
+}

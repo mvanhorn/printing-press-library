@@ -1,0 +1,294 @@
+
+
+
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset="UTF-8">
+<!--
+-
+-
+-
+Accessing this website with scripts or programs is stricly prohibited.
+All violating IPs will be blacklisted.
+This document is protected by the copyright law. 
+Modification, publishing and redistribution of this document are prohibited. 
+-
+-
+-
+-->
+<meta name="Description" content="cheddar cheese foods - food search results">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#f0fff0">
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<meta name='HandheldFriendly' content='true'>
+  <meta name='mobile-web-app-capable' content='yes'>
+  <meta name='apple-mobile-web-app-capable' content='yes'>
+  <link rel='apple-touch-icon' sizes='144x144' href='images/app-icon-144.png'>
+  <link rel='apple-touch-icon' sizes='192x192' href='images/app-icon-192.png'>
+  <link rel='apple-touch-icon' sizes='512x512' href='images/app-icon-512-v2.png'>
+
+<title>cheddar cheese foods</title>
+<link rel='stylesheet' href='/css/5/main.css'>
+<script>
+(function(r,s,m){if(document.documentMode!==undefined&&document.documentMode<=11){return;}window.addEventListener('error',function(e){if(e.message===s||r===null){return;};if(e.message&&e.filename.indexOf('https://www.nutritionvalue.org')===0){m=[e.message,e.filename+':'+e.lineno+':'+e.colno];}else{if(e.target.src&&e.target.src.indexOf('https://www.nutritionvalue.org')===0){m=[e.type,e.target.src,e.timeStamp,'mozilla/5.0(macintosh;intelmacosx10_15_7)applewebkit/537.36(khtml,likegecko)chrome/131.0.0.0safari/537.36'];}else{return}}r.open("GET",'/jserror.php?e='+encodeURIComponent(JSON.stringify(m)),true);r.send();r=null;},{capture:false});})(new XMLHttpRequest(), 'Script error.', null);
+  var is_cookie_policy_required = false;
+
+  var tr_consent_header = "Notice";
+  var tr_consent_text = "<p>This website uses cookies to enable important site functionality including user preferences, statistics, targeting and personalization as outlined in  <a href='\/privacypolicy.php'>privacy policy<\/a>.<\/p><p>You accept use of cookies by closing or dismissing this notice or by clicking on a link or a button on the page.<\/p>";
+  var tr_accept = "Accept";
+  var tr_customize = "Customize";
+  var tr_necessary = "Necessary";
+  var tr_preferences = "Preferences";
+  var tr_statistics = "Statistics";
+  var tr_marketing = "Marketing";
+  var tr_withdraw_cookie_consent_confirmation = "Cookie consent was withdrawn. Click OK to reload the page.";
+
+
+(adsbygoogle=window.adsbygoogle||[]).pauseAdRequests=1;
+
+function toggleTopMenu() {
+	var searchBoxTr = document.getElementById('search-box-tr');
+	searchBoxTr.style.display = 'none';
+
+  // Handle both mobile and desktop menus
+  var toolMenuMobile = document.getElementById('toolmenu-mobile');
+  var toolMenuDesktop = document.getElementById('toolmenu-desktop');
+
+  [toolMenuMobile, toolMenuDesktop].forEach(function(toolMenu) {
+    if (toolMenu) {
+      if (toolMenu.style.display) {
+        toolMenu.style.display = '';
+      } else {
+        toolMenu.style.display = 'none';
+      }
+    }
+  });
+}
+
+function toggleSearchBox() {
+  // Handle both mobile and desktop menus
+  var toolMenuMobile = document.getElementById('toolmenu-mobile');
+  var toolMenuDesktop = document.getElementById('toolmenu-desktop');
+
+  [toolMenuMobile, toolMenuDesktop].forEach(function(toolMenu) {
+    if (toolMenu) {
+      toolMenu.style.display = 'none';
+    }
+  });
+
+	var searchBoxTr = document.getElementById('search-box-tr');
+	if (searchBoxTr.style.display == 'none') {
+		searchBoxTr.style.display = '';
+		var searchBox = document.getElementById('search-box');
+		searchBox.focus();
+	} else {
+		searchBoxTr.style.display = 'none';
+	}
+}
+
+var max_foods_to_compare = 15;
+var lang = 'en';
+var is_logged_in = 0;
+var is_contributor = 0;
+var is_mobile = 0;
+var ga_enabled = 1;
+var ad_msgs = ['Did you find this website helpful?<br><br>Please help to cover our hosting expenses by disabling ad block on this domain or by <a href="/contribute.php?tag=b">contributing directly</a>'];
+var tr_disable_adblock = '';
+
+var meal_titles = [];
+var nutrient_altnames = {"Vitamin B12":"Cobalamin","Vitamin C":"Ascorbic acid","Folate, DFE":"Vitamin B9","Niacin":"Vitamin B3","Pantothenic acid":"Vitamin B5","Riboflavin":"Vitamin B2","Thiamin":"Vitamin B1","Biotin":"Vitamin B7","Curcumin":"Turmeric","Vitamin K1":"Phylloquinone","Vitamin K2":"Menaquinone","Barcode":"UPC or EAN"};
+var tooltip_data = [];
+var avatars = ["&#128100;","&#128131;","&#128105;","&#128104;","&#129491;","&#128117;","&#128120;","&#129332;","&#128021;","&#128054;","&#128008;","&#128049;","&#128051;","&#128060;","&#128046;","&#128044;","&#127813;","&#127818;","&#127821;","&#127822;"];
+var js_ver = 293;
+</script><script src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js' async></script>
+
+<script src='/js/293/common.js' defer></script>
+
+</head>
+<body>
+<noscript>
+  <div class='top-warning'>Please enable JavaScript in order to use this website.</div>
+</noscript>
+
+<table class='top_table center' id='main'>
+<tr class='noprint mobile-menu-row'><td class=center>
+<div class='wide menu'>
+  <a onclick='toggleTopMenu(); return false;' href='/?menu'>&#9776;</a>
+	<a href='/diary.php'>Food tracker</a>
+	<a onclick='toggleSearchBox();return false;' href='/'>&#x1F50D; Search</a>
+	<a href='/login.php?next_url=%2Fsearch.php%3Ffood_query%3Dcheddar%2Bcheese'>Log in</a>
+</div>
+<div style='display: none;' id='toolmenu-mobile'>
+	<div class='wide menu'>
+	  <a href='/'>Home</a>
+	</div>
+	<div class='wide menu'>
+		<a href='/favorites.php'>Favorites</a>
+	</div>
+	<div class='wide menu'>
+		<a href='/nutritioncalculator.php'>Nutrition calculator<span class='ingredientCount'></span></a>
+	</div>
+	<div class='wide menu'>
+	    <a href='/comparefoods.php'>Compare foods<span class='compareCount'></span></a>
+	</div>
+	<div class='wide menu'>
+	  <a href='/yourcomparisons.php'>Your comparisons</a>
+	</div>
+	<div class='wide menu'>
+	  	<a href='/trends.php'>Trends</a>
+	</div>
+	<div class='wide menu'>
+	  	<a href='/reports.php'>Reports</a>
+	</div>
+  <div class='wide menu'>
+  	<a href='/friends.php'>Friends</a>
+  </div>
+	<div class='wide menu'>
+	    <a href='/bodymassindexcalculator.php'>BMI calculator</a>
+	</div>
+	<div class='wide menu'>
+	  	<a href='/yourrecipes.php'>Your recipes</a>
+	</div>
+	<div class='wide menu'>
+	  	<a href='/custom_ingredients.php'>Custom foods</a>
+	</div>
+	<div class='wide menu'>
+	  	<a href='/contribute.php'>Contribute</a>
+	</div>
+	<div class='wide menu'>
+	  	<a href='/profile.php'>Profile</a>
+	</div>
+	<div class='wide menu'>
+	  	<a href='/contact.php'>Contact us</a>
+	</div>
+	<div class='wide menu install-prompt' style='display: none'>
+	  	<a href='javascript:void(0);'>Install app</a>
+	</div>
+</div>
+</td></tr>
+
+<tr class='noprint desktop-menu-row'><td class='left'>
+<div class='wide menu menu-row-1'>
+<a onclick='toggleTopMenu(); return false;' href='/?menu'>Menu</a><a onclick='toggleSearchBox();return false;' href='/'>&#x1F50D; Search</a><a class='menu-item-home' href='/'>Home</a><a href='/nutritioncalculator.php'>Nutrition calculator<span class='ingredientCount'></span></a><a class='menu-item-compare' href='/comparefoods.php'>Compare<span class='compareCount'></span></a><a class='menu-item-favorites' href='/favorites.php'>Favorites</a><a class='menu-item-recipes' href='/yourrecipes.php'>Recipes</a><a href='/diary.php'>Food tracker</a><a href='/login.php?next_url=%2Fsearch.php%3Ffood_query%3Dcheddar%2Bcheese'>Log in</a>
+</div>
+<div style='display: none;' id='toolmenu-desktop'>
+	<div class='wide menu-flex'>
+<a class='dropdown-home' href='/'>Home</a><a class='dropdown-compare' href='/comparefoods.php'>Compare<span class='compareCount'></span></a><a class='dropdown-favorites' href='/favorites.php'>Favorites</a><a class='dropdown-recipes' href='/yourrecipes.php'>Recipes</a><a href='/friends.php'>Friends</a><a href='/yourcomparisons.php'>Comparisons</a><a href='/profile.php'>Profile</a><a href='/bodymassindexcalculator.php'>BMI calculator</a><a href='/custom_ingredients.php'>Custom foods</a><a href='/trends.php'>Trends</a><a href='/reports.php'>Reports</a><a href='/contribute.php'>Contribute</a><a href='/contact.php'>Contact us</a><a href='javascript:void(0);' class='install-prompt' style='display: none'>Install app</a>
+	</div>
+</div>
+</td></tr>
+<tr id='search-box-tr' style='display: none'><td>
+<form action='search.php' onsubmit="setSortMode('match', 'ascending');">
+  <input id='search-box' type='search' name='food_query'  value=''
+	  	class='full_width' placeholder='Search foods and recipes' autocomplete='off'>
+  <input type='button' value='Scan barcode' class='scanner' onclick='scanBarcode("search-box")'>
+</form>
+</td></tr><tr class='printonly'><td>Printed from https://www.nutritionvalue.org</td></tr><tr><td>&nbsp;</td></tr><tr><td>
+<form name='byname' action='search.php' onsubmit="setSortMode('match', 'ascending');">
+<label><b>Find Nutritional Value of a Product</b><br>
+<input id='food_query' type='search' name='food_query' size='60' maxlength='80' value='cheddar cheese'
+		class='full_width' placeholder='Search among 500,000 foods and recipes' autocomplete='off'></label>
+<input type='submit' value='Search'>
+</form>
+</td></tr><tr><td><div class='noprint ad perm_ad'>
+<!-- Nutrition value -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-7891406799955373"
+     data-ad-slot="3336797990"
+     data-ad-format="auto" ></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<script>
+ var top_banner_shown = 42;
+</script>
+</div></td></tr><tr><td><table class='full_width results zero'><tr><th>Food Name</th> <th class='center'>Add to</th></tr><tr><td class='left'><a href='/Cheese%2C_cheddar_nutritional_value.html' title='Cheese, cheddar'  class='table_item_name'>Cheese, cheddar</a></td> <td class='center addto'><a rel='nofollow' class='addtomeal' href='/nutritioncalculator.php?action=add&amp;ids=173414'>Recipe</a> | <a rel='nofollow' class='addtodiary' href='javascript:addToDiary("173414", "Cheese, cheddar", false, "1.0 cup, diced = 132.0 g;1.0 cup, melted = 244.0 g;1.0 cup, shredded = 113.0 g;1.0 oz = 28.35 g;1.0 cubic inch = 17.0 g;1.0 slice (1 oz) = 28.0 g;1 g;1 ounce = 28.3495 g;1 pound = 453.592 g;1 kg = 1000 g");void(0);'>Diary</a> | <a rel='nofollow' class='addtofav' href='/favorites.php?add&amp;id=173414&amp;name=Cheese%2C%20cheddar&amp;serving_size=100%20g'>Favorites</a> | <a rel='nofollow' class='addtocmp' href='/comparefoods.php?action=add&amp;id=173414&amp;unit=100%20g'>Compare</a></td></tr>
+<tr><td class='left'><a href='/Cheese%2C_cheddar_nutritional_value.html' title='Cheese, cheddar'  class='table_item_name'>Cheese, cheddar</a></td> <td class='center addto'><a rel='nofollow' class='addtomeal' href='/nutritioncalculator.php?action=add&amp;ids=328637'>Recipe</a> | <a rel='nofollow' class='addtodiary' href='javascript:addToDiary("328637", "Cheese, cheddar", false, "1.0 slice = 17.0 g;1.0 cup = 105.0 g;1 g;1 ounce = 28.3495 g;1 pound = 453.592 g;1 kg = 1000 g");void(0);'>Diary</a> | <a rel='nofollow' class='addtofav' href='/favorites.php?add&amp;id=328637&amp;name=Cheese%2C%20cheddar&amp;serving_size=100%20g'>Favorites</a> | <a rel='nofollow' class='addtocmp' href='/comparefoods.php?action=add&amp;id=328637&amp;unit=100%20g'>Compare</a></td></tr>
+<tr><td class='left'><a href='/Cheese%2C_Cheddar_nutritional_value.html' title='Cheese, Cheddar'  class='table_item_name'>Cheese, Cheddar</a></td> <td class='center addto'><a rel='nofollow' class='addtomeal' href='/nutritioncalculator.php?action=add&amp;ids=14104100'>Recipe</a> | <a rel='nofollow' class='addtodiary' href='javascript:addToDiary("14104100", "Cheese, Cheddar", false, "1 cracker-size slice = 9.0 g;1 slice = 21.0 g;1 stick = 28.35 g;1 cup, shredded = 113.0 g;1 cup, diced = 132.0 g;1 cup, melted = 244.0 g;1 cup, NFS = 113.0 g;1 cup, cubed = 132.0 g;1 cubic inch = 17.0 g;1 g;1 ounce = 28.3495 g;1 pound = 453.592 g;1 kg = 1000 g");void(0);'>Diary</a> | <a rel='nofollow' class='addtofav' href='/favorites.php?add&amp;id=14104100&amp;name=Cheese%2C%20Cheddar&amp;serving_size=100%20g'>Favorites</a> | <a rel='nofollow' class='addtocmp' href='/comparefoods.php?action=add&amp;id=14104100&amp;unit=100%20g'>Compare</a></td></tr>
+<tr><td class='left'><a href='/Cheddar_cheese_curds_nutritional_value.html' title='Cheddar cheese curds'  class='table_item_name'>Cheddar cheese curds</a></td> <td class='center addto'><a rel='nofollow' class='addtomeal' href='/nutritioncalculator.php?action=add&amp;ids=571986'>Recipe</a> | <a rel='nofollow' class='addtodiary' href='javascript:addToDiary("571986", "Cheddar cheese curds", false, "1 onz = 28.0 g;1 g;1 ounce = 28.3495 g;1 pound = 453.592 g;1 kg = 1000 g");void(0);'>Diary</a> | <a rel='nofollow' class='addtofav' href='/favorites.php?add&amp;id=571986&amp;name=Cheddar%20cheese%20curds&amp;serving_size=100%20g'>Favorites</a> | <a rel='nofollow' class='addtocmp' href='/comparefoods.php?action=add&amp;id=571986&amp;unit=100%20g'>Compare</a></td></tr>
+<tr><td class='left'><a href='/Cheddar_cheese_slices_nutritional_value.html' title='Cheddar cheese slices'  class='table_item_name'>Cheddar cheese slices</a></td> <td class='center addto'><a rel='nofollow' class='addtomeal' href='/nutritioncalculator.php?action=add&amp;ids=563576'>Recipe</a> | <a rel='nofollow' class='addtodiary' href='javascript:addToDiary("563576", "Cheddar cheese slices", false, "1 slice = 18.9 g;1 g;1 ounce = 28.3495 g;1 pound = 453.592 g;1 kg = 1000 g");void(0);'>Diary</a> | <a rel='nofollow' class='addtofav' href='/favorites.php?add&amp;id=563576&amp;name=Cheddar%20cheese%20slices&amp;serving_size=100%20g'>Favorites</a> | <a rel='nofollow' class='addtocmp' href='/comparefoods.php?action=add&amp;id=563576&amp;unit=100%20g'>Compare</a></td></tr>
+<tr><td class='left'><a href='/public_ingredient_77515.html' target='_blank'>[Shared food] Medium Cheddar Cheese</a></td> <td class='center addto'><a rel='nofollow' class='addtomeal' href='/nutritioncalculator.php?action=add&amp;ids=s77515'>Recipe</a> | <a rel='nofollow' class='addtodiary' href='javascript:addToDiary("s77515", "Medium Cheddar Cheese", false, false);void(0);'>Diary</a> | <a rel='nofollow' class='addtofav' href='/favorites.php?add&amp;id=s77515&amp;name=Medium%20Cheddar%20Cheese&amp;serving_size=100%20g'>Favorites</a> | <a rel='nofollow' class='addtocmp' href='/comparefoods.php?action=add&amp;id=s77515&amp;unit=100%20g'>Compare</a></td></tr>
+<tr><td class='left'><a href='/Cheddar_cheese_by_Raley%27s_nutritional_value.html' title='Cheddar cheese by Raley&#039;s'  class='table_item_name'>Cheddar cheese by Raley&#039;s</a></td> <td class='center addto'><a rel='nofollow' class='addtomeal' href='/nutritioncalculator.php?action=add&amp;ids=1564929'>Recipe</a> | <a rel='nofollow' class='addtodiary' href='javascript:addToDiary("1564929", "Cheddar cheese by Raley\u0027s", false, "1 onz = 28.0 g;1 g;1 ounce = 28.3495 g;1 pound = 453.592 g;1 kg = 1000 g");void(0);'>Diary</a> | <a rel='nofollow' class='addtofav' href='/favorites.php?add&amp;id=1564929&amp;name=Cheddar%20cheese%20by%20Raley%27s&amp;serving_size=100%20g'>Favorites</a> | <a rel='nofollow' class='addtocmp' href='/comparefoods.php?action=add&amp;id=1564929&amp;unit=100%20g'>Compare</a></td></tr>
+<tr><td class='left'><a href='/public_ingredient_12358.html' target='_blank'>[Shared food] Spice Barn Cheddar Cheese</a></td> <td class='center addto'><a rel='nofollow' class='addtomeal' href='/nutritioncalculator.php?action=add&amp;ids=s12358'>Recipe</a> | <a rel='nofollow' class='addtodiary' href='javascript:addToDiary("s12358", "Spice Barn Cheddar Cheese", false, false);void(0);'>Diary</a> | <a rel='nofollow' class='addtofav' href='/favorites.php?add&amp;id=s12358&amp;name=Spice%20Barn%20Cheddar%20Cheese&amp;serving_size=100%20g'>Favorites</a> | <a rel='nofollow' class='addtocmp' href='/comparefoods.php?action=add&amp;id=s12358&amp;unit=100%20g'>Compare</a></td></tr>
+<tr><td class='left'><a href='/public_ingredient_16174.html' target='_blank'>[Shared food] old cheddar cheese no name</a></td> <td class='center addto'><a rel='nofollow' class='addtomeal' href='/nutritioncalculator.php?action=add&amp;ids=s16174'>Recipe</a> | <a rel='nofollow' class='addtodiary' href='javascript:addToDiary("s16174", "old cheddar cheese no name", false, false);void(0);'>Diary</a> | <a rel='nofollow' class='addtofav' href='/favorites.php?add&amp;id=s16174&amp;name=old%20cheddar%20cheese%20no%20name&amp;serving_size=100%20g'>Favorites</a> | <a rel='nofollow' class='addtocmp' href='/comparefoods.php?action=add&amp;id=s16174&amp;unit=100%20g'>Compare</a></td></tr>
+<tr><td class='left'><a href='/Cheese%2C_reduced_fat%2C_cheddar_nutritional_value.html' title='Cheese, reduced fat, cheddar'  class='table_item_name'>Cheese, reduced fat, cheddar</a></td> <td class='center addto'><a rel='nofollow' class='addtomeal' href='/nutritioncalculator.php?action=add&amp;ids=171292'>Recipe</a> | <a rel='nofollow' class='addtodiary' href='javascript:addToDiary("171292", "Cheese, reduced fat, cheddar", false, "1.0 slice = 21.0 g;1 g;1 ounce = 28.3495 g;1 pound = 453.592 g;1 kg = 1000 g");void(0);'>Diary</a> | <a rel='nofollow' class='addtofav' href='/favorites.php?add&amp;id=171292&amp;name=Cheese%2C%20reduced%20fat%2C%20cheddar&amp;serving_size=100%20g'>Favorites</a> | <a rel='nofollow' class='addtocmp' href='/comparefoods.php?action=add&amp;id=171292&amp;unit=100%20g'>Compare</a></td></tr>
+<tr><td class='left'><a href='/Cheese%2C_Cheddar%2C_reduced_fat_nutritional_value.html' title='Cheese, Cheddar, reduced fat'  class='table_item_name'>Cheese, Cheddar, reduced fat</a></td> <td class='center addto'><a rel='nofollow' class='addtomeal' href='/nutritioncalculator.php?action=add&amp;ids=14104110'>Recipe</a> | <a rel='nofollow' class='addtodiary' href='javascript:addToDiary("14104110", "Cheese, Cheddar, reduced fat", false, "1 cracker-size slice = 9.0 g;1 slice = 21.0 g;1 stick = 28.35 g;1 cup, shredded = 113.0 g;1 cup, diced = 132.0 g;1 cup, melted = 244.0 g;1 cup, NFS = 113.0 g;1 cup, cubed = 132.0 g;1 cubic inch = 17.0 g;1 g;1 ounce = 28.3495 g;1 pound = 453.592 g;1 kg = 1000 g");void(0);'>Diary</a> | <a rel='nofollow' class='addtofav' href='/favorites.php?add&amp;id=14104110&amp;name=Cheese%2C%20Cheddar%2C%20reduced%20fat&amp;serving_size=100%20g'>Favorites</a> | <a rel='nofollow' class='addtocmp' href='/comparefoods.php?action=add&amp;id=14104110&amp;unit=100%20g'>Compare</a></td></tr>
+<tr><td class='left'><a href='/public_ingredient_20617.html' target='_blank'>[Shared food] Clancy's Cheddar Cheese Melt</a></td> <td class='center addto'><a rel='nofollow' class='addtomeal' href='/nutritioncalculator.php?action=add&amp;ids=s20617'>Recipe</a> | <a rel='nofollow' class='addtodiary' href='javascript:addToDiary("s20617", "Clancy\u0027s Cheddar Cheese Melt", false, false);void(0);'>Diary</a> | <a rel='nofollow' class='addtofav' href='/favorites.php?add&amp;id=s20617&amp;name=Clancy%27s%20Cheddar%20Cheese%20Melt&amp;serving_size=100%20g'>Favorites</a> | <a rel='nofollow' class='addtocmp' href='/comparefoods.php?action=add&amp;id=s20617&amp;unit=100%20g'>Compare</a></td></tr>
+<tr><td class='left'><a href='/public_ingredient_76831.html' target='_blank'>[Shared food] balderson old cheddar cheese</a></td> <td class='center addto'><a rel='nofollow' class='addtomeal' href='/nutritioncalculator.php?action=add&amp;ids=s76831'>Recipe</a> | <a rel='nofollow' class='addtodiary' href='javascript:addToDiary("s76831", "balderson old cheddar cheese", false, false);void(0);'>Diary</a> | <a rel='nofollow' class='addtofav' href='/favorites.php?add&amp;id=s76831&amp;name=balderson%20old%20cheddar%20cheese&amp;serving_size=100%20g'>Favorites</a> | <a rel='nofollow' class='addtocmp' href='/comparefoods.php?action=add&amp;id=s76831&amp;unit=100%20g'>Compare</a></td></tr>
+<tr><td class='left'><a href='/public_ingredient_28088.html' target='_blank'>[Shared food] Cheese - Kroger Sharp Cheddar</a></td> <td class='center addto'><a rel='nofollow' class='addtomeal' href='/nutritioncalculator.php?action=add&amp;ids=s28088'>Recipe</a> | <a rel='nofollow' class='addtodiary' href='javascript:addToDiary("s28088", "Cheese - Kroger Sharp Cheddar", false, false);void(0);'>Diary</a> | <a rel='nofollow' class='addtofav' href='/favorites.php?add&amp;id=s28088&amp;name=Cheese%20-%20Kroger%20Sharp%20Cheddar&amp;serving_size=100%20g'>Favorites</a> | <a rel='nofollow' class='addtocmp' href='/comparefoods.php?action=add&amp;id=s28088&amp;unit=100%20g'>Compare</a></td></tr>
+<tr><td class='left'><a href='/Cheese%2C_sliced%2C_sharp%2C_cheddar_nutritional_value.html' title='Cheese, sliced, sharp, cheddar'  class='table_item_name'>Cheese, sliced, sharp, cheddar</a></td> <td class='center addto'><a rel='nofollow' class='addtomeal' href='/nutritioncalculator.php?action=add&amp;ids=170899'>Recipe</a> | <a rel='nofollow' class='addtodiary' href='javascript:addToDiary("170899", "Cheese, sliced, sharp, cheddar", false, "1.0 slice (2\/3 oz) = 19.0 g;1.0 slice (3\/4 oz) = 21.0 g;1.0 slice (1 oz) = 28.0 g;1 g;1 ounce = 28.3495 g;1 pound = 453.592 g;1 kg = 1000 g");void(0);'>Diary</a> | <a rel='nofollow' class='addtofav' href='/favorites.php?add&amp;id=170899&amp;name=Cheese%2C%20sliced%2C%20sharp%2C%20cheddar&amp;serving_size=100%20g'>Favorites</a> | <a rel='nofollow' class='addtocmp' href='/comparefoods.php?action=add&amp;id=170899&amp;unit=100%20g'>Compare</a></td></tr>
+<tr><td class='left'><a href='/public_ingredient_40934.html' target='_blank'>[Shared food] Aldi White Cheddar Cheese Leth</a></td> <td class='center addto'><a rel='nofollow' class='addtomeal' href='/nutritioncalculator.php?action=add&amp;ids=s40934'>Recipe</a> | <a rel='nofollow' class='addtodiary' href='javascript:addToDiary("s40934", "Aldi White Cheddar Cheese Leth", false, false);void(0);'>Diary</a> | <a rel='nofollow' class='addtofav' href='/favorites.php?add&amp;id=s40934&amp;name=Aldi%20White%20Cheddar%20Cheese%20Leth&amp;serving_size=100%20g'>Favorites</a> | <a rel='nofollow' class='addtocmp' href='/comparefoods.php?action=add&amp;id=s40934&amp;unit=100%20g'>Compare</a></td></tr>
+<tr><td class='left'><a href='/public_ingredient_58778.html' target='_blank'>[Shared food] Campbell's Cheddar Cheese Soup</a></td> <td class='center addto'><a rel='nofollow' class='addtomeal' href='/nutritioncalculator.php?action=add&amp;ids=s58778'>Recipe</a> | <a rel='nofollow' class='addtodiary' href='javascript:addToDiary("s58778", "Campbell\u0027s Cheddar Cheese Soup", false, false);void(0);'>Diary</a> | <a rel='nofollow' class='addtofav' href='/favorites.php?add&amp;id=s58778&amp;name=Campbell%27s%20Cheddar%20Cheese%20Soup&amp;serving_size=100%20g'>Favorites</a> | <a rel='nofollow' class='addtocmp' href='/comparefoods.php?action=add&amp;id=s58778&amp;unit=100%20g'>Compare</a></td></tr>
+<tr><td class='left'><a href='/Cheese%2C_Cheddar%2C_reduced_sodium_nutritional_value.html' title='Cheese, Cheddar, reduced sodium'  class='table_item_name'>Cheese, Cheddar, reduced sodium</a></td> <td class='center addto'><a rel='nofollow' class='addtomeal' href='/nutritioncalculator.php?action=add&amp;ids=14110010'>Recipe</a> | <a rel='nofollow' class='addtodiary' href='javascript:addToDiary("14110010", "Cheese, Cheddar, reduced sodium", false, "1 cracker-size slice = 9.0 g;1 slice = 21.0 g;1 cup, shredded = 113.0 g;1 cup, diced = 132.0 g;1 cup, NFS = 113.0 g;1 cup, melted = 244.0 g;1 cubic inch = 17.3 g;1 g;1 ounce = 28.3495 g;1 pound = 453.592 g;1 kg = 1000 g");void(0);'>Diary</a> | <a rel='nofollow' class='addtofav' href='/favorites.php?add&amp;id=14110010&amp;name=Cheese%2C%20Cheddar%2C%20reduced%20sodium&amp;serving_size=100%20g'>Favorites</a> | <a rel='nofollow' class='addtocmp' href='/comparefoods.php?action=add&amp;id=14110010&amp;unit=100%20g'>Compare</a></td></tr>
+<tr><td class='left'><a href='/public_ingredient_31133.html' target='_blank'>[Shared food] Anthony's Cheddar Cheese Powder</a></td> <td class='center addto'><a rel='nofollow' class='addtomeal' href='/nutritioncalculator.php?action=add&amp;ids=s31133'>Recipe</a> | <a rel='nofollow' class='addtodiary' href='javascript:addToDiary("s31133", "Anthony\u0027s Cheddar Cheese Powder", false, false);void(0);'>Diary</a> | <a rel='nofollow' class='addtofav' href='/favorites.php?add&amp;id=s31133&amp;name=Anthony%27s%20Cheddar%20Cheese%20Powder&amp;serving_size=100%20g'>Favorites</a> | <a rel='nofollow' class='addtocmp' href='/comparefoods.php?action=add&amp;id=s31133&amp;unit=100%20g'>Compare</a></td></tr>
+<tr><td class='left'><a href='/public_ingredient_44037.html' target='_blank'>[Shared food] Cheese, sharp cheddar, Tillamook</a></td> <td class='center addto'><a rel='nofollow' class='addtomeal' href='/nutritioncalculator.php?action=add&amp;ids=s44037'>Recipe</a> | <a rel='nofollow' class='addtodiary' href='javascript:addToDiary("s44037", "Cheese, sharp cheddar, Tillamook", false, false);void(0);'>Diary</a> | <a rel='nofollow' class='addtofav' href='/favorites.php?add&amp;id=s44037&amp;name=Cheese%2C%20sharp%20cheddar%2C%20Tillamook&amp;serving_size=100%20g'>Favorites</a> | <a rel='nofollow' class='addtocmp' href='/comparefoods.php?action=add&amp;id=s44037&amp;unit=100%20g'>Compare</a></td></tr>
+<tr><th class='left nowrap'><a href='/search.php?food_query=cheddar+cheese&page=1' title='Page 1' class='nav-current'>1</a> <a href='/search.php?food_query=cheddar+cheese&page=2' title='Page 2' class='nav'>Next</a> </th><th class='right nowrap' > <a class='rpp' href='javascript:setNResults(10);void(0);' rel='nofollow' title='10 results per page'>10</a> <a class='rpp-current' href='javascript:setNResults(20);void(0);' rel='nofollow' title='20 results per page'>20</a> <a class='rpp' href='javascript:setNResults(40);void(0);' rel='nofollow' title='40 results per page'>40</a></th></tr></table><div></div></td></tr><tr><td><div class='noprint ad perm_ad'>
+<!-- Nutrition value -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-7891406799955373"
+     data-ad-slot="3336797990"
+     data-ad-format="auto" ></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<script>
+ var top_banner_shown = 42;
+</script>
+</div></td></tr>
+<tr class='noprint'><td class='center'>
+  <div class='sharing'></div>
+</td></tr>
+
+<tr class='noprint'><td class='center'>
+Please <a href='/contact.php?tag=better'>let us know</a> if you have 
+any suggestions on how to make this website better.
+</td></tr>
+<tr><td style='font-size: small; text-align: justify;'>
+cheddar cheese foods.
+Daily values are based on a 2000 calorie a day diet.
+Recommended daily intake of essential amino acids is provided for 180 lbs person. 
+Actual daily nutrient requirements might be different based on your age, gender, level of physical activity, medical history and other factors. 
+All data displayed on this site is for general informational purposes only and should not be considered a substitute of a doctor's advice.
+Please consult with your doctor before making any changes to your diet.
+Nutrition labels presented on this site is for illustration purposes only.
+Food images may show a similar or a related product and are not meant to be used for food identification.
+Nutritional value of a cooked product is provided for the given weight of cooked food. 
+This page may contain affiliate links to products through which we earn commission used to support this website development and operations.
+Data from USDA National Nutrient Database.<br>
+</td></tr>
+
+<tr><td>
+<a href='/contribute.php'> Contribute to this site</a> | <a href='/contact.php'>Contact webmaster</a>
+</td></tr>
+
+<tr><td>
+<a href='/'>NutritionValue.Org</a> - Nutrition facts exposed
+</td></tr>
+
+
+<tr><td style='color: gray'>
+<a href='/termsandconditions.php' class='footer'>Terms and Conditions</a> | <a class='footer' href='/privacypolicy.php'>Privacy Policy</a> | <a href='javascript:doNotSellMyInfoToggle();' class='footer'>Do Not Sell My Personal Information</a><script>
+	var tr_already_opted_out = "You already opted out from selling your personal information";
+	var tr_would_you_like_to_opt_out = "Would you like to opt out from selling your personal informaion for the purpose of ads personalization?";
+</script>
+</td></tr>
+<tr><td class='center' style='color:gray;'>Copyright 2026 NutritionValue.org All rights reserved<br>
+</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td>&nbsp;</td></tr>
+</table>
+<br><br><br>
+<script>
+(function() {
+  var els = document.getElementsByClassName('scanner');
+  var display_value = (navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function') ? 'inline-block' : '';
+  for (var i = 0; i < els.length; i++) {
+    els[i].style.display = display_value;
+  }
+})();
+</script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a14f904c3df98695',t:'MTc4MzAxNTM2OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

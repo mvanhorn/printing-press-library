@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "forkable-pp-mcp",
+  "display_name": "Forkable",
+  "version": "0.1.0",
+  "description": "A CLI and MCP server for your Forkable office-lunch program, with a local database and history, spend, and preference queries the web app cannot answer, plus commands to set, confirm, and skip meal orders (dry-run by default; --confirm to apply).",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/forkable-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/forkable-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

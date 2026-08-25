@@ -1,0 +1,42 @@
+{
+  "api_name": "ashby",
+  "base_url": "https://api.ashbyhq.com",
+  "description": "Unauthenticated, read-only access to currently published postings on a named Ashby job board.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "posting-api_list-job-postings",
+      "description": "Returns currently published postings. Consumers displaying a normal board listing must exclude jobs where isListed is false. Required: jobBoardName. Optional: includeCompensation (default: false).",
+      "method": "GET",
+      "path": "/posting-api/job-board/{jobBoardName}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "jobBoardName",
+          "type": "string",
+          "location": "path",
+          "description": "Final path segment of jobs.ashbyhq.com/{jobBoardName}.",
+          "required": true
+        },
+        {
+          "name": "includeCompensation",
+          "type": "bool",
+          "location": "query",
+          "description": "Include public compensation information when available."
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Visibility-safe structured job discovery",
+      "command": "postings list",
+      "description": "Lists only publicly listed Ashby jobs and supports structured filtering across department, team, location, workplace type, employment type, publication date, currency, and compensation range."
+    }
+  ]
+}

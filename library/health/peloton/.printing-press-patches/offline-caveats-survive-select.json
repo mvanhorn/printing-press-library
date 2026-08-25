@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "offline-caveats-survive-select",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "printOffline (internal/cli/offline.go) treats a top-level \"caveats\" key on the value it's printing as response metadata, not selectable content: it's captured before --select/--compact filtering runs and re-attached to the filtered result unconditionally afterward, the same way the envelope's \"meta\" field already bypasses filtering entirely. Any future offline command that returns caveats must keep going through printOffline (directly or via printOfflineWithCaveats) rather than hand-rolling its own filter+print sequence, or this guarantee silently stops applying to it.",
+  "reason": "A round-8 live verification report found --select silently dropped the caveats array along with every other unrequested field, even though caveats explains WHY a requested field came back empty (e.g. \"workout is not class-based\"). A caller who projects down to just the field they want loses the one piece of context that would keep them from misreading an empty result as a sync gap rather than an expected absence.",
+  "files": [
+    "internal/cli/offline.go",
+    "internal/cli/offline_test.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. TestOfflineIDCmdKeepsFieldsAtTopLevelRegardlessOfCaveat now also asserts caveats survives `offline performance w2 --select samples`. Live-verified against the real account: `offline workout <id> --select detail` on a workout lacking a history record returns both \"detail\" and \"caveats\" at the top level, matching the unprojected call's caveat text exactly."
+}

@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.6.1"
+var version = "2026.8.7"
 
 type rootFlags struct {
 	asJSON        bool
@@ -27,6 +27,7 @@ type rootFlags struct {
 	quiet         bool
 	dryRun        bool
 	noCache       bool
+	envelope      bool
 	noInput       bool
 	yes           bool
 	agent         bool
@@ -149,7 +150,7 @@ Highlights (not in the official API docs):
   • commissione dossier   Vista completa su una commissione: convocazioni in calendario, sommari lavori, DDL assegnati e pareri richiesti al Governo regionale.
   • ddl drift   Confronta lo stato dell'iter dei DDL nella sync corrente con la precedente e segnala i disegni di legge che si sono mossi nel periodo (passati da commissione ad aula, approvati, ritirati).
   • sync stale   Mostra per ognuno dei 12 archivi ARS: timestamp ultima sync, n. record locali, età della sync, eventuale segnalazione di staleness.
-  • legge cronologia   Partendo da una legge regionale promulgata (archivio 201), risale al DDL originario, agli emendamenti citati nei resoconti d'aula e ai pareri di commissione: l'inverso temporale di ddl iter.
+  • legge cronologia   Partendo da una legge regionale promulgata (archivio 201), risale al DDL originario, ai pareri di commissione e al voto d'aula: l'inverso temporale di ddl iter.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'ars-sicilia-pp-cli doctor' to verify auth and connectivity.
@@ -168,6 +169,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 60*time.Second, "Request timeout")
 	rootCmd.PersistentFlags().BoolVar(&flags.dryRun, "dry-run", false, "Show request without sending")
 	rootCmd.PersistentFlags().BoolVar(&flags.noCache, "no-cache", false, "Bypass response cache")
+	rootCmd.PersistentFlags().BoolVar(&flags.envelope, "envelope", false, "Sulle ricerche, avvolge i risultati in {risultati, troncato, hint}: il troncamento arriva a chi legge il JSON, non solo su stderr")
 	rootCmd.PersistentFlags().BoolVar(&flags.noInput, "no-input", false, "Disable all interactive prompts (for CI/agents)")
 	rootCmd.PersistentFlags().StringVar(&flags.selectFields, "select", "", "Comma-separated fields to include in output (e.g. --select id,name,status)")
 	rootCmd.PersistentFlags().BoolVar(&flags.yes, "yes", false, "Skip confirmation prompts (for agents and scripts)")
@@ -256,7 +258,9 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newNovelAnalyticsCmd(flags))
 	rootCmd.AddCommand(newNovelCommissioneCmd(flags))
 	rootCmd.AddCommand(newNovelDeputatoCmd(flags))
+	rootCmd.AddCommand(newNovelGruppiCmd(flags))
 	rootCmd.AddCommand(newNovelLeggeCmd(flags))
+	rootCmd.AddCommand(newNovelNovitaCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
 	return rootCmd

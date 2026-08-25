@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "deferred_to_upstream": [
+    {
+      "feature": "Promoted list endpoints that also declare pagination should keep response_path, so `postings` returns jobs at a predictable top level instead of nested under results.jobs.",
+      "reason": "Because response_path is dropped, `postings --json` emits {meta, results:{jobs:[...]}} while every sibling command in this CLI returns its rows at the top level. Callers reasonably reach for .jobs[0], get null for every field, and have to discover .results.jobs[0] by inspection. The same gap is why this CLI's local-store layer had to be hand-written against store.UpsertBatch rather than generated. A generator fix supersedes both.",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/3782"
+    },
+    {
+      "feature": "Promoted endpoint rows should expose an extractable ID field so paginated reads can be cached locally.",
+      "reason": "`postings` warns 'items returned but not cached locally (no extractable ID field)' even though every job row carries id_icims. Offline lookup against those rows stays incomplete until the generated read path can identify the key. Tracked with the same response_path defect.",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/3782"
+    }
+  ]
+}

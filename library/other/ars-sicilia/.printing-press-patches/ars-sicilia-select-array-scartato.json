@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-select-array-scartato",
+  "applied_at": "2026-08-21",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "Warn when --select silently drops a nested list, tell the caller where a field actually lives, and give the leggi rows the `numero` they are filtered by.",
+  "reason": "Three naming frictions found while pulling on the `ddl stralci --select` remark in the 2026-08-21 news-agent report. (1) On aggregate commands the payload is an object wrapping an array; when EVERY selected name also exists at the root, the root wins and the array is never opened. `ddl iter 18 6030 --select numero,titolo` returned the act's numero and titolo with 0 of 31 events and an empty stderr, and `legge cronologia` and `ddl stralci` behave the same — a wrong answer given in silence, the exact failure mode this CLI guards against everywhere else. The semantics are deliberate (`--select titolo` must yield the act's title, not thirty-one event titles), so the fix is a stderr hint naming the dropped list, its row count and the field names that live inside it, not a change in behaviour. (2) `ddl get` keeps data/numero/titolo inside `fields` while `ddl cerca` has them at the root, so `--select data` learned on one fails on the other; the unknown-field hint now says where the name actually lives (`usa fields.Data`), looking one level down only. (3) `leggi cerca` is filtered with `--numero` but exposed only `atto` (`L.R. 14`), so the value you search by could not be read back; `numero` (`14`) now travels beside it, and the novita rows carry both names since that command keys every other archive on `numero`. Deliberately NOT changed: `commissioni sommari` has no `commissione` field, but the data is not missing — on that archive `titolo` IS the committee name (`I - Affari Istituzionali`) and the record already repeats it in `title`. A third copy under a third name would buy one selector and cost a permanent duplicate in every row, so it is documented in SKILL.md instead.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/leggi_collapse.go",
+    "internal/cli/leggi_collapse_test.go",
+    "internal/cli/novita.go",
+    "internal/cli/novita_test.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "`ddl iter 18 6030 --select numero,titolo` and `ddl stralci 18 1030 --select numero,titolo` now print `hint: --select: eventi (31 righe) non esce…` / `stralci (9 righe)…` on stderr with the usable field names, while `--select data,fase` stays silent and still returns 31 events and plain list commands are untouched. `ddl get 18 6030 --select data` adds «data sta un livello sotto: usa fields.Data» (same for numero), and an invented name like `pippo` gets no such clause. `leggi cerca --legisl 18 --anno 2026 --select numero,atto` returns {numero:\"1\", atto:\"L.R. 1\"} instead of warning that numero does not exist; `novita --since 30d --archivi leggi` carries numero \"14\" and atto \"L.R. 14\", and the terminal table still prints `L.R. 14`. `go test ./...`, `go vet ./...`, `gofmt -l` and `cli-printing-press verify-skill` all clean.",
+  "upstream_issue": null
+}

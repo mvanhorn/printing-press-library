@@ -1,0 +1,368 @@
+{
+  "api_name": "woolworths",
+  "base_url": "https://www.woolworths.com.au",
+  "description": "Every Woolworths catalogue, specials, store and trolley surface, plus a local price history that can tell a genuine half-price from an inflated was-price.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": "woolworths.com.au",
+    "cookies": [
+      "w-rctx",
+      "wow-auth-token",
+      "prodwow-auth-token"
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "Accept",
+      "value": "application/json, text/plain, */*"
+    },
+    {
+      "name": "Accept-Language",
+      "value": "en-AU,en;q=0.9"
+    },
+    {
+      "name": "Referer",
+      "value": "https://www.woolworths.com.au/shop"
+    },
+    {
+      "name": "Origin",
+      "value": "https://www.woolworths.com.au"
+    },
+    {
+      "name": "Sec-Fetch-Site",
+      "value": "same-origin"
+    },
+    {
+      "name": "Sec-Fetch-Mode",
+      "value": "cors"
+    }
+  ],
+  "tools": [
+    {
+      "name": "categories_browse",
+      "description": "Browse or page one category or specials group by node id. Required: category-id. Optional: page (default: 1), page-size (default: 24), sort (default: TraderRelevance) (plus 3 more).",
+      "method": "POST",
+      "path": "/apis/ui/browse/category",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "category-id",
+          "wire_name": "categoryId",
+          "type": "string",
+          "location": "body",
+          "description": "Node id, e.g. specialsgroup.3676 (Half Price) or a department node",
+          "required": true
+        },
+        {
+          "name": "page",
+          "wire_name": "pageNumber",
+          "type": "int",
+          "location": "body",
+          "description": "1-based page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "body",
+          "description": "Results per page; Woolworths hard-caps this at 36"
+        },
+        {
+          "name": "sort",
+          "wire_name": "sortType",
+          "type": "string",
+          "location": "body",
+          "description": "Sort order; CUPAsc/CUPDesc sort by unit price server-side"
+        },
+        {
+          "name": "specials-only",
+          "wire_name": "isSpecial",
+          "type": "bool",
+          "location": "body",
+          "description": "Restrict to products currently on special"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Browse path the request is attributed to; required by the API, affects only response SEO metadata"
+        },
+        {
+          "name": "format-object",
+          "wire_name": "formatObject",
+          "type": "string",
+          "location": "body",
+          "description": "JSON blob the API requires alongside url; affects only response SEO metadata"
+        }
+      ]
+    },
+    {
+      "name": "categories_list",
+      "description": "Full department tree including the five specials groups and their product counts. Returns array.",
+      "method": "GET",
+      "path": "/apis/ui/PiesCategoriesWithSpecials",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "products_batch",
+      "description": "Fetch several products in one call by comma-separated stockcodes. Required: stockcodes.",
+      "method": "GET",
+      "path": "/apis/ui/products/{stockcodes}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "stockcodes",
+          "type": "string",
+          "location": "path",
+          "description": "Comma-separated stockcodes, e.g. 6073909,36066",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_count",
+      "description": "Cheap result counts for a term - products, specials, recipes - without fetching tiles. Required: term.",
+      "method": "GET",
+      "path": "/apis/ui/v2/Search/count",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "term",
+          "wire_name": "searchTerm",
+          "type": "string",
+          "location": "query",
+          "description": "Search term to count matches for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_detail",
+      "description": "Full product record including nutrition, variants and country of origin. Required: stockcode.",
+      "method": "GET",
+      "path": "/apis/ui/product/detail/{stockcode}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "stockcode",
+          "type": "string",
+          "location": "path",
+          "description": "Woolworths stockcode, e.g. 6073909",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_schemaorg",
+      "description": "Product as schema.org JSON-LD; an independent path from products detail. Required: stockcode.",
+      "method": "GET",
+      "path": "/api/v3/ui/schemaorg/product/{stockcode}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "stockcode",
+          "type": "string",
+          "location": "path",
+          "description": "Woolworths stockcode, e.g. 6073909",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_search",
+      "description": "Search products by term, with optional specials-only filter and sort. Required: term. Optional: page (default: 1), page-size (default: 24), sort (default: TraderRelevance) (plus 1 more).",
+      "method": "POST",
+      "path": "/apis/ui/Search/products",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "term",
+          "wire_name": "SearchTerm",
+          "type": "string",
+          "location": "body",
+          "description": "Search term, e.g. 'tim tam' or 'olive oil'",
+          "required": true
+        },
+        {
+          "name": "page",
+          "wire_name": "PageNumber",
+          "type": "int",
+          "location": "body",
+          "description": "1-based page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "PageSize",
+          "type": "int",
+          "location": "body",
+          "description": "Results per page; Woolworths hard-caps this at 36"
+        },
+        {
+          "name": "sort",
+          "wire_name": "SortType",
+          "type": "string",
+          "location": "body",
+          "description": "Sort order; CUPAsc/CUPDesc sort by unit price server-side"
+        },
+        {
+          "name": "specials-only",
+          "wire_name": "IsSpecial",
+          "type": "bool",
+          "location": "body",
+          "description": "Restrict results to products currently on special"
+        }
+      ]
+    },
+    {
+      "name": "products_suggestions",
+      "description": "Ranked search suggestions and autocorrect for a partial term. Required: term.",
+      "method": "GET",
+      "path": "/apis/ui/search-suggestions/suggestionsb2c",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "term",
+          "wire_name": "searchTerm",
+          "type": "string",
+          "location": "query",
+          "description": "Partial search term, e.g. 'mil'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "settings_bootstrap",
+      "description": "App bootstrap config including current site version.",
+      "method": "GET",
+      "path": "/api/ui/v2/bootstrap",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "settings_list",
+      "description": "Site settings and feature flags.",
+      "method": "GET",
+      "path": "/apis/ui/settings",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "stores_list",
+      "description": "Find stores near a postcode or coordinate, with trading hours and facilities. Optional: postcode, latitude, longitude (plus 2 more).",
+      "method": "GET",
+      "path": "/apis/ui/StoreLocator/Stores",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "postcode",
+          "wire_name": "Postcode",
+          "type": "string",
+          "location": "query",
+          "description": "Australian postcode to search near, e.g. 2000. Supply this or latitude+longitude"
+        },
+        {
+          "name": "latitude",
+          "wire_name": "Latitude",
+          "type": "float",
+          "location": "query",
+          "description": "Latitude to search near, e.g. -33.8688. Use with --longitude instead of --postcode"
+        },
+        {
+          "name": "longitude",
+          "wire_name": "Longitude",
+          "type": "float",
+          "location": "query",
+          "description": "Longitude to search near, e.g. 151.2093. Use with --latitude instead of --postcode"
+        },
+        {
+          "name": "max",
+          "wire_name": "Max",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum stores to return"
+        },
+        {
+          "name": "division",
+          "wire_name": "Division",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated divisions, e.g. SUPERMARKETS,EG,AMPOL. Optional filter; not a substitute for a location"
+        }
+      ]
+    },
+    {
+      "name": "trolley_add",
+      "description": "Add a product to the trolley by stockcode. Required: stock-code. Optional: quantity (default: 1), source (default: Search).",
+      "method": "POST",
+      "path": "/apis/ui/Trolley/Items",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "stock-code",
+          "wire_name": "StockCode",
+          "type": "int",
+          "location": "body",
+          "description": "Stockcode of the product to add",
+          "required": true
+        },
+        {
+          "name": "quantity",
+          "wire_name": "Quantity",
+          "type": "int",
+          "location": "body",
+          "description": "Quantity to add"
+        },
+        {
+          "name": "source",
+          "wire_name": "Source",
+          "type": "string",
+          "location": "body",
+          "description": "Origin hint Woolworths records for the add, e.g. Search"
+        }
+      ]
+    },
+    {
+      "name": "trolley_get",
+      "description": "Current trolley contents.",
+      "method": "GET",
+      "path": "/apis/ui/Trolley",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Genuine-special verdict",
+      "command": "real-special",
+      "description": "Tells you whether an advertised special is genuinely cheap or just a lower number next to an inflated was-price."
+    },
+    {
+      "name": "Half-price cycle forecast",
+      "command": "cycle",
+      "description": "Estimates when a product's next half-price window is likely to open, from its own recorded discount episodes."
+    },
+    {
+      "name": "Cheaper substitute finder",
+      "command": "swap",
+      "description": "Ranks in-stock alternatives by unit price normalised across different measure bases, so per-100g and per-1kg tiles compare correctly."
+    },
+    {
+      "name": "Basket costing from a list",
+      "command": "basket",
+      "description": "Prices a whole shopping list, showing which lines moved since the last time you ran it and what it did to the total."
+    },
+    {
+      "name": "Specials rollover diff",
+      "command": "specials-diff",
+      "description": "Shows what entered and left each specials group since your last sync, with how long since each entrant was last discounted."
+    },
+    {
+      "name": "Multi-buy effective unit price",
+      "command": "multibuy",
+      "description": "Works out what a multi-buy offer actually costs per unit at the quantity it demands, versus buying singly or buying a larger pack."
+    }
+  ]
+}

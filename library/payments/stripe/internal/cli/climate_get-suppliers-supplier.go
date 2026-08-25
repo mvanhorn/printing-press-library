@@ -29,10 +29,12 @@ func newClimateGetSuppliersSupplierCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/climate/suppliers/{supplier}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("supplier is required\nUsage: %s <%s>", cmd.CommandPath(), "supplier"))
 			}
-			path = replacePathParam(path, "supplier", args[1])
+			path = replacePathParam(path, "supplier", args[0])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

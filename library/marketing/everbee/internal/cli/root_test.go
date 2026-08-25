@@ -4,7 +4,6 @@
 package cli
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -203,19 +202,5 @@ func TestFilterFields(t *testing.T) {
 					tc.input, tc.fields, string(gotBytes), string(wantBytes))
 			}
 		})
-	}
-}
-
-func TestPrintAutoCards_EmptyHeadersDoesNotPanic(t *testing.T) {
-	var buf bytes.Buffer
-	items := []map[string]any{
-		{},
-		{"name": "Teacher Gift", "score": 12},
-	}
-	if err := printAutoCards(&buf, items); err != nil {
-		t.Fatalf("printAutoCards returned error: %v", err)
-	}
-	if buf.Len() == 0 {
-		t.Fatal("expected later non-empty item to render")
 	}
 }

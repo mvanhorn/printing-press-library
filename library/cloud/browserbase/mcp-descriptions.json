@@ -1,0 +1,9 @@
+{
+  "descriptions": {
+    "certificates_delete": "Delete a TLS certificate from the account. Required: id of the certificate to remove (list certificates first to find it). Destructive and irreversible — sessions using this certificate will fail TLS trust afterward.",
+    "certificates_list": "List all TLS certificates uploaded to the account. Returns an array of Certificate objects with id, name, and metadata. Use with `certificates get` to inspect a specific certificate.",
+    "contexts_delete": "Delete a persistent browser context. Required: id of the context to remove. Destructive and irreversible — any session that references this context will lose its persisted state (cookies, localStorage).",
+    "extensions_delete": "Delete an uploaded browser extension from the account. Required: id of the extension to remove. Destructive and irreversible — sessions that reference this extension will fail to load it.",
+    "projects_list": "List all Browserbase projects on the account. Returns an array of Project objects with id, name, defaultTimeout, and concurrency. Use the project id with `projects usage` or `sessions create --project-id`."
+  }
+}

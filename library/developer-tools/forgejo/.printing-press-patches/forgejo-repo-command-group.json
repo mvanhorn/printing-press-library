@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "forgejo-repo-command-group",
+  "applied_at": "2026-06-23",
+  "base_run_id": "20260524-172642",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Add top-level 'fj repo' command group (create, list, view, delete).",
+  "reason": "Agent dogfood: creating a repo required knowing 'fj user create-current-repo --name X', buried 2 levels deep and undiscoverable from root help. Agents fell back to raw curl. 'fj repo create' mirrors 'gh repo create' ergonomics.",
+  "files": [
+    "internal/cli/novel_repo.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "fj repo list, fj repo view jrimmer/tau, and fj repo create --dry-run all pass against code.lacy.casa."
+}

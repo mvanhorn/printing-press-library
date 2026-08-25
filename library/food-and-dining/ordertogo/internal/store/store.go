@@ -64,11 +64,9 @@ func Open(dbPath string) (*Store, error) {
 // The file: URI prefix is load-bearing: modernc.org/sqlite only honors
 // SQLite's URI query parameters (mode, cache, etc.) when the DSN starts
 // with "file:". Without the prefix, "?mode=ro" is silently dropped and
-// the connection opens read-write. Pragmas use the driver's _pragma=
-// name(value) syntax — modernc.org/sqlite does NOT recognize the
-// mattn/go-sqlite3 _journal_mode=WAL / _busy_timeout=5000 form and drops
-// those keys silently, so the busy_timeout below is what keeps a read
-// concurrent with a writer from failing immediately with SQLITE_BUSY.
+// the connection opens read-write. Pragmas use modernc.org/sqlite's
+// _pragma=name(value) syntax so the driver applies them instead of silently
+// ignoring mattn/go-sqlite3-style underscore options.
 func OpenReadOnly(dbPath string) (*Store, error) {
 	db, err := sql.Open("sqlite", "file:"+dbPath+"?mode=ro&_pragma=busy_timeout(5000)&_pragma=foreign_keys(ON)&_pragma=temp_store(MEMORY)&_pragma=mmap_size(268435456)")
 	if err != nil {
@@ -918,6 +916,28 @@ func (s *Store) LastOrder(restaurantSlug string) (*Order, error) {
 	}
 	query += ` ORDER BY ordered_at DESC LIMIT 1`
 	return s.scanOrderRow(s.db.QueryRow(query, args...))
+}
+
+// RestIDForSlug resolves a restaurant slug to its numeric restaurant id from a
+// prior order at that restaurant. This is the offline fast path; it returns
+// ("", nil) when no past order carries a numeric restid for the slug so callers
+// fall back to a live restaurants-list lookup.
+func (s *Store) RestIDForSlug(slug string) (string, error) {
+	if slug == "" {
+		return "", nil
+	}
+	const query = `SELECT restid FROM orders
+		WHERE (restaurant_slug = ? OR restname = ?) AND restid IS NOT NULL AND restid != '' AND restid != '0'
+		ORDER BY ordered_at DESC LIMIT 1`
+	var id sql.NullString
+	err := s.db.QueryRow(query, slug, slug).Scan(&id)
+	if err == sql.ErrNoRows {
+		return "", nil
+	}
+	if err != nil {
+		return "", err
+	}
+	return id.String, nil
 }
 
 func (s *Store) RecentOrders(restaurantSlug string, limit int) ([]Order, error) {

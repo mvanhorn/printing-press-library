@@ -37,5 +37,6 @@
       "command": "workflow archive",
       "description": "Sync Docker Hub resources into the local store so agents can search and analyze without repeated live calls."
     }
-  ]
+  ],
+  "description": "Docker Hub public API. Search container images, browse tags, check sizes, inspect Dockerfiles, and explore the world's largest container registry. No authentication required for public repositories (rate limited to ~18 req/min)."
 }

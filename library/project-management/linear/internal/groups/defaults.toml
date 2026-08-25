@@ -1,0 +1,30 @@
+# internal/groups/defaults.toml
+# Every value below is a Linear API-documented WorkflowState.type string
+# (WorkflowState.type / WorkflowStateFilter.type field descriptions).
+# TIER 2 API data, not a house convention. See contract section 3.
+schema_version = 1
+
+[state_groups.active]
+description = "Not completed, not canceled, not duplicate"
+types = ["triage", "backlog", "unstarted", "started"]
+
+[state_groups.triage]
+types = ["triage"]
+
+[state_groups.backlog]
+types = ["backlog"]
+
+[state_groups.unstarted]
+types = ["unstarted"]
+
+[state_groups.started]
+types = ["started"]
+
+[state_groups.completed]
+types = ["completed"]
+
+[state_groups.canceled]
+types = ["canceled"]
+
+[state_groups.duplicate]
+types = ["duplicate"]

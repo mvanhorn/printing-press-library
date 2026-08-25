@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-output-size",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "grep restituisce estratti di contesto (occorrenze + fino a 3 frammenti con ECLI e URL) invece dell'intero Provvedimento per ogni match, e accetta --limit (default 20). Aggiunto cobratree.BoundToolText come rete di sicurezza sul trasporto MCP: tetto a 250 KB applicato sia al mirror dei comandi sia al percorso tipizzato, con troncamento sempre dichiarato (envelope con conteggi per gli array JSON, nota in coda per il testo). corpus build risolve inoltre --out in percorso assoluto prima di usarlo e lo riporta cosi' nel risultato.",
+  "reason": "Claude Desktop rifiuta un tool result oltre 1 MB, e lo rifiuta INTERO: il chiamante non riceve una risposta accorciata ma un errore, e l'agente abbandona il tool. E' successo dal vivo ('Tool result is too large. Maximum size is 1MB.') e da li' l'agente e' tornato a scrivere i file a mano. Due difetti sovrapposti: (1) grep serializzava l'intero Provvedimento, FullText compreso, per ogni corrispondenza -- 25-90 KB a documento, quindi pochi risultati bastavano a sfondare il limite; un grep che restituisce i documenti interi invece dei punti in cui il pattern compare non e' un grep; (2) il budget di byte esisteva solo per i due tool tipizzati, mentre tutti i comandi rispecchiati (grep, corpus_build, massime, stats, appeal_chain...) passavano dal mirror senza alcun tetto. Il limite di 1 MB del client MCP piu' diffuso e' un requisito noto e andava considerato da subito. Sul percorso di destinazione: una corsa da Claude Desktop ha chiamato corpus_build per 17 secondi senza che comparisse alcun file: una ricerca su tutto C: non ha trovato nessun manifest.csv creato in quella finestra. Un --out relativo si risolve rispetto alla working directory del processo MCP, che il client sceglie e l'utente non conosce: il corpus finisce dove nessuno lo cerchera' mentre il comando riporta successo, e la risposta alla domanda 'in quale cartella hai salvato i file' diventa non verificabile.",
+  "files": [
+    "internal/cli/grep.go",
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/tools.go",
+    "(corpus build --out assoluto)"
+  ],
+  "validated_outcome": "grep -e 'clausola sociale' --agent: 308.166 byte prima, 8.196 dopo (38x), con occorrenze ed estratti al posto dei testi integrali. Il tetto di 250 KB e' scelto sopra i 60 KB dei tool tipizzati perche' una singola sentenza arriva a ~90 KB e non va tagliata, e ben sotto il limite dell'host perche' un risultato vicino a 1 MB passerebbe il trasporto ma saturerebbe il contesto. go build/vet/test verdi. Con --out relativo ./rel-test da /tmp/gafix/relwd il risultato riporta out=/tmp/gafix/relwd/rel-test (assoluto)."
+}

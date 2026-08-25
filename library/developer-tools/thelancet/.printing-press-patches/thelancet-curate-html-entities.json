@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "thelancet-curate-html-entities",
+  "applied_at": "2026-08-22",
+  "base_run_id": "20260617-072858-2f9fe13e",
+  "base_printing_press_version": "4.24.0",
+  "summary": "OpenAlex title, topic, and journal display fields are CleanText'd once at ingest (decodeWork / StoreWorks). The store holds decoded-once text; Curate reads those fields as stored. CurateLive still CleanTexts live OpenAlex fields once.",
+  "reason": "OpenAlex returns HTML-encoded strings in some title and display_name fields. Store LIKE runs on persisted title/topic, so keeping raw &amp; made a decoded user query miss rows and a partial store hit suppressed live fallback. Decode once at ingest so LIKE matches decoded queries and the store path does not double-unescape nested &amp;amp;.",
+  "files": [
+    "internal/lancet/curate_live.go",
+    "internal/lancet/queries.go",
+    "internal/lancet/store.go",
+    "internal/lancet/sync.go"
+  ],
+  "validated_outcome": "go test ./internal/lancet/... asserts single-level &amp; becomes & on Curate and CurateLive, nested &amp;amp; is the same one-pass string on both paths, and a query containing & matches a title ingested from &amp;."
+}

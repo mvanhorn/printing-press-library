@@ -1,0 +1,1243 @@
+{
+  "api_name": "browserbase",
+  "base_url": "https://api.browserbase.com",
+  "description": "Every Browserbase cloud feature, plus session lifecycle control, local history, and usage analytics no other tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "orchestration": "endpoint-mirror"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "X-BB-API-Key",
+    "in": "header",
+    "env_vars": [
+      "BROWSERBASE_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "BROWSERBASE_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://www.browserbase.com/settings"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "agents_create",
+      "description": "Create a reusable agent. An agent defines a `systemPrompt` and `resultSchema` that guide its behavior for every run. Only `name` is required; an agent created with no `systemPrompt` behaves like an unconfigured run. Required: name. Optional: resultSchema, systemPrompt. Returns the new Agent.",
+      "method": "POST",
+      "path": "/v1/agents",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Human-readable name for the agent. Used to identify the agent in the dashboard and API responses.",
+          "required": true
+        },
+        {
+          "name": "resultSchema",
+          "type": "object",
+          "location": "body",
+          "description": "An optional [JSON Schema](https://json-schema.org/specification) object. If provided, runs that reference this agent will aim to return a `result` that conforms to this schema when they complete. Can be overridden per run by passing `resultSchema` on the run request."
+        },
+        {
+          "name": "systemPrompt",
+          "type": "string",
+          "location": "body",
+          "description": "System prompt that steers the agent's behavior on every run that uses this agent."
+        }
+      ]
+    },
+    {
+      "name": "agents_delete",
+      "description": "Delete an agent. Runs that already referenced this agent are unaffected. Required: agentId. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/agents/{agentId}",
+      "params": [
+        {
+          "name": "agentId",
+          "type": "string",
+          "location": "path",
+          "description": "The agent ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agents_get",
+      "description": "Retrieve an agent by ID. Required: agentId. Returns the Agent.",
+      "method": "GET",
+      "path": "/v1/agents/{agentId}",
+      "params": [
+        {
+          "name": "agentId",
+          "type": "string",
+          "location": "path",
+          "description": "The agent ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agents_list",
+      "description": "List agents across your account. Supports filtering by creation time. Optional: startAt, endAt, limit (default: 20) (plus 1 more). Returns array of Agent.",
+      "method": "GET",
+      "path": "/v1/agents",
+      "params": [
+        {
+          "name": "startAt",
+          "type": "string",
+          "location": "query",
+          "description": "Only return agents created on or after this timestamp (inclusive). ISO 8601 / RFC 3339, e.g. 2026-01-19T00:00:00Z."
+        },
+        {
+          "name": "endAt",
+          "type": "string",
+          "location": "query",
+          "description": "Only return agents created on or before this timestamp (inclusive). ISO 8601 / RFC 3339, e.g. 2026-01-20T00:00:00Z."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor. Pass the nextCursor from the previous response to fetch the next page. Omit to start from the first page."
+        }
+      ]
+    },
+    {
+      "name": "agents_runs-create",
+      "description": "Run a browser agent to complete the `task` by using web search and browser tooling. Optionally pass `agentId` to run a [custom agent](/reference/api/create-an-agent) you've created. Required: task. Optional: agentId, browserSettings, resultSchema (plus 1 more). Returns the new AgentRun.",
+      "method": "POST",
+      "path": "/v1/agents/runs",
+      "params": [
+        {
+          "name": "agentId",
+          "type": "string",
+          "location": "body",
+          "description": "Optionally run a specific [custom agent](/reference/api/create-an-agent) you've created by ID. The run will use the agent's `systemPrompt` and `resultSchema` unless overridden."
+        },
+        {
+          "name": "browser-settings-context-id",
+          "wire_name": "browserSettings.context.id",
+          "type": "string",
+          "location": "body",
+          "description": "The Context ID.",
+          "required": true
+        },
+        {
+          "name": "browser-settings-context-persist",
+          "wire_name": "browserSettings.context.persist",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to persist the context after browsing. Defaults to false."
+        },
+        {
+          "name": "browser-settings-proxies",
+          "wire_name": "browserSettings.proxies",
+          "type": "string",
+          "location": "body",
+          "description": "Proxy configuration. Can be true for default proxy, or an array of proxy configurations."
+        },
+        {
+          "name": "browser-settings-verified",
+          "wire_name": "browserSettings.verified",
+          "type": "bool",
+          "location": "body",
+          "description": "Set true to enable Browserbase Verified for the session."
+        },
+        {
+          "name": "resultSchema",
+          "type": "object",
+          "location": "body",
+          "description": "An optional [JSON Schema](https://json-schema.org/specification) object. If provided, the agent will aim to return a `result` that conforms to this schema when the run completes. Overrides the referenced agent's default `resultSchema` for this run only."
+        },
+        {
+          "name": "task",
+          "type": "string",
+          "location": "body",
+          "description": "A natural language description of the task the agent should accomplish.",
+          "required": true
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "Optional named variables the agent can reference as placeholders, i.e. `%variable%`. Each entry pairs a `value` the placeholder resolves to with an optional `description` that hints to the agent when it should be used. Values are not persisted."
+        }
+      ]
+    },
+    {
+      "name": "agents_runs-get",
+      "description": "Retrieve the current status and details of a run, including its result and associated session information. To fetch the run's messages, use [List Run Messages](/reference/api/list-run-messages). Required: runId. Returns the AgentRun.",
+      "method": "GET",
+      "path": "/v1/agents/runs/{runId}",
+      "params": [
+        {
+          "name": "runId",
+          "type": "string",
+          "location": "path",
+          "description": "The run ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agents_runs-list",
+      "description": "List runs across your account. Supports filtering by status, by the agent they reference, and by creation time. Optional: status, agentId, startAt (plus 3 more). Returns array of AgentRun.",
+      "method": "GET",
+      "path": "/v1/agents/runs",
+      "params": [
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Current status of the run. - `PENDING` - agent will run soon - `RUNNING` - agent is currently running - `COMPLETED` - agent has finished running - `FAILED` - agent has failed the run - `STOPPED` - run was stopped by the user - `TIMED_OUT` - run exceeded maximum time"
+        },
+        {
+          "name": "agentId",
+          "type": "string",
+          "location": "query",
+          "description": "Only return runs that reference this agent ID."
+        },
+        {
+          "name": "startAt",
+          "type": "string",
+          "location": "query",
+          "description": "Only return runs created on or after this timestamp (inclusive). ISO 8601 / RFC 3339, e.g. 2026-01-19T00:00:00Z."
+        },
+        {
+          "name": "endAt",
+          "type": "string",
+          "location": "query",
+          "description": "Only return runs created on or before this timestamp (inclusive). ISO 8601 / RFC 3339, e.g. 2026-01-20T00:00:00Z."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor. Pass the nextCursor from the previous response to fetch the next page. Omit to start from the first page."
+        }
+      ]
+    },
+    {
+      "name": "agents_runs-messages",
+      "description": "Returns a paginated list of messages produced by a run, in chronological order, with the oldest messages first. Messages conform to the [AI SDK UIMessage format](https://ai-sdk.dev/docs/reference/ai-sdk-core/ui-message). Required: runId. Optional: since, limit (default: 20), all (default: false).",
+      "method": "GET",
+      "path": "/v1/agents/runs/{runId}/messages",
+      "params": [
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "The `id` of the last message you've already received. The response will contain messages produced after that one, in chronological order. Omit on the first call. Pass the previous response's `nextSince` value to continue paging or to poll for new messages."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of messages to return."
+        },
+        {
+          "name": "all",
+          "type": "bool",
+          "location": "query",
+          "description": "Return every message after `since` in one response, ignoring `limit`."
+        },
+        {
+          "name": "runId",
+          "type": "string",
+          "location": "path",
+          "description": "The run ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agents_runs-stop",
+      "description": "Request that an in-progress run stop. The run winds down and transitions to `STOPPED`. Stopping a run that has already finished returns a conflict. Required: runId.",
+      "method": "POST",
+      "path": "/v1/agents/runs/{runId}/stop",
+      "params": [
+        {
+          "name": "runId",
+          "type": "string",
+          "location": "path",
+          "description": "The run ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agents_update",
+      "description": "Update an existing agent. Only the fields provided in the body are modified; omitted fields are left unchanged. Required: agentId. Optional: name, resultSchema, systemPrompt. Returns the updated Agent.",
+      "method": "PATCH",
+      "path": "/v1/agents/{agentId}",
+      "params": [
+        {
+          "name": "agentId",
+          "type": "string",
+          "location": "path",
+          "description": "The agent ID.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Human-readable name for the agent. Used to identify the agent in the dashboard and API responses."
+        },
+        {
+          "name": "resultSchema",
+          "type": "object",
+          "location": "body",
+          "description": "An optional [JSON Schema](https://json-schema.org/specification) object. If provided, runs that reference this agent will aim to return a `result` that conforms to this schema when they complete. Can be overridden per run by passing `resultSchema` on the run request."
+        },
+        {
+          "name": "systemPrompt",
+          "type": "string",
+          "location": "body",
+          "description": "New system prompt that steers the agent's behavior on every run that uses this agent."
+        }
+      ]
+    },
+    {
+      "name": "certificates_delete",
+      "description": "Delete a Certificate. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/certificates/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "certificates_get",
+      "description": "Get a Certificate. Required: id. Returns the Certificate.",
+      "method": "GET",
+      "path": "/v1/certificates/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "certificates_list",
+      "description": "List Certificates. Returns array of Certificate.",
+      "method": "GET",
+      "path": "/v1/certificates",
+      "params": []
+    },
+    {
+      "name": "certificates_upload",
+      "description": "Upload a Certificate. Required: file. Returns the new Certificate.",
+      "method": "POST",
+      "path": "/v1/certificates",
+      "params": [
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "File",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contexts_create",
+      "description": "Create a Context. Optional: name, projectId. Returns the new ContextsCreateResponse.",
+      "method": "POST",
+      "path": "/v1/contexts",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Optional user-defined name for the Context. Leading and trailing whitespace is trimmed before storage. Names are unique within the project among active Contexts, compared case-insensitively."
+        },
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "body",
+          "description": "The Project ID. Can be found in [Settings](https://www.browserbase.com/settings). Optional - if not provided, the project will be inferred from the API key."
+        }
+      ]
+    },
+    {
+      "name": "contexts_delete",
+      "description": "Delete a Context. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/contexts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contexts_get",
+      "description": "Get a Context. Required: id. Returns the Context.",
+      "method": "GET",
+      "path": "/v1/contexts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "downloads_delete",
+      "description": "Delete a download file from storage and mark as deleted. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/downloads/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The download ID to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "downloads_get",
+      "description": "Get download metadata (Accept: application/json) or file content (Accept: application/octet-stream). Required: id. Returns the DownloadsGetResponse.",
+      "method": "GET",
+      "path": "/v1/downloads/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The download ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "downloads_list",
+      "description": "List all downloads for a session with optional filtering and pagination. Required: sessionId. Optional: filename, mimeType, minSize (plus 5 more). Returns array of DownloadsListItem.",
+      "method": "GET",
+      "path": "/v1/downloads",
+      "params": [
+        {
+          "name": "sessionId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter downloads by session ID (required).",
+          "required": true
+        },
+        {
+          "name": "filename",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by exact filename match."
+        },
+        {
+          "name": "mimeType",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by MIME type."
+        },
+        {
+          "name": "minSize",
+          "type": "float",
+          "location": "query",
+          "description": "Minimum file size in bytes."
+        },
+        {
+          "name": "maxSize",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum file size in bytes."
+        },
+        {
+          "name": "createdAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter downloads created on or after this timestamp."
+        },
+        {
+          "name": "createdBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Filter downloads created on or before this timestamp."
+        },
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum number of results to return."
+        },
+        {
+          "name": "offset",
+          "type": "float",
+          "location": "query",
+          "description": "Number of results to skip for pagination."
+        }
+      ]
+    },
+    {
+      "name": "extensions_delete",
+      "description": "Delete an Extension. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/extensions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "extensions_get",
+      "description": "Get an Extension. Required: id. Returns the Extension.",
+      "method": "GET",
+      "path": "/v1/extensions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "extensions_upload",
+      "description": "Upload an Extension. Required: file. Returns the new Extension.",
+      "method": "POST",
+      "path": "/v1/extensions",
+      "params": [
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "File",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fetch_create",
+      "description": "Fetch a page and return its content, headers, and metadata. Required: url. Optional: allowInsecureSsl (default: false), allowRedirects (default: false), format (default: raw) (plus 2 more). Returns the new FetchCreateResponse.",
+      "method": "POST",
+      "path": "/v1/fetch",
+      "params": [
+        {
+          "name": "allowInsecureSsl",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to bypass TLS certificate verification"
+        },
+        {
+          "name": "allowRedirects",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to follow HTTP redirects"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "body",
+          "description": "Output format for the response content. `raw` (default) returns the response body unchanged; `json` returns structured data (requires `schema`); `markdown` returns the page as markdown."
+        },
+        {
+          "name": "proxies",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to enable proxy support for the request"
+        },
+        {
+          "name": "schema",
+          "type": "object",
+          "location": "body",
+          "description": "JSON Schema describing the desired structure of the response. Only used when `format` is `json`."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The URL to fetch",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "functions_builds-get",
+      "description": "Get a Function Build. Required: id. Returns array of FunctionsBuildsGetItem.",
+      "method": "GET",
+      "path": "/v1/functions/builds/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "functions_builds-get-logs",
+      "description": "Get Function Build Logs. Required: id. Returns array of FunctionBuildLog.",
+      "method": "GET",
+      "path": "/v1/functions/builds/{id}/logs",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "functions_builds-list",
+      "description": "List Function Builds. Optional: offset (default: 0), limit (default: 20), status. Returns array of FunctionBuild.",
+      "method": "GET",
+      "path": "/v1/functions/builds",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "functions_get",
+      "description": "Get a Function. Required: id. Returns the Function.",
+      "method": "GET",
+      "path": "/v1/functions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "functions_invocations-get",
+      "description": "Get an Invocation. Required: id. Returns the FunctionsInvocationsGetResponse.",
+      "method": "GET",
+      "path": "/v1/functions/invocations/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "functions_invocations-get-logs",
+      "description": "Get Invocation Logs. Required: id. Returns array of InvocationLog.",
+      "method": "GET",
+      "path": "/v1/functions/invocations/{id}/logs",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "functions_list",
+      "description": "List Functions. Optional: offset (default: 0), limit (default: 20). Returns array of Function.",
+      "method": "GET",
+      "path": "/v1/functions",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "functions_versions-get",
+      "description": "Get a Function Version. Required: id. Returns the FunctionVersion.",
+      "method": "GET",
+      "path": "/v1/functions/versions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "functions_versions-list-invocations",
+      "description": "List Invocations for a Function Version. Required: id. Optional: offset (default: 0), limit (default: 20), status. Returns array of Invocation.",
+      "method": "GET",
+      "path": "/v1/functions/versions/{id}/invocations",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "functions_invoke_functions",
+      "description": "Invoke a Function. Required: id. Returns the new Invocation.",
+      "method": "POST",
+      "path": "/v1/functions/{id}/invoke",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "functions_versions_functions-list",
+      "description": "List Function Versions. Required: id. Optional: offset (default: 0), limit (default: 20). Returns array of FunctionVersion.",
+      "method": "GET",
+      "path": "/v1/functions/{id}/versions",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_get",
+      "description": "Get a Project. Required: id. Returns the Project.",
+      "method": "GET",
+      "path": "/v1/projects/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_list",
+      "description": "List Projects. Returns array of Project.",
+      "method": "GET",
+      "path": "/v1/projects",
+      "params": []
+    },
+    {
+      "name": "projects_usage_projects",
+      "description": "Get Project Usage. Required: id. Returns the ProjectUsage.",
+      "method": "GET",
+      "path": "/v1/projects/{id}/usage",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_create",
+      "description": "Create a Session. Optional: browserSettings, extensionId, keepAlive (plus 6 more). Returns the new SessionsCreateResponse.",
+      "method": "POST",
+      "path": "/v1/sessions",
+      "params": [
+        {
+          "name": "browser-settings-advanced-stealth",
+          "wire_name": "browserSettings.advancedStealth",
+          "type": "bool",
+          "location": "body",
+          "description": "Advanced Browser Stealth Mode"
+        },
+        {
+          "name": "browser-settings-allowed-domains",
+          "wire_name": "browserSettings.allowedDomains",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "An optional list of allowed domains for the session. If you pass one or more domains, Browserbase restricts top-level (main-frame) page navigations to the listed domains and their subdomains. For example, `example.com` also permits `www.example.com` and `a.b.example.com`, but not `notexample.com`. Matching is domain-based, not full-URL. An empty list (the default) disables the restriction entirely. Browserbase enforces only main-frame navigations; it does not block iframe/subframe loads or other in-page resource requests (images, scripts, XHR, etc.)."
+        },
+        {
+          "name": "browser-settings-block-ads",
+          "wire_name": "browserSettings.blockAds",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable or disable ad blocking in the browser. Defaults to `false`."
+        },
+        {
+          "name": "browser-settings-captcha-image-selector",
+          "wire_name": "browserSettings.captchaImageSelector",
+          "type": "string",
+          "location": "body",
+          "description": "Custom selector for captcha image. See [Custom Captcha Solving](/features/stealth-mode#custom-captcha-solving)"
+        },
+        {
+          "name": "browser-settings-captcha-input-selector",
+          "wire_name": "browserSettings.captchaInputSelector",
+          "type": "string",
+          "location": "body",
+          "description": "Custom selector for captcha input. See [Custom Captcha Solving](/features/stealth-mode#custom-captcha-solving)"
+        },
+        {
+          "name": "browser-settings-context-id",
+          "wire_name": "browserSettings.context.id",
+          "type": "string",
+          "location": "body",
+          "description": "The Context ID.",
+          "required": true
+        },
+        {
+          "name": "browser-settings-context-persist",
+          "wire_name": "browserSettings.context.persist",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not to persist the context after browsing. Defaults to `false`."
+        },
+        {
+          "name": "browser-settings-extension-id",
+          "wire_name": "browserSettings.extensionId",
+          "type": "string",
+          "location": "body",
+          "description": "The uploaded Extension ID. See [Upload Extension](/reference/api/upload-an-extension)."
+        },
+        {
+          "name": "browser-settings-ignore-certificate-errors",
+          "wire_name": "browserSettings.ignoreCertificateErrors",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable or disable ignoring of certificate errors in the browser. Defaults to `true`."
+        },
+        {
+          "name": "browser-settings-log-session",
+          "wire_name": "browserSettings.logSession",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable or disable session logging. Defaults to `true`."
+        },
+        {
+          "name": "browser-settings-os",
+          "wire_name": "browserSettings.os",
+          "type": "string",
+          "location": "body",
+          "description": "Operating system for stealth mode. Valid values: windows, mac, linux, mobile, tablet"
+        },
+        {
+          "name": "browser-settings-record-session",
+          "wire_name": "browserSettings.recordSession",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable or disable session recording. Defaults to `true`."
+        },
+        {
+          "name": "browser-settings-solve-captchas",
+          "wire_name": "browserSettings.solveCaptchas",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable or disable captcha solving in the browser. Defaults to `true`."
+        },
+        {
+          "name": "browser-settings-verified",
+          "wire_name": "browserSettings.verified",
+          "type": "bool",
+          "location": "body",
+          "description": "Verified Browser Mode"
+        },
+        {
+          "name": "browser-settings-viewport-height",
+          "wire_name": "browserSettings.viewport.height",
+          "type": "int",
+          "location": "body",
+          "description": "The height of the browser."
+        },
+        {
+          "name": "browser-settings-viewport-width",
+          "wire_name": "browserSettings.viewport.width",
+          "type": "int",
+          "location": "body",
+          "description": "The width of the browser."
+        },
+        {
+          "name": "extensionId",
+          "type": "string",
+          "location": "body",
+          "description": "The uploaded Extension ID. See [Upload Extension](/reference/api/upload-an-extension)."
+        },
+        {
+          "name": "keepAlive",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to true to keep the session alive even after disconnections. Available on the Hobby Plan and above."
+        },
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "body",
+          "description": "The Project ID. Can be found in [Settings](https://www.browserbase.com/settings). Optional - if not provided, the project will be inferred from the API key."
+        },
+        {
+          "name": "proxies",
+          "type": "string",
+          "location": "body",
+          "description": "Proxy configuration. Can be true for default proxy, or an array of proxy configurations."
+        },
+        {
+          "name": "proxy-settings-ca-certificates",
+          "wire_name": "proxySettings.caCertificates",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The TLS certificate IDs to trust. Optional."
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "body",
+          "description": "The region where the Session should run."
+        },
+        {
+          "name": "timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Duration in seconds after which the session will automatically end. Defaults to the Project's `defaultTimeout`."
+        },
+        {
+          "name": "userMetadata",
+          "type": "object",
+          "location": "body",
+          "description": "Arbitrary user metadata to attach to the session. To learn more about user metadata, see [User Metadata](/features/sessions#user-metadata)."
+        }
+      ]
+    },
+    {
+      "name": "sessions_get",
+      "description": "Get a Session. Required: id. Returns the SessionsGetResponse.",
+      "method": "GET",
+      "path": "/v1/sessions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_list",
+      "description": "List Sessions. Optional: status, q. Returns array of Session.",
+      "method": "GET",
+      "path": "/v1/sessions",
+      "params": [
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Query sessions by user metadata (e.g. `{'buildId':'123'}`). See [Querying Sessions by User Metadata](/features/sessions#querying-sessions-by-user-metadata) for the schema of this query."
+        }
+      ]
+    },
+    {
+      "name": "sessions_update",
+      "description": "Update a Session. Required: id, status. Returns the new Session.",
+      "method": "POST",
+      "path": "/v1/sessions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Set to `REQUEST_RELEASE` to request that the session complete. Use before session's timeout to avoid additional charges.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_debug_sessions-get",
+      "description": "Session Live URLs. Required: id. Returns array of DebugSessionsGetItem.",
+      "method": "GET",
+      "path": "/v1/sessions/{id}/debug",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_logs_sessions-get",
+      "description": "Session Logs. Required: id. Returns array of SessionLog.",
+      "method": "GET",
+      "path": "/v1/sessions/{id}/logs",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_recording_sessions-create-downloads",
+      "description": "Requests one downloadable MP4 per recorded page of a session. Assembly runs asynchronously and every page returns as `PENDING`. Re-posting re-enqueues all pages and retries any that failed. Poll the GET endpoint for per-page status and, on standard (non-BYOS) projects, download URLs. Required: id.",
+      "method": "POST",
+      "path": "/v1/sessions/{id}/recording/downloads",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Session ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_recording_sessions-get",
+      "description": "Session Recording. Required: id. Returns array of SessionRecording.",
+      "method": "GET",
+      "path": "/v1/sessions/{id}/recording",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_recording_sessions-list-downloads",
+      "description": "Returns the per-page download status for a session, with a short-lived signed URL for each completed page on standard (non-BYOS) projects. Required: id.",
+      "method": "GET",
+      "path": "/v1/sessions/{id}/recording/downloads",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Session ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_replays_sessions-get",
+      "description": "Returns page metadata for a session replay, including timing information and the URL of each page's HLS playlist. Required: id.",
+      "method": "GET",
+      "path": "/v1/sessions/{id}/replays",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Session ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_replays_sessions-get-page",
+      "description": "Returns an HLS VOD media playlist (.m3u8) for a specific page of a session replay. Required: id, pageId.",
+      "method": "GET",
+      "path": "/v1/sessions/{id}/replays/{pageId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Session ID",
+          "required": true
+        },
+        {
+          "name": "pageId",
+          "type": "string",
+          "location": "path",
+          "description": "Page id",
+          "required": true
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/vnd.apple.mpegurl"
+        }
+      ]
+    },
+    {
+      "name": "sessions_uploads_sessions-file",
+      "description": "Create Session Uploads. Required: id, file. Returns the new UploadsSessionsFileResponse.",
+      "method": "POST",
+      "path": "/v1/sessions/{id}/uploads",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "File",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "websearch_search-web",
+      "description": "Perform a web search and return structured results. Required: query. Optional: numResults (default: 10). Returns array of WebsearchSearchWebItem.",
+      "method": "POST",
+      "path": "/v1/search",
+      "params": [
+        {
+          "name": "numResults",
+          "type": "int",
+          "location": "body",
+          "description": "Number of results to return (1-25)"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "The search query string",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

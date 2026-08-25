@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "generic-review-pubtype-defers-to-heuristic",
+  "applied_at": "2026-08-20",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "ClassifyDesign returned on the first recognised publication type, so the one generic label in pubtypeMap — \"review\" — ended the cascade before the title/abstract heuristics ran. The generic label now defers: the heuristics still run and the stronger of the two answers wins, while every specific pubtype returns immediately as before and is never overridden by a weaker heuristic.",
+  "reason": "Every pubtypeMap key except \"review\" names a specific design; \"review\" is the label a source can apply to a work whose own title and abstract call it a meta-analysis. Measured on 10.3389/fnut.2022.1084455, a 2023 pooled analysis of 55 RCTs titled \"A systematic review and meta-analysis\" and repeating the phrase twice in its abstract: tagged only \"Review\", it classified as narrative-review at tier 1; with pubtypes removed so the heuristics could run, the identical title and abstract classified as meta-analysis at tier 9. An eight-point swing on exactly the design the consensus engine should weight most heavily.",
+  "files": [
+    "internal/scengine/evidence.go"
+  ],
+  "validated_outcome": "Table-driven tests in evidence_generic_review_test.go: a \"Review\"-only meta-analysis classifies as meta-analysis via the heuristic method; a \"Review\"-only work with no design cues in its text stays narrative-review via the pubtype method; a \"Meta-Analysis\" pubtype still returns outright; a \"Randomized Controlled Trial\" pubtype is not demoted by a narrative-review heuristic match; and a work with no pubtypes leaves the heuristics in charge. The full scengine suite passes unchanged."
+}

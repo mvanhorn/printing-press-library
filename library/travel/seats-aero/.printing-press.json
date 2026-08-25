@@ -26,7 +26,7 @@
   ],
   "run_id": "20260506-seats-aero",
   "category": "travel",
-  "description": "Search Seats.aero award-flight availability, route coverage, mileage-program feeds, and trip details from the terminal.",
+  "description": "Seats.aero Partner API for award travel availability, cached search, route lists, and trip revalidation details.",
   "auth_key_url": "https://seats.aero/partner-api",
   "novel_features": [
     {
