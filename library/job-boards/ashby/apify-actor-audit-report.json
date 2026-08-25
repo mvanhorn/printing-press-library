@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/ashby-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260824-211633-3511b2d3",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

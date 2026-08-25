@@ -1,0 +1,113 @@
+{
+  "api_name": "ashby",
+  "novelty_score": 72,
+  "alternatives": [
+    {
+      "name": "Lever CLI",
+      "url": "https://github.com/mvanhorn/printing-press-library/tree/main/library/job-boards/lever",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [
+    "Official unauthenticated public endpoint keyed by board slug",
+    "Optional structured compensation",
+    "isListed visibility enforced by the CLI"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-24T21:30:00-04:00",
+  "novel_features": [
+    {
+      "name": "Visibility-safe structured job discovery",
+      "command": "postings list",
+      "description": "Lists only publicly listed Ashby jobs and supports structured filtering across department, team, location, workplace type, employment type, publication date, currency, and compensation range.",
+      "rationale": "The raw public response can contain records whose isListed field is false, so the CLI enforces visibility and provides native structured filters.",
+      "example": "ashby-pp-cli postings list ashby --remote --department Engineering --agent --select id,title,location,department",
+      "why_it_matters": "Agents and job seekers get keyless machine-readable discovery without surfacing an unlisted posting returned upstream.",
+      "group": "Public job intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Visibility-safe structured job discovery",
+      "command": "postings list",
+      "description": "Lists only publicly listed Ashby jobs and supports structured filtering across department, team, location, workplace type, employment type, publication date, currency, and compensation range.",
+      "rationale": "The raw public response can contain records whose isListed field is false, so the CLI enforces visibility and provides native structured filters.",
+      "example": "ashby-pp-cli postings list ashby --remote --department Engineering --agent --select id,title,location,department",
+      "why_it_matters": "Agents and job seekers get keyless machine-readable discovery without surfacing an unlisted posting returned upstream.",
+      "group": "Public job intelligence"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Ashby Public Job Board CLI",
+    "headline": "Search, filter, sync, and inspect public Ashby job postings without an API key.",
+    "value_prop": "Turn any known Ashby job-board name into structured, agent-friendly job data while enforcing Ashby's public-listing boundary.",
+    "auth_narrative": "No Ashby API key or customer account is required. Authenticated recruiting, candidate, and application-management APIs are intentionally out of scope.",
+    "quickstart": [
+      {
+        "command": "ashby-pp-cli postings list ashby",
+        "comment": "List publicly visible jobs from Ashby's board"
+      },
+      {
+        "command": "ashby-pp-cli postings list ashby --remote --department Engineering --agent --select id,title,location,department",
+        "comment": "Return a compact agent-friendly shortlist"
+      },
+      {
+        "command": "ashby-pp-cli sync ashby \u0026\u0026 ashby-pp-cli search engineer --board ashby",
+        "comment": "Create a local mirror and search it offline"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "The board returns not found or no jobs",
+        "fix": "Use the board slug from jobs.ashbyhq.com/\u003cslug\u003e, not the display name or full URL."
+      },
+      {
+        "symptom": "Compensation filters return no matches",
+        "fix": "Add --include-compensation and confirm the board publishes structured compensation."
+      }
+    ],
+    "when_to_use": "Use for public career-site discovery, recruiting-market research, job alerts, structured exports, and local analysis of known Ashby boards.",
+    "anti_triggers": [
+      "Do not access authenticated recruiting data.",
+      "Do not submit applications.",
+      "Do not enumerate unknown boards or reveal unlisted postings."
+    ],
+    "recipes": [
+      {
+        "title": "Find remote engineering roles",
+        "command": "ashby-pp-cli postings list ashby --remote --department Engineering",
+        "explanation": "Uses structured remote and department filters."
+      },
+      {
+        "title": "Find published compensation",
+        "command": "ashby-pp-cli postings list ashby --include-compensation --has-compensation --currency USD --salary-min 150000",
+        "explanation": "Filters published structured compensation."
+      },
+      {
+        "title": "Build a local index",
+        "command": "ashby-pp-cli sync ashby --include-compensation",
+        "explanation": "Mirrors a known public board into SQLite."
+      },
+      {
+        "title": "Search a synced board",
+        "command": "ashby-pp-cli search product --board ashby --limit 20",
+        "explanation": "Queries the local full-text index."
+      }
+    ],
+    "trigger_phrases": [
+      "find jobs on an Ashby board",
+      "search Ashby job postings",
+      "list remote Ashby jobs",
+      "sync Ashby careers locally",
+      "get an Ashby posting by ID"
+    ]
+  }
+}
