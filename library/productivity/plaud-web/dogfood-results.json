@@ -1,6 +1,6 @@
 {
-  "dir": "library/productivity/plaud-web",
-  "spec_path": "library/productivity/plaud-web/spec.yaml",
+  "dir": "\u003ccli-dir\u003e/plaud-web",
+  "spec_path": "\u003ccli-dir\u003e/spec.yaml",
   "spec_source": "bundled",
   "verdict": "WARN",
   "path_check": {
