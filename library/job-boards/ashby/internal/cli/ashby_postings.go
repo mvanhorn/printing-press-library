@@ -175,36 +175,53 @@ func newAshbySyncCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer db.Close()
 			total := 0
+			removed := 0
 			for _, board := range boards {
 				jobs, err := fetchAshbyJobs(cmd, flags, board, includeCompensation)
 				if err != nil {
 					return fmt.Errorf("sync %s: %w", board, err)
 				}
-				listed := listedAshbyJobs(jobs)
-				items := make([]json.RawMessage, 0, len(listed))
-				for _, job := range listed {
-					raw, marshalErr := json.Marshal(job)
-					if marshalErr != nil {
-						return marshalErr
-					}
-					items = append(items, raw)
-				}
-				scoped := "postings:" + strings.ToLower(board)
-				stored, _, err := db.UpsertBatch(scoped, items)
+				stored, deleted, err := persistAshbyBoardSnapshot(db, board, jobs)
 				if err != nil {
 					return fmt.Errorf("sync %s: persist: %w", board, err)
 				}
+				scoped := "postings:" + strings.ToLower(board)
 				if err := db.SaveSyncState(scoped, "", stored); err != nil {
 					return fmt.Errorf("sync %s: save state: %w", board, err)
 				}
 				total += stored
+				removed += deleted
 			}
-			result, _ := json.Marshal(map[string]any{"boards": boards, "stored": total, "syncedAt": time.Now().UTC().Format(time.RFC3339)})
+			result, _ := json.Marshal(map[string]any{"boards": boards, "stored": total, "removed": removed, "syncedAt": time.Now().UTC().Format(time.RFC3339)})
 			return printOutputWithFlagsMeta(cmd.OutOrStdout(), result, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().BoolVar(&includeCompensation, "include-compensation", false, "Include public compensation data when available")
 	return cmd
+}
+
+func persistAshbyBoardSnapshot(db *store.Store, board string, jobs []ashbyJobPosting) (int, int, error) {
+	listed := listedAshbyJobs(jobs)
+	items := make([]json.RawMessage, 0, len(listed))
+	seenIDs := make([]string, 0, len(listed))
+	for _, job := range listed {
+		raw, err := json.Marshal(job)
+		if err != nil {
+			return 0, 0, err
+		}
+		items = append(items, raw)
+		seenIDs = append(seenIDs, job.ID)
+	}
+	scoped := "postings:" + strings.ToLower(board)
+	stored, _, err := db.UpsertBatch(scoped, items)
+	if err != nil {
+		return 0, 0, err
+	}
+	removed, err := db.ReconcileAll(scoped, seenIDs, "", nil)
+	if err != nil {
+		return 0, 0, err
+	}
+	return stored, removed, nil
 }
 
 // pp:data-source local

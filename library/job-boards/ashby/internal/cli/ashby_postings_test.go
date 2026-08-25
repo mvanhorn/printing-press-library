@@ -1,6 +1,11 @@
 package cli
 
-import "testing"
+import (
+	"context"
+	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/job-boards/ashby/internal/store"
+)
 
 func floatPtr(v float64) *float64 { return &v }
 
@@ -29,5 +34,29 @@ func TestListedAshbyJobs(t *testing.T) {
 	got := listedAshbyJobs([]ashbyJobPosting{{ID: "a", IsListed: true}, {ID: "b", IsListed: false}})
 	if len(got) != 1 || got[0].ID != "a" {
 		t.Fatalf("got %#v", got)
+	}
+}
+
+func TestPersistAshbyBoardSnapshotRemovesNewlyUnlistedPosting(t *testing.T) {
+	db, err := store.OpenWithContext(context.Background(), t.TempDir()+"/ashby.db")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	first := []ashbyJobPosting{{ID: "keep", Title: "Keep", IsListed: true}, {ID: "hide", Title: "Hide", IsListed: true}}
+	if stored, removed, err := persistAshbyBoardSnapshot(db, "example", first); err != nil || stored != 2 || removed != 0 {
+		t.Fatalf("first snapshot: stored=%d removed=%d err=%v", stored, removed, err)
+	}
+	second := []ashbyJobPosting{{ID: "keep", Title: "Keep", IsListed: true}, {ID: "hide", Title: "Hide", IsListed: false}}
+	if stored, removed, err := persistAshbyBoardSnapshot(db, "example", second); err != nil || stored != 1 || removed != 1 {
+		t.Fatalf("second snapshot: stored=%d removed=%d err=%v", stored, removed, err)
+	}
+	ids, err := db.ListIDs("postings:example")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(ids) != 1 || ids[0] != "keep" {
+		t.Fatalf("ids=%v, want [keep]", ids)
 	}
 }

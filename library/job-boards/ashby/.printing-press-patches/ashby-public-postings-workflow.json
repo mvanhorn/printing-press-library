@@ -8,7 +8,10 @@
   "reason": "The generated raw endpoint could expose records marked isListed=false and did not provide the job-board workflows expected from the Lever-style library entry.",
   "files": [
     "internal/cli/ashby_postings.go",
-    "internal/cli/ashby_postings_test.go"
+    "internal/cli/ashby_postings_test.go",
+    "internal/mcp/ashby_postings.go",
+    "internal/mcp/ashby_postings_test.go",
+    "internal/mcp/tools.go"
   ],
   "validated_outcome": "Canonical shipcheck passed; full live dogfood passed 69/69 counted cases with no hollow flagship coverage."
 }

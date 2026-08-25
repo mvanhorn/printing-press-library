@@ -47,7 +47,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/posting-api/job-board/{jobBoardName}", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "jobBoardName", WireName: "jobBoardName", Location: "path"}, {PublicName: "includeCompensation", WireName: "includeCompensation", Location: "query", Default: "false"}}, []string{"jobBoardName"}),
+		makeAshbyPublicJobPostingsHandler(),
 	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(

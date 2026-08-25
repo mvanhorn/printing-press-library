@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "8f86029923666830e693ec79e41a10f737cbc34293314cb31bb7cbadace67858",
+  "source_fingerprint": "8448905352884b2434f0b6951aef9ac40d0a505eb7b35a837aa8e3ffccb23ae5",
   "source_files": {
     "cmd/ashby-pp-cli/main.go": "b3e84b7c72391c05b0438b164b47b9645fe517c615297c65d68b0606361647b8",
     "cmd/ashby-pp-mcp/main.go": "a147a690d22ac0598693fdb710fa794a0be6d5f6e9d5efb46507b595b7acfa39",
@@ -20,8 +20,8 @@
     "internal/cache/cache.go": "525c5a4a069890338638bc86e2d0942a70cb16cc9efebfc23c541374eea06984",
     "internal/cli/agent_context.go": "19fe562510c3846297bdf9353059996360a90147f6e77ec5e09c0f3eb3938ea2",
     "internal/cli/api_discovery.go": "77dba8ddc7b7d0d84188236e579c9f8eea6d4f9a264ee9e781407b2c9e0ebadc",
-    "internal/cli/ashby_postings.go": "8f8d62bb2d8d264f70ae13627a5605a1279d507b446533fc0e4aa7e55fe9b9db",
-    "internal/cli/ashby_postings_test.go": "2207b760d9b054cca1881b6bc20a1d806bab5d3e11bb2be2695ef2370e837bfe",
+    "internal/cli/ashby_postings.go": "e6f003d4d11859a517bb700d7892603f840ab84014cfd10ce9d400ab856f3e39",
+    "internal/cli/ashby_postings_test.go": "4423f17434ceca4a54e109a8da933658ce9eb298a4945055b0733462dbbcbe3d",
     "internal/cli/channel_workflow.go": "58bb4609701604e73180cbb706a9f6ba192f82852139cd307c0b763b6f074d24",
     "internal/cli/data_source.go": "58ac48c7063c006ea5ba0508565942f90996840e68cbcba87e13ff8539a64198",
     "internal/cli/deliver.go": "a6bcc1abc12f5bc458bdd18fd48ee652a25bae9af9da51b7aaea481191a7a30a",
@@ -117,6 +117,8 @@
     "internal/learn/teach_log.go": "d6eb14afc533971189738c79f3025a4e4738ad0cff1f7177b03afbea6d5e2c4e",
     "internal/learn/teach_log_test.go": "ab79dc724450fd9a6a07f7ace48bf186815944f62867e1b3424dff44c639f571",
     "internal/learn/teach_test.go": "97e418da6ebaed07607524d1f96909c4e8e0d934187bdcc7be4facf812add1c8",
+    "internal/mcp/ashby_postings.go": "cc81c021e693efcdf7e1ff5b29df264233dba7f5db3bd3c2ae1df1a407b4a647",
+    "internal/mcp/ashby_postings_test.go": "75014b61e7f5613861540e58c01e6f4927adf02a577733b3f459a6ce69abacb7",
     "internal/mcp/bound/bound.go": "c9334f8971c44c1e4961b4b0c323e48b1964f82b30ce6d4d09f696e16f20dcbe",
     "internal/mcp/bound/bound_test.go": "ef8e0fa45413e639f6652d08974da65ef17bb0eeb1ebfb5c726ac50fdfcc289c",
     "internal/mcp/cobratree/classify.go": "6d42b91adb6db4f4d816d5f27c0b0199aebfcefd0d13b9d5cb84785117db3a16",
@@ -128,7 +130,7 @@
     "internal/mcp/cobratree/walker.go": "955b214a5c8e4972d1421170c5e91c6c342caa86aaf791f81b034b8cb48ac009",
     "internal/mcp/platform_gate.go": "e8b98a75043711ac73ca7d5a8427b86e1902a6477637f20371f793665cf56340",
     "internal/mcp/platform_gate_test.go": "a8e5b4899bba7a634ef424d4bfce12e81ff212b75999e11012f32a548f0ca9b0",
-    "internal/mcp/tools.go": "12bd4e2f407fb411d0fa2d6d3faca051977f5dda95114183f335acd7d8ac5ebd",
+    "internal/mcp/tools.go": "e3a80f583818c377d5af07418db166955393bc54f2d923c0d73ce90628551914",
     "internal/mcp/tools_test.go": "5628f16d9381228b009a77e254b3b4952c8eb2a76f87d6094af1b72da0630306",
     "internal/platform/conformance_test.go": "a51554b60322bf5e91c6174c8b060a112f842830ba520140e6f322e7f4b61cd9",
     "internal/platform/doctor.go": "450c2c029afa594d3619fba0700a9eb77579b399096b1f10a63574fd0d2f304e",

@@ -1,6 +1,6 @@
 {
   "dir": "/Users/kylelubieniecki/printing-press/.publish-repo-co-3-389ec929/library/job-boards/ashby",
-  "binary": "/var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/ashby-pp-cli-dogfood-4190432313",
+  "binary": "/var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/ashby-pp-cli-dogfood-4209512000",
   "level": "full",
   "verdict": "PASS",
   "matrix_size": 69,
@@ -96,7 +96,7 @@
         "--dry-run"
       ],
       "status": "pass",
-      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: /var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/printing-press-subprocess-3943641937/.config/ashby-pp-cli/config.toml\n  base_url: https://api.ashbyhq.com\n  version: 0.0.0-dev\n  Paths:\n    config: /var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/printing-press-subprocess-3943641937/.config/ashby-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/printing-press-subprocess-3943641937/.local/share/ashby-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/printing-press-subprocess-3943641937/.local/state/ashby-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/printing-press-subprocess-3943641937/.cache/ashby-pp-cli (XDG_CACHE_HOME)\nGET https://api.ashbyhq.com/\n\n(dry run - no request sent)\n"
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: /var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/printing-press-subprocess-2700534739/.config/ashby-pp-cli/config.toml\n  base_url: https://api.ashbyhq.com\n  version: 0.0.0-dev\n  Paths:\n    config: /var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/printing-press-subprocess-2700534739/.config/ashby-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/printing-press-subprocess-2700534739/.local/share/ashby-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/printing-press-subprocess-2700534739/.local/state/ashby-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/printing-press-subprocess-2700534739/.cache/ashby-pp-cli (XDG_CACHE_HOME)\nGET https://api.ashbyhq.com/\n\n(dry run - no request sent)\n"
     },
     {
       "command": "doctor",
@@ -107,7 +107,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://api.ashbyhq.com\",\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/printing-press-subprocess-3943641937/.config/ashby-pp-cli/config.toml\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/printing-press-subprocess-3943641937/.cache/ashby-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/printing-press-subprocess-3943641937/.config/ashby-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/printing-press-subprocess-3943641937/.local/share/ashby-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/printing-press-subprocess-3943641937/.local/state/ashby-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"0.0.0-dev\"\n}\nGET https://api.ashbyhq.com/\n\n(dry run - no request sent)\n"
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://api.ashbyhq.com\",\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/printing-press-subprocess-2700534739/.config/ashby-pp-cli/config.toml\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/printing-press-subprocess-2700534739/.cache/ashby-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/printing-press-subprocess-2700534739/.config/ashby-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/printing-press-subprocess-2700534739/.local/share/ashby-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/4h/hxkz52x943vg4pl9rpx342_c0000gn/T/printing-press-subprocess-2700534739/.local/state/ashby-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"0.0.0-dev\"\n}\nGET https://api.ashbyhq.com/\n\n(dry run - no request sent)\n"
     },
     {
       "command": "doctor",
@@ -1345,5 +1345,5 @@
       "reason": "no positional argument"
     }
   ],
-  "ran_at": "2026-08-25T01:50:44.756955Z"
+  "ran_at": "2026-08-25T01:57:05.370404Z"
 }
