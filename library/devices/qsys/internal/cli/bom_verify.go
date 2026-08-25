@@ -202,20 +202,3 @@ product page did not resolve a PDF, not that the vendor has no spec sheet.
 	cmd.Flags().StringVar(&qds, "qds", "", "Q-SYS Designer version to check against, e.g. 9.4")
 	return cmd
 }
-
-func newNovelBomCmd(flags *rootFlags) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:         "bom",
-		Short:       "Per-model equipment list checks: version support, EOL, and spec availability",
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
-		RunE:        parentNoSubcommandRunE(flags),
-	}
-	addNovelCommandIfAbsent(cmd, newNovelBomVerifyCmd(flags))
-	return cmd
-}
-
-func init() {
-	registerNovelCommand(func(root *cobra.Command, flags *rootFlags) {
-		addNovelCommandIfAbsent(root, newNovelBomCmd(flags))
-	})
-}

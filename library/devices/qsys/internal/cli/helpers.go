@@ -9,12 +9,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/mvanhorn/printing-press-library/library/devices/qsys/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/devices/qsys/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/devices/qsys/internal/platform"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	"io"
+	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
@@ -23,6 +19,12 @@ import (
 	"text/tabwriter"
 	"time"
 	"unicode"
+
+	"github.com/mvanhorn/printing-press-library/library/devices/qsys/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/devices/qsys/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/devices/qsys/internal/platform"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 var As = errors.As
@@ -151,6 +153,14 @@ type dryRunResult struct {
 	Would  string `json:"would"`
 }
 
+type harnessRefusalResult struct {
+	Refused bool   `json:"refused"`
+	Harness string `json:"harness"`
+	Action  string `json:"action"`
+	Reason  string `json:"reason"`
+	Would   string `json:"would"`
+}
+
 // writeDryRun ends a --dry-run short-circuit by reporting the action that was
 // skipped. Returning silently leaves a --json caller with empty stdout, which
 // is indistinguishable from a broken command rather than a deliberate no-op.
@@ -161,6 +171,29 @@ func writeDryRun(w io.Writer, flags *rootFlags, action string) error {
 		return json.NewEncoder(w).Encode(dryRunResult{DryRun: true, Action: action, Would: would})
 	}
 	_, err := fmt.Fprintf(w, "dry-run: would %s\n", would)
+	return err
+}
+
+// writeHarnessRefusal reports that a Printing Press harness blocked a visible
+// side effect. Returning silently leaves a --json or --agent caller with empty
+// stdout, which looks like a broken command rather than an intentional refusal.
+func writeHarnessRefusal(w io.Writer, flags *rootFlags, action string) error {
+	harness := cliutil.HarnessName()
+	if harness == "" {
+		harness = "harness"
+	}
+	reason := "Printing Press harness refuses visible side effects"
+	would := "run " + action + "; no visible side effect performed"
+	if flags != nil && flags.asJSON {
+		return json.NewEncoder(w).Encode(harnessRefusalResult{
+			Refused: true,
+			Harness: harness,
+			Action:  action,
+			Reason:  reason,
+			Would:   would,
+		})
+	}
+	_, err := fmt.Fprintf(w, "%s: %s; would %s\n", harness, reason, would)
 	return err
 }
 
@@ -424,26 +457,52 @@ type noopResult struct {
 	Reason string `json:"reason"`
 }
 
-func writeNoop(flags *rootFlags, reason, prose string) error {
-	if flags != nil && flags.asJSON {
-		return json.NewEncoder(os.Stdout).Encode(noopResult{Status: "noop", Reason: reason})
-	}
-	fmt.Fprintln(os.Stderr, prose)
-	return nil
+type noopWriteError struct {
+	prose string
+	cause error
 }
 
-func writeAPIErrorEnvelope(flags *rootFlags, err error, code int) {
+func (e *noopWriteError) Error() string {
+	if e.cause == nil {
+		return e.prose
+	}
+	return fmt.Sprintf("%s: %v", e.prose, e.cause)
+}
+
+func (e *noopWriteError) Unwrap() error { return e.cause }
+
+func writeNoop(w io.Writer, flags *rootFlags, reason, prose string) error {
+	result := &noopWriteError{prose: prose}
+	if flags != nil && flags.asJSON {
+		result.cause = json.NewEncoder(w).Encode(noopResult{Status: "noop", Reason: reason})
+		return apiErr(result)
+	}
+	_, result.cause = fmt.Fprintln(w, prose)
+	return apiErr(result)
+}
+
+func successfulNoop(err error) bool {
+	var typed *cliError
+	var result *noopWriteError
+	return errors.As(err, &typed) && errors.As(typed.err, &result) && result.cause == nil
+}
+
+func writeAPIErrorEnvelope(w io.Writer, flags *rootFlags, err error, code int) {
 	if flags == nil || !flags.asJSON {
 		return
 	}
-	_ = json.NewEncoder(os.Stdout).Encode(map[string]any{
+	_ = json.NewEncoder(w).Encode(map[string]any{
 		"error": err.Error(),
 		"code":  code,
 	})
 }
 
-// classifyAPIError maps API errors to structured exit codes with actionable hints.
-func classifyAPIError(err error, flags *rootFlags) error {
+// classifyAPIErrorOnly maps API errors to structured exit codes without writing.
+// Hand-written commands should use this helper when they own output sequencing.
+func classifyAPIErrorOnly(err error) error {
+	if err == nil {
+		return nil
+	}
 	var typed *cliError
 	if errors.As(err, &typed) {
 		return err
@@ -452,9 +511,7 @@ func classifyAPIError(err error, flags *rootFlags) error {
 	msg := err.Error()
 	switch {
 	case strings.Contains(msg, "HTTP 409"):
-		classified := apiErr(err)
-		writeAPIErrorEnvelope(flags, classified, ExitCode(classified))
-		return classified
+		return apiErr(err)
 	case strings.Contains(msg, "HTTP 401"):
 		return authErr(fmt.Errorf("%w\nhint: check your API credentials."+
 			"\n      Run 'qsys-pp-cli doctor' to check auth status.", err))
@@ -468,6 +525,23 @@ func classifyAPIError(err error, flags *rootFlags) error {
 	default:
 		return apiErr(err)
 	}
+}
+
+// classifyAPIError maps API errors to structured exit codes with actionable hints.
+func classifyAPIError(w io.Writer, err error, flags *rootFlags) error {
+	if err == nil {
+		return nil
+	}
+	var typed *cliError
+	if errors.As(err, &typed) {
+		return err
+	}
+	msg := err.Error()
+	if strings.Contains(msg, "HTTP 409") {
+	}
+	classified := classifyAPIErrorOnly(err)
+	writeAPIErrorEnvelope(w, flags, classified, ExitCode(classified))
+	return classified
 }
 
 func truncate(s string, max int) string {
@@ -488,6 +562,45 @@ func newTabWriter(w io.Writer) *tabwriter.Writer {
 // reserved characters within each segment remain safe in the request URL.
 func replacePathParam(path, name, value string) string {
 	return strings.ReplaceAll(path, "{"+name+"}", cliutil.EscapePathParam(value))
+}
+
+// replaceMultiSegmentPathParam substitutes a path param whose value may span
+// several URL path segments (e.g. product slugs like
+// installed/network/cx-q-series/cx-q-2k4 — the shape the spec's own
+// happy_args use). Each segment is escaped individually so the separating
+// slashes survive; www.qsys.com 404s on %2F-encoded slashes.
+func replaceMultiSegmentPathParam(path, name, value string) string {
+	segments := strings.Split(value, "/")
+	for i, segment := range segments {
+		segments[i] = cliutil.EscapePathParam(segment)
+	}
+	return strings.ReplaceAll(path, "{"+name+"}", strings.Join(segments, "/"))
+}
+
+func replaceURLIDPathParam(path, name, value string) string {
+	return replacePathParam(path, name, pathParamSegmentValue(value))
+}
+
+func pathParamSegmentValue(value string) string {
+	parsed, err := url.Parse(strings.TrimSpace(value))
+	if err != nil || parsed.Scheme == "" || parsed.Host == "" {
+		return value
+	}
+	escapedPath := strings.TrimRight(parsed.EscapedPath(), "/")
+	if escapedPath == "" {
+		return value
+	}
+	segment := escapedPath
+	if i := strings.LastIndex(segment, "/"); i >= 0 {
+		segment = segment[i+1:]
+	}
+	if segment == "" {
+		return value
+	}
+	if decoded, err := url.PathUnescape(segment); err == nil {
+		return decoded
+	}
+	return segment
 }
 
 const responsePathItemsKey = "__printing_press_response_path_items"
@@ -549,14 +662,16 @@ func paginatedGetWithResponsePath(ctx context.Context, c interface {
 func paginatedGet(ctx context.Context, c interface {
 	GetWithHeaders(ctx context.Context, path string, params map[string]string, headers map[string]string) (json.RawMessage, error)
 }, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam string, defaultPageSize int, nextCursorPath, hasMoreField string) (json.RawMessage, error) {
-	// Cursor params are exempt from the "0"/"false" strip: offset-paginated
-	// APIs send offset=0 on the first page.
+	// The cursor param is exempt from the "0"/"false" strip only for offset
+	// pagination, where offset=0 is a legitimate first page. Under id-cursor
+	// pagination 0 is not a real record id: APIs answer it with an empty page,
+	// so an unset cursor flag would silently empty every list command.
 	clean := map[string]string{}
 	for k, v := range params {
 		if v == "" {
 			continue
 		}
-		if k == cursorParam || (v != "0" && v != "false") {
+		if (k == cursorParam && paginationType == "offset") || (v != "0" && v != "false") {
 			clean[k] = v
 		}
 	}
@@ -579,6 +694,8 @@ func paginatedGet(ctx context.Context, c interface {
 	pageSize := 0
 	if paginationType == "offset" || paginationType == "page" {
 		pageSize = defaultPageSize
+		// A zero page size means the server controls the page size. Do not
+		// invent a limit or treat a short observed page as terminal.
 		hasPositiveLimit := false
 		if limitParam != "" {
 			if limit, err := strconv.Atoi(clean[limitParam]); err == nil && limit > 0 {
@@ -586,10 +703,7 @@ func paginatedGet(ctx context.Context, c interface {
 				hasPositiveLimit = true
 			}
 		}
-		if pageSize <= 0 {
-			pageSize = 100
-		}
-		if limitParam != "" && !hasPositiveLimit {
+		if limitParam != "" && !hasPositiveLimit && pageSize > 0 {
 			clean[limitParam] = strconv.Itoa(pageSize)
 		}
 	}
@@ -600,6 +714,8 @@ func paginatedGet(ctx context.Context, c interface {
 	collectionField := ""
 	collectionShapeSet := false
 	seenCursorTokens := map[string]struct{}{}
+	var previousPageItems []json.RawMessage
+	previousPageItemsSet := false
 	if sentCursor := clean[cursorParam]; sentCursor != "" {
 		seenCursorTokens[sentCursor] = struct{}{}
 	}
@@ -628,6 +744,12 @@ func paginatedGet(ctx context.Context, c interface {
 				return nil, fmt.Errorf("paginated response collection changed from %q to a bare array", collectionField)
 			}
 			collectionShapeSet = true
+			if previousPageItemsSet && paginatedItemsEqual(previousPageItems, items) {
+				emitPaginatedGetRepeatedPageWarning(ctx)
+				break
+			}
+			previousPageItems = append([]json.RawMessage(nil), items...)
+			previousPageItemsSet = true
 			allItems = append(allItems, items...)
 			if next, ok := nextFullPageOffsetCursor(clean, cursorParam, paginationType, pageSize, len(items)); ok {
 				if page >= paginatedGetMaxPages {
@@ -642,6 +764,7 @@ func paginatedGet(ctx context.Context, c interface {
 			var obj map[string]json.RawMessage
 			if json.Unmarshal(data, &obj) == nil {
 				itemCount := 0
+				nextCursorToken := ""
 				field, preserve := paginatedCollectionEnvelopeField(obj, path)
 				nested, ok := extractPaginatedItems(obj, path)
 				if !ok && preserve {
@@ -660,33 +783,40 @@ func paginatedGet(ctx context.Context, c interface {
 						}
 						return nil, fmt.Errorf("paginated response collection changed from a canonical array to %q", field)
 					}
+					if cursorLookupPath != "" {
+						if tokenRaw, ok := rawAtPath(obj, cursorLookupPath); ok {
+							nextCursorToken = paginationCursorToken(tokenRaw)
+						}
+					}
+					if previousPageItemsSet && paginatedItemsEqual(previousPageItems, nested) && (paginationType == "offset" || (cursorLookupPath != "" && (nextCursorToken == "" || nextCursorToken == clean[cursorParam]))) {
+						emitPaginatedGetRepeatedPageWarning(ctx)
+						break
+					}
+					previousPageItems = append([]json.RawMessage(nil), nested...)
+					previousPageItemsSet = true
 					allItems = append(allItems, nested...)
 					itemCount = len(nested)
 				}
 
 				// Check for next cursor
-				if cursorLookupPath != "" {
-					if tokenRaw, ok := rawAtPath(obj, cursorLookupPath); ok {
-						if token := paginationCursorToken(tokenRaw); token != "" {
-							foundCursorField = true
-							if _, seen := seenCursorTokens[token]; seen {
-								platform.MarkContextTruncated(ctx, platform.TruncationReason{Kind: "pagination_cursor_repeated", Configured: "unique_cursor", Observed: "repeated_cursor", MoreAvailable: true})
-								if humanFriendly {
-									fmt.Fprintf(os.Stderr, "warning: --all received the same pagination cursor twice; returning fetched pages only.\n")
-								} else {
-									fmt.Fprintf(os.Stderr, `{"event":"truncated","reason":"pagination_cursor_repeated","next_cursor_path":%q,"message":"--all received the same pagination cursor twice; returning fetched pages only"}`+"\n", cursorLookupPath)
-								}
-								break
-							}
-							seenCursorTokens[token] = struct{}{}
-							if page >= paginatedGetMaxPages {
-								emitPaginatedGetMaxPagesWarning(ctx)
-								break
-							}
-							clean[cursorParam] = token
-							continue
+				if nextCursorToken != "" {
+					foundCursorField = true
+					if _, seen := seenCursorTokens[nextCursorToken]; seen {
+						platform.MarkContextTruncated(ctx, platform.TruncationReason{Kind: "pagination_cursor_repeated", Configured: "unique_cursor", Observed: "repeated_cursor", MoreAvailable: true})
+						if humanFriendly {
+							fmt.Fprintf(os.Stderr, "warning: --all received the same pagination cursor twice; returning fetched pages only.\n")
+						} else {
+							fmt.Fprintf(os.Stderr, `{"event":"truncated","reason":"pagination_cursor_repeated","next_cursor_path":%q,"message":"--all received the same pagination cursor twice; returning fetched pages only"}`+"\n", cursorLookupPath)
 						}
+						break
 					}
+					seenCursorTokens[nextCursorToken] = struct{}{}
+					if page >= paginatedGetMaxPages {
+						emitPaginatedGetMaxPagesWarning(ctx)
+						break
+					}
+					clean[cursorParam] = nextCursorToken
+					continue
 				}
 
 				// Check has_more. Page and offset paginators can advance
@@ -697,7 +827,17 @@ func paginatedGet(ctx context.Context, c interface {
 						var more bool
 						if json.Unmarshal(moreRaw, &more) == nil {
 							if more {
-								if next, ok := nextClientSidePaginationCursor(clean, cursorParam, paginationType, pageSize); ok {
+								nextPageSize := pageSize
+								if nextPageSize <= 0 && paginationType == "offset" {
+									nextPageSize = itemCount
+									if nextPageSize <= 0 {
+										// A server can truthfully report more data after an
+										// empty page. Advance by one so --all does not stall
+										// forever when no page size has been observed yet.
+										nextPageSize = 1
+									}
+								}
+								if next, ok := nextClientSidePaginationCursor(clean, cursorParam, paginationType, nextPageSize); ok {
 									if page >= paginatedGetMaxPages {
 										emitPaginatedGetMaxPagesWarning(ctx)
 										break
@@ -843,8 +983,11 @@ func nextFullPageOffsetCursor(params map[string]string, cursorParam, paginationT
 	if (paginationType != "offset" && paginationType != "page") || itemCount == 0 {
 		return "", false
 	}
-	if pageSize <= 0 || itemCount < pageSize {
+	if pageSize > 0 && itemCount < pageSize {
 		return "", false
+	}
+	if pageSize <= 0 && paginationType == "offset" {
+		pageSize = itemCount
 	}
 	return nextClientSidePaginationCursor(params, cursorParam, paginationType, pageSize)
 }
@@ -943,6 +1086,27 @@ func emitPaginatedGetMaxPagesWarning(ctx context.Context) {
 	} else {
 		fmt.Fprintf(os.Stderr, `{"event":"truncated","reason":"max_pages_cap_hit","message":"--all reached the %d-page safety limit; returning fetched pages only"}`+"\n", paginatedGetMaxPages)
 	}
+}
+
+func emitPaginatedGetRepeatedPageWarning(ctx context.Context) {
+	platform.MarkContextTruncated(ctx, platform.TruncationReason{Kind: "pagination_page_repeated", Configured: "unique_page", Observed: "repeated_page", MoreAvailable: true})
+	if humanFriendly {
+		fmt.Fprintf(os.Stderr, "warning: --all received the same page twice; returning fetched pages only.\n")
+	} else {
+		fmt.Fprintf(os.Stderr, `{"event":"truncated","reason":"pagination_page_repeated","message":"--all received the same page twice; returning fetched pages only"}`+"\n")
+	}
+}
+
+func paginatedItemsEqual(previous, current []json.RawMessage) bool {
+	if len(previous) != len(current) {
+		return false
+	}
+	for i := range previous {
+		if string(previous[i]) != string(current[i]) {
+			return false
+		}
+	}
+	return true
 }
 
 func emitMissingPaginationCursorWarning(ctx context.Context, nextCursorPath string) {
@@ -1088,6 +1252,9 @@ func extractPaginatedItemsMatchingPath(obj map[string]json.RawMessage, requestPa
 var envelopeMetadataArrayKeys = map[string]bool{
 	"errors": true, "Errors": true,
 	"warnings": true, "Warnings": true,
+	// fetch_failures is emitted by fan-out scaffolding. It is bookkeeping,
+	// not a competing domain payload array during compact projection.
+	"fetch_failures": true, "FetchFailures": true,
 }
 
 // envelopeMetadataKeys lists pagination and collection-envelope metadata
@@ -1646,7 +1813,7 @@ func isDryRunResponseForClient(c any, data json.RawMessage) bool {
 	return ok && isDryRunResponse(dryRunClient.IsDryRun(), data)
 }
 
-func printOutputWithFlagsMeta(w io.Writer, data json.RawMessage, flags *rootFlags, agentMeta map[string]any) error {
+func printOutputWithFlagsMeta(w io.Writer, data json.RawMessage, flags *rootFlags, agentMeta map[string]any, documentedFields ...map[string]bool) error {
 	if err := validatePlatformAnalytics(flags); err != nil {
 		return err
 	}
@@ -1658,7 +1825,7 @@ func printOutputWithFlagsMeta(w io.Writer, data json.RawMessage, flags *rootFlag
 	if flags.selectFields != "" {
 		data = filterFields(data, flags.selectFields)
 	} else if flags.compact {
-		data = compactFields(data)
+		data = compactFields(data, documentedFields...)
 	}
 	if flags.agent && flags.asJSON && !flags.csv && !flags.plain && !flags.quiet {
 		wrapped, err := wrapAgentOutput(data, agentMeta)
@@ -1716,17 +1883,17 @@ var compactVerboseObjectFields = map[string]bool{
 // compactFields keeps only the most important fields for agent consumption.
 // For arrays: allowlist of high-gravity fields (no descriptions).
 // For single objects: blocklist that strips known-verbose fields (descriptions, comments, etc.).
-func compactFields(data json.RawMessage) json.RawMessage {
+func compactFields(data json.RawMessage, documentedFields ...map[string]bool) json.RawMessage {
 	// Try array first
 	var items []map[string]any
 	if err := json.Unmarshal(data, &items); err == nil {
-		return compactListFields(items)
+		return compactListFields(items, documentedFields...)
 	}
 
 	// Single object — use blocklist
 	var obj map[string]any
 	if err := json.Unmarshal(data, &obj); err == nil {
-		return compactObjectFields(obj)
+		return compactObjectFields(obj, documentedFields...)
 	}
 
 	return data
@@ -1751,7 +1918,7 @@ func compactFields(data json.RawMessage) json.RawMessage {
 // When an item still carries none of the keep keys, the original is
 // preserved so `--agent` does not silently emit {} for shapes whose key
 // names are entirely off-canonical.
-func compactListFields(items []map[string]any) json.RawMessage {
+func compactListFields(items []map[string]any, documentedFields ...map[string]bool) json.RawMessage {
 	keepFields := map[string]bool{
 		// Identity
 		"id": true, "name": true, "title": true, "identifier": true,
@@ -1773,6 +1940,11 @@ func compactListFields(items []map[string]any) json.RawMessage {
 		"date": true,
 		// Versioning
 		"version": true,
+	}
+	for _, fields := range documentedFields {
+		for field := range fields {
+			keepFields[field] = true
+		}
 	}
 	if len(items) > 0 {
 		keyCounts := map[string]int{}
@@ -1835,8 +2007,8 @@ func isCompactScalar(v any) bool {
 // "markdown" — those fields are payload on `get` commands and stripping them
 // under `--agent`/`--compact` is a silent loss; agents who want to omit them
 // can pass `--select` to specify only the fields they need.
-func compactObjectFields(obj map[string]any) json.RawMessage {
-	if compacted, ok := compactListEnvelopeObjectAtDepth(obj, 0); ok {
+func compactObjectFields(obj map[string]any, documentedFields ...map[string]bool) json.RawMessage {
+	if compacted, ok := compactListEnvelopeObjectAtDepth(obj, 0, documentedFields...); ok {
 		result, _ := json.Marshal(compacted)
 		return result
 	}
@@ -1850,25 +2022,34 @@ func compactObjectFields(obj map[string]any) json.RawMessage {
 	return result
 }
 
-func compactListEnvelopeObjectAtDepth(obj map[string]any, envelopeDepth int) (map[string]any, bool) {
+func compactListEnvelopeObjectAtDepth(obj map[string]any, envelopeDepth int, documentedFields ...map[string]bool) (map[string]any, bool) {
 	out := map[string]any{}
 	foundArray := false
+	payloadArrays := map[string]bool{}
 	for k, v := range obj {
-		if envelopeDepth == 0 && compactVerboseObjectFields[k] {
+		if envelopeMetadataArrayKeys[k] || envelopeMetadataKeys[k] {
+			continue
+		}
+		if _, ok := compactObjectArrayValue(v, documentedFields...); ok {
+			payloadArrays[k] = true
+		}
+	}
+	for k, v := range obj {
+		if envelopeDepth == 0 && compactVerboseObjectFields[k] && (!payloadArrays[k] || len(payloadArrays) > 1) {
 			continue
 		}
 		if envelopeMetadataArrayKeys[k] || envelopeMetadataKeys[k] {
 			out[k] = v
 			continue
 		}
-		if compacted, ok := compactObjectArrayValue(v); ok {
+		if compacted, ok := compactObjectArrayValue(v, documentedFields...); ok {
 			foundArray = true
 			out[k] = compacted
 			continue
 		}
 		if nested, ok := v.(map[string]any); ok {
 			if envelopeDepth < maxListEnvelopeDepth {
-				if compacted, ok := compactListEnvelopeObjectAtDepth(nested, envelopeDepth+1); ok {
+				if compacted, ok := compactListEnvelopeObjectAtDepth(nested, envelopeDepth+1, documentedFields...); ok {
 					foundArray = true
 					out[k] = compacted
 					continue
@@ -1883,7 +2064,7 @@ func compactListEnvelopeObjectAtDepth(obj map[string]any, envelopeDepth int) (ma
 	return out, true
 }
 
-func compactObjectArrayValue(v any) (any, bool) {
+func compactObjectArrayValue(v any, documentedFields ...map[string]bool) (any, bool) {
 	rawItems, ok := v.([]any)
 	if !ok || len(rawItems) == 0 {
 		return nil, false
@@ -1896,7 +2077,7 @@ func compactObjectArrayValue(v any) (any, bool) {
 		}
 		items = append(items, item)
 	}
-	compactedRaw := compactListFields(items)
+	compactedRaw := compactListFields(items, documentedFields...)
 	var compacted any
 	if err := json.Unmarshal(compactedRaw, &compacted); err != nil {
 		return nil, false
@@ -2614,9 +2795,14 @@ func defaultDBPath(name string) string {
 	dir, err := cliutil.DataDir()
 	if err != nil {
 		if home, homeErr := os.UserHomeDir(); homeErr == nil {
-			return filepath.Join(home, ".local", "share", name, "data.db")
+			return defaultDBPathInDir(filepath.Join(home, ".local", "share", name))
 		}
 		return "data.db"
 	}
-	return filepath.Join(dir, "data.db")
+	return defaultDBPathInDir(dir)
+}
+
+func defaultDBPathInDir(dir string) string {
+	unscoped := filepath.Join(dir, "data.db")
+	return unscoped
 }

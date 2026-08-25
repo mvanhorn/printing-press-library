@@ -152,9 +152,10 @@ agents can record playbooks without a file on disk.`,
 // existing family.
 func newPlaybookCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "playbook",
-		Short: "Inspect or amend stored CLI playbooks",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "playbook",
+		Short:       "Inspect or amend stored CLI playbooks",
+		Annotations: map[string]string{"pp:parent-group": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 	cmd.AddCommand(newPlaybookListCmd(flags))
 	cmd.AddCommand(newPlaybookAmendCmd(flags, learnCfg))

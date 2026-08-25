@@ -1,0 +1,281 @@
+{
+  "api_name": "qsys",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "q-sys-mcp",
+      "url": "https://github.com/tomsfaire/q-sys-mcp",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "qrc-client-js",
+      "url": "https://github.com/qsys-tools/qrc-client-js",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "QSC-QSYS-Launcher",
+      "url": "https://github.com/mckay115/QSC-QSYS-Launcher",
+      "language": "C#",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-25T01:44:25Z",
+  "novel_features": [
+    {
+      "name": "Unified product card",
+      "command": "product get",
+      "description": "See a Q-SYS product's specs, configuration pages, wiring guidance, known gotchas, and factory-reset procedure in one record.",
+      "rationale": "Requires joining two vendor websites, an extracted spec-sheet PDF, and the support article corpus locally - no QSC page shows all four.",
+      "example": "qsys-pp-cli product get CX-Q --agent",
+      "why_it_matters": "Reach for this first for any question about a single model; it answers spec, config, wiring, and gotcha questions in one call instead of four.",
+      "group": "One record, three sources"
+    },
+    {
+      "name": "BOM pre-quote sweep",
+      "command": "bom verify",
+      "description": "One report per model in an equipment list: Designer-version support, end-of-life status, LTS carry date, and spec-sheet availability.",
+      "rationale": "Neither QSC website accepts an equipment list as input; the verdict requires a local join across products, the compatibility matrix, and deprecation notices.",
+      "example": "qsys-pp-cli bom verify CX-Q TSC-70-G3 NL-C4 --qds 10.0 --agent",
+      "why_it_matters": "Use this before quoting to catch an unsupported or end-of-life part while a swap is still free.",
+      "group": "Equipment-list answers no vendor site can give"
+    },
+    {
+      "name": "BOM known-issue sweep",
+      "command": "bom risks",
+      "description": "Surface every known issue, awareness note, and troubleshooting article that touches any model on an equipment list, filtered to a Designer release.",
+      "rationale": "Requires the support article corpus indexed locally and matched per model - QSC's three sites have three separate search boxes and none takes a list.",
+      "example": "qsys-pp-cli bom risks CX-Q TSC-70-G3 --qds 10.0 --agent",
+      "why_it_matters": "Use this alongside bom verify to find the problems that are documented but not reflected in the compatibility matrix.",
+      "group": "Equipment-list answers no vendor site can give"
+    },
+    {
+      "name": "Version-support verdict for a list",
+      "command": "compat check",
+      "description": "Check a whole equipment list against a Q-SYS Designer version and get back what is supported and what is not.",
+      "rationale": "The compatibility matrix exists only as an HTML table; parsing it into local rows is what lets an arbitrary list be checked in one pass.",
+      "example": "qsys-pp-cli compat check CX-Q TSC-70-G3 NL-C4 --qds 10.0 --agent",
+      "why_it_matters": "Use this for the fast supported/not-supported answer when the client has standardized on a Designer version.",
+      "group": "Equipment-list answers no vendor site can give"
+    },
+    {
+      "name": "Designer release brief",
+      "command": "qds",
+      "description": "For one Q-SYS Designer release: known issues, LTS status and end date, and which hardware was removed.",
+      "rationale": "Requires joining per-release known-issue articles, including the LTS branch set, to the compatibility matrix and awareness notices.",
+      "example": "qsys-pp-cli qds 10.0 --agent",
+      "why_it_matters": "Use this when deciding whether to standardize a site on a Designer release, or before recommending an upgrade.",
+      "group": "Release and fault intelligence"
+    },
+    {
+      "name": "Designer fault-string lookup",
+      "command": "fault",
+      "description": "Paste the literal fault or status string Q-SYS Designer displays and get the article that explains it, plus the models it applies to.",
+      "rationale": "QSC titles its error and status articles with the exact strings Designer shows; matching them needs punctuation and casing normalization that a plain search box fumbles.",
+      "example": "qsys-pp-cli fault \"LAN A Streaming Error - Not Connected\" --agent",
+      "why_it_matters": "Use this on site when Designer shows a fault and the job network cannot reach a search engine.",
+      "group": "Release and fault intelligence"
+    },
+    {
+      "name": "Connection guidance by model",
+      "command": "connect",
+      "description": "Get the networking, wiring, and I/O guidance that actually applies to a given model, including third-party application notes.",
+      "rationale": "Resolves a model to its family and filters both the help pages and the application-note corpus to that family locally.",
+      "example": "qsys-pp-cli connect TSC-70-G3 --agent",
+      "why_it_matters": "Use this for how-do-I-wire-this-in questions instead of reading an entire networking section.",
+      "group": "One record, three sources"
+    },
+    {
+      "name": "Corpus extraction depth report",
+      "command": "coverage",
+      "description": "Report per source how many pages parsed, how many spec-sheet PDFs were linked versus actually text-extracted, and how many support articles were indexed.",
+      "rationale": "Only the local index knows what it failed to capture; linked-PDF count and extracted-PDF count are different numbers and the gap between them is invisible upstream.",
+      "example": "qsys-pp-cli coverage --agent",
+      "why_it_matters": "Run this after a harvest; a drop in extracted-PDF count means specs silently stopped being searchable.",
+      "group": "Trust the local copy"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Unified product card",
+      "command": "product get",
+      "description": "See a Q-SYS product's specs, configuration pages, wiring guidance, known gotchas, and factory-reset procedure in one record.",
+      "rationale": "Requires joining two vendor websites, an extracted spec-sheet PDF, and the support article corpus locally - no QSC page shows all four.",
+      "example": "qsys-pp-cli product get CX-Q --agent",
+      "why_it_matters": "Reach for this first for any question about a single model; it answers spec, config, wiring, and gotcha questions in one call instead of four.",
+      "group": "One record, three sources"
+    },
+    {
+      "name": "BOM pre-quote sweep",
+      "command": "bom verify",
+      "description": "One report per model in an equipment list: Designer-version support, end-of-life status, LTS carry date, and spec-sheet availability.",
+      "rationale": "Neither QSC website accepts an equipment list as input; the verdict requires a local join across products, the compatibility matrix, and deprecation notices.",
+      "example": "qsys-pp-cli bom verify CX-Q TSC-70-G3 NL-C4 --qds 10.0 --agent",
+      "why_it_matters": "Use this before quoting to catch an unsupported or end-of-life part while a swap is still free.",
+      "group": "Equipment-list answers no vendor site can give"
+    },
+    {
+      "name": "BOM known-issue sweep",
+      "command": "bom risks",
+      "description": "Surface every known issue, awareness note, and troubleshooting article that touches any model on an equipment list, filtered to a Designer release.",
+      "rationale": "Requires the support article corpus indexed locally and matched per model - QSC's three sites have three separate search boxes and none takes a list.",
+      "example": "qsys-pp-cli bom risks CX-Q TSC-70-G3 --qds 10.0 --agent",
+      "why_it_matters": "Use this alongside bom verify to find the problems that are documented but not reflected in the compatibility matrix.",
+      "group": "Equipment-list answers no vendor site can give"
+    },
+    {
+      "name": "Version-support verdict for a list",
+      "command": "compat check",
+      "description": "Check a whole equipment list against a Q-SYS Designer version and get back what is supported and what is not.",
+      "rationale": "The compatibility matrix exists only as an HTML table; parsing it into local rows is what lets an arbitrary list be checked in one pass.",
+      "example": "qsys-pp-cli compat check CX-Q TSC-70-G3 NL-C4 --qds 10.0 --agent",
+      "why_it_matters": "Use this for the fast supported/not-supported answer when the client has standardized on a Designer version.",
+      "group": "Equipment-list answers no vendor site can give"
+    },
+    {
+      "name": "Designer release brief",
+      "command": "qds",
+      "description": "For one Q-SYS Designer release: known issues, LTS status and end date, and which hardware was removed.",
+      "rationale": "Requires joining per-release known-issue articles, including the LTS branch set, to the compatibility matrix and awareness notices.",
+      "example": "qsys-pp-cli qds 10.0 --agent",
+      "why_it_matters": "Use this when deciding whether to standardize a site on a Designer release, or before recommending an upgrade.",
+      "group": "Release and fault intelligence"
+    },
+    {
+      "name": "Designer fault-string lookup",
+      "command": "fault",
+      "description": "Paste the literal fault or status string Q-SYS Designer displays and get the article that explains it, plus the models it applies to.",
+      "rationale": "QSC titles its error and status articles with the exact strings Designer shows; matching them needs punctuation and casing normalization that a plain search box fumbles.",
+      "example": "qsys-pp-cli fault \"LAN A Streaming Error - Not Connected\" --agent",
+      "why_it_matters": "Use this on site when Designer shows a fault and the job network cannot reach a search engine.",
+      "group": "Release and fault intelligence"
+    },
+    {
+      "name": "Connection guidance by model",
+      "command": "connect",
+      "description": "Get the networking, wiring, and I/O guidance that actually applies to a given model, including third-party application notes.",
+      "rationale": "Resolves a model to its family and filters both the help pages and the application-note corpus to that family locally.",
+      "example": "qsys-pp-cli connect TSC-70-G3 --agent",
+      "why_it_matters": "Use this for how-do-I-wire-this-in questions instead of reading an entire networking section.",
+      "group": "One record, three sources"
+    },
+    {
+      "name": "Corpus extraction depth report",
+      "command": "coverage",
+      "description": "Report per source how many pages parsed, how many spec-sheet PDFs were linked versus actually text-extracted, and how many support articles were indexed.",
+      "rationale": "Only the local index knows what it failed to capture; linked-PDF count and extracted-PDF count are different numbers and the gap between them is invisible upstream.",
+      "example": "qsys-pp-cli coverage --agent",
+      "why_it_matters": "Run this after a harvest; a drop in extracted-PDF count means specs silently stopped being searchable.",
+      "group": "Trust the local copy"
+    }
+  ],
+  "narrative": {
+    "display_name": "Q-SYS",
+    "headline": "Q-SYS specs, configuration, wiring, compatibility, and fault articles in one offline index - answering equipment-list questions no QSC website can take as input.",
+    "value_prop": "QSC splits every integrator answer across three sites: qsys.com carries the spec-sheet PDFs where the electrical numbers live, help.qsys.com carries configuration and compatibility with zero electrical specs, and support.qsys.com carries the FAQ, application notes, and fault articles. None of them accepts a list of models. This CLI harvests all three into local SQLite, joins them per product, and answers spec, configuration, wiring, compatibility, and fault questions offline - including from a job site with no usable network.",
+    "quickstart": [
+      {
+        "command": "qsys-pp-cli doctor --dry-run",
+        "comment": "confirm the CLI is healthy before harvesting anything"
+      },
+      {
+        "command": "qsys-pp-cli harvest --timeout 900s",
+        "comment": "build the local corpus from all three vendor sites; this is the one slow step"
+      },
+      {
+        "command": "qsys-pp-cli coverage",
+        "comment": "confirm spec-sheet PDFs were text-extracted, not just linked"
+      },
+      {
+        "command": "qsys-pp-cli product get CX-Q",
+        "comment": "the unified card: specs, config, wiring, gotchas"
+      },
+      {
+        "command": "qsys-pp-cli bom verify CX-Q TSC-70-G3 --qds 10.0",
+        "comment": "the pre-quote sweep across an equipment list"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "coverage reports PDFs linked but 0 text-extracted",
+        "fix": "re-run 'qsys-pp-cli harvest --only products --with-pdfs --timeout 900s'; text extraction needs pdftotext on PATH"
+      },
+      {
+        "symptom": "harvest dies at the FTS rebuild step",
+        "fix": "pass --timeout 900s; the 60s default kills a full product harvest before the search index finishes"
+      },
+      {
+        "symptom": "doctor reports 0 rows but coverage reports thousands",
+        "fix": "expected - harvest fills the domain tables and does not write sync_state; judge the corpus by 'coverage', not by doctor's cache section"
+      },
+      {
+        "symptom": "a product returns no spec text",
+        "fix": "about a third of Q-SYS products publish no spec-sheet PDF; check 'coverage' for the linked-vs-extracted split before assuming a bug"
+      }
+    ],
+    "when_to_use": "Use this CLI for questions about Q-SYS equipment: what a product's specifications are, how to configure it, how to wire and network it, whether an equipment list runs on a given Q-SYS Designer version, and what a fault string on a Designer screen means. It is built for AV integrators, designers, and commissioning techs working from an equipment list, and it works fully offline once harvested, which matters on job sites with locked-down networks.",
+    "anti_triggers": [
+      "Do not use this CLI to control a live Q-SYS Core - it never connects to hardware; use a QRC client library for that",
+      "Do not use it to look up control pin names for Lua or QRC scripting - it indexes equipment documentation, not the schematic control surface",
+      "Do not treat extracted spec text as authoritative for engineering sign-off - always confirm against the source PDF URL it returns",
+      "Do not use it for pricing, availability, or lead times - it indexes documentation only",
+      "Do not use it to create, revise, or version Q-SYS design files"
+    ],
+    "recipes": [
+      {
+        "title": "Pre-quote sweep across an equipment list",
+        "command": "qsys-pp-cli bom verify CX-Q TSC-70-G3 NL-C4 --qds 10.0 --agent",
+        "explanation": "Returns one row per model with version support, end-of-life status, LTS carry date, and spec-sheet URL."
+      },
+      {
+        "title": "Find the documented problems on a list",
+        "command": "qsys-pp-cli bom risks CX-Q TSC-70-G3 --qds 10.0 --agent",
+        "explanation": "Surfaces known-issue, awareness, and troubleshooting articles touching any model on the list."
+      },
+      {
+        "title": "Resolve a fault string from a Designer screen",
+        "command": "qsys-pp-cli fault \"LAN A Streaming Error - Not Connected\" --agent",
+        "explanation": "Matches the literal string against error/status and troubleshooting article titles and bodies."
+      },
+      {
+        "title": "Narrow a verbose product record for an agent",
+        "command": "qsys-pp-cli product get CX-Q --agent --select model,family,spec_pdf_url,discontinued",
+        "explanation": "Product records carry full spec-sheet text; --select trims the payload so an agent does not burn context on prose."
+      },
+      {
+        "title": "Decide whether to standardize on a Designer release",
+        "command": "qsys-pp-cli qds 10.0 --agent",
+        "explanation": "Known issues, LTS status and end date, and hardware removed in that release."
+      }
+    ],
+    "trigger_phrases": [
+      "q-sys specs",
+      "what q-sys designer version does this run on",
+      "how do I wire this q-sys",
+      "what does this q-sys fault mean",
+      "is this q-sys gear end of life",
+      "check this equipment list against q-sys designer",
+      "use qsys",
+      "run qsys"
+    ]
+  }
+}

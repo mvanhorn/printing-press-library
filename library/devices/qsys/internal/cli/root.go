@@ -208,18 +208,18 @@ func isCobraUsageError(err error) bool {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "qsys-pp-cli",
-		Short: `Qsys CLI — Q-SYS product specs, configuration procedures, and connection guides in one local index - with equipment-list…`,
-		Long: `Qsys CLI — Q-SYS product specs, configuration procedures, and connection guides in one local index - with equipment-list compatibility checks neither QSC website can do.
+		Short: `Qsys CLI — Q-SYS specs, configuration, wiring, compatibility, and fault articles in one offline index - answering equipment-list…`,
+		Long: `Qsys CLI — Q-SYS specs, configuration, wiring, compatibility, and fault articles in one offline index - answering equipment-list questions no QSC website can take as input.
 
 Highlights (not in the official API docs):
-  • product get   See a Q-SYS product's overview, spec-sheet text, configuration pages, and connection guidance in one record.
+  • product get   See a Q-SYS product's specs, configuration pages, wiring guidance, known gotchas, and factory-reset procedure in one record.
+  • bom verify   One report per model in an equipment list: Designer-version support, end-of-life status, LTS carry date, and spec-sheet availability.
+  • bom risks   Surface every known issue, awareness note, and troubleshooting article that touches any model on an equipment list, filtered to a Designer release.
   • compat check   Check a whole equipment list against a Q-SYS Designer version and get back what is supported and what is not.
-  • compat deprecated   Flag which models in a list are deprecated or discontinued before they reach a quote.
-  • connect   Get the networking, wiring, and I/O guidance that actually applies to a given model.
-  • bom verify   One report per model in an equipment list: version support, EOL status, and spec-sheet availability in a single pass.
-  • page get   Read a help page as of a specific Q-SYS Designer version from the versioned doc tree.
-  • coverage   Report how many products resolved a spec sheet and how many pages parsed, so extraction gaps are visible.
-  • integrations   Find which UC platforms (Teams, Zoom, Meet) a device is certified or integrated with.
+  • qds   For one Q-SYS Designer release: known issues, LTS status and end date, and which hardware was removed.
+  • fault   Paste the literal fault or status string Q-SYS Designer displays and get the article that explains it, plus the models it applies to.
+  • connect   Get the networking, wiring, and I/O guidance that actually applies to a given model, including third-party application notes.
+  • coverage   Report per source how many pages parsed, how many spec-sheet PDFs were linked versus actually text-extracted, and how many support articles were indexed.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'qsys-pp-cli doctor' to verify auth and connectivity.
@@ -243,11 +243,11 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().StringVar(&flags.receiptFile, "receipt-file", "", "Override the run receipt destination")
 	rootCmd.PersistentFlags().StringVar(&flags.auditDir, "audit-dir", "", "Aggregate the receipt and index under this audit directory")
 	rootCmd.PersistentFlags().BoolVar(&flags.noInput, "no-input", false, "Disable all interactive prompts (for CI/agents)")
-	rootCmd.PersistentFlags().StringVar(&flags.selectFields, "select", "", "Comma-separated fields to include in output (e.g. --select id,name,status)")
-	rootCmd.PersistentFlags().BoolVar(&flags.yes, "yes", false, "Skip confirmation prompts (for agents and scripts)")
+	rootCmd.PersistentFlags().StringVar(&flags.selectFields, "select", "", "Comma-separated fields to include in output")
+	rootCmd.PersistentFlags().BoolVar(&flags.yes, "yes", false, "Skip confirmation prompts (explicit confirmation for scripts)")
 	rootCmd.PersistentFlags().BoolVar(&noColor, "no-color", false, "Disable colored output")
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
-	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
+	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set agent-friendly output defaults (--json --compact --no-input --no-color)")
 	rootCmd.PersistentFlags().BoolVar(&flags.noLearn, "no-learn", false, "Disable the teach/recall learning loop for this invocation")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
 	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
@@ -328,9 +328,6 @@ See README.md or the bundled SKILL.md for recipes.`,
 			if !cmd.Flags().Changed("no-input") {
 				flags.noInput = true
 			}
-			if !cmd.Flags().Changed("yes") {
-				flags.yes = true
-			}
 			if !cmd.Flags().Changed("no-color") {
 				noColor = true
 			}
@@ -355,6 +352,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newCompatCmd(flags))
 	rootCmd.AddCommand(newPageCmd(flags))
 	rootCmd.AddCommand(newProductCmd(flags))
+	rootCmd.AddCommand(newSupportCmd(flags))
 	rootCmd.AddCommand(newDoctorCmd(flags))
 	if registeredPlatformSource != nil {
 		attachPlatformClientCommands(rootCmd, flags)
@@ -388,7 +386,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	addNovelCommandIfAbsent(rootCmd, newNovelBomCmd(flags))
 	addNovelCommandIfAbsent(rootCmd, newNovelConnectCmd(flags))
 	addNovelCommandIfAbsent(rootCmd, newNovelCoverageCmd(flags))
-	addNovelCommandIfAbsent(rootCmd, newNovelIntegrationsCmd(flags))
+	addNovelCommandIfAbsent(rootCmd, newNovelFaultCmd(flags))
+	addNovelCommandIfAbsent(rootCmd, newNovelQdsCmd(flags))
 	// Attach the conditional platform identity command last so ordinary,
 	// promoted, and novel API-owned `whoami` commands all win the name.
 	if registeredPlatformSource != nil {

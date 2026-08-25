@@ -25,14 +25,15 @@ func TestRecipeIntentHandlerBuildsRecipeArgs(t *testing.T) {
 	req := mcplib.CallToolRequest{Params: mcplib.CallToolParams{Arguments: map[string]any{
 		"slug": "required-value",
 	}}}
-	result, err := handleGetWiringGuidanceForATouchscreen(context.Background(), req)
+	result, err := handleResolveAFaultStringFromADesignerScreen(context.Background(), req)
 	if err != nil {
 		t.Fatalf("handler returned transport error: %v", err)
 	}
 	got := strings.TrimSpace(recipeToolText(t, result))
 	want := strings.Join([]string{
-		"connect",
+		"fault",
 		"required-value",
+		"--agent",
 	}, " ")
 	if got != want {
 		t.Fatalf("handler output = %q, want %q", got, want)
@@ -50,7 +51,7 @@ func TestRecipeIntentHandlerOverridesParams(t *testing.T) {
 	req := mcplib.CallToolRequest{Params: mcplib.CallToolParams{Arguments: map[string]any{
 		"slug": "required-value",
 	}}}
-	result, err := handleGetWiringGuidanceForATouchscreen(context.Background(), req)
+	result, err := handleResolveAFaultStringFromADesignerScreen(context.Background(), req)
 	if err != nil {
 		t.Fatalf("handler returned transport error: %v", err)
 	}

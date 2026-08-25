@@ -96,10 +96,15 @@ func TestHardenSQLiteFilesSkipsSymlinkSidecars(t *testing.T) {
 	if err := os.Symlink(targetPath, dbPath+"-wal"); err != nil {
 		t.Fatalf("create WAL symlink: %v", err)
 	}
+	journalPath := dbPath + "-journal"
+	if err := os.WriteFile(journalPath, nil, 0o644); err != nil {
+		t.Fatalf("create journal sidecar: %v", err)
+	}
 
 	hardenSQLiteFiles(dbPath)
 
 	assertPrivateMode(t, targetPath, 0o644)
+	assertPrivateMode(t, journalPath, 0o600)
 }
 
 func assertPrivateMode(t *testing.T, path string, want os.FileMode) {
@@ -135,11 +140,10 @@ func TestSchemaVersion_StampedOnFreshDB(t *testing.T) {
 }
 
 // TestOpenAppliesPragmas pins the connection-string contract: the store
-// must open in WAL journal mode with a non-zero busy_timeout so a read
-// concurrent with a write waits on the lock instead of failing immediately
-// with SQLITE_BUSY. It fails the instant the DSN regresses to the mattn-
-// style _journal_mode=WAL form, which modernc.org/sqlite silently drops —
-// see the OpenReadOnly comment for the driver-syntax detail.
+// must use the profile-selected journal mode with a non-zero busy_timeout and
+// disabled mmap so concurrent cross-process access stays pread-based. It fails
+// the instant the DSN regresses to the mattn-style pragma form, which
+// modernc.org/sqlite silently drops.
 func TestOpenAppliesPragmas(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 	s, err := Open(dbPath)
@@ -147,21 +151,21 @@ func TestOpenAppliesPragmas(t *testing.T) {
 		t.Fatalf("open: %v", err)
 	}
 	defer s.Close()
-
 	requirePragma(t, s.DB(), "journal_mode", "wal")
 	requirePragma(t, s.DB(), "busy_timeout", "5000")
+	requirePragma(t, s.DB(), "mmap_size", "0")
 
-	// The read-only handle (MCP sql/search, analytics) must see the same WAL
-	// file mode and carry the busy_timeout so it waits on a concurrent writer
-	// rather than erroring.
+	// The read-only handle (MCP sql/search, analytics) must retain its
+	// profile-compatible journal mode, carry the busy_timeout so it waits on a
+	// concurrent writer rather than erroring, and keep mmap disabled.
 	ro, err := OpenReadOnly(dbPath)
 	if err != nil {
 		t.Fatalf("open read-only: %v", err)
 	}
 	defer ro.Close()
-
 	requirePragma(t, ro.DB(), "journal_mode", "wal")
 	requirePragma(t, ro.DB(), "busy_timeout", "5000")
+	requirePragma(t, ro.DB(), "mmap_size", "0")
 }
 
 // requirePragma fails the test unless `PRAGMA <name>` reports want. It reads

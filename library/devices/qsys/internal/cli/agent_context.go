@@ -84,6 +84,7 @@ type agentContextCommand struct {
 	Short       string                `json:"short,omitempty"`
 	Annotations map[string]string     `json:"annotations,omitempty"`
 	Flags       []agentContextFlag    `json:"flags,omitempty"`
+	Runnable    bool                  `json:"runnable,omitempty"`
 	Subcommands []agentContextCommand `json:"subcommands,omitempty"`
 }
 
@@ -130,7 +131,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
 			Name:        "qsys-pp-cli",
-			Description: "Q-SYS product specs, configuration procedures, and connection guides in one local index - with equipment-list compatibility checks neither QSC website can do.",
+			Description: "Q-SYS specs, configuration, wiring, compatibility, and fault articles in one offline index - answering equipment-list questions no QSC website can take as input.",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{
@@ -183,9 +184,10 @@ func collectAgentCommands(c *cobra.Command) []agentContextCommand {
 			continue
 		}
 		entry := agentContextCommand{
-			Name:  sub.Name(),
-			Use:   sub.Use,
-			Short: sub.Short,
+			Name:     sub.Name(),
+			Use:      sub.Use,
+			Short:    sub.Short,
+			Runnable: sub.Runnable(),
 		}
 		// Surface Cobra annotations (e.g., pp:endpoint, mcp:read-only) so
 		// agents and the live-dogfood classifier can detect destructive-at-auth

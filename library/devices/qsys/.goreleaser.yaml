@@ -45,7 +45,7 @@ brews:
       owner: drummerms
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Q-SYS product specs, configuration procedures, and connection guides in one local index - with equipment-list compatibility checks neither QSC website can do."
+    description: "Q-SYS specs, configuration, wiring, compatibility, and fault articles in one offline index - answering equipment-list questions no QSC website can take as input."
     install: |
       bin.install "qsys-pp-cli"
       bin.install "qsys-pp-mcp"

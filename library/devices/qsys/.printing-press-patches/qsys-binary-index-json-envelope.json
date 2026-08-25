@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "qsys-binary-index-json-envelope",
+  "applied_at": "2026-08-24",
+  "base_run_id": "20260824-192635-14fb8c13",
+  "base_printing_press_version": "4.31.1",
+  "summary": "page index, product index, and support index render a JSON envelope ({format, bytes, body}) under --json instead of erroring.",
+  "reason": "Press 4.31.1's generated binary-response guard exits 2 on --json, while the press's own Phase 5 json_fidelity probe runs --json on every endpoint command — the generator fails its own live gate on any response_format: binary endpoint. The envelope also gives --agent callers parseable output.",
+  "files": [
+    "internal/cli/page_index.go",
+    "internal/cli/product_index.go",
+    "internal/cli/support_index.go"
+  ],
+  "validated_outcome": "All three index commands exit 0 with valid JSON under --json; full live dogfood repassed."
+}

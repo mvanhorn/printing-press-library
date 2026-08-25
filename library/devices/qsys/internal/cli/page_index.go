@@ -17,7 +17,7 @@ func newPageIndexCmd(flags *rootFlags) *cobra.Command {
 		Use:         "index",
 		Short:       "Fetch the Q-SYS Help sitemap listing every documentation page",
 		Example:     "  qsys-pp-cli page index",
-		Annotations: map[string]string{"pp:method": "GET", "pp:path": "/sitemap.xml", "mcp:read-only": "true", "pp:typed-exit-codes": "0,1"},
+		Annotations: map[string]string{"pp:method": "GET", "pp:path": "/sitemap.xml", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			path := "/sitemap.xml"
 			c, err := flags.newClient()
@@ -31,7 +31,7 @@ func newPageIndexCmd(flags *rootFlags) *cobra.Command {
 			params := map[string]string{}
 			data, prov, err := resolveReadWithStrategyResponsePathAndJSONGuard(cmd.Context(), c, flags, "auto", "page", false, path, params, headerOverrides, "", false, cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			_ = json.Valid
 			_ = os.Stderr
@@ -39,8 +39,19 @@ func newPageIndexCmd(flags *rootFlags) *cobra.Command {
 			if flags.quiet {
 				return nil
 			}
-			if flags.asJSON || flags.csv || flags.compact || flags.plain || flags.selectFields != "" {
-				return fmt.Errorf("binary response cannot be rendered as structured output; redirect stdout or use --deliver file:<path>")
+			if flags.asJSON {
+				// Binary/XML body wrapped in a JSON envelope so --json (and
+				// --agent) callers get parseable output instead of a usage
+				// error; the press's own Phase 5 json_fidelity probe runs
+				// --json on every endpoint command, binary responses included.
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"format": "binary",
+					"bytes":  len(data),
+					"body":   string(data),
+				}, flags)
+			}
+			if flags.csv || flags.compact || flags.plain || flags.selectFields != "" {
+				return usageErr(fmt.Errorf("binary response cannot be rendered as structured output; redirect stdout or use --deliver file:<path>"))
 			}
 			_, err = cmd.OutOrStdout().Write(data)
 			return err

@@ -10,23 +10,23 @@ import (
 	"testing"
 )
 
-// TestNovelCompatDeprecatedHelpWires smoke-tests that the compat deprecated command
+// TestNovelQdsHelpWires smoke-tests that the qds command
 // resolves at runtime and renders useful --help output. Catches wiring
 // regressions (missing AddCommand, panicking RunE on --help, etc.) before
 // review. Keep this smoke test when adding behavior-specific cases.
-func TestNovelCompatDeprecatedHelpWires(t *testing.T) {
+func TestNovelQdsHelpWires(t *testing.T) {
 	cmd := RootCmd()
-	cmd.SetArgs([]string{"compat", "deprecated", "--help"})
+	cmd.SetArgs([]string{"qds", "--help"})
 	var out bytes.Buffer
 	cmd.SetOut(&out)
 	cmd.SetErr(&out)
 	if err := cmd.Execute(); err != nil {
-		t.Fatalf("compat deprecated --help error = %v (novel command not wired correctly?)", err)
+		t.Fatalf("qds --help error = %v (novel command not wired correctly?)", err)
 	}
 	help := out.String()
-	for _, want := range []string{"Usage:", "deprecated"} {
+	for _, want := range []string{"Usage:", "qds"} {
 		if !strings.Contains(help, want) {
-			t.Fatalf("compat deprecated --help missing %q in output:\n%s", want, help)
+			t.Fatalf("qds --help missing %q in output:\n%s", want, help)
 		}
 	}
 }

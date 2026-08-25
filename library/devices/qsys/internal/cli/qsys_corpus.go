@@ -61,6 +61,8 @@ type harvestReport struct {
 	WithSpecSheet     int      `json:"products_with_spec_sheet"`
 	SpecTextExtracted int      `json:"products_with_spec_text"`
 	CompatRows        int      `json:"compat_rows"`
+	Support           int      `json:"support_articles"`
+	SupportAttempted  int      `json:"support_articles_attempted"`
 	Errors            []string `json:"errors"`
 	Note              string   `json:"note,omitempty"`
 }
@@ -74,21 +76,26 @@ func newHarvestCmd(flags *rootFlags) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:   "harvest",
-		Short: "Build the local Q-SYS corpus from help.qsys.com and qsys.com",
+		Short: "Build the local Q-SYS corpus from help.qsys.com, qsys.com, and support.qsys.com",
 		Long: strings.Trim(`
-Harvest walks both vendor sitemaps and builds the local corpus that every other
-command reads.
+Harvest walks all three vendor sitemaps and builds the local corpus that every
+other command reads.
 
 This is separate from 'sync' on purpose: 'sync' handles the generated endpoint
-resources, while the Q-SYS corpus is two scraped websites plus a PDF layer that
-must be joined locally. Run this first.
+resources, while the Q-SYS corpus is three scraped websites plus a PDF layer
+that must be joined locally. Run this first.
 
-The full harvest fetches roughly 750 help pages and 270 product pages, rate
-limited to be polite to the vendor servers. Use --only and --limit to narrow it.
+The full harvest fetches roughly 750 help pages, 270 product pages, and 1,900
+support articles, rate limited to be polite to the vendor servers. Use --only
+and --limit to narrow it.
+
+--only support is what makes 'fault', 'bom risks', and 'qds' work: those three
+read the knowledge base, and without it they return empty with a hint.
 `, "\n"),
 		Example: strings.Trim(`
   qsys-pp-cli harvest
   qsys-pp-cli harvest --only compat
+  qsys-pp-cli harvest --only support
   qsys-pp-cli harvest --only products --limit 25 --with-pdfs
 `, "\n"),
 		Annotations: map[string]string{"mcp:read-only": "true"},
@@ -100,14 +107,14 @@ limited to be polite to the vendor servers. Use --only and --limit to narrow it.
 			// build of the local corpus. Under the verifier we report the
 			// intent and exit cleanly instead of walking both vendor sites.
 			if cliutil.IsVerifyEnv() {
-				fmt.Fprintln(cmd.OutOrStdout(), "would harvest help.qsys.com and qsys.com into the local corpus")
+				fmt.Fprintln(cmd.OutOrStdout(), "would harvest help.qsys.com, qsys.com, and support.qsys.com into the local corpus")
 				return nil
 			}
 			switch only {
-			case "", "all", "pages", "products", "compat":
+			case "", "all", "pages", "products", "compat", "support":
 			default:
 				_ = cmd.Usage()
-				return usageErr(fmt.Errorf("--only must be one of: all, pages, products, compat"))
+				return usageErr(fmt.Errorf("--only must be one of: all, pages, products, compat, support"))
 			}
 
 			ctx, cancel := boundCtx(cmd.Context(), flags)
@@ -265,6 +272,48 @@ limited to be polite to the vendor servers. Use --only and --limit to narrow it.
 				}
 			}
 
+			if only == "" || only == "all" || only == "support" {
+				urls, err := c.Sitemap(ctx, qsys.SupportHost+"/sitemap.xml")
+				if err != nil {
+					rep.Errors = append(rep.Errors, "support sitemap: "+err.Error())
+				} else {
+					arts := qsys.SupportArticles(urls)
+					if limit > 0 && limit < len(arts) {
+						arts = arts[:limit]
+					}
+					rep.SupportAttempted = len(arts)
+					for _, u := range arts {
+						a, err := c.SupportArticle(ctx, u)
+						if err != nil {
+							rep.Errors = appendBounded(rep.Errors, "support "+u+": "+err.Error())
+							continue
+						}
+						if _, err := st.DB().ExecContext(ctx,
+							`INSERT INTO qsys_support(url, category, slug, title, body, synced_at)
+							 VALUES(?,?,?,?,?,?)
+							 ON CONFLICT(url) DO UPDATE SET
+							   category=excluded.category, slug=excluded.slug,
+							   title=excluded.title, body=excluded.body,
+							   synced_at=excluded.synced_at`,
+							a.URL, a.Category, a.Slug, a.Title, a.Text, now); err != nil {
+							return fmt.Errorf("writing support article %s: %w", u, err)
+						}
+						rep.Support++
+					}
+					// Same full-rebuild rule as the other two sources: the FTS
+					// tables carry no triggers, so the index is rebuilt from
+					// the base table after each phase.
+					if _, err := st.DB().ExecContext(ctx, `DELETE FROM qsys_support_fts`); err != nil {
+						return fmt.Errorf("clearing support search index: %w", err)
+					}
+					if _, err := st.DB().ExecContext(ctx,
+						`INSERT INTO qsys_support_fts(url, category, title, body)
+						 SELECT url, category, title, body FROM qsys_support`); err != nil {
+						return fmt.Errorf("rebuilding support search index: %w", err)
+					}
+				}
+			}
+
 			if err := recordHarvest(ctx, st.DB(), rep, now); err != nil {
 				return err
 			}
@@ -280,9 +329,10 @@ limited to be polite to the vendor servers. Use --only and --limit to narrow it.
 				return printJSONFiltered(cmd.OutOrStdout(), rep, flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(),
-				"pages     %d/%d\nproducts  %d/%d (%d with spec sheet, %d with extracted text)\ncompat    %d rows\nerrors    %d\ndatabase  %s\n",
+				"pages     %d/%d\nproducts  %d/%d (%d with spec sheet, %d with extracted text)\ncompat    %d rows\nsupport   %d/%d articles\nerrors    %d\ndatabase  %s\n",
 				rep.Pages, rep.PagesAttempted, rep.Products, rep.ProductsAttempted,
-				rep.WithSpecSheet, rep.SpecTextExtracted, rep.CompatRows, len(rep.Errors), dbPath)
+				rep.WithSpecSheet, rep.SpecTextExtracted, rep.CompatRows,
+				rep.Support, rep.SupportAttempted, len(rep.Errors), dbPath)
 			if rep.Note != "" {
 				fmt.Fprintf(cmd.OutOrStdout(), "note      %s\n", rep.Note)
 			}
@@ -290,7 +340,7 @@ limited to be polite to the vendor servers. Use --only and --limit to narrow it.
 		},
 	}
 	cmd.Flags().StringVar(&dbPath, "db", "", "Corpus database path")
-	cmd.Flags().StringVar(&only, "only", "", "Harvest a subset: all, pages, products, compat")
+	cmd.Flags().StringVar(&only, "only", "", "Harvest a subset: all, pages, products, compat, support")
 	cmd.Flags().IntVar(&limit, "limit", 0, "Maximum items per source (0 = no limit)")
 	cmd.Flags().BoolVar(&withPDFs, "with-pdfs", false, "Also download and text-extract spec-sheet PDFs (slower; needs pdftotext)")
 	return cmd
@@ -314,6 +364,7 @@ func recordHarvest(ctx context.Context, db *sql.DB, rep harvestReport, now strin
 		{"pages", rep.PagesAttempted, rep.Pages, 0},
 		{"products", rep.ProductsAttempted, rep.Products, rep.WithSpecSheet},
 		{"compat", rep.CompatRows, rep.CompatRows, 0},
+		{"support", rep.SupportAttempted, rep.Support, 0},
 	}
 	lastErr := ""
 	if len(rep.Errors) > 0 {

@@ -15,6 +15,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -72,6 +73,47 @@ func setPlatformRoots(t *testing.T) string {
 	return root
 }
 
+func TestReadOnlySQLiteDSNUsesLocalFileURI(t *testing.T) {
+	for _, test := range []struct {
+		path string
+		want string
+	}{
+		{path: "C:/Users/example/data.db", want: "file:///C:/Users/example/data.db?mode=ro"},
+		{path: "data.db", want: "file:data.db?mode=ro"},
+		{path: "//server/share/data.db", want: "file:////server/share/data.db?mode=ro"},
+	} {
+		if got := readOnlySQLiteDSN(test.path); got != test.want {
+			t.Fatalf("SQLite DSN for %q = %q, want %q", test.path, got, test.want)
+		}
+	}
+
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	db, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.Exec(`CREATE TABLE dsn_fixture (value TEXT NOT NULL); INSERT INTO dsn_fixture VALUES ('readable')`); err != nil {
+		db.Close()
+		t.Fatal(err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	readOnly, err := sql.Open("sqlite", readOnlySQLiteDSN(dbPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer readOnly.Close()
+	var value string
+	if err := readOnly.QueryRow("SELECT value FROM dsn_fixture").Scan(&value); err != nil {
+		t.Fatalf("read-only SQLite query failed: %v", err)
+	}
+	if value != "readable" {
+		t.Fatalf("read-only SQLite value = %q, want %q", value, "readable")
+	}
+}
+
 func validSyntheticProfile(name string) *Profile {
 	return &Profile{
 		SchemaVersion: 1,
@@ -100,8 +142,10 @@ func TestProfileParserAndSelectionConformance(t *testing.T) {
 		t.Fatalf("loaded name = %q", loaded.Name)
 	}
 	path, _ := ProfilePath("synthetic")
-	if info, err := os.Stat(path); err != nil || info.Mode().Perm() != 0o600 {
-		t.Fatalf("profile mode = %v, err = %v", info.Mode().Perm(), err)
+	if runtime.GOOS != "windows" {
+		if info, err := os.Stat(path); err != nil || info.Mode().Perm() != 0o600 {
+			t.Fatalf("profile mode = %v, err = %v", info.Mode().Perm(), err)
+		}
 	}
 
 	for _, reference := range []string{"literal-secret", "$TOKEN", "${TOKEN}", "file:///tmp/key", "opaque://vault/item", "opaque://vault//field"} {
@@ -312,8 +356,10 @@ func TestTenantGateAndIsolationConformance(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if info.Mode().Perm() != 0o600 {
-		t.Fatalf("cache fingerprint key mode = %v", info.Mode().Perm())
+	if runtime.GOOS != "windows" {
+		if info.Mode().Perm() != 0o600 {
+			t.Fatalf("cache fingerprint key mode = %v", info.Mode().Perm())
+		}
 	}
 
 	otherPaths, err := PathsFor("client-two", "sample-pp-cli", "sample")
@@ -703,8 +749,10 @@ func TestSharedLimiterHonorsBurstAndCrossInstanceLedger(t *testing.T) {
 	if len(waits) != 2 || waits[0] != time.Second || waits[1] != 2*time.Second {
 		t.Fatalf("shared ledger waits = %v", waits)
 	}
-	if info, err := os.Stat(first.path); err != nil || info.Mode().Perm() != 0o600 {
-		t.Fatalf("limiter ledger mode = %v err=%v", info.Mode().Perm(), err)
+	if runtime.GOOS != "windows" {
+		if info, err := os.Stat(first.path); err != nil || info.Mode().Perm() != 0o600 {
+			t.Fatalf("limiter ledger mode = %v err=%v", info.Mode().Perm(), err)
+		}
 	}
 }
 

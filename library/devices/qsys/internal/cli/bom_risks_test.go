@@ -10,23 +10,23 @@ import (
 	"testing"
 )
 
-// TestNovelIntegrationsHelpWires smoke-tests that the integrations command
+// TestNovelBomRisksHelpWires smoke-tests that the bom risks command
 // resolves at runtime and renders useful --help output. Catches wiring
 // regressions (missing AddCommand, panicking RunE on --help, etc.) before
 // review. Keep this smoke test when adding behavior-specific cases.
-func TestNovelIntegrationsHelpWires(t *testing.T) {
+func TestNovelBomRisksHelpWires(t *testing.T) {
 	cmd := RootCmd()
-	cmd.SetArgs([]string{"integrations", "--help"})
+	cmd.SetArgs([]string{"bom", "risks", "--help"})
 	var out bytes.Buffer
 	cmd.SetOut(&out)
 	cmd.SetErr(&out)
 	if err := cmd.Execute(); err != nil {
-		t.Fatalf("integrations --help error = %v (novel command not wired correctly?)", err)
+		t.Fatalf("bom risks --help error = %v (novel command not wired correctly?)", err)
 	}
 	help := out.String()
-	for _, want := range []string{"Usage:", "integrations"} {
+	for _, want := range []string{"Usage:", "risks"} {
 		if !strings.Contains(help, want) {
-			t.Fatalf("integrations --help missing %q in output:\n%s", want, help)
+			t.Fatalf("bom risks --help missing %q in output:\n%s", want, help)
 		}
 	}
 }

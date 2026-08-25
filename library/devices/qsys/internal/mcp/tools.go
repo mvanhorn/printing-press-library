@@ -844,9 +844,9 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 	}
 	ctx := map[string]any{
 		"api":         "qsys",
-		"description": "Q-SYS product specs, configuration procedures, and connection guides in one local index - with equipment-list compatibility checks neither QSC website can do.",
+		"description": "Q-SYS specs, configuration, wiring, compatibility, and fault articles in one offline index - answering equipment-list questions no QSC website can take as input.",
 		"archetype":   "infrastructure",
-		"tool_count":  10,
+		"tool_count":  12,
 		"paths":       paths,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion qsys-pp-cli binary.",
@@ -881,6 +881,13 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"syncable":    true,
 				"searchable":  true,
 			},
+			{
+				"name":        "support",
+				"description": "Q-SYS support knowledge base: FAQ, application notes, awareness, troubleshooting, error/status messages",
+				"endpoints":   []string{"article", "index"},
+				"syncable":    true,
+				"searchable":  true,
+			},
 		},
 		"query_tips": []string{
 			"Pagination uses cursor-based paging. Pass after parameter for subsequent pages.",
@@ -892,24 +899,24 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Unified product card", "command": "product get", "description": "See a Q-SYS product's overview, spec-sheet text, configuration pages, and connection guidance in one record.", "rationale": "Requires joining the qsys.com product page, its spec-sheet PDF, and the help.qsys.com configuration pages into a single local record - a join that spans two separate websites and a PDF.", "via": "mcp-command-mirror"},
-			{"name": "BOM compatibility check", "command": "compat check", "description": "Check a whole equipment list against a Q-SYS Designer version and get back what is supported and what is not.", "rationale": "Requires the hardware-compatibility matrix parsed into queryable rows so a list of models can be checked at once; the website presents it as a table you read by eye, one model at a time.", "via": "mcp-command-mirror"},
-			{"name": "Deprecation sweep", "command": "compat deprecated", "description": "Flag which models in a list are deprecated or discontinued before they reach a quote.", "rationale": "Cross-references deprecation notices against the discontinued-product family list locally; no single page on either site answers this for an arbitrary model list.", "via": "mcp-command-mirror"},
-			{"name": "Connection guidance by model", "command": "connect", "description": "Get the networking, wiring, and I/O guidance that actually applies to a given model.", "rationale": "Requires resolving a model to its family and then to the relevant subset of networking and wiring pages; the help site presents a flat section the reader filters by hand.", "via": "mcp-command-mirror"},
-			{"name": "BOM sweep — one report per model", "command": "bom verify", "description": "One report per model in an equipment list: version support, EOL status, and spec-sheet availability in a single pass.", "rationale": "Requires joining products, the compatibility matrix, and deprecation notices locally; neither QSC site can answer a whole BOM at once.", "via": "mcp-command-mirror"},
-			{"name": "Version-aware page reads", "command": "page get", "description": "Read a help page as of a specific Q-SYS Designer version from the versioned doc tree.", "rationale": "Requires addressing the versioned doc trees (/q-sys_9.4/, /q-sys_9.6/, /q-sys_10.0/, all verified HTTP 200); the live site shows only the current release, so a 9.4 system is silently documented by 10.x text.", "via": "mcp-command-mirror"},
-			{"name": "Extraction coverage report", "command": "coverage", "description": "Report how many products resolved a spec sheet and how many pages parsed, so extraction gaps are visible.", "rationale": "Only a local index knows what it failed to capture; a website can never tell you what it did not give you.", "via": "mcp-command-mirror"},
-			{"name": "UC platform integration lookup", "command": "integrations", "description": "Find which UC platforms (Teams, Zoom, Meet) a device is certified or integrated with.", "rationale": "Requires indexing the 34 Application_Integration pages and matching them to product models locally; no page on either site indexes certifications by device.", "via": "mcp-command-mirror"},
+			{"name": "Unified product card", "command": "product get", "description": "See a Q-SYS product's specs, configuration pages, wiring guidance, known gotchas, and factory-reset procedure in one record.", "rationale": "Requires joining two vendor websites, an extracted spec-sheet PDF, and the support article corpus locally - no QSC page shows all four.", "via": "mcp-command-mirror"},
+			{"name": "BOM pre-quote sweep", "command": "bom verify", "description": "One report per model in an equipment list: Designer-version support, end-of-life status, LTS carry date, and spec-sheet availability.", "rationale": "Neither QSC website accepts an equipment list as input; the verdict requires a local join across products, the compatibility matrix, and deprecation notices.", "via": "mcp-command-mirror"},
+			{"name": "BOM known-issue sweep", "command": "bom risks", "description": "Surface every known issue, awareness note, and troubleshooting article that touches any model on an equipment list, filtered to a Designer release.", "rationale": "Requires the support article corpus indexed locally and matched per model - QSC's three sites have three separate search boxes and none takes a list.", "via": "mcp-command-mirror"},
+			{"name": "Version-support verdict for a list", "command": "compat check", "description": "Check a whole equipment list against a Q-SYS Designer version and get back what is supported and what is not.", "rationale": "The compatibility matrix exists only as an HTML table; parsing it into local rows is what lets an arbitrary list be checked in one pass.", "via": "mcp-command-mirror"},
+			{"name": "Designer release brief", "command": "qds", "description": "For one Q-SYS Designer release: known issues, LTS status and end date, and which hardware was removed.", "rationale": "Requires joining per-release known-issue articles, including the LTS branch set, to the compatibility matrix and awareness notices.", "via": "mcp-command-mirror"},
+			{"name": "Designer fault-string lookup", "command": "fault", "description": "Paste the literal fault or status string Q-SYS Designer displays and get the article that explains it, plus the models it applies to.", "rationale": "QSC titles its error and status articles with the exact strings Designer shows; matching them needs punctuation and casing normalization that a plain search box fumbles.", "via": "mcp-command-mirror"},
+			{"name": "Connection guidance by model", "command": "connect", "description": "Get the networking, wiring, and I/O guidance that actually applies to a given model, including third-party application notes.", "rationale": "Resolves a model to its family and filters both the help pages and the application-note corpus to that family locally.", "via": "mcp-command-mirror"},
+			{"name": "Corpus extraction depth report", "command": "coverage", "description": "Report per source how many pages parsed, how many spec-sheet PDFs were linked versus actually text-extracted, and how many support articles were indexed.", "rationale": "Only the local index knows what it failed to capture; linked-PDF count and extracted-PDF count are different numbers and the gap between them is invisible upstream.", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Unified product card", "insight": "Requires joining the qsys.com product page, its spec-sheet PDF, and the help.qsys.com configuration pages into a single local record - a join that spans two separate websites and a PDF."},
-			{"topic": "BOM compatibility check", "insight": "Requires the hardware-compatibility matrix parsed into queryable rows so a list of models can be checked at once; the website presents it as a table you read by eye, one model at a time."},
-			{"topic": "Deprecation sweep", "insight": "Cross-references deprecation notices against the discontinued-product family list locally; no single page on either site answers this for an arbitrary model list."},
-			{"topic": "Connection guidance by model", "insight": "Requires resolving a model to its family and then to the relevant subset of networking and wiring pages; the help site presents a flat section the reader filters by hand."},
-			{"topic": "BOM sweep — one report per model", "insight": "Requires joining products, the compatibility matrix, and deprecation notices locally; neither QSC site can answer a whole BOM at once."},
-			{"topic": "Version-aware page reads", "insight": "Requires addressing the versioned doc trees (/q-sys_9.4/, /q-sys_9.6/, /q-sys_10.0/, all verified HTTP 200); the live site shows only the current release, so a 9.4 system is silently documented by 10.x text."},
-			{"topic": "Extraction coverage report", "insight": "Only a local index knows what it failed to capture; a website can never tell you what it did not give you."},
-			{"topic": "UC platform integration lookup", "insight": "Requires indexing the 34 Application_Integration pages and matching them to product models locally; no page on either site indexes certifications by device."},
+			{"topic": "Unified product card", "insight": "Requires joining two vendor websites, an extracted spec-sheet PDF, and the support article corpus locally - no QSC page shows all four."},
+			{"topic": "BOM pre-quote sweep", "insight": "Neither QSC website accepts an equipment list as input; the verdict requires a local join across products, the compatibility matrix, and deprecation notices."},
+			{"topic": "BOM known-issue sweep", "insight": "Requires the support article corpus indexed locally and matched per model - QSC's three sites have three separate search boxes and none takes a list."},
+			{"topic": "Version-support verdict for a list", "insight": "The compatibility matrix exists only as an HTML table; parsing it into local rows is what lets an arbitrary list be checked in one pass."},
+			{"topic": "Designer release brief", "insight": "Requires joining per-release known-issue articles, including the LTS branch set, to the compatibility matrix and awareness notices."},
+			{"topic": "Designer fault-string lookup", "insight": "QSC titles its error and status articles with the exact strings Designer shows; matching them needs punctuation and casing normalization that a plain search box fumbles."},
+			{"topic": "Connection guidance by model", "insight": "Resolves a model to its family and filters both the help pages and the application-note corpus to that family locally."},
+			{"topic": "Corpus extraction depth report", "insight": "Only the local index knows what it failed to capture; linked-PDF count and extracted-PDF count are different numbers and the gap between them is invisible upstream."},
 		},
 	}
 	return toolResultJSON(ctx)

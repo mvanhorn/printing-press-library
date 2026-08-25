@@ -54,6 +54,23 @@ func EnsureQSYSSchema(ctx context.Context, db *sql.DB) error {
 			synced_at        TEXT NOT NULL DEFAULT ''
 		)`,
 
+		// support.qsys.com knowledge base. Category is the sitemap path segment
+		// and is stored verbatim: `fault`, `bom risks`, and `qds` all filter on
+		// it, and it is the only classification the vendor publishes.
+		//
+		// No normalized match key is stored on purpose. Fault-string matching
+		// folds punctuation at query time, and a stored key would silently go
+		// stale the first time that folding is improved.
+		`CREATE TABLE IF NOT EXISTS qsys_support (
+			url        TEXT PRIMARY KEY,
+			category   TEXT NOT NULL DEFAULT '',
+			slug       TEXT NOT NULL DEFAULT '',
+			title      TEXT NOT NULL DEFAULT '',
+			body       TEXT NOT NULL DEFAULT '',
+			synced_at  TEXT NOT NULL DEFAULT ''
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_qsys_support_category ON qsys_support(category)`,
+
 		// Harvest bookkeeping. `coverage` reads this to report how much of each
 		// site actually parsed, so a silent extraction regression is visible as
 		// a number instead of an empty result set.
@@ -71,6 +88,9 @@ func EnsureQSYSSchema(ctx context.Context, db *sql.DB) error {
 		)`,
 		`CREATE VIRTUAL TABLE IF NOT EXISTS qsys_products_fts USING fts5(
 			model UNINDEXED, family UNINDEXED, overview, spec_text
+		)`,
+		`CREATE VIRTUAL TABLE IF NOT EXISTS qsys_support_fts USING fts5(
+			url UNINDEXED, category UNINDEXED, title, body
 		)`,
 	}
 	for _, s := range stmts {
@@ -93,7 +113,7 @@ func (s *Store) SearchCorpus(query string, limit int) ([]json.RawMessage, error)
 	if limit <= 0 {
 		limit = 50
 	}
-	matchQuery := ftsMatchQuery(query)
+	matchQuery := FTSMatchQuery(query)
 	if matchQuery == "" {
 		return nil, nil
 	}
@@ -170,5 +190,40 @@ func (s *Store) SearchCorpus(query string, limit int) ([]json.RawMessage, error)
 		return nil, err
 	}
 	_ = qrows.Close()
+
+	srows, err := s.db.Query(
+		`SELECT url, category, title, snippet(qsys_support_fts, 3, '[', ']', ' ... ', 12)
+		 FROM qsys_support_fts WHERE qsys_support_fts MATCH ? ORDER BY rank LIMIT ?`,
+		matchQuery, limit)
+	if err != nil {
+		if strings.Contains(err.Error(), "no such table") {
+			return out, nil
+		}
+		return nil, err
+	}
+	for srows.Next() {
+		var url, category, title, snip string
+		if err := srows.Scan(&url, &category, &title, &snip); err != nil {
+			_ = srows.Close()
+			return nil, err
+		}
+		b, err := json.Marshal(map[string]any{
+			"resource_type": "support_article",
+			"url":           url,
+			"category":      category,
+			"title":         title,
+			"snippet":       snip,
+		})
+		if err != nil {
+			_ = srows.Close()
+			return nil, err
+		}
+		out = append(out, b)
+	}
+	if err := srows.Err(); err != nil {
+		_ = srows.Close()
+		return nil, err
+	}
+	_ = srows.Close()
 	return out, nil
 }

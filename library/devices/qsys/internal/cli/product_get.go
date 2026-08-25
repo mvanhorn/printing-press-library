@@ -249,3 +249,16 @@ func trimTo(s string, n int) string {
 	}
 	return s[:n-1] + "…"
 }
+
+// Self-registration: `product get` hangs off the generated `product` parent,
+// which a regen re-emits from the spec and would drop the novel AddCommand
+// line from. Attaching from this preserved file keeps the leaf resolvable
+// either way; addNovelCommandIfAbsent makes the double-registration a no-op.
+func init() {
+	registerNovelCommand(func(root *cobra.Command, flags *rootFlags) {
+		productCmd, _, err := root.Find([]string{"product"})
+		if err == nil && productCmd != nil && productCmd != root {
+			addNovelCommandIfAbsent(productCmd, newNovelProductGetCmd(flags))
+		}
+	})
+}

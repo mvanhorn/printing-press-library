@@ -123,6 +123,24 @@ func (c *Config) AuthHeader() string {
 	return ""
 }
 
+func (c *Config) StoreScopeCredential() string {
+	if c == nil {
+		return ""
+	}
+	if header := c.AuthHeader(); header != "" {
+		return header
+	}
+
+	var parts []string
+	if c.AuthHeaderVal != "" {
+		parts = append(parts, "auth_header="+c.AuthHeaderVal)
+	}
+	if len(parts) == 0 {
+		return ""
+	}
+	return strings.Join(parts, "\n")
+}
+
 // Raw browser-session values count as credentials even when no header
 // representation exists; hand-coded flows may also preserve a working header.
 func (c *Config) CredentialConfigured() bool {

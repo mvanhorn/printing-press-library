@@ -18,7 +18,7 @@ qsys-pp-cli which "<capability>" --json
 qsys-pp-cli <command> --help
 ```
 
-Add `--agent` to command invocations for JSON, compact output, non-interactive defaults, no color, and confirmation-safe scripting:
+Add `--agent` to command invocations for JSON, compact output, non-interactive defaults, and no color:
 
 ```bash
 qsys-pp-cli <command> --agent
@@ -31,7 +31,7 @@ qsys-pp-cli <command> --help
 qsys-pp-cli <command> --dry-run --agent
 ```
 
-Use `--yes --no-input` only after the target, arguments, and side effects are clear.
+When a command requires confirmation, pass `--yes` explicitly only after the target, arguments, and side effects are clear. `--agent` does not imply `--yes`.
 
 ## Novel Command Data Sources
 

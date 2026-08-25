@@ -27,14 +27,14 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
-	{Command: "product get", Description: "See a Q-SYS product's overview, spec-sheet text, configuration pages, and connection guidance in one record.", Group: "One record per product", WhyItMatters: "Reach for this first for any question about a specific model; it answers spec, config, and wiring questions in one call instead of three."},
-	{Command: "compat check", Description: "Check a whole equipment list against a Q-SYS Designer version and get back what is supported and what is not.", Group: "Design-time safety checks", WhyItMatters: "Use this before quoting or commissioning to catch an unsupported part while it is still cheap to swap."},
-	{Command: "compat deprecated", Description: "Flag which models in a list are deprecated or discontinued before they reach a quote.", Group: "Design-time safety checks", WhyItMatters: "Use this to sanity-check a parts list; an end-of-life part caught at design time costs nothing, caught at order time costs a redesign."},
-	{Command: "connect", Description: "Get the networking, wiring, and I/O guidance that actually applies to a given model.", Group: "Field answers", WhyItMatters: "Use this for how-do-I-wire-this-in questions instead of reading the whole networking section."},
-	{Command: "bom verify", Description: "One report per model in an equipment list: version support, EOL status, and spec-sheet availability in a single pass.", Group: "Design-time safety checks", WhyItMatters: "Use this for the complete pre-quote check on a parts list instead of three separate lookups per part."},
-	{Command: "page get", Description: "Read a help page as of a specific Q-SYS Designer version from the versioned doc tree.", Group: "Version-aware reads", WhyItMatters: "Use this when commissioning a system that runs an older Designer than today's docs describe."},
-	{Command: "coverage", Description: "Report how many products resolved a spec sheet and how many pages parsed, so extraction gaps are visible.", Group: "Trust the local copy", WhyItMatters: "Run this after a harvest; a silent drop in coverage means the vendor changed their HTML and results are now incomplete."},
-	{Command: "integrations", Description: "Find which UC platforms (Teams, Zoom, Meet) a device is certified or integrated with.", Group: "Field answers", WhyItMatters: "Use this when a room design must match the client's chosen UC platform."},
+	{Command: "product get", Description: "See a Q-SYS product's specs, configuration pages, wiring guidance, known gotchas, and factory-reset procedure in one record.", Group: "One record, three sources", WhyItMatters: "Reach for this first for any question about a single model; it answers spec, config, wiring, and gotcha questions in one call instead of four."},
+	{Command: "bom verify", Description: "One report per model in an equipment list: Designer-version support, end-of-life status, LTS carry date, and spec-sheet availability.", Group: "Equipment-list answers no vendor site can give", WhyItMatters: "Use this before quoting to catch an unsupported or end-of-life part while a swap is still free."},
+	{Command: "bom risks", Description: "Surface every known issue, awareness note, and troubleshooting article that touches any model on an equipment list, filtered to a Designer release.", Group: "Equipment-list answers no vendor site can give", WhyItMatters: "Use this alongside bom verify to find the problems that are documented but not reflected in the compatibility matrix."},
+	{Command: "compat check", Description: "Check a whole equipment list against a Q-SYS Designer version and get back what is supported and what is not.", Group: "Equipment-list answers no vendor site can give", WhyItMatters: "Use this for the fast supported/not-supported answer when the client has standardized on a Designer version."},
+	{Command: "qds", Description: "For one Q-SYS Designer release: known issues, LTS status and end date, and which hardware was removed.", Group: "Release and fault intelligence", WhyItMatters: "Use this when deciding whether to standardize a site on a Designer release, or before recommending an upgrade."},
+	{Command: "fault", Description: "Paste the literal fault or status string Q-SYS Designer displays and get the article that explains it, plus the models it applies to.", Group: "Release and fault intelligence", WhyItMatters: "Use this on site when Designer shows a fault and the job network cannot reach a search engine."},
+	{Command: "connect", Description: "Get the networking, wiring, and I/O guidance that actually applies to a given model, including third-party application notes.", Group: "One record, three sources", WhyItMatters: "Use this for how-do-I-wire-this-in questions instead of reading an entire networking section."},
+	{Command: "coverage", Description: "Report per source how many pages parsed, how many spec-sheet PDFs were linked versus actually text-extracted, and how many support articles were indexed.", Group: "Trust the local copy", WhyItMatters: "Run this after a harvest; a drop in extracted-PDF count means specs silently stopped being searchable."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.
@@ -52,9 +52,9 @@ type whichMatch struct {
 //
 //	+3  exact token match on the command's leaf or full path
 //	+2  substring match on the command (any part)
-//	+2  substring match on the description
-//	+2  per-token match on the description
-//	+1  group tag contains the query as a word
+//	+2  substring match on description or why_it_matters
+//	+1  per-token match on description or why_it_matters (capped at 3)
+//	+1  group tag contains the query as a whole token
 //
 // Ties break on declaration order in the index. An empty query returns
 // every entry at score 0 in declaration order - this is the "list all"
@@ -115,7 +115,9 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	// ties on the group token alone and index order decides the answer.
 	cmdTokens := whichSubTokens(cmd)
 	desc := strings.ToLower(e.Description)
-	descTokens := strings.Fields(desc)
+	descTokens := whichSubTokens(desc)
+	why := strings.ToLower(e.WhyItMatters)
+	whyTokens := whichSubTokens(why)
 	group := strings.ToLower(e.Group)
 
 	// Exact token match on the command path (any token).
@@ -131,34 +133,38 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	if strings.Contains(cmd, query) {
 		score += 2
 	}
-	// Substring match on the description.
-	if strings.Contains(desc, query) {
+	// Description and rationale are correlated prose fields. Share the existing
+	// per-token cap so repeating the same query in both fields cannot outweigh
+	// an exact command match. A rationale-only match needs two tokens or an
+	// exact multi-token phrase to avoid promoting incidental prose words.
+	descPhrase := strings.Contains(desc, query)
+	descCredit := whichFieldCredit(qTokens, descTokens)
+	whyCredit := whichFieldCredit(qTokens, whyTokens)
+	whyPhrase := len(qTokens) > 1 && strings.Contains(why, query)
+	if score == 0 && whyCredit < 2 && !whyPhrase {
+		whyCredit = 0
+	}
+	if descPhrase || whyPhrase {
 		score += 2
 	}
-	// Per-token description match, CAPPED: natural-language requests often say
-	// "top coins by market cap" and the endpoint doc uses the same words - but
-	// uncapped description credit lets long token-soup descriptions outrank the
-	// precise command path, so the credit saturates at 3.
-	descCredit := 0
-	for _, qt := range qTokens {
-		for _, dt := range descTokens {
-			if whichTokenMatch(qt, dt) {
-				descCredit++
-				break
-			}
-		}
-		if descCredit == 3 {
-			break
-		}
+	if whyCredit > descCredit {
+		score += whyCredit
+	} else {
+		score += descCredit
 	}
-	score += descCredit
-	// Group tag match.
-	if group != "" {
-		for _, qt := range qTokens {
-			if strings.Contains(group, qt) {
+	// Group tag match requires a whole token, not an arbitrary substring.
+	groupTokens := whichSubTokens(group)
+	groupMatched := false
+	for _, qt := range qTokens {
+		for _, gt := range groupTokens {
+			if whichTokenMatch(qt, gt) {
 				score += 1
+				groupMatched = true
 				break
 			}
+		}
+		if groupMatched {
+			break
 		}
 	}
 	// Possessive aliasing: "my/mine/me/current" in a request is API-speak for
@@ -225,6 +231,36 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 		score -= unmatched
 	}
 	return score
+}
+
+func whichFieldCredit(qTokens, fieldTokens []string) int {
+	credit := 0
+	matched := make(map[string]struct{})
+	for _, qt := range qTokens {
+		for _, ft := range fieldTokens {
+			if whichTokenMatch(qt, ft) {
+				key := whichTokenKey(ft)
+				if _, ok := matched[key]; ok {
+					break
+				}
+				matched[key] = struct{}{}
+				credit++
+				break
+			}
+		}
+		if credit == 3 {
+			break
+		}
+	}
+	return credit
+}
+
+func whichTokenKey(token string) string {
+	token = strings.Trim(strings.ToLower(token), ".,:;!?()[]{}\"'")
+	if alias := whichTokenAliases[token]; alias != "" {
+		return alias
+	}
+	return whichSingular(token)
 }
 
 func whichTokenMatch(a, b string) bool {

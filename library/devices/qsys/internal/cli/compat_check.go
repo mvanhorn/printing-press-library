@@ -219,3 +219,15 @@ func versionLess(a, b string) bool {
 	}
 	return false
 }
+
+// Self-registration: same reasoning as product get - the generated `compat`
+// parent is regenerated from the spec, so the novel leaf attaches itself from
+// this preserved file rather than relying on a line inside generated code.
+func init() {
+	registerNovelCommand(func(root *cobra.Command, flags *rootFlags) {
+		compatCmd, _, err := root.Find([]string{"compat"})
+		if err == nil && compatCmd != nil && compatCmd != root {
+			addNovelCommandIfAbsent(compatCmd, newNovelCompatCheckCmd(flags))
+		}
+	})
+}

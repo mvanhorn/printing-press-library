@@ -228,3 +228,69 @@ resources:
           mode: links
           link_prefixes:
             - "/resource-files"
+
+  support:
+    base_url: "https://support.qsys.com"
+    description: "Q-SYS support knowledge base: FAQ, application notes, awareness, troubleshooting, error/status messages"
+    endpoints:
+      index:
+        method: GET
+        path: "/sitemap.xml"
+        description: "Fetch the support.qsys.com sitemap listing every knowledge-base article"
+        example: "  qsys-pp-cli support index"
+        response_format: binary
+      article:
+        method: GET
+        path: "/en_US/{category}/{slug}"
+        description: "Fetch a Q-SYS support article as clean text"
+        example: "  qsys-pp-cli support article errorstatus-messages error-fault-lan-a-streaming-error-not-connected"
+        happy_args: "category=errorstatus-messages;slug=error-fault-lan-a-streaming-error-not-connected"
+        params:
+          - name: category
+            type: string
+            required: true
+            positional: true
+            description: "Article category, e.g. faq, application-notes, awareness, troubleshooting, errorstatus-messages"
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Article slug from the support sitemap"
+        response_format: html
+        html_extract:
+          mode: page
+
+mcp:
+  intents:
+    - name: verify_equipment_list
+      description: Check an equipment list against a Q-SYS Designer version and report support, end-of-life, and known issues
+      params:
+        - name: models
+          type: string
+          required: true
+          description: Space-separated Q-SYS model numbers
+        - name: qds_version
+          type: string
+          required: true
+          description: Target Q-SYS Designer version, e.g. 10.0
+      steps:
+        - endpoint: compat.by_version
+          bind:
+            version: ${input.qds_version}
+          capture: matrix
+        - endpoint: compat.deprecations
+          capture: deprecations
+      returns: matrix
+    - name: research_product
+      description: Gather a Q-SYS product's spec sheet, configuration pages, and support articles in one pass
+      params:
+        - name: model
+          type: string
+          required: true
+          description: Q-SYS model number, e.g. CX-Q
+      steps:
+        - endpoint: product.index
+          capture: catalog
+        - endpoint: support.index
+          capture: support_catalog
+      returns: catalog

@@ -1,6 +1,6 @@
 // Copyright 2026 drummerms and contributors. Licensed under Apache-2.0. See LICENSE.
 
-// Package qsys harvests Q-SYS equipment documentation from the two vendor
+// Package qsys harvests Q-SYS equipment documentation from the three vendor
 // sites that carry it.
 //
 // The split is not arbitrary and it drives the whole design:
@@ -11,9 +11,15 @@
 //     or THD figures at all.
 //   - www.qsys.com carries the product pages, and each links spec sheets and
 //     user manuals as PDFs. Those PDFs are the only source of real numbers.
+//   - support.qsys.com carries the knowledge base: 1,906 articles under
+//     /en_US/{category}/{slug}, where the category ("known-issues",
+//     "errorstatus-messages", "awareness", "troubleshooting", ...) is the only
+//     classification published. Error and status articles are titled with the
+//     literal string Q-SYS Designer displays, slugified.
 //
-// Neither site can answer "does this equipment list run on Designer 9.4",
-// which is why the harvested corpus is joined locally.
+// No site can answer "does this equipment list run on Designer 9.4" or "what
+// does this fault string mean for my gear", which is why the harvested corpus
+// is joined locally.
 package qsys
 
 import (
@@ -33,6 +39,7 @@ import (
 const (
 	HelpHost    = "https://help.qsys.com"
 	ProductHost = "https://www.qsys.com"
+	SupportHost = "https://support.qsys.com"
 
 	userAgent = "qsys-pp-cli/0.1 (+https://github.com/mvanhorn/printing-press-library)"
 
@@ -450,4 +457,72 @@ func SupportsModel(row CompatRow, model string) bool {
 		return false
 	}
 	return strings.Contains(strings.ToLower(row.AddedHardware), m)
+}
+
+// ---------- support articles ----------
+
+// SupportArticle is one knowledge-base article from support.qsys.com.
+//
+// Category is the sitemap path segment ("errorstatus-messages",
+// "known-issues", "awareness", "troubleshooting", ...) and it is the only
+// classification the vendor publishes. Every downstream filter keys off it, so
+// it is stored verbatim rather than being folded into a friendlier label.
+type SupportArticle struct {
+	URL      string `json:"url"`
+	Category string `json:"category"`
+	Slug     string `json:"slug"`
+	Title    string `json:"title"`
+	Text     string `json:"text"`
+}
+
+const supportArticlePrefix = "/en_US/"
+
+// SupportArticles filters a support.qsys.com sitemap down to article URLs.
+//
+// Every article is shaped https://support.qsys.com/en_US/{category}/{slug}, so
+// anything with a different depth is a category index or a locale root and is
+// dropped. Counting raw <loc> entries would overstate the corpus.
+func SupportArticles(urls []string) []string {
+	out := make([]string, 0, len(urls))
+	for _, u := range urls {
+		if cat, slug := SupportCategorySlug(u); cat != "" && slug != "" {
+			out = append(out, u)
+		}
+	}
+	return out
+}
+
+// SupportCategorySlug splits a support article URL into its category and slug.
+// Returns empty strings when the URL is not a two-segment article path.
+func SupportCategorySlug(u string) (category, slug string) {
+	i := strings.Index(u, supportArticlePrefix)
+	if i < 0 {
+		return "", ""
+	}
+	rest := strings.Trim(u[i+len(supportArticlePrefix):], "/")
+	if rest == "" {
+		return "", ""
+	}
+	seg := strings.Split(rest, "/")
+	if len(seg) != 2 || seg[0] == "" || seg[1] == "" {
+		return "", ""
+	}
+	return seg[0], seg[1]
+}
+
+// SupportArticle fetches one knowledge-base article and extracts its text.
+func (c *Client) SupportArticle(ctx context.Context, url string) (SupportArticle, error) {
+	body, err := c.get(ctx, url)
+	if err != nil {
+		return SupportArticle{}, err
+	}
+	src := string(body)
+	cat, slug := SupportCategorySlug(url)
+	return SupportArticle{
+		URL:      url,
+		Category: cat,
+		Slug:     slug,
+		Title:    Title(src),
+		Text:     Text(src),
+	}, nil
 }

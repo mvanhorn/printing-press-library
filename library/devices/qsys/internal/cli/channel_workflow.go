@@ -4,7 +4,9 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -18,7 +20,7 @@ func newWorkflowCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "workflow",
 		Short:       "Compound workflows that combine multiple API operations",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:parent-group": "true"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 	cmd.AddCommand(newWorkflowArchiveCmd(flags))
@@ -29,6 +31,8 @@ func newWorkflowCmd(flags *rootFlags) *cobra.Command {
 func newWorkflowArchiveCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	var full bool
+	var maxPages int
+	var timeout time.Duration
 
 	cmd := &cobra.Command{
 		Use:   "archive",
@@ -40,8 +44,34 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
   qsys-pp-cli workflow archive
 
   # Full re-archive (ignore previous sync state)
-  qsys-pp-cli workflow archive --full`,
+  qsys-pp-cli workflow archive --full
+
+  # Archive without a wall-clock timeout
+  qsys-pp-cli workflow archive --timeout 0`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if maxPages < 0 {
+				return fmt.Errorf("--max-pages must be greater than or equal to 0 (0 = unlimited)")
+			}
+			if timeout < 0 {
+				return fmt.Errorf("--timeout must be greater than or equal to 0 (0 = no timeout)")
+			}
+			archiveTimeout := timeout
+			archiveMaxPages := maxPages
+			if cliutil.IsDogfoodEnv() {
+				if !cmd.Flags().Changed("max-pages") {
+					archiveMaxPages = 1
+				}
+				if !cmd.Flags().Changed("timeout") {
+					archiveTimeout = 10 * time.Second
+				}
+			}
+			archiveCtx := cmd.Context()
+			var cancel context.CancelFunc
+			if archiveTimeout > 0 {
+				archiveCtx, cancel = context.WithTimeout(archiveCtx, archiveTimeout)
+				defer cancel()
+			}
+
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -51,16 +81,14 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			if dbPath == "" {
 				dbPath = defaultDBPath("qsys-pp-cli")
 			}
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := store.OpenWithContext(archiveCtx, dbPath)
 			if err != nil {
-				return fmt.Errorf("opening store: %w", err)
+				return workflowArchiveTimeoutError(archiveTimeout, fmt.Errorf("opening store: %w", err))
 			}
 			defer s.Close()
 
-			resources := []string{"page", "product"}
-			archiveMaxPages := 100
+			resources := []string{"page", "product", "support"}
 			if cliutil.IsDogfoodEnv() {
-				archiveMaxPages = 1
 				if len(resources) > 3 {
 					resources = resources[:3]
 				}
@@ -82,10 +110,15 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 				}
 			}
 
+			resourcesSynced := 0
 			for _, resource := range resources {
-				res := syncResource(cmd.Context(), c, s, resource, "", full, archiveMaxPages, false, false, nil, syncEventWriter)
+				res := syncResource(archiveCtx, c, s, resource, "", full, archiveMaxPages, false, false, nil, syncEventWriter)
 				if res.Err != nil {
-					if isSyncStatePersistenceError(res.Err) {
+					res.Err = workflowArchiveTimeoutError(archiveTimeout, res.Err)
+					if res.IntegrityFailure || isSyncStatePersistenceError(res.Err) {
+						return fmt.Errorf("archiving %s: %w", resource, res.Err)
+					}
+					if errors.Is(res.Err, context.DeadlineExceeded) {
 						return fmt.Errorf("archiving %s: %w", resource, res.Err)
 					}
 					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: error: %v\n", resource, res.Err)
@@ -96,6 +129,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 					continue
 				}
 				totalSynced += res.Count
+				resourcesSynced++
 				fmt.Fprintf(cmd.ErrOrStderr(), "  %s: %d synced\n", resource, res.Count)
 			}
 
@@ -103,22 +137,31 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 				enc := json.NewEncoder(cmd.OutOrStdout())
 				enc.SetIndent("", "  ")
 				return enc.Encode(map[string]any{
-					"resources_synced": len(resources),
+					"resources_synced": resourcesSynced,
 					"total_items":      totalSynced,
 					"store_path":       dbPath,
 					"timestamp":        time.Now().UTC().Format(time.RFC3339),
 				})
 			}
 
-			fmt.Fprintf(cmd.OutOrStdout(), "Archived %d items across %d resources to %s\n", totalSynced, len(resources), dbPath)
+			fmt.Fprintf(cmd.OutOrStdout(), "Archived %d items across %d resources to %s\n", totalSynced, resourcesSynced, dbPath)
 			return nil
 		},
 	}
 
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	cmd.Flags().BoolVar(&full, "full", false, "Full re-archive (ignore previous sync state)")
+	cmd.Flags().IntVar(&maxPages, "max-pages", 0, "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)")
+	cmd.Flags().DurationVar(&timeout, "timeout", 30*time.Minute, "Maximum time to spend archiving (0 = no timeout)")
 
 	return cmd
+}
+
+func workflowArchiveTimeoutError(timeout time.Duration, err error) error {
+	if timeout <= 0 || !errors.Is(err, context.DeadlineExceeded) {
+		return err
+	}
+	return fmt.Errorf("workflow archive timed out after %s; rerun with --timeout 0 or a larger value to continue: %w", timeout, err)
 }
 
 func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {

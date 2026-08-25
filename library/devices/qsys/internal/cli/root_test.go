@@ -28,6 +28,9 @@ func TestDeclaredAPISurfaceReachable(t *testing.T) {
 		"product index",
 		"product page",
 		"product resources",
+		"support",
+		"support article",
+		"support index",
 	}
 	actual := make(map[string]struct{}, len(expected))
 	type pendingCommand struct {

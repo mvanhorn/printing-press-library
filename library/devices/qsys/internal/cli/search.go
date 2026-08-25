@@ -134,28 +134,11 @@ Run sync first to populate the local search index.`,
 				// but not in any typed FTS table (e.g., a resource whose sync
 				// populated only the generic index) silently return zero.
 				seen := make(map[string]bool)
+				_ = seen // prevent unused error when no FTS tables exist
 				{
 					partial, searchErr := db.Search(query, limit)
 					if searchErr != nil {
 						return fmt.Errorf("search resources_fts failed: %w", searchErr)
-					}
-					for _, r := range partial {
-						key := string(r)
-						if !seen[key] {
-							seen[key] = true
-							results = append(results, r)
-						}
-					}
-				}
-				// The harvest-built Q-SYS corpus (help pages + product pages)
-				// lives in qsys_pages/qsys_products with its own FTS indexes,
-				// not the generic resources table, so search must query it
-				// explicitly to span both vendor sites. Dedup by raw JSON so
-				// rows indexed in both surfaces appear once.
-				{
-					partial, corpusErr := db.SearchCorpus(query, limit)
-					if corpusErr != nil {
-						return fmt.Errorf("searching Q-SYS corpus failed: %w", corpusErr)
 					}
 					for _, r := range partial {
 						key := string(r)

@@ -3,7 +3,7 @@
   "name": "qsys-pp-mcp",
   "display_name": "Q-SYS",
   "version": "0.1.0",
-  "description": "Every Q-SYS product spec, configuration procedure, and connection guide in one local index - with equipment-list compatibility checks neither QSC website can do.",
+  "description": "Q-SYS specs, configuration, wiring, compatibility, and fault articles in one offline index - answering equipment-list questions no QSC website can take as input.",
   "author": {
     "name": "CLI Printing Press"
   },

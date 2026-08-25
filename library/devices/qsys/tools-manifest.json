@@ -1,7 +1,7 @@
 {
   "api_name": "qsys",
   "base_url": "https://help.qsys.com",
-  "description": "Q-SYS product specs, configuration procedures, and connection guides in one local index - with equipment-list compatibility checks neither QSC website can do.",
+  "description": "Q-SYS specs, configuration, wiring, compatibility, and fault articles in one offline index - answering equipment-list questions no QSC website can take as input.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {
@@ -143,6 +143,37 @@
           "required": true
         }
       ]
+    },
+    {
+      "name": "support_article",
+      "description": "Fetch a Q-SYS support article as clean text. Required: category, slug.",
+      "method": "GET",
+      "path": "/en_US/{category}/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "category",
+          "type": "string",
+          "location": "path",
+          "description": "Article category, e.g. faq, application-notes, awareness, troubleshooting, errorstatus-messages",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Article slug from the support sitemap",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "support_index",
+      "description": "Fetch the support.qsys.com sitemap listing every knowledge-base article.",
+      "method": "GET",
+      "path": "/sitemap.xml",
+      "no_auth": true,
+      "params": []
     }
   ]
 }

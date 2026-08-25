@@ -108,6 +108,9 @@ POSTed as JSON after the local write.
 Write what surprised you or tripped you up, not a bug report. The
 loop is: agent notices friction -> one invocation -> captured -> the
 maintainer sees it.`,
+		Example: `  qsys-pp-cli feedback "the --since flag is inclusive but docs say exclusive"
+  qsys-pp-cli feedback --stdin < notes.txt
+  qsys-pp-cli feedback list --limit 10`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var text string
 			if useStdin {

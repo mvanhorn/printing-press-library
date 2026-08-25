@@ -1,6 +1,6 @@
 ---
 name: pp-qsys
-description: "Q-SYS product specs, configuration procedures, and connection guides in one local index - with equipment-list compatibility checks neither QSC website can do. Trigger phrases: `q-sys specs`, `qsys product specs`, `how do I configure this q-sys`, `how do I connect q-sys`, `is this supported on q-sys designer`, `q-sys compatibility`, `q-sys deprecated`, `use qsys`, `run qsys`."
+description: "Q-SYS specs, configuration, wiring, compatibility, and fault articles in one offline index - answering equipment-list questions no QSC website can take as input. Trigger phrases: `q-sys specs`, `what q-sys designer version does this run on`, `how do I wire this q-sys`, `what does this q-sys fault mean`, `is this q-sys gear end of life`, `check this equipment list against q-sys designer`, `use qsys`, `run qsys`."
 author: "drummerms"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -29,7 +29,7 @@ This skill drives the `qsys-pp-cli` binary. **You must verify the CLI is install
 2. Verify: `qsys-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/devices/qsys/cmd/qsys-pp-cli@latest
@@ -37,11 +37,11 @@ go install github.com/mvanhorn/printing-press-library/library/devices/qsys/cmd/q
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-Q-SYS documentation is split across two sites: qsys.com carries the product spec sheets as PDFs, and help.qsys.com carries the configuration and networking guidance. Neither one can tell you whether a list of equipment runs on a given Designer version. This CLI harvests both into local SQLite, joins them into one record per product, and answers spec, configuration, wiring, and compatibility questions offline - including from a job site with no usable network.
+QSC splits every integrator answer across three sites: qsys.com carries the spec-sheet PDFs where the electrical numbers live, help.qsys.com carries configuration and compatibility with zero electrical specs, and support.qsys.com carries the FAQ, application notes, and fault articles. None of them accepts a list of models. This CLI harvests all three into local SQLite, joins them per product, and answers spec, configuration, wiring, compatibility, and fault questions offline - including from a job site with no usable network.
 
 ## When to Use This CLI
 
-Use this CLI for questions about Q-SYS equipment: what a product's specifications are, how to configure a specific device, how to connect or network it, and whether a set of equipment is supported on a given Q-SYS Designer version. It is built for AV integrators and designers working from an equipment list, and it works offline once harvested, which matters on job sites with locked-down networks.
+Use this CLI for questions about Q-SYS equipment: what a product's specifications are, how to configure it, how to wire and network it, whether an equipment list runs on a given Q-SYS Designer version, and what a fault string on a Designer screen means. It is built for AV integrators, designers, and commissioning techs working from an equipment list, and it works fully offline once harvested, which matters on job sites with locked-down networks.
 
 ## Anti-triggers
 
@@ -50,72 +50,72 @@ Do not use this CLI for:
 - Do not use it to look up control pin names for Lua or QRC scripting - it indexes equipment documentation, not the schematic control surface
 - Do not treat extracted spec text as authoritative for engineering sign-off - always confirm against the source PDF URL it returns
 - Do not use it for pricing, availability, or lead times - it indexes documentation only
+- Do not use it to create, revise, or version Q-SYS design files
+- Do not run two qsys-pp-cli processes at once - concurrent invocations against the same store can crash with SIGBUS (upstream defect, cli-printing-press#4349). Invoke commands strictly serially: no parallel MCP tool calls, no `&` fan-out.
 
 ## Unique Capabilities
 
 These capabilities aren't available in any other tool for this API.
 
-### One record per product
-- **`product get`** — See a Q-SYS product's overview, spec-sheet text, configuration pages, and connection guidance in one record.
+### One record, three sources
+- **`product get`** — See a Q-SYS product's specs, configuration pages, wiring guidance, known gotchas, and factory-reset procedure in one record.
 
-  _Reach for this first for any question about a specific model; it answers spec, config, and wiring questions in one call instead of three._
+  _Reach for this first for any question about a single model; it answers spec, config, wiring, and gotcha questions in one call instead of four._
 
   ```bash
   qsys-pp-cli product get CX-Q --agent
   ```
+- **`connect`** — Get the networking, wiring, and I/O guidance that actually applies to a given model, including third-party application notes.
 
-### Design-time safety checks
-- **`compat check`** — Check a whole equipment list against a Q-SYS Designer version and get back what is supported and what is not.
-
-  _Use this before quoting or commissioning to catch an unsupported part while it is still cheap to swap._
-
-  ```bash
-  qsys-pp-cli compat check CX-Q TSC-70-G3 NL-C4 --qds 9.4 --agent
-  ```
-- **`compat deprecated`** — Flag which models in a list are deprecated or discontinued before they reach a quote.
-
-  _Use this to sanity-check a parts list; an end-of-life part caught at design time costs nothing, caught at order time costs a redesign._
-
-  ```bash
-  qsys-pp-cli compat deprecated CX-Q CXD-Q --agent
-  ```
-- **`bom verify`** — One report per model in an equipment list: version support, EOL status, and spec-sheet availability in a single pass.
-
-  _Use this for the complete pre-quote check on a parts list instead of three separate lookups per part._
-
-  ```bash
-  qsys-pp-cli bom verify CX-Q TSC-70-G3 NL-C4 --qds 9.4 --agent
-  ```
-
-### Field answers
-- **`connect`** — Get the networking, wiring, and I/O guidance that actually applies to a given model.
-
-  _Use this for how-do-I-wire-this-in questions instead of reading the whole networking section._
+  _Use this for how-do-I-wire-this-in questions instead of reading an entire networking section._
 
   ```bash
   qsys-pp-cli connect TSC-70-G3 --agent
   ```
-- **`integrations`** — Find which UC platforms (Teams, Zoom, Meet) a device is certified or integrated with.
 
-  _Use this when a room design must match the client's chosen UC platform._
+### Equipment-list answers no vendor site can give
+- **`bom verify`** — One report per model in an equipment list: Designer-version support, end-of-life status, LTS carry date, and spec-sheet availability.
+
+  _Use this before quoting to catch an unsupported or end-of-life part while a swap is still free._
 
   ```bash
-  qsys-pp-cli integrations TSC-70-G3 --agent
+  qsys-pp-cli bom verify CX-Q TSC-70-G3 NL-C4 --qds 10.0 --agent
+  ```
+- **`bom risks`** — Surface every known issue, awareness note, and troubleshooting article that touches any model on an equipment list, filtered to a Designer release.
+
+  _Use this alongside bom verify to find the problems that are documented but not reflected in the compatibility matrix._
+
+  ```bash
+  qsys-pp-cli bom risks CX-Q TSC-70-G3 --qds 10.0 --agent
+  ```
+- **`compat check`** — Check a whole equipment list against a Q-SYS Designer version and get back what is supported and what is not.
+
+  _Use this for the fast supported/not-supported answer when the client has standardized on a Designer version._
+
+  ```bash
+  qsys-pp-cli compat check CX-Q TSC-70-G3 NL-C4 --qds 10.0 --agent
   ```
 
-### Version-aware reads
-- **`page get`** — Read a help page as of a specific Q-SYS Designer version from the versioned doc tree.
+### Release and fault intelligence
+- **`qds`** — For one Q-SYS Designer release: known issues, LTS status and end date, and which hardware was removed.
 
-  _Use this when commissioning a system that runs an older Designer than today's docs describe._
+  _Use this when deciding whether to standardize a site on a Designer release, or before recommending an upgrade._
 
   ```bash
-  qsys-pp-cli page get control_router --version 9.4 --agent
+  qsys-pp-cli qds 10.0 --agent
+  ```
+- **`fault`** — Paste the literal fault or status string Q-SYS Designer displays and get the article that explains it, plus the models it applies to.
+
+  _Use this on site when Designer shows a fault and the job network cannot reach a search engine._
+
+  ```bash
+  qsys-pp-cli fault "LAN A Streaming Error - Not Connected" --agent
   ```
 
 ### Trust the local copy
-- **`coverage`** — Report how many products resolved a spec sheet and how many pages parsed, so extraction gaps are visible.
+- **`coverage`** — Report per source how many pages parsed, how many spec-sheet PDFs were linked versus actually text-extracted, and how many support articles were indexed.
 
-  _Run this after a harvest; a silent drop in coverage means the vendor changed their HTML and results are now incomplete._
+  _Run this after a harvest; a drop in extracted-PDF count means specs silently stopped being searchable._
 
   ```bash
   qsys-pp-cli coverage --agent
@@ -153,6 +153,11 @@ These capabilities aren't available in any other tool for this API.
 - `qsys-pp-cli product page` — Fetch a qsys.com product page as clean text
 - `qsys-pp-cli product resources` — List spec-sheet and manual PDF links for a product
 
+**support** — Q-SYS support knowledge base: FAQ, application notes, awareness, troubleshooting, error/status messages
+
+- `qsys-pp-cli support article` — Fetch a Q-SYS support article as clean text
+- `qsys-pp-cli support index` — Fetch the support.qsys.com sitemap listing every knowledge-base article
+
 
 ### Finding the right command
 
@@ -166,22 +171,29 @@ qsys-pp-cli which "<capability in your own words>"
 
 ## Recipes
 
-### First run: build the corpus
+### Pre-quote sweep across an equipment list
 
 ```bash
-qsys-pp-cli harvest
-qsys-pp-cli coverage
+qsys-pp-cli bom verify CX-Q TSC-70-G3 NL-C4 --qds 10.0 --agent
 ```
 
-`harvest` walks both vendor sitemaps into the local corpus; every other command reads it. `coverage` then reports how many products resolved a spec sheet and how many pages parsed, so an incomplete harvest is visible instead of silent. Narrow a first pass with `--only products --limit 25`, and add `--with-pdfs` when spec-sheet text is needed.
+Returns one row per model with version support, end-of-life status, LTS carry date, and spec-sheet URL.
 
-### Check a whole BOM against a Designer version
+### Find the documented problems on a list
 
 ```bash
-qsys-pp-cli bom verify --qds 9.4 --agent < bom.txt
+qsys-pp-cli bom risks CX-Q TSC-70-G3 --qds 10.0 --agent
 ```
 
-Reads an equipment list from a file on stdin and returns a per-model report: version support, EOL status, and spec-sheet availability.
+Surfaces known-issue, awareness, and troubleshooting articles touching any model on the list.
+
+### Resolve a fault string from a Designer screen
+
+```bash
+qsys-pp-cli fault "LAN A Streaming Error - Not Connected" --agent
+```
+
+Matches the literal string against error/status and troubleshooting article titles and bodies.
 
 ### Narrow a verbose product record for an agent
 
@@ -189,31 +201,15 @@ Reads an equipment list from a file on stdin and returns a per-model report: ver
 qsys-pp-cli product get CX-Q --agent --select model,family,spec_pdf_url,discontinued
 ```
 
-Product records carry full spec-sheet text; --select trims the payload to just the fields needed so an agent does not burn context on prose.
+Product records carry full spec-sheet text; --select trims the payload so an agent does not burn context on prose.
 
-### Read docs as an older Designer version saw them
-
-```bash
-qsys-pp-cli page get control_router --version 9.4
-```
-
-A site commissioned on 9.4 reads the 9.4 tree instead of silently getting today's 10.x behavior.
-
-### Get wiring guidance for a touchscreen
+### Decide whether to standardize on a Designer release
 
 ```bash
-qsys-pp-cli connect TSC-70-G3
+qsys-pp-cli qds 10.0 --agent
 ```
 
-Resolves the model to its family and returns only the networking and wiring pages that apply to it.
-
-### Verify the local copy is complete
-
-```bash
-qsys-pp-cli coverage --agent
-```
-
-Reports spec-sheet match rate and page parse rate so a silent extraction regression is visible.
+Known issues, LTS status and end date, and hardware removed in that release.
 
 ## Auth Setup
 
@@ -223,13 +219,13 @@ Run `qsys-pp-cli doctor` to verify setup.
 
 ## Agent Mode
 
-Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color --yes`.
+Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color`.
 
 - **Pipeable** — JSON on stdout, errors on stderr
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
 
   ```bash
-  qsys-pp-cli networking mock-value --agent --select id,name,status
+  qsys-pp-cli networking mock-value --agent
   ```
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
@@ -355,7 +351,8 @@ elif Notes present (no Playbook):
        for this query family even when no structured choreography exists yet.
 
 elif Found AND Results[0].EntityMatch == "exact" AND Results[0].Confidence >= 2:
-    -> skip discovery; fetch live data for Results[*].ResourceID in parallel
+    -> skip discovery; fetch live data for Results[*].ResourceID one call at a time
+       (never in parallel - see the concurrency anti-trigger)
 
 elif Found AND Results[0].EntityMatch == "partial":
     -> candidate hint, NOT a hit; read the resource title to validate before trusting

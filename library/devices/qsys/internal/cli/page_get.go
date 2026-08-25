@@ -12,7 +12,6 @@ import (
 )
 
 func newPageGetCmd(flags *rootFlags) *cobra.Command {
-	var version string
 
 	cmd := &cobra.Command{
 		Use:         "get <topic>",
@@ -39,18 +38,6 @@ func newPageGetCmd(flags *rootFlags) *cobra.Command {
 			if len(args) < 1 || args[0] == "" {
 				return usageErr(fmt.Errorf("topic is required\nUsage: %s <%s>", cmd.CommandPath(), "topic"))
 			}
-			// --version reads the same page from the versioned doc tree
-			// (e.g. /q-sys_9.4/Content/...). All versioned trees are verified
-			// HTTP 200; a nonexistent version yields a 404 from the site.
-			// Validate the token before it reaches the URL so values with
-			// '/', '?', '#' or '..' cannot alter the request path.
-			if version != "" {
-				if !validDocVersion(version) {
-					_ = cmd.Usage()
-					return usageErr(fmt.Errorf("--version must be a dotted version like 9.4 or 10.0, got %q", version))
-				}
-				path = "/q-sys_" + version + path
-			}
 			path = replacePathParam(path, "topic", args[0])
 			c, err := flags.newClient()
 			if err != nil {
@@ -60,7 +47,7 @@ func newPageGetCmd(flags *rootFlags) *cobra.Command {
 			params := map[string]string{}
 			data, prov, err := resolveReadWithStrategyResponsePathAndJSONGuard(cmd.Context(), c, flags, "auto", "page", false, path, params, nil, "", false, cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			if !flags.dryRun {
 				data, err = extractHTMLResponse(data, htmlExtractionOptions{
@@ -96,7 +83,7 @@ func newPageGetCmd(flags *rootFlags) *cobra.Command {
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, nil)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -125,29 +112,9 @@ func newPageGetCmd(flags *rootFlags) *cobra.Command {
 			if flags.csv || flags.plain {
 				formatData = outputData
 			}
-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"})
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
 		},
 	}
 
-	cmd.Flags().StringVar(&version, "version", "", "Q-SYS Designer version tree to read from, e.g. 9.4 (default: current release)")
 	return cmd
-}
-
-// validDocVersion reports whether s is a dotted version token like 9.4 or
-// 10.0, the only shape that maps onto a Q-SYS doc tree path.
-func validDocVersion(s string) bool {
-	if s == "" {
-		return false
-	}
-	dot := false
-	for _, r := range s {
-		switch {
-		case r >= '0' && r <= '9':
-		case r == '.':
-			dot = true
-		default:
-			return false
-		}
-	}
-	return dot
 }
