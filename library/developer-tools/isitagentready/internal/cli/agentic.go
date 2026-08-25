@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/isitagentready/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/isitagentready/internal/config"
@@ -24,14 +25,28 @@ const agenticReportPath = "/api/v1/report"
 // `ratelimit-policy: "public-report";q=120;w=60` = 120 requests / 60s = 2 req/s.
 const agenticRateLimit = 2.0
 
-// newAgenticClient returns a client pointed at is-agentic.com. client.Client
-// exports BaseURL and takes no host at construction beyond the config, so the
-// second source needs an override, not a client fork.
+// The is-agentic budget is per-HOST, but a client's limiter is per-CLIENT:
+// client.New builds a fresh cliutil.AdaptiveLimiter every call. Constructing a
+// client per request therefore gave each of the 4 compare/batch fan-out workers
+// its own limiter, so 4 requests could leave at once against a 2 req/s budget —
+// exactly the 429 storm the limiter exists to prevent. Memoize ONE client (and
+// therefore ONE limiter) per process so every worker queues behind one budget.
+//
+// The key covers every setting client.New bakes in. Within a single command run
+// these are fixed, so all fan-out workers share one client; a caller configured
+// differently gets its own rather than silently inheriting another's DryRun /
+// NoCache. Fields are only written under the mutex at construction and never
+// mutated afterwards, so concurrent readers stay race-free.
+var (
+	agenticClientMu     sync.Mutex
+	agenticClientCached *client.Client
+	agenticClientKey    string
+)
+
+// newAgenticClient returns the process-wide client pointed at is-agentic.com.
+// client.Client exports BaseURL and takes no host at construction beyond the
+// config, so the second source needs an override, not a client fork.
 func (f *rootFlags) newAgenticClient() (*client.Client, error) {
-	cfg, err := config.Load(f.configPath)
-	if err != nil {
-		return nil, configErr(err)
-	}
 	// The is-agentic host's public-report budget applies whether or not the
 	// user set --rate-limit: clamp a configured higher rate down, and use the
 	// host budget when none is set.
@@ -39,11 +54,33 @@ func (f *rootFlags) newAgenticClient() (*client.Client, error) {
 	if rl <= 0 || rl > agenticRateLimit {
 		rl = agenticRateLimit
 	}
+	key := fmt.Sprintf("%s|%s|%v|%t|%t", f.configPath, f.timeout, rl, f.dryRun, f.noCache)
+
+	agenticClientMu.Lock()
+	defer agenticClientMu.Unlock()
+	if agenticClientCached != nil && agenticClientKey == key {
+		return agenticClientCached, nil
+	}
+	cfg, err := config.Load(f.configPath)
+	if err != nil {
+		return nil, configErr(err)
+	}
 	c := client.New(cfg, f.timeout, rl)
 	c.BaseURL = agenticBaseURL
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
+	agenticClientCached = c
+	agenticClientKey = key
 	return c, nil
+}
+
+// resetAgenticClient drops the memoized client. Tests use it so one test's
+// client (with a test-server BaseURL) cannot leak into another.
+func resetAgenticClient() {
+	agenticClientMu.Lock()
+	defer agenticClientMu.Unlock()
+	agenticClientCached = nil
+	agenticClientKey = ""
 }
 
 // agenticProblem is an RFC 9457 application/problem+json error body.

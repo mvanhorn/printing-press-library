@@ -262,9 +262,34 @@ func resolveReportCtx(ctx context.Context, flags *rootFlags, url string) (json.R
 // renderScan prints a scan report: raw JSON (with --select/--compact) for
 // machine output, or a human summary for a terminal.
 func renderScan(cmd *cobra.Command, flags *rootFlags, raw json.RawMessage) error {
-	if !wantsHumanTable(cmd.OutOrStdout(), flags) {
+	return renderScanFor(cmd, flags, raw, wantsHumanTable(cmd.OutOrStdout(), flags))
+}
+
+// renderScanFor is renderScan with the human/machine decision passed in, and
+// with the human renderer chosen by --source.
+//
+// An is-agentic report shares no fields with an isitagentready one, and
+// store.ParseReport unmarshals it WITHOUT error into an all-zero Report — so
+// routing it through the level renderer printed an empty URL, "Level 0" and
+// zero checks instead of the real score and issues. Dispatch on the source
+// before rendering, the same way report/crossref already do.
+//
+// human is a parameter rather than a recomputed wantsHumanTable call so tests
+// can exercise the terminal path: wantsHumanTable gates it behind isTerminal,
+// which is false for the buffer a test renders into.
+func renderScanFor(cmd *cobra.Command, flags *rootFlags, raw json.RawMessage, human bool) error {
+	if !human {
 		return printOutputWithFlags(cmd.OutOrStdout(), raw, flags)
 	}
+	if flags.sourceOrDefault() == store.SourceIsAgentic {
+		// tier "" — check has no --category/--tier filter, so show both tiers.
+		return renderAgenticReport(cmd, raw, "")
+	}
+	return renderScanLevels(cmd, flags, raw)
+}
+
+// renderScanLevels prints the isitagentready level-based human summary.
+func renderScanLevels(cmd *cobra.Command, flags *rootFlags, raw json.RawMessage) error {
 	rep, err := store.ParseReport(raw)
 	if err != nil {
 		return printOutputWithFlags(cmd.OutOrStdout(), raw, flags)

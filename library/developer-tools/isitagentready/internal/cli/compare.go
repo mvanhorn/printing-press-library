@@ -56,9 +56,10 @@ func newNovelCompareCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			// Scan the sites concurrently (each scan is several seconds) so the
-			// matrix returns in roughly one scan's time rather than the sum. The
-			// is-agentic client's limiter already caps concurrency at 2 req/s,
-			// so no extra throttle is needed here.
+			// matrix returns in roughly one scan's time rather than the sum. For
+			// --source is-agentic every worker goes through the one process-wide
+			// client from newAgenticClient, so the four workers share a single
+			// 2 req/s limiter and no extra throttle is needed here.
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 			results, ferrs := cliutil.FanoutRun(ctx, urls,

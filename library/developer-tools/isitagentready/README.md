@@ -197,7 +197,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   isitagentready-pp-cli crossref https://example.com
   ```
-- **`--source is-agentic`** — Run any scan-backed command against the second scanner. Every stored scan is tagged with its source, so `history`, `diff`, `gate`, `compare` and `batch` stay inside one scanner's scale instead of silently mixing two.
+- **`--source is-agentic`** — Run any scan-backed command against the second scanner. Every stored scan is tagged with its source, so `history`, `diff`, `gate`, `compare` and `batch` stay inside one scanner's scale instead of silently mixing two. Every is-agentic request in a run — including the concurrent `compare` and `batch` fan-out — goes through one shared client, so the whole process stays inside the host's advertised 2 requests/second public-report budget instead of racing itself into 429s.
 
   _Reach for this to track is-agentic over time the same way you already track isitagentready._
 
@@ -262,6 +262,8 @@ Prints isitagentready's Level 0-5 and is-agentic's score 0-100 as two separate n
 isitagentready-pp-cli check https://example.com --source is-agentic
 isitagentready-pp-cli history https://example.com --source is-agentic
 ```
+
+With `--source is-agentic`, `check` prints that scanner's own verdict — the score and its label, the essential/recommended tier breakdown, and each non-passing issue with its fix — not an isitagentready level, because the two scales are not the same claim.
 
 Every scan is stored with its source, and every read filters to one source, so is-agentic history never mixes with isitagentready history. Omitting `--source` keeps the original isitagentready behavior, including for scans recorded before this feature existed.
 
