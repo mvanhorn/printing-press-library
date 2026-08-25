@@ -72,17 +72,22 @@ func newNovelBatchCmd(flags *rootFlags) *cobra.Command {
 			results, ferrs := cliutil.FanoutRun(ctx, urls,
 				func(u string) string { return u },
 				func(c context.Context, u string) (store.ScanRecord, error) {
-					raw, err := performScan(c, flags, u)
+					raw, err := performScanFor(c, flags, u)
 					if err != nil {
 						return store.ScanRecord{}, err
 					}
-					persistScan(raw)
-					rep, perr := store.ParseReport(raw)
-					if perr != nil {
-						return store.ScanRecord{}, perr
-					}
-					return store.ScanRecord{URL: rep.URL, ScannedAt: rep.ScannedAt, Level: rep.Level, LevelName: rep.LevelName, Raw: raw}, nil
+					persistScanFor(flags, raw)
+					return buildScanRecord(flags, raw)
 				})
+
+			// Surface every per-source failure (429, 404, site error) as a
+			// stderr warning line so none is silently dropped, then fail non-zero
+			// when EVERY scan failed rather than printing an empty leaderboard.
+			cliutil.FanoutReportErrors(cmd.ErrOrStderr(), ferrs)
+			if len(results) == 0 {
+				return apiErr(fmt.Errorf("all %d scan(s) failed; nothing to rank (check rate limits or URL list)", len(urls)))
+			}
+
 			records := make([]store.ScanRecord, 0, len(results))
 			for _, r := range results {
 				records = append(records, r.Value)
@@ -93,19 +98,37 @@ func newNovelBatchCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			ranked := store.RankRecords(records, rank)
+			srcName := flags.sourceOrDefault()
 			rows := make([]map[string]any, 0, len(ranked))
 			for i, r := range ranked {
-				rep, _ := store.ParseReport(r.Raw)
-				failing := 0
-				siteErr := false
-				if rep != nil {
-					failing = len(rep.FailingChecks())
-					siteErr = rep.SiteError != nil
+				row := map[string]any{"rank": i + 1, "url": r.URL, "source": srcName}
+				if srcName == store.SourceIsAgentic {
+					failing := 0
+					if ag, err := store.ParseAgenticReport(r.Raw); err == nil {
+						failing = len(ag.FailingIssues())
+					}
+					score := 0
+					if r.Score != nil {
+						score = *r.Score
+					}
+					row["score"] = score
+					row["scoreLabel"] = r.ScoreLabel
+					row["failing"] = failing
+					row["scannedAt"] = r.ScannedAt // cached upstream; show staleness
+				} else {
+					rep, _ := store.ParseReport(r.Raw)
+					failing := 0
+					siteErr := false
+					if rep != nil {
+						failing = len(rep.FailingChecks())
+						siteErr = rep.SiteError != nil
+					}
+					row["level"] = r.Level
+					row["levelName"] = r.LevelName
+					row["failing"] = failing
+					row["siteError"] = siteErr
 				}
-				rows = append(rows, map[string]any{
-					"rank": i + 1, "url": r.URL, "level": r.Level, "levelName": r.LevelName,
-					"failing": failing, "siteError": siteErr,
-				})
+				rows = append(rows, row)
 			}
 
 			if len(failures) > 0 {

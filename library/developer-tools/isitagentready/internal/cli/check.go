@@ -47,7 +47,7 @@ func newCheckCmd(flags *rootFlags) *cobra.Command {
 
 			var raw json.RawMessage
 			if flags.dataSource == "local" {
-				recs, err := loadStore()
+				recs, err := loadStoreFor(flags)
 				if err != nil {
 					return err
 				}
@@ -59,12 +59,12 @@ func newCheckCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				ctx, cancel := boundCtx(cmd.Context(), flags)
 				defer cancel()
-				data, err := performScan(ctx, flags, url)
+				data, err := performScanFor(ctx, flags, url)
 				if err != nil {
 					return err
 				}
 				raw = data
-				persistScan(raw)
+				persistScanFor(flags, raw)
 			}
 			return renderScan(cmd, flags, raw)
 		},

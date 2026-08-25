@@ -57,7 +57,7 @@ func newGuideCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 
-			recs, err := loadStore()
+			recs, err := loadStoreFor(flags)
 			if err != nil {
 				return err
 			}

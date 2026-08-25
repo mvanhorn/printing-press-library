@@ -1,8 +1,10 @@
 # Is It Agent Ready CLI
 
-**The terminal scanner for AI-agent readiness: every check the web tool runs, plus copy-paste fixes, CI gating, scan history, and a local store the web UI has no answer for.**
+**Two agent-readiness scanners in one terminal: every check isitagentready.com and is-agentic.com run, plus copy-paste fixes, CI gating, scan history, and a local store neither web UI has an answer for.**
 
-isitagentready.com gives you a one-shot score in a browser tab with no memory. This CLI turns it into a repeatable loop: check any site, get the prioritized fixes with advice, gate it in CI, diff it over time, compare it to competitors, and batch-scan a whole portfolio, with every scan stored locally so history and open-advice tell you exactly what changed and what is still unfixed.
+isitagentready.com and is-agentic.com each give you a one-shot score in a browser tab with no memory, and neither knows the other exists. This CLI turns both into one repeatable loop: check any site against either scanner, get the prioritized fixes with advice, gate it in CI, diff it over time, compare it to competitors, and batch-scan a whole portfolio — with every scan stored locally and tagged by source, so history and open-advice tell you exactly what changed and what is still unfixed.
+
+The two scanners disagree, and that is the point. isitagentready.com reports a Level 0-5 across five fixed categories; is-agentic.com reports a score 0-100 over a per-site denominator that excludes checks that do not apply. This CLI never averages or rescales them. `crossref` puts both native verdicts side by side and calls agreement only on the four checks that genuinely measure the same thing.
 
 ## Install
 
@@ -187,6 +189,22 @@ These capabilities aren't available in any other tool for this API.
   isitagentready-pp-cli batch urls.txt --rank failing --csv
   ```
 
+### Cross-check both scanners
+- **`crossref`** — Show isitagentready.com's Level 0-5 and is-agentic.com's score 0-100 side by side for one URL, each in its own native scale and never merged, plus an agreement verdict on the four checks that genuinely measure the same thing.
+
+  _Reach for this when one scanner says you are fine and you want a second opinion — without pretending the two scores are the same number._
+
+  ```bash
+  isitagentready-pp-cli crossref https://example.com
+  ```
+- **`--source is-agentic`** — Run any scan-backed command against the second scanner. Every stored scan is tagged with its source, so `history`, `diff`, `gate`, `compare` and `batch` stay inside one scanner's scale instead of silently mixing two.
+
+  _Reach for this to track is-agentic over time the same way you already track isitagentready._
+
+  ```bash
+  isitagentready-pp-cli report https://example.com --source is-agentic
+  ```
+
 ## Recipes
 
 
@@ -229,6 +247,31 @@ isitagentready-pp-cli compare https://example.com https://stripe.com
 ```
 
 Prints a per-standard matrix of which agent-readiness checks each site implements.
+
+### Cross-check a site against both scanners
+
+```bash
+isitagentready-pp-cli crossref https://example.com
+```
+
+Prints isitagentready's Level 0-5 and is-agentic's score 0-100 as two separate native verdicts, then an agreement table for the four checks both scanners actually measure. The two scores are never averaged or rescaled — their denominators differ (five fixed categories vs a per-site set that excludes non-applicable checks). If one scanner has no report for the URL, the other is still printed.
+
+### Track the second scanner over time
+
+```bash
+isitagentready-pp-cli check https://example.com --source is-agentic
+isitagentready-pp-cli history https://example.com --source is-agentic
+```
+
+Every scan is stored with its source, and every read filters to one source, so is-agentic history never mixes with isitagentready history. Omitting `--source` keeps the original isitagentready behavior, including for scans recorded before this feature existed.
+
+### Gate CI on the is-agentic score
+
+```bash
+isitagentready-pp-cli gate https://example.com --source is-agentic --min-score 70
+```
+
+`--min-score` is the is-agentic threshold; `--min-level` is the isitagentready one. Passing the wrong pair (`--min-level` with `--source is-agentic`) is a usage error rather than a silent reinterpretation, because a Level 3 and a score of 70 are not the same claim.
 
 ## Usage
 

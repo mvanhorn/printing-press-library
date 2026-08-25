@@ -45,13 +45,13 @@ func newNovelHistoryCmd(flags *rootFlags) *cobra.Command {
 			}
 			url := args[0]
 
-			recs, err := loadStore()
+			recs, err := loadStoreFor(flags)
 			if err != nil {
 				return err
 			}
 			hist := store.HistoryFor(recs, url)
 			if len(hist) == 0 {
-				fmt.Fprintf(cmd.ErrOrStderr(), "no scans yet for %s; run: isitagentready-pp-cli check %s\n", url, url)
+				fmt.Fprintf(cmd.ErrOrStderr(), "no %s scans yet for %s; run: isitagentready-pp-cli check %s --source %s\n", flags.sourceOrDefault(), url, url, flags.sourceOrDefault())
 				if flags.asJSON {
 					fmt.Fprintln(cmd.OutOrStdout(), "[]")
 				}
@@ -82,7 +82,16 @@ func renderHistory(cmd *cobra.Command, url string, entries []store.HistoryEntry)
 			when = t.Format("2006-01-02 15:04")
 		}
 		if e.SiteError {
-			fmt.Fprintf(out, "  %s  level %d — %s  %s\n", when, e.Level, e.LevelName, red("(site error)"))
+			fmt.Fprintf(out, "  %s  (site error)\n", when)
+			continue
+		}
+		if e.Score != nil {
+			// is-agentic history rows have a score, not a level.
+			label := fmt.Sprintf("score %d", *e.Score)
+			if e.ScoreLabel != "" {
+				label += " — " + e.ScoreLabel
+			}
+			fmt.Fprintf(out, "  %s  %s\n", when, label)
 		} else {
 			fmt.Fprintf(out, "  %s  level %d — %s\n", when, e.Level, e.LevelName)
 		}

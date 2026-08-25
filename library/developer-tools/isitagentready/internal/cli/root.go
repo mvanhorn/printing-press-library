@@ -15,6 +15,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/isitagentready/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/isitagentready/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/isitagentready/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/isitagentready/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -43,6 +44,7 @@ type rootFlags struct {
 	timeout             time.Duration
 	rateLimit           float64
 	dataSource          string
+	source              string
 	freshnessMeta       any
 
 	// deliverBuf captures command output when --deliver is set to a
@@ -181,6 +183,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
 	rootCmd.PersistentFlags().BoolVar(&flags.allowPartialFailure, "allow-partial-failure", false, "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
+	rootCmd.PersistentFlags().StringVar(&flags.source, "source", store.SourceIsItAgentReady,
+		"Scanner source: isitagentready (Level 0-5) or is-agentic (score 0-100). The two use different scales and are never merged; see 'crossref'.")
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'isitagentready-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
@@ -239,6 +243,12 @@ See README.md or the bundled SKILL.md for recipes.`,
 		default:
 			return fmt.Errorf("invalid --data-source value %q: must be auto, live, or local", flags.dataSource)
 		}
+		switch flags.source {
+		case store.SourceIsItAgentReady, store.SourceIsAgentic:
+			// valid
+		default:
+			return fmt.Errorf("invalid --source value %q: must be %s", flags.source, strings.Join(store.ValidSources(), " or "))
+		}
 		return nil
 	}
 	rootCmd.AddCommand(newDoctorCmd(flags))
@@ -253,6 +263,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newNovelGateCmd(flags))
 	rootCmd.AddCommand(newNovelHistoryCmd(flags))
 	rootCmd.AddCommand(newNovelOpenAdviceCmd(flags))
+	rootCmd.AddCommand(newCrossrefCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))
 	rootCmd.AddCommand(newScanPromotedCmd(flags))
 	rootCmd.AddCommand(newCheckCmd(flags))

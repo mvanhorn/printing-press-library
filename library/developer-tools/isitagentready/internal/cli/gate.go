@@ -14,14 +14,16 @@ import (
 
 func newNovelGateCmd(flags *rootFlags) *cobra.Command {
 	var minLevel int
+	var minScore int
 	var noRegress bool
 	var strict bool
 
 	cmd := &cobra.Command{
 		Use:   "gate <url>",
 		Short: "Fail a build when a site drops below a target readiness level or a check regresses",
-		Long: "Scan a site and exit non-zero when its readiness level is below --min-level or (with\n" +
-			"--no-regress) when any check that passed in the previous scan now fails. A target\n" +
+		Long: "Scan a site and exit non-zero when its readiness level/score is below --min-level (or\n" +
+			"--min-score for the is-agentic source) or (with --no-regress) when any check that\n" +
+			"passed in the previous scan now fails. A target\n" +
 			"siteError (the scanner could not fetch the site) is reported but does NOT fail the gate\n" +
 			"unless --strict, so a transient target outage does not flap CI. Pair with --agent for a\n" +
 			"machine-readable result on stdout; the exit code is the gate signal.\n\n" +
@@ -52,40 +54,83 @@ func newNovelGateCmd(flags *rootFlags) *cobra.Command {
 			}
 			url := args[0]
 
-			recs, err := loadStore()
+			// The threshold flag must match the active scanner's scale. A
+			// mismatched threshold would be silently reinterpreted, so refuse
+			// it as a usage error (exit 2) instead: is-agentic has no level and
+			// isitagentready has no 0-100 score.
+			src := flags.sourceOrDefault()
+			if cmd.Flags().Changed("min-level") && src == store.SourceIsAgentic {
+				return usageErr(fmt.Errorf("--min-level is a level 0-5 threshold, but --source is-agentic reports a score 0-100 with no level; use --min-score instead"))
+			}
+			if cmd.Flags().Changed("min-score") && src == store.SourceIsItAgentReady {
+				return usageErr(fmt.Errorf("--min-score is a score 0-100 threshold, but --source isitagentready reports a level 0-5 with no score; use --min-level instead"))
+			}
+
+			recs, err := loadStoreFor(flags)
 			if err != nil {
 				return err
 			}
 
-			var current, prev *store.Report
-			if flags.dataSource == "local" {
-				hist := store.HistoryFor(recs, url)
-				if len(hist) == 0 {
-					return notFoundErr(fmt.Errorf("no stored scan for %s; run 'isitagentready-pp-cli check %s' or omit --data-source local", url, url))
+			var res store.GateResult
+			if src == store.SourceIsAgentic {
+				var current, prev *store.AgenticReport
+				if flags.dataSource == "local" {
+					hist := store.HistoryFor(recs, url)
+					if len(hist) == 0 {
+						return notFoundErr(fmt.Errorf("no stored is-agentic scan for %s; run 'isitagentready-pp-cli check %s --source is-agentic' or omit --data-source local", url, url))
+					}
+					if current, err = store.ParseAgenticReport(hist[len(hist)-1].Raw); err != nil {
+						return err
+					}
+					if len(hist) >= 2 {
+						prev, _ = store.ParseAgenticReport(hist[len(hist)-2].Raw)
+					}
+				} else {
+					if rec, ok := store.Latest(recs, url); ok {
+						prev, _ = store.ParseAgenticReport(rec.Raw)
+					}
+					ctx, cancel := boundCtx(cmd.Context(), flags)
+					defer cancel()
+					raw, err := performScanFor(ctx, flags, url)
+					if err != nil {
+						return err
+					}
+					persistScanFor(flags, raw)
+					if current, err = store.ParseAgenticReport(raw); err != nil {
+						return err
+					}
 				}
-				if current, err = store.ParseReport(hist[len(hist)-1].Raw); err != nil {
-					return err
-				}
-				if len(hist) >= 2 {
-					prev, _ = store.ParseReport(hist[len(hist)-2].Raw)
-				}
+				res = store.EvaluateAgenticGate(current, prev, minScore, noRegress)
 			} else {
-				if rec, ok := store.Latest(recs, url); ok {
-					prev, _ = store.ParseReport(rec.Raw)
+				var current, prev *store.Report
+				if flags.dataSource == "local" {
+					hist := store.HistoryFor(recs, url)
+					if len(hist) == 0 {
+						return notFoundErr(fmt.Errorf("no stored scan for %s; run 'isitagentready-pp-cli check %s' or omit --data-source local", url, url))
+					}
+					if current, err = store.ParseReport(hist[len(hist)-1].Raw); err != nil {
+						return err
+					}
+					if len(hist) >= 2 {
+						prev, _ = store.ParseReport(hist[len(hist)-2].Raw)
+					}
+				} else {
+					if rec, ok := store.Latest(recs, url); ok {
+						prev, _ = store.ParseReport(rec.Raw)
+					}
+					ctx, cancel := boundCtx(cmd.Context(), flags)
+					defer cancel()
+					raw, err := performScanFor(ctx, flags, url)
+					if err != nil {
+						return err
+					}
+					persistScanFor(flags, raw)
+					if current, err = store.ParseReport(raw); err != nil {
+						return err
+					}
 				}
-				ctx, cancel := boundCtx(cmd.Context(), flags)
-				defer cancel()
-				raw, err := performScan(ctx, flags, url)
-				if err != nil {
-					return err
-				}
-				persistScan(raw)
-				if current, err = store.ParseReport(raw); err != nil {
-					return err
-				}
+				res = store.EvaluateGate(current, prev, minLevel, noRegress, strict)
 			}
-
-			res := store.EvaluateGate(current, prev, minLevel, noRegress, strict)
 
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				renderGateHuman(cmd, res)
@@ -101,6 +146,7 @@ func newNovelGateCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().IntVar(&minLevel, "min-level", 0, "Fail if the readiness level is below this (0-5; 0 disables the level check)")
+	cmd.Flags().IntVar(&minScore, "min-score", 0, "Fail if the is-agentic score is below this (0-100; 0 disables the score check)")
 	cmd.Flags().BoolVar(&noRegress, "no-regress", false, "Fail if any check that passed in the previous scan now fails")
 	cmd.Flags().BoolVar(&strict, "strict", false, "Also fail when the target site itself is unreachable (siteError)")
 	return cmd
@@ -112,11 +158,15 @@ func renderGateHuman(cmd *cobra.Command, res store.GateResult) {
 	if !res.Pass {
 		verdict = red("FAIL")
 	}
-	fmt.Fprintf(out, "%s  %s  (level %d — %s", verdict, res.URL, res.Level, res.LevelName)
-	if res.MinLevel > 0 {
-		fmt.Fprintf(out, ", min %d", res.MinLevel)
+	if res.Score != nil {
+		fmt.Fprintf(out, "%s  %s  (score %d — %s)\n", verdict, res.URL, *res.Score, res.ScoreLabel)
+	} else {
+		fmt.Fprintf(out, "%s  %s  (level %d — %s", verdict, res.URL, res.Level, res.LevelName)
+		if res.MinLevel > 0 {
+			fmt.Fprintf(out, ", min %d", res.MinLevel)
+		}
+		fmt.Fprintln(out, ")")
 	}
-	fmt.Fprintln(out, ")")
 	for _, r := range res.Reasons {
 		fmt.Fprintf(out, "  - %s\n", r)
 	}
