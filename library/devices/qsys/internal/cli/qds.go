@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"unicode"
 
 	"github.com/spf13/cobra"
 )
@@ -253,11 +254,21 @@ func detectLTSForVersion(target, text string, versions []string) (string, bool) 
 	seenSentence := map[int]struct{}{}
 	for _, lm := range ltsRE.FindAllStringIndex(text, -1) {
 		lo, hi := ltsSentenceBounds(text, lm[0], lm[1])
-		// One designation per sentence: matches arrive in order, so the first
-		// LTS phrase seen for a sentence is the designating one ("is the LTS
-		// release"); later phrases in the same sentence ("LTS support ends
-		// March 2027") describe that same designation, not a new release.
+		// Matches arrive in order, so the first LTS phrase seen for a sentence
+		// is its designating one ("is the LTS release"). A later phrase in the
+		// same sentence is usually an elliptical continuation of that same
+		// designation ("...; LTS support ends March 2027") — except when a
+		// version mention sits immediately before it as its grammatical
+		// subject ("... and Designer 10.0 is LTS through June 2028"), which is
+		// an independent designation of that release.
 		if _, dup := seenSentence[lo]; dup {
+			m, subject := subjectMentionBefore(text, mentions, lm[0], lo)
+			if !subject || !versionSeriesMatch(target, text[m[2]:m[3]]) {
+				continue
+			}
+			if end, ok := detectLTS(text[lm[0]:hi]); ok {
+				return end, ok
+			}
 			continue
 		}
 		seenSentence[lo] = struct{}{}
@@ -279,6 +290,33 @@ func detectLTSForVersion(target, text string, versions []string) (string, bool) 
 		}
 	}
 	return "", false
+}
+
+// subjectMentionBefore returns the version mention that immediately precedes
+// position pos as its grammatical subject: the closest mention ending at or
+// before pos, within the same sentence (>= lo), separated from pos by nothing
+// but letters and spaces (linking words like "is", "remains", "is the") within
+// a short span. Punctuation in the gap means the mention is not the subject.
+func subjectMentionBefore(text string, mentions [][]int, pos, lo int) ([]int, bool) {
+	const maxSubjectGap = 40
+	var best []int
+	for _, m := range mentions {
+		if m[2] < 0 || m[3] < 0 || m[2] < lo || m[3] > pos {
+			continue
+		}
+		if best == nil || m[3] > best[3] {
+			best = m
+		}
+	}
+	if best == nil || pos-best[3] > maxSubjectGap {
+		return nil, false
+	}
+	for _, r := range text[best[3]:pos] {
+		if r != ' ' && r != '\t' && !unicode.IsLetter(r) {
+			return nil, false
+		}
+	}
+	return best, true
 }
 
 // spanGap returns the byte distance between two half-open spans, 0 if they
