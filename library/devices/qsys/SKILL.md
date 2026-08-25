@@ -125,11 +125,12 @@ These capabilities aren't available in any other tool for this API.
 
 **harvest** — Build the local corpus (run this first)
 
-- `qsys-pp-cli harvest` — walk both vendor sitemaps (roughly 750 help pages and 270 product pages, rate limited) and build the local corpus every other command reads
-- `qsys-pp-cli harvest --only pages|products|compat` — harvest one source instead of all three
+- `qsys-pp-cli harvest` — walk all three vendor sitemaps (help.qsys.com, qsys.com, and support.qsys.com; roughly 750 help pages, 270 product pages, and 1,900 support articles, rate limited) and build the local corpus every other command reads
+- `qsys-pp-cli harvest --only pages|products|compat|support` — harvest one source instead of all three
 - `qsys-pp-cli harvest --only products --limit 25 --with-pdfs` — narrow the walk, and also download and text-extract spec-sheet PDFs (slower; needs `pdftotext`)
+- `qsys-pp-cli harvest --only support` — harvest support.qsys.com; required for `fault`, `bom risks`, and `qds`
 
-**Do not confuse `harvest` with `sync`.** Top-level `sync` walks the generated endpoint resources and refreshes entity lookups; it does not build the corpus. The Q-SYS corpus is two scraped websites plus a PDF layer that must be joined locally, and only `harvest` builds it. Run `qsys-pp-cli coverage` afterwards to confirm the harvest landed.
+**Do not confuse `harvest` with `sync`.** Top-level `sync` walks the generated endpoint resources and refreshes entity lookups; it does not build the corpus. The Q-SYS corpus is three scraped websites plus a PDF layer that must be joined locally, and only `harvest` builds it. Run `qsys-pp-cli coverage` afterwards to confirm the harvest landed.
 
 **compat** — Hardware and software compatibility matrices
 
@@ -170,6 +171,15 @@ qsys-pp-cli which "<capability in your own words>"
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
 ## Recipes
+
+### First run: build the corpus
+
+```bash
+qsys-pp-cli harvest --timeout 900s
+qsys-pp-cli coverage
+```
+
+`harvest` walks all three vendor sitemaps (help.qsys.com, qsys.com, and support.qsys.com) into the local corpus; every other command reads it. `coverage` then reports how many products resolved a spec sheet, how many pages parsed, and how many support articles were indexed, so an incomplete harvest is visible instead of silent. Narrow a first pass with `--only products --limit 25`, add `--with-pdfs` when spec-sheet text is needed, and use `--only support` for the knowledge base that `fault`, `bom risks`, and `qds` read.
 
 ### Pre-quote sweep across an equipment list
 

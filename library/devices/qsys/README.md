@@ -210,6 +210,15 @@ These capabilities aren't available in any other tool for this API.
 
 ## Recipes
 
+### First run: build the corpus
+
+```bash
+qsys-pp-cli harvest --timeout 900s
+qsys-pp-cli coverage
+```
+
+`harvest` walks all three vendor sitemaps (help.qsys.com, qsys.com, and support.qsys.com) into the local corpus; every other command reads it. `coverage` then reports how many products resolved a spec sheet, how many pages parsed, and how many support articles were indexed, so an incomplete harvest is visible instead of silent. Narrow a first pass with `--only products --limit 25`, add `--with-pdfs` when spec-sheet text is needed, and use `--only support` for the knowledge base that `fault`, `bom risks`, and `qds` read.
+
 ### Pre-quote sweep across an equipment list
 
 ```bash
@@ -307,10 +316,11 @@ Existing installs keep working because the platform-default rung matches the leg
 
 ### harvest — build the local corpus (run this first)
 
-Walks both vendor sitemaps and builds the local corpus that every other command reads. The full harvest fetches roughly 750 help pages and 270 product pages, rate limited to be polite to the vendor servers.
+Walks all three vendor sitemaps and builds the local corpus that every other command reads. The full harvest fetches roughly 750 help pages, 270 product pages, and 1,900 support articles, rate limited to be polite to the vendor servers.
 
-- **`qsys-pp-cli harvest`** - Build the whole corpus from help.qsys.com and qsys.com
-- **`qsys-pp-cli harvest --only pages|products|compat`** - Harvest one source instead of all three
+- **`qsys-pp-cli harvest`** - Build the whole corpus from help.qsys.com, qsys.com, and support.qsys.com
+- **`qsys-pp-cli harvest --only pages|products|compat|support`** - Harvest one source instead of all three
+- **`qsys-pp-cli harvest --only support`** - Harvest support.qsys.com; required for `fault`, `bom risks`, and `qds`
 - **`qsys-pp-cli harvest --limit 25`** - Cap items per source
 - **`qsys-pp-cli harvest --with-pdfs`** - Also download and text-extract spec-sheet PDFs (slower; needs `pdftotext`)
 
