@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "qsys-qds-lts-attribution",
+  "applied_at": "2026-08-25",
+  "base_run_id": "20260824-192635-14fb8c13",
+  "base_printing_press_version": "4.31.1",
+  "summary": "qds attributes LTS wording to the queried release only: in multi-release articles the LTS statement must share a sentence with a mention of the queried release.",
+  "reason": "Greptile P1 on PR #1808: an article saying '9.8 is the LTS release' while merely mentioning 9.10 marked 9.10 as LTS. Sentence bounds treat digit.digit periods as version dots, not sentence ends.",
+  "files": ["internal/cli/qds.go", "internal/cli/qds_test.go"],
+  "validated_outcome": "TestDetectLTSForVersion covers both-release, single-release, and far-mention cases (the misattribution case failed before the fix); full suite and live gate repassed."
+}

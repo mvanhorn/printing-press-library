@@ -149,7 +149,7 @@ script can tell a typo from a quiet release.
 					Excerpt:          excerpt(a.Body, excerptLen(full)),
 				}
 				if rep.LTSStatus == "unknown" {
-					if end, ok := detectLTS(text); ok {
+					if end, ok := detectLTSForVersion(version, text, versions); ok {
 						rep.LTSStatus, rep.LTSEndDate, rep.LTSSource = "lts", end, a.URL
 					}
 				}
@@ -230,6 +230,60 @@ func detectLTS(text string) (string, bool) {
 		return strings.TrimSpace(m[1]), true
 	}
 	return "", true
+}
+
+// ltsSentenceCap bounds how far (in bytes) the sentence around a version
+// mention may extend in each direction; a backstop against pathological text
+// with no sentence punctuation.
+const ltsSentenceCap = 400
+
+// detectLTSForVersion attributes LTS wording to the queried release only. A
+// single-release article can be trusted whole, but a multi-release article can
+// say "9.8 is the LTS release" while merely mentioning the queried 9.10 — so
+// there the LTS wording must appear in the same sentence as a mention of the
+// queried release.
+func detectLTSForVersion(target, text string, versions []string) (string, bool) {
+	if len(versions) <= 1 {
+		return detectLTS(text)
+	}
+	for _, m := range designerVersionRE.FindAllStringSubmatchIndex(text, -1) {
+		if m[2] < 0 || m[3] < 0 || !versionSeriesMatch(target, text[m[2]:m[3]]) {
+			continue
+		}
+		lo, hi := ltsSentenceBounds(text, m[2], m[3])
+		if end, ok := detectLTS(text[lo:hi]); ok {
+			return end, ok
+		}
+	}
+	return "", false
+}
+
+// ltsSentenceBounds expands [lo,hi) to the enclosing sentence. A period
+// between two digits is a version dot (9.8.1), not a sentence end.
+func ltsSentenceBounds(text string, lo, hi int) (int, int) {
+	isBoundary := func(i int) bool {
+		switch text[i] {
+		case '\n', '!', '?':
+			return true
+		case '.':
+			return i == 0 || i+1 >= len(text) ||
+				text[i-1] < '0' || text[i-1] > '9' ||
+				text[i+1] < '0' || text[i+1] > '9'
+		}
+		return false
+	}
+	start := lo
+	for start > 0 && lo-start < ltsSentenceCap && !isBoundary(start-1) {
+		start--
+	}
+	end := hi
+	for end < len(text) && end-hi < ltsSentenceCap && !isBoundary(end) {
+		end++
+	}
+	if end < len(text) {
+		end++ // keep the terminator so date regexes anchored to it still see context
+	}
+	return start, end
 }
 
 func sortRefs(refs []supportRef) {

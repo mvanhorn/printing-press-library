@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "db3912f74499fc4f0cb9b3a25b6f5844114c330fdbbdbdb972a90409b6eed51c",
+  "source_fingerprint": "b8be797f5a4729b885804a989eaedde9da6dfd97dcde0d8190c800a2cd194121",
   "source_files": {
     "cmd/qsys-pp-cli/main.go": "ef671ee021c6b9c1ef41021cb6886c7adb096b8638e78e43646f28a328967d10",
     "cmd/qsys-pp-mcp/main.go": "fe88940a7c2ab77701e58ef238ce3f263a13c491be960284eb9b5bff4170a339",
@@ -72,8 +72,8 @@
     "internal/cli/product_resources.go": "e3ed6e78c78540be6ff59663420e7d851280aab09933a96f5753e0386c911feb",
     "internal/cli/profile.go": "525e5862868e50782505a6fe53cf72a6ff9f94f5f46007df7e9c8a31558a8a15",
     "internal/cli/promoted_networking.go": "bcfb39abe85fdcb92823644007caa77add3aa0b6f17f7700715aa18952862da0",
-    "internal/cli/qds.go": "5c5b78912040b2468ddb57f85ad9302ace3ace967281a255be245394343d1419",
-    "internal/cli/qds_test.go": "c3ae195049c20f03f4abf745dc5e3402bd3ffa880bb5614cb5ecb75fb6bd8cdb",
+    "internal/cli/qds.go": "96f57fd6e5b074e3feb3efc9ff2de6a538853be51183d168024e992d8e52bb78",
+    "internal/cli/qds_test.go": "555dcb17d8e1591441253ebbc95c15f4f79355e7cd60e0356c107c8b7c631dda",
     "internal/cli/qsys_corpus.go": "c01f4341bf924a0881d1659f55f865f1f4bdebfc6e5ff209f563cdb11c4e43eb",
     "internal/cli/qsys_support.go": "6288ef8f75144597b11ee5fdc6c71c710be81617674a31fe42b4cd4b47200e56",
     "internal/cli/qsys_support_test.go": "731eeacce55cbc8ef6d4203223b0cfc56b23387c058e58cbaee10d8d3b3e147c",
