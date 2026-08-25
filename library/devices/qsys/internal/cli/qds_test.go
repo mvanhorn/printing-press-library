@@ -47,6 +47,8 @@ func TestDetectLTSForVersion(t *testing.T) {
 		{"multi-release article, LTS belongs to other release", "9.10", multi, false, ""},
 		{"multi-release article, LTS belongs to queried release", "9.8", multi, true, "March 2027"},
 		{"single-release article trusted whole", "9.8", single, true, "March 2027"},
+		{"one sentence naming both releases, LTS belongs to the nearer", "9.10", "Q-SYS Designer 9.8 is the long-term support (LTS) release and is recommended over Designer 9.10; LTS support ends March 2027.", false, ""},
+		{"one sentence naming both releases, queried release is the nearer", "9.8", "Q-SYS Designer 9.8 is the long-term support (LTS) release and is recommended over Designer 9.10; LTS support ends March 2027.", true, "March 2027"},
 		{"multi-release, queried release far from LTS wording", "9.10", "Designer 9.8 is the LTS release. " + strings.Repeat("Filler sentence about unrelated topics. ", 20) + "Designer 9.10 adds the CX-Q series.", false, ""},
 	}
 	for _, tc := range cases {

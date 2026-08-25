@@ -459,7 +459,7 @@
         "--agent"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"note\": \"no support articles indexed; fault, bom risks, and qds need: qsys-pp-cli harvest --only support\",\n    \"products_with_spec_text\": 148,\n    \"sources\": [\n      {\n        \"attempted\": 51,\n        \"finished_at\": \"2026-08-25T04:56:36Z\",\n        \"source\": \"compat\",\n        \"succeeded\": 51,\n        \"success_rate\": 1\n      },\n      {\n        \"attempted\": 766,\n        \"finished_at\": \"2026-08-24T18:39:16Z\",\n        \"source\": \"pages\",\n        \"succeeded\": 766,\n        \"success_rate\": 1\n      },\n      {\n        \"attempted\": 266,\n        \"finished_at\": \"2026-08-24T19:13:21Z\",\n        \"source\": \"products\",\n        \"succeeded\": 266,\n        \"success_rate\": 1\n      }\n    ],\n    \"stored_compat_rows\": 51,\n    \"stored_pages\": 766,\n    \"stored_products\": 230,\n    \"stored_support_articles\": 0,\n    \"support_by_category\": []\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"note\": \"no support articles indexed; fault, bom risks, and qds need: qsys-pp-cli harvest --only support\",\n    \"products_with_spec_text\": 148,\n    \"sources\": [\n      {\n        \"attempted\": 51,\n        \"finished_at\": \"2026-08-25T05:04:06Z\",\n        \"source\": \"compat\",\n        \"succeeded\": 51,\n        \"success_rate\": 1\n      },\n      {\n        \"attempted\": 766,\n        \"finished_at\": \"2026-08-24T18:39:16Z\",\n        \"source\": \"pages\",\n        \"succeeded\": 766,\n        \"success_rate\": 1\n      },\n      {\n        \"attempted\": 266,\n        \"finished_at\": \"2026-08-24T19:13:21Z\",\n        \"source\": \"products\",\n        \"succeeded\": 266,\n        \"success_rate\": 1\n      }\n    ],\n    \"stored_compat_rows\": 51,\n    \"stored_pages\": 766,\n    \"stored_products\": 230,\n    \"stored_support_articles\": 0,\n    \"support_by_category\": []\n  }\n}\n"
     },
     {
       "command": "coverage",
@@ -469,7 +469,7 @@
         "--agent"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"note\": \"no support articles indexed; fault, bom risks, and qds need: qsys-pp-cli harvest --only support\",\n    \"products_with_spec_text\": 148,\n    \"sources\": [\n      {\n        \"attempted\": 51,\n        \"finished_at\": \"2026-08-25T04:56:36Z\",\n        \"source\": \"compat\",\n        \"succeeded\": 51,\n        \"success_rate\": 1\n      },\n      {\n        \"attempted\": 766,\n        \"finished_at\": \"2026-08-24T18:39:16Z\",\n        \"source\": \"pages\",\n        \"succeeded\": 766,\n        \"success_rate\": 1\n      },\n      {\n        \"attempted\": 266,\n        \"finished_at\": \"2026-08-24T19:13:21Z\",\n        \"source\": \"products\",\n        \"succeeded\": 266,\n        \"success_rate\": 1\n      }\n    ],\n    \"stored_compat_rows\": 51,\n    \"stored_pages\": 766,\n    \"stored_products\": 230,\n    \"stored_support_articles\": 0,\n    \"support_by_category\": []\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"note\": \"no support articles indexed; fault, bom risks, and qds need: qsys-pp-cli harvest --only support\",\n    \"products_with_spec_text\": 148,\n    \"sources\": [\n      {\n        \"attempted\": 51,\n        \"finished_at\": \"2026-08-25T05:04:06Z\",\n        \"source\": \"compat\",\n        \"succeeded\": 51,\n        \"success_rate\": 1\n      },\n      {\n        \"attempted\": 766,\n        \"finished_at\": \"2026-08-24T18:39:16Z\",\n        \"source\": \"pages\",\n        \"succeeded\": 766,\n        \"success_rate\": 1\n      },\n      {\n        \"attempted\": 266,\n        \"finished_at\": \"2026-08-24T19:13:21Z\",\n        \"source\": \"products\",\n        \"succeeded\": 266,\n        \"success_rate\": 1\n      }\n    ],\n    \"stored_compat_rows\": 51,\n    \"stored_pages\": 766,\n    \"stored_products\": 230,\n    \"stored_support_articles\": 0,\n    \"support_by_category\": []\n  }\n}\n"
     },
     {
       "command": "coverage",
@@ -1862,7 +1862,7 @@
         "--dry-run"
       ],
       "status": "pass",
-      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"product\"}\n{\"event\":\"sync_start\",\"resource\":\"page\"}\n{\"event\":\"sync_start\",\"resource\":\"support\"}\n{\"event\":\"sync_dryrun\",\"resource\":\"product\"}\n{\"event\":\"sync_dryrun\",\"resource\":\"support\"}\n{\"event\":\"sync_dryrun\",\"resource\":\"page\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":3,\"success\":3,\"warned\":0,\"errored\":0,\"duration_ms\":0}\nGET https://help.qsys.com/sitemap.xml\n\n(dry run - no request sent)\nGET https://help.qsys.com/sitemap.xml\n\n(dry run - no request sent)\nGET https://help.qsys.com/sitemap.xml\n\n(dry run - no request sent)\n"
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"support\"}\n{\"event\":\"sync_start\",\"resource\":\"product\"}\n{\"event\":\"sync_start\",\"resource\":\"page\"}\n{\"event\":\"sync_dryrun\",\"resource\":\"support\"}\n{\"event\":\"sync_dryrun\",\"resource\":\"page\"}\n{\"event\":\"sync_dryrun\",\"resource\":\"product\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":3,\"success\":3,\"warned\":0,\"errored\":0,\"duration_ms\":0}\nGET https://help.qsys.com/sitemap.xml\n\n(dry run - no request sent)\nGET https://help.qsys.com/sitemap.xml\n\n(dry run - no request sent)\nGET https://help.qsys.com/sitemap.xml\n\n(dry run - no request sent)\n"
     },
     {
       "command": "sync",
@@ -1873,7 +1873,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"support\"}\n{\"event\":\"sync_start\",\"resource\":\"page\"}\n{\"event\":\"sync_start\",\"resource\":\"product\"}\n{\"event\":\"sync_dryrun\",\"resource\":\"support\"}\n{\"event\":\"sync_dryrun\",\"resource\":\"page\"}\n{\"event\":\"sync_dryrun\",\"resource\":\"product\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":3,\"success\":3,\"warned\":0,\"errored\":0,\"duration_ms\":0}\nGET https://help.qsys.com/sitemap.xml\n\n(dry run - no request sent)\nGET https://help.qsys.com/sitemap.xml\n\n(dry run - no request sent)\nGET https://help.qsys.com/sitemap.xml\n\n(dry run - no request sent)\n"
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"page\"}\n{\"event\":\"sync_start\",\"resource\":\"product\"}\n{\"event\":\"sync_start\",\"resource\":\"support\"}\n{\"event\":\"sync_dryrun\",\"resource\":\"page\"}\n{\"event\":\"sync_dryrun\",\"resource\":\"product\"}\n{\"event\":\"sync_dryrun\",\"resource\":\"support\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":3,\"success\":3,\"warned\":0,\"errored\":0,\"duration_ms\":0}\nGET https://help.qsys.com/sitemap.xml\n\n(dry run - no request sent)\nGET https://help.qsys.com/sitemap.xml\n\n(dry run - no request sent)\nGET https://help.qsys.com/sitemap.xml\n\n(dry run - no request sent)\n"
     },
     {
       "command": "sync",
@@ -2179,7 +2179,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"resources_synced\": 3,\n  \"store_path\": \"/Users/michaelsablatura/.local/share/qsys-pp-cli/data.db\",\n  \"timestamp\": \"2026-08-25T05:04:13Z\",\n  \"total_items\": 0\n}\n{\"event\":\"sync_start\",\"resource\":\"page\"}\nGET https://help.qsys.com/sitemap.xml\n\n(dry run - no request sent)\n{\"event\":\"sync_dryrun\",\"resource\":\"page\"}\n  page: 0 synced\n{\"event\":\"sync_start\",\"resource\":\"product\"}\nGET https://help.qsys.com/sitemap.xml\n\n(dry run - no request sent)\n{\"event\":\"sync_dryrun\",\"resource\":\"product\"}\n  product: 0 synced\n{\"event\":\"sync_start\",\"resource\":\"support\"}\nGET https://help.qsys.com/sitemap.xml\n\n(dry run - no request sent)\n{\"event\":\"sync_dryrun\",\"resource\":\"support\"}\n  support: 0 synced\n"
+      "output_sample": "{\n  \"resources_synced\": 3,\n  \"store_path\": \"/Users/michaelsablatura/.local/share/qsys-pp-cli/data.db\",\n  \"timestamp\": \"2026-08-25T05:10:21Z\",\n  \"total_items\": 0\n}\n{\"event\":\"sync_start\",\"resource\":\"page\"}\nGET https://help.qsys.com/sitemap.xml\n\n(dry run - no request sent)\n{\"event\":\"sync_dryrun\",\"resource\":\"page\"}\n  page: 0 synced\n{\"event\":\"sync_start\",\"resource\":\"product\"}\nGET https://help.qsys.com/sitemap.xml\n\n(dry run - no request sent)\n{\"event\":\"sync_dryrun\",\"resource\":\"product\"}\n  product: 0 synced\n{\"event\":\"sync_start\",\"resource\":\"support\"}\nGET https://help.qsys.com/sitemap.xml\n\n(dry run - no request sent)\n{\"event\":\"sync_dryrun\",\"resource\":\"support\"}\n  support: 0 synced\n"
     },
     {
       "command": "workflow archive",
@@ -2235,5 +2235,5 @@
       "reason": "no positional argument"
     }
   ],
-  "ran_at": "2026-08-25T05:04:04.830558Z"
+  "ran_at": "2026-08-25T05:10:13.494277Z"
 }

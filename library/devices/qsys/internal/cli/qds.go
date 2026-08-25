@@ -239,23 +239,58 @@ const ltsSentenceCap = 400
 
 // detectLTSForVersion attributes LTS wording to the queried release only. A
 // single-release article can be trusted whole, but a multi-release article can
-// say "9.8 is the LTS release" while merely mentioning the queried 9.10 — so
-// there the LTS wording must appear in the same sentence as a mention of the
-// queried release.
+// say "9.8 is the LTS release" while merely mentioning the queried 9.10. Each
+// LTS phrase is attributed to the version mention nearest to it inside the
+// same sentence — in QSC's announcement prose the designated release is the
+// subject sitting next to the designation ("Designer 9.8 is the LTS release
+// ... over Designer 9.10"), so nearest-mention wins even when the sentence
+// names another release further away.
 func detectLTSForVersion(target, text string, versions []string) (string, bool) {
 	if len(versions) <= 1 {
 		return detectLTS(text)
 	}
-	for _, m := range designerVersionRE.FindAllStringSubmatchIndex(text, -1) {
-		if m[2] < 0 || m[3] < 0 || !versionSeriesMatch(target, text[m[2]:m[3]]) {
+	mentions := designerVersionRE.FindAllStringSubmatchIndex(text, -1)
+	seenSentence := map[int]struct{}{}
+	for _, lm := range ltsRE.FindAllStringIndex(text, -1) {
+		lo, hi := ltsSentenceBounds(text, lm[0], lm[1])
+		// One designation per sentence: matches arrive in order, so the first
+		// LTS phrase seen for a sentence is the designating one ("is the LTS
+		// release"); later phrases in the same sentence ("LTS support ends
+		// March 2027") describe that same designation, not a new release.
+		if _, dup := seenSentence[lo]; dup {
 			continue
 		}
-		lo, hi := ltsSentenceBounds(text, m[2], m[3])
+		seenSentence[lo] = struct{}{}
+		best, bestDist := -1, hi-lo+1
+		for i, m := range mentions {
+			if m[2] < 0 || m[3] < 0 || m[2] < lo || m[3] > hi {
+				continue
+			}
+			d := spanGap(m[2], m[3], lm[0], lm[1])
+			if d < bestDist {
+				bestDist, best = d, i
+			}
+		}
+		if best < 0 || !versionSeriesMatch(target, text[mentions[best][2]:mentions[best][3]]) {
+			continue
+		}
 		if end, ok := detectLTS(text[lo:hi]); ok {
 			return end, ok
 		}
 	}
 	return "", false
+}
+
+// spanGap returns the byte distance between two half-open spans, 0 if they
+// overlap or touch.
+func spanGap(aLo, aHi, bLo, bHi int) int {
+	if aHi <= bLo {
+		return bLo - aHi
+	}
+	if bHi <= aLo {
+		return aLo - bHi
+	}
+	return 0
 }
 
 // ltsSentenceBounds expands [lo,hi) to the enclosing sentence. A period
