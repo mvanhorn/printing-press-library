@@ -37,6 +37,7 @@ func collectionWritePreview(cmd *cobra.Command, flags *rootFlags, action string,
 	fields["status"] = "preview"
 	fields["action"] = action
 	fields["apply"] = apply
+	fields["dry_run"] = true
 	if flags.asJSON {
 		return printJSONFiltered(cmd.OutOrStdout(), fields, flags)
 	}
