@@ -436,13 +436,52 @@ func TestFindPriceNodeIsDeterministic(t *testing.T) {
 	}
 }
 
-// TestFindPriceNodeFallsBackToExclusive covers a node that carries only the
-// advertised figure, so ranking still has something to compare.
-func TestFindPriceNodeFallsBackToExclusive(t *testing.T) {
-	node := map[string]any{"perBook": map[string]any{"exclusive": map[string]any{"display": 250.0}}}
-	got, ok := nodeAllInPrice(node)
-	if !ok || got != 250 {
-		t.Errorf("nodeAllInPrice() = (%v, %v), want (250, true)", got, ok)
+// TestFindPriceNodePrefersInclusiveOverCheaperExclusiveOnly pins a P1 review
+// finding introduced by the determinism fix.
+//
+// nodeAllInPrice originally fell back to the exclusive (advertised) figure when
+// a node had no inclusive price. Because selection picks the minimum, an
+// exclusive-only offer at 700 would beat a genuine all-in offer at 800 - even
+// though 700 is a pre-tax number and 800 is the real cost. Worse, the winning
+// node carried no inclusive price, so the true all-in figure vanished from the
+// output entirely. Ranking must compare like with like.
+func TestFindPriceNodePrefersInclusiveOverCheaperExclusiveOnly(t *testing.T) {
+	raw := []byte(`{"data":{"citySearch":{"properties":[
+      {"propertyId":1,
+       "content":{"informationSummary":{"displayName":"Mixed Basis Inn"}},
+       "pricing":{
+         "offerExclusiveOnly":{"roomOffers":[{"room":{"pricing":[{"price":{
+             "perBook":{"exclusive":{"display":700}}}}]}}]},
+         "offerWithInclusive":{"roomOffers":[{"room":{"pricing":[{"price":{
+             "perBook":{"exclusive":{"display":750},"inclusive":{"display":800}}}}]}}]}
+       }}
+    ]}}}`)
+	props, err := parseCitySearch(raw, SearchOptions{Nights: 1})
+	if err != nil {
+		t.Fatalf("parseCitySearch() error = %v", err)
+	}
+	p := props[0]
+	if p.PriceAllIn != 800 {
+		t.Errorf("PriceAllIn = %v, want 800; a cheaper exclusive-only offer must not win on a different price basis", p.PriceAllIn)
+	}
+	if p.PriceAdvertised != 750 {
+		t.Errorf("PriceAdvertised = %v, want 750 (the advertised figure from the selected offer)", p.PriceAdvertised)
+	}
+}
+
+// TestNodeAllInPriceRejectsExclusiveOnly is the unit-level half of the same guard.
+func TestNodeAllInPriceRejectsExclusiveOnly(t *testing.T) {
+	exclusiveOnly := map[string]any{"perBook": map[string]any{"exclusive": map[string]any{"display": 250.0}}}
+	if _, ok := nodeAllInPrice(exclusiveOnly); ok {
+		t.Error("nodeAllInPrice() accepted an exclusive-only node; ranking would then mix price bases")
+	}
+	withInclusive := map[string]any{"perBook": map[string]any{
+		"exclusive": map[string]any{"display": 250.0},
+		"inclusive": map[string]any{"display": 300.0},
+	}}
+	got, ok := nodeAllInPrice(withInclusive)
+	if !ok || got != 300 {
+		t.Errorf("nodeAllInPrice() = (%v, %v), want (300, true)", got, ok)
 	}
 	if _, ok := nodeAllInPrice(map[string]any{}); ok {
 		t.Error("nodeAllInPrice() on a node without perBook should report not-ok")

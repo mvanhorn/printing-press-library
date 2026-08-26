@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "8b4c215815064f02ccec44c7ff8f32337f9c0d5264aec4f176f21234891db4a4",
+  "source_fingerprint": "d69dce2e98d9159a8a8095518e8700a73b25243f65a866c1119a325f59e3c10b",
   "source_files": {
     "cmd/agoda-pp-cli/main.go": "e99600e318e9407d5900eeff1d2449fbe8e04cdbc58592b3143a30d29ccce91f",
     "cmd/agoda-pp-mcp/main.go": "88c3520948d455cb81ecf06e5cca764a4406d1a1b51d99ddb61cd70b9180ae4a",
@@ -20,8 +20,8 @@
     "internal/agoda/client.go": "ec71f331132707d8870a5c6c490f0997ffef721992cb48dea558c3d71cac5235",
     "internal/agoda/pricetrend.go": "1f10d62831ccaf8b857f81d07677038b4540987158662ef64fc006b438e3c4fb",
     "internal/agoda/requestid.go": "9859c26d061907a8fb15e0c426eaa55a2b3d3baec4bda2b6c5d003abc90c9b64",
-    "internal/agoda/search.go": "faf35ca2442c490408d7e9a0c1d052336a6d30389d78310e7c1abdd1ef263d30",
-    "internal/agoda/search_test.go": "4f7e81e588ff96f713a05ad24ba89bad07283e49be036ed3ccf192863ccb272c",
+    "internal/agoda/search.go": "d77b67a5f7862758b2a290dcc4f331263f7cd194655aa0df61182cd92503f579",
+    "internal/agoda/search_test.go": "2a598e93dd38fcfc285bd54b7ab67a303d556977ae9026f1ea87a223065e534b",
     "internal/agoda/suggest.go": "1a27df999dbddece121898dc4dd894d3a6c688575df4237ba157d78232b8fdf6",
     "internal/agoda/types.go": "95e99c8cccf7ca1de151afff38feee36a3ecdf1df0dd0875da794c81fd02dee0",
     "internal/cache/cache.go": "57e86d96f06eec61065015df0be389c56472def140acd8b2e9aba3e36423ee33",

@@ -337,17 +337,24 @@ func collectPriceNodes(node any, depth int, acc []map[string]any) []map[string]a
 }
 
 // nodeAllInPrice reads the all-in (inclusive) per-booking price used to rank
-// competing offers, falling back to the advertised figure when a node carries
-// only that.
+// competing offers.
+//
+// It deliberately does NOT fall back to the exclusive figure. Ranking is by
+// true all-in cost, and the exclusive price is the pre-tax advertised number,
+// so returning it here would let an exclusive-only offer beat a genuine all-in
+// offer purely by being the smaller of two different quantities - and the
+// selected node would then carry no inclusive price at all, dropping the real
+// all-in figure from search, ranking, fee, and cheapest-price output.
+//
+// A node without an inclusive price reports not-ok and only wins when no
+// candidate has one, in which case selection falls back to the first node in
+// sorted traversal order and stays deterministic.
 func nodeAllInPrice(node map[string]any) (float64, bool) {
 	perBook := mapFrom(node["perBook"])
 	if perBook == nil {
 		return 0, false
 	}
 	if v, ok := displayPrice(perBook["inclusive"]); ok && v > 0 {
-		return v, true
-	}
-	if v, ok := displayPrice(perBook["exclusive"]); ok && v > 0 {
 		return v, true
 	}
 	return 0, false
