@@ -1,0 +1,322 @@
+{
+  "api_name": "agoda",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "agoda-review-mcp",
+      "url": "https://github.com/birariro/agoda-review-mcp",
+      "language": "Java",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hotelrate-crawl",
+      "url": "https://github.com/seanbabalala/hotelrate-crawl",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "agoda-agent",
+      "url": "https://github.com/jiaweing/agoda-agent",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "agoda-property-listing-scraper",
+      "url": "https://github.com/ScraperHub/agoda-property-listing-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "data-collection-pipeline",
+      "url": "https://github.com/TyW-98/data-collection-pipeline",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "agodaparser",
+      "url": "https://github.com/egeland/agodaparser",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-26T11:30:00Z",
+  "novel_features": [
+    {
+      "name": "True all-in pricing",
+      "command": "hotels search",
+      "description": "Shows what you will actually pay, not the teaser rate, with the hidden tax-and-fee delta broken out per property.",
+      "rationale": "Agoda returns both the advertised (exclusive) and true all-in (inclusive) price in the same GraphQL response, but the website renders only the advertised one. Measured gaps of 21-30 percent on live Tokyo data.",
+      "example": "agoda-pp-cli hotels search Tokyo --checkin 2026-10-15 --nights 2 --adults 2 --currency USD --agent",
+      "why_it_matters": "Reach for this instead of any scraped Agoda price. Quote the inclusive figure to a user; the advertised rate is not what they will be charged.",
+      "group": "Honest pricing"
+    },
+    {
+      "name": "Honest re-ranking",
+      "command": "hotels rank",
+      "description": "Re-sorts a destination's results by true all-in price instead of Agoda's teaser-price ranking.",
+      "rationale": "The hidden markup varies per property (21 percent versus 30.3 percent on the same search), so the cheapest-by-advertised-price hotel is frequently not the cheapest once taxes and fees land. Requires holding both price bases for the whole result set at once.",
+      "example": "agoda-pp-cli hotels rank Tokyo --checkin 2026-10-15 --nights 2 --limit 10 --agent",
+      "why_it_matters": "Use this whenever the decision is about price. Ordinary search ordering inherits Agoda's advertised-price ranking and will mislead.",
+      "group": "Honest pricing"
+    },
+    {
+      "name": "Fee-gouge detection",
+      "command": "hotels fees",
+      "description": "Flags properties whose tax-and-fee ratio is an outlier against the destination median.",
+      "rationale": "Resort and facility fees are the most-reported Agoda surprise, and they are invisible in the ranked list. Comparing each property's fee ratio to the destination median exposes them mechanically.",
+      "example": "agoda-pp-cli hotels fees Tokyo --checkin 2026-10-15 --nights 2 --agent",
+      "why_it_matters": "Use before recommending a property. A hotel with a below-median advertised price and an above-median fee ratio is the classic bait pattern.",
+      "group": "Honest pricing"
+    },
+    {
+      "name": "Cheapest-date sweep",
+      "command": "prices cheapest",
+      "description": "Returns the cheapest check-in dates across a flexible window for a destination.",
+      "rationale": "Agoda's native priceTrendSearch operation returns a multi-week per-property price curve in a single call. Competing tools would have to issue one search per candidate date.",
+      "example": "agoda-pp-cli prices cheapest Tokyo --window 2026-10-01..2026-11-30 --nights 3 --agent",
+      "why_it_matters": "Use for flexible-date travelers. Returns the price floor across a window rather than a single-date quote.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "AgodaVIP delta",
+      "command": "vip delta",
+      "description": "Runs the same search signed-in and anonymous, then diffs per property to show what your VIP tier is actually worth.",
+      "rationale": "Member pricing is driven by request fields the CLI controls directly, so the same search can be issued both ways and differenced. No other tool measures the real unlocked discount.",
+      "example": "agoda-pp-cli vip delta Tokyo --checkin 2026-10-15 --nights 2 --agent",
+      "why_it_matters": "Use when a user asks whether signing in or chasing a VIP tier is worth it. Reports the measured discount on a real search instead of marketing copy.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Price-drop watch",
+      "command": "watch run",
+      "description": "Surfaces only watched properties whose latest true all-in price dropped meaningfully below their trailing median.",
+      "rationale": "Requires a local price time-series accumulated across runs. A stateless scraper has no history to compare against and structurally cannot answer this.",
+      "example": "agoda-pp-cli watch run --min-pct 7 --agent",
+      "why_it_matters": "Schedule it. Returns empty most days and returns something worth acting on when a watched property actually drops.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Shortlist compare",
+      "command": "compare",
+      "description": "Puts finalist properties side by side on true all-in price, hidden fee share, review score, star rating, and free-cancellation deadline.",
+      "rationale": "Fetches and prices every requested property in one pass and emits them together, including the all-in delta and cancellation deadline that Agoda never shows side by side. Re-searches across different sort orders because Agoda returns a rotating subset of a city's inventory per call.",
+      "example": "agoda-pp-cli compare 936623 788273 --destination Tokyo --checkin 2026-10-15 --nights 2 --agent",
+      "why_it_matters": "Use once the choice is narrowed to finalists, instead of re-reading two detail pages and eyeballing the difference.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Offline corpus search",
+      "command": "search",
+      "description": "Full-text search over every property this CLI has already seen, with no network call.",
+      "rationale": "Agoda exposes no bulk catalog endpoint, so there is nothing to sync up front. The corpus is instead accumulated as a side effect of ordinary searching, which makes cross-destination offline lookup possible where a stateless tool has nothing to query.",
+      "example": "agoda-pp-cli search \"shinjuku\" --agent",
+      "why_it_matters": "Use after a few live searches to answer property questions without spending a request or waiting on the network.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "True all-in pricing",
+      "command": "hotels search",
+      "description": "Shows what you will actually pay, not the teaser rate, with the hidden tax-and-fee delta broken out per property.",
+      "rationale": "Agoda returns both the advertised (exclusive) and true all-in (inclusive) price in the same GraphQL response, but the website renders only the advertised one. Measured gaps of 21-30 percent on live Tokyo data.",
+      "example": "agoda-pp-cli hotels search Tokyo --checkin 2026-10-15 --nights 2 --adults 2 --currency USD --agent",
+      "why_it_matters": "Reach for this instead of any scraped Agoda price. Quote the inclusive figure to a user; the advertised rate is not what they will be charged.",
+      "group": "Honest pricing"
+    },
+    {
+      "name": "Honest re-ranking",
+      "command": "hotels rank",
+      "description": "Re-sorts a destination's results by true all-in price instead of Agoda's teaser-price ranking.",
+      "rationale": "The hidden markup varies per property (21 percent versus 30.3 percent on the same search), so the cheapest-by-advertised-price hotel is frequently not the cheapest once taxes and fees land. Requires holding both price bases for the whole result set at once.",
+      "example": "agoda-pp-cli hotels rank Tokyo --checkin 2026-10-15 --nights 2 --limit 10 --agent",
+      "why_it_matters": "Use this whenever the decision is about price. Ordinary search ordering inherits Agoda's advertised-price ranking and will mislead.",
+      "group": "Honest pricing"
+    },
+    {
+      "name": "Fee-gouge detection",
+      "command": "hotels fees",
+      "description": "Flags properties whose tax-and-fee ratio is an outlier against the destination median.",
+      "rationale": "Resort and facility fees are the most-reported Agoda surprise, and they are invisible in the ranked list. Comparing each property's fee ratio to the destination median exposes them mechanically.",
+      "example": "agoda-pp-cli hotels fees Tokyo --checkin 2026-10-15 --nights 2 --agent",
+      "why_it_matters": "Use before recommending a property. A hotel with a below-median advertised price and an above-median fee ratio is the classic bait pattern.",
+      "group": "Honest pricing"
+    },
+    {
+      "name": "Cheapest-date sweep",
+      "command": "prices cheapest",
+      "description": "Returns the cheapest check-in dates across a flexible window for a destination.",
+      "rationale": "Agoda's native priceTrendSearch operation returns a multi-week per-property price curve in a single call. Competing tools would have to issue one search per candidate date.",
+      "example": "agoda-pp-cli prices cheapest Tokyo --window 2026-10-01..2026-11-30 --nights 3 --agent",
+      "why_it_matters": "Use for flexible-date travelers. Returns the price floor across a window rather than a single-date quote.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "AgodaVIP delta",
+      "command": "vip delta",
+      "description": "Runs the same search signed-in and anonymous, then diffs per property to show what your VIP tier is actually worth.",
+      "rationale": "Member pricing is driven by request fields the CLI controls directly, so the same search can be issued both ways and differenced. No other tool measures the real unlocked discount.",
+      "example": "agoda-pp-cli vip delta Tokyo --checkin 2026-10-15 --nights 2 --agent",
+      "why_it_matters": "Use when a user asks whether signing in or chasing a VIP tier is worth it. Reports the measured discount on a real search instead of marketing copy.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Price-drop watch",
+      "command": "watch run",
+      "description": "Surfaces only watched properties whose latest true all-in price dropped meaningfully below their trailing median.",
+      "rationale": "Requires a local price time-series accumulated across runs. A stateless scraper has no history to compare against and structurally cannot answer this.",
+      "example": "agoda-pp-cli watch run --min-pct 7 --agent",
+      "why_it_matters": "Schedule it. Returns empty most days and returns something worth acting on when a watched property actually drops.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Shortlist compare",
+      "command": "compare",
+      "description": "Puts finalist properties side by side on true all-in price, hidden fee share, review score, star rating, and free-cancellation deadline.",
+      "rationale": "Fetches and prices every requested property in one pass and emits them together, including the all-in delta and cancellation deadline that Agoda never shows side by side. Re-searches across different sort orders because Agoda returns a rotating subset of a city's inventory per call.",
+      "example": "agoda-pp-cli compare 936623 788273 --destination Tokyo --checkin 2026-10-15 --nights 2 --agent",
+      "why_it_matters": "Use once the choice is narrowed to finalists, instead of re-reading two detail pages and eyeballing the difference.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Offline corpus search",
+      "command": "search",
+      "description": "Full-text search over every property this CLI has already seen, with no network call.",
+      "rationale": "Agoda exposes no bulk catalog endpoint, so there is nothing to sync up front. The corpus is instead accumulated as a side effect of ordinary searching, which makes cross-destination offline lookup possible where a stateless tool has nothing to query.",
+      "example": "agoda-pp-cli search \"shinjuku\" --agent",
+      "why_it_matters": "Use after a few live searches to answer property questions without spending a request or waiting on the network.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Agoda",
+    "headline": "Search Agoda hotels with the true all-in price, and re-rank by what you will actually pay.",
+    "value_prop": "Agoda returns both the advertised price and the true all-in price in the same response, but only ever shows you the advertised one. This CLI surfaces both, breaks out the hidden tax-and-fee delta, and re-sorts by real cost - which routinely changes which hotel is cheapest. It talks to Agoda over plain HTTP with no browser, no rendering service, and no API key, and it keeps a local price history so it can answer questions a stateless scraper cannot.",
+    "auth_narrative": "Public hotel search, destination lookup, property detail, and reviews need no credentials at all - they replay over ordinary HTTP. Only member-priced and account surfaces (saved properties, AgodaVIP tier, vip delta) need a logged-in session: copy the Cookie header from a signed-in agoda.com browser tab and export it as AGODA_COOKIE (AGODA_SESSION_COOKIE is also accepted), and subsequent authenticated calls replay with it.",
+    "quickstart": [
+      {
+        "command": "agoda-pp-cli doctor --dry-run",
+        "comment": "confirm reachability and configuration before spending a real call"
+      },
+      {
+        "command": "agoda-pp-cli destinations --search-text Tokyo",
+        "comment": "Agoda addresses destinations by opaque numeric id, so resolve the name first"
+      },
+      {
+        "command": "agoda-pp-cli hotels search Tokyo --checkin 2026-10-15 --nights 2 --adults 2 --currency USD",
+        "comment": "search with true all-in pricing on by default"
+      },
+      {
+        "command": "agoda-pp-cli hotels rank Tokyo --checkin 2026-10-15 --nights 2 --limit 10",
+        "comment": "re-rank by real cost - the order usually differs from the advertised-price order"
+      },
+      {
+        "command": "agoda-pp-cli hotels fees Tokyo --checkin 2026-10-15 --nights 2",
+        "comment": "expose properties whose fee load is an outlier for the destination"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Prices come back in an unexpected currency",
+        "fix": "Pass --currency explicitly. Agoda derives currency from request geography unless both currency fields are set, which this CLI does for you."
+      },
+      {
+        "symptom": "Destination name is rejected or matches the wrong city",
+        "fix": "Resolve the name first with 'agoda-pp-cli destinations --search-text \u003cname\u003e', then pass the numeric id you get back to 'agoda-pp-cli hotels search --city-id \u003cid\u003e'."
+      },
+      {
+        "symptom": "Rate limited, or results come back empty during a wide sweep",
+        "fix": "Lower --max-scan-pages and retry. The client backs off adaptively and reports a typed rate-limit error rather than returning empty results."
+      },
+      {
+        "symptom": "vip delta reports no difference",
+        "fix": "Confirm the session imported with 'agoda-pp-cli doctor'. If cookies are valid, a zero delta is a real result - your tier does not discount that search."
+      },
+      {
+        "symptom": "Authenticated commands return exit code 4",
+        "fix": "Export a fresh AGODA_COOKIE taken from a signed-in agoda.com browser tab; Agoda session cookies expire. Run 'agoda-pp-cli doctor' to confirm the session is detected."
+      },
+      {
+        "symptom": "compare reports a property id as not found even though it exists",
+        "fix": "Agoda returns a rotating subset of a city's inventory on each call. compare already re-searches across several sort orders; re-run it, or confirm the property is bookable for those exact dates with 'agoda-pp-cli hotels search \u003cdestination\u003e'."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs real Agoda hotel prices, particularly when the question involves cost. It is the right tool for judging what a stay actually costs, comparing finalists, sweeping flexible dates for a price floor, and tracking price drops over time. Agoda's inventory is strongest in Asia-Pacific, so it is often the better source than a Booking.com or Google Hotels tool for destinations in that region.",
+    "anti_triggers": [
+      "Do not use this CLI to complete a booking or take payment - it surfaces prices and deep links, and the reservation itself happens on Agoda.",
+      "Do not use it for flights, activities, airport transfers, or car rental; it is scoped to hotels only.",
+      "Do not use it to compare Agoda against other travel sites - it reads Agoda only, so a cross-OTA question needs a different tool.",
+      "Do not use it to cancel, modify, or refund an existing reservation."
+    ],
+    "recipes": [
+      {
+        "title": "What will this actually cost",
+        "command": "agoda-pp-cli hotels search Tokyo --checkin 2026-10-15 --nights 2 --adults 2 --currency USD --agent --select results.name,results.price_all_in,results.price_advertised,results.hidden_pct",
+        "explanation": "Returns just the four fields that matter for a cost decision, keeping the deeply nested Agoda payload out of the agent's context."
+      },
+      {
+        "title": "The cheapest hotel is not the one listed cheapest",
+        "command": "agoda-pp-cli hotels rank Tokyo --checkin 2026-10-15 --nights 2 --limit 10 --agent",
+        "explanation": "Re-sorts by all-in cost; properties with above-average fee loads drop down the list and genuinely cheaper stays surface."
+      },
+      {
+        "title": "Find the price floor for a flexible trip",
+        "command": "agoda-pp-cli prices cheapest Tokyo --window 2026-10-01..2026-11-30 --nights 3 --agent",
+        "explanation": "Sweeps a two-month window in one pass and returns the cheapest check-in dates rather than a single-date quote."
+      },
+      {
+        "title": "Spot the resort-fee trap",
+        "command": "agoda-pp-cli hotels fees Tokyo --checkin 2026-10-15 --nights 2 --agent",
+        "explanation": "Ranks properties by how much of their true cost is tax and fees, flagging outliers against the destination median."
+      },
+      {
+        "title": "Is signing in worth anything here",
+        "command": "agoda-pp-cli vip delta Tokyo --checkin 2026-10-15 --nights 2 --agent",
+        "explanation": "Issues the same search authenticated and anonymous and reports the measured per-property discount."
+      }
+    ],
+    "trigger_phrases": [
+      "find hotels in Tokyo on agoda",
+      "what will this agoda hotel actually cost",
+      "cheapest dates to stay in Bangkok",
+      "which agoda hotel is cheapest all in",
+      "check agoda prices for these dates",
+      "use agoda",
+      "run agoda"
+    ]
+  }
+}

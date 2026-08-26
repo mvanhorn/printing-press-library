@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-08-26T12:35:36.938876Z",
+  "cli_dir": "\u003ccli-dir\u003e",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Framework 'client-profile list' in a DO-NOT-EDIT generated file; the Short is brief but exactly precise (it returns the list of configured client-profile names, nothing more) and the command already carries mcp:read-only. Enriching it belongs in the generator template, not this printed CLI."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Framework 'learnings list' in a DO-NOT-EDIT generated file; the Short is accurate and the command's Example block already gives an agent the --query/--warnings flag detail it needs to call correctly. Any richer wording must come from the generator template."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-08-26T12:11:12.613082Z"
+  },
+  "progress": {
+    "last_processed_finding_id": "thin-short:teach.go:691"
+  }
+}

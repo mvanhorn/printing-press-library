@@ -1,0 +1,143 @@
+{
+  "api_name": "agoda",
+  "base_url": "https://www.agoda.com",
+  "description": "Search Agoda hotels with the true all-in price, and re-rank by what you will actually pay.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+    },
+    {
+      "name": "Accept-Language",
+      "value": "en-US,en;q=0.9"
+    }
+  ],
+  "tools": [
+    {
+      "name": "destinations_resolve",
+      "description": "Resolve a free-text destination (city, area, landmark) to an Agoda city id. Required: search-text. Optional: origin (default: US), cid (default: -1), page-type-id (default: 1) (plus 1 more). Returns the SuggestResult.",
+      "method": "GET",
+      "path": "/api/cronos/search/GetUnifiedSuggestResult/3/16/1/0/en-us/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "search-text",
+          "wire_name": "searchText",
+          "type": "string",
+          "location": "query",
+          "description": "Destination text to resolve, e.g. Tokyo",
+          "required": true
+        },
+        {
+          "name": "origin",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter origin country used for regional weighting"
+        },
+        {
+          "name": "cid",
+          "type": "int",
+          "location": "query",
+          "description": "Agoda campaign id; -1 is the organic default"
+        },
+        {
+          "name": "page-type-id",
+          "wire_name": "pageTypeId",
+          "type": "int",
+          "location": "query",
+          "description": "Agoda page-type id the suggestion request is scoped to"
+        },
+        {
+          "name": "hotel-land-search",
+          "wire_name": "isHotelLandSearch",
+          "type": "bool",
+          "location": "query",
+          "description": "Restrict suggestions to accommodation results"
+        }
+      ]
+    },
+    {
+      "name": "reviews_list",
+      "description": "List guest reviews for a property by Agoda hotel id. Required: hotel-id. Optional: page (default: 1), page-size (default: 10), sorting (default: 1). Returns the new ReviewPage.",
+      "method": "POST",
+      "path": "/api/cronos/property/review/ReviewComments",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "hotel-id",
+          "wire_name": "hotelId",
+          "type": "int",
+          "location": "body",
+          "description": "Agoda numeric hotel id (from hotels search results)",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "body",
+          "description": "1-based page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "body",
+          "description": "Reviews per page"
+        },
+        {
+          "name": "sorting",
+          "type": "int",
+          "location": "body",
+          "description": "Sort order: 1 most recent, 2 rating high to low, 3 rating low to high, 7 most helpful"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "True all-in pricing",
+      "command": "hotels search",
+      "description": "Shows what you will actually pay, not the teaser rate, with the hidden tax-and-fee delta broken out per property."
+    },
+    {
+      "name": "Honest re-ranking",
+      "command": "hotels rank",
+      "description": "Re-sorts a destination's results by true all-in price instead of Agoda's teaser-price ranking."
+    },
+    {
+      "name": "Fee-gouge detection",
+      "command": "hotels fees",
+      "description": "Flags properties whose tax-and-fee ratio is an outlier against the destination median."
+    },
+    {
+      "name": "Cheapest-date sweep",
+      "command": "prices cheapest",
+      "description": "Returns the cheapest check-in dates across a flexible window for a destination."
+    },
+    {
+      "name": "AgodaVIP delta",
+      "command": "vip delta",
+      "description": "Runs the same search signed-in and anonymous, then diffs per property to show what your VIP tier is actually worth."
+    },
+    {
+      "name": "Price-drop watch",
+      "command": "watch run",
+      "description": "Surfaces only watched properties whose latest true all-in price dropped meaningfully below their trailing median."
+    },
+    {
+      "name": "Shortlist compare",
+      "command": "compare",
+      "description": "Puts finalist properties side by side on true all-in price, hidden fee share, review score, star rating, and free-cancellation deadline."
+    },
+    {
+      "name": "Offline corpus search",
+      "command": "search",
+      "description": "Full-text search over every property this CLI has already seen, with no network call."
+    }
+  ]
+}

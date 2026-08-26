@@ -1,0 +1,138 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-26T12:44:01.80795Z",
+  "printing_press_version": "4.31.1",
+  "api_name": "agoda",
+  "display_name": "Agoda",
+  "cli_name": "agoda-pp-cli",
+  "creator": {
+    "handle": "devacto",
+    "name": "Victor Wibisono"
+  },
+  "owner": "devacto",
+  "printer": "devacto",
+  "printer_name": "Victor Wibisono",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:93ee7b0b66deff175cefcf7701813b7b9de58950869dfc6aa9a98b62cfe70ab2",
+  "run_id": "20260826-175510-45b00483",
+  "category": "travel",
+  "description": "Search Agoda hotels with the true all-in price, and re-rank by what you will actually pay.",
+  "mcp_binary": "agoda-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "True all-in pricing",
+      "command": "hotels search",
+      "description": "Shows what you will actually pay, not the teaser rate, with the hidden tax-and-fee delta broken out per property."
+    },
+    {
+      "name": "Honest re-ranking",
+      "command": "hotels rank",
+      "description": "Re-sorts a destination's results by true all-in price instead of Agoda's teaser-price ranking."
+    },
+    {
+      "name": "Fee-gouge detection",
+      "command": "hotels fees",
+      "description": "Flags properties whose tax-and-fee ratio is an outlier against the destination median."
+    },
+    {
+      "name": "Cheapest-date sweep",
+      "command": "prices cheapest",
+      "description": "Returns the cheapest check-in dates across a flexible window for a destination."
+    },
+    {
+      "name": "AgodaVIP delta",
+      "command": "vip delta",
+      "description": "Runs the same search signed-in and anonymous, then diffs per property to show what your VIP tier is actually worth."
+    },
+    {
+      "name": "Price-drop watch",
+      "command": "watch run",
+      "description": "Surfaces only watched properties whose latest true all-in price dropped meaningfully below their trailing median."
+    },
+    {
+      "name": "Shortlist compare",
+      "command": "compare",
+      "description": "Puts finalist properties side by side on true all-in price, hidden fee share, review score, star rating, and free-cancellation deadline."
+    },
+    {
+      "name": "Offline corpus search",
+      "command": "search",
+      "description": "Full-text search over every property this CLI has already seen, with no network call."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "True all-in pricing",
+      "command": "hotels search",
+      "description": "Shows what you will actually pay, not the teaser rate, with the hidden tax-and-fee delta broken out per property."
+    },
+    {
+      "name": "Honest re-ranking",
+      "command": "hotels rank",
+      "description": "Re-sorts a destination's results by true all-in price instead of Agoda's teaser-price ranking."
+    },
+    {
+      "name": "Fee-gouge detection",
+      "command": "hotels fees",
+      "description": "Flags properties whose tax-and-fee ratio is an outlier against the destination median."
+    },
+    {
+      "name": "Cheapest-date sweep",
+      "command": "prices cheapest",
+      "description": "Returns the cheapest check-in dates across a flexible window for a destination."
+    },
+    {
+      "name": "AgodaVIP delta",
+      "command": "vip delta",
+      "description": "Runs the same search signed-in and anonymous, then diffs per property to show what your VIP tier is actually worth."
+    },
+    {
+      "name": "Price-drop watch",
+      "command": "watch run",
+      "description": "Surfaces only watched properties whose latest true all-in price dropped meaningfully below their trailing median."
+    },
+    {
+      "name": "Shortlist compare",
+      "command": "compare",
+      "description": "Puts finalist properties side by side on true all-in price, hidden fee share, review score, star rating, and free-cancellation deadline."
+    },
+    {
+      "name": "Offline corpus search",
+      "command": "search",
+      "description": "Full-text search over every property this CLI has already seen, with no network call."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 100,
+    "passed": 36,
+    "total": 36,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 87,
+      "grade": "A",
+      "total": 87
+    }
+  }
+}

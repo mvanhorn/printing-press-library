@@ -1,0 +1,169 @@
+name: agoda
+description: "Agoda hotel CLI - true all-in pricing, honest re-ranking, and local price history"
+version: "0.1.0"
+category: travel
+base_url: "https://www.agoda.com"
+http_transport: standard
+health_check_path: "/"
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+  - name: Accept-Language
+    value: "en-US,en;q=0.9"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/agoda-pp-cli/config.toml"
+
+cache:
+  enabled: false
+
+learn:
+  entity_lookup_seeds:
+    destination:
+      - canonical: Tokyo
+        aliases: [tokyo, tyo, tokio]
+      - canonical: Bangkok
+        aliases: [bangkok, bkk, krung thep]
+      - canonical: Singapore
+        aliases: [singapore, sg, sin]
+      - canonical: Osaka
+        aliases: [osaka, kansai]
+      - canonical: Seoul
+        aliases: [seoul, icn]
+      - canonical: Hong Kong
+        aliases: [hong kong, hk, hkg]
+      - canonical: Bali
+        aliases: [bali, denpasar, dps]
+      - canonical: Ho Chi Minh City
+        aliases: [ho chi minh, saigon, hcmc, sgn]
+      - canonical: Kuala Lumpur
+        aliases: [kuala lumpur, kl, kul]
+      - canonical: Taipei
+        aliases: [taipei, tpe]
+  synonyms:
+    "all in": "inclusive"
+    "all-in": "inclusive"
+    "total price": "inclusive"
+    "most recent": "latest"
+    "check in": "checkin"
+  stopwords:
+    - hotel
+    - hotels
+
+resources:
+  destinations:
+    description: "Resolve a destination name to the numeric city id every Agoda search requires"
+    endpoints:
+      resolve:
+        method: GET
+        path: "/api/cronos/search/GetUnifiedSuggestResult/3/16/1/0/en-us/"
+        description: "Resolve a free-text destination (city, area, landmark) to an Agoda city id"
+        example: "  agoda-pp-cli destinations --search-text Tokyo"
+        happy_args: "--search-text=Tokyo"
+        params:
+          - name: searchText
+            flag_name: search-text
+            type: string
+            required: true
+            description: "Destination text to resolve, e.g. Tokyo"
+          - name: origin
+            type: string
+            default: "US"
+            description: "Two-letter origin country used for regional weighting"
+          - name: cid
+            type: int
+            default: -1
+            description: "Agoda campaign id; -1 is the organic default"
+          - name: pageTypeId
+            flag_name: page-type-id
+            type: int
+            default: 1
+            description: "Agoda page-type id the suggestion request is scoped to"
+          - name: isHotelLandSearch
+            flag_name: hotel-land-search
+            type: bool
+            default: true
+            description: "Restrict suggestions to accommodation results"
+        response:
+          type: object
+          item: SuggestResult
+        response_path: ViewModelList
+
+  reviews:
+    description: "Guest reviews for a property, paginated and sortable"
+    endpoints:
+      list:
+        method: POST
+        path: "/api/cronos/property/review/ReviewComments"
+        mutation: false
+        description: "List guest reviews for a property by Agoda hotel id"
+        example: "  agoda-pp-cli reviews list --hotel-id 7708 --page-size 10 --sorting 1"
+        happy_args: "--hotel-id=7708;--page-size=5"
+        body:
+          - name: hotelId
+            flag_name: hotel-id
+            type: int
+            required: true
+            description: "Agoda numeric hotel id (from hotels search results)"
+          - name: page
+            type: int
+            default: 1
+            description: "1-based page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 10
+            description: "Reviews per page"
+          - name: sorting
+            type: int
+            default: 1
+            description: "Sort order: 1 most recent, 2 rating high to low, 3 rating low to high, 7 most helpful"
+        response:
+          type: object
+          item: ReviewPage
+        response_path: comments
+
+types:
+  SuggestResult:
+    fields:
+      - name: ObjectId
+        type: int
+      - name: Name
+        type: string
+      - name: ResultText
+        type: string
+      - name: CityId
+        type: int
+      - name: CountryId
+        type: int
+      - name: NoOfHotels
+        type: int
+      - name: IsHotel
+        type: bool
+      - name: Latitude
+        type: float
+      - name: Longtitude
+        type: float
+      - name: ResultUrl
+        type: string
+  ReviewPage:
+    fields:
+      - name: hotelReviewId
+        type: int
+      - name: rating
+        type: float
+      - name: reviewComments
+        type: string
+      - name: responderName
+        type: string
+      - name: providerId
+        type: int
+      - name: helpfulVotes
+        type: int
+      - name: checkInDateMonth
+        type: string

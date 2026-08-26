@@ -1,0 +1,53 @@
+[
+  {
+    "m": "POST",
+    "u": "https://www.agoda.com/graphql/search",
+    "hn": [
+      "AG-ANALYTICS-SESSION-ID",
+      "AG-CID",
+      "AG-CORRELATION-ID",
+      "AG-LANGUAGE-LOCALE",
+      "AG-PAGE-TYPE-ID",
+      "AG-REQUEST-ATTEMPT",
+      "AG-REQUEST-ID",
+      "AG-RETRY-ATTEMPT",
+      "Access-Control-Max-Age",
+      "Cookie",
+      "Origin",
+      "Referer",
+      "User-Agent",
+      "accept",
+      "ag-debug-override-origin",
+      "content-type",
+      "sec-ch-ua",
+      "sec-ch-ua-mobile",
+      "sec-ch-ua-platform",
+      "x-gate-meta"
+    ],
+    "pd": "{\"operationName\":\"priceTrendSearch\",\"variables\":{\"PriceTrendSearchRequest\":{\"cityId\":13170,\"propertyId\":161742,\"startDate\":\"2026-08-25T17:00:00.000Z\",\"endDate\":\"2026-10-24T17:00:00.000Z\",\"los\":1,\"occ\":2,\"isUserLoggedIn\":true,\"suggestedPrice\":\"Exclusive\",\"searchType\":\"PropertiesSearch\",\"currency\":\"IDR\",\"supportedRateChannelIds\":[1]}},\"query\":\"query priceTrendSearch($PriceTrendSearchRequest: PriceTrendSearchRequest!) {\\n  priceTrendSearch(PriceTrendSearchRequest: $PriceTrendSearchRequest) {\\n    PriceTrendSearchDetails {\\n      cityId\\n      propertyId\\n      prices {\\n        checkIn\\n        price\\n        priceTrendType\\n      }\\n    }\\n  }\\n}\\n\"}"
+  },
+  {
+    "m": "GET",
+    "u": "https://www.agoda.com/api/cronos/search/GetUnifiedSuggestResult/3/16/1/0/en-gb/?searchText=KiN%20Hotel%20Ly%20Tu%20Trong%20EditionTokyo&guid=REDACTED-UUID&origin=ID&cid=-1&pageTypeId=1&logtime=Wed%20Aug%2026%202026%2018%3A14%3A38%20GMT%2B0700%20(Western%20Indonesia%20Time)&logTypeId=1&isHotelLandSearch=true&lastSearchedCity=13170",
+    "hn": [
+      "AG-Analytics-Session-Id",
+      "AG-Correlation-Id",
+      "AG-Language-Id",
+      "AG-Language-Locale",
+      "AG-REQUEST-ATTEMPT",
+      "CR-Currency-Code",
+      "CR-Currency-Id",
+      "Content-type",
+      "Cookie",
+      "Referer",
+      "User-Agent",
+      "X-Requested-With",
+      "accept",
+      "sec-ch-ua",
+      "sec-ch-ua-mobile",
+      "sec-ch-ua-platform",
+      "x-gate-meta"
+    ],
+    "pd": ""
+  }
+]
