@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/travel/agoda
 
-go 1.26.7
+go 1.26.6
 
 require (
 	github.com/mark3labs/mcp-go v0.57.0

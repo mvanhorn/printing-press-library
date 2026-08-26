@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "agoda-go-directive-library-floor",
+  "applied_at": "2026-08-26",
+  "base_run_id": "20260826-175510-45b00483",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Lowered the go.mod Go directive from 1.26.7 to 1.26.6 to match the library CI toolchain.",
+  "reason": "Generation ran on a host whose local Go was older than the generator binary, so GOTOOLCHAIN=auto resolved 1.26.7 and stamped it into go.mod. The public library pins .go-version to 1.26.6 and runs GOTOOLCHAIN=local, so the module could not load and Govulncheck failed with 'go.mod requires go >= 1.26.7'. 1.26.6 also carries the stdlib fixes the scan requires.",
+  "files": ["go.mod"],
+  "markers": ["go 1.26.6"],
+  "validated_outcome": "go build, full test suite, and govulncheck all pass under a 1.26.6 toolchain; govulncheck reports no vulnerabilities."
+}

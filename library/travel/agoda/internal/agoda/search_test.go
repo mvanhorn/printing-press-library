@@ -393,3 +393,58 @@ func TestBuildCitySearchDistinctDatesProduceDistinctRequests(t *testing.T) {
 		t.Fatal("two different check-in dates serialized to an identical request; the date is not reaching the payload")
 	}
 }
+
+// TestFindPriceNodeIsDeterministic pins the fix for a P1 review finding.
+//
+// findPriceNode originally recursed over a map[string]any and returned the
+// first node carrying perBook. Go randomizes map iteration order, so a property
+// with several offers could yield a different price on each parse of the very
+// same response - silently changing rankings and cheapest-property results
+// between runs. Parsing the identical payload many times must be stable.
+func TestFindPriceNodeIsDeterministic(t *testing.T) {
+	raw := []byte(`{"data":{"citySearch":{"properties":[
+      {"propertyId":1,
+       "content":{"informationSummary":{"displayName":"Multi Offer Inn"}},
+       "pricing":{
+         "offerA":{"roomOffers":[{"room":{"pricing":[{"price":{
+             "perBook":{"exclusive":{"display":900},"inclusive":{"display":1000}}}}]}}]},
+         "offerB":{"roomOffers":[{"room":{"pricing":[{"price":{
+             "perBook":{"exclusive":{"display":700},"inclusive":{"display":800}}}}]}}]},
+         "offerC":{"roomOffers":[{"room":{"pricing":[{"price":{
+             "perBook":{"exclusive":{"display":1100},"inclusive":{"display":1200}}}}]}}]}
+       }}
+    ]}}}`)
+	var first float64
+	for i := 0; i < 50; i++ {
+		props, err := parseCitySearch(raw, SearchOptions{Nights: 1})
+		if err != nil {
+			t.Fatalf("parseCitySearch() error = %v", err)
+		}
+		got := props[0].PriceAllIn
+		if i == 0 {
+			first = got
+			continue
+		}
+		if got != first {
+			t.Fatalf("parse %d returned %v, first parse returned %v; offer selection is not deterministic", i, got, first)
+		}
+	}
+	// Determinism alone is not enough: a search result should report the
+	// cheapest bookable offer, not an arbitrary one.
+	if first != 800 {
+		t.Errorf("PriceAllIn = %v, want 800 (the cheapest of the three offers)", first)
+	}
+}
+
+// TestFindPriceNodeFallsBackToExclusive covers a node that carries only the
+// advertised figure, so ranking still has something to compare.
+func TestFindPriceNodeFallsBackToExclusive(t *testing.T) {
+	node := map[string]any{"perBook": map[string]any{"exclusive": map[string]any{"display": 250.0}}}
+	got, ok := nodeAllInPrice(node)
+	if !ok || got != 250 {
+		t.Errorf("nodeAllInPrice() = (%v, %v), want (250, true)", got, ok)
+	}
+	if _, ok := nodeAllInPrice(map[string]any{}); ok {
+		t.Error("nodeAllInPrice() on a node without perBook should report not-ok")
+	}
+}

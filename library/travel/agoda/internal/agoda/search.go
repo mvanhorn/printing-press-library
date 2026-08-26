@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"math"
 	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -276,30 +277,80 @@ func parseCitySearch(data []byte, opts SearchOptions) ([]Property, error) {
 	return out, nil
 }
 
-// findPriceNode locates the first node exposing the perBook/perNight price
-// triple. Depth is bounded because the envelope is large and self-similar.
+// findPriceNode selects the price node a search result should report.
+//
+// Two properties matter here. First, determinism: Go randomizes map iteration
+// order, so recursing over an offers map and returning the first hit made the
+// reported price vary between runs on the same response. Second, meaning: a
+// property can carry several room offers, and the figure a search result should
+// show is the cheapest bookable one (Agoda's own envelope calls this
+// cheapestRoomOffer).
+//
+// Collecting every candidate and choosing the minimum all-in price satisfies
+// both: the result no longer depends on map ordering, and it is the offer a
+// traveler would actually book.
 func findPriceNode(node any, depth int) map[string]any {
-	if depth > 10 {
+	candidates := collectPriceNodes(node, depth, nil)
+	if len(candidates) == 0 {
 		return nil
+	}
+	best := candidates[0]
+	bestPrice, bestOK := nodeAllInPrice(best)
+	for _, c := range candidates[1:] {
+		price, ok := nodeAllInPrice(c)
+		switch {
+		case ok && !bestOK:
+			best, bestPrice, bestOK = c, price, true
+		case ok && bestOK && price < bestPrice:
+			best, bestPrice = c, price
+		}
+	}
+	return best
+}
+
+// collectPriceNodes walks the envelope in a stable order, gathering every node
+// that exposes the perBook price triple. Map keys are sorted so traversal does
+// not depend on Go's randomized map iteration.
+func collectPriceNodes(node any, depth int, acc []map[string]any) []map[string]any {
+	if depth > 10 {
+		return acc
 	}
 	switch v := node.(type) {
 	case map[string]any:
 		if _, ok := v["perBook"]; ok {
-			return v
+			return append(acc, v)
 		}
-		for _, child := range v {
-			if got := findPriceNode(child, depth+1); got != nil {
-				return got
-			}
+		keys := make([]string, 0, len(v))
+		for k := range v {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			acc = collectPriceNodes(v[k], depth+1, acc)
 		}
 	case []any:
 		for _, child := range v {
-			if got := findPriceNode(child, depth+1); got != nil {
-				return got
-			}
+			acc = collectPriceNodes(child, depth+1, acc)
 		}
 	}
-	return nil
+	return acc
+}
+
+// nodeAllInPrice reads the all-in (inclusive) per-booking price used to rank
+// competing offers, falling back to the advertised figure when a node carries
+// only that.
+func nodeAllInPrice(node map[string]any) (float64, bool) {
+	perBook := mapFrom(node["perBook"])
+	if perBook == nil {
+		return 0, false
+	}
+	if v, ok := displayPrice(perBook["inclusive"]); ok && v > 0 {
+		return v, true
+	}
+	if v, ok := displayPrice(perBook["exclusive"]); ok && v > 0 {
+		return v, true
+	}
+	return 0, false
 }
 
 func displayPrice(node any) (float64, bool) {

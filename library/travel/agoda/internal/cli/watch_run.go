@@ -263,7 +263,7 @@ func detectDrops(ctx context.Context, db *sql.DB, w watchSpec, props []agoda.Pro
             SELECT price_all_in FROM price_observations
             WHERE property_id = ? AND checkin = ? AND nights = ? AND adults = ?
               AND rooms = ? AND currency = ?
-            ORDER BY observed_at DESC LIMIT 30`,
+            ORDER BY observed_at DESC, id DESC LIMIT 30`,
 			p.PropertyID, w.CheckIn, w.Nights, w.Adults, w.Rooms, w.Currency)
 		if err != nil {
 			return nil, fmt.Errorf("reading price history: %w", err)
@@ -287,7 +287,13 @@ func detectDrops(ctx context.Context, db *sql.DB, w watchSpec, props []agoda.Pro
 			return nil, err
 		}
 		// The newest row is the observation just recorded; exclude it so the
-		// baseline is genuinely "trailing".
+		// baseline is genuinely "trailing". The query orders by (observed_at,
+		// id) rather than observed_at alone: observed_at has one-second
+		// resolution, so two runs inside the same second would tie and leave
+		// the ordering unspecified, which could drop an older row and keep the
+		// current price in the baseline it is being compared against. The
+		// just-inserted row always holds the highest id, so the composite sort
+		// puts it first deterministically.
 		if len(hist) > 0 {
 			hist = hist[1:]
 		}

@@ -159,10 +159,15 @@ func newWatchListCmd(flags *rootFlags) *cobra.Command {
 			// would deadlock against the open result set.
 			for _, w := range watches {
 				var n int
+				// Match the full watch identity. Filtering on only city,
+				// check-in, nights, and adults counted observations belonging
+				// to a different watch that differed solely by room count or
+				// currency, inflating the history figure shown here.
 				row := st.DB().QueryRowContext(ctx, `
                     SELECT COUNT(*) FROM price_observations
-                    WHERE city_id = ? AND checkin = ? AND nights = ? AND adults = ?`,
-					w.CityID, w.CheckIn, w.Nights, w.Adults)
+                    WHERE city_id = ? AND checkin = ? AND nights = ? AND adults = ?
+                      AND rooms = ? AND currency = ?`,
+					w.CityID, w.CheckIn, w.Nights, w.Adults, w.Rooms, w.Currency)
 				if err := row.Scan(&n); err != nil {
 					n = 0
 				}
