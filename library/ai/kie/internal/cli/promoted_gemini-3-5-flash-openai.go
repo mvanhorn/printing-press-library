@@ -82,8 +82,8 @@ func newGemini35FlashOpenaiPromotedCmd(flags *rootFlags) *cobra.Command {
 			if cmd.Flags().Changed("tools") || bodyTools != "" {
 				bodyMap["tools"] = bodyTools
 			}
-			if bodyStream && !flags.dryRun {
-				return fmt.Errorf("--stream is not supported by this command: the API returns server-sent events that this CLI cannot decode into JSON/table output; omit --stream (the default) for a normal JSON response")
+			if err := guardNonSSEChatCompletionsStream(body, flags.dryRun); err != nil {
+				return err
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 
