@@ -28,7 +28,7 @@ func newCollectionsAddCmd(flags *rootFlags) *cobra.Command {
 				}
 				bodyCollection = stringFromBody(body, "collection")
 				bodyRecipe = stringFromBody(body, "recipe")
-				apply = boolFromBody(body, "apply")
+				apply = apply || boolFromBody(body, "apply")
 			}
 			if bodyCollection == "" && !cmd.Flags().Changed("collection") && !flags.dryRun {
 				return usageErr(fmt.Errorf("required flag \"%s\" not set", "collection"))
