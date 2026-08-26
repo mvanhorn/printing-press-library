@@ -1,9 +1,0 @@
-{
-  "dir": "\u003ccli-dir\u003e/carol-bike-pp-cli",
-  "research_dir": "\u003ccli-dir\u003e/20260825-194050",
-  "verdict": "pass",
-  "actors": null,
-  "issues": [
-    "no Apify actor references found, skipping"
-  ]
-}
