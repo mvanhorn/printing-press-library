@@ -191,7 +191,7 @@
     },
     {
       "name": "collections_add",
-      "description": "Add a recipe to a collection, verify membership by fresh read-back, and sync the local cache. Required: collection, recipe.",
+      "description": "Preview adding a recipe to a collection. Live writes fail closed until collection persistence is proven. Required: collection, recipe.",
       "method": "POST",
       "path": "/data/user-recipe-data/update",
       "params": [
@@ -208,12 +208,19 @@
           "location": "body",
           "description": "Recipe name to add",
           "required": true
+        },
+        {
+          "name": "apply",
+          "type": "bool",
+          "location": "body",
+          "description": "Apply the live write; omit for preview",
+          "required": false
         }
       ]
     },
     {
       "name": "collections_create",
-      "description": "Create a new recipe collection, verify it by fresh read-back, and sync the local cache. Required: name.",
+      "description": "Preview creating a recipe collection. Live writes fail closed until collection persistence is proven. Required: name.",
       "method": "POST",
       "path": "/data/user-recipe-data/update",
       "params": [
@@ -223,12 +230,19 @@
           "location": "body",
           "description": "Collection name",
           "required": true
+        },
+        {
+          "name": "apply",
+          "type": "bool",
+          "location": "body",
+          "description": "Apply the live write; omit for preview",
+          "required": false
         }
       ]
     },
     {
       "name": "collections_delete",
-      "description": "Delete a recipe collection, verify its absence by fresh read-back, and sync the local cache. Required: name.",
+      "description": "Preview deleting a recipe collection. Live writes fail closed until collection persistence is proven. Required: name.",
       "method": "POST",
       "path": "/data/user-recipe-data/update",
       "params": [
@@ -238,6 +252,13 @@
           "location": "body",
           "description": "Collection name to delete",
           "required": true
+        },
+        {
+          "name": "apply",
+          "type": "bool",
+          "location": "body",
+          "description": "Apply the live write; omit for preview",
+          "required": false
         }
       ]
     },
@@ -250,7 +271,7 @@
     },
     {
       "name": "collections_remove",
-      "description": "Remove a recipe from a collection, verify membership removal by fresh read-back, and sync the local cache. Required: collection, recipe.",
+      "description": "Preview removing a recipe from a collection. Live writes fail closed until collection persistence is proven. Required: collection, recipe.",
       "method": "POST",
       "path": "/data/user-recipe-data/update",
       "params": [
@@ -267,6 +288,13 @@
           "location": "body",
           "description": "Recipe name to remove",
           "required": true
+        },
+        {
+          "name": "apply",
+          "type": "bool",
+          "location": "body",
+          "description": "Apply the live write; omit for preview",
+          "required": false
         }
       ]
     },

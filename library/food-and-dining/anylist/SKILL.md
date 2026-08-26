@@ -203,13 +203,13 @@ Remain read-only until recipe approval, pantry adjustments, ingredient decisions
 - `anylist-pp-cli categories reorder --list <list> --order <id-or-name,id-or-name,…>` — Preview or reorder a category group's categories with explicit `--apply`; the list must have exactly one group unless `--category-group` selects one, `--order` must name every category in the group exactly once (duplicates, unknown entries, and silently appended or dropped categories fail closed), and the exact stable-ID order is verified from a fresh read before success
 - Custom category writes use the verified multipart `/data/shopping-lists/update-v2` wire contract (the non-persistent v1 route and the old non-persistent `remove-category` handler are never used). Category-group create, rename, and delete (group CRUD) remain unsupported.
 
-**collections** — Manage recipe collections
+**collections** — List recipe collections and preview collection writes. Create/add/remove/delete previews are available, but live writes currently fail closed because a disposable AnyList create acknowledged HTTP success without persisting on fresh read-back. Do not use `--apply` until a future live probe proves the exact collection contract.
 
-- `anylist-pp-cli collections add` — Add a recipe to a collection
-- `anylist-pp-cli collections create` — Create a new recipe collection
-- `anylist-pp-cli collections delete` — Delete a recipe collection
+- `anylist-pp-cli collections add` — Preview an add; live mutation is fail-closed pending persistence proof
+- `anylist-pp-cli collections create` — Preview a create; live mutation is fail-closed pending persistence proof
+- `anylist-pp-cli collections delete` — Preview a delete; live mutation is fail-closed pending persistence proof
 - `anylist-pp-cli collections list` — List all recipe collections
-- `anylist-pp-cli collections remove` — Remove a recipe from a collection
+- `anylist-pp-cli collections remove` — Preview a removal; live mutation is fail-closed pending persistence proof
 
 **favorites** — Manage favorite items with explicit apply gates and fresh read-after-write verification. Photo and price mutation remain separate capabilities.
 

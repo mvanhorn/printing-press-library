@@ -312,13 +312,13 @@ Custom category writes use the verified multipart `/data/shopping-lists/update-v
 
 ### collections
 
-Manage recipe collections
+Manage recipe collections and preview collection writes. Create/add/remove/delete previews are available, but live writes currently fail closed because a disposable AnyList create acknowledged HTTP success without persisting on fresh read-back. Do not use `--apply` until a future live probe proves the exact collection contract.
 
-- **`anylist-pp-cli collections add`** - Add a recipe to a collection
-- **`anylist-pp-cli collections create`** - Create a new recipe collection
-- **`anylist-pp-cli collections delete`** - Delete a recipe collection
+- **`anylist-pp-cli collections add`** - Preview an add; live mutation is fail-closed pending persistence proof
+- **`anylist-pp-cli collections create`** - Preview a create; live mutation is fail-closed pending persistence proof
+- **`anylist-pp-cli collections delete`** - Preview a delete; live mutation is fail-closed pending persistence proof
 - **`anylist-pp-cli collections list`** - List all recipe collections
-- **`anylist-pp-cli collections remove`** - Remove a recipe from a collection
+- **`anylist-pp-cli collections remove`** - Preview a removal; live mutation is fail-closed pending persistence proof
 
 ### favorites
 

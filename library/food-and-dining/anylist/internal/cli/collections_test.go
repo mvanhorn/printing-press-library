@@ -1,11 +1,52 @@
 package cli
 
 import (
+	"bytes"
+	"encoding/json"
 	"strings"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/anylist/pb"
+	"github.com/spf13/cobra"
 )
+
+func TestCollectionWritesPreviewUnlessApply(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name string
+		new  func(*rootFlags) *cobra.Command
+		args []string
+	}{
+		{name: "create", new: newCollectionsCreateCmd, args: []string{"--name", "Temporary collection"}},
+		{name: "add", new: newCollectionsAddCmd, args: []string{"--collection", "Temporary collection", "--recipe", "Temporary recipe"}},
+		{name: "remove", new: newCollectionsRemoveCmd, args: []string{"--collection", "Temporary collection", "--recipe", "Temporary recipe"}},
+		{name: "delete", new: newCollectionsDeleteCmd, args: []string{"--name", "Temporary collection"}},
+	}
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			flags := &rootFlags{asJSON: true}
+			cmd := tc.new(flags)
+			if flag := cmd.Flags().Lookup("apply"); flag == nil || flag.DefValue != "false" {
+				t.Fatalf("apply flag = %#v, want a false default", flag)
+			}
+			var out bytes.Buffer
+			cmd.SetOut(&out)
+			cmd.SetArgs(tc.args)
+			if err := cmd.Execute(); err != nil {
+				t.Fatalf("preview returned error: %v", err)
+			}
+			var preview map[string]any
+			if err := json.Unmarshal(out.Bytes(), &preview); err != nil {
+				t.Fatalf("preview output is not JSON: %v\n%s", err, out.String())
+			}
+			if preview["status"] != "preview" || preview["apply"] != false {
+				t.Fatalf("preview gate = %#v, want status=preview/apply=false", preview)
+			}
+		})
+	}
+}
 
 func TestValidateRecipeCollectionReadBackChecksIdentityMembershipsAndSettings(t *testing.T) {
 	t.Parallel()
