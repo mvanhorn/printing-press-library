@@ -6,7 +6,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/mark3labs/mcp-go/server"
@@ -17,14 +19,14 @@ import (
 // Transport selection order: --transport flag, then PP_MCP_TRANSPORT env,
 // then the first transport declared in the spec (see MCPConfig.Transport).
 // The flag surface lets one binary serve stdio locally and streamable HTTP
-// when hosted in a container or remote sandbox, matching the Anthropic
-// guidance that production agents need a remote option.
+// on loopback for local clients or an authenticated TLS reverse proxy.
 
 const (
 	// Loopback-only by default: the http transport otherwise binds every
 	// interface with no client authentication, exposing credentialed API
-	// calls and local SQLite state to any network-reachable client. Pass
-	// --addr to opt into a wider bind (e.g. a container's 0.0.0.0:7777).
+	// calls and local SQLite state to any network-reachable client. Expose
+	// it remotely by putting an authenticated TLS reverse proxy in front of
+	// a loopback bind.
 	defaultHTTPAddr = "127.0.0.1:7777"
 )
 
@@ -48,7 +50,7 @@ func main() {
 	mcptools.RegisterTools(s)
 
 	transport := flag.String("transport", defaultTransport(), "MCP transport: stdio | http")
-	addr := flag.String("addr", defaultHTTPAddr, "bind address for http transport (host:port or :port)")
+	addr := flag.String("addr", defaultHTTPAddr, "loopback bind address for http transport (host:port)")
 	flag.Parse()
 
 	switch strings.ToLower(*transport) {
@@ -58,6 +60,10 @@ func main() {
 			os.Exit(1)
 		}
 	case "http":
+		if err := validateHTTPBindAddr(*addr); err != nil {
+			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
+			os.Exit(2)
+		}
 		httpSrv := server.NewStreamableHTTPServer(s)
 		fmt.Fprintf(os.Stderr, "kie-pp-mcp serving MCP over streamable HTTP at %s\n", *addr)
 		if err := httpSrv.Start(*addr); err != nil {
@@ -68,6 +74,48 @@ func main() {
 		fmt.Fprintf(os.Stderr, "unknown --transport %q (supported: stdio, http)\n", *transport)
 		os.Exit(2)
 	}
+}
+
+func validateHTTPBindAddr(addr string) error {
+	host, port, err := net.SplitHostPort(addr)
+	if err != nil {
+		return remoteHTTPBindError(addr, "expected host:port")
+	}
+	if err := validateTCPPort(port); err != nil {
+		return remoteHTTPBindError(addr, err.Error())
+	}
+
+	normalizedHost := strings.ToLower(host)
+	switch normalizedHost {
+	case "":
+		return remoteHTTPBindError(addr, "empty hosts bind every interface")
+	case "localhost":
+		return nil
+	}
+
+	ip := net.ParseIP(normalizedHost)
+	if ip == nil {
+		return remoteHTTPBindError(addr, "host is not a loopback IP address or localhost")
+	}
+	if !ip.IsLoopback() {
+		return remoteHTTPBindError(addr, "host is not loopback")
+	}
+	return nil
+}
+
+func validateTCPPort(port string) error {
+	if port == "" {
+		return fmt.Errorf("missing port")
+	}
+	n, err := strconv.Atoi(port)
+	if err != nil || n < 0 || n > 65535 {
+		return fmt.Errorf("invalid port")
+	}
+	return nil
+}
+
+func remoteHTTPBindError(addr, detail string) error {
+	return fmt.Errorf("refusing http bind address %q (%s): remote MCP exposure is refused because this server has no client authentication; expose it through an authenticated TLS reverse proxy forwarding to a loopback address instead", addr, detail)
 }
 
 // defaultTransport reads PP_MCP_TRANSPORT env when set, otherwise falls back

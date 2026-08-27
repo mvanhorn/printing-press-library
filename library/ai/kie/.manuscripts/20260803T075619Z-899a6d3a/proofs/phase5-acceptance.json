@@ -12,10 +12,11 @@
     "type": "api_key",
     "api_key_available": true
   },
-  "source_fingerprint": "4b06a36dc65fadfbf5dc420ebedab34091bd70b5b6df907c7bfc9b3ee5b04715",
+  "source_fingerprint": "4a6483fcc6b81566618bfcb56adf71258a7737c7616ddde07af772e70baec94c",
   "source_files": {
     "cmd/kie-pp-cli/main.go": "21739cf59e75a15a4aecaf5779aed1afda0453f475bfd672d141301448bfade5",
-    "cmd/kie-pp-mcp/main.go": "1bb7105661594354a42427d294d34f5e8c69e33f541aa631655e6d4ee0942ec9",
+    "cmd/kie-pp-mcp/main.go": "387215393215cea3fbf509bc86cfa7ae8aa0cbe781e5f4367739365e2d44d958",
+    "cmd/kie-pp-mcp/main_test.go": "255825281fe7a15104dfcc96803a6a3769b3d01c2a4a9f0f53ee349e872baa36",
     "go.mod": "352a3e4aadb9126d5ec4fb194cb27a811f6562f6e1cd4785e616fec83b618803",
     "go.sum": "f1d2244e10982358d582a8268b72b5190d4a49b50212bece15f435786aa7b1f0",
     "internal/cache/cache.go": "20cd3a6fd687e3ead9237c3cc427dbfd3173a5ee5a4c08fe91961bab46258eff",
