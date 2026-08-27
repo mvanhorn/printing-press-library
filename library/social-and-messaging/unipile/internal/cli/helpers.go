@@ -3114,6 +3114,12 @@ func defaultDBPathInDir(dir string) string {
 // 422 errors/invalid_account when a route is addressed with an account of the
 // wrong provider type. errors/missing_credentials is deliberately excluded: it
 // means the API key is absent or wrong, which must stay a hard failure.
+//
+// 400 errors/invalid_parameters is also deliberately excluded. A provider-scoped
+// route rejected for a missing account_id is a real failure: resolveAccountScope
+// adopts the sole connected account and refuses ambiguously when several exist,
+// so reaching that 400 means no usable scope was found. Demoting it would let a
+// sync exit zero with those resources empty and the mirror quietly incomplete.
 func unipileSurfaceUnavailable(status int, body string) (string, bool) {
 	lower := strings.ToLower(body)
 	if strings.Contains(lower, "errors/missing_credentials") {
@@ -3130,10 +3136,6 @@ func unipileSurfaceUnavailable(status int, body string) (string, bool) {
 	case 422:
 		if strings.Contains(lower, "errors/invalid_account") {
 			return "wrong_account_type", true
-		}
-	case 400:
-		if strings.Contains(lower, "errors/invalid_parameters") && strings.Contains(lower, "required property") {
-			return "argument_missing", true
 		}
 	}
 	return "", false
