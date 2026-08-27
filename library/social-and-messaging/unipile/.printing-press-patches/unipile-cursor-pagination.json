@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "unipile-cursor-pagination",
+  "applied_at": "2026-08-25",
+  "base_run_id": "20260824-212156-433d72f1",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Bind cursor pagination to the cursor query parameter across the generated pagination tables and promoted list commands.",
+  "reason": "Generator cursor detection selected the unrelated 'after' ISO-datetime filter and left cursorParam empty on routes whose only pagination params are cursor and limit, so page two of every list route failed with 400 errors/invalid_parameters.",
+  "files": [
+    "internal/cli/resource_paths.go",
+    "internal/cli/sync.go",
+    "internal/cli/accounts_list.go",
+    "internal/cli/chats_list.go",
+    "internal/cli/emails_list.go",
+    "internal/cli/messages_list.go",
+    "internal/cli/chat-attendees_chats_list.go",
+    "internal/cli/chat-attendees_messages_list.go"
+  ],
+  "validated_outcome": "A full live sync went from failing on page two of every resource to 20 resources and 21,612 records with zero errors."
+}

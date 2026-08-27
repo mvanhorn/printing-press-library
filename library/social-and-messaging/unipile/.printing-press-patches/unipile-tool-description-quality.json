@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "unipile-tool-description-quality",
+  "applied_at": "2026-08-25",
+  "base_run_id": "20260824-212156-433d72f1",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Widen two framework command descriptions that were too terse to disambiguate as MCP tools.",
+  "reason": "tools-audit flagged both as thin-short: accurate but under the four-word threshold that makes an MCP tool description useful to an agent choosing between tools.",
+  "files": [
+    "internal/cli/platform_client.go",
+    "internal/cli/teach.go"
+  ],
+  "validated_outcome": "tools-audit reports no findings (2 resolved, 0 new)."
+}

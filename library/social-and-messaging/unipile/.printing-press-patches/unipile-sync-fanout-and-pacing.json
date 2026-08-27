@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "unipile-sync-fanout-and-pacing",
+  "applied_at": "2026-08-25",
+  "base_run_id": "20260824-212156-433d72f1",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Make per-parent fan-out opt-in on a default sync, cap the followers page size, and curtail sync to one page per resource under a verification harness.",
+  "reason": "Per-parent dependents issue one request per parent row, so a bare sync fired thousands of LinkedIn-backed calls: the exact pacing LinkedIn restricts accounts for, and redundant because the flat routes already return those records. /users/followers also rejected the spec-advertised page size with 400 errors/limit_too_high.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "Default sync dropped from 7m44s to a bounded walk; harness runs finish in ~12s and no longer time out."
+}

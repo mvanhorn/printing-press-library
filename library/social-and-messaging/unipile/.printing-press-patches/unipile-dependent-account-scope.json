@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "unipile-dependent-account-scope",
+  "applied_at": "2026-08-25",
+  "base_run_id": "20260824-212156-433d72f1",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Seed the env-derived account scope into the true-global parameter bucket, and resolve the account automatically when none is configured.",
+  "reason": "Unipile requires account_id on path-scoped dependents such as /users/{id}/posts, but the generated env default only reached flat-list requests. account_id is also an opaque 22-character id required on 52 of 94 endpoints, so a sync with only an API key failed on eight resources.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/account_scope.go"
+  ],
+  "validated_outcome": "sync now succeeds with only UNIPILE_API_KEY set, adopting the single connected account and refusing ambiguously when several exist."
+}

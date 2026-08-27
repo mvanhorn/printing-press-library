@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "unipile-search-local-default",
+  "applied_at": "2026-08-25",
+  "base_run_id": "20260824-212156-433d72f1",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Default the search command to the local mirror, correct its provenance and freshness reporting, and expose it to MCP.",
+  "reason": "The only API-side search route is POST /api/v1/linkedin/search, which spends LinkedIn's daily search-result budget; auto-routing a bare search there is a footgun on an API whose own docs state Unipile enforces no limits. The local path also reported api_unreachable without attempting a call and claimed the store had never been synced on every query.",
+  "files": [
+    "internal/cli/search.go"
+  ],
+  "validated_outcome": "search now answers from the mirror with no API call, reports local_default provenance, and --data-source live remains the explicit opt-in."
+}

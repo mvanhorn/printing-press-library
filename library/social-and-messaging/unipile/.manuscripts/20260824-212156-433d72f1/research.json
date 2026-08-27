@@ -1,0 +1,365 @@
+{
+  "api_name": "unipile",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "mcp-server-unipile",
+      "url": "https://github.com/Sundeepg98/mcp-server-unipile",
+      "language": "Python",
+      "install_method": "",
+      "stars": 4,
+      "last_updated": "",
+      "command_count": 95,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "unipile-node-sdk",
+      "url": "https://github.com/unipile/unipile-node-sdk",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 44,
+      "last_updated": "",
+      "command_count": 60,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-unipile",
+      "url": "https://github.com/honeybluesky/mcp-unipile",
+      "language": "Python",
+      "install_method": "",
+      "stars": 16,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "unipile-python",
+      "url": "https://github.com/unipile/unipile-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "unipile-node",
+      "url": "https://github.com/unipile/unipile-node",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Rate-budget ledger",
+      "command": "budget",
+      "description": "See how many LinkedIn invitations you have left today and this week, counted from your synced invitation history.",
+      "rationale": "Unipile enforces no limits of its own; LinkedIn enforces them silently and answers with 422/429/500 or an account restriction. Only the local invitation history can say how much headroom is left, and it includes invitations sent from the LinkedIn UI as well as from this CLI.",
+      "example": "unipile-pp-cli budget --agent",
+      "why_it_matters": "Check this before any bulk invitation run so you do not get the underlying LinkedIn account restricted.",
+      "group": "Account safety"
+    },
+    {
+      "name": "Offline cross-provider search",
+      "command": "search",
+      "description": "Full-text search every message, email, attendee, and relation across all connected providers at once, offline.",
+      "rationale": "The Unipile API has no search route that spans providers; this requires the whole mirror in one local FTS index.",
+      "example": "unipile-pp-cli search \"pricing\" --agent --limit 20",
+      "why_it_matters": "Use this instead of N per-provider list calls when you need to find where something was said.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Contact 360",
+      "command": "contact",
+      "description": "Everything the local mirror knows about one person: connection state, invitation history, and every conversation with per-direction message counts.",
+      "rationale": "Joins attendees, relations, invitation history, chats, emails, and posts, which today means six API calls and a hand-written join.",
+      "example": "unipile-pp-cli contact \"Lakshya\" --agent",
+      "why_it_matters": "Reach for this before writing to someone, so the message is informed by every prior touch across every provider.",
+      "group": "Cross-provider views"
+    },
+    {
+      "name": "Unified unread inbox",
+      "command": "inbox",
+      "description": "One table of everything unread across LinkedIn, WhatsApp, Telegram, Instagram, Messenger, and email.",
+      "rationale": "The API reports unread per provider with no cross-provider ordering; unified triage only exists once the mirror is local.",
+      "example": "unipile-pp-cli inbox --agent --limit 25",
+      "why_it_matters": "This is the daily triage view; use it to decide what to answer before opening any provider UI.",
+      "group": "Cross-provider views"
+    },
+    {
+      "name": "Silence detection",
+      "command": "silent",
+      "description": "Find conversations where you sent the last message and got no reply for N days.",
+      "rationale": "Requires per-chat last-message direction plus timestamp math over the local mirror; no endpoint returns it.",
+      "example": "unipile-pp-cli silent --days 7 --agent",
+      "why_it_matters": "Use this to build a follow-up list without re-reading every thread.",
+      "group": "Outreach loop"
+    },
+    {
+      "name": "Accepted but not messaged",
+      "command": "accepted",
+      "description": "New LinkedIn connections since your last sync that you have not messaged yet.",
+      "rationale": "Unipile's own docs call this a core need and warn that polling relations on a fixed schedule looks like automation; local relation-set diffing answers it without a poll loop.",
+      "example": "unipile-pp-cli accepted --since 7d --agent",
+      "why_it_matters": "This is the highest-conversion follow-up queue in outreach; use it right after a sync.",
+      "group": "Outreach loop"
+    },
+    {
+      "name": "Invitation funnel",
+      "command": "funnel",
+      "description": "Sent, accepted, and replied counts with conversion rates over a time window.",
+      "rationale": "Joins the local action ledger against relations and chats, three sources the API never returns together.",
+      "example": "unipile-pp-cli funnel --weeks 4 --agent",
+      "why_it_matters": "Use this to judge whether outreach copy is working before scaling send volume.",
+      "group": "Outreach loop"
+    },
+    {
+      "name": "Cross-provider digest",
+      "command": "digest",
+      "description": "What changed across every connected provider since the last sync.",
+      "rationale": "Requires sync-cursor bookkeeping per resource per account that the API does not keep for you.",
+      "example": "unipile-pp-cli digest --agent",
+      "why_it_matters": "Run this after sync to get a single catch-up summary instead of polling nine surfaces.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Resolved thread view",
+      "command": "thread",
+      "description": "Read one conversation end to end with attendee IDs resolved to real names.",
+      "rationale": "Attendee IDs are opaque; resolution requires the local attendee mirror joined to the message list.",
+      "example": "unipile-pp-cli thread --chat example-chat-id --agent",
+      "why_it_matters": "Use this when you need the full context of a conversation in one readable payload.",
+      "group": "Cross-provider views"
+    },
+    {
+      "name": "Post engagement crossmatch",
+      "command": "engagement",
+      "description": "Who reacted to or commented on your posts, flagged by whether they are already a connection.",
+      "rationale": "Cross-references post reactions and comments against the local relations and invitation history.",
+      "example": "unipile-pp-cli engagement --agent --limit 20",
+      "why_it_matters": "Use this to turn warm post engagement into a targeted invitation list.",
+      "group": "Outreach loop"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Rate-budget ledger",
+      "command": "budget",
+      "description": "See how many LinkedIn invitations you have left today and this week, counted from your synced invitation history.",
+      "rationale": "Unipile enforces no limits of its own; LinkedIn enforces them silently and answers with 422/429/500 or an account restriction. Only the local invitation history can say how much headroom is left, and it includes invitations sent from the LinkedIn UI as well as from this CLI.",
+      "example": "unipile-pp-cli budget --agent",
+      "why_it_matters": "Check this before any bulk invitation run so you do not get the underlying LinkedIn account restricted.",
+      "group": "Account safety"
+    },
+    {
+      "name": "Offline cross-provider search",
+      "command": "search",
+      "description": "Full-text search every message, email, attendee, and relation across all connected providers at once, offline.",
+      "rationale": "The Unipile API has no search route that spans providers; this requires the whole mirror in one local FTS index.",
+      "example": "unipile-pp-cli search \"pricing\" --agent --limit 20",
+      "why_it_matters": "Use this instead of N per-provider list calls when you need to find where something was said.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Contact 360",
+      "command": "contact",
+      "description": "Everything the local mirror knows about one person: connection state, invitation history, and every conversation with per-direction message counts.",
+      "rationale": "Joins attendees, relations, invitation history, chats, emails, and posts, which today means six API calls and a hand-written join.",
+      "example": "unipile-pp-cli contact \"Lakshya\" --agent",
+      "why_it_matters": "Reach for this before writing to someone, so the message is informed by every prior touch across every provider.",
+      "group": "Cross-provider views"
+    },
+    {
+      "name": "Unified unread inbox",
+      "command": "inbox",
+      "description": "One table of everything unread across LinkedIn, WhatsApp, Telegram, Instagram, Messenger, and email.",
+      "rationale": "The API reports unread per provider with no cross-provider ordering; unified triage only exists once the mirror is local.",
+      "example": "unipile-pp-cli inbox --agent --limit 25",
+      "why_it_matters": "This is the daily triage view; use it to decide what to answer before opening any provider UI.",
+      "group": "Cross-provider views"
+    },
+    {
+      "name": "Silence detection",
+      "command": "silent",
+      "description": "Find conversations where you sent the last message and got no reply for N days.",
+      "rationale": "Requires per-chat last-message direction plus timestamp math over the local mirror; no endpoint returns it.",
+      "example": "unipile-pp-cli silent --days 7 --agent",
+      "why_it_matters": "Use this to build a follow-up list without re-reading every thread.",
+      "group": "Outreach loop"
+    },
+    {
+      "name": "Accepted but not messaged",
+      "command": "accepted",
+      "description": "New LinkedIn connections since your last sync that you have not messaged yet.",
+      "rationale": "Unipile's own docs call this a core need and warn that polling relations on a fixed schedule looks like automation; local relation-set diffing answers it without a poll loop.",
+      "example": "unipile-pp-cli accepted --since 7d --agent",
+      "why_it_matters": "This is the highest-conversion follow-up queue in outreach; use it right after a sync.",
+      "group": "Outreach loop"
+    },
+    {
+      "name": "Invitation funnel",
+      "command": "funnel",
+      "description": "Sent, accepted, and replied counts with conversion rates over a time window.",
+      "rationale": "Joins the local action ledger against relations and chats, three sources the API never returns together.",
+      "example": "unipile-pp-cli funnel --weeks 4 --agent",
+      "why_it_matters": "Use this to judge whether outreach copy is working before scaling send volume.",
+      "group": "Outreach loop"
+    },
+    {
+      "name": "Cross-provider digest",
+      "command": "digest",
+      "description": "What changed across every connected provider since the last sync.",
+      "rationale": "Requires sync-cursor bookkeeping per resource per account that the API does not keep for you.",
+      "example": "unipile-pp-cli digest --agent",
+      "why_it_matters": "Run this after sync to get a single catch-up summary instead of polling nine surfaces.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Resolved thread view",
+      "command": "thread",
+      "description": "Read one conversation end to end with attendee IDs resolved to real names.",
+      "rationale": "Attendee IDs are opaque; resolution requires the local attendee mirror joined to the message list.",
+      "example": "unipile-pp-cli thread --chat example-chat-id --agent",
+      "why_it_matters": "Use this when you need the full context of a conversation in one readable payload.",
+      "group": "Cross-provider views"
+    },
+    {
+      "name": "Post engagement crossmatch",
+      "command": "engagement",
+      "description": "Who reacted to or commented on your posts, flagged by whether they are already a connection.",
+      "rationale": "Cross-references post reactions and comments against the local relations and invitation history.",
+      "example": "unipile-pp-cli engagement --agent --limit 20",
+      "why_it_matters": "Use this to turn warm post engagement into a targeted invitation list.",
+      "group": "Outreach loop"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "UNIPILE_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Unipile",
+    "headline": "Every Unipile endpoint as a typed command, plus a local mirror that makes cross-provider search possible and an invitation ledger that shows how much LinkedIn headroom you have left.",
+    "value_prop": "Unipile unified LinkedIn, WhatsApp, Telegram, Instagram, Messenger, X, Gmail, Outlook, IMAP, and calendars into one API, then stopped at the API. This is the missing operator layer: the full endpoint surface as shell-native commands with structured errors and cursor auto-pagination, a local SQLite mirror that answers cross-provider questions no single call can, and a budget command that counts invitations already sent against the caps LinkedIn enforces but Unipile does not.",
+    "auth_narrative": "Unipile authenticates with an Access Token sent as the X-API-KEY header, and every customer gets their own DSN base URL. Set UNIPILE_API_KEY to your token and UNIPILE_BASE_URL to your DSN from the Unipile dashboard. If your environment blocks custom ports, Unipile also accepts the port as a query parameter on standard 443.",
+    "quickstart": [
+      {
+        "command": "unipile-pp-cli doctor --dry-run",
+        "comment": "confirm the DSN and token are wired before touching a provider"
+      },
+      {
+        "command": "unipile-pp-cli accounts list --json",
+        "comment": "see which provider accounts are connected and healthy"
+      },
+      {
+        "command": "unipile-pp-cli sync",
+        "comment": "pull chats, messages, attendees, and relations into the local mirror"
+      },
+      {
+        "command": "unipile-pp-cli inbox --limit 10",
+        "comment": "triage everything unread across every provider in one table"
+      },
+      {
+        "command": "unipile-pp-cli budget",
+        "comment": "check LinkedIn headroom before running any outreach"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Every request returns 404 Cannot GET /api/v1/...",
+        "fix": "UNIPILE_BASE_URL is pointing at the wrong DSN; copy the exact base URL from the Unipile dashboard, including the port."
+      },
+      {
+        "symptom": "Requests time out in a network that blocks custom ports",
+        "fix": "Use the standard-443 form and pass the port as a query parameter, as Unipile's API Usage guide documents."
+      },
+      {
+        "symptom": "400 errors/invalid_parameters on a list command",
+        "fix": "Most provider-scoped routes require an account id; pass --account with an account id or alias from 'accounts list'."
+      },
+      {
+        "symptom": "LinkedIn returns 422 cannot_resend_yet on an invitation",
+        "fix": "You are at LinkedIn's invitation cap; run 'budget' to see remaining daily and weekly headroom before retrying."
+      },
+      {
+        "symptom": "Invitations or profile fetches start failing with 429 or 500",
+        "fix": "Space calls out with random intervals rather than chaining them, and keep total daily volume under the caps 'budget' reports."
+      },
+      {
+        "symptom": "A list command returns fewer rows than expected",
+        "fix": "Results are cursor-paginated with a 250 ceiling; pass --all to follow the cursor until it is null."
+      },
+      {
+        "symptom": "search, inbox, or budget return nothing right after a successful sync",
+        "fix": "The local mirror is scoped per credential and account: set the same UNIPILE_API_KEY and UNIPILE_ACCOUNT_ID for querying as you used for sync, or pass --db explicitly."
+      },
+      {
+        "symptom": "You want LinkedIn's live search rather than the local mirror",
+        "fix": "search defaults to the local mirror so it never spends LinkedIn's daily search-result budget; use 'unipile-pp-cli linkedin search' or 'search --data-source live' to opt in."
+      },
+      {
+        "symptom": "chats messages, chat-attendee chats, or per-user posts are missing after sync",
+        "fix": "Those are per-parent resources and are skipped on a default sync because they cost one request per parent row. Name them explicitly, e.g. 'sync --resources chats_messages'."
+      },
+      {
+        "symptom": "sync reports 'using the only connected account for scope'",
+        "fix": "No account scope was configured so the single connected account was adopted. Set UNIPILE_ACCOUNT_ID to pin it; with several accounts connected the CLI refuses and lists them instead."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when a task touches messages, email, calendars, or LinkedIn activity across more than one provider, or when the answer requires history rather than a single live call. It is the right tool for triaging a unified inbox, building follow-up lists from prior conversations, measuring outreach conversion, and staying under LinkedIn's rate caps. It is also the fastest path to any single Unipile endpoint from a shell or a script.",
+    "anti_triggers": [
+      "Do not use this CLI for Unipile API v2; this targets v1 and v2 tenants use a different DSN and endpoint surface.",
+      "Do not use this CLI to connect a brand new provider account interactively; the hosted auth wizard in the Unipile dashboard is the supported path for first-time OAuth and QR flows.",
+      "Do not use this CLI as a webhook receiver; it can register webhooks but your own server must accept the callbacks.",
+      "Do not use this CLI to bulk-send invitations beyond what 'budget' reports as remaining; exceeding LinkedIn's caps risks restricting the underlying account."
+    ],
+    "recipes": [
+      {
+        "title": "Daily triage",
+        "command": "unipile-pp-cli inbox --agent --select items.provider,items.name,items.last_message,items.timestamp",
+        "explanation": "Returns only the four fields needed to decide what to answer, instead of the full chat payload for every unread conversation."
+      },
+      {
+        "title": "Follow-up queue",
+        "command": "unipile-pp-cli silent --days 5 --agent",
+        "explanation": "Lists conversations where you spoke last and nobody replied, which is the list worth acting on today."
+      },
+      {
+        "title": "Safe outreach check",
+        "command": "unipile-pp-cli budget --agent",
+        "explanation": "Reports remaining daily and weekly LinkedIn invitation and profile-view headroom before a send run starts."
+      },
+      {
+        "title": "Warm connection targets",
+        "command": "unipile-pp-cli engagement --agent --limit 20",
+        "explanation": "Shows who engaged with your posts and is not yet a connection, which converts far better than cold invitations."
+      },
+      {
+        "title": "Find where something was said",
+        "command": "unipile-pp-cli search \"contract\" --agent --limit 15",
+        "explanation": "Searches messages and emails across every provider from the local mirror, with no API call and no per-provider loop."
+      }
+    ],
+    "trigger_phrases": [
+      "check my unified inbox",
+      "who accepted my LinkedIn invitations",
+      "how many invitations can I still send today",
+      "find conversations nobody replied to",
+      "search my messages across providers",
+      "use unipile",
+      "run unipile"
+    ]
+  }
+}

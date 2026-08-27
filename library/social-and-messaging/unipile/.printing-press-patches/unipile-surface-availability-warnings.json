@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "unipile-surface-availability-warnings",
+  "applied_at": "2026-08-25",
+  "base_run_id": "20260824-212156-433d72f1",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Classify Unipile account-capability errors as sync warnings instead of failures.",
+  "reason": "A tenant with only LinkedIn connected receives 401 errors/not_authorized on calendars, 422 errors/invalid_account on mail, and 401 errors/disconnected_feature on Recruiter. Those mean the account has no such surface, not that the sync is broken. errors/missing_credentials is deliberately excluded so a bad API key stays a hard failure.",
+  "files": [
+    "internal/cli/helpers.go"
+  ],
+  "validated_outcome": "A strict sync on a LinkedIn-only tenant reports 0 errors with 3 warnings instead of failing."
+}

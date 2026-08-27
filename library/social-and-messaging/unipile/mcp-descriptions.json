@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "accounts_connect": "Connect a provider account to Unipile using native authentication. The request body is one of nine provider shapes - Linkedin, Whatsapp, Instagram, Messenger, Telegram, Twitter, Gmail, Outlook, or IMAP - each carrying that provider's own credential fields. Returns the new account_id. Prefer hosted_link when you want Unipile to collect the credentials through its hosted flow instead of sending them yourself."
+  }
+}
