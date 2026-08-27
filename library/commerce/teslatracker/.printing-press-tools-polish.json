@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-08-14T18:05:33.175324Z",
+  "cli_dir": "\u003ccli-dir\u003e/teslatracker-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (platform_client.go); the platform client-profile scaffold is emitted identically into every printed CLI, so a hand-edit here is wiped on the next generate. Retro candidate: the platform template should ship a parameter-aware Short for `client list`."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (teach.go); `learnings list` is part of the shared teach/recall surface every printed CLI inherits. Its Example block already names --query/--warnings, so the agent-facing gap is narrower than the Short alone suggests. Retro candidate: fold the flag names into the generated Short."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 0,
+    "captured": "2026-08-14T17:49:11.978354Z"
+  },
+  "progress": {
+    "last_processed_finding_id": "thin-short:teach.go:691"
+  }
+}

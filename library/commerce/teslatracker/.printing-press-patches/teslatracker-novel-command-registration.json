@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "teslatracker-novel-command-registration",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260813-144423-eaf11561",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Register the ten hand-authored transcendence commands and their harness fixtures from root.go.",
+  "reason": "The generated root only wires endpoint commands. The novel commands live in teslatracker_*.go and need an explicit registration call, plus applyTeslatrackerFixtures to declare real VIN/coordinate fixtures so the dogfood harness probes them with inputs that exist instead of synthesized ids.",
+  "files": ["internal/cli/root.go", "internal/cli/teslatracker_fixtures.go"],
+  "validated_outcome": "cli-printing-press dogfood --live --level full: 121 passed, 0 failed, headline novel features executed."
+}

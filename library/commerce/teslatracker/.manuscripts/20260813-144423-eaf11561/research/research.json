@@ -1,0 +1,350 @@
+{
+  "api_name": "teslatracker",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "teslahunt/inventory",
+      "url": "https://github.com/teslahunt/inventory",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "kaedenbrinkman/tesla-inventory",
+      "url": "https://github.com/kaedenbrinkman/tesla-inventory",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "JumpBearCode/TeslaWebScrape",
+      "url": "https://github.com/JumpBearCode/TeslaWebScrape",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "robcerda/tesla-mcp-server",
+      "url": "https://github.com/robcerda/tesla-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tdorssers/TeslaPy",
+      "url": "https://github.com/tdorssers/TeslaPy",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-13T19:00:00Z",
+  "novel_features": [
+    {
+      "name": "Remaining-warranty ledger",
+      "command": "warranty",
+      "description": "See exactly how many months and miles of Tesla warranty are left on the day you would take delivery, and which limit runs out first.",
+      "rationale": "The four warranty fields are published raw; nothing converts them into remaining coverage at a delivery date crossed with your own annual mileage.",
+      "example": "teslatracker-pp-cli warranty 5YJ3E1EA7LF745758 --agent",
+      "why_it_matters": "Reach for this when the question is coverage or risk on one specific car, not price.",
+      "group": "Coverage and condition"
+    },
+    {
+      "name": "Range delta with cohort placement",
+      "command": "degradation",
+      "description": "Compare a car's actual range against its rated range, and see where that gap sits among every similar car in your local store.",
+      "rationale": "actualRange is meaningless alone; only a local corpus can say whether a gap is normal for that cohort.",
+      "example": "teslatracker-pp-cli degradation 5YJ3E1EA7LF745758 --agent",
+      "why_it_matters": "Use for range condition. This is the source's published spread, not a measured battery test.",
+      "group": "Coverage and condition"
+    },
+    {
+      "name": "Cohort price placement",
+      "command": "comps",
+      "description": "See where one car's landed cost sits in the distribution of comparable cars, with the sample size and the arithmetic shown.",
+      "rationale": "Requires a corpus join over the local mirror, impossible from any single endpoint.",
+      "example": "teslatracker-pp-cli comps 5YJ3E1EA7LF745758 --agent",
+      "why_it_matters": "The honest answer to 'is this price good' — placement and arithmetic, never a verdict.",
+      "group": "Price intelligence"
+    },
+    {
+      "name": "Departure log",
+      "command": "gone",
+      "description": "See which cars left inventory, at what landed price, and after how many days listed.",
+      "rationale": "The source publishes no sold data; a departure log exists only as a byproduct of observing a local store over time.",
+      "example": "teslatracker-pp-cli gone --agent",
+      "why_it_matters": "Calibrates a ceiling against what actually clears. A departure is not a sale.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Per-VIN price trajectory",
+      "command": "price-history",
+      "description": "See a single car's full observed price path: every cut, its size, and how long it has held the current price.",
+      "rationale": "The API exposes only instantaneous price. The path exists because we recorded it.",
+      "example": "teslatracker-pp-cli price-history 5YJ3E1EA7LF745758 --agent",
+      "why_it_matters": "Use for one car's own history; use stale to find candidates across the corpus.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Configuration premium analysis",
+      "command": "premium",
+      "description": "See what a configuration attribute actually costs across the market, computed within matched cohorts.",
+      "rationale": "Needs the whole corpus split and controlled, which no filter can do.",
+      "example": "teslatracker-pp-cli premium --by hardwareVersion --agent",
+      "why_it_matters": "Answers 'can I afford HW4 at my ceiling'. Observational, not causal.",
+      "group": "Price intelligence"
+    },
+    {
+      "name": "Aging leaderboard",
+      "command": "stale",
+      "description": "Rank the corpus by days listed and flag cars that are both long-listed and have never had a price cut.",
+      "rationale": "Days-on-lot is a paid dealer-side product; the never-cut cross needs the local price series.",
+      "example": "teslatracker-pp-cli stale --limit 20 --agent",
+      "why_it_matters": "Finds negotiation candidates. Deliberately does not judge whether the price is good.",
+      "group": "Price intelligence"
+    },
+    {
+      "name": "Landed-cost distance curve",
+      "command": "radius",
+      "description": "See how the price floor and median change as you widen your search radius, with real transport fees included at every step.",
+      "rationale": "Coordinates and a real per-car transport fee are both published, so this is exact rather than estimated.",
+      "example": "teslatracker-pp-cli radius --lat 30.2241 --lon -92.0198 --agent",
+      "why_it_matters": "Answers 'is shopping farther actually worth it' in dollars. Returns a curve, not cars.",
+      "group": "Price intelligence"
+    },
+    {
+      "name": "Saved searches with a change cursor",
+      "command": "watch",
+      "description": "Save a named search and see only what is new, price-changed, or departed since the last time you ran it.",
+      "rationale": "A per-search cursor makes 'what changed' a first-class answer for a stateless agent, and it generates every time series the other features depend on.",
+      "example": "teslatracker-pp-cli watch run --all --agent",
+      "why_it_matters": "The right entry point for a recurring session instead of re-running search.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Mirror provenance and gap report",
+      "command": "coverage",
+      "description": "See how complete and how fresh your local mirror is, field by field, including whether any pages were dropped during sync.",
+      "rationale": "A never-populated field rendered as zero makes every capped search silently lie; nothing else reports this.",
+      "example": "teslatracker-pp-cli coverage --agent",
+      "why_it_matters": "Call before asserting any aggregate. Reports on the store, never on cars.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Remaining-warranty ledger",
+      "command": "warranty",
+      "description": "See exactly how many months and miles of Tesla warranty are left on the day you would take delivery, and which limit runs out first.",
+      "rationale": "The four warranty fields are published raw; nothing converts them into remaining coverage at a delivery date crossed with your own annual mileage.",
+      "example": "teslatracker-pp-cli warranty 5YJ3E1EA7LF745758 --agent",
+      "why_it_matters": "Reach for this when the question is coverage or risk on one specific car, not price.",
+      "group": "Coverage and condition"
+    },
+    {
+      "name": "Range delta with cohort placement",
+      "command": "degradation",
+      "description": "Compare a car's actual range against its rated range, and see where that gap sits among every similar car in your local store.",
+      "rationale": "actualRange is meaningless alone; only a local corpus can say whether a gap is normal for that cohort.",
+      "example": "teslatracker-pp-cli degradation 5YJ3E1EA7LF745758 --agent",
+      "why_it_matters": "Use for range condition. This is the source's published spread, not a measured battery test.",
+      "group": "Coverage and condition"
+    },
+    {
+      "name": "Cohort price placement",
+      "command": "comps",
+      "description": "See where one car's landed cost sits in the distribution of comparable cars, with the sample size and the arithmetic shown.",
+      "rationale": "Requires a corpus join over the local mirror, impossible from any single endpoint.",
+      "example": "teslatracker-pp-cli comps 5YJ3E1EA7LF745758 --agent",
+      "why_it_matters": "The honest answer to 'is this price good' — placement and arithmetic, never a verdict.",
+      "group": "Price intelligence"
+    },
+    {
+      "name": "Departure log",
+      "command": "gone",
+      "description": "See which cars left inventory, at what landed price, and after how many days listed.",
+      "rationale": "The source publishes no sold data; a departure log exists only as a byproduct of observing a local store over time.",
+      "example": "teslatracker-pp-cli gone --agent",
+      "why_it_matters": "Calibrates a ceiling against what actually clears. A departure is not a sale.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Per-VIN price trajectory",
+      "command": "price-history",
+      "description": "See a single car's full observed price path: every cut, its size, and how long it has held the current price.",
+      "rationale": "The API exposes only instantaneous price. The path exists because we recorded it.",
+      "example": "teslatracker-pp-cli price-history 5YJ3E1EA7LF745758 --agent",
+      "why_it_matters": "Use for one car's own history; use stale to find candidates across the corpus.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Configuration premium analysis",
+      "command": "premium",
+      "description": "See what a configuration attribute actually costs across the market, computed within matched cohorts.",
+      "rationale": "Needs the whole corpus split and controlled, which no filter can do.",
+      "example": "teslatracker-pp-cli premium --by hardwareVersion --agent",
+      "why_it_matters": "Answers 'can I afford HW4 at my ceiling'. Observational, not causal.",
+      "group": "Price intelligence"
+    },
+    {
+      "name": "Aging leaderboard",
+      "command": "stale",
+      "description": "Rank the corpus by days listed and flag cars that are both long-listed and have never had a price cut.",
+      "rationale": "Days-on-lot is a paid dealer-side product; the never-cut cross needs the local price series.",
+      "example": "teslatracker-pp-cli stale --limit 20 --agent",
+      "why_it_matters": "Finds negotiation candidates. Deliberately does not judge whether the price is good.",
+      "group": "Price intelligence"
+    },
+    {
+      "name": "Landed-cost distance curve",
+      "command": "radius",
+      "description": "See how the price floor and median change as you widen your search radius, with real transport fees included at every step.",
+      "rationale": "Coordinates and a real per-car transport fee are both published, so this is exact rather than estimated.",
+      "example": "teslatracker-pp-cli radius --lat 30.2241 --lon -92.0198 --agent",
+      "why_it_matters": "Answers 'is shopping farther actually worth it' in dollars. Returns a curve, not cars.",
+      "group": "Price intelligence"
+    },
+    {
+      "name": "Saved searches with a change cursor",
+      "command": "watch",
+      "description": "Save a named search and see only what is new, price-changed, or departed since the last time you ran it.",
+      "rationale": "A per-search cursor makes 'what changed' a first-class answer for a stateless agent, and it generates every time series the other features depend on.",
+      "example": "teslatracker-pp-cli watch run --all --agent",
+      "why_it_matters": "The right entry point for a recurring session instead of re-running search.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Mirror provenance and gap report",
+      "command": "coverage",
+      "description": "See how complete and how fresh your local mirror is, field by field, including whether any pages were dropped during sync.",
+      "rationale": "A never-populated field rendered as zero makes every capped search silently lie; nothing else reports this.",
+      "example": "teslatracker-pp-cli coverage --agent",
+      "why_it_matters": "Call before asserting any aggregate. Reports on the store, never on cars.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "TeslaTracker",
+    "headline": "Every used Tesla TeslaTracker lists, in a local store that answers questions the site cannot — price paths, cohort placement, warranty left, and what already left the lot.",
+    "value_prop": "TeslaTracker aggregates used Teslas across Tesla, Carvana, CarMax and private sellers. This CLI mirrors that inventory into VIN-keyed SQLite and adds the layer the website has no way to offer: a recorded price path per car (price-history), where a price sits in its cohort (comps), how much warranty is genuinely left at delivery (warranty), and which cars quietly left inventory (gone). Every money figure is landed cost, including the real per-car transport fee.",
+    "quickstart": [
+      {
+        "command": "teslatracker-pp-cli doctor --dry-run",
+        "comment": "confirm the CLI can reach the source before anything else"
+      },
+      {
+        "command": "teslatracker-pp-cli watch add mine --max-landed 30000 --model \"Model 3\" --max-miles 60000",
+        "comment": "your constraints live in a saved search and become the default for watch run"
+      },
+      {
+        "command": "teslatracker-pp-cli sync",
+        "comment": "build the local mirror; this is what every derived command reads"
+      },
+      {
+        "command": "teslatracker-pp-cli hydrate",
+        "comment": "turn each listing link into a full vehicle record; every derived command needs this"
+      },
+      {
+        "command": "teslatracker-pp-cli coverage",
+        "comment": "confirm the mirror is complete before trusting any aggregate"
+      },
+      {
+        "command": "teslatracker-pp-cli stale --limit 10",
+        "comment": "long-listed and never cut — the strongest negotiation profile"
+      },
+      {
+        "command": "teslatracker-pp-cli watch run mine",
+        "comment": "from now on, see only what changed since last time"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Every price looks 100x too high",
+        "fix": "The source returns cents. Re-sync — conversion happens once at ingest, so a mixed store must be rebuilt."
+      },
+      {
+        "symptom": "comps refuses to return a percentile",
+        "fix": "The cohort is below the sample floor. Widen with --mileage-band or sync more pages."
+      },
+      {
+        "symptom": "Mileage-capped search returns cars over the cap",
+        "fix": "Run coverage. A null mileage is absent, not zero, and is excluded rather than silently passing."
+      },
+      {
+        "symptom": "gone returns nothing on first run",
+        "fix": "There is no prior sync to compare against. Run sync twice, some hours apart."
+      }
+    ],
+    "when_to_use": "Use this CLI when the question is about used Tesla inventory over time rather than right now: whether a price has moved, how it compares to similar cars, how much warranty remains, or what has left the market. It is strongest after several syncs, because the price series and departure log accumulate locally.",
+    "anti_triggers": [
+      "Do not use this to control or query a Tesla you already own — that is the Owner/Fleet API, not this.",
+      "Do not use this to buy a car; it has no checkout, no ordering, and no dealer contact.",
+      "Do not treat degradation output as a battery health test; it is the source's published rated-vs-actual spread.",
+      "Do not treat a departure in gone as a confirmed sale; listings can be pulled or reassigned."
+    ],
+    "recipes": [
+      {
+        "title": "Rank the corpus by how long cars have been sitting",
+        "command": "teslatracker-pp-cli stale --limit 20 --agent --select vin,model,year,mileage,landed_usd",
+        "explanation": "Ranks the local mirror by days listed, with landed cost attached. Staleness is a negotiating signal, not a price judgement — a car can sit simply because it is overpriced, so pair a VIN from here with `comps` before making an offer."
+      },
+      {
+        "title": "Full-text search the local mirror",
+        "command": "teslatracker-pp-cli search \"model 3 long range\" --limit 20 --agent",
+        "explanation": "FTS5 over everything synced, offline, no API call."
+      },
+      {
+        "title": "Is this price defensible?",
+        "command": "teslatracker-pp-cli comps 5YJ3E1EA7LF745758 --agent",
+        "explanation": "Returns the percentile, the median, the dollar gap and the sample size — never a bare score."
+      },
+      {
+        "title": "How much car is left",
+        "command": "teslatracker-pp-cli warranty 5YJ3E1EA7LF745758 --annual-miles 12000 --agent",
+        "explanation": "Months and miles remaining at delivery, naming whichever of the four limits binds first."
+      },
+      {
+        "title": "What did I miss since yesterday",
+        "command": "teslatracker-pp-cli watch run --all --agent",
+        "explanation": "New, price-changed and departed since each saved search's own cursor."
+      },
+      {
+        "title": "Does the HW4 premium fit my budget",
+        "command": "teslatracker-pp-cli premium --by hardwareVersion --agent",
+        "explanation": "The landed-price difference between hardware versions within matched model/year/trim cohorts, with n per cell."
+      }
+    ],
+    "trigger_phrases": [
+      "find a used tesla",
+      "track tesla prices",
+      "what tesla dropped in price",
+      "how much warranty is left on this vin",
+      "is this tesla price good",
+      "use teslatracker",
+      "run teslatracker"
+    ]
+  }
+}

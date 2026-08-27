@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "teslatracker-mcp-block-output-destination",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260813-144423-eaf11561",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Block the local --output/-o destination flag at the MCP boundary so callers cannot choose a filesystem path.",
+  "reason": "blockedRootFlags is only consulted for inherited flags (cliFlagBlockedNames gates on !localFlags, and the schema builder visits NonInheritedFlags unconditionally), so export's local --output flag bypassed filtering entirely and reached os.Create with an MCP-caller-supplied path, creating or truncating any file writable by the server account. Added blockedDestinationFlags, applied in both the schema builder and cliArgsFromMCP so the flag is neither advertised nor accepted. MCP export still returns its payload to the caller; it just cannot pick a destination on disk. Raised as a P1 security finding by Greptile on library PR #1723; the gap is in the generator template and affects every printed CLI.",
+  "files": ["internal/mcp/cobratree/shellout.go", "internal/mcp/cobratree/typemap.go"],
+  "validated_outcome": "go test ./internal/mcp/... passes; a live tools/list against the built MCP server shows all 41 tools with no 'output' or 'o' property on any of them; live dogfood reran at 121 passed / 0 failed.",
+  "upstream_issue": "https://github.com/mvanhorn/printing-press-library/pull/1723"
+}

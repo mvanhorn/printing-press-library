@@ -1,0 +1,58 @@
+name: teslatracker
+display_name: TeslaTracker
+description: Used Tesla inventory across Tesla, Carvana, CarMax and private sellers
+category: commerce
+base_url: https://teslatracker.com
+cli_description: Every used Tesla TeslaTracker lists, in a local store that answers questions the site cannot — price paths, cohort placement, warranty left, and what already left the lot.
+
+auth:
+  type: none
+
+http_transport: standard
+
+cache:
+  enabled: true
+  stale_after: 6h
+
+resources:
+  inventory:
+    description: Used Tesla listings, VIN-keyed
+    syncable: true
+    id_field: vin
+    endpoints:
+      list:
+        description: List the used-Tesla inventory index a page at a time; returns link records (name, text, image, url, slug), not full vehicle records
+        method: GET
+        path: /inventory
+        no_auth: true
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/inventory"]
+        params:
+          - name: page
+            in: query
+            type: integer
+            description: Page number; roughly 23 listings per page
+      get:
+        description: Fetch one vehicle's detail record by VIN — spec, location with lat/lon, purchase price and transport fee in cents, and the four warranty expiry fields
+        method: GET
+        path: /api/inventory/{vin}
+        no_auth: true
+        params:
+          - name: vin
+            in: path
+            required: true
+            type: string
+            description: 17-character vehicle identification number
+      report:
+        description: Fetch one vehicle's history report by VIN — a superset of get, adding actualRange, availability, option codes, factory gated date, discount and financing detail, and first/last seen timestamps
+        method: GET
+        path: /api/inventory/{vin}/report
+        no_auth: true
+        params:
+          - name: vin
+            in: path
+            required: true
+            type: string
+            description: 17-character vehicle identification number
