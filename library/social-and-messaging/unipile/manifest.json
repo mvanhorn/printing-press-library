@@ -15,15 +15,16 @@
       "command": "${__dirname}/bin/unipile-pp-mcp",
       "args": [],
       "env": {
-        "PRINTING_PRESS_CLIENT_PROFILE": "${user_config.printing_press_client_profile}"
+        "UNIPILE_API_KEY": "${user_config.unipile_api_key}"
       }
     }
   },
   "user_config": {
-    "printing_press_client_profile": {
+    "unipile_api_key": {
       "type": "string",
-      "title": "Client profile",
-      "description": "Binds the MCP server to an existing tenant-gated Printing Press client profile.",
+      "title": "UNIPILE_API_KEY",
+      "description": "Sets UNIPILE_API_KEY for the Unipile MCP server.",
+      "sensitive": true,
       "required": true
     }
   },
