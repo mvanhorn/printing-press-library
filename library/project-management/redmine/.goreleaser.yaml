@@ -42,9 +42,9 @@ checksum:
 brews:
   - name: redmine-pp-cli
     repository:
-      owner: 
+      owner: yosimasu
       name: homebrew-tap
-    homepage: "https://github.com//redmine-pp-cli"
+    homepage: "https://github.com/yosimasu/redmine-pp-cli"
     description: "Every Redmine feature, plus a local mirror that finally answers the cross-project questions the Roadmap page never could."
     install: |
       bin.install "redmine-pp-cli"
