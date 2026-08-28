@@ -56,6 +56,11 @@ func newNovelControversiesCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			// Relevance gate before enrichment, matching consensus. It also
+			// fixes StudyCount below, which counts len(works): without the
+			// gate the reported study count included works the stance tally
+			// never described.
+			works = filterRelevant(query, works)
 			if enrich {
 				enrichPubTypes(ctx, works, 50)
 			}

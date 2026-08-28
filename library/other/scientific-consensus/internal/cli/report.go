@@ -56,6 +56,12 @@ func buildReportData(ctx context.Context, c apiGetter, query, filter, claim stri
 	if err != nil {
 		return nil, err
 	}
+	// Relevance gate before scoring, matching consensus. Analyzed below counts
+	// len(works), so gating here keeps the reported figure equal to the number
+	// of works the rows and stance stats actually describe. TotalMatches is
+	// deliberately left alone: it reports what the query matched upstream, not
+	// what this run analyzed.
+	works = filterRelevant(claim, works)
 	_, stances := scoreWorks(ctx, works, claim)
 
 	data := &reportData{
