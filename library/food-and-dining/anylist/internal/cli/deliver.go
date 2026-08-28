@@ -57,7 +57,7 @@ func ParseDeliverSink(spec string) (DeliverSink, error) {
 
 // Deliver routes a captured output buffer to the configured sink. stdout
 // is a no-op because the buffer has already been streamed to stdout via
-// the MultiWriter set up in root.go.
+// the MultiWriter set up in root_command.go.
 func Deliver(ctx context.Context, sink DeliverSink, body []byte, compact bool, timeout time.Duration) error {
 	if ctx == nil {
 		ctx = context.Background()
