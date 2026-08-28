@@ -1,0 +1,321 @@
+{
+  "api_name": "rightbrain",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "rightbrain-agent-skill",
+      "url": "https://github.com/RightbrainAI/rightbrain-agent-skill",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "terraform-provider-tasks",
+      "url": "https://github.com/RightbrainAI/terraform-provider-tasks",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "github-action-tasks",
+      "url": "https://github.com/RightbrainAI/github-action-tasks",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bruno",
+      "url": "https://github.com/RightbrainAI/bruno",
+      "language": "JSON",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "rightbrain-sdk-demo",
+      "url": "https://github.com/RightbrainAI/rightbrain-sdk-demo",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "cursor-plugin",
+      "url": "https://github.com/RightbrainAI/cursor-plugin",
+      "language": "Markdown",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-31T21:35:00Z",
+  "novel_features": [
+    {
+      "name": "Eval release gate",
+      "command": "gate",
+      "description": "Decide whether a candidate task revision is safe to promote, by comparing its eval pass rate against the last recorded result for a different revision of the same task.",
+      "rationale": "Requires a locally mirrored history of past eval runs to compare against; the API has no compare-to-baseline call and keeps no baseline of its own.",
+      "example": "rightbrain-pp-cli gate 0195d1ff-1f05-437a-95ac-6de8969cb47b --min-pass-rate 0.9 --agent",
+      "why_it_matters": "Reach for this instead of running an eval and eyeballing the number when you need a machine-checkable promote/block decision with a non-zero exit code. Sync eval history first so a baseline exists.",
+      "group": "Ship changes without breaking production"
+    },
+    {
+      "name": "Rollout reality check",
+      "command": "rollout",
+      "description": "Show what traffic each task revision actually received versus the weight you configured, with failure rate, credits, and p50/p95 latency per revision.",
+      "rationale": "Only possible by joining live revision weights against a local mirror of many pages of run history; the API exposes configured weights but never observed traffic.",
+      "example": "rightbrain-pp-cli rollout 0195d1ff-1f05-437a-95ac-6de8969cb47b --since 7d --agent",
+      "why_it_matters": "Use this when an A/B revision is live and you need to know whether the split is real and whether the canary is slower or pricier.",
+      "group": "Ship changes without breaking production"
+    },
+    {
+      "name": "Stalled approval triage",
+      "command": "approvals",
+      "description": "Triage every pending agent approval request by how long it has been parked and how soon it expires, with expired requests separated from actionable ones.",
+      "rationale": "The API returns a flat approval list with raw timestamps and no ordering; parked age, time-to-expiry, and the already-expired-versus-actionable split are all computed here.",
+      "example": "rightbrain-pp-cli approvals --older-than 1h --agent",
+      "why_it_matters": "Run this first when an agent 'stopped responding' — a run parked at waiting_for_human emits nothing and pages nobody, and an approval whose window lapsed needs a re-run rather than a decision.",
+      "group": "Keep agents unblocked"
+    },
+    {
+      "name": "Agent run trace",
+      "command": "agent-trace",
+      "description": "Reconstruct one agent run as an indented timeline of paired tool calls and results with per-step elapsed time and a tool-duration histogram.",
+      "rationale": "The run events endpoint returns a flat untyped array; pairing calls to results and deriving per-step durations is synthesis the API never performs.",
+      "example": "rightbrain-pp-cli agent-trace 0195d207-32bb-d03d-cfdc-f4516e9222c8 --tools --agent",
+      "why_it_matters": "Reach for this when an agent run was slow or failed and you need to see which tool call hung, rather than replaying a raw event stream.",
+      "group": "Keep agents unblocked"
+    },
+    {
+      "name": "Cost and latency drift",
+      "command": "drift",
+      "description": "Compare this window against the previous one across every task and agent — mean credits, tokens, p95 latency, failure rate — and flag what moved.",
+      "rationale": "Requires windowed aggregation over many pages of locally-mirrored runs plus correlation with which revision became dominant; the report endpoints are per-task and un-windowed.",
+      "example": "rightbrain-pp-cli drift --since 7d --group-by task --agent --select movers.name,movers.credits_delta_pct,movers.p95_delta_pct",
+      "why_it_matters": "Use this for the weekly regression sweep; it answers 'did anything get slower or pricier' without paging through run history per task.",
+      "group": "Account for spend and latency"
+    },
+    {
+      "name": "Named, verified changelog",
+      "command": "changelog",
+      "description": "What changed in the project over a window, with resource UUIDs resolved to task, agent, skill, and collection names, plus an optional tamper-evidence verdict via --verify.",
+      "rationale": "Audit events reference bare UUIDs; resolving them to names needs the local mirror, and the integrity verdict comes from a separate endpoint.",
+      "example": "rightbrain-pp-cli changelog --since 7d --verify --agent",
+      "why_it_matters": "Reach for this for a Friday status or a compliance question — it is the only view that reads in names rather than UUIDs.",
+      "group": "Account for spend and latency"
+    },
+    {
+      "name": "Eval flake ranking",
+      "command": "eval-flake",
+      "description": "Rank a task's eval test cases by how often they fail, separating genuine flake from cases that fail consistently.",
+      "rationale": "Requires aggregating many pages of eval-run history from the local mirror; a single API call returns one eval run.",
+      "example": "rightbrain-pp-cli eval-flake 0195d1ff-1f05-437a-95ac-6de8969cb47b --last 10 --agent",
+      "why_it_matters": "Use this when the gate fails and you need to know whether the eval set itself is unreliable before touching the prompt.",
+      "group": "Ship changes without breaking production"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Eval release gate",
+      "command": "gate",
+      "description": "Decide whether a candidate task revision is safe to promote, by comparing its eval pass rate against the last recorded result for a different revision of the same task.",
+      "rationale": "Requires a locally mirrored history of past eval runs to compare against; the API has no compare-to-baseline call and keeps no baseline of its own.",
+      "example": "rightbrain-pp-cli gate 0195d1ff-1f05-437a-95ac-6de8969cb47b --min-pass-rate 0.9 --agent",
+      "why_it_matters": "Reach for this instead of running an eval and eyeballing the number when you need a machine-checkable promote/block decision with a non-zero exit code. Sync eval history first so a baseline exists.",
+      "group": "Ship changes without breaking production"
+    },
+    {
+      "name": "Rollout reality check",
+      "command": "rollout",
+      "description": "Show what traffic each task revision actually received versus the weight you configured, with failure rate, credits, and p50/p95 latency per revision.",
+      "rationale": "Only possible by joining live revision weights against a local mirror of many pages of run history; the API exposes configured weights but never observed traffic.",
+      "example": "rightbrain-pp-cli rollout 0195d1ff-1f05-437a-95ac-6de8969cb47b --since 7d --agent",
+      "why_it_matters": "Use this when an A/B revision is live and you need to know whether the split is real and whether the canary is slower or pricier.",
+      "group": "Ship changes without breaking production"
+    },
+    {
+      "name": "Stalled approval triage",
+      "command": "approvals",
+      "description": "Triage every pending agent approval request by how long it has been parked and how soon it expires, with expired requests separated from actionable ones.",
+      "rationale": "The API returns a flat approval list with raw timestamps and no ordering; parked age, time-to-expiry, and the already-expired-versus-actionable split are all computed here.",
+      "example": "rightbrain-pp-cli approvals --older-than 1h --agent",
+      "why_it_matters": "Run this first when an agent 'stopped responding' — a run parked at waiting_for_human emits nothing and pages nobody, and an approval whose window lapsed needs a re-run rather than a decision.",
+      "group": "Keep agents unblocked"
+    },
+    {
+      "name": "Agent run trace",
+      "command": "agent-trace",
+      "description": "Reconstruct one agent run as an indented timeline of paired tool calls and results with per-step elapsed time and a tool-duration histogram.",
+      "rationale": "The run events endpoint returns a flat untyped array; pairing calls to results and deriving per-step durations is synthesis the API never performs.",
+      "example": "rightbrain-pp-cli agent-trace 0195d207-32bb-d03d-cfdc-f4516e9222c8 --tools --agent",
+      "why_it_matters": "Reach for this when an agent run was slow or failed and you need to see which tool call hung, rather than replaying a raw event stream.",
+      "group": "Keep agents unblocked"
+    },
+    {
+      "name": "Cost and latency drift",
+      "command": "drift",
+      "description": "Compare this window against the previous one across every task and agent — mean credits, tokens, p95 latency, failure rate — and flag what moved.",
+      "rationale": "Requires windowed aggregation over many pages of locally-mirrored runs plus correlation with which revision became dominant; the report endpoints are per-task and un-windowed.",
+      "example": "rightbrain-pp-cli drift --since 7d --group-by task --agent --select movers.name,movers.credits_delta_pct,movers.p95_delta_pct",
+      "why_it_matters": "Use this for the weekly regression sweep; it answers 'did anything get slower or pricier' without paging through run history per task.",
+      "group": "Account for spend and latency"
+    },
+    {
+      "name": "Named, verified changelog",
+      "command": "changelog",
+      "description": "What changed in the project over a window, with resource UUIDs resolved to task, agent, skill, and collection names, plus an optional tamper-evidence verdict via --verify.",
+      "rationale": "Audit events reference bare UUIDs; resolving them to names needs the local mirror, and the integrity verdict comes from a separate endpoint.",
+      "example": "rightbrain-pp-cli changelog --since 7d --verify --agent",
+      "why_it_matters": "Reach for this for a Friday status or a compliance question — it is the only view that reads in names rather than UUIDs.",
+      "group": "Account for spend and latency"
+    },
+    {
+      "name": "Eval flake ranking",
+      "command": "eval-flake",
+      "description": "Rank a task's eval test cases by how often they fail, separating genuine flake from cases that fail consistently.",
+      "rationale": "Requires aggregating many pages of eval-run history from the local mirror; a single API call returns one eval run.",
+      "example": "rightbrain-pp-cli eval-flake 0195d1ff-1f05-437a-95ac-6de8969cb47b --last 10 --agent",
+      "why_it_matters": "Use this when the gate fails and you need to know whether the eval set itself is unreliable before touching the prompt.",
+      "group": "Ship changes without breaking production"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "RB_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Rightbrain",
+    "headline": "The first Rightbrain CLI that reaches past tasks — agents, approvals, evals, triggers and audit, plus a local mirror that makes credit spend and latency regressions queryable.",
+    "value_prop": "Rightbrain's own CLI covers login and task CRUD; the rest of the platform has no command line at all. This one exposes the whole user-reachable API surface, resolves your org and project from config so you never paste two UUIDs into a command, and mirrors runs into SQLite so the questions the API can only answer one page at a time — which revision is actually serving traffic, what got slower this week, which agent runs are parked awaiting approval — become single commands.",
+    "auth_narrative": "Rightbrain authenticates every request with `Authorization: Bearer \u003ctoken\u003e`. The simplest path is an API key created under Settings -\u003e API Clients in the dashboard: set `RB_API_KEY`, plus `RB_ORG_ID` and `RB_PROJECT_ID` for the project it is scoped to. Those are the same three variables Rightbrain's own `rightbrain init` writes into `.env`, so an existing setup works unchanged. For service-to-service use, mint an OAuth 2.0 access token yourself at `https://oauth.rightbrain.ai/oauth2/token` and hand the result to this CLI as `RB_API_KEY` or via `auth set-token` — the CLI consumes an already-minted bearer token and does not perform the exchange for you. Org and project always come from the URL path rather than the token, which is why this CLI keeps them in config and injects them for you. Run `rightbrain-pp-cli doctor` to confirm credentials, reachability, and cache state in one shot.",
+    "quickstart": [
+      {
+        "command": "rightbrain-pp-cli doctor",
+        "comment": "Confirm the API is reachable and your credentials resolve before anything else"
+      },
+      {
+        "command": "rightbrain-pp-cli whoami",
+        "comment": "Show which user, org, and project the current token resolves to"
+      },
+      {
+        "command": "rightbrain-pp-cli sync",
+        "comment": "Mirror the project locally; a first sync must walk the org and project parents, so run it unfiltered"
+      },
+      {
+        "command": "rightbrain-pp-cli search \"summarize\" --type project_task",
+        "comment": "Find a task by name or prompt text without opening the dashboard"
+      },
+      {
+        "command": "rightbrain-pp-cli drift --since 7d --group-by task",
+        "comment": "See what moved on cost, latency, and failure rate this week"
+      },
+      {
+        "command": "rightbrain-pp-cli approvals --older-than 1h",
+        "comment": "Catch any agent run parked awaiting a human before a customer does"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Every command fails with 401 and `Access credentials are invalid`",
+        "fix": "Set RB_API_KEY to a key from Settings -\u003e API Clients, then run `rightbrain-pp-cli doctor` to confirm."
+      },
+      {
+        "symptom": "403 on a command that used to work",
+        "fix": "The key is scoped to one user and one project; check RB_PROJECT_ID matches the project holding the resource."
+      },
+      {
+        "symptom": "404 for a task or agent you can see in the dashboard",
+        "fix": "Wrong org or project in config. Run `rightbrain-pp-cli whoami` and compare against the dashboard URL."
+      },
+      {
+        "symptom": "A local command returns nothing at all",
+        "fix": "The local mirror is empty. Run `rightbrain-pp-cli sync --resources project_task,project_task_run --full` first."
+      },
+      {
+        "symptom": "409 when running an agent with a pinned revision",
+        "fix": "The revision does not match the session's revision. Start a new session or drop the revision pin."
+      },
+      {
+        "symptom": "422 with a list of fields",
+        "fix": "Schema validation failed. The response names the offending field under `detail[].loc`; task runs need a `task_input` object, not `input_params`."
+      },
+      {
+        "symptom": "An agent run stops producing output and never completes",
+        "fix": "It is parked at waiting_for_human on a gated tool. Run `rightbrain-pp-cli approvals` to find and resolve it."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when you are operating Rightbrain in production rather than building against it for the first time. It is the right tool for promoting a task revision behind an eval gate, checking whether an A/B split is really splitting, sweeping for agent runs parked awaiting human approval, tracing why one agent run was slow, and answering week-over-week cost and latency questions across every task in a project. It is also the fastest way to reach any part of the API that Rightbrain's own CLI does not cover — agents, skills, collections, documents, triggers, evals, MCP servers, integrations, and the audit log.",
+    "anti_triggers": [
+      "Do not use this CLI to generate TypeScript types for a Next.js app — that is what `npx rightbrain generate` and `@rightbrain/sdk` are for.",
+      "Do not use this CLI to author task prompts or design agents interactively; the dashboard is the authoring surface and this CLI is the operations surface.",
+      "Do not use this CLI to hold a multi-turn conversation with an agent as a chat client; it streams and traces runs, it is not a chat UI.",
+      "Do not use this CLI for Rightbrain staff-only administration (trial extension, model cost tables, signup webhooks) — those endpoints require an internal.admin scope no customer key carries and are deliberately not exposed.",
+      "Do not use local-mirror commands to answer questions about state in the last few seconds; sync first, or use the live endpoint commands."
+    ],
+    "recipes": [
+      {
+        "title": "Gate a revision before promoting it",
+        "command": "rightbrain-pp-cli gate 0195d1ff-1f05-437a-95ac-6de8969cb47b --min-pass-rate 0.9",
+        "explanation": "Runs the task's eval set against the candidate revision, compares the pass rate to the last recorded result for the revision currently taking traffic, and exits non-zero if it regressed — so it drops straight into CI."
+      },
+      {
+        "title": "Check whether an A/B split is real",
+        "command": "rightbrain-pp-cli rollout 0195d1ff-1f05-437a-95ac-6de8969cb47b --since 7d",
+        "explanation": "Puts each revision's configured weight next to the traffic share it actually received, along with failure rate, mean credits, and p50/p95 latency, which is how you catch a canary that is starved or three times slower."
+      },
+      {
+        "title": "Find every agent run stuck on a human",
+        "command": "rightbrain-pp-cli approvals --older-than 1h --agent",
+        "explanation": "Fans out across every agent in the project and returns one queue of runs parked at waiting_for_human sorted by parked age, with the gated tool named — the view the API and dashboard both lack."
+      },
+      {
+        "title": "Narrow a large drift report for an agent",
+        "command": "rightbrain-pp-cli drift --since 7d --group-by task --agent --select movers.name,movers.p95_delta_pct,movers.credits_delta_pct",
+        "explanation": "Drift over a busy project returns a lot of per-task detail; --select trims the payload to just the mover name and the two deltas that decide whether to investigate, keeping agent context small."
+      },
+      {
+        "title": "Trace a slow agent run",
+        "command": "rightbrain-pp-cli agent-trace 0195d207-32bb-d03d-cfdc-f4516e9222c8 --tools",
+        "explanation": "Rebuilds the run as a timeline of paired tool calls and results with elapsed time per step and a tool-duration histogram, so the nine-second step is obvious instead of buried in a flat event array."
+      },
+      {
+        "title": "Write the Friday client update",
+        "command": "rightbrain-pp-cli changelog --since 7d --verify",
+        "explanation": "Lists what changed in the project with UUIDs resolved to task and agent names, and attaches the cryptographic integrity verdict so the same output answers the compliance question."
+      }
+    ],
+    "trigger_phrases": [
+      "is it safe to promote this revision",
+      "which agent runs are waiting for approval",
+      "what got slower or more expensive this week",
+      "why was this agent run slow",
+      "what changed in the project this week",
+      "check the rightbrain rollout split",
+      "use rightbrain",
+      "run rightbrain"
+    ]
+  }
+}

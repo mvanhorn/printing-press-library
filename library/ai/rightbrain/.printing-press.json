@@ -1,0 +1,62 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-01T16:17:22.518395779Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "rightbrain",
+  "cli_name": "rightbrain-pp-cli",
+  "creator": {
+    "handle": "papaonlegs",
+    "name": "Farouk Umar"
+  },
+  "contributors": [
+    {
+      "handle": "papaonlegs",
+      "name": "Farouk Umar"
+    }
+  ],
+  "printer": "papaonlegs",
+  "printer_name": "Farouk Umar",
+  "run_id": "20260731-211113-96771397",
+  "category": "ai",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "RB_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Eval release gate",
+      "command": "gate",
+      "description": "Decide whether a candidate task revision is safe to promote, by comparing its eval pass rate against the last recorded result for a different revision of the same task."
+    },
+    {
+      "name": "Rollout reality check",
+      "command": "rollout",
+      "description": "Show what traffic each task revision actually received versus the weight you configured, with failure rate, credits, and p50/p95 latency per revision."
+    },
+    {
+      "name": "Stalled approval triage",
+      "command": "approvals",
+      "description": "Triage every pending agent approval request by how long it has been parked and how soon it expires, with expired requests separated from actionable ones."
+    },
+    {
+      "name": "Agent run trace",
+      "command": "agent-trace",
+      "description": "Reconstruct one agent run as an indented timeline of paired tool calls and results with per-step elapsed time and a tool-duration histogram."
+    },
+    {
+      "name": "Cost and latency drift",
+      "command": "drift",
+      "description": "Compare this window against the previous one across every task and agent \u2014 mean credits, tokens, p95 latency, failure rate \u2014 and flag what moved."
+    },
+    {
+      "name": "Named, verified changelog",
+      "command": "changelog",
+      "description": "What changed in the project over a window, with resource UUIDs resolved to task, agent, skill, and collection names, plus an optional tamper-evidence verdict via --verify."
+    },
+    {
+      "name": "Eval flake ranking",
+      "command": "eval-flake",
+      "description": "Rank a task's eval test cases by how often they fail, separating genuine flake from cases that fail consistently."
+    }
+  ]
+}

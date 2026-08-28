@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "rightbrain-sync-json-single-document",
+  "applied_at": "2026-08-29",
+  "base_run_id": "20260731-211113-96771397",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Stream sync progress events to stderr so `sync --json` emits one JSON document.",
+  "reason": "internal/cli/sync.go wrote its whole event stream to stdout, so an unfiltered `sync --json` produced ~25 newline-delimited documents (sync_start, sync_progress, sync_warning, sync_error, sync_complete, then a terminal sync_summary). The framework's own json_fidelity dogfood check requires stdout to parse as a single document, so every printed CLI with a syncable resource failed the generator's own contract — this was the one remaining failure in the full live matrix, at 576/577. Progress events now go to cmd.ErrOrStderr() whenever output is machine-readable, leaving exactly the terminal sync_summary on stdout. No information is lost: the event stream is still machine-readable NDJSON, just on the stream that carries progress rather than the one carrying results, which is the conventional split. Human mode is untouched, since it already wrote its narration to stderr. Filed upstream as generator defect 10 in the retro candidates.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "`sync --json` stdout now parses as a single document under a strict json.load; the 24 progress events remain on stderr. The full live matrix went 576/577 to 577/577, and the press wrote phase5-acceptance.json with status pass at level full."
+}

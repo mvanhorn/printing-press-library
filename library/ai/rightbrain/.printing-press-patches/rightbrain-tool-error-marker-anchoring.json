@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "rightbrain-tool-error-marker-anchoring",
+  "applied_at": "2026-08-04",
+  "base_run_id": "20260731-211113-96771397",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Anchor the tool-error code match, and match stringified HTTP statuses.",
+  "reason": "toolResultPayloadError matched a bare '_not_found' substring anywhere in a tool payload, so a tool that succeeded and returned text containing it — a docs search hitting a page about error handling, a code search returning a page_not_found identifier, a response listing an API's error codes — was reported as a silent tool failure. That is the same confident-but-wrong answer this command exists to correct, pointing the other way. The match is now anchored to a JSON code/error_code field. The HTTP status scan also missed the stringified form {\"status\": \"404 Not Found\"} and now trims the opening quote.",
+  "files": [
+    "internal/cli/agent_trace.go",
+    "internal/cli/agent_trace_payload_test.go"
+  ],
+  "validated_outcome": "TestToolResultPayloadErrorIgnoresHealthyPayloads covers three realistic false positives and fails against the unanchored match; detection of real failures is unchanged."
+}

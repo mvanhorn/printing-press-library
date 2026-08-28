@@ -1,0 +1,51 @@
+version: 2
+project_name: rightbrain-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: rightbrain-pp-cli
+    main: ./cmd/rightbrain-pp-cli
+    binary: rightbrain-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/ai/rightbrain/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: rightbrain-pp-mcp
+    main: ./cmd/rightbrain-pp-mcp
+    binary: rightbrain-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: rightbrain-pp-cli
+    repository:
+      owner: papaonlegs
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The first Rightbrain CLI that reaches past tasks — agents, approvals, evals, triggers and audit, plus a local mirror that makes credit spend and latency regressions queryable."
+    install: |
+      bin.install "rightbrain-pp-cli"
+      bin.install "rightbrain-pp-mcp"

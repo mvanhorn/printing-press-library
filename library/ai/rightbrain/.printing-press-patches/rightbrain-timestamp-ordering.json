@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "rightbrain-timestamp-ordering",
+  "applied_at": "2026-08-04",
+  "base_run_id": "20260731-211113-96771397",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Order API timestamps by parsing them, not by comparing bytes.",
+  "reason": "The API renders the same field two ways, with a microsecond component and without it whenever that component is zero; a synced mirror held 235 of the first shape against 67 of the second. Compared as strings those invert, because '.' (0x2E) sorts below 'Z' (0x5A), so a whole-second value reads as later than a sub-second value in the same second. gate picked the wrong baseline eval run, resolveGateRevisionTag picked the wrong tagged revision, and changelog printed audit events from one action out of order. A shared apiTimeAfter helper now parses both sides; parseAPITime already existed and was already used correctly elsewhere in the same package.",
+  "files": [
+    "internal/cli/approvals.go",
+    "internal/cli/gate.go",
+    "internal/cli/changelog.go",
+    "internal/cli/apitime_test.go"
+  ],
+  "validated_outcome": "TestPickGateBaselineUsesRealTimeOrder selects the newer of two runs sharing a second; it fails against the byte comparison."
+}

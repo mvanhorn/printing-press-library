@@ -1,0 +1,312 @@
+GET	/-/health	_lambda____health_get	<Lambda>
+GET	/-/ready	endpoint___ready_get	Endpoint
+GET	/integration/callback	callbackIntegration	Integration OAuth Callback
+POST	/org	createOrganization	Org Create
+GET	/org	listOrganizations	List Organizations
+GET	/org/{org_id}	getOrganization	Org Get
+POST	/org/{org_id}	updateOrganization	Org Update
+POST	/org/{org_id}/avatar	updateOrgAvatar	Update Organization Avatar
+POST	/org/{org_id}/domains	createOrganizationDomain	Org Domains Post
+GET	/org/{org_id}/domains	listOrganizationDomains	Org Domains List
+DELETE	/org/{org_id}/domains/{domain_id}	deleteOrganizationDomain	Org Domain Delete
+GET	/org/{org_id}/iam/members	organization_iam_list_members	IAM - List Organization Members
+GET	/org/{org_id}/iam/members/{member}	organization_iam_get_member	IAM - Lookup Organization Member
+POST	/org/{org_id}/iam/members/{member}	organization_iam_update_member_roles	IAM - Update Organization Member
+POST	/org/{org_id}/iam/test	organization_iam_test_permissions	IAM - Test Organization Permissions
+POST	/org/{org_id}/invite	createOrganizationInvite	Org Invites Create
+GET	/org/{org_id}/invite	listOrganizationInvites	Org Invites List
+DELETE	/org/{org_id}/invite/{org_invite_id}	deleteOrganizationInvite	Org Invites Delete
+POST	/org/{org_id}/join	joinOrganization	Org Join
+POST	/org/{org_id}/model/exclude/by-id	excludeModelByIdFromOrg	Exclude Specific Model from Organization
+POST	/org/{org_id}/model/exclude/by-provider	excludeModelByProviderFromOrg	Exclude Provider from Organization
+POST	/org/{org_id}/model/exclude/by-vendor	excludeModelByVendorFromOrg	Exclude Vendor from Organization
+DELETE	/org/{org_id}/model/exclude/{rule_type}/{value}	removeModelExclusionFromOrg	Remove Organization Model Exclusion
+GET	/org/{org_id}/model/exclusions	listModelExclusionsForOrg	List Organization Model Exclusions
+POST	/org/{org_id}/project	createProject	Create Project
+GET	/org/{org_id}/project	listProjects	List Project
+DELETE	/org/{org_id}/project/{project_id}	deleteProject	Delete Project
+GET	/org/{org_id}/project/{project_id}	getProject	Get Project
+POST	/org/{org_id}/project/{project_id}	updateProject	Update Project
+POST	/org/{org_id}/project/{project_id}/api_key	createApiKey	Create API Key
+GET	/org/{org_id}/project/{project_id}/api_key	listApiKeys	List API Keys
+POST	/org/{org_id}/project/{project_id}/api_key/{api_key_id}/revoke	revokeApiKey	Revoke API Key
+GET	/org/{org_id}/project/{project_id}/audit_event	listProjectAuditEvents	List Project Audit Events
+GET	/org/{org_id}/project/{project_id}/audit_event/export	exportProjectAuditEvents	Export Project Audit Events
+GET	/org/{org_id}/project/{project_id}/audit_event/integrity	getProjectAuditIntegrityStatus	Get Project Audit Integrity Status
+POST	/org/{org_id}/project/{project_id}/audit_event/integrity/verify	verifyProjectAuditIntegrity	Verify Project Audit Integrity
+GET	/org/{org_id}/project/{project_id}/audit_event/{audit_event_id}	getProjectAuditEvent	Get Project Audit Event
+POST	/org/{org_id}/project/{project_id}/avatar	updateProjectAvatar	Update Project Avatar
+POST	/org/{org_id}/project/{project_id}/collection	createCollection	Create Collection
+GET	/org/{org_id}/project/{project_id}/collection	listCollections	List Collections
+POST	/org/{org_id}/project/{project_id}/collection/{collection_id}	editCollection	Edit Collection
+GET	/org/{org_id}/project/{project_id}/collection/{collection_id}	getCollection	Get Collection Details
+POST	/org/{org_id}/project/{project_id}/collection/{collection_id}/add	addToCollection	Add Documents to Collection
+GET	/org/{org_id}/project/{project_id}/collection/{collection_id}/iam/members	collection_iam_org_org_id_project_project_id_collection_collection_id_iam_list_members	IAM - List Collection Members
+GET	/org/{org_id}/project/{project_id}/collection/{collection_id}/iam/members/{member}	collection_iam_org_org_id_project_project_id_collection_collection_id_iam_get_member	IAM - Lookup Collection Member
+POST	/org/{org_id}/project/{project_id}/collection/{collection_id}/iam/members/{member}	collection_iam_org_org_id_project_project_id_collection_collection_id_iam_update_member_roles	IAM - Update Collection Member
+POST	/org/{org_id}/project/{project_id}/collection/{collection_id}/iam/test	collection_iam_org_org_id_project_project_id_collection_collection_id_iam_test_permissions	IAM - Test Collection Permissions
+POST	/org/{org_id}/project/{project_id}/collection/{collection_id}/query	queryCollection	Query Collection
+POST	/org/{org_id}/project/{project_id}/collection/{collection_id}/remove	removeFromCollection	Remove Documents from Collection
+GET	/org/{org_id}/project/{project_id}/collection/{collection_id}/stats	getCollectionStats	Get Collection Statistics
+POST	/org/{org_id}/project/{project_id}/collection/{collection_id}/update_summary	updateCollectionSummary	Update Collection Summary
+POST	/org/{org_id}/project/{project_id}/compose	initializeCompose	Initialize Compose Session
+POST	/org/{org_id}/project/{project_id}/compose/generate	generateContent	Generate Content
+POST	/org/{org_id}/project/{project_id}/compose/section_talking_points	generateTalkingPoints	Generate Section Talking Points
+POST	/org/{org_id}/project/{project_id}/compose/topic	suggestTopics	Suggest Related Topics
+POST	/org/{org_id}/project/{project_id}/compose/update_section	updateSection	Update Document Section
+GET	/org/{org_id}/project/{project_id}/config	getProjectConfig	Get Project Config
+POST	/org/{org_id}/project/{project_id}/config	updateProjectConfig	Set Project Config
+POST	/org/{org_id}/project/{project_id}/document	createDocuments	Create Documents
+GET	/org/{org_id}/project/{project_id}/document	listDocuments	List Documents
+GET	/org/{org_id}/project/{project_id}/document/create/status/{group_id}	getDocumentStatus	Check Document Processing Status
+POST	/org/{org_id}/project/{project_id}/document/upload	uploadProjectDocuments	Document Upload
+DELETE	/org/{org_id}/project/{project_id}/document/{document_id}	deleteDocument	Delete Document
+GET	/org/{org_id}/project/{project_id}/document/{document_id}	getDocument	Get Document Details
+POST	/org/{org_id}/project/{project_id}/document/{document_id}	updateDocument	Update Document
+GET	/org/{org_id}/project/{project_id}/document/{document_id}/embedding/{embedding_id}	getDocumentEmbedding	Document Embedding Get
+GET	/org/{org_id}/project/{project_id}/document/{document_id}/embeddings	listDocumentEmbeddings	Document Embedding Query
+GET	/org/{org_id}/project/{project_id}/document/{document_id}/iam/members	document_iam_org_org_id_project_project_id_document_document_id_iam_list_members	IAM - List Document Members
+GET	/org/{org_id}/project/{project_id}/document/{document_id}/iam/members/{member}	document_iam_org_org_id_project_project_id_document_document_id_iam_get_member	IAM - Lookup Document Member
+POST	/org/{org_id}/project/{project_id}/document/{document_id}/iam/members/{member}	document_iam_org_org_id_project_project_id_document_document_id_iam_update_member_roles	IAM - Update Document Member
+POST	/org/{org_id}/project/{project_id}/document/{document_id}/iam/test	document_iam_org_org_id_project_project_id_document_document_id_iam_test_permissions	IAM - Test Document Permissions
+POST	/org/{org_id}/project/{project_id}/document/{document_id}/query	queryDocument	Query Document Content
+GET	/org/{org_id}/project/{project_id}/guardrail	listAvailableGuardrails	List Available Guardrails
+GET	/org/{org_id}/project/{project_id}/iam/members	project_iam_org_org_id_project_project_id_iam_list_members	IAM - List Project Members
+GET	/org/{org_id}/project/{project_id}/iam/members/{member}	project_iam_org_org_id_project_project_id_iam_get_member	IAM - Lookup Project Member
+POST	/org/{org_id}/project/{project_id}/iam/members/{member}	project_iam_org_org_id_project_project_id_iam_update_member_roles	IAM - Update Project Member
+POST	/org/{org_id}/project/{project_id}/iam/test	project_iam_org_org_id_project_project_id_iam_test_permissions	IAM - Test Project Permissions
+GET	/org/{org_id}/project/{project_id}/input_processor	getInputProcessors	List Input Processors
+POST	/org/{org_id}/project/{project_id}/integration	createIntegration	Create Integration
+GET	/org/{org_id}/project/{project_id}/integration	listIntegrations	List Integrations
+GET	/org/{org_id}/project/{project_id}/integration/catalog	getIntegrationCatalog	Get Integration Catalog
+DELETE	/org/{org_id}/project/{project_id}/integration/{integration_id}	deleteIntegration	Delete Integration
+GET	/org/{org_id}/project/{project_id}/integration/{integration_id}	getIntegration	Get Integration
+GET	/org/{org_id}/project/{project_id}/integration/{integration_id}/auth	getIntegrationAuthStatus	Get Integration Auth Status
+POST	/org/{org_id}/project/{project_id}/integration/{integration_id}/authorize	authorizeIntegration	Authorize Integration
+POST	/org/{org_id}/project/{project_id}/integration/{integration_id}/disconnect	disconnectIntegration	Disconnect Integration
+GET	/org/{org_id}/project/{project_id}/integration/{integration_id}/iam/members	project_integration_iam_org_org_id_project_project_id_integration_integration_id_iam_list_members	IAM - List Project Integration Members
+GET	/org/{org_id}/project/{project_id}/integration/{integration_id}/iam/members/{member}	project_integration_iam_org_org_id_project_project_id_integration_integration_id_iam_get_member	IAM - Lookup Project Integration Member
+POST	/org/{org_id}/project/{project_id}/integration/{integration_id}/iam/members/{member}	project_integration_iam_org_org_id_project_project_id_integration_integration_id_iam_update_member_roles	IAM - Update Project Integration Member
+POST	/org/{org_id}/project/{project_id}/integration/{integration_id}/iam/test	project_integration_iam_org_org_id_project_project_id_integration_integration_id_iam_test_permissions	IAM - Test Project Integration Permissions
+GET	/org/{org_id}/project/{project_id}/integration/{integration_id}/teams/installations	listTeamsIntegrationInstallations	List Teams Installations
+GET	/org/{org_id}/project/{project_id}/integration/{integration_id}/teams/setup	getTeamsIntegrationSetup	Get Teams Integration Setup
+POST	/org/{org_id}/project/{project_id}/integration/{integration_id}/teams/tab-link	linkTeamsIntegrationFromTab	Link Teams Integration From Tab
+POST	/org/{org_id}/project/{project_id}/mcp_server	createMcpServer	Create MCP Server
+GET	/org/{org_id}/project/{project_id}/mcp_server	listMcpServers	List MCP Servers
+DELETE	/org/{org_id}/project/{project_id}/mcp_server/{mcp_server_id}	deleteMcpServer	Delete MCP Server
+GET	/org/{org_id}/project/{project_id}/mcp_server/{mcp_server_id}	getMcpServer	Get MCP Server
+POST	/org/{org_id}/project/{project_id}/mcp_server/{mcp_server_id}	updateMcpServer	Update MCP Server
+GET	/org/{org_id}/project/{project_id}/mcp_server/{mcp_server_id}/iam/members	mcp_server_iam_org_org_id_project_project_id_mcp_server_mcp_server_id_iam_list_members	IAM - List Mcp Server Members
+GET	/org/{org_id}/project/{project_id}/mcp_server/{mcp_server_id}/iam/members/{member}	mcp_server_iam_org_org_id_project_project_id_mcp_server_mcp_server_id_iam_get_member	IAM - Lookup Mcp Server Member
+POST	/org/{org_id}/project/{project_id}/mcp_server/{mcp_server_id}/iam/members/{member}	mcp_server_iam_org_org_id_project_project_id_mcp_server_mcp_server_id_iam_update_member_roles	IAM - Update Mcp Server Member
+POST	/org/{org_id}/project/{project_id}/mcp_server/{mcp_server_id}/iam/test	mcp_server_iam_org_org_id_project_project_id_mcp_server_mcp_server_id_iam_test_permissions	IAM - Test Mcp Server Permissions
+POST	/org/{org_id}/project/{project_id}/mcp_server/{mcp_server_id}/mcp_run	createMcpRun	Record MCP Run
+GET	/org/{org_id}/project/{project_id}/mcp_server/{mcp_server_id}/mcp_run	listMcpRuns	List MCP Run History
+GET	/org/{org_id}/project/{project_id}/mcp_server/{mcp_server_id}/mcp_run/{mcp_run_id}	getMcpRun	Get MCP Run Details
+POST	/org/{org_id}/project/{project_id}/mcp_server/{mcp_server_id}/sync	markMcpServerSynced	Mark MCP Server Synced
+GET	/org/{org_id}/project/{project_id}/model	getAllModels	List Available LLM Models
+POST	/org/{org_id}/project/{project_id}/model/exclude/by-id	excludeModelByIdFromProject	Exclude Specific Model from Project
+POST	/org/{org_id}/project/{project_id}/model/exclude/by-provider	excludeModelByProviderFromProject	Exclude Provider from Project
+POST	/org/{org_id}/project/{project_id}/model/exclude/by-vendor	excludeModelByVendorFromProject	Exclude Vendor from Project
+DELETE	/org/{org_id}/project/{project_id}/model/exclude/{rule_type}/{value}	removeModelExclusionFromProject	Remove Project Model Exclusion
+GET	/org/{org_id}/project/{project_id}/model/exclusions	listModelExclusionsForProject	List Project Model Exclusions
+GET	/org/{org_id}/project/{project_id}/model/exclusions/effective	getEffectiveModelExclusions	Get Effective Project Model Exclusions
+GET	/org/{org_id}/project/{project_id}/model/{model_id_or_name}	getModel	Get Model Details
+POST	/org/{org_id}/project/{project_id}/oauth_client	createOAuthClient	Create OAuth Client
+GET	/org/{org_id}/project/{project_id}/oauth_client	listOAuthClients	List OAuth Clients
+DELETE	/org/{org_id}/project/{project_id}/oauth_client/{oauth_client_id}	deleteOAuthClient	Delete OAuth Client
+GET	/org/{org_id}/project/{project_id}/oauth_client/{oauth_client_id}	getOAuthClient	Get OAuth Client Details
+POST	/org/{org_id}/project/{project_id}/oauth_client/{oauth_client_id}	updateOAuthClient	Update OAuth Client
+POST	/org/{org_id}/project/{project_id}/oauth_client/{oauth_client_id}/client_secret	regenerateOAuthClientSecret	Regenerate Client Secret
+GET	/org/{org_id}/project/{project_id}/oauth_client/{oauth_client_id}/iam/members	project_iam_org_org_id_project_project_id_oauth_client_oauth_client_id_iam_list_members	IAM - List Project Members
+GET	/org/{org_id}/project/{project_id}/oauth_client/{oauth_client_id}/iam/members/{member}	project_iam_org_org_id_project_project_id_oauth_client_oauth_client_id_iam_get_member	IAM - Lookup Project Member
+POST	/org/{org_id}/project/{project_id}/oauth_client/{oauth_client_id}/iam/members/{member}	project_iam_org_org_id_project_project_id_oauth_client_oauth_client_id_iam_update_member_roles	IAM - Update Project Member
+POST	/org/{org_id}/project/{project_id}/oauth_client/{oauth_client_id}/iam/test	project_iam_org_org_id_project_project_id_oauth_client_oauth_client_id_iam_test_permissions	IAM - Test Project Permissions
+POST	/org/{org_id}/project/{project_id}/reporting-groups	createReportingGroup	Create Reporting Group
+GET	/org/{org_id}/project/{project_id}/reporting-groups	listReportingGroups	List Reporting Groups
+DELETE	/org/{org_id}/project/{project_id}/reporting-groups/{reporting_group_id}	deleteReportingGroup	Delete Reporting Group
+GET	/org/{org_id}/project/{project_id}/reporting-groups/{reporting_group_id}	getReportingGroup	Get Reporting Group
+POST	/org/{org_id}/project/{project_id}/reporting-groups/{reporting_group_id}	updateReportingGroup	Update Reporting Group
+POST	/org/{org_id}/project/{project_id}/scrape	enableWebScrape	Enable Web Scrape
+GET	/org/{org_id}/project/{project_id}/scrape/run/{sync_run_id}	checkScrapeStatus	Check Scraping Status
+GET	/org/{org_id}/project/{project_id}/scrape/runs	listScrapeRuns	List Scraping History
+POST	/org/{org_id}/project/{project_id}/scrape/start	startWebScrape	Initialise Web Scrape
+POST	/org/{org_id}/project/{project_id}/skill	createProjectSkill	Create Project Skill
+GET	/org/{org_id}/project/{project_id}/skill	listProjectSkills	List Project Skills
+GET	/org/{org_id}/project/{project_id}/skill/available	listAvailableSkills	List Available Skills
+DELETE	/org/{org_id}/project/{project_id}/skill/{skill_id}	deleteProjectSkill	Delete Project Skill
+GET	/org/{org_id}/project/{project_id}/skill/{skill_id}	getProjectSkill	Get Project Skill
+POST	/org/{org_id}/project/{project_id}/skill/{skill_id}	updateProjectSkill	Update Project Skill
+POST	/org/{org_id}/project/{project_id}/skill/{skill_id}/activate	activateProjectSkillRevision	Activate Project Skill Revision
+GET	/org/{org_id}/project/{project_id}/skill/{skill_id}/content	getProjectSkillContent	Get Project Skill Content
+GET	/org/{org_id}/project/{project_id}/skill/{skill_id}/iam/members	skill_iam_org_org_id_project_project_id_skill_skill_id_iam_list_members	IAM - List Skill Members
+GET	/org/{org_id}/project/{project_id}/skill/{skill_id}/iam/members/{member}	skill_iam_org_org_id_project_project_id_skill_skill_id_iam_get_member	IAM - Lookup Skill Member
+POST	/org/{org_id}/project/{project_id}/skill/{skill_id}/iam/members/{member}	skill_iam_org_org_id_project_project_id_skill_skill_id_iam_update_member_roles	IAM - Update Skill Member
+POST	/org/{org_id}/project/{project_id}/skill/{skill_id}/iam/test	skill_iam_org_org_id_project_project_id_skill_skill_id_iam_test_permissions	IAM - Test Skill Permissions
+POST	/org/{org_id}/project/{project_id}/skill/{skill_id}/revision	createProjectSkillRevision	Create Project Skill Revision
+GET	/org/{org_id}/project/{project_id}/skill/{skill_id}/revision	listProjectSkillRevisions	List Project Skill Revisions
+GET	/org/{org_id}/project/{project_id}/skill/{skill_id}/revision/{revision_id}	getProjectSkillRevision	Get Project Skill Revision
+POST	/org/{org_id}/project/{project_id}/slack/authorize	authorizeSlackInstallation	Start Slack OAuth
+GET	/org/{org_id}/project/{project_id}/slack/installations	listSlackInstallations	List Slack Installations
+DELETE	/org/{org_id}/project/{project_id}/slack/installations/{installation_id}	deleteSlackInstallation	Delete Slack Installation
+GET	/org/{org_id}/project/{project_id}/slack/installations/{installation_id}	getSlackInstallation	Get Slack Installation
+POST	/org/{org_id}/project/{project_id}/slack/installations/{installation_id}	updateSlackInstallation	Update Slack Installation
+POST	/org/{org_id}/project/{project_id}/slack/installations/{installation_id}/channel-mappings	createSlackChannelMapping	Create Slack Channel Mapping
+GET	/org/{org_id}/project/{project_id}/slack/installations/{installation_id}/channel-mappings	listSlackChannelMappings	List Slack Channel Mappings
+DELETE	/org/{org_id}/project/{project_id}/slack/installations/{installation_id}/channel-mappings/{mapping_id}	deleteSlackChannelMapping	Delete Slack Channel Mapping
+POST	/org/{org_id}/project/{project_id}/slack/installations/{installation_id}/channel-mappings/{mapping_id}	updateSlackChannelMapping	Update Slack Channel Mapping
+GET	/org/{org_id}/project/{project_id}/slack/installations/{installation_id}/channels	listSlackChannels	List Slack Channels
+DELETE	/org/{org_id}/project/{project_id}/tags/{tag_id}	deleteTag	Delete Tag
+POST	/org/{org_id}/project/{project_id}/task	createTask	Create a New Task
+GET	/org/{org_id}/project/{project_id}/task	listTasks	List Tasks
+POST	/org/{org_id}/project/{project_id}/task-agent	createTaskAgent	Create Task Agent
+GET	/org/{org_id}/project/{project_id}/task-agent	listTaskAgents	List Task Agents
+GET	/org/{org_id}/project/{project_id}/task-agent/approval-request	listProjectTaskAgentApprovalRequests	List Project Task Agent Approval Requests
+POST	/org/{org_id}/project/{project_id}/task-agent/clone/{short_id}	cloneSharedTaskAgent	Clone Shared TaskAgent
+GET	/org/{org_id}/project/{project_id}/task-agent/timing_report	getProjectTaskAgentTimingReport	Get Project TaskAgent Timing Report
+GET	/org/{org_id}/project/{project_id}/task-agent/usage_report	getProjectTaskAgentUsageReport	Get Project TaskAgent Usage Report
+DELETE	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}	deleteTaskAgent	Delete Task Agent
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}	getTaskAgent	Get Task Agent
+POST	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}	updateTaskAgent	Update Task Agent
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/approval-request	listTaskAgentApprovalRequests	List Task Agent Approval Requests
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/approval-request/{approval_request_id}	getTaskAgentApprovalRequest	Get Task Agent Approval Request
+POST	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/approval-request/{approval_request_id}/approve	approveTaskAgentApprovalRequest	Approve Task Agent Approval Request
+POST	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/approval-request/{approval_request_id}/reject	rejectTaskAgentApprovalRequest	Reject Task Agent Approval Request
+POST	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/approval-request/{approval_request_id}/resume	resumeTaskAgentApprovalRequest	Resume Task Agent Approval Request
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/credit_report	getTaskAgentCreditReport	Fetch Task Agent Credit Report
+POST	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/eval/run	createTaskAgentEvalRun	Start TaskAgent Eval Run
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/eval/run	listTaskAgentEvalRuns	List TaskAgent Eval Runs
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/eval/run/{task_agent_eval_run_id}	getTaskAgentEvalRun	Get TaskAgent Eval Run
+POST	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/eval/set	createTaskAgentEvalSet	Create TaskAgent Eval Set
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/eval/set	listTaskAgentEvalSets	List TaskAgent Eval Sets
+DELETE	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/eval/set/{task_agent_eval_set_id}	deleteTaskAgentEvalSet	Delete TaskAgent Eval Set
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/eval/set/{task_agent_eval_set_id}	getTaskAgentEvalSet	Get TaskAgent Eval Set
+POST	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/eval/set/{task_agent_eval_set_id}	updateTaskAgentEvalSet	Update TaskAgent Eval Set
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/iam/members	task_agent_iam_org_org_id_project_project_id_task-agent_task_agent_id_iam_list_members	IAM - List Task Agent Members
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/iam/members/{member}	task_agent_iam_org_org_id_project_project_id_task-agent_task_agent_id_iam_get_member	IAM - Lookup Task Agent Member
+POST	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/iam/members/{member}	task_agent_iam_org_org_id_project_project_id_task-agent_task_agent_id_iam_update_member_roles	IAM - Update Task Agent Member
+POST	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/iam/test	task_agent_iam_org_org_id_project_project_id_task-agent_task_agent_id_iam_test_permissions	IAM - Test Task Agent Permissions
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/revision	listTaskAgentRevisions	List Task Agent Revisions
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/revision/{revision_id}	getTaskAgentRevision	Get Task Agent Revision
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/run	listTaskAgentRuns	List Task Agent Runs
+POST	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/run	runTaskAgent	Run Task Agent
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/run/{run_id}	getTaskAgentRun	Get Task Agent Run
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/run/{run_id}/events	getTaskAgentRunEvents	Get Run Events
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/run/{run_id}/file/{file_name}	getTaskAgentRunFile	Get Task Agent Run File
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/session	listTaskAgentSessions	List Task Agent Sessions
+DELETE	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/session/{session_id}	deleteTaskAgentSession	Delete Session
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/session/{session_id}	getTaskAgentSessionDetail	Get Session Detail
+POST	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/share	createTaskAgentShare	Create TaskAgent Share
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/share	listTaskAgentShares	List TaskAgent Shares
+DELETE	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/share/{share_id}	revokeTaskAgentShare	Revoke TaskAgent Share
+POST	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/support-request	createTaskAgentRunSupportRequest	Create Task Agent Run Support Request
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/timing_report	getTaskAgentTimingReport	Fetch Task Agent Timing Report
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/token_report	getTaskAgentTokenReport	Fetch Task Agent Token Report
+GET	/org/{org_id}/project/{project_id}/task-agent/{task_agent_id}/usage_report	getTaskAgentUsageReport	Fetch Task Agent Usage Report
+POST	/org/{org_id}/project/{project_id}/task/clone/{short_id}	cloneSharedTask	Clone Shared Task
+DELETE	/org/{org_id}/project/{project_id}/task/{task_id}	deleteTask	Delete Task
+GET	/org/{org_id}/project/{project_id}/task/{task_id}	getTask	Get Task Details
+POST	/org/{org_id}/project/{project_id}/task/{task_id}	updateTask	Update a Task
+GET	/org/{org_id}/project/{project_id}/task/{task_id}/credit_report	getTaskCreditReport	Fetch Credit Report
+POST	/org/{org_id}/project/{project_id}/task/{task_id}/eval/run	createEvalRun	Start Eval Run
+GET	/org/{org_id}/project/{project_id}/task/{task_id}/eval/run	listEvalRuns	List Eval Runs
+GET	/org/{org_id}/project/{project_id}/task/{task_id}/eval/run/{eval_run_id}	getEvalRun	Get Eval Run
+POST	/org/{org_id}/project/{project_id}/task/{task_id}/eval/set	createEvalSet	Create Eval Set
+GET	/org/{org_id}/project/{project_id}/task/{task_id}/eval/set	listEvalSets	List Eval Sets
+DELETE	/org/{org_id}/project/{project_id}/task/{task_id}/eval/set/{eval_set_id}	deleteEvalSet	Delete Eval Set
+GET	/org/{org_id}/project/{project_id}/task/{task_id}/eval/set/{eval_set_id}	getEvalSet	Get Eval Set
+PUT	/org/{org_id}/project/{project_id}/task/{task_id}/eval/set/{eval_set_id}	updateEvalSet	Update Eval Set
+GET	/org/{org_id}/project/{project_id}/task/{task_id}/iam/members	task_iam_org_org_id_project_project_id_task_task_id_iam_list_members	IAM - List Task Members
+GET	/org/{org_id}/project/{project_id}/task/{task_id}/iam/members/{member}	task_iam_org_org_id_project_project_id_task_task_id_iam_get_member	IAM - Lookup Task Member
+POST	/org/{org_id}/project/{project_id}/task/{task_id}/iam/members/{member}	task_iam_org_org_id_project_project_id_task_task_id_iam_update_member_roles	IAM - Update Task Member
+POST	/org/{org_id}/project/{project_id}/task/{task_id}/iam/test	task_iam_org_org_id_project_project_id_task_task_id_iam_test_permissions	IAM - Test Task Permissions
+GET	/org/{org_id}/project/{project_id}/task/{task_id}/run	getTaskRuns	List Task Runs
+POST	/org/{org_id}/project/{project_id}/task/{task_id}/run	runTask	Run Task
+GET	/org/{org_id}/project/{project_id}/task/{task_id}/run/{task_run_id}	getTaskRun	Fetch a Task Run
+GET	/org/{org_id}/project/{project_id}/task/{task_id}/run/{task_run_id}/file/{file_name}	getTaskRunFile	Fetch a user submitted file (image or audio) for a given Task Run
+POST	/org/{org_id}/project/{project_id}/task/{task_id}/share	createTaskShare	Create Task Share
+GET	/org/{org_id}/project/{project_id}/task/{task_id}/share	listTaskShares	List Task Shares
+DELETE	/org/{org_id}/project/{project_id}/task/{task_id}/share/{share_id}	revokeTaskShare	Revoke Task Share
+GET	/org/{org_id}/project/{project_id}/task/{task_id}/timing_report	getTaskTimingReport	Fetch Timing Report
+GET	/org/{org_id}/project/{project_id}/task/{task_id}/token_report	getTaskTokenReport	Fetch Token Report
+GET	/org/{org_id}/project/{project_id}/task/{task_id}/usage_report	getTaskUsageReport	Fetch Usage Report
+GET	/org/{org_id}/project/{project_id}/task_agent_share	listProjectTaskAgentShares	List Project TaskAgent Shares
+POST	/org/{org_id}/project/{project_id}/task_forwarder	createTaskForwarder	Create Task Forwarder
+GET	/org/{org_id}/project/{project_id}/task_forwarder	listTaskForwarders	List Task Forwarders
+GET	/org/{org_id}/project/{project_id}/task_forwarder/{task_forwarder_id}	getTaskForwarder	Get Task Forwarder
+POST	/org/{org_id}/project/{project_id}/task_forwarder/{task_forwarder_id}	updateTaskForwarder	Update Task Forwarder
+GET	/org/{org_id}/project/{project_id}/task_forwarder/{task_forwarder_id}/iam/members	task_forwarder_iam_org_org_id_project_project_id_task_forwarder_task_forwarder_id_iam_list_members	IAM - List Task Forwarder Members
+GET	/org/{org_id}/project/{project_id}/task_forwarder/{task_forwarder_id}/iam/members/{member}	task_forwarder_iam_org_org_id_project_project_id_task_forwarder_task_forwarder_id_iam_get_member	IAM - Lookup Task Forwarder Member
+POST	/org/{org_id}/project/{project_id}/task_forwarder/{task_forwarder_id}/iam/members/{member}	task_forwarder_iam_org_org_id_project_project_id_task_forwarder_task_forwarder_id_iam_update_member_roles	IAM - Update Task Forwarder Member
+POST	/org/{org_id}/project/{project_id}/task_forwarder/{task_forwarder_id}/iam/test	task_forwarder_iam_org_org_id_project_project_id_task_forwarder_task_forwarder_id_iam_test_permissions	IAM - Test Task Forwarder Permissions
+GET	/org/{org_id}/project/{project_id}/task_forwarder_type	listTaskForwarderTypes	List Task Forwarder Types
+POST	/org/{org_id}/project/{project_id}/task_mcp_server	createTaskMcpServer	Create Task Mcp Server
+GET	/org/{org_id}/project/{project_id}/task_mcp_server	listTaskMcpServers	List Task Mcp Servers
+GET	/org/{org_id}/project/{project_id}/task_mcp_server/authorize	authorizeMcpServer	Authorize Task Mcp Server
+GET	/org/{org_id}/project/{project_id}/task_mcp_server/catalog	listTaskMcpServerCatalog	List Task Mcp Server Catalog
+GET	/org/{org_id}/project/{project_id}/task_mcp_server/catalog/{slug}	getTaskMcpServerCatalog	Get Task Mcp Server Catalog
+POST	/org/{org_id}/project/{project_id}/task_mcp_server/discover	discoverMcpServerTools	Discover Task Mcp Server Tools
+DELETE	/org/{org_id}/project/{project_id}/task_mcp_server/{task_mcp_server_id}	deleteTaskMcpServer	Delete Task Mcp Server
+GET	/org/{org_id}/project/{project_id}/task_mcp_server/{task_mcp_server_id}	getTaskMcpServer	Get Task Mcp Server
+POST	/org/{org_id}/project/{project_id}/task_mcp_server/{task_mcp_server_id}	updateTaskMcpServer	Update Task Mcp Server
+GET	/org/{org_id}/project/{project_id}/task_mcp_server/{task_mcp_server_id}/iam/members	task_mcp_server_iam_org_org_id_project_project_id_task_mcp_server_task_mcp_server_id_iam_list_members	IAM - List Task Mcp Server Members
+GET	/org/{org_id}/project/{project_id}/task_mcp_server/{task_mcp_server_id}/iam/members/{member}	task_mcp_server_iam_org_org_id_project_project_id_task_mcp_server_task_mcp_server_id_iam_get_member	IAM - Lookup Task Mcp Server Member
+POST	/org/{org_id}/project/{project_id}/task_mcp_server/{task_mcp_server_id}/iam/members/{member}	task_mcp_server_iam_org_org_id_project_project_id_task_mcp_server_task_mcp_server_id_iam_update_member_roles	IAM - Update Task Mcp Server Member
+POST	/org/{org_id}/project/{project_id}/task_mcp_server/{task_mcp_server_id}/iam/test	task_mcp_server_iam_org_org_id_project_project_id_task_mcp_server_task_mcp_server_id_iam_test_permissions	IAM - Test Task Mcp Server Permissions
+POST	/org/{org_id}/project/{project_id}/task_mcp_server/{task_mcp_server_id}/reauthorize	reauthorizeTaskMcpServer	Reauthorize Task Mcp Server
+POST	/org/{org_id}/project/{project_id}/task_mcp_server/{task_mcp_server_id}/refresh	refreshTaskMcpServer	Refresh Task Mcp Server
+POST	/org/{org_id}/project/{project_id}/task_mcp_tool	createTaskMcpTool	Create Task Mcp Tool
+GET	/org/{org_id}/project/{project_id}/task_mcp_tool	listTaskMcpTools	List Task Mcp Tools
+DELETE	/org/{org_id}/project/{project_id}/task_mcp_tool/{task_mcp_tool_id}	deleteTaskMcpTool	Delete Task Mcp Tool
+GET	/org/{org_id}/project/{project_id}/task_mcp_tool/{task_mcp_tool_id}	getTaskMcpTool	Get Task Mcp Tool
+POST	/org/{org_id}/project/{project_id}/task_mcp_tool/{task_mcp_tool_id}	updateTaskMcpTool	Update Task Mcp Tool
+GET	/org/{org_id}/project/{project_id}/task_run	listProjectTaskRuns	List Project Task Runs
+GET	/org/{org_id}/project/{project_id}/task_run/recent_by_task	listProjectRecentTaskRunsByTask	List Project Recent Task Runs By Task
+GET	/org/{org_id}/project/{project_id}/task_run/timing_report	getProjectTaskTimingReport	Get Project Task Timing Report
+GET	/org/{org_id}/project/{project_id}/task_run/usage_report	getProjectTaskUsageReport	Get Project Task Usage Report
+GET	/org/{org_id}/project/{project_id}/task_share	listProjectTaskShares	List Project Task Shares
+GET	/org/{org_id}/project/{project_id}/trigger	listTriggers	List triggers
+POST	/org/{org_id}/project/{project_id}/trigger/gmail-inbox	createGmailInboxTrigger	Create Gmail inbox trigger
+GET	/org/{org_id}/project/{project_id}/trigger/gmail-inbox/events	listProjectGmailInboxTriggerEvents	List project Gmail trigger events
+DELETE	/org/{org_id}/project/{project_id}/trigger/gmail-inbox/{trigger_id}	deleteGmailInboxTrigger	Delete Gmail inbox trigger
+GET	/org/{org_id}/project/{project_id}/trigger/gmail-inbox/{trigger_id}	getGmailInboxTrigger	Get Gmail inbox trigger
+POST	/org/{org_id}/project/{project_id}/trigger/gmail-inbox/{trigger_id}	updateGmailInboxTrigger	Update Gmail inbox trigger
+GET	/org/{org_id}/project/{project_id}/trigger/gmail-inbox/{trigger_id}/events	listGmailInboxTriggerEvents	List Gmail trigger events
+GET	/org/{org_id}/project/{project_id}/trigger/gmail-inbox/{trigger_id}/events/{event_id}	getGmailInboxTriggerEvent	Get Gmail trigger event
+POST	/org/{org_id}/project/{project_id}/trigger/schedule	createScheduleTrigger	Create schedule trigger
+GET	/org/{org_id}/project/{project_id}/trigger/schedule/events	listProjectScheduleTriggerEvents	List project schedule trigger events
+DELETE	/org/{org_id}/project/{project_id}/trigger/schedule/{trigger_id}	deleteScheduleTrigger	Delete schedule trigger
+GET	/org/{org_id}/project/{project_id}/trigger/schedule/{trigger_id}	getScheduleTrigger	Get schedule trigger
+POST	/org/{org_id}/project/{project_id}/trigger/schedule/{trigger_id}	updateScheduleTrigger	Update schedule trigger
+GET	/org/{org_id}/project/{project_id}/trigger/schedule/{trigger_id}/events	listScheduleTriggerEvents	List schedule trigger events
+GET	/org/{org_id}/project/{project_id}/trigger/schedule/{trigger_id}/events/{event_id}	getScheduleTriggerEvent	Get schedule trigger event
+POST	/org/{org_id}/project/{project_id}/trigger/webhook	createWebhookTrigger	Create webhook trigger
+DELETE	/org/{org_id}/project/{project_id}/trigger/webhook/{trigger_id}	deleteWebhookTrigger	Delete webhook trigger
+GET	/org/{org_id}/project/{project_id}/trigger/webhook/{trigger_id}	getWebhookTrigger	Get webhook trigger
+POST	/org/{org_id}/project/{project_id}/trigger/webhook/{trigger_id}	updateWebhookTrigger	Update webhook trigger
+GET	/org/{org_id}/project/{project_id}/trigger/webhook/{trigger_id}/events	listWebhookTriggerEvents	List trigger events
+GET	/org/{org_id}/project/{project_id}/trigger/webhook/{trigger_id}/events/{event_id}	getWebhookTriggerEvent	Get trigger event
+POST	/org/{org_id}/project/{project_id}/trigger/webhook/{trigger_id}/regenerate-endpoint	regenerateWebhookEndpoint	Regenerate endpoint
+POST	/org/{org_id}/project/{project_id}/trigger/webhook/{trigger_id}/rotate-secret	rotateWebhookSecret	Rotate secret
+POST	/org/{org_id}/project/{project_id}/{entity_type}/tag	createTag	Create Tag
+GET	/org/{org_id}/project/{project_id}/{entity_type}/tag	listTags	List Tags
+GET	/org/{org_id}/project/{project_id}/{entity_type}/tag/{tag_id}	getTag	Get Tag
+POST	/org/{org_id}/project/{project_id}/{entity_type}/tag/{tag_id}	updateTag	Update Tag
+POST	/org/{org_id}/project/{project_id}/{entity_type}/tag/{tag_id}/add	addTagToEntities	Add Tag to Entities
+POST	/org/{org_id}/project/{project_id}/{entity_type}/tag/{tag_id}/remove	removeTagFromEntities	Remove Tag from Entities
+GET	/public/task_agent_share/{short_id}	getPublicTaskAgentShare	Get Public TaskAgent Share
+GET	/public/task_share/{short_id}	getPublicTaskShare	Get Task Share
+GET	/public/task_share/{short_id}/file/{file_name}	getPublicTaskShareFile	Download file from shared task run
+GET	/public/{project_key}/llms/task/{task_id}	getTaskForLlm	Get Task for LLM/Agent Consumption
+GET	/skills	listSkills	List Skills
+GET	/skills/sources	listSkillSources	List Skill Sources
+GET	/skills/tags	listSkillTags	List Skill Tags
+GET	/skills/{skill_id}	getSkill	Get Skill
+GET	/skills/{skill_id}/content	getSkillContent	Get Skill Content
+GET	/skills/{skill_id}/revisions	listSkillRevisions	List Skill Revisions
+GET	/skills/{skill_id}/revisions/{revision_id}	getSkillRevision	Get Skill Revision
+GET	/task_mcp_server/callback	callbackMcpServer	Callback Task Mcp Server
+GET	/user	getCurrentUser	Get User Profile
+POST	/user	updateCurrentUser	Update User Profile
+POST	/user/avatar	uploadUserAvatar	Update User Avatar
+GET	/whoami	whoami	Get Current User

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "rightbrain-oauth-callback-removal",
+  "applied_at": "2026-08-01",
+  "base_run_id": "20260731-211113-96771397",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Remove the two OAuth callback endpoints from the command surface.",
+  "reason": "/integration/callback and /task_mcp_server/callback are provider redirect targets; a person supplying their own code/state can never succeed, so both returned exit 5 on every live probe. Removed via the novel-command hook rather than by editing generated files, so regeneration cannot resurrect them.",
+  "files": [
+    "internal/cli/rightbrain_oauth_callbacks.go"
+  ],
+  "validated_outcome": "Full live dogfood matrix: four failures on these two commands eliminated; project integration and project task-mcp-server unaffected."
+}

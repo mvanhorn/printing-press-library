@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "rightbrain-input-and-exit-contract",
+  "applied_at": "2026-08-04",
+  "base_run_id": "20260731-211113-96771397",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Range-check --min-pass-rate, and declare rollout's reachable exit 3.",
+  "reason": "gate --min-pass-rate takes a fraction, but people think in percentages: --min-pass-rate 90 is silently unsatisfiable, so every candidate 'regresses' against a floor of 9000% and CI blocks forever on a typo that reads as a reasonable threshold. It is now a usage error. Separately, rollout declared pp:typed-exit-codes 0,2 while the unknown-task guard added by rightbrain-unknown-task-exit-codes returns 3; the annotation feeds the MCP tool manifest, so an agent branching on declared codes could not know 3 was reachable. The help text now also carries the eval-run caveat that was documented only outside the CLI.",
+  "files": [
+    "internal/cli/gate.go",
+    "internal/cli/rollout.go"
+  ],
+  "validated_outcome": "rollout --help reports exit 3 and the eval-run caveat; gate --min-pass-rate 90 exits 2 with a message naming the fraction form."
+}

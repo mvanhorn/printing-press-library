@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/rightbrain-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260731-211113-96771397",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

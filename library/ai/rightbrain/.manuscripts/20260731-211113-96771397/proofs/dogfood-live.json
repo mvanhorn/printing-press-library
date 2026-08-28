@@ -1,0 +1,246 @@
+{
+  "dir": "/home/agent/printing-press/.runstate/rightbrain-d6c66bc2/runs/20260731-211113-96771397/working/rightbrain-pp-cli",
+  "binary": "/home/agent/printing-press/.runstate/rightbrain-d6c66bc2/runs/20260731-211113-96771397/working/rightbrain-pp-cli/rightbrain-pp-cli",
+  "level": "quick",
+  "verdict": "PASS",
+  "matrix_size": 13,
+  "passed": 13,
+  "failed": 0,
+  "skipped": 12,
+  "commands": [
+    "agent-shares",
+    "agent-trace",
+    "analytics",
+    "api",
+    "approvals",
+    "avatar"
+  ],
+  "tests": [
+    {
+      "command": "agent-shares",
+      "kind": "help",
+      "args": [
+        "agent-shares",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List TaskAgent shares in a project. TaskAgent shares are public share records scoped to the requested project.\n\norg_id and project_id may be omitted when a scope is configured — set one with 'rightbrain-pp-cli scope use \u003corg_id\u003e \u003cproject_id\u003e', the RB_ORG_ID and RB_PROJECT_ID environment variables, or the --org-id and --project-id flags.\n\nUsage:\n  rightbrain-pp-cli agent-shares \u003corg_id\u003e \u003cproject_id\u003e [flags]\n\nExamples:\n  rightbrain-pp-cli agent-shares 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --active                   Filter by active status\n      --all                      Fetch all pages\n      --cursor next_cursor       A cursor for pagination. Use the next_cursor value from the previous response to get the next page of results.\n  -h, --help                     help for agent-shares\n      --page-limit 100           The maximum number of items to return per page. Defaults to 100 if not specified. (default 100)\n      --task-agent-id string     Filter by specific TaskAgent ID\n      --task-agent-name string   Filter by TaskAgent name (partial, case-insensitive)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --org-id string           Rightbrain organization ID (overrides RB_ORG_ID and the saved scope)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'rightbrain-pp-cli profile list')\n      --project-id string       Rightbrain project ID (overrides RB_PROJECT_ID and the saved scope)\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "agent-shares",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [agent-shares] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "agent-shares",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [agent-shares] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "agent-shares",
+      "kind": "error_path",
+      "args": [
+        "agent-shares",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: project_id is required\nUsage: rightbrain-pp-cli agent-shares \u003cproject_id\u003e\n"
+    },
+    {
+      "command": "agent-trace",
+      "kind": "help",
+      "args": [
+        "agent-trace",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Reconstruct a single agent run from its event stream.\n\nPairs each tool call with its result, derives how long each step and each tool call took, and summarizes the run as a per-tool duration histogram.\n\nThe owning agent is resolved from the local mirror when the run has been synced; pass --agent-id when it has not.\n\nUse this command to reconstruct one agent run's event timeline by run id. Do NOT use it to find which runs are currently parked awaiting approval; use 'approvals' instead.\n\nUsage:\n  rightbrain-pp-cli agent-trace \u003crun_id\u003e [flags]\n\nExamples:\n  rightbrain-pp-cli agent-trace 0195d207-32bb-d03d-cfdc-f4516e9222c8 --tools --agent\n\nFlags:\n      --agent-id string   Owning task agent ID (resolved from the local mirror when omitted)\n      --db string         Local database path\n  -h, --help              help for agent-trace\n      --tools             Also print the per-tool call count and duration histogram\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --org-id string           Rightbrain organization ID (overrides RB_ORG_ID and the saved scope)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'rightbrain-pp-cli profile list')\n      --project-id string       Rightbrain project ID (overrides RB_PROJECT_ID and the saved scope)\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "agent-trace",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [agent-trace] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "agent-trace",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [agent-trace] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "agent-trace",
+      "kind": "error_path",
+      "args": [
+        "agent-trace",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Usage:\n  rightbrain-pp-cli agent-trace \u003crun_id\u003e [flags]\n\nExamples:\n  rightbrain-pp-cli agent-trace 0195d207-32bb-d03d-cfdc-f4516e9222c8 --tools --agent\n\nFlags:\n      --agent-id string   Owning task agent ID (resolved from the local mirror when omitted)\n      --db string         Local database path\n  -h, --help              help for agent-trace\n      --tools             Also print the per-tool call count and duration histogram\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --org-id string           Rightbrain organization ID (overrides RB_ORG_ID and the saved scope)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'rightbrain-pp-cli profile list')\n      --project-id string       Rightbrain project ID (overrides RB_PROJECT_ID and the saved scope)\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\nError: could not resolve the agent for run __printing_press_invalid__\nPass --agent-id \u003cid\u003e, or sync agent runs first:\n  rightbrain-pp-cli sync --resources project_task_agent_run\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  rightbrain-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  rightbrain-pp-cli analytics --type messages\n\n  # Group by a field\n  rightbrain-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  rightbrain-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         SQLite database file path (default: resolved data directory data.db)\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --org-id string           Rightbrain organization ID (overrides RB_ORG_ID and the saved scope)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'rightbrain-pp-cli profile list')\n      --project-id string       Rightbrain project ID (overrides RB_PROJECT_ID and the saved scope)\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\nhint: local store has not been synced yet. Run 'rightbrain-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\nhint: local store has not been synced yet. Run 'rightbrain-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  rightbrain-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  rightbrain-pp-cli api\n\n  # Show methods for a specific interface\n  rightbrain-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --org-id string           Rightbrain organization ID (overrides RB_ORG_ID and the saved scope)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'rightbrain-pp-cli profile list')\n      --project-id string       Rightbrain project ID (overrides RB_PROJECT_ID and the saved scope)\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'rightbrain-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "approvals",
+      "kind": "help",
+      "args": [
+        "approvals",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Triage agent runs parked awaiting human approval.\n\nComputes parked age and time-to-expiry from the raw timestamps the API returns, separates requests whose approval window has already lapsed from the ones still worth acting on, and sorts by how long each has been waiting.\n\nUse this command to sweep every agent for runs parked awaiting human approval. Do NOT use it to inspect what a single run did step by step; use 'agent-trace' instead.\n\nUsage:\n  rightbrain-pp-cli approvals [flags]\n\nExamples:\n  rightbrain-pp-cli approvals --older-than 1h --agent\n\nFlags:\n      --agent-id string     Limit the sweep to a single task agent by ID\n  -h, --help                help for approvals\n      --limit int           Maximum rows to show per section (0 means no limit)\n      --older-than string   Only show requests parked longer than this (e.g. 30m, 1h, 2d)\n      --status string       Approval status to list: pending, approved, rejected, expired, cancelled, or all (default \"pending\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --org-id string           Rightbrain organization ID (overrides RB_ORG_ID and the saved scope)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'rightbrain-pp-cli profile list')\n      --project-id string       Rightbrain project ID (overrides RB_PROJECT_ID and the saved scope)\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "approvals",
+      "kind": "happy_path",
+      "args": [
+        "approvals",
+        "--older-than",
+        "1h",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"counts\": {},\n    \"expired\": [],\n    \"note\": \"no approval requests parked longer than 1h; drop or lower --older-than to widen the sweep\",\n    \"oldest_parked_seconds\": 0,\n    \"pending\": []\n  }\n}\n"
+    },
+    {
+      "command": "approvals",
+      "kind": "json_fidelity",
+      "args": [
+        "approvals",
+        "--older-than",
+        "1h",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"counts\": {},\n    \"expired\": [],\n    \"note\": \"no approval requests parked longer than 1h; drop or lower --older-than to widen the sweep\",\n    \"oldest_parked_seconds\": 0,\n    \"pending\": []\n  }\n}\n"
+    },
+    {
+      "command": "approvals",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "avatar",
+      "kind": "help",
+      "args": [
+        "avatar",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Update organization avatar image\n\norg_id and project_id may be omitted when a scope is configured — set one with 'rightbrain-pp-cli scope use \u003corg_id\u003e \u003cproject_id\u003e', the RB_ORG_ID and RB_PROJECT_ID environment variables, or the --org-id and --project-id flags.\n\nUsage:\n  rightbrain-pp-cli avatar \u003corg_id\u003e [flags]\n\nExamples:\n  rightbrain-pp-cli avatar 550e8400-e29b-41d4-a716-446655440000 --file example-value\n\nFlags:\n      --file string   File\n  -h, --help          help for avatar\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --org-id string           Rightbrain organization ID (overrides RB_ORG_ID and the saved scope)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'rightbrain-pp-cli profile list')\n      --project-id string       Rightbrain project ID (overrides RB_PROJECT_ID and the saved scope)\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "avatar",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "file fixture required: --file example-value"
+    },
+    {
+      "command": "avatar",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "file fixture required: --file example-value"
+    },
+    {
+      "command": "avatar",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "avatar",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [avatar] has fewer segments than placeholders (1)"
+    }
+  ],
+  "ran_at": "2026-07-31T22:56:23.332446333Z"
+}

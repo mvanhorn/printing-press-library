@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "rightbrain-live-state-cache-bypass",
+  "applied_at": "2026-08-01",
+  "base_run_id": "20260731-211113-96771397",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Use GetNoCache for polling and for the approval triage queue.",
+  "reason": "Both commands read volatile state through the client response cache. gate --wait polled the same URL and got the cached pending body forever, reporting a run the server finished in seconds as still running. approvals showed a request as pending after it had been rejected.",
+  "files": [
+    "internal/cli/gate.go",
+    "internal/cli/approvals.go"
+  ],
+  "validated_outcome": "gate --wait now completes in ~16s against a real eval run; approvals reflects a rejection immediately."
+}

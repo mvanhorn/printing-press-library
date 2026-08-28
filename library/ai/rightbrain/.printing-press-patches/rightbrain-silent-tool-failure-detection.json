@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "rightbrain-silent-tool-failure-detection",
+  "applied_at": "2026-08-01",
+  "base_run_id": "20260731-211113-96771397",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Detect tool failures that Rightbrain records as successful.",
+  "reason": "tool_outcome reflects whether the tool CALL completed, not whether the tool succeeded. A Notion 404 arrives as outcome success carrying a [Tool Error] payload, so a run where every call failed reported tool_error_count 0. The events endpoint omits outcome entirely, making payload inspection the only signal there.",
+  "files": [
+    "internal/cli/agent_trace.go"
+  ],
+  "validated_outcome": "Against a live run whose Notion fetch 404d: tool_error_count 0 -> 1, with silent_tool_failures 1 and the reason attached."
+}

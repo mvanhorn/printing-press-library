@@ -1,0 +1,211 @@
+
+=== verify ===
+warning: skipping GET "/-/health": could not derive resource name
+warning: skipping GET "/-/ready": could not derive resource name
+warning: request body for POST "/org/{org_id}/project/{project_id}/task_forwarder" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/org/{org_id}/project/{project_id}/task_forwarder/{task_forwarder_id}" contains oneOf/anyOf; emitting --body-json fallback
+Runtime Verification: /home/agent/printing-press/library/rightbrain/rightbrain
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+resource-path:tail             static       PASS   PASS     PASS     3/3
+resource-path:export           static       PASS   PASS     PASS     3/3
+resource-path:import           static       PASS   PASS     PASS     3/3
+agent-context                  read         PASS   PASS     PASS     3/3
+agent-shares                   read         PASS   PASS     PASS     3/3
+agent-trace                    read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+approvals                      read         PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+avatar                         read         PASS   PASS     PASS     3/3
+changelog                      read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+drift                          read         PASS   PASS     PASS     3/3
+eval-flake                     read         PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+gate                           read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+integration                    read         PASS   PASS     PASS     3/3
+join                           read         PASS   PASS     PASS     3/3
+learnings                      read         PASS   PASS     FAIL     2/3
+load                           read         PASS   PASS     PASS     3/3
+orphans                        read         PASS   PASS     PASS     3/3
+playbook                       read         PASS   PASS     FAIL     2/3
+profile                        read         PASS   PASS     FAIL     2/3
+recall                         read         PASS   PASS     PASS     3/3
+rollout                        read         PASS   PASS     PASS     3/3
+scope                          read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+shares                         read         PASS   PASS     PASS     3/3
+stale                          data-layer   PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+task-mcp-server                read         PASS   PASS     PASS     3/3
+teach                          read         PASS   PASS     PASS     3/3
+teach-lookup                   read         PASS   PASS     PASS     3/3
+teach-pattern                  read         PASS   PASS     PASS     3/3
+teach-playbook                 read         PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+whoami                         read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     FAIL     2/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS auth set-token
+  PASS learnings confirm
+  PASS learnings forget
+  PASS learnings reject
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+  PASS scope use
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped)
+Pass Rate: 100% (51/51 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+OK: 17 narrative commands resolved and full examples passed
+
+=== dogfood ===
+dogfood: using spec /home/agent/printing-press/.runstate/rightbrain-d6c66bc2/runs/20260731-211113-96771397/research/rightbrain-openapi-enriched.json (--spec)
+warning: skipping GET "/-/health": could not derive resource name
+warning: skipping GET "/-/ready": could not derive resource name
+warning: request body for POST "/org/{org_id}/project/{project_id}/task_forwarder" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/org/{org_id}/project/{project_id}/task_forwarder/{task_forwarder_id}" contains oneOf/anyOf; emitting --body-json fallback
+Dogfood Report: rightbrain
+================================
+
+Path Validity:     0/0 valid (N/A)
+
+Auth Protocol:     MATCH
+  Spec: bearer token format (expects "Bearer " prefix)
+  Generated: Uses "Bearer" prefix
+  Detail: spec and generated client both use "Bearer"
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     GOOD
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: calls domain-specific Search methods (GOOD)
+  Domain tables: 4
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    7/7 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: PASS
+
+=== workflow-verify ===
+Workflow Verification: rightbrain
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== apify-audit ===
+Apify Actor Audit
+=================
+
+No Apify actor references found.
+
+Verdict: pass
+  - no Apify actor references found, skipping
+
+=== verify-skill ===
+=== rightbrain ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: rightbrain
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          8/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency N/A
+  MCP Remote Transport 10/10
+  MCP Tool Design      10/10
+  MCP Surface Strategy 10/10
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              10/10
+  Vision               10/10
+  Workflows            10/10
+  Insight              4/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           10/10
+  Data Pipeline Integrity 10/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           5/5
+  Dead Code               5/5
+
+  Total: 96/100 - Grade A
+  Note: omitted from denominator: mcp_description_quality, mcp_token_efficiency, live_api_verification
+
+Sample Output Probe (live command sample)
+  Binary refresh: no_stage (no staged binary found)
+  Passed: 2/7  (29% pass rate, 0 skipped)
+  Failures:
+    - Eval release gate: exit 2: Error: no org or project selected
+Set one with any of:
+  rightbrain-pp-cli scope use <org_id> <project_id>
+  export RB_ORG_ID=... RB_PROJECT_ID=...
+  --org-id <id> --project-id <id>
+    - Rollout reality check: exit 2: Error: no org or project selected
+Set one with any of:
+  rightbrain-pp-cli scope use <org_id> <project_id>
+  export RB_ORG_ID=... RB_PROJECT_ID=...
+  --org-id <id> --project-id <id>
+    - Stalled approval triage: exit 2: Error: no org or project selected
+Set one with any of:
+  rightbrain-pp-cli scope use <org_id> <project_id>
+  export RB_ORG_ID=... RB_PROJECT_ID=...
+  --org-id <id> --project-id <id>
+    - Agent run trace: exit 2: Error: no org or project selected
+Set one with any of:
+  rightbrain-pp-cli scope use <org_id> <project_id>
+  export RB_ORG_ID=... RB_PROJECT_ID=...
+  --org-id <id> --project-id <id>
+    - Named, verified changelog: exit 2: hint: local store has not been synced yet. Run 'rightbrain-pp-cli sync' before trusting local results.
+Error: no org or project selected
+Set one with any of:
+  rightbrain-pp-cli scope use <org_id> <project_id>
+  export RB_ORG_ID=... RB_PROJECT_ID=...
+  --org-id <id> --project-id <id>
+
+Gaps:
+  - insight scored 4/10 - needs improvement
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         12.534s
+  validate-narrative  PASS    0         1.478s
+  dogfood           PASS    0         13.899s
+  workflow-verify   PASS    0         23ms
+  apify-audit       PASS    0         106ms
+  verify-skill      PASS    0         27.833s
+  scorecard         PASS    0         6.19s
+
+Verdict: PASS (7/7 legs passed)
+EXIT=0

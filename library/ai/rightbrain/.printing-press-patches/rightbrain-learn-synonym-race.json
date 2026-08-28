@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "rightbrain-learn-synonym-race",
+  "applied_at": "2026-08-29",
+  "base_run_id": "20260731-211113-96771397",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Guard the learn subsystem's query-synonym maps with a mutex.",
+  "reason": "internal/store/learnings.go declares that RegisterQuerySynonyms is called once at CLI startup before any store use, and on that basis leaves querySynonyms and querySynonymRules unguarded. The contract does not hold: installPlaybooksFromEmbed reaches RegisterQuerySynonyms through newLearnConfig, and the MCP server serves tool calls concurrently, so registration races both itself and foldQueryTokens. A concurrent map write is a fatal runtime error rather than a corrupted lookup, so it takes the process down. The generated TestPlaybookInit_ConcurrentSafe reproduces it nondeterministically — observed both as a -race report and as a hard failure. An RWMutex now guards the write in RegisterQuerySynonyms and the read in foldQueryTokens. Filed upstream as generator defect 1 in the retro candidates; patched here as well because a nondeterministic fatal in a shipped binary, and an intermittently red CI check, are not acceptable to carry while the generator fix lands.",
+  "files": [
+    "internal/store/learnings.go"
+  ],
+  "validated_outcome": "TestPlaybookInit_ConcurrentSafe passes 5/5 under -race; the full suite passes -race across all 12 packages."
+}

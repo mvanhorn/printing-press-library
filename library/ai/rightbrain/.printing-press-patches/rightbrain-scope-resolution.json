@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "rightbrain-scope-resolution",
+  "applied_at": "2026-08-01",
+  "base_run_id": "20260731-211113-96771397",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Resolve org and project once and inject them into every generated endpoint command.",
+  "reason": "Every Rightbrain path is /org/{org_id}/project/{project_id}/..., so all ~290 generated commands took two UUIDs positionally. Injection is additive: a fully-specified invocation passes through untouched. Adds scope show|use|clear.",
+  "files": [
+    "internal/cli/rightbrain_scope.go",
+    "internal/cli/rightbrain_scope_test.go"
+  ],
+  "validated_outcome": "Verified across five cases: saved config, env vars, flags, explicit positionals, and an extra trailing positional."
+}

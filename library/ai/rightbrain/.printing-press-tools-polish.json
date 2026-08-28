@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-07-31T23:13:07.823356755Z",
+  "cli_dir": "\u003ccli-dir\u003e/rightbrain-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "teach.go is a DO-NOT-EDIT generated file emitting the framework learn-loop surface; the Short is accurate for a command whose Example block already shows --agent, --query and --warnings, and a hand-edit here would be wiped on the next regeneration. Generator-template fix, surfaced as a retro candidate."
+    }
+  ]
+}

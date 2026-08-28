@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "rightbrain-unknown-task-exit-codes",
+  "applied_at": "2026-08-01",
+  "base_run_id": "20260731-211113-96771397",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Correct exit codes for an unknown task id.",
+  "reason": "rollout degraded a failed weights fetch to a warning and exited 0 even with no local runs, reporting an empty rollout as healthy for a task that does not exist; it now exits 3. eval-flake cannot distinguish an unknown task from one with no eval history, so it declares pp:no-error-path-probe rather than inventing a not-found error.",
+  "files": [
+    "internal/cli/rollout.go",
+    "internal/cli/eval_flake.go"
+  ],
+  "validated_outcome": "Full live matrix error_path probes for both commands now pass."
+}

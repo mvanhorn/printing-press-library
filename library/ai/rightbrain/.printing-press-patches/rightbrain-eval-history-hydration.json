@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "rightbrain-eval-history-hydration",
+  "applied_at": "2026-08-01",
+  "base_run_id": "20260731-211113-96771397",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Treat the API as authoritative for eval history and hydrate per-case results.",
+  "reason": "The eval-run list endpoint that sync mirrors carries aggregate counts only; per-case verdicts exist solely on the detail endpoint, so the command reported zero cases against a fully synced mirror. Sync also collapses .../eval/set and .../eval/run onto one resource name and silently drops records.",
+  "files": [
+    "internal/cli/eval_flake.go"
+  ],
+  "validated_outcome": "Against a live project holding two eval runs the mirror held one; the command now reports both and says so in its note."
+}
