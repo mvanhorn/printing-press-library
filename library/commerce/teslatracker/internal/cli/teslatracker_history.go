@@ -72,6 +72,34 @@ func daysListed(v Vehicle) *float64 {
 	return &d
 }
 
+// landedCut is one observed landed-price decrease. Increases are movement,
+// not cuts — they must not increment PriceCuts or fail --never-cut.
+type landedCut struct {
+	FromUSD  float64 `json:"from_usd"`
+	ToUSD    float64 `json:"to_usd"`
+	DeltaUSD float64 `json:"delta_usd"`
+	At       string  `json:"at"`
+}
+
+// landedPriceCuts returns observed landed-price decreases in chronological
+// order. A cut is a drop; a raise or a flat observation is not a cut.
+func landedPriceCuts(pts []pricePoint) []landedCut {
+	cuts := []landedCut{}
+	for i := 1; i < len(pts); i++ {
+		d := pts[i].LandedUSD - pts[i-1].LandedUSD
+		if d >= 0 {
+			continue
+		}
+		cuts = append(cuts, landedCut{
+			FromUSD:  math.Round(pts[i-1].LandedUSD),
+			ToUSD:    math.Round(pts[i].LandedUSD),
+			DeltaUSD: math.Round(d),
+			At:       pts[i].At,
+		})
+	}
+	return cuts
+}
+
 // ── price-history ───────────────────────────────────────────────────────────
 
 func newPriceHistoryCmd(flags *rootFlags) *cobra.Command {
@@ -125,19 +153,7 @@ func newPriceHistoryCmd(flags *rootFlags) *cobra.Command {
 			}
 			pts := pricePath(ctx, st.DB(), *v)
 
-			type cut struct {
-				FromUSD  float64 `json:"from_usd"`
-				ToUSD    float64 `json:"to_usd"`
-				DeltaUSD float64 `json:"delta_usd"`
-				At       string  `json:"at"`
-			}
-			cuts := []cut{}
-			for i := 1; i < len(pts); i++ {
-				if d := pts[i].LandedUSD - pts[i-1].LandedUSD; d != 0 {
-					cuts = append(cuts, cut{FromUSD: math.Round(pts[i-1].LandedUSD), ToUSD: math.Round(pts[i].LandedUSD),
-						DeltaUSD: math.Round(d), At: pts[i].At})
-				}
-			}
+			cuts := landedPriceCuts(pts)
 			view := map[string]any{
 				"vin": v.VIN, "year": v.Year, "model": v.Model, "trim": v.Trim,
 				"first_seen_at": v.FirstSeenAt, "days_listed": daysListed(*v),
@@ -150,7 +166,7 @@ func newPriceHistoryCmd(flags *rootFlags) *cobra.Command {
 				view["total_movement_usd"] = math.Round(pts[len(pts)-1].LandedUSD - pts[0].LandedUSD)
 			}
 			if len(cuts) == 0 {
-				view["note"] = "no price change observed across " + fmt.Sprint(len(pts)) + " observations"
+				view["note"] = "no price cut observed across " + fmt.Sprint(len(pts)) + " observations"
 			}
 			if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
 				return emit(cmd, flags, view)
@@ -159,7 +175,7 @@ func newPriceHistoryCmd(flags *rootFlags) *cobra.Command {
 			if d := daysListed(*v); d != nil {
 				fmt.Fprintf(cmd.OutOrStdout(), "  listed %.0f days (first seen %s)\n", *d, v.FirstSeenAt[:10])
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "  %d observations, %d price changes\n", len(pts), len(cuts))
+			fmt.Fprintf(cmd.OutOrStdout(), "  %d observations, %d price cuts\n", len(pts), len(cuts))
 			for _, c := range cuts {
 				fmt.Fprintf(cmd.OutOrStdout(), "    %s  $%.0f -> $%.0f  (%+.0f)\n", c.At[:10], c.FromUSD, c.ToUSD, c.DeltaUSD)
 			}
@@ -334,12 +350,7 @@ func newStaleCmd(flags *rootFlags) *cobra.Command {
 			rows := []row{}
 			for _, v := range all {
 				pts := pricePath(ctx, db, v)
-				cuts := 0
-				for i := 1; i < len(pts); i++ {
-					if pts[i].LandedUSD != pts[i-1].LandedUSD {
-						cuts++
-					}
-				}
+				cuts := len(landedPriceCuts(pts))
 				r := row{VIN: v.VIN, Year: v.Year, Model: v.Model, Trim: v.Trim,
 					Mileage: v.Mileage, DaysListed: daysListed(v), PriceCuts: cuts, NeverCut: cuts == 0}
 				if l := v.LandedCents(); l != nil {
@@ -392,7 +403,7 @@ func newStaleCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	cmd.Flags().IntVar(&limit, "limit", 25, "Maximum cars to return")
-	cmd.Flags().BoolVar(&neverCutOnly, "never-cut", false, "Only cars with no observed price change")
+	cmd.Flags().BoolVar(&neverCutOnly, "never-cut", false, "Only cars with no observed price cut")
 	return cmd
 }
 

@@ -6,6 +6,8 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -29,4 +31,63 @@ func TestNovelDegradationHelpWires(t *testing.T) {
 			t.Fatalf("degradation --help missing %q in output:\n%s", want, help)
 		}
 	}
+}
+
+func TestDegradationAggregate_BelowMinCohortWithholdsStats(t *testing.T) {
+	dbPath := seedVehicleMirror(t, rangeCars(3)...)
+	stdout, stderr, err := runRootArgs(t, "degradation", "--db", dbPath, "--json", "--no-learn")
+	if err != nil {
+		t.Fatalf("degradation: %v (stderr=%q stdout=%q)", err, stderr, stdout)
+	}
+	var view map[string]any
+	if err := json.Unmarshal([]byte(stdout), &view); err != nil {
+		t.Fatalf("decode degradation JSON: %v (stdout=%q)", err, stdout)
+	}
+	for _, key := range []string{"median_retained_pct", "worst_retained_pct", "best_retained_pct"} {
+		if _, ok := view[key]; ok {
+			t.Fatalf("undersized cohort still reported %s = %v", key, view[key])
+		}
+	}
+	note, _ := view["cohort_note"].(string)
+	if !strings.Contains(note, "below the floor") {
+		t.Fatalf("cohort_note = %q, want a min-cohort floor explanation", note)
+	}
+	if n, _ := view["n"].(float64); int(n) != 3 {
+		t.Fatalf("n = %v, want 3", view["n"])
+	}
+}
+
+func TestDegradationAggregate_MinCohortReportsStats(t *testing.T) {
+	dbPath := seedVehicleMirror(t, rangeCars(minCohort)...)
+	stdout, stderr, err := runRootArgs(t, "degradation", "--db", dbPath, "--json", "--no-learn")
+	if err != nil {
+		t.Fatalf("degradation: %v (stderr=%q stdout=%q)", err, stderr, stdout)
+	}
+	var view map[string]any
+	if err := json.Unmarshal([]byte(stdout), &view); err != nil {
+		t.Fatalf("decode degradation JSON: %v (stdout=%q)", err, stdout)
+	}
+	for _, key := range []string{"median_retained_pct", "worst_retained_pct", "best_retained_pct"} {
+		if _, ok := view[key]; !ok {
+			t.Fatalf("n=%d cohort missing %s (stdout=%q)", minCohort, key, stdout)
+		}
+	}
+	if _, ok := view["cohort_note"]; ok {
+		t.Fatalf("n=%d cohort should not carry cohort_note: %v", minCohort, view["cohort_note"])
+	}
+}
+
+func rangeCars(n int) []Vehicle {
+	out := make([]Vehicle, 0, n)
+	for i := 0; i < n; i++ {
+		rated, actual := 310, 270+i
+		out = append(out, Vehicle{
+			VIN:         fmt.Sprintf("5YJ3E1EA7LF0000%02d", i+20),
+			Year:        intPtr(2021),
+			Model:       "Model 3",
+			Range:       intPtr(rated),
+			ActualRange: intPtr(actual),
+		})
+	}
+	return out
 }

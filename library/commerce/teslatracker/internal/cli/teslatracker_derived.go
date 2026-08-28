@@ -342,16 +342,25 @@ func newDegradationCmd(flags *rootFlags) *cobra.Command {
 					"n": len(vals), "cars": rows,
 					"caveat": "source-published rated-vs-actual spread, not a measured battery test",
 				}
-				if len(vals) > 0 {
+				if len(vals) >= minCohort {
 					view["median_retained_pct"] = math.Round(median(vals)*10) / 10
 					view["worst_retained_pct"] = math.Round(vals[0]*10) / 10
 					view["best_retained_pct"] = math.Round(vals[len(vals)-1]*10) / 10
+				} else {
+					view["cohort_note"] = fmt.Sprintf(
+						"cohort has %d cars, below the floor of %d — no aggregate statistics reported", len(vals), minCohort)
 				}
 				if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
 					return emit(cmd, flags, view)
 				}
-				fmt.Fprintf(cmd.OutOrStdout(), "cohort of %d cars — median %.1f%% of rated range retained\n",
-					len(vals), median(vals))
+				if len(vals) >= minCohort {
+					fmt.Fprintf(cmd.OutOrStdout(), "cohort of %d cars — median %.1f%% of rated range retained\n",
+						len(vals), median(vals))
+				} else {
+					fmt.Fprintf(cmd.OutOrStdout(),
+						"cohort of %d cars, below the floor of %d — no aggregate statistics reported\n",
+						len(vals), minCohort)
+				}
 				for _, r := range rows {
 					if r.Pct == nil {
 						continue

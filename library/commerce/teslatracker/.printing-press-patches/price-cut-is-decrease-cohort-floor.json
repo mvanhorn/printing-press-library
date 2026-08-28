@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "price-cut-is-decrease-cohort-floor",
+  "applied_at": "2026-08-28",
+  "base_run_id": "20260813-144423-eaf11561",
+  "base_printing_press_version": "4.30.2",
+  "summary": "A price cut is a landed-price decrease, and market-level aggregates stay withheld below the five-car cohort floor.",
+  "reason": "Any nonzero movement was counted as a cut, so increase-only cars failed --never-cut. Aggregate degradation also reported median/worst/best on 1-4 cars, presenting an undersized sample as a market result.",
+  "files": [
+    "internal/cli/teslatracker_history.go",
+    "internal/cli/teslatracker_derived.go"
+  ],
+  "validated_outcome": "Unit and command tests: increase-only paths emit zero cuts and survive stale --never-cut; degradation with n=3 withholds aggregates and n=5 reports them."
+}
