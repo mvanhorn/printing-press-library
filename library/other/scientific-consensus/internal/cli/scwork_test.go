@@ -86,3 +86,40 @@ func TestFilterRelevant(t *testing.T) {
 		t.Errorf("input slice mutated: len = %d, want 2", len(works))
 	}
 }
+
+// TestFilterRelevantPICOGate pins WHICH gate runs, not merely that filtering
+// happens. The two gates disagree on purpose here: every work below carries an
+// intervention token in its title, so the token-overlap gate would keep all of
+// them. Only the PICO gate, which requires an outcome token as well and reads
+// the abstract, separates them. A failure means the production path fell back
+// to the title/topic rule.
+func TestFilterRelevantPICOGate(t *testing.T) {
+	works := []scWork{
+		// Outcome named in the abstract only. Overlap gate: kept (title has
+		// "coffee"). PICO gate: kept, because it reads the abstract.
+		{Title: "Coffee consumption in adults", Abstract: "Participants reported improved alertness after intake."},
+		// Intervention only, no outcome anywhere. Overlap gate: kept (title has
+		// "coffee"). PICO gate: dropped. This is the case that tells the gates
+		// apart.
+		{Title: "Coffee bean roasting temperature and yield", Abstract: "Roast profiles were compared for extraction yield."},
+	}
+	kept := filterRelevant("coffee improves alertness", works)
+	if len(kept) != 1 || kept[0].Title != works[0].Title {
+		t.Errorf("PICO gate not on the production path: kept %d works (%+v), want only the alertness abstract", len(kept), kept)
+	}
+}
+
+// TestFilterRelevantUnsplittableClaim pins the fallback. This claim has no
+// polarity verb, so PICOTokens yields nothing and the gate cannot name what it
+// filters for. The token-overlap gate must run instead; if it did not, an
+// unsplittable claim would silently keep every fetched work.
+func TestFilterRelevantUnsplittableClaim(t *testing.T) {
+	works := []scWork{
+		{Title: "Mediterranean diet adherence in older adults", Topic: "Nutrition"},
+		{Title: "Genomic selection for crop yield", Topic: "Plant Genetics and Breeding"},
+	}
+	kept := filterRelevant("mediterranean diet", works)
+	if len(kept) != 1 || kept[0].Title != works[0].Title {
+		t.Errorf("fallback gate did not run: kept %d works (%+v), want only the diet paper", len(kept), kept)
+	}
+}

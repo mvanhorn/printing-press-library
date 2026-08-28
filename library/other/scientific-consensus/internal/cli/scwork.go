@@ -274,10 +274,32 @@ func relevantToClaim(claim string, w scWork) bool {
 
 // filterRelevant drops works that fail the relevance gate so they never reach
 // classification or scoring. Returns a new slice; the input is not mutated.
+//
+// Two gates are available and this is the single place that chooses between
+// them. The PICO gate is preferred: it requires a work to name BOTH sides of
+// the claim (an intervention token AND an outcome token), and it reads the
+// abstract, so it judges what a paper is actually about rather than what its
+// title happens to mention. It applies only when the claim can be split around
+// a polarity verb; PICOTokens returns empty slices when it cannot.
+//
+// When the claim is not splittable the token-overlap gate runs instead. That
+// case is not rare, and dropping the older gate outright would leave those
+// claims with no relevance filtering at all, which is the opposite of this
+// change's purpose. The two are alternatives, not layers: running both would
+// apply a title/topic rule on top of an abstract-aware one and silently
+// re-drop works the PICO gate deliberately kept.
 func filterRelevant(claim string, works []scWork) []scWork {
+	ivTokens, outTokens := scengine.PICOTokens(claim)
+	usePICO := len(ivTokens) > 0 && len(outTokens) > 0
 	kept := make([]scWork, 0, len(works))
 	for _, w := range works {
-		if relevantToClaim(claim, w) {
+		var relevant bool
+		if usePICO {
+			relevant = scengine.IsPICORelevant(w.Abstract, w.Title, ivTokens, outTokens)
+		} else {
+			relevant = relevantToClaim(claim, w)
+		}
+		if relevant {
 			kept = append(kept, w)
 		}
 	}
