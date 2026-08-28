@@ -13,7 +13,7 @@
       "verdict": "PASS",
       "started_at": "2026-08-28T09:48:26Z",
       "elapsed_ms": 12691,
-      "command": "/home/azbirovskiy/go/bin/cli-printing-press verify --dir /home/azbirovskiy/Work/Bark/tmp-peng-5308/bark-printing-press-library-fork/library/marketing/bing-ads --write-manifest /home/azbirovskiy/Work/Bark/tmp-peng-5308/bark-printing-press-library-fork/library/marketing/bing-ads/.printing-press.json --spec bark-printing-press-library-fork/library/marketing/bing-ads/spec.json --fix"
+      "command": "/home/ubuntu/go/bin/cli-printing-press verify --dir /home/ubuntu/printing-press-library/library/marketing/bing-ads --write-manifest /home/ubuntu/printing-press-library/library/marketing/bing-ads/.printing-press.json --spec printing-press-library/library/marketing/bing-ads/spec.json --fix"
     },
     {
       "name": "validate-narrative",
@@ -22,7 +22,7 @@
       "verdict": "PASS",
       "started_at": "2026-08-28T09:48:39Z",
       "elapsed_ms": 9,
-      "command": "/home/azbirovskiy/go/bin/cli-printing-press validate-narrative --strict --full-examples --research /home/azbirovskiy/Work/Bark/tmp-peng-5308/bark-printing-press-library-fork/library/marketing/bing-ads/research.json --binary /home/azbirovskiy/Work/Bark/tmp-peng-5308/bark-printing-press-library-fork/library/marketing/bing-ads/bing-ads"
+      "command": "/home/ubuntu/go/bin/cli-printing-press validate-narrative --strict --full-examples --research /home/ubuntu/printing-press-library/library/marketing/bing-ads/research.json --binary /home/ubuntu/printing-press-library/library/marketing/bing-ads/bing-ads"
     },
     {
       "name": "dogfood",
@@ -31,7 +31,7 @@
       "verdict": "PASS",
       "started_at": "2026-08-28T09:48:39Z",
       "elapsed_ms": 3631,
-      "command": "/home/azbirovskiy/go/bin/cli-printing-press dogfood --dir /home/azbirovskiy/Work/Bark/tmp-peng-5308/bark-printing-press-library-fork/library/marketing/bing-ads --spec bark-printing-press-library-fork/library/marketing/bing-ads/spec.json"
+      "command": "/home/ubuntu/go/bin/cli-printing-press dogfood --dir /home/ubuntu/printing-press-library/library/marketing/bing-ads --spec printing-press-library/library/marketing/bing-ads/spec.json"
     },
     {
       "name": "workflow-verify",
@@ -40,7 +40,7 @@
       "verdict": "PASS",
       "started_at": "2026-08-28T09:48:42Z",
       "elapsed_ms": 14,
-      "command": "/home/azbirovskiy/go/bin/cli-printing-press workflow-verify --dir /home/azbirovskiy/Work/Bark/tmp-peng-5308/bark-printing-press-library-fork/library/marketing/bing-ads"
+      "command": "/home/ubuntu/go/bin/cli-printing-press workflow-verify --dir /home/ubuntu/printing-press-library/library/marketing/bing-ads"
     },
     {
       "name": "apify-audit",
@@ -49,7 +49,7 @@
       "verdict": "PASS",
       "started_at": "2026-08-28T09:48:42Z",
       "elapsed_ms": 23,
-      "command": "/home/azbirovskiy/go/bin/cli-printing-press apify-audit --dir /home/azbirovskiy/Work/Bark/tmp-peng-5308/bark-printing-press-library-fork/library/marketing/bing-ads"
+      "command": "/home/ubuntu/go/bin/cli-printing-press apify-audit --dir /home/ubuntu/printing-press-library/library/marketing/bing-ads"
     },
     {
       "name": "verify-skill",
@@ -58,7 +58,7 @@
       "verdict": "PASS",
       "started_at": "2026-08-28T09:48:42Z",
       "elapsed_ms": 2632,
-      "command": "/home/azbirovskiy/go/bin/cli-printing-press verify-skill --dir /home/azbirovskiy/Work/Bark/tmp-peng-5308/bark-printing-press-library-fork/library/marketing/bing-ads"
+      "command": "/home/ubuntu/go/bin/cli-printing-press verify-skill --dir /home/ubuntu/printing-press-library/library/marketing/bing-ads"
     },
     {
       "name": "scorecard",
@@ -68,7 +68,7 @@
       "detail": "scorecard hold: unverified dimensions: live_api_verification",
       "started_at": "2026-08-28T09:48:45Z",
       "elapsed_ms": 1805,
-      "command": "/home/azbirovskiy/go/bin/cli-printing-press scorecard --dir /home/azbirovskiy/Work/Bark/tmp-peng-5308/bark-printing-press-library-fork/library/marketing/bing-ads --write-manifest /home/azbirovskiy/Work/Bark/tmp-peng-5308/bark-printing-press-library-fork/library/marketing/bing-ads/.printing-press.json --spec bark-printing-press-library-fork/library/marketing/bing-ads/spec.json --live-check"
+      "command": "/home/ubuntu/go/bin/cli-printing-press scorecard --dir /home/ubuntu/printing-press-library/library/marketing/bing-ads --write-manifest /home/ubuntu/printing-press-library/library/marketing/bing-ads/.printing-press.json --spec printing-press-library/library/marketing/bing-ads/spec.json --live-check"
     }
   ]
 }

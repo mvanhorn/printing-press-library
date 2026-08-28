@@ -1,7 +1,7 @@
 ---
 name: pp-bing-ads
 description: "Printing Press CLI for Bing Ads. Reconstructed from the official BingAds-Python-SDK openapi_client (openapi-generator output)"
-author: "Anatoliy Zbirovskiy"
+author: "ubuntu"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
@@ -37,7 +37,7 @@ go install github.com/mvanhorn/printing-press-library/library/marketing/bing-ads
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-Reconstructed from the official BingAds-Python-SDK openapi_client (openapi-generator output) -- Microsoft does not publish a raw spec file. Scope: PENG-5308 Phase 0 go/no-go slice (accounts + campaign performance reporting) only, not the full ~287-operation surface.
+Reconstructed from the official BingAds-Python-SDK openapi_client (openapi-generator output) -- Microsoft does not publish a raw spec file. Covers all 6 Microsoft Advertising REST services (287 operations).
 
 ## Command Reference
 

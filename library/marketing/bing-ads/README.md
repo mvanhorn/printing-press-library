@@ -1,6 +1,6 @@
 # Bing Ads CLI
 
-Reconstructed from the official BingAds-Python-SDK openapi_client (openapi-generator output) -- Microsoft does not publish a raw spec file. Scope: PENG-5308 Phase 0 go/no-go slice (accounts + campaign performance reporting) only, not the full ~287-operation surface.
+Reconstructed from the official BingAds-Python-SDK openapi_client (openapi-generator output) -- Microsoft does not publish a raw spec file. Covers all 6 Microsoft Advertising REST services (287 operations).
 
 ## Install
 

@@ -4,7 +4,7 @@
   "cli_name": "bing-ads-pp-cli",
   "run_id": "20260828-081713",
   "status": "skip",
-  "skip_reason": "No Microsoft Advertising developer token or Entra (Azure AD) OAuth credential has been provisioned yet on the consuming side (Bark PENG-5308 is tracking this as a parallel external dependency). shipcheck's non-live legs (verify, validate-narrative, dogfood, workflow-verify, apify-audit, verify-skill) all pass against the spec-derived mock server -- see proofs/shipcheck-report.json. Only the live_api_verification dimension (scorecard's live-check against a real account) is deliberately skipped.",
+  "skip_reason": "No Microsoft Advertising developer token or Entra (Azure AD) OAuth credential has been provisioned yet on the consuming side. shipcheck's non-live legs (verify, validate-narrative, dogfood, workflow-verify, apify-audit, verify-skill) all pass against the spec-derived mock server -- see proofs/shipcheck-report.json. Only the live_api_verification dimension (scorecard's live-check against a real account) is deliberately skipped.",
   "auth_context": {
     "type": "api_key",
     "api_key_available": false,
@@ -12,5 +12,5 @@
     "local_sqlite": false,
     "local_network_only": true
   },
-  "source_fingerprint": "ce066ffd8cd460bc50a36ccd3d051ab93b3a0351a92024c11eea1da39f17d771"
+  "source_fingerprint": "55ae05cd4a3b05f6e5aba8658fba458be3baac810dcebcf95c1d781dedc4c6a7"
 }

@@ -6,11 +6,11 @@
   "display_name": "Microsoft Advertising Bing",
   "cli_name": "bing-ads-pp-cli",
   "creator": {
-    "handle": "azbirovskiy",
-    "name": "Anatoliy Zbirovskiy"
+    "handle": "ubuntu",
+    "name": "ubuntu"
   },
-  "printer": "azbirovskiy",
-  "printer_name": "Anatoliy Zbirovskiy",
+  "printer": "ubuntu",
+  "printer_name": "ubuntu",
   "spec_path": "spec.json",
   "spec_format": "openapi3",
   "spec_source": "official",

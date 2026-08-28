@@ -2,9 +2,9 @@
 
 ## Why this print exists
 
-PENG-5308 (Bark internal ticket) needs a Bing Ads / Microsoft Advertising MCP
-at parity with this library's existing `google-ads` engine. No Bing/Microsoft
-Advertising engine existed anywhere in this catalog prior to this PR.
+This print brings Bing Ads / Microsoft Advertising to parity with this
+library's existing `google-ads` engine. No Bing/Microsoft Advertising engine
+existed anywhere in this catalog prior to this PR.
 
 ## Spec sourcing
 
