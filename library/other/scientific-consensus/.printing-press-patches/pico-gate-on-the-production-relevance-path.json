@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "pico-gate-on-the-production-relevance-path",
+  "applied_at": "2026-08-27",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "The relevance gate on the production consensus path must require a work to name BOTH sides of the claim — at least one intervention token AND at least one outcome token, matched over the abstract as well as the title — whenever the claim can be split around a polarity verb; the older title/topic single-token overlap rule remains only as the fallback for claims that cannot be split, and the two must never run in sequence.",
+  "reason": "IsPICORelevant and its stored corpora existed but had no caller outside tests, so production still filtered on the older overlap rule: a single shared token anywhere in title or topic was enough, and the abstract was never read. A paper that names only the intervention ('coffee bean roasting temperature and yield' under 'coffee improves alertness') passed the gate and entered the consensus score. Layering the two gates was rejected: applying a title/topic rule after an abstract-aware one would re-drop works PICO deliberately kept, so they are alternatives selected on whether PICOTokens yields both sides. The fallback is not decorative — a claim phrased without a polarity verb is still a valid claim, and removing the older gate outright would leave those claims with no relevance filtering at all.",
+  "files": [
+    "internal/cli/scwork.go",
+    "internal/scengine/pico.go",
+    "internal/scengine/normalize.go"
+  ],
+  "validated_outcome": "Tests pin which gate runs rather than that filtering happens: in the PICO case every work carries an intervention token in its title, so the overlap rule would keep all of them and only PICO separates them — verified by forcing the PICO branch off, which fails with both works kept. A second test pins the fallback on an unsplittable claim ('mediterranean diet'), where PICOTokens yields nothing and the overlap rule must still drop the off-topic work. go build and the full package test suite green."
+}
