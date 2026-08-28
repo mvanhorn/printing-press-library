@@ -1,0 +1,38 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-28T08:17:13.623783086Z",
+  "printing_press_version": "4.31.1",
+  "api_name": "bing-ads",
+  "display_name": "Microsoft Advertising Bing",
+  "cli_name": "bing-ads-pp-cli",
+  "creator": {
+    "handle": "azbirovskiy",
+    "name": "Anatoliy Zbirovskiy"
+  },
+  "printer_name": "Anatoliy Zbirovskiy",
+  "spec_path": "spec.json",
+  "spec_format": "openapi3",
+  "spec_source": "official",
+  "spec_checksum": "sha256:9ae84ef319b4c1331feb0625a7aba5b9d4490d1d34de40836d1cb99b6b8e650f",
+  "run_id": "20260828-081713",
+  "category": "marketing",
+  "description": "Reconstructed from the official BingAds-Python-SDK openapi_client (openapi-generator output)",
+  "mcp_binary": "bing-ads-pp-mcp",
+  "mcp_tool_count": 287,
+  "mcp_ready": "full",
+  "api_version": "13.0.0",
+  "auth_type": "api_key",
+  "auth_preference": "CustomerAccountId",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "printer": "azbirovskiy"
+}
