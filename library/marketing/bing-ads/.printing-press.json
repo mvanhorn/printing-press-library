@@ -9,6 +9,7 @@
     "handle": "azbirovskiy",
     "name": "Anatoliy Zbirovskiy"
   },
+  "printer": "azbirovskiy",
   "printer_name": "Anatoliy Zbirovskiy",
   "spec_path": "spec.json",
   "spec_format": "openapi3",
@@ -34,5 +35,40 @@
       "sensitive": false
     }
   ],
-  "printer": "azbirovskiy"
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 96.7741935483871,
+    "passed": 30,
+    "total": 31,
+    "failed": 1,
+    "data_pipeline": true,
+    "verdict": "WARN"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 84,
+      "grade": "A (1 of 25 dimensions unverified: live_api_verification)",
+      "total": 84
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  },
+  "novel_features": [
+    {
+      "name": "Account discovery",
+      "command": "customer-management get-accounts-info",
+      "description": "List every Microsoft Advertising account visible under a customer via a single REST call, replacing the legacy SOAP GetAccountsInfo request."
+    },
+    {
+      "name": "Campaign performance reporting without WSDL",
+      "command": "reporting submit-generate-report",
+      "description": "Submit a campaign performance report request directly against the REST Reporting service; pair with poll-generate-report to retrieve the completed report, no legacy SOAP report-request XML required."
+    },
+    {
+      "name": "Ad Insight recommendation apply",
+      "command": "ad-insight apply-recommendations",
+      "description": "Apply Microsoft's auto-generated account recommendations directly from the terminal or MCP surface."
+    }
+  ]
 }
