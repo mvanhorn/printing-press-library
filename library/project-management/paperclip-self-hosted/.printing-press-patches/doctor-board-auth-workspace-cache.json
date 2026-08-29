@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "doctor-board-auth-workspace-cache",
+  "applied_at": "2026-08-29",
+  "base_run_id": "pp-pp-local-2026-07-11",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Preserve auth-aware doctor identity probes and project-scoped workspace cache writes across regeneration. Board sessions and board API keys use /api/cli-auth/me, agent credentials use /api/agents/me, CLI auth overrides participate in the probe, and live projectId workspace payloads populate projects_id before storage-key calculation.",
+  "reason": "The generated doctor probed /api/agents/me for every credential type, producing false 401 results for valid board credentials and skipping session-cookie validation. Generated workspace cache writes also expected projects_id while the live API returns projectId, causing typed-table failures and unscoped generic keys.",
+  "files": [
+    "internal/cli/doctor.go",
+    "internal/cli/doctor_test.go",
+    "internal/store/store.go",
+    "internal/store/upsert_batch_test.go"
+  ],
+  "validated_outcome": "Full go test ./... passes; live authenticated doctor reports reachable with valid board credentials; live project workspace reads return both workspaces with zero stderr or typed-table cache warnings."
+}
