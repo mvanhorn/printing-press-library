@@ -11988,6 +11988,7 @@ func BareResourceID(storageID string) string {
 var childScopeColumnSources = map[string]string{
 	"companies_id": "company",
 	"issues_id":    "issue",
+	"projects_id":  "project_id",
 }
 
 // deriveScopeColumns backfills a typed child table's scope column from the
@@ -12065,6 +12066,11 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 			extractFailures++
 			continue
 		}
+		// Write-through cache responses can carry a singular camelCase parent
+		// field (for example projectId) rather than the generated plural scope
+		// column (projects_id). Derive it before computing the storage key so
+		// both the generic and typed rows retain their parent scope.
+		deriveScopeColumns(obj)
 		storageID := resourceStorageID(resourceType, id, obj)
 
 		if err := s.upsertGenericResourceTx(tx, resourceType, storageID, item); err != nil {
@@ -12074,11 +12080,6 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 			return stored, extractFailures, fmt.Errorf("upserting %s/%s: %w", resourceType, storageID, err)
 		}
 		stored++
-
-		// Backfill the typed child table's NOT NULL scope column from the item's
-		// own parent reference when the dependent-sync path injection is absent
-		// (write-through cache feeds RAW API items here).
-		deriveScopeColumns(obj)
 
 		savepoint := fmt.Sprintf("pp_typed_%d", i)
 		if _, err := tx.Exec("SAVEPOINT " + savepoint); err != nil {

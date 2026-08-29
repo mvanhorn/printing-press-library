@@ -25155,6 +25155,51 @@ func TestUpsertBatch_PopulatesWorkspacesTable(t *testing.T) {
 	}
 }
 
+// TestUpsertBatch_PopulatesWorkspacesFromLiveProjectID verifies the live API's
+// projectId field is translated into the generated projects_id scope column.
+// Without this translation, every workspace typed insert violates NOT NULL and
+// list commands emit a typed-table upsert warning despite returning live data.
+func TestUpsertBatch_PopulatesWorkspacesFromLiveProjectID(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"id":"workspace-001","projectId":"project-001","name":"primary"}`),
+		json.RawMessage(`{"id":"workspace-001","projectId":"project-002","name":"secondary"}`),
+	}
+	stored, extractFailures, err := s.UpsertBatch("workspaces", items)
+	if err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+	if stored != len(items) || extractFailures != 0 {
+		t.Fatalf("UpsertBatch = (%d, %d), want (%d, 0)", stored, extractFailures, len(items))
+	}
+
+	db := s.DB()
+	var typed int
+	if err := db.QueryRow(`SELECT COUNT(*) FROM "workspaces"`).Scan(&typed); err != nil {
+		t.Fatalf("count workspaces: %v", err)
+	}
+	if typed != len(items) {
+		t.Fatalf("workspaces count = %d, want %d", typed, len(items))
+	}
+
+	for _, projectID := range []string{"project-001", "project-002"} {
+		storageID := "workspace-001" + string([]byte{0}) + projectID
+		var typedProjectID string
+		if err := db.QueryRow(`SELECT "projects_id" FROM "workspaces" WHERE "id" = ?`, storageID).Scan(&typedProjectID); err != nil {
+			t.Fatalf("workspace %q: %v", storageID, err)
+		}
+		if typedProjectID != projectID {
+			t.Fatalf("workspace %q projects_id = %q, want %q", storageID, typedProjectID, projectID)
+		}
+	}
+}
+
 // TestUpsertBatch_TypedFailureDoesNotStrandWorkspacesGeneric exercises
 // the savepoint isolation around the typed-table dispatch. The fixture omits
 // the NOT NULL parent FK column so the typed insert fails; the savepoint
