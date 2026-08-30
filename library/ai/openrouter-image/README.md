@@ -169,7 +169,7 @@ rm -rf "$HOME/.config/openrouter-image-pp-cli" \
        "$HOME/.cache/openrouter-image-pp-cli"
 ```
 
-If you relocated storage via `--home`, `OPENROUTER_IMAGE_HOME`, or a per-kind override (`OPENROUTER_IMAGE_CONFIG_DIR`, `OPENROUTER_IMAGE_DATA_DIR`, `OPENROUTER_IMAGE_STATE_DIR`, `OPENROUTER_IMAGE_CACHE_DIR`), the files live under those locations instead. Run `openrouter-image-pp-cli doctor` (or `openrouter-image-pp-cli agent-context --pretty` for the resolved paths) to see where each kind currently resolves before deleting; when using `--home`, pass the same `--home <dir>` flag to that command.
+If you relocated storage via `--home`, `OPENROUTER_IMAGE_HOME`, an XDG override (`XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`), or a per-kind override (`OPENROUTER_IMAGE_CONFIG_DIR`, `OPENROUTER_IMAGE_DATA_DIR`, `OPENROUTER_IMAGE_STATE_DIR`, `OPENROUTER_IMAGE_CACHE_DIR`), the files live under those locations instead. Run `openrouter-image-pp-cli doctor` (or `openrouter-image-pp-cli agent-context --pretty` for the resolved paths) to see where each kind currently resolves before deleting; when using `--home`, pass the same `--home <dir>` flag to that command.
 
 ## Authentication
 
