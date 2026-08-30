@@ -1,0 +1,269 @@
+{
+  "api_name": "openai-ads",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "openai-ads-mcp",
+      "url": "https://github.com/HYPD-AI/openai-ads-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 4,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-07T23:24:05Z",
+  "novel_features": [
+    {
+      "name": "Budget pacing",
+      "command": "pace",
+      "description": "See whether a campaign will underspend or blow through its cap before the period ends.",
+      "rationale": "Requires a stored spend time series joined against budget caps; the API returns only point-in-time insights.",
+      "example": "openai-ads-pp-cli pace --agent",
+      "why_it_matters": "Reach for this instead of raw insights when the question is about trajectory rather than a current number.",
+      "group": "Local history the API does not keep"
+    },
+    {
+      "name": "Change drift",
+      "command": "drift",
+      "description": "Show what changed across campaigns, ad groups, and ads between two syncs.",
+      "rationale": "No change-history endpoint exists in the Ads API; only local snapshot diffing can answer it.",
+      "example": "openai-ads-pp-cli drift --since 7d --agent",
+      "why_it_matters": "Use this to answer 'what changed and when', which no single API call can report.",
+      "group": "Local history the API does not keep"
+    },
+    {
+      "name": "Creative fatigue",
+      "command": "fatigue",
+      "description": "Rank ads by click-through decay so tired creative is obvious before spend is wasted.",
+      "rationale": "Trend detection needs stored insight snapshots; one insights call is a single point.",
+      "example": "openai-ads-pp-cli fatigue --limit 10 --agent",
+      "why_it_matters": "Pick this over ad insights when the question is whether performance is declining, not what it is today.",
+      "group": "Local history the API does not keep"
+    },
+    {
+      "name": "Review watch",
+      "command": "review-watch",
+      "description": "Track approval and review status transitions across the account and every ad.",
+      "rationale": "The API exposes only current review state, so transitions are invisible without local history.",
+      "example": "openai-ads-pp-cli review-watch --agent",
+      "why_it_matters": "Use this to catch a flip to rejected or in_review that a status read would not reveal as a change.",
+      "group": "Local history the API does not keep"
+    },
+    {
+      "name": "Bid and budget coherence",
+      "command": "bid-check",
+      "description": "Flag ad groups whose maximum bid is irrational against the parent campaign budget.",
+      "rationale": "Joins ad group bidding config against campaign budget, which live across two endpoints with no server-side join.",
+      "example": "openai-ads-pp-cli bid-check --agent",
+      "why_it_matters": "Catches configurations that permit only a handful of clicks per day before any spend happens.",
+      "group": "Cross-entity joins the API cannot do"
+    },
+    {
+      "name": "Structural audit",
+      "command": "orphans",
+      "description": "Find ad groups with no ads, campaigns with no delivery, and audiences nothing references.",
+      "rationale": "Requires a join across the entire local hierarchy that no endpoint returns.",
+      "example": "openai-ads-pp-cli orphans --agent",
+      "why_it_matters": "Use this for structural dead weight rather than performance questions.",
+      "group": "Cross-entity joins the API cannot do"
+    },
+    {
+      "name": "Account tree",
+      "command": "tree",
+      "description": "Render the whole campaign, ad group, and ad hierarchy with status, budget, and review state.",
+      "rationale": "The API needs many paginated calls across three resources; the local mirror answers instantly.",
+      "example": "openai-ads-pp-cli tree --agent",
+      "why_it_matters": "Start here to orient in an unfamiliar account before drilling into any single resource.",
+      "group": "Cross-entity joins the API cannot do"
+    },
+    {
+      "name": "Geo resolve",
+      "command": "geo resolve",
+      "description": "Turn the bare location IDs in campaign targeting into readable place names.",
+      "rationale": "Targeting returns opaque numeric IDs that must each be looked up separately and are never cached.",
+      "example": "openai-ads-pp-cli geo resolve --agent",
+      "why_it_matters": "Use this whenever targeting output shows numeric IDs you cannot interpret.",
+      "group": "Readability"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Budget pacing",
+      "command": "pace",
+      "description": "See whether a campaign will underspend or blow through its cap before the period ends.",
+      "rationale": "Requires a stored spend time series joined against budget caps; the API returns only point-in-time insights.",
+      "example": "openai-ads-pp-cli pace --agent",
+      "why_it_matters": "Reach for this instead of raw insights when the question is about trajectory rather than a current number.",
+      "group": "Local history the API does not keep"
+    },
+    {
+      "name": "Change drift",
+      "command": "drift",
+      "description": "Show what changed across campaigns, ad groups, and ads between two syncs.",
+      "rationale": "No change-history endpoint exists in the Ads API; only local snapshot diffing can answer it.",
+      "example": "openai-ads-pp-cli drift --since 7d --agent",
+      "why_it_matters": "Use this to answer 'what changed and when', which no single API call can report.",
+      "group": "Local history the API does not keep"
+    },
+    {
+      "name": "Creative fatigue",
+      "command": "fatigue",
+      "description": "Rank ads by click-through decay so tired creative is obvious before spend is wasted.",
+      "rationale": "Trend detection needs stored insight snapshots; one insights call is a single point.",
+      "example": "openai-ads-pp-cli fatigue --limit 10 --agent",
+      "why_it_matters": "Pick this over ad insights when the question is whether performance is declining, not what it is today.",
+      "group": "Local history the API does not keep"
+    },
+    {
+      "name": "Review watch",
+      "command": "review-watch",
+      "description": "Track approval and review status transitions across the account and every ad.",
+      "rationale": "The API exposes only current review state, so transitions are invisible without local history.",
+      "example": "openai-ads-pp-cli review-watch --agent",
+      "why_it_matters": "Use this to catch a flip to rejected or in_review that a status read would not reveal as a change.",
+      "group": "Local history the API does not keep"
+    },
+    {
+      "name": "Bid and budget coherence",
+      "command": "bid-check",
+      "description": "Flag ad groups whose maximum bid is irrational against the parent campaign budget.",
+      "rationale": "Joins ad group bidding config against campaign budget, which live across two endpoints with no server-side join.",
+      "example": "openai-ads-pp-cli bid-check --agent",
+      "why_it_matters": "Catches configurations that permit only a handful of clicks per day before any spend happens.",
+      "group": "Cross-entity joins the API cannot do"
+    },
+    {
+      "name": "Structural audit",
+      "command": "orphans",
+      "description": "Find ad groups with no ads, campaigns with no delivery, and audiences nothing references.",
+      "rationale": "Requires a join across the entire local hierarchy that no endpoint returns.",
+      "example": "openai-ads-pp-cli orphans --agent",
+      "why_it_matters": "Use this for structural dead weight rather than performance questions.",
+      "group": "Cross-entity joins the API cannot do"
+    },
+    {
+      "name": "Account tree",
+      "command": "tree",
+      "description": "Render the whole campaign, ad group, and ad hierarchy with status, budget, and review state.",
+      "rationale": "The API needs many paginated calls across three resources; the local mirror answers instantly.",
+      "example": "openai-ads-pp-cli tree --agent",
+      "why_it_matters": "Start here to orient in an unfamiliar account before drilling into any single resource.",
+      "group": "Cross-entity joins the API cannot do"
+    },
+    {
+      "name": "Geo resolve",
+      "command": "geo resolve",
+      "description": "Turn the bare location IDs in campaign targeting into readable place names.",
+      "rationale": "Targeting returns opaque numeric IDs that must each be looked up separately and are never cached.",
+      "example": "openai-ads-pp-cli geo resolve --agent",
+      "why_it_matters": "Use this whenever targeting output shows numeric IDs you cannot interpret.",
+      "group": "Readability"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "OPENAI_ADS_API_KEY"
+  },
+  "narrative": {
+    "display_name": "OpenAI Ads",
+    "headline": "The first OpenAI Ads client that can write, and the only one that keeps local history.",
+    "value_prop": "Covers the whole Advertiser API surface rather than a read-only slice of it, and mirrors your account into SQLite so questions the REST API structurally cannot answer become one command. Pacing, drift, creative fatigue, and structural audits all come from local snapshots. Every monetary value is rendered in your account currency instead of raw micros.",
+    "auth_narrative": "Ads Manager issues two different keys and they are easy to confuse. The Ads API key comes from the Settings tab and is scoped to one ad account; set it as OPENAI_ADS_API_KEY. The Conversions API key comes from the Conversions tab, is scoped to a single conversion event, and returns 403 Unauthorized to read ads data if used for ads calls. Set that one as OPENAI_ADS_CONVERSIONS_API_KEY only if you send server-side conversion events. Run doctor to see which key is configured.",
+    "quickstart": [
+      {
+        "command": "openai-ads-pp-cli doctor --dry-run",
+        "comment": "confirm which credential is configured before anything hits the network"
+      },
+      {
+        "command": "openai-ads-pp-cli sync",
+        "comment": "mirror the account hierarchy and insights into local SQLite"
+      },
+      {
+        "command": "openai-ads-pp-cli tree",
+        "comment": "see every campaign, ad group, and ad with status and budget in one view"
+      },
+      {
+        "command": "openai-ads-pp-cli pace --agent",
+        "comment": "check spend trajectory against budget caps"
+      },
+      {
+        "command": "openai-ads-pp-cli bid-check --agent",
+        "comment": "catch bids that are irrational against the parent campaign budget"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "403 Unauthorized to read ads data",
+        "fix": "You are using a Conversions API key. Issue an Ads API key from Ads Manager \u003e Settings and set OPENAI_ADS_API_KEY."
+      },
+      {
+        "symptom": "401 Missing or invalid SDK key in Authorization header",
+        "fix": "No credential reached the API. Export OPENAI_ADS_API_KEY, then run doctor."
+      },
+      {
+        "symptom": "403 with Conversion bidding is not enabled",
+        "fix": "Conversion-optimized campaigns are not enabled for the account. Contact your OpenAI partner representative."
+      },
+      {
+        "symptom": "404 Not found on conversions pixels or api_keys",
+        "fix": "Conversion management is not enabled for this ad account. Contact your OpenAI partner representative."
+      },
+      {
+        "symptom": "Account will not serve ads and review.reason is missing_favicon",
+        "fix": "Upload an image with purpose account_favicon at least 128x128, then assign it to the brand."
+      },
+      {
+        "symptom": "Budgets and bids look like huge integers",
+        "fix": "Those are micros. One million micros is one unit of account currency; the human output renders them for you."
+      }
+    ],
+    "when_to_use": "Reach for this when working with ChatGPT Ads campaigns programmatically: auditing account structure, checking spend pacing, diffing what changed, or creating and updating campaigns, ad groups, and ads. It is strongest when the question spans more than one resource or more than one point in time, because the local mirror can join and compare where the REST API cannot.",
+    "anti_triggers": [
+      "Do not use this CLI for the OpenAI Platform API; model, file, and batch calls belong to api.openai.com and a different credential.",
+      "Do not use this CLI to send server-side conversion events; that is a separate ingestion endpoint with its own event-scoped key.",
+      "Do not use this CLI to complete business verification or brand review, which are console-only workflows.",
+      "Do not expect local commands to reflect changes made in Ads Manager until after a sync."
+    ],
+    "recipes": [
+      {
+        "title": "Orient in an unfamiliar account",
+        "command": "openai-ads-pp-cli tree --agent",
+        "explanation": "Renders the whole hierarchy with status and budget so you can see the shape before touching anything."
+      },
+      {
+        "title": "Narrow a verbose campaign payload",
+        "command": "openai-ads-pp-cli campaigns list --agent --select data.id,data.name,data.status,data.budget.daily_spend_limit_micros",
+        "explanation": "Campaign objects carry targeting and landing page blocks; selecting fields keeps agent context small."
+      },
+      {
+        "title": "Find tired creative",
+        "command": "openai-ads-pp-cli fatigue --limit 5 --agent",
+        "explanation": "Ranks ads by click-through decay across stored snapshots rather than a single reading."
+      },
+      {
+        "title": "See what changed this week",
+        "command": "openai-ads-pp-cli drift --since 7d --agent",
+        "explanation": "Diffs local snapshots to surface status, budget, bid, and creative changes the API keeps no record of."
+      },
+      {
+        "title": "Preview a mutation safely",
+        "command": "openai-ads-pp-cli campaigns pause campaign-method cmpn_example --dry-run",
+        "explanation": "Shows the request that would be sent without changing anything in the live account."
+      }
+    ],
+    "trigger_phrases": [
+      "check my ChatGPT ads",
+      "how is my openai ads campaign pacing",
+      "what changed in my ad account",
+      "which ads are getting tired",
+      "audit my openai ads account structure",
+      "use openai-ads",
+      "run openai-ads"
+    ]
+  }
+}

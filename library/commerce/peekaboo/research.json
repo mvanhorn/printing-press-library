@@ -1,0 +1,196 @@
+{
+  "api_name": "peekaboo",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-18T10:52:47Z",
+  "novel_features": [
+    {
+      "name": "Branch directions URLs",
+      "command": "directions",
+      "description": "Get a ready-to-open Google Maps directions link for every branch of a restaurant at once.",
+      "rationale": "Reads a merchant's branches from the live API and composes the site's Google Maps daddr URL for every branch at once, instead of clicking each Direction button.",
+      "example": "peekaboo-pp-cli directions 13 --city lahore --agent",
+      "why_it_matters": "Reach for this when an agent or user needs map links or coordinates for a chain's outlets in bulk.",
+      "group": "Branch geolocation"
+    },
+    {
+      "name": "Nearest branch",
+      "command": "nearest",
+      "description": "Find the single closest branch of a restaurant to a city or coordinates, with its directions link.",
+      "rationale": "Fetches a merchant's branches and computes haversine distance against a resolved city/coordinate reference to pick the closest; no single API call ranks branches by distance.",
+      "example": "peekaboo-pp-cli nearest 13 --near lahore --agent",
+      "why_it_matters": "Use when routing someone to the closest outlet of a chain.",
+      "group": "Branch geolocation"
+    },
+    {
+      "name": "Card to merchants",
+      "command": "wallet",
+      "description": "List every merchant in a city that honors a given bank card's deal (card to merchants).",
+      "rationale": "Fans out across a city's deal-bearing merchants and their deals to invert the site's merchant-to-card relation into card-to-merchants.",
+      "example": "peekaboo-pp-cli wallet hbl --city lahore --category 1 --agent",
+      "why_it_matters": "Use for card-led planning: which places accept my bank's discount.",
+      "group": "Deal intelligence"
+    },
+    {
+      "name": "Top deals ranking",
+      "command": "top-deals",
+      "description": "Rank a city's merchants by discount percentage and return the biggest current discounts.",
+      "rationale": "Fans out across a city's deal-bearing merchants, collects every deal, and ranks them by discount percentage; no cross-merchant aggregation endpoint exists upstream.",
+      "example": "peekaboo-pp-cli top-deals --city lahore --category 1 --min-discount 30 --agent",
+      "why_it_matters": "Use to find the single biggest valid discount in a city without opening merchant pages one by one.",
+      "group": "Deal intelligence"
+    },
+    {
+      "name": "Expiring deals",
+      "command": "expiring",
+      "description": "List deals whose validity window closes within N days.",
+      "rationale": "Fans out across a city's merchants, collects their deals, and filters by end-date window; no cross-merchant deals feed exists upstream.",
+      "example": "peekaboo-pp-cli expiring --city lahore --category 1 --within 7d --agent",
+      "why_it_matters": "Use to catch use-it-or-lose-it offers before they expire.",
+      "group": "Deal intelligence"
+    },
+    {
+      "name": "Open now",
+      "command": "open-now",
+      "description": "Keep only merchants with a branch open at the current local time.",
+      "rationale": "Filters the city's trending merchant listing to those Peekaboo reports open at the current time.",
+      "example": "peekaboo-pp-cli open-now --city lahore --category 1 --agent",
+      "why_it_matters": "Use for 'where can I eat right now' queries.",
+      "group": "Deal intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Branch directions URLs",
+      "command": "directions",
+      "description": "Get a ready-to-open Google Maps directions link for every branch of a restaurant at once.",
+      "rationale": "Reads a merchant's branches from the live API and composes the site's Google Maps daddr URL for every branch at once, instead of clicking each Direction button.",
+      "example": "peekaboo-pp-cli directions 13 --city lahore --agent",
+      "why_it_matters": "Reach for this when an agent or user needs map links or coordinates for a chain's outlets in bulk.",
+      "group": "Branch geolocation"
+    },
+    {
+      "name": "Nearest branch",
+      "command": "nearest",
+      "description": "Find the single closest branch of a restaurant to a city or coordinates, with its directions link.",
+      "rationale": "Fetches a merchant's branches and computes haversine distance against a resolved city/coordinate reference to pick the closest; no single API call ranks branches by distance.",
+      "example": "peekaboo-pp-cli nearest 13 --near lahore --agent",
+      "why_it_matters": "Use when routing someone to the closest outlet of a chain.",
+      "group": "Branch geolocation"
+    },
+    {
+      "name": "Card to merchants",
+      "command": "wallet",
+      "description": "List every merchant in a city that honors a given bank card's deal (card to merchants).",
+      "rationale": "Fans out across a city's deal-bearing merchants and their deals to invert the site's merchant-to-card relation into card-to-merchants.",
+      "example": "peekaboo-pp-cli wallet hbl --city lahore --category 1 --agent",
+      "why_it_matters": "Use for card-led planning: which places accept my bank's discount.",
+      "group": "Deal intelligence"
+    },
+    {
+      "name": "Top deals ranking",
+      "command": "top-deals",
+      "description": "Rank a city's merchants by discount percentage and return the biggest current discounts.",
+      "rationale": "Fans out across a city's deal-bearing merchants, collects every deal, and ranks them by discount percentage; no cross-merchant aggregation endpoint exists upstream.",
+      "example": "peekaboo-pp-cli top-deals --city lahore --category 1 --min-discount 30 --agent",
+      "why_it_matters": "Use to find the single biggest valid discount in a city without opening merchant pages one by one.",
+      "group": "Deal intelligence"
+    },
+    {
+      "name": "Expiring deals",
+      "command": "expiring",
+      "description": "List deals whose validity window closes within N days.",
+      "rationale": "Fans out across a city's merchants, collects their deals, and filters by end-date window; no cross-merchant deals feed exists upstream.",
+      "example": "peekaboo-pp-cli expiring --city lahore --category 1 --within 7d --agent",
+      "why_it_matters": "Use to catch use-it-or-lose-it offers before they expire.",
+      "group": "Deal intelligence"
+    },
+    {
+      "name": "Open now",
+      "command": "open-now",
+      "description": "Keep only merchants with a branch open at the current local time.",
+      "rationale": "Filters the city's trending merchant listing to those Peekaboo reports open at the current time.",
+      "example": "peekaboo-pp-cli open-now --city lahore --category 1 --agent",
+      "why_it_matters": "Use for 'where can I eat right now' queries.",
+      "group": "Deal intelligence"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Peekaboo Guru",
+    "headline": "Every Peekaboo deal, branch, and bank-card offer from the terminal — plus city-wide deal ranking, bank-card reverse lookup, and bulk branch map-link export the Peekaboo site has no button for.",
+    "value_prop": "Peekaboo Guru lists restaurant and retail deals, bank-card discounts, and store branches across Pakistan. This CLI wraps its full API with zero-config guest auth and adds commands the site can't do in one step: rank a whole city's discounts with top-deals, invert bank-card deals into card-to-merchant lookups with wallet, find the nearest branch of a chain with nearest, and export Google Maps directions for every branch with directions.",
+    "auth_narrative": "No signup or API key. Peekaboo serves a public guest token embedded in every page; the CLI fetches and caches it automatically on first use, so commands just work.",
+    "quickstart": [
+      {
+        "command": "peekaboo-pp-cli doctor --dry-run",
+        "comment": "confirm the CLI is wired up"
+      },
+      {
+        "command": "peekaboo-pp-cli locations list --limit 20",
+        "comment": "find your city (982 available); auto-auth kicks in here"
+      },
+      {
+        "command": "peekaboo-pp-cli places list --city Lahore --country Pakistan --category 1 --latitude 31.5546 --longitude 74.3572 --limit 20",
+        "comment": "browse food deals in a city"
+      },
+      {
+        "command": "peekaboo-pp-cli directions 13 --city lahore",
+        "comment": "Google Maps links for every branch of a restaurant (id from places list)"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on any command except locations",
+        "fix": "run 'peekaboo-pp-cli bootstrap' to refresh the cached guest token"
+      },
+      {
+        "symptom": "empty results from top-deals, wallet, or expiring",
+        "fix": "raise --max-scan-pages and --max-merchants to scan more merchants, or lower --min-discount"
+      },
+      {
+        "symptom": "requests start failing after many rapid calls",
+        "fix": "Peekaboo rate-limits bursts; wait a few seconds and retry — the CLI paces automatically"
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or user needs to discover Pakistan deals and discounts, compare or rank offers across merchants in a city, look up which bank cards give discounts where, or get coordinates and Google Maps directions for a restaurant chain's branches. It is strongest for city-scoped deal ranking and bulk branch geolocation, which the Peekaboo website cannot do in one step.",
+    "anti_triggers": [
+      "Do not use this CLI to redeem, apply, or purchase deals — it is read-only discovery.",
+      "Do not use it for deals outside Peekaboo's coverage (it is Pakistan-focused).",
+      "Do not use it to manage a Peekaboo user account or write reviews."
+    ],
+    "recipes": [
+      {
+        "title": "Rank a city's food deals",
+        "command": "peekaboo-pp-cli top-deals --city lahore --category 1 --min-discount 30 --limit 10",
+        "explanation": "The biggest current food discounts in Lahore, ranked by percentage."
+      },
+      {
+        "title": "Export every branch's map link",
+        "command": "peekaboo-pp-cli directions 13 --city lahore --csv",
+        "explanation": "One Google Maps directions URL per branch, as CSV (get the id from 'places list')."
+      },
+      {
+        "title": "Card-led planning",
+        "command": "peekaboo-pp-cli wallet hbl --city lahore --category 1",
+        "explanation": "Every food merchant in Lahore that honors an HBL card deal."
+      },
+      {
+        "title": "Narrow a large place listing for an agent",
+        "command": "peekaboo-pp-cli places list --city Karachi --country Pakistan --category 1 --latitude 24.8607 --longitude 67.0011 --agent --select entities.name,entities.stats.branches,entities.nearestBranch.lat,entities.nearestBranch.long",
+        "explanation": "Karachi has ~17k food merchants; --select returns only the fields an agent needs."
+      }
+    ],
+    "trigger_phrases": [
+      "find deals in lahore",
+      "which card gives a discount at kababjees",
+      "branches of arcadian cafe with directions",
+      "biggest food discounts in karachi",
+      "use peekaboo",
+      "run peekaboo"
+    ]
+  }
+}

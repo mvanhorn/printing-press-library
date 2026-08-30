@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "mcp-http-loopback-default",
+  "applied_at": "2026-08-03",
+  "base_run_id": "20260803T075619Z-899a6d3a",
+  "base_printing_press_version": "4.30.1",
+  "summary": "kie-pp-mcp's http transport must bind only to loopback addresses (127/8, ::1, or localhost); a reprint that restores bare-port or wide-host binds reintroduces an unauthenticated network listener exposing credentialed API and local SQLite tools to any reachable client.",
+  "reason": "server.NewStreamableHTTPServer as wired here performs no client authentication. A bare ':7777', wildcard, public IP, private LAN IP, or arbitrary hostname bind lets any host that can reach the port invoke credentialed Kie.ai API calls and local learn/store tools with zero auth. Remote access must be provided by an authenticated TLS reverse proxy forwarding to a loopback bind.",
+  "files": ["cmd/kie-pp-mcp/main.go", "cmd/kie-pp-mcp/main_test.go"],
+  "validated_outcome": "Validated on 2026-08-27 with Go 1.26.6: targeted bind tests, a built-binary wildcard-bind preflight, go test ./..., go vet ./..., go build ./..., and govulncheck ./... all pass. The http transport accepts loopback host:port binds and rejects empty, wildcard, public, private-LAN, arbitrary-hostname, and malformed addresses before starting the server. Credentialed quick Phase 5 dogfood against api.kie.ai also passes 15/15 with zero failures; the regenerated proof fingerprints all 248 current source files with zero mismatches.",
+  "upstream_issue": ""
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "review-item-add-dedup",
+  "applied_at": "2026-08-16",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Prevent duplicate shopping-list item adds through ranked fresh matching and safe reuse enrichment.",
+  "reason": "Fresh AnyList matching now uses Unicode-normalized token bags for punctuation and word-order variants, conservative ingredient-head plus descriptor identity, exact UPC/package evidence, and metadata richness to select a deterministic canonical row. Generic ingredients do not infer shredded/sliced/block form from quantity alone; explicit item or recipe text is required before a specific form is reused. Existing rows are reused without duplicate creation; compatible quantities accumulate and blank notes/barcode/package fields may be enriched without overwriting populated metadata.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "internal/cli/item_dedup.go",
+    "internal/cli/item_dedup_test.go",
+    "internal/cli/quantity_merge.go",
+    "internal/cli/quantity_merge_test.go",
+    "internal/cli/items_add.go",
+    "internal/cli/recipes_to_list.go"
+  ],
+  "validated_outcome": "The item add path reads the target list from fresh user data before creating, ranks canonical candidates, requires explicit form evidence before reusing a specific preparation form, reuses the best unchecked match, merges compatible quantities, and verifies scalar/package/metadata enrichment by fresh read-back. Recipe-to-list carries raw ingredient/note form context, aggregates equivalent ingredients, updates existing quantities/details when safe, and adds only net-new rows. Focused matcher, form, quantity, and items-add tests pass; no live AnyList writes were performed."
+}

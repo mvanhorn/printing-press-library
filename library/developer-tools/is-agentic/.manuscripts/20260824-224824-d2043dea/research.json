@@ -1,0 +1,216 @@
+{
+  "api_name": "is-agentic",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "is-agentic official CLI",
+      "url": "https://github.com/vercel-labs/is-agentic",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-24T17:22:00Z",
+  "novel_features": [
+    {
+      "name": "Snapshot ledger",
+      "command": "history",
+      "description": "Keep a local, timestamped ledger of readiness reports and their provenance.",
+      "rationale": "The service exposes the latest stored report, but only a local store can preserve each observation and distinguish service scan time from fetch time.",
+      "example": "is-agentic-pp-cli history --json --agent",
+      "why_it_matters": "Choose this when you need an auditable local timeline instead of one ephemeral API response.",
+      "group": "Local evidence that compounds"
+    },
+    {
+      "name": "Cross-report diff",
+      "command": "diff",
+      "description": "See which readiness scores and findings changed between two retained audits.",
+      "rationale": "A diff requires two locally retained snapshots and normalized issue identity; no single API response can provide that comparison.",
+      "example": "is-agentic-pp-cli diff --target https://is-agentic.com --json --agent",
+      "why_it_matters": "Choose this after a deployment to verify whether agent-readiness regressions were introduced or fixed.",
+      "group": "Local evidence that compounds"
+    },
+    {
+      "name": "Explainable policy gate",
+      "command": "check",
+      "description": "Fail CI with an explicit, machine-readable readiness policy decision.",
+      "rationale": "Teams define their own score, tier, and regression policy over report data; the service only returns evidence, not repository-specific acceptance rules.",
+      "example": "is-agentic-pp-cli check --target https://is-agentic.com --min-score 80 --json --agent",
+      "why_it_matters": "Choose this when a release pipeline must enforce readiness instead of merely displaying it.",
+      "group": "Release and fleet controls"
+    },
+    {
+      "name": "Portfolio matrix",
+      "command": "portfolio",
+      "description": "Compare a fleet of public sites in one sortable score and issue matrix.",
+      "rationale": "The API is one-target-per-request, while a local orchestrator can fetch, cache, deduplicate, and aggregate targets under the published quota.",
+      "example": "is-agentic-pp-cli portfolio --targets https://is-agentic.com,https://example.com --json --agent",
+      "why_it_matters": "Choose this for platform or agency work spanning multiple public targets.",
+      "group": "Release and fleet controls"
+    },
+    {
+      "name": "Issue lifecycle queue",
+      "command": "issues",
+      "description": "Track when readiness findings first appeared, last appeared, were fixed, or regressed.",
+      "rationale": "Lifecycle state emerges only by joining issue IDs across retained snapshots; the current report has no temporal issue history.",
+      "example": "is-agentic-pp-cli issues --target https://is-agentic.com --json --agent",
+      "why_it_matters": "Choose this to turn recurring findings into a remediation queue with honest history.",
+      "group": "Local evidence that compounds"
+    },
+    {
+      "name": "Rate-aware fleet scheduler",
+      "command": "portfolio",
+      "description": "Refresh many targets with bounded concurrency, deduplication, and Retry-After-aware pacing.",
+      "rationale": "Quota-aware scheduling and resumable fleet state are client concerns missing from the one-target API and official CLI.",
+      "example": "is-agentic-pp-cli portfolio --file sites.txt --max-requests 50 --json --agent",
+      "why_it_matters": "Choose this for repeatable fleet refreshes that must respect the public 120-per-minute quota.",
+      "group": "Release and fleet controls"
+    },
+    {
+      "name": "Evidence bundle",
+      "command": "evidence",
+      "description": "Package a report and its provenance into a portable evidence artifact.",
+      "rationale": "A local export can combine raw report data, observation time, stable URL, and comparison context for tickets or release records.",
+      "example": "is-agentic-pp-cli evidence --target https://is-agentic.com --json",
+      "why_it_matters": "Choose this when an audit must travel with a review, ticket, or release artifact.",
+      "group": "Portable audit artifacts"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Snapshot ledger",
+      "command": "history",
+      "description": "Keep a local, timestamped ledger of readiness reports and their provenance.",
+      "rationale": "The service exposes the latest stored report, but only a local store can preserve each observation and distinguish service scan time from fetch time.",
+      "example": "is-agentic-pp-cli history --json --agent",
+      "why_it_matters": "Choose this when you need an auditable local timeline instead of one ephemeral API response.",
+      "group": "Local evidence that compounds"
+    },
+    {
+      "name": "Cross-report diff",
+      "command": "diff",
+      "description": "See which readiness scores and findings changed between two retained audits.",
+      "rationale": "A diff requires two locally retained snapshots and normalized issue identity; no single API response can provide that comparison.",
+      "example": "is-agentic-pp-cli diff --target https://is-agentic.com --json --agent",
+      "why_it_matters": "Choose this after a deployment to verify whether agent-readiness regressions were introduced or fixed.",
+      "group": "Local evidence that compounds"
+    },
+    {
+      "name": "Explainable policy gate",
+      "command": "check",
+      "description": "Fail CI with an explicit, machine-readable readiness policy decision.",
+      "rationale": "Teams define their own score, tier, and regression policy over report data; the service only returns evidence, not repository-specific acceptance rules.",
+      "example": "is-agentic-pp-cli check --target https://is-agentic.com --min-score 80 --json --agent",
+      "why_it_matters": "Choose this when a release pipeline must enforce readiness instead of merely displaying it.",
+      "group": "Release and fleet controls"
+    },
+    {
+      "name": "Portfolio matrix",
+      "command": "portfolio",
+      "description": "Compare a fleet of public sites in one sortable score and issue matrix.",
+      "rationale": "The API is one-target-per-request, while a local orchestrator can fetch, cache, deduplicate, and aggregate targets under the published quota.",
+      "example": "is-agentic-pp-cli portfolio --targets https://is-agentic.com,https://example.com --json --agent",
+      "why_it_matters": "Choose this for platform or agency work spanning multiple public targets.",
+      "group": "Release and fleet controls"
+    },
+    {
+      "name": "Issue lifecycle queue",
+      "command": "issues",
+      "description": "Track when readiness findings first appeared, last appeared, were fixed, or regressed.",
+      "rationale": "Lifecycle state emerges only by joining issue IDs across retained snapshots; the current report has no temporal issue history.",
+      "example": "is-agentic-pp-cli issues --target https://is-agentic.com --json --agent",
+      "why_it_matters": "Choose this to turn recurring findings into a remediation queue with honest history.",
+      "group": "Local evidence that compounds"
+    },
+    {
+      "name": "Rate-aware fleet scheduler",
+      "command": "portfolio",
+      "description": "Refresh many targets with bounded concurrency, deduplication, and Retry-After-aware pacing.",
+      "rationale": "Quota-aware scheduling and resumable fleet state are client concerns missing from the one-target API and official CLI.",
+      "example": "is-agentic-pp-cli portfolio --file sites.txt --max-requests 50 --json --agent",
+      "why_it_matters": "Choose this for repeatable fleet refreshes that must respect the public 120-per-minute quota.",
+      "group": "Release and fleet controls"
+    },
+    {
+      "name": "Evidence bundle",
+      "command": "evidence",
+      "description": "Package a report and its provenance into a portable evidence artifact.",
+      "rationale": "A local export can combine raw report data, observation time, stable URL, and comparison context for tickets or release records.",
+      "example": "is-agentic-pp-cli evidence --target https://is-agentic.com --json",
+      "why_it_matters": "Choose this when an audit must travel with a review, ticket, or release artifact.",
+      "group": "Portable audit artifacts"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Is Agentic",
+    "headline": "Turn Is Agentic reports into durable, scriptable readiness evidence.",
+    "value_prop": "Retrieve the official report with the same read-only contract as the upstream CLI, then keep local history, diffs, fleet comparisons, policy gates, issue lifecycles, and exportable evidence beside it. The API remains the source of truth; the local layer makes repeated engineering work compound.",
+    "quickstart": [
+      {
+        "command": "is-agentic-pp-cli doctor --dry-run",
+        "comment": "Verify the generated CLI and public-service configuration without network access."
+      },
+      {
+        "command": "is-agentic-pp-cli report get-is-agentic-v1 --url https://is-agentic.com --dry-run",
+        "comment": "Preview the canonical report request safely."
+      },
+      {
+        "command": "is-agentic-pp-cli report get-is-agentic-v1 --url https://is-agentic.com --json",
+        "comment": "Fetch the latest completed report as structured JSON."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "report_not_found",
+        "fix": "Open the canonical report URL printed in the error, start the scan there, then retry the CLI."
+      },
+      {
+        "symptom": "rate_limit_exceeded",
+        "fix": "Honor Retry-After and lower portfolio concurrency or max requests."
+      },
+      {
+        "symptom": "temporary unavailability",
+        "fix": "Retry without launching a new scan; the service may be refreshing stored evidence."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or engineering workflow needs an Is Agentic score, evidence-backed issues, or repeatable comparisons across public sites. Prefer the local history, diff, portfolio, and check commands when the task spans deployments or more than one target.",
+    "anti_triggers": [
+      "Do not use this CLI as a security, accessibility, compliance, or penetration-test substitute.",
+      "Do not use it for private or authenticated pages that the public scan cannot observe.",
+      "Do not use it to start arbitrary scans through undocumented website internals; start a missing scan from the official web report page."
+    ],
+    "recipes": [
+      {
+        "title": "Fetch one report",
+        "command": "is-agentic-pp-cli report get-is-agentic-v1 --url https://is-agentic.com --json --agent",
+        "explanation": "Return the current report in a compact agent-friendly shape."
+      },
+      {
+        "title": "Compare a small fleet",
+        "command": "is-agentic-pp-cli portfolio --targets https://is-agentic.com,https://example.com --json --agent --select target,score,score_label",
+        "explanation": "Compare targets while selecting only the fields needed for a decision."
+      },
+      {
+        "title": "Gate a release",
+        "command": "is-agentic-pp-cli check --target https://is-agentic.com --min-score 80 --json --agent",
+        "explanation": "Enforce a local minimum score with a structured decision."
+      }
+    ],
+    "trigger_phrases": [
+      "check a site's agent readiness",
+      "get an Is Agentic score",
+      "compare readiness across sites",
+      "find recurring agent-readiness issues",
+      "use Is Agentic",
+      "run is-agentic"
+    ]
+  }
+}

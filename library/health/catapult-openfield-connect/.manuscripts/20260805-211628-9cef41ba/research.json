@@ -1,0 +1,239 @@
+{
+  "api_name": "catapult-openfield-connect",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "catapultR",
+      "url": "https://github.com/SBGSports/catapultr",
+      "language": "R",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-06T02:35:00Z",
+  "novel_features": [
+    {
+      "name": "ACWR dashboard",
+      "command": "acwr",
+      "description": "Instant acute:chronic workload ratios for any athlete or the full squad, color-coded into safe (0.8-1.3), caution, and danger (\u003e1.5) zones.",
+      "rationale": "Requires 28 days of per-athlete load history rolled into 7d/28d windows — a local-SQLite computation the stats API cannot express.",
+      "example": "catapult-openfield-connect-pp-cli acwr --squad --metric total_player_load --flag-risk --agent",
+      "why_it_matters": "Reach for this when asked who is at injury risk or for the morning workload check.",
+      "group": "Load intelligence that compounds"
+    },
+    {
+      "name": "Weekly load report",
+      "command": "report",
+      "description": "One-command weekly summary — total Player Load, session count, ACWR, max velocity vs PB, monotony, strain, and risk flags — exportable as markdown or CSV.",
+      "rationale": "Composes ACWR and PB internals over the local mirror into a coach-ready artifact; saves the Monday morning data wrangle.",
+      "example": "catapult-openfield-connect-pp-cli report --week --squad --format markdown --export ./week_load.md",
+      "why_it_matters": "Reach for this when a coach briefing or weekly load summary is requested.",
+      "group": "Load intelligence that compounds"
+    },
+    {
+      "name": "Personal bests",
+      "command": "pb",
+      "description": "Compares recent session values against each athlete's all-time or rolling personal best, with readiness % and 3-session trend arrows.",
+      "rationale": "SQL window functions over the athlete's full local stats history; the API has no personal-best concept.",
+      "example": "catapult-openfield-connect-pp-cli pb --metric max_vel --vs-peak --agent",
+      "why_it_matters": "Use before deciding who trains at full intensity today.",
+      "group": "Load intelligence that compounds"
+    },
+    {
+      "name": "Session diff",
+      "command": "diff",
+      "description": "Side-by-side comparison of two sessions (by ID, date, or last/prev) showing absolute and percentage change per metric and per athlete.",
+      "rationale": "Self-joins two local stats slices on athlete+metric — the export-and-pivot Excel chore, mechanized.",
+      "example": "catapult-openfield-connect-pp-cli diff last prev --squad --metrics total_player_load,max_vel --agent",
+      "why_it_matters": "Use to diagnose travel fatigue and fixture congestion between consecutive matches.",
+      "group": "Session analysis"
+    },
+    {
+      "name": "Positional benchmark",
+      "command": "benchmark",
+      "description": "Ranks any athlete against positional peers for a metric: percentile rank, squad median, and position median with outlier flags.",
+      "rationale": "Requires the full squad's local history joined to athlete positions; the stats engine groups but cannot rank.",
+      "example": "catapult-openfield-connect-pp-cli benchmark --metric total_distance --percentile --agent",
+      "why_it_matters": "Use after match debriefs to answer how an athlete compares to peers.",
+      "group": "Load intelligence that compounds"
+    },
+    {
+      "name": "Return-to-play tracker",
+      "command": "rtp",
+      "description": "Tracks an injured athlete's load progression session-by-session as a percentage of squad average or a pre-injury baseline window.",
+      "rationale": "Combines two local aggregations (athlete series vs concurrent squad average or --baseline window) that no single API call provides.",
+      "example": "catapult-openfield-connect-pp-cli rtp --athlete top --target-metric total_player_load --vs-squad --threshold 85 --agent",
+      "why_it_matters": "Use when managing return-to-play decisions to give medical staff quantitative progression data.",
+      "group": "Session analysis"
+    },
+    {
+      "name": "Period intensity heatmap",
+      "command": "heatmap",
+      "description": "Renders an athlete-by-period intensity matrix for a session — ANSI heatmap on a terminal, JSON matrix for agents — surfacing where fatigue compounded.",
+      "rationale": "Pivots period-grouped local stats into a shaped matrix; the API returns rows, not shape.",
+      "example": "catapult-openfield-connect-pp-cli heatmap --activity last --metric total_player_load --json",
+      "why_it_matters": "Use after matches to diagnose second-half performance drops.",
+      "group": "Session analysis"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "ACWR dashboard",
+      "command": "acwr",
+      "description": "Instant acute:chronic workload ratios for any athlete or the full squad, color-coded into safe (0.8-1.3), caution, and danger (\u003e1.5) zones.",
+      "rationale": "Requires 28 days of per-athlete load history rolled into 7d/28d windows — a local-SQLite computation the stats API cannot express.",
+      "example": "catapult-openfield-connect-pp-cli acwr --squad --metric total_player_load --flag-risk --agent",
+      "why_it_matters": "Reach for this when asked who is at injury risk or for the morning workload check.",
+      "group": "Load intelligence that compounds"
+    },
+    {
+      "name": "Weekly load report",
+      "command": "report",
+      "description": "One-command weekly summary — total Player Load, session count, ACWR, max velocity vs PB, monotony, strain, and risk flags — exportable as markdown or CSV.",
+      "rationale": "Composes ACWR and PB internals over the local mirror into a coach-ready artifact; saves the Monday morning data wrangle.",
+      "example": "catapult-openfield-connect-pp-cli report --week --squad --format markdown --export ./week_load.md",
+      "why_it_matters": "Reach for this when a coach briefing or weekly load summary is requested.",
+      "group": "Load intelligence that compounds"
+    },
+    {
+      "name": "Personal bests",
+      "command": "pb",
+      "description": "Compares recent session values against each athlete's all-time or rolling personal best, with readiness % and 3-session trend arrows.",
+      "rationale": "SQL window functions over the athlete's full local stats history; the API has no personal-best concept.",
+      "example": "catapult-openfield-connect-pp-cli pb --metric max_vel --vs-peak --agent",
+      "why_it_matters": "Use before deciding who trains at full intensity today.",
+      "group": "Load intelligence that compounds"
+    },
+    {
+      "name": "Session diff",
+      "command": "diff",
+      "description": "Side-by-side comparison of two sessions (by ID, date, or last/prev) showing absolute and percentage change per metric and per athlete.",
+      "rationale": "Self-joins two local stats slices on athlete+metric — the export-and-pivot Excel chore, mechanized.",
+      "example": "catapult-openfield-connect-pp-cli diff last prev --squad --metrics total_player_load,max_vel --agent",
+      "why_it_matters": "Use to diagnose travel fatigue and fixture congestion between consecutive matches.",
+      "group": "Session analysis"
+    },
+    {
+      "name": "Positional benchmark",
+      "command": "benchmark",
+      "description": "Ranks any athlete against positional peers for a metric: percentile rank, squad median, and position median with outlier flags.",
+      "rationale": "Requires the full squad's local history joined to athlete positions; the stats engine groups but cannot rank.",
+      "example": "catapult-openfield-connect-pp-cli benchmark --metric total_distance --percentile --agent",
+      "why_it_matters": "Use after match debriefs to answer how an athlete compares to peers.",
+      "group": "Load intelligence that compounds"
+    },
+    {
+      "name": "Return-to-play tracker",
+      "command": "rtp",
+      "description": "Tracks an injured athlete's load progression session-by-session as a percentage of squad average or a pre-injury baseline window.",
+      "rationale": "Combines two local aggregations (athlete series vs concurrent squad average or --baseline window) that no single API call provides.",
+      "example": "catapult-openfield-connect-pp-cli rtp --athlete top --target-metric total_player_load --vs-squad --threshold 85 --agent",
+      "why_it_matters": "Use when managing return-to-play decisions to give medical staff quantitative progression data.",
+      "group": "Session analysis"
+    },
+    {
+      "name": "Period intensity heatmap",
+      "command": "heatmap",
+      "description": "Renders an athlete-by-period intensity matrix for a session — ANSI heatmap on a terminal, JSON matrix for agents — surfacing where fatigue compounded.",
+      "rationale": "Pivots period-grouped local stats into a shaped matrix; the API returns rows, not shape.",
+      "example": "catapult-openfield-connect-pp-cli heatmap --activity last --metric total_player_load --json",
+      "why_it_matters": "Use after matches to diagnose second-half performance drops.",
+      "group": "Session analysis"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "CATAPULT_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Catapult OpenField",
+    "headline": "Every Catapult GPS metric — ACWR, velocity benchmarks, load reports — from one command, with a local SQLite mirror for offline analysis.",
+    "value_prop": "catapult-openfield-connect-pp-cli syncs your OpenField data into a local SQLite store and unlocks computations the API cannot do alone: 28-day ACWR dashboards, personal velocity bests, session diffs, and positional benchmarks — all scriptable, pipeable, and agent-native. What used to require a custom R script now takes one command.",
+    "auth_narrative": "OpenField Connect accepts a long-lived API token (create one in OpenField under API Tokens) sent as a Bearer header. Set CATAPULT_TOKEN in your environment or run auth set-token. Regional hosts differ: this CLI defaults to the Americas host (us.catapultsports.com); override base_url in config for APAC/EMEA tenants.",
+    "quickstart": [
+      {
+        "command": "catapult-openfield-connect-pp-cli doctor --dry-run",
+        "comment": "Verify config and connectivity without touching the API"
+      },
+      {
+        "command": "catapult-openfield-connect-pp-cli sync --resources athletes,parameters,activities --since 30d",
+        "comment": "Mirror the roster, metric catalog, and a month of sessions locally"
+      },
+      {
+        "command": "catapult-openfield-connect-pp-cli acwr --squad --metric total_player_load --flag-risk --agent",
+        "comment": "The morning check: who is in the caution or danger zone"
+      },
+      {
+        "command": "catapult-openfield-connect-pp-cli search \"velocity\" --type parameters --limit 10",
+        "comment": "Find exact metric slugs before building a stats query"
+      },
+      {
+        "command": "catapult-openfield-connect-pp-cli report --week --squad --format markdown --export ./week_load.md",
+        "comment": "Monday coach briefing in one command"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every call",
+        "fix": "Token expired or wrong region host — regenerate the API token in OpenField and confirm base_url matches your tenant region"
+      },
+      {
+        "symptom": "stats query returns empty rows",
+        "fix": "Check parameter slugs with 'search --type parameters' — slugs, not display names, are required"
+      },
+      {
+        "symptom": "acwr/pb/report show no data",
+        "fix": "These read the local mirror: run 'sync --resources activities,athletes,parameters --since 30d' first"
+      }
+    ],
+    "when_to_use": "Use this CLI for any Catapult OpenField data task: pulling session stats, checking squad ACWR, comparing matches, generating load reports, or giving an agent access to athlete GPS data without manual OpenField exports. It is the only CLI surface for OpenField; the alternative is the catapultR R package or the web UI.",
+    "anti_triggers": [
+      "Do not use this CLI to create, update, or delete anything in OpenField — it is read-only by design",
+      "Do not use it for live in-session streaming telemetry; it reads completed activity data",
+      "Do not use it for video or tactical analysis — OpenField carries GPS/accelerometer data only"
+    ],
+    "recipes": [
+      {
+        "title": "Morning ACWR check for the full squad",
+        "command": "catapult-openfield-connect-pp-cli acwr --squad --flag-risk --agent --select athlete_name,acwr,risk_zone",
+        "explanation": "Run before every training session to see who is in the caution or danger zone."
+      },
+      {
+        "title": "Post-session stats grouped by athlete",
+        "command": "catapult-openfield-connect-pp-cli stats --parameters total_player_load,total_distance,max_vel --group-by athlete --json",
+        "explanation": "The primary data pull after every session."
+      },
+      {
+        "title": "Compare the last two matches",
+        "command": "catapult-openfield-connect-pp-cli diff last prev --squad --metrics total_player_load,max_vel --agent --select athlete_name,metric,delta_pct",
+        "explanation": "Percentage change per athlete per metric between matches; --select keeps agent context tight."
+      },
+      {
+        "title": "Find velocity metric slugs",
+        "command": "catapult-openfield-connect-pp-cli search \"velocity\" --type parameters --limit 10",
+        "explanation": "Discover exact slugs before building a stats query."
+      },
+      {
+        "title": "Weekly report to markdown",
+        "command": "catapult-openfield-connect-pp-cli report --week --squad --format markdown --export ./week12_load.md",
+        "explanation": "Paste directly into the coach briefing doc."
+      }
+    ],
+    "trigger_phrases": [
+      "check ACWR for the squad",
+      "what is the player load from today's session",
+      "compare the last two matches",
+      "who is at injury risk",
+      "generate a weekly load report",
+      "sync Catapult data",
+      "use catapult-openfield-connect",
+      "run catapult CLI"
+    ]
+  }
+}

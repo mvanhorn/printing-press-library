@@ -1,0 +1,3577 @@
+{
+  "api_name": "unipile",
+  "base_url": "https://api49.unipile.com:17995",
+  "description": "Every Unipile endpoint as a typed command, plus a local mirror that makes cross-provider search possible and an invitation ledger that shows how much LinkedIn headroom you have left.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "X-API-KEY",
+    "in": "header",
+    "env_vars": [
+      "UNIPILE_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "UNIPILE_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "description": "Unipile Access Token from the Unipile dashboard; sent as the X-API-KEY header."
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "accounts_connect",
+      "description": "Link to Uniple an account of the given type and provider. Returns the new AccountsConnectResponse.",
+      "method": "POST",
+      "path": "/api/v1/accounts",
+      "params": []
+    },
+    {
+      "name": "accounts_delete",
+      "description": "Unlink the given account to Unipile. Required: id. Returns the AccountsDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/accounts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id account to be deleted.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_get",
+      "description": "Retrieve the details of an account. Required: id.",
+      "method": "GET",
+      "path": "/api/v1/accounts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the account to retrieve.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_list",
+      "description": "Returns a list of the accounts linked to Unipile. Optional: limit.",
+      "method": "GET",
+      "path": "/api/v1/accounts",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "accounts_reconnect",
+      "description": "Reconnect an account previously linked to Unipile that has been disconnected. Required: id. Returns the new AccountsReconnectResponse.",
+      "method": "POST",
+      "path": "/api/v1/accounts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the account to reconnect.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_resend-checkpoint",
+      "description": "Might it be 2FA, OTP or In-app Validation, this route makes you able on certain providers to resend the notification. Required: account_id, provider. Returns the new AccountsResendCheckpointResponse.",
+      "method": "POST",
+      "path": "/api/v1/accounts/checkpoint/resend",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "body",
+          "description": "A unique identifier.",
+          "required": true
+        },
+        {
+          "name": "provider",
+          "type": "string",
+          "location": "body",
+          "description": "Provider",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_solve-checkpoint",
+      "description": "Allows you to provide a code which will solve a checkpoint encountered during a native authentication. A checkpoint is a security step added by a provider which needs to be solved to complete the authentication. Checkpoints that require a code are 2FA (two-factor authentication) and OTP (one-time password). Depending on the way you have configured the account you are trying to authenticate, you can get your code from various ways such as a mail, a SMS or from a two-factor authentication app. Required: account_id, code, provider. Returns the new AccountsSolveCheckpointResponse.",
+      "method": "POST",
+      "path": "/api/v1/accounts/checkpoint",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "body",
+          "description": "A unique identifier.",
+          "required": true
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "The code to solve the checkpoint. If the code is a phone number, it should be preceded by the international dialling code in brackets (e.g. (+33)0612345678 for France). If you need to switch to a different type of checkpoint, enter TRY_ANOTHER_WAY here (e.g. from In app validation to 2FA).",
+          "required": true
+        },
+        {
+          "name": "provider",
+          "type": "string",
+          "location": "body",
+          "description": "Provider",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_update",
+      "description": "Update the proxy configuration of an existing account. You can provide a custom proxy, or request a new Unipile proxy by country/IP. Required: id. Optional: country, ip, proxy. Returns the updated AccountsUpdateResponse.",
+      "method": "PATCH",
+      "path": "/api/v1/accounts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the account to update.",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "An ISO 3166-1 A-2 country code to request a new Unipile proxy location."
+        },
+        {
+          "name": "ip",
+          "type": "string",
+          "location": "body",
+          "description": "An IPv4 address used to infer proxy country when requesting a Unipile proxy."
+        },
+        {
+          "name": "proxy-host",
+          "wire_name": "proxy.host",
+          "type": "string",
+          "location": "body",
+          "description": "Host",
+          "required": true
+        },
+        {
+          "name": "proxy-password",
+          "wire_name": "proxy.password",
+          "type": "string",
+          "location": "body",
+          "description": "Optional password for proxy’s authentication."
+        },
+        {
+          "name": "proxy-port",
+          "wire_name": "proxy.port",
+          "type": "float",
+          "location": "body",
+          "description": "Port",
+          "required": true
+        },
+        {
+          "name": "proxy-protocol",
+          "wire_name": "proxy.protocol",
+          "type": "string",
+          "location": "body",
+          "description": "Protocol"
+        },
+        {
+          "name": "proxy-username",
+          "wire_name": "proxy.username",
+          "type": "string",
+          "location": "body",
+          "description": "Optional username for proxy’s authentication."
+        }
+      ]
+    },
+    {
+      "name": "accounts_restart_account",
+      "description": "Restart the sources of a frozen account. Required: id. Returns the new RestartAccountResponse.",
+      "method": "POST",
+      "path": "/api/v1/accounts/{id}/restart",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the account to restart.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_sync_resync-account",
+      "description": "This route can be used both to initiate a sync process (from scratch or within a specific time span) and to monitor its status via regular polling. Supported providers: LinkedIn and Telegram. Instagram and WhatsApp are not supported by this route. Required: account_id. Optional: chunk_size, partial, linkedin_product (plus 2 more). Returns the SyncResyncAccountResponse.",
+      "method": "GET",
+      "path": "/api/v1/accounts/{account_id}/sync",
+      "params": [
+        {
+          "name": "chunk_size",
+          "type": "float",
+          "location": "query",
+          "description": "The number of chats to be synchronized in a single chunk. Supported for LinkedIn and Telegram."
+        },
+        {
+          "name": "partial",
+          "type": "bool",
+          "location": "query",
+          "description": "LinkedIn only. Whether the account should be partially resynchronized (keeping already synced data) or fully resynchronized."
+        },
+        {
+          "name": "linkedin_product",
+          "type": "string",
+          "location": "query",
+          "description": "LinkedIn only. The LinkedIn messaging feature to synchronize. Leave blank to process all connected features."
+        },
+        {
+          "name": "before",
+          "type": "float",
+          "location": "query",
+          "description": "The end of the time span (lowest Epoch time in ms). Supported for LinkedIn and Telegram."
+        },
+        {
+          "name": "after",
+          "type": "float",
+          "location": "query",
+          "description": "The start of the time span (highest Epoch time in ms). Supported for LinkedIn and Telegram."
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the account to resynchronize.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendars_get",
+      "description": "Retrieve the details of a calendar. Required: account_id, calendar_id. Returns the CalendarsGetResponse.",
+      "method": "GET",
+      "path": "/api/v1/calendars/{calendar_id}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account to use.",
+          "required": true
+        },
+        {
+          "name": "calendar_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the wanted calendar.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendars_list",
+      "description": "Returns a list of calendars. Required: account_id. Optional: offset, limit.",
+      "method": "GET",
+      "path": "/api/v1/calendars",
+      "params": [
+        {
+          "name": "offset",
+          "type": "float",
+          "location": "query",
+          "description": "An offset used for pagination, if supported by the provider, else use `cursor`."
+        },
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "The limit of items to be returned."
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account to use.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendars_events_create",
+      "description": "Create a calendar event. Required: account_id, calendar_id, attendees, end, start, title. Optional: body, color, conference (plus 7 more). Returns the new EventsCreateResponse.",
+      "method": "POST",
+      "path": "/api/v1/calendars/{calendar_id}/events",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account to use.",
+          "required": true
+        },
+        {
+          "name": "calendar_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of calendar receiving the event.",
+          "required": true
+        },
+        {
+          "name": "attendees",
+          "type": "array",
+          "location": "body",
+          "description": "Attendees",
+          "required": true
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "The body of the event."
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "The color of the event. `Google Calendar`: `#7986CB`, `#33B679`, `#8E24AA`, `#E67C73`, `#F6BF26`, `#F4511E`, `#039BE5`, `#616161`, `#3F51B5`, `#0B8043`, `#D50000`"
+        },
+        {
+          "name": "conference-conference-id",
+          "wire_name": "conference.conference_id",
+          "type": "string",
+          "location": "body",
+          "description": "The provider-native conference ID."
+        },
+        {
+          "name": "conference-provider",
+          "wire_name": "conference.provider",
+          "type": "string",
+          "location": "body",
+          "description": "The conference provider.",
+          "required": true
+        },
+        {
+          "name": "conference-url",
+          "wire_name": "conference.url",
+          "type": "string",
+          "location": "body",
+          "description": "The conference URL. If not provided, it will automatically create a new conference (only teams and google_meet available)"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "body",
+          "description": "The end date and time of the event.",
+          "required": true
+        },
+        {
+          "name": "guests_can_modify",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, allow guests to modify the event. `Outlook Calendar`: Not supported, this parameter will always be false."
+        },
+        {
+          "name": "is_attendees_list_hidden",
+          "type": "bool",
+          "location": "body",
+          "description": "Is the attendees list hidden for attendees."
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "The location of the event."
+        },
+        {
+          "name": "notify",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, send notifications about the event to invited attendees. `Outlook Calendar`: Not supported, this parameter will always be true."
+        },
+        {
+          "name": "recurrence",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545."
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "body",
+          "description": "The start date and time of the event.",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "The title of the event.",
+          "required": true
+        },
+        {
+          "name": "transparency",
+          "type": "string",
+          "location": "body",
+          "description": "The transparency of the event. `opaque` does block time on the calendar and is equivalent to setting Show me as to Busy in the Calendar UI. `transparent` does not block time on the calendar and is equivalent to setting Show me as to Available in the Calendar UI."
+        },
+        {
+          "name": "visibility",
+          "type": "string",
+          "location": "body",
+          "description": "The visibility of the event."
+        }
+      ]
+    },
+    {
+      "name": "calendars_events_delete",
+      "description": "Delete a calendar event. Required: calendar_id, event_id, account_id. Returns the EventsDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/calendars/{calendar_id}/events/{event_id}",
+      "params": [
+        {
+          "name": "calendar_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of calendar receiving the event.",
+          "required": true
+        },
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the event to edit.",
+          "required": true
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account to use.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendars_events_get",
+      "description": "Retrieve the details of a calendar event. Required: account_id, event_id, calendar_id. Returns the EventsGetResponse.",
+      "method": "GET",
+      "path": "/api/v1/calendars/{calendar_id}/events/{event_id}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account to use.",
+          "required": true
+        },
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the wanted event.",
+          "required": true
+        },
+        {
+          "name": "calendar_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of calendar of the wanted event.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendars_events_list",
+      "description": "Returns a list of calendar events related to the given calendar. Required: account_id, calendar_id. Optional: expand_recurring, event_type, attendees (plus 12 more).",
+      "method": "GET",
+      "path": "/api/v1/calendars/{calendar_id}/events",
+      "params": [
+        {
+          "name": "expand_recurring",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter events by type (single or occurence)."
+        },
+        {
+          "name": "event_type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events by event type. This parameter accepts a comma-delimited list of event type."
+        },
+        {
+          "name": "attendees",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events with attendees contained in this list. This parameter accepts a comma-delimited list of email addresses."
+        },
+        {
+          "name": "updated_after",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events updated after this date. Preferred format: RFC3339 datetime (`2026-02-27T17:07:49Z`)."
+        },
+        {
+          "name": "updated_before",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events updated before this date. Preferred format: RFC3339 datetime (`2026-02-27T17:07:49Z`)."
+        },
+        {
+          "name": "busy",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter for events with the status `busy`"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events ending before this date. Preferred format: RFC3339 datetime (`2026-02-27T17:07:49Z`)."
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events starting after this date. Preferred format: RFC3339 datetime (`2026-02-27T17:07:49Z`)."
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "query",
+          "description": "Filter for events matching the specified location."
+        },
+        {
+          "name": "ical_uid",
+          "type": "string",
+          "location": "query",
+          "description": "Filter for events matching the specified iCal UID."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "query",
+          "description": "Filter for events matching the specified description."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "query",
+          "description": "Filter for events matching the specified title."
+        },
+        {
+          "name": "is_cancelled",
+          "type": "bool",
+          "location": "query",
+          "description": "Indicates if you want to retrieve the cancelled events."
+        },
+        {
+          "name": "offset",
+          "type": "float",
+          "location": "query",
+          "description": "An offset used for pagination, if supported by the provider, else use `cursor`."
+        },
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "The limit of items to be returned."
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account to use.",
+          "required": true
+        },
+        {
+          "name": "calendar_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the calendar related to events",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendars_events_update",
+      "description": "Edit a calendar event. Required: account_id, event_id, calendar_id. Optional: attendees, body, color (plus 11 more). Returns the updated EventsUpdateResponse.",
+      "method": "PATCH",
+      "path": "/api/v1/calendars/{calendar_id}/events/{event_id}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account to use.",
+          "required": true
+        },
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the event to edit.",
+          "required": true
+        },
+        {
+          "name": "calendar_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of calendar receiving the event.",
+          "required": true
+        },
+        {
+          "name": "attendees",
+          "type": "array",
+          "location": "body",
+          "description": "Attendees"
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "The body of the event."
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "The color of the event. `Google Calendar`: `#7986CB`, `#33B679`, `#8E24AA`, `#E67C73`, `#F6BF26`, `#F4511E`, `#039BE5`, `#616161`, `#3F51B5`, `#0B8043`, `#D50000`"
+        },
+        {
+          "name": "conference-conference-id",
+          "wire_name": "conference.conference_id",
+          "type": "string",
+          "location": "body",
+          "description": "The provider-native conference ID."
+        },
+        {
+          "name": "conference-provider",
+          "wire_name": "conference.provider",
+          "type": "string",
+          "location": "body",
+          "description": "The conference provider.",
+          "required": true
+        },
+        {
+          "name": "conference-url",
+          "wire_name": "conference.url",
+          "type": "string",
+          "location": "body",
+          "description": "The conference URL. If not provided, it will automatically create a new conference (only teams and google_meet available)"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "body",
+          "description": "The end date and time of the event."
+        },
+        {
+          "name": "guests_can_modify",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, allow guests to modify the event. `Outlook Calendar`: Not supported, this parameter will always be false."
+        },
+        {
+          "name": "is_attendees_list_hidden",
+          "type": "bool",
+          "location": "body",
+          "description": "Is the attendees list hidden for attendees."
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "The location of the event."
+        },
+        {
+          "name": "notify",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, send notifications about the event update to invited attendees."
+        },
+        {
+          "name": "recurrence",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545."
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "body",
+          "description": "The start date and time of the event."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "The title of the event."
+        },
+        {
+          "name": "transparency",
+          "type": "string",
+          "location": "body",
+          "description": "The transparency of the event. `opaque` does block time on the calendar and is equivalent to setting Show me as to Busy in the Calendar UI. `transparent` does not block time on the calendar and is equivalent to setting Show me as to Available in the Calendar UI."
+        },
+        {
+          "name": "visibility",
+          "type": "string",
+          "location": "body",
+          "description": "The visibility of the event."
+        }
+      ]
+    },
+    {
+      "name": "chat-attendees_get",
+      "description": "The id of the wanted attendee. Required: id, account_id. Returns the ChatAttendeesGetResponse.",
+      "method": "GET",
+      "path": "/api/v1/chat_attendees/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the wanted attendee.",
+          "required": true
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "A filter to target items related to a certain account.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chat-attendees_list",
+      "description": "Returns a list of messaging attendees. Some optional parameters are available to filter the results. Required: account_id. Optional: limit.",
+      "method": "GET",
+      "path": "/api/v1/chat_attendees",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "A filter to target attendees related to a certain linked account. The id of the account targeted.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chat-attendees_chats_list",
+      "description": "Returns a list of chats where a given attendee is involved. Required: account_id, attendee_id. Optional: before, after, limit.",
+      "method": "GET",
+      "path": "/api/v1/chat_attendees/{attendee_id}/chats",
+      "params": [
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "A filter to target items related to a certain account. Can be a comma-separated list of ids.",
+          "required": true
+        },
+        {
+          "name": "attendee_id",
+          "type": "string",
+          "location": "path",
+          "description": "The Unipile ID OR provider_id of the attendee. Can be a comma-separated list of multiple ids.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chat-attendees_messages_list",
+      "description": "Returns a list of messages where a given attendee is involved. Required: account_id, sender_id. Optional: before, after, limit.",
+      "method": "GET",
+      "path": "/api/v1/chat_attendees/{sender_id}/messages",
+      "params": [
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "A filter to target items related to a certain account. Can be a comma-separated list of ids.",
+          "required": true
+        },
+        {
+          "name": "sender_id",
+          "type": "string",
+          "location": "path",
+          "description": "The Unipile ID OR provider_id of the attendee.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chat-attendees_picture_chat-attendees",
+      "description": "Download the profile picture of an attendee or picture of a group chat. Required: id.",
+      "method": "GET",
+      "path": "/api/v1/chat_attendees/{id}/picture",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the attendee. Use a chat id to get the picture of a group chat.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chat-attendees_sync_chat-attendees",
+      "description": "Starts or monitors the synchronization of all chats for a given attendee. Required: account_id, attendee_id. Returns the SyncChatAttendeesResponse.",
+      "method": "GET",
+      "path": "/api/v1/chat_attendees/{attendee_id}/sync",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account to use.",
+          "required": true
+        },
+        {
+          "name": "attendee_id",
+          "type": "string",
+          "location": "path",
+          "description": "The Unipile ID or provider ID of the attendee.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_delete",
+      "description": "Delete a chat. Supported for WhatsApp and LinkedIn only. Required: chat_id. Returns the ChatsDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/chats/{chat_id}",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the chat to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_get",
+      "description": "Retrieve the details of a chat. Required: account_id, chat_id. Returns the ChatsGetResponse.",
+      "method": "GET",
+      "path": "/api/v1/chats/{chat_id}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "Mandatory if the chat ID is a provider ID.",
+          "required": true
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "path",
+          "description": "The Unipile or provider ID of the chat.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_list",
+      "description": "Returns a list of chats. Some optional parameters are available to filter the results. Required: account_id. Optional: unread, before, after (plus 2 more).",
+      "method": "GET",
+      "path": "/api/v1/chats",
+      "params": [
+        {
+          "name": "unread",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether you want to get either unread chats only, or read chats only."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "account_type",
+          "type": "string",
+          "location": "query",
+          "description": "A filter to target items related to a certain provider."
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "A filter to target items related to a certain account. Can be a comma-separated list of ids.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_start",
+      "description": "Start a new conversation with one or more attendee. ⚠️ Interactive documentation does not work for Linkedin specific parameters (child parameters not correctly applied in snippet), the correct format is linkedin[inmail] = true, linkedin[api]... Required: account_id, attendees_ids. Optional: attachments, linkedin, subject (plus 3 more). Returns the new ChatsStartResponse.",
+      "method": "POST",
+      "path": "/api/v1/chats",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "body",
+          "description": "An Unipile account id.",
+          "required": true
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "Attachments"
+        },
+        {
+          "name": "attendees_ids",
+          "type": "array",
+          "location": "body",
+          "description": "One or more attendee provider ID. For `instagram`, please use the 'provider_messaging_id'. For LinkedIn users, use a `provider_id` starting with: ACo for classic, ACw for Sales Navigator, AE for Recruiter. For LinkedIn company messaging, please use the 'messaging_id'. For WhatsApp, please use '00000000@s.whatsapp.net'.",
+          "required": true
+        },
+        {
+          "name": "linkedin",
+          "type": "string",
+          "location": "body",
+          "description": "Extra fields for Linkedin products"
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "An optional field to set the subject of the conversation."
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "The message that will start the new conversation. With LinkedIn recruiter, a range of HTML tags can be used directly in the body of the message to enhance the presentation. The supported tags are \u0026lt;strong\u0026gt; for bold text, \u0026lt;em\u0026gt; for italic text, \u0026lt;a href='www.my-link.com'\u0026gt; for external links, \u0026lt;ul\u0026gt; for unordered lists, \u0026lt;ol\u0026gt; for ordered lists and \u0026lt;li\u0026gt; for list items. Tags can be nested into each other if necessary."
+        },
+        {
+          "name": "video_message",
+          "type": "string",
+          "location": "body",
+          "description": "(Linkedin) A file to send as video message. WhatsApp: use attachments field."
+        },
+        {
+          "name": "voice_message",
+          "type": "string",
+          "location": "body",
+          "description": "(Linkedin | WhatsApp) A file to send as voice message. WhatsApp: prefer .mp3 or .m4a. Linkedin: prefer .m4a. Instagram: use the attachment field and prefer .m4a. Telegram: use the attachment field."
+        }
+      ]
+    },
+    {
+      "name": "chats_update",
+      "description": "Perform an action like changing the read status, muting the chat, retrieving a group invite link, etc. Required: chat_id, action. Optional: value. Returns the updated ChatsUpdateResponse.",
+      "method": "PATCH",
+      "path": "/api/v1/chats/{chat_id}",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the chat to be patched",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "The action to perform on the chat: - `setReadStatus`: (WhatsApp \u0026 LinkedIn only) Set the read status of the chat. - `setMuteStatus`: (WhatsApp \u0026 LinkedIn only) Set the mute status of the chat. - `setArchiveStatus`: (WhatsApp only) Set the archive status of the chat. - `setPinnedStatus`: (WhatsApp only) Set the pinned status of the chat. - `addParticipant`: (WhatsApp \u0026 Telegram only) Add a participant to the group chat. The account owner must have the Add other members permission in the group. Provide the provider ID as value, for example 334455667788@s.whatsapp.net for WhatsApp, or a Telegram user ID, username, or phone number for Telegram. - `removeParticipant`: (WhatsApp \u0026 Telegram only) Remove a participant from the group chat. Provide the provider ID as value, for example 334455667788@s.whatsapp.net for WhatsApp, or a Telegram user ID, username, or phone number for Telegram. - `setLabel`: (WhatsApp only) Add a label to the chat. If the label does not exist, it will be created and then assigned. - `getInviteLink`: (WhatsApp \u0026 Telegram only) Generate or retrieve the full group invite link. The account owner must have the required invite permissions in the group.",
+          "required": true
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "location": "body",
+          "description": "Required for every action except `getInviteLink`. Use a boolean for status actions and a string for participant or label actions."
+        }
+      ]
+    },
+    {
+      "name": "chats_attendees_list",
+      "description": "Returns a list of messaging attendees related to a given chat. Some optional parameters are available to filter the results. Required: chat_id.",
+      "method": "GET",
+      "path": "/api/v1/chats/{chat_id}/attendees",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the chat related to requested attendees.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_messages_list",
+      "description": "Returns a list of messages related to the given chat. Some parameters are available to filter the results. Required: chat_id. Optional: before, after, limit (plus 1 more).",
+      "method": "GET",
+      "path": "/api/v1/chats/{chat_id}/messages",
+      "params": [
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "sender_id",
+          "type": "string",
+          "location": "query",
+          "description": "A filter to target messages received from a certain sender. The id of the sender targeted."
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the chat related to requested messages.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_messages_send",
+      "description": "Send a message to the given chat with the possibility to link some attachments. Required: chat_id. Optional: account_id, attachments, quote_id (plus 5 more). Returns the new MessagesSendResponse.",
+      "method": "POST",
+      "path": "/api/v1/chats/{chat_id}/messages",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the chat where to send the message.",
+          "required": true
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "body",
+          "description": "An account_id can be specified to prevent the user from sending messages in chats not belonging to the account."
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "Attachments"
+        },
+        {
+          "name": "quote_id",
+          "type": "string",
+          "location": "body",
+          "description": "The id of a message to quote. The id of the message to quote / reply to."
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Text"
+        },
+        {
+          "name": "thread_id",
+          "type": "string",
+          "location": "body",
+          "description": "Optional and for Slack’s messaging only. The id of the thread to send the message in."
+        },
+        {
+          "name": "typing_duration",
+          "type": "string",
+          "location": "body",
+          "description": "(WhatsApp only) Set a duration in milliseconds to simulate a typing status for that duration before sending the message."
+        },
+        {
+          "name": "video_message",
+          "type": "string",
+          "location": "body",
+          "description": "(Linkedin) A file to send as video message. WhatsApp: use attachments field."
+        },
+        {
+          "name": "voice_message",
+          "type": "string",
+          "location": "body",
+          "description": "(Linkedin | WhatsApp) A file to send as voice message. WhatsApp: prefer .mp3 or .m4a. Linkedin: prefer .m4a. Instagram: use the attachment field and prefer .m4a. Telegram: use the attachment field."
+        }
+      ]
+    },
+    {
+      "name": "chats_sync_chats",
+      "description": "This route can be used both to initiate a synchronization process and to monitor its status via regular polling. Required: account_id, chat_id. Returns the SyncChatsResponse.",
+      "method": "GET",
+      "path": "/api/v1/chats/{chat_id}/sync",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The account ID. Mandatory when chat_id is a provider ID.",
+          "required": true
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "path",
+          "description": "The Unipile or provider ID of the chat to be synced.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "drafts_create",
+      "description": "⚠️ Interactive documentation does not work on this route (child parameters not correctly applied in snippet), Create a new draft. Required: account_id, body, to. Optional: attachments, bcc, cc (plus 5 more). Returns the new DraftsCreateResponse.",
+      "method": "POST",
+      "path": "/api/v1/drafts",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "body",
+          "description": "A unique identifier.",
+          "required": true
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "Attachments"
+        },
+        {
+          "name": "bcc",
+          "type": "array",
+          "location": "body",
+          "description": "Bcc"
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "Body",
+          "required": true
+        },
+        {
+          "name": "cc",
+          "type": "array",
+          "location": "body",
+          "description": "Cc"
+        },
+        {
+          "name": "custom_headers",
+          "type": "array",
+          "location": "body",
+          "description": "An array of custom headers to be added to the email."
+        },
+        {
+          "name": "from",
+          "type": "object",
+          "location": "body",
+          "description": "From"
+        },
+        {
+          "name": "reply_to",
+          "type": "string",
+          "location": "body",
+          "description": "Either the Unipile ID or the provider ID of the email to reply to."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject"
+        },
+        {
+          "name": "to",
+          "type": "array",
+          "location": "body",
+          "description": "To",
+          "required": true
+        },
+        {
+          "name": "tracking_options",
+          "type": "object",
+          "location": "body",
+          "description": "Tracking options"
+        }
+      ]
+    },
+    {
+      "name": "emails_delete",
+      "description": "Delete an email by moving it to the Trash folder. Required: email_id, account_id. Returns the EmailsDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/emails/{email_id}",
+      "params": [
+        {
+          "name": "email_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the email to be deleted. Either the Unipile id or the provider uid.",
+          "required": true
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account related to the email. Required when using the provider uid.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "emails_get",
+      "description": "Retrieve the details of an email. Required: email_id, account_id. Optional: include_headers.",
+      "method": "GET",
+      "path": "/api/v1/emails/{email_id}",
+      "params": [
+        {
+          "name": "email_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the email to be retrieved. Either the Unipile id or the provider uid.",
+          "required": true
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account related to the email. Required when using the provider uid.",
+          "required": true
+        },
+        {
+          "name": "include_headers",
+          "type": "bool",
+          "location": "query",
+          "description": "Include the email headers in the response."
+        }
+      ]
+    },
+    {
+      "name": "emails_list",
+      "description": "Returns a list of emails. Required: account_id. Optional: message_id, thread_id, meta_only (plus 10 more).",
+      "method": "GET",
+      "path": "/api/v1/emails",
+      "params": [
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "query",
+          "description": "A filter to target items by message_id."
+        },
+        {
+          "name": "thread_id",
+          "type": "string",
+          "location": "query",
+          "description": "A filter to target items by thread identifier."
+        },
+        {
+          "name": "meta_only",
+          "type": "bool",
+          "location": "query",
+          "description": "Speed up the response by only returning the email metadata, excluding the body and attachments metadata."
+        },
+        {
+          "name": "include_headers",
+          "type": "bool",
+          "location": "query",
+          "description": "Include the email headers in the response. `meta_only` must be false."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text search applied to subject and body at the same time. Microsoft: requests combining search with from, to, any_email, before, after, thread_id, message_id or exclude_folders are rejected with invalid_request. IMAP: can be slow, only available within one folder, specified with folder or role, before and after are evaluated at day granularity, support depends on the IMAP server. IMAP requests combining search with any_email, exclude_folders, thread_id, multiple from values or multiple to values are rejected with invalid_request."
+        },
+        {
+          "name": "any_email",
+          "type": "string",
+          "location": "query",
+          "description": "A filter to target items sent to or received from a comma-separated list of email addresses."
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "A filter to target items related to a certain recipient, either in the to, cc or bcc field."
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "A filter to target items related to a certain sender."
+        },
+        {
+          "name": "exclude_folders",
+          "type": "string",
+          "location": "query",
+          "description": "A filter to exclude items from a comma-separated list of folder provider_id ( ignored if folder parameter is used )."
+        },
+        {
+          "name": "folder",
+          "type": "string",
+          "location": "query",
+          "description": "A filter to target items related to a certain folder provider_id."
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "A filter to target items related to a certain account.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "emails_list-contacts",
+      "description": "Returns a list of contacts from the email provider. Supported for Gmail (Google OAuth) and Microsoft (Outlook) only. Required: account_id. Optional: limit.",
+      "method": "GET",
+      "path": "/api/v1/emails/contacts",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "A filter to target items related to a certain account.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "emails_send",
+      "description": "⚠️ Interactive documentation does not work on this route (child parameters not correctly applied in snippet), please use our ready to copy past example of this page : https://developer.unipile.com/docs/send-email. Required: account_id, body, to. Optional: Idempotency-Key, attachments, bcc (plus 6 more). Returns the new EmailsSendResponse.",
+      "method": "POST",
+      "path": "/api/v1/emails",
+      "params": [
+        {
+          "name": "Idempotency-Key",
+          "type": "string",
+          "location": "query",
+          "description": "Optional key identifying this email-send operation. We suggest using V4 UUIDs or a random string with enough entropy. The key can be up to 255 characters long. Retrying the same request with the same key returns the original operation result. Reusing the key with a different request returns a conflict. Keys are retained in memory for up to 24 hours and are cleared by an application restart or maintenance."
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "body",
+          "description": "A unique identifier.",
+          "required": true
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "Attachments"
+        },
+        {
+          "name": "bcc",
+          "type": "array",
+          "location": "body",
+          "description": "Bcc"
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "Body",
+          "required": true
+        },
+        {
+          "name": "cc",
+          "type": "array",
+          "location": "body",
+          "description": "Cc"
+        },
+        {
+          "name": "custom_headers",
+          "type": "array",
+          "location": "body",
+          "description": "An array of custom headers to be added to the email."
+        },
+        {
+          "name": "from",
+          "type": "object",
+          "location": "body",
+          "description": "From"
+        },
+        {
+          "name": "reply_to",
+          "type": "string",
+          "location": "body",
+          "description": "Either the Unipile ID or the provider ID of the email to reply to."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject"
+        },
+        {
+          "name": "to",
+          "type": "array",
+          "location": "body",
+          "description": "To",
+          "required": true
+        },
+        {
+          "name": "tracking_options",
+          "type": "object",
+          "location": "body",
+          "description": "Tracking options"
+        }
+      ]
+    },
+    {
+      "name": "emails_update",
+      "description": "Update an email. Required: email_id, account_id. Optional: categories, folders, unread. Returns the updated EmailsUpdateResponse.",
+      "method": "PUT",
+      "path": "/api/v1/emails/{email_id}",
+      "params": [
+        {
+          "name": "email_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the email to be updated. Either the Unipile id or the provider uid.",
+          "required": true
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account related to the email. Required when using the provider uid.",
+          "required": true
+        },
+        {
+          "name": "categories",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "`Outlook only`: The categories to assign to the email."
+        },
+        {
+          "name": "folders",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The names of the folders to which the email should be moved. Outlook and IMAP accounts accept only one folder. If you provide a label value that does not already exist, a new label will be created with that value. Updates the entire thread if the targeted email is part of a conversation"
+        },
+        {
+          "name": "unread",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates whether the email should be marked as unread. Updates only the targeted email. If unread is supplied, all other parameters are ignored."
+        }
+      ]
+    },
+    {
+      "name": "emails_attachments_emails",
+      "description": "Retrieve one of the attachment linked to an email. Required: email_id, account_id, attachment_id.",
+      "method": "GET",
+      "path": "/api/v1/emails/{email_id}/attachments/{attachment_id}",
+      "params": [
+        {
+          "name": "email_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the email to which the attachment is linked. Either the Unipile id or the provider uid.",
+          "required": true
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account related to the email. Required when using the provider uid.",
+          "required": true
+        },
+        {
+          "name": "attachment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Attachment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "folders_get",
+      "description": "Retrieve the details of a mail folder. Required: folder_id, account_id. Returns the FoldersGetResponse.",
+      "method": "GET",
+      "path": "/api/v1/folders/{folder_id}",
+      "params": [
+        {
+          "name": "folder_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the wanted folder. Either the Unipile id or the provider uid.",
+          "required": true
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account related to the folder. Required when using the provider uid.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "folders_list",
+      "description": "Returns a list of all email folders. Required: account_id.",
+      "method": "GET",
+      "path": "/api/v1/folders",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "A filter to target items related to a certain account.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hosted_link",
+      "description": "Create a url which redirect to Unipile's hosted authentication to connect or reconnect an account. Returns the new HostedLinkResponse.",
+      "method": "POST",
+      "path": "/api/v1/hosted/accounts/link",
+      "params": []
+    },
+    {
+      "name": "linkedin_action-user",
+      "description": "Add a candidate to a Recruiter pipeline, save a Sales Navigator lead, etc. Required: user_id. Returns the new LinkedinActionUserResponse.",
+      "method": "POST",
+      "path": "/api/v1/linkedin/user/{user_id}",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the user.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_close-jobs",
+      "description": "Close a job offer you have posted. Required: id, account_id. Optional: service. Returns the new LinkedinCloseJobsResponse.",
+      "method": "POST",
+      "path": "/api/v1/linkedin/jobs/{id}/close",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the job offer.",
+          "required": true
+        },
+        {
+          "name": "service",
+          "type": "string",
+          "location": "query",
+          "description": "The Linkedin service the job posting depends on."
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the account to trigger the request from.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_company",
+      "description": "Get a company profile from its name or ID. Required: account_id, identifier. Returns the LinkedinCompanyResponse.",
+      "method": "GET",
+      "path": "/api/v1/linkedin/company/{identifier}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the account to trigger the request from.",
+          "required": true
+        },
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "The identifier of the company: either the public identifier, the ID or the URN.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_create-jobs",
+      "description": "Create a new job offer draft. Required: account_id, company, description, job_title, location, workplace. Optional: apply_method, auto_rejection_template, employment_status (plus 2 more). Returns the new LinkedinCreateJobsResponse.",
+      "method": "POST",
+      "path": "/api/v1/linkedin/jobs",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "body",
+          "description": "An Unipile account id.",
+          "required": true
+        },
+        {
+          "name": "apply_method",
+          "type": "string",
+          "location": "body",
+          "description": "Apply method"
+        },
+        {
+          "name": "auto_rejection_template",
+          "type": "string",
+          "location": "body",
+          "description": "You can define a rejection message template to be automatically sent to applicants that don't pass screening questions."
+        },
+        {
+          "name": "company-id",
+          "wire_name": "company.id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the parameter. Use type COMPANY on the List search parameters route to find out the right ID."
+        },
+        {
+          "name": "company-text",
+          "wire_name": "company.text",
+          "type": "string",
+          "location": "body",
+          "description": "Text"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "You can use HTML tags to structure your description.",
+          "required": true
+        },
+        {
+          "name": "employment_status",
+          "type": "string",
+          "location": "body",
+          "description": "Employment status"
+        },
+        {
+          "name": "job-title-id",
+          "wire_name": "job_title.id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the parameter. Use type JOB_TITLE on the List search parameters route to find out the right ID."
+        },
+        {
+          "name": "job-title-text",
+          "wire_name": "job_title.text",
+          "type": "string",
+          "location": "body",
+          "description": "Text"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the parameter. Use type LOCATION on the List search parameters route to find out the right ID.",
+          "required": true
+        },
+        {
+          "name": "recruiter-additional-compensation-currency",
+          "wire_name": "recruiter.additional_compensation.currency",
+          "type": "string",
+          "location": "body",
+          "description": "Currency",
+          "required": true
+        },
+        {
+          "name": "recruiter-additional-compensation-max",
+          "wire_name": "recruiter.additional_compensation.max",
+          "type": "float",
+          "location": "body",
+          "description": "Max",
+          "required": true
+        },
+        {
+          "name": "recruiter-additional-compensation-min",
+          "wire_name": "recruiter.additional_compensation.min",
+          "type": "float",
+          "location": "body",
+          "description": "Min",
+          "required": true
+        },
+        {
+          "name": "recruiter-additional-compensation-pay-frequency",
+          "wire_name": "recruiter.additional_compensation.pay_frequency",
+          "type": "string",
+          "location": "body",
+          "description": "Pay frequency",
+          "required": true
+        },
+        {
+          "name": "recruiter-apply-method",
+          "wire_name": "recruiter.apply_method",
+          "type": "string",
+          "location": "body",
+          "description": "Apply method",
+          "required": true
+        },
+        {
+          "name": "recruiter-auto-archive-applicants-outside-of-country",
+          "wire_name": "recruiter.auto_archive_applicants.outside_of_country",
+          "type": "bool",
+          "location": "body",
+          "description": "Auto archive applicants who are outside of the country for which you are hiring."
+        },
+        {
+          "name": "recruiter-auto-archive-applicants-screening-questions",
+          "wire_name": "recruiter.auto_archive_applicants.screening_questions",
+          "type": "bool",
+          "location": "body",
+          "description": "Auto archive applicants who don’t meet any must-have screening questions."
+        },
+        {
+          "name": "recruiter-company-job-id",
+          "wire_name": "recruiter.company_job_id",
+          "type": "string",
+          "location": "body",
+          "description": "Employer job ID for impression tracking"
+        },
+        {
+          "name": "recruiter-functions",
+          "wire_name": "recruiter.functions",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The ID of the parameter. Use type JOB_FUNCTION on the List search parameters route to find out the right ID. Linkedin native field : Job function.",
+          "required": true
+        },
+        {
+          "name": "recruiter-include-poster-info",
+          "wire_name": "recruiter.include_poster_info",
+          "type": "bool",
+          "location": "body",
+          "description": "Show profile on the job post."
+        },
+        {
+          "name": "recruiter-industries",
+          "wire_name": "recruiter.industries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The ID of the parameter. Use type INDUSTRY on the List search parameters route to find out the right ID. Linkedin native field : Company industry.",
+          "required": true
+        },
+        {
+          "name": "recruiter-project",
+          "wire_name": "recruiter.project",
+          "type": "string",
+          "location": "body",
+          "description": "Project",
+          "required": true
+        },
+        {
+          "name": "recruiter-salary-currency",
+          "wire_name": "recruiter.salary.currency",
+          "type": "string",
+          "location": "body",
+          "description": "Currency",
+          "required": true
+        },
+        {
+          "name": "recruiter-salary-max",
+          "wire_name": "recruiter.salary.max",
+          "type": "float",
+          "location": "body",
+          "description": "Max",
+          "required": true
+        },
+        {
+          "name": "recruiter-salary-min",
+          "wire_name": "recruiter.salary.min",
+          "type": "float",
+          "location": "body",
+          "description": "Min",
+          "required": true
+        },
+        {
+          "name": "recruiter-salary-pay-frequency",
+          "wire_name": "recruiter.salary.pay_frequency",
+          "type": "string",
+          "location": "body",
+          "description": "Pay frequency",
+          "required": true
+        },
+        {
+          "name": "recruiter-send-rejection-notification",
+          "wire_name": "recruiter.send_rejection_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Linkedin native field : Send rejection notification."
+        },
+        {
+          "name": "recruiter-seniority",
+          "wire_name": "recruiter.seniority",
+          "type": "string",
+          "location": "body",
+          "description": "Seniority",
+          "required": true
+        },
+        {
+          "name": "recruiter-skills",
+          "wire_name": "recruiter.skills",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The ID of the parameter. Use type SKILL on the List search parameters route to find out the right ID. Linkedin native field : Skills."
+        },
+        {
+          "name": "recruiter-tracking-pixel-url",
+          "wire_name": "recruiter.tracking_pixel_url",
+          "type": "string",
+          "location": "body",
+          "description": "Enter a URL for impression tracking"
+        },
+        {
+          "name": "screening_questions",
+          "type": "array",
+          "location": "body",
+          "description": "Screening questions"
+        },
+        {
+          "name": "workplace",
+          "type": "string",
+          "location": "body",
+          "description": "Workplace",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_endorse-profile",
+      "description": "This route can be used to endorse a skill of a user profile. Required: account_id, profile_id, skill_endorsement_id. Returns the new LinkedinEndorseProfileResponse.",
+      "method": "POST",
+      "path": "/api/v1/linkedin/profile/endorse",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "body",
+          "description": "An Unipile account id.",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "string",
+          "location": "body",
+          "description": "The provider ID of the user, starting with ACo/ADo.",
+          "required": true
+        },
+        {
+          "name": "skill_endorsement_id",
+          "type": "float",
+          "location": "body",
+          "description": "This is the endorsement_id that can be found along with the skill details on the result of the Retrieve a profile route : https://developer.unipile.com/reference/userscontroller_getprofilebyidentifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_get-applicants",
+      "description": "Retrieve the details of a user that has applied to a given offer. Applies to Classic job posting only. Required: account_id, applicant_id. Returns the LinkedinGetApplicantsResponse.",
+      "method": "GET",
+      "path": "/api/v1/linkedin/jobs/applicants/{applicant_id}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the account to trigger the request from.",
+          "required": true
+        },
+        {
+          "name": "applicant_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the applicant.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_get-jobs",
+      "description": "Retrieve a job offer. Required: job_id, service, account_id. Returns the LinkedinGetJobsResponse.",
+      "method": "GET",
+      "path": "/api/v1/linkedin/jobs/{job_id}",
+      "params": [
+        {
+          "name": "job_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the job offer.",
+          "required": true
+        },
+        {
+          "name": "service",
+          "type": "string",
+          "location": "query",
+          "description": "The Linkedin service the job posting depends on.",
+          "required": true
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the account to trigger the request from.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_get-projects",
+      "description": "Retrieve Recruiter hiring project from ID. Required: account_id, id. Returns the LinkedinGetProjectsResponse.",
+      "method": "GET",
+      "path": "/api/v1/linkedin/projects/{id}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the account to trigger the request from.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the hiring project.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_inmail-balance",
+      "description": "Get balance for subscribed premium features. Required: account_id. Returns the LinkedinInmailBalanceResponse.",
+      "method": "GET",
+      "path": "/api/v1/linkedin/inmail_balance",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the account to trigger the request from.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_list-applicants",
+      "description": "Retrieve all the users that have applied to a given offer. Required: account_id, id. Optional: max_years_in_company, min_years_in_company, max_years_in_position (plus 10 more). Returns array of LinkedinListApplicantsItem.",
+      "method": "GET",
+      "path": "/api/v1/linkedin/jobs/{id}/applicants",
+      "params": [
+        {
+          "name": "max_years_in_company",
+          "type": "float",
+          "location": "query",
+          "description": "Linkedin Recruiter native filter : YEARS IN CURRENT COMPANY."
+        },
+        {
+          "name": "min_years_in_company",
+          "type": "float",
+          "location": "query",
+          "description": "Linkedin Recruiter native filter : YEARS IN CURRENT COMPANY."
+        },
+        {
+          "name": "max_years_in_position",
+          "type": "float",
+          "location": "query",
+          "description": "Linkedin Recruiter native filter : YEARS IN CURRENT POSITION."
+        },
+        {
+          "name": "min_years_in_position",
+          "type": "float",
+          "location": "query",
+          "description": "Linkedin Recruiter native filter : YEARS IN CURRENT POSITION."
+        },
+        {
+          "name": "max_years_of_experience",
+          "type": "float",
+          "location": "query",
+          "description": "Linkedin Recruiter native filter : YEARS OF EXPERIENCE."
+        },
+        {
+          "name": "min_years_of_experience",
+          "type": "float",
+          "location": "query",
+          "description": "Linkedin Recruiter native filter : YEARS OF EXPERIENCE."
+        },
+        {
+          "name": "exclude_degree",
+          "type": "array",
+          "location": "query",
+          "description": "Linkedin Recruiter native filter : DEGREES (excluded)."
+        },
+        {
+          "name": "include_degree",
+          "type": "array",
+          "location": "query",
+          "description": "Linkedin Recruiter native filter : DEGREES (included)."
+        },
+        {
+          "name": "ratings",
+          "type": "string",
+          "location": "query",
+          "description": "One or more ratings (UNRATED, GOOD_FIT, MAYBE, NOT_A_FIT) separated by commas."
+        },
+        {
+          "name": "keywords",
+          "type": "string",
+          "location": "query",
+          "description": "Filter results with keywords."
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "The sorting rule for applicants. Recruiter only."
+        },
+        {
+          "name": "service",
+          "type": "string",
+          "location": "query",
+          "description": "The Linkedin service the job posting depends on. Default is classic."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the account to trigger the request from.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the job offer.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_list-contracts",
+      "description": "Returns a list of your LinkedIn available contracts. Required: account_id.",
+      "method": "GET",
+      "path": "/api/v1/linkedin/contracts",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the account to trigger the request from.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_list-jobs",
+      "description": "Retrieve the job offers you have posted on LinkedIn whether they are open, closed or still drafts. Required: account_id. Optional: limit, category. Returns array of LinkedinListJobsItem.",
+      "method": "GET",
+      "path": "/api/v1/linkedin/jobs",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "query",
+          "description": "The state of the requested job postings. Default is active."
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the account to trigger the request from.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_list-projects",
+      "description": "Retrieve list of LinkedIn Recruiter hiring projects. Required: account_id. Optional: limit (default: 10), sort_order, sort_by. Returns array of LinkedinListProjectsItem.",
+      "method": "GET",
+      "path": "/api/v1/linkedin/projects",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "The sorting order for the hiring projects. Default is DESCENDING."
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "The sorting method for the hiring projects. Default is ACCESSED_TIME."
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the account to trigger the request from.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_parameters-search",
+      "description": "LinkedIn doesn't accept raw text as search parameters, but IDs. This route will help you get the right IDs for your inputs. Check out our Guide with examples to master LinkedIn search : https://developer.unipile.com/docs/linkedin-search. Required: type, account_id. Optional: limit (default: 10), keywords, service. Returns array of LinkedinParametersSearchItem.",
+      "method": "GET",
+      "path": "/api/v1/linkedin/search/parameters",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "keywords",
+          "type": "string",
+          "location": "query",
+          "description": "The keywords to start the search from. Not applicable to the following parameters : EMPLOYMENT_TYPE."
+        },
+        {
+          "name": "service",
+          "type": "string",
+          "location": "query",
+          "description": "Select the LinkedIn API to be used to query common parameters. Default is CLASSIC."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "The type of parameter for the requested search.",
+          "required": true
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the account to trigger the request from.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_publish-jobs",
+      "description": "Publish the job posting draft you have been working on. Required: draft_id.",
+      "method": "POST",
+      "path": "/api/v1/linkedin/jobs/{draft_id}/publish",
+      "params": [
+        {
+          "name": "draft_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the draft to publish.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_raw",
+      "description": "This magic route is intended for advanced users who wish to use LinkedIn's features beyond our current capabilities. It enables you to create custom functionalities that are not yet supported by our platform, using connected accounts. To utilize this route, you will need to identify the specific endpoint containing the desired data using web developer tools on LinkedIn, and then copy the URL along with its parameters for implementation. Required: account_id, request_url. Optional: body, bypass_redirect (default: true), encoding (default: true) (plus 4 more). Returns the new LinkedinRawResponse.",
+      "method": "POST",
+      "path": "/api/v1/linkedin",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "body",
+          "description": "A unique identifier.",
+          "required": true
+        },
+        {
+          "name": "body",
+          "type": "object",
+          "location": "body",
+          "description": "A body object to be passed for POST requests."
+        },
+        {
+          "name": "bypass_redirect",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, do not follow HTTP redirects automatically."
+        },
+        {
+          "name": "encoding",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the query params or the body (in case of x-www-form-urlencoded content) should be encoded on the go."
+        },
+        {
+          "name": "force_api",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to true if you need to use an API for which you might not have an active subscription."
+        },
+        {
+          "name": "headers",
+          "type": "object",
+          "location": "body",
+          "description": "A headers object to be added to requests if needed."
+        },
+        {
+          "name": "method",
+          "type": "string",
+          "location": "body",
+          "description": "The method to be used for the request to be performed. Default is GET."
+        },
+        {
+          "name": "query_params",
+          "type": "object",
+          "location": "body",
+          "description": "A query parameters object."
+        },
+        {
+          "name": "request_url",
+          "type": "string",
+          "location": "body",
+          "description": "An url pointing to some Linkedin API feature",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_resume-applicants",
+      "description": "This route can be used to download the resume of a job applicant. Required: applicant_id, account_id. Optional: service.",
+      "method": "GET",
+      "path": "/api/v1/linkedin/jobs/applicants/{applicant_id}/resume",
+      "params": [
+        {
+          "name": "service",
+          "type": "string",
+          "location": "query",
+          "description": "The Linkedin service the applicant depends on. Default is classic."
+        },
+        {
+          "name": "applicant_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the job applicant.",
+          "required": true
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the account to trigger the request from.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_search",
+      "description": "Search people and companies from the Linkedin Classic as well as Sales Navigator APIs. Check out our Guide with examples to master LinkedIn search : https://developer.unipile.com/docs/linkedin-search. Required: account_id. Optional: cursor, limit (default: 10). Returns array of LinkedinSearchItem.",
+      "method": "POST",
+      "path": "/api/v1/linkedin/search",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the account to trigger the request from.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_select-contracts",
+      "description": "Select a Recruiter or Sales navigator contract to be used on your account. Required: id, account_id. Returns the new LinkedinSelectContractsResponse.",
+      "method": "POST",
+      "path": "/api/v1/linkedin/contracts/{id}/select",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the contract.",
+          "required": true
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the account to trigger the request from.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_solve-checkpoint-jobs",
+      "description": "Solve a checkpoint to verify your member privilegies. Required: draft_id, account_id, input.",
+      "method": "POST",
+      "path": "/api/v1/linkedin/jobs/{draft_id}/checkpoint",
+      "params": [
+        {
+          "name": "draft_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the draft to solve the checkpoint from.",
+          "required": true
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "body",
+          "description": "An Unipile account id.",
+          "required": true
+        },
+        {
+          "name": "input",
+          "type": "string",
+          "location": "body",
+          "description": "Input",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_update-jobs",
+      "description": "Edit an existing job posting. Required: job_id, account_id. Optional: apply_method, auto_rejection_template, company (plus 7 more). Returns the updated LinkedinUpdateJobsResponse.",
+      "method": "PATCH",
+      "path": "/api/v1/linkedin/jobs/{job_id}",
+      "params": [
+        {
+          "name": "job_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the job to edit.",
+          "required": true
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "body",
+          "description": "An Unipile account id.",
+          "required": true
+        },
+        {
+          "name": "apply_method",
+          "type": "string",
+          "location": "body",
+          "description": "Apply method"
+        },
+        {
+          "name": "auto_rejection_template",
+          "type": "string",
+          "location": "body",
+          "description": "You can define a rejection message template to be automatically sent to applicants that don't pass screening questions."
+        },
+        {
+          "name": "company-id",
+          "wire_name": "company.id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the parameter. Use type COMPANY on the List search parameters route to find out the right ID."
+        },
+        {
+          "name": "company-text",
+          "wire_name": "company.text",
+          "type": "string",
+          "location": "body",
+          "description": "Text"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "You can use HTML tags to structure your description."
+        },
+        {
+          "name": "employment_status",
+          "type": "string",
+          "location": "body",
+          "description": "Employment status"
+        },
+        {
+          "name": "job-title-id",
+          "wire_name": "job_title.id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the parameter. Use type JOB_TITLE on the List search parameters route to find out the right ID."
+        },
+        {
+          "name": "job-title-text",
+          "wire_name": "job_title.text",
+          "type": "string",
+          "location": "body",
+          "description": "Text"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the parameter. Use type LOCATION on the List search parameters route to find out the right ID."
+        },
+        {
+          "name": "recruiter-additional-compensation-currency",
+          "wire_name": "recruiter.additional_compensation.currency",
+          "type": "string",
+          "location": "body",
+          "description": "Currency",
+          "required": true
+        },
+        {
+          "name": "recruiter-additional-compensation-max",
+          "wire_name": "recruiter.additional_compensation.max",
+          "type": "float",
+          "location": "body",
+          "description": "Max",
+          "required": true
+        },
+        {
+          "name": "recruiter-additional-compensation-min",
+          "wire_name": "recruiter.additional_compensation.min",
+          "type": "float",
+          "location": "body",
+          "description": "Min",
+          "required": true
+        },
+        {
+          "name": "recruiter-additional-compensation-pay-frequency",
+          "wire_name": "recruiter.additional_compensation.pay_frequency",
+          "type": "string",
+          "location": "body",
+          "description": "Pay frequency",
+          "required": true
+        },
+        {
+          "name": "recruiter-apply-method",
+          "wire_name": "recruiter.apply_method",
+          "type": "string",
+          "location": "body",
+          "description": "Apply method"
+        },
+        {
+          "name": "recruiter-auto-archive-applicants-outside-of-country",
+          "wire_name": "recruiter.auto_archive_applicants.outside_of_country",
+          "type": "bool",
+          "location": "body",
+          "description": "Auto archive applicants who are outside of the country for which you are hiring."
+        },
+        {
+          "name": "recruiter-auto-archive-applicants-screening-questions",
+          "wire_name": "recruiter.auto_archive_applicants.screening_questions",
+          "type": "bool",
+          "location": "body",
+          "description": "Auto archive applicants who don’t meet any must-have screening questions."
+        },
+        {
+          "name": "recruiter-company-job-id",
+          "wire_name": "recruiter.company_job_id",
+          "type": "string",
+          "location": "body",
+          "description": "Employer job ID for impression tracking"
+        },
+        {
+          "name": "recruiter-functions",
+          "wire_name": "recruiter.functions",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The ID of the parameter. Use type JOB_FUNCTION on the List search parameters route to find out the right ID. Linkedin native field : Job function."
+        },
+        {
+          "name": "recruiter-include-poster-info",
+          "wire_name": "recruiter.include_poster_info",
+          "type": "bool",
+          "location": "body",
+          "description": "Show profile on the job post."
+        },
+        {
+          "name": "recruiter-industries",
+          "wire_name": "recruiter.industries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The ID of the parameter. Use type INDUSTRY on the List search parameters route to find out the right ID. Linkedin native field : Company industry."
+        },
+        {
+          "name": "recruiter-project-id",
+          "wire_name": "recruiter.project_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the project the offer is linked to.",
+          "required": true
+        },
+        {
+          "name": "recruiter-salary-currency",
+          "wire_name": "recruiter.salary.currency",
+          "type": "string",
+          "location": "body",
+          "description": "Currency",
+          "required": true
+        },
+        {
+          "name": "recruiter-salary-max",
+          "wire_name": "recruiter.salary.max",
+          "type": "float",
+          "location": "body",
+          "description": "Max",
+          "required": true
+        },
+        {
+          "name": "recruiter-salary-min",
+          "wire_name": "recruiter.salary.min",
+          "type": "float",
+          "location": "body",
+          "description": "Min",
+          "required": true
+        },
+        {
+          "name": "recruiter-salary-pay-frequency",
+          "wire_name": "recruiter.salary.pay_frequency",
+          "type": "string",
+          "location": "body",
+          "description": "Pay frequency",
+          "required": true
+        },
+        {
+          "name": "recruiter-send-rejection-notification",
+          "wire_name": "recruiter.send_rejection_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Linkedin native field : Send rejection notification."
+        },
+        {
+          "name": "recruiter-seniority",
+          "wire_name": "recruiter.seniority",
+          "type": "string",
+          "location": "body",
+          "description": "Seniority"
+        },
+        {
+          "name": "recruiter-skills",
+          "wire_name": "recruiter.skills",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The ID of the parameter. Use type SKILL on the List search parameters route to find out the right ID. Linkedin native field : Skills."
+        },
+        {
+          "name": "recruiter-tracking-pixel-url",
+          "wire_name": "recruiter.tracking_pixel_url",
+          "type": "string",
+          "location": "body",
+          "description": "Enter a URL for impression tracking"
+        },
+        {
+          "name": "screening_questions",
+          "type": "array",
+          "location": "body",
+          "description": "Screening questions"
+        },
+        {
+          "name": "workplace",
+          "type": "string",
+          "location": "body",
+          "description": "Workplace"
+        }
+      ]
+    },
+    {
+      "name": "messages_delete",
+      "description": "Delete a message. Supported for WhatsApp and LinkedIn only. For LinkedIn, it is only possible within the first 60 minutes after the message is sent. Required: message_id. Returns the MessagesDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/messages/{message_id}",
+      "params": [
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the message to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_get",
+      "description": "Retrieve the details of a message. Required: message_id. Returns the MessagesGetResponse.",
+      "method": "GET",
+      "path": "/api/v1/messages/{message_id}",
+      "params": [
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the message to retrieve.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_list",
+      "description": "Returns a list of messages. Some optional parameters are available to filter the results. Required: account_id. Optional: before, after, limit (plus 1 more).",
+      "method": "GET",
+      "path": "/api/v1/messages",
+      "params": [
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "sender_id",
+          "type": "string",
+          "location": "query",
+          "description": "A filter to target messages received from a certain sender. The id of the sender targeted."
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "A filter to target messages received in a certain linked account. The id of the account targeted.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_update",
+      "description": "Edit a message. Supported for WhatsApp and LinkedIn Classic only. WhatsApp may reject edits after an indicative 15-minute window following the original send time. LinkedIn Classic edits are only possible within the first 60 minutes after the message is sent. Required: message_id, text. Returns the updated MessagesUpdateResponse.",
+      "method": "PATCH",
+      "path": "/api/v1/messages/{message_id}",
+      "params": [
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the message to edit.",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "The updated text of the message. For media messages, this is used as the updated caption when supported by the provider. On WhatsApp, edits may be rejected after an indicative 15-minute window following the original send time. On LinkedIn Classic, edits are only possible within the first 60 minutes after the message is sent.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_attachments_messages",
+      "description": "Retrieve one of the attachment linked to a message. Required: attachment_id, message_id.",
+      "method": "GET",
+      "path": "/api/v1/messages/{message_id}/attachments/{attachment_id}",
+      "params": [
+        {
+          "name": "attachment_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the wanted attachment.",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the message to which the attachment is linked.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_forward_messages",
+      "description": "Forward a message to a chat. (Whatsapp only). Required: message_id, chat_id. Returns the new ForwardMessagesResponse.",
+      "method": "POST",
+      "path": "/api/v1/messages/{message_id}/forward",
+      "params": [
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the message to forward.",
+          "required": true
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "The id of the chat to forward the message to.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_reaction_react-messages",
+      "description": "Add a reaction to a message. (Whatsapp, LinkedIn). Required: message_id, reaction. Returns the new ReactionReactMessagesResponse.",
+      "method": "POST",
+      "path": "/api/v1/messages/{message_id}/reaction",
+      "params": [
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the message to react to.",
+          "required": true
+        },
+        {
+          "name": "reaction",
+          "type": "string",
+          "location": "body",
+          "description": "The emoji to react with (native emoji, e.g. 👍).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "posts_create",
+      "description": "Publish a post. Required: account_id, text. Optional: as_organization, attachments, external_link (plus 6 more). Returns the new PostsCreateResponse.",
+      "method": "POST",
+      "path": "/api/v1/posts",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "body",
+          "description": "The id of the account to perform the request from.",
+          "required": true
+        },
+        {
+          "name": "as_organization",
+          "type": "string",
+          "location": "body",
+          "description": "`Linkedin only` Provide the ID of an organization over which you have control to perform the..."
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "On `linkedin`, image file resolution is limited to 6012px x 6012px max."
+        },
+        {
+          "name": "external_link",
+          "type": "string",
+          "location": "body",
+          "description": "`Linkedin only` An external link that should be displayed within a preview card. The URL must also be included in the post textual content. Otherwise, it will be automatically added at the end."
+        },
+        {
+          "name": "include_job_posting",
+          "type": "string",
+          "location": "body",
+          "description": "`Linkedin only` The ID of a job posting that should be displayed within a preview card."
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "`Instagram only`: The location to tag in the post. The best match for the query is used, and a query matching no place leaves the post untagged. On a story, the location is also drawn on the media as a tappable sticker."
+        },
+        {
+          "name": "mentions",
+          "type": "array",
+          "location": "body",
+          "description": "`Linkedin only`"
+        },
+        {
+          "name": "post_type",
+          "type": "string",
+          "location": "body",
+          "description": "`Instagram only`: Publish as a regular feed post or as a story. Defaults to `feed` when omitted or empty."
+        },
+        {
+          "name": "repost",
+          "type": "string",
+          "location": "body",
+          "description": "The id of an existing LinkedIn post to publish as repost. For a simple repost without commentary, `text` should be an empty string."
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "`Linkedin`: You can add a mention by inserting the index of the corresponding entry from the mentions array between two double braces. Example: Hey {{0}}, check this out ! `Instagram`: To mention a user, use the @ symbol followed by their username. On a story, each mention is drawn on the media as a tappable `@username` sticker and the user is notified; the surrounding text is not displayed. A username that matches no account is left as plain text. Up to 10 mentions per story.",
+          "required": true
+        },
+        {
+          "name": "video_thumbnail",
+          "type": "string",
+          "location": "body",
+          "description": "Video thumbnail"
+        }
+      ]
+    },
+    {
+      "name": "posts_get",
+      "description": "Retrieve the details of a post. Required: post_id, account_id. Returns the PostsGetResponse.",
+      "method": "GET",
+      "path": "/api/v1/posts/{post_id}",
+      "params": [
+        {
+          "name": "post_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the post. `Linkedin`: if the URL contains **activity**, use the numeric id (example: ...-activity-7332661864792854528-... =\u003e `7332661864792854528`). If the URL contains **ugcPost**, use `urn:li:ugcPost:ID`. If the URL contains **share**, use `urn:li:share:ID`. `Instagram`: You can use the **provider_id** or the **shortcode** found in the post URL. (***www.instagram.com/reel/SHORTCODE***)",
+          "required": true
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account to perform the request from.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "posts_react",
+      "description": "React to either a post or a post comment. Required: account_id, post_id. Optional: as_organization, comment_id, reaction_type. Returns the new PostsReactResponse.",
+      "method": "POST",
+      "path": "/api/v1/posts/reaction",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "body",
+          "description": "The id of the account to perform the request from.",
+          "required": true
+        },
+        {
+          "name": "as_organization",
+          "type": "string",
+          "location": "body",
+          "description": "`Linkedin only` Provide the ID of an organization over which you have control to perform the..."
+        },
+        {
+          "name": "comment_id",
+          "type": "string",
+          "location": "body",
+          "description": "The id of the comment to send a reaction to. `Linkedin`: use the comment id returned by the comments list."
+        },
+        {
+          "name": "post_id",
+          "type": "string",
+          "location": "body",
+          "description": "The id of the post to send a reaction to. `Linkedin`: use the `social_id` from the post object (GET post or list posts). The post id visible in url will not work in all case, you can refer here for more details : https://developer.unipile.com/docs/posts-and-comments `Instagram` Please use the provider_id",
+          "required": true
+        },
+        {
+          "name": "reaction_type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of reaction to send. If not provided, it defaults to 'like'. `Instagram`: The only supported reaction type is 'like'."
+        }
+      ]
+    },
+    {
+      "name": "posts_comments_create",
+      "description": "Comment a post or reply to a post comment. Required: post_id, account_id, text. Optional: as_organization, attachments, comment_id (plus 2 more). Returns the new CommentsCreateResponse.",
+      "method": "POST",
+      "path": "/api/v1/posts/{post_id}/comments",
+      "params": [
+        {
+          "name": "post_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the associated post. `Linkedin`: use the `social_id` from the post object (GET post or list posts). The post id visible in url will not work in all case, you can refer here for more details : https://developer.unipile.com/docs/posts-and-comments `Instagram` Post short code dont work on this route, please use the provider_id instead.",
+          "required": true
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "body",
+          "description": "The id of the account to perform the request from.",
+          "required": true
+        },
+        {
+          "name": "as_organization",
+          "type": "string",
+          "location": "body",
+          "description": "`Linkedin only` Provide the ID of an organization over which you have control to perform the..."
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "On `linkedin`, only one image file is accepted with a resolution limited to 6012px x 6012px max."
+        },
+        {
+          "name": "comment_id",
+          "type": "string",
+          "location": "body",
+          "description": "The id of the comment to reply to. `Linkedin`: use the comment id returned by the comments list."
+        },
+        {
+          "name": "external_link",
+          "type": "string",
+          "location": "body",
+          "description": "`Linkedin only` An external link that should be displayed within a preview card. The URL must also be included in the post textual content. Otherwise, it will be automatically added at the end."
+        },
+        {
+          "name": "mentions",
+          "type": "array",
+          "location": "body",
+          "description": "`Linkedin only`"
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "`Linkedin`: You can add a mention by inserting the index of the corresponding entry from the mentions array between two double braces. Example: Hey {{0}}, check this out ! `Instagram`: You can mention users by inserting their username in the text, like @username.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "posts_comments_list",
+      "description": "Returns a list of either comments on a given post or replies on a given comment. Required: account_id, post_id. Optional: limit, sort_by, comment_id.",
+      "method": "GET",
+      "path": "/api/v1/posts/{post_id}/comments",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "The sort method for the post comments. Default is MOST_RECENT."
+        },
+        {
+          "name": "comment_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the comment to get replies from. `Linkedin`: use the comment `id` returned by the comments list."
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account to perform the request from.",
+          "required": true
+        },
+        {
+          "name": "post_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the associated post. `Linkedin`: use the `social_id` from the post object (GET post or list posts). The post id visible in url will not work in all case, you can refer here for more details : https://developer.unipile.com/docs/posts-and-comments `Instagram`: Need to use the **provider_id**. Short code cannot be used here (***www.instagram.com/p/SHORTCODE***)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "posts_reactions_list",
+      "description": "Returns a list of reactions to either a post or a post comment. Required: account_id, post_id. Optional: limit, comment_id.",
+      "method": "GET",
+      "path": "/api/v1/posts/{post_id}/reactions",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "comment_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the comment to get reactions from. `Linkedin`: use the comment `id` returned by the comments list."
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account to perform the request from.",
+          "required": true
+        },
+        {
+          "name": "post_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the associated post. `Linkedin`: use the `social_id` from the post object (GET post or list posts). The post id visible in url will not work in all case, you can refer here for more details : https://developer.unipile.com/docs/posts-and-comments",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_cancel-sent",
+      "description": "Cancel a pending invitation sent to someone. `Instagram`: You can also use this route to unfollow users you have previously followed. Required: account_id, invitation_id. Returns the UsersCancelSentResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/users/invite/sent/{invitation_id}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account to perform the request from.",
+          "required": true
+        },
+        {
+          "name": "invitation_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the invitation to cancel. `Instagram`: Use the 'provider_id' retrieved in user profile (not 'provider_messaging_id')",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_edit-me",
+      "description": "Modify informations on account owner profile. For WhatsApp accounts, only `headline` (profile display name), `summary` (profile About/status) and `picture` are available. For Instagram accounts, only `summary` (profile bio) and `picture` are available. ⚠️ Interactive documentation does not provide the expected format for nested parameters in code snippet. They should be formatted with brackets like the following examples : `location[id]=105015875`, `picture_settings[filter]=STUDIO` or `picture_settings[layout][bottomLeft][x]=1.25`. When working with arrays, just set one field for each value with the same key, for example : `experience[skills]=development experience[skills]=management`. Returns the updated UsersEditMeResponse.",
+      "method": "PATCH",
+      "path": "/api/v1/users/me/edit",
+      "params": []
+    },
+    {
+      "name": "users_followers",
+      "description": "Returns a list of all the followers of the current user. Ensure careful implementation of this action and consult provider limits and restrictions: https://developer.unipile.com/docs/provider-limits-and-restrictions. Required: account_id. Optional: user_id, limit.",
+      "method": "GET",
+      "path": "/api/v1/users/followers",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "query",
+          "description": "`Instagram` The user to get the followers from (provider_id or username). `Linkedin` The user or company to get the followers from (provider_id only)."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "A limit for the number of items returned in the response. `Linkedin` 100 max for own profile, 50 for other profile `Instagram` 25 max. `Instagram` This is a ceiling, not a guarantee: Instagram may return fewer items than requested for a given page (its own pagination internals can occasionally short a page), and for `Verified` target accounts it returns only a small fixed sample and closes the cursor immediately regardless of the value requested."
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The account to get the followers from. (if user_id is not provided)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_following",
+      "description": "Returns a list of all the followed accounts of an account. Ensure careful implementation of this action and consult provider limits and restrictions: https://developer.unipile.com/docs/provider-limits-and-restrictions. Required: user_id, account_id. Optional: limit.",
+      "method": "GET",
+      "path": "/api/v1/users/following",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "query",
+          "description": "`Instagram only` The user to get the followed accounts from (provider_id or username).",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The account to get the followed accounts from. (if user_id is not provided)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "Retrieve the profile of a user. Ensure careful implementation of this action and consult provider limits and restrictions: https://developer.unipile.com/docs/provider-limits-and-restrictions. Required: account_id, identifier. Optional: linkedin_sections, linkedin_api, notify.",
+      "method": "GET",
+      "path": "/api/v1/users/{identifier}",
+      "params": [
+        {
+          "name": "linkedin_sections",
+          "type": "array",
+          "location": "query",
+          "description": "Linkedin sections"
+        },
+        {
+          "name": "linkedin_api",
+          "type": "string",
+          "location": "query",
+          "description": "The LinkedIn API that should be used to get the profile (relative features must be subscribed), if different from classic."
+        },
+        {
+          "name": "notify",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether the profile visit should be notified to the viewee or not. Default is false."
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account to perform the request from.",
+          "required": true
+        },
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "Can be the provider’s internal id OR the provider’s public id of the requested user.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_invite",
+      "description": "Send an invitation to add someone to your contacts. Ensure careful implementation of this action and consult provider limits and restrictions: https://developer.unipile.com/docs/provider-limits-and-restrictions. Required: account_id, provider_id. Optional: message, user_email. Returns the new UsersInviteResponse.",
+      "method": "POST",
+      "path": "/api/v1/users/invite",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "body",
+          "description": "The id of the account where the user will be added.",
+          "required": true
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "An optional message to go with the invitation (max 300 chars)."
+        },
+        {
+          "name": "provider_id",
+          "type": "string",
+          "location": "body",
+          "description": "The id of the user to add. It has to be the provider’s id. `Instagram`: You can use the provider_id or the username of the user. The provider_messaging_id dont work on this route !",
+          "required": true
+        },
+        {
+          "name": "user_email",
+          "type": "string",
+          "location": "body",
+          "description": "The email address of the user when it's required (Linkedin specific)."
+        }
+      ]
+    },
+    {
+      "name": "users_list-received",
+      "description": "Returns a list of all invitations that have been received. Required: account_id. Optional: limit (default: 10).",
+      "method": "GET",
+      "path": "/api/v1/users/invite/received",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account to perform the request from.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_list-sent",
+      "description": "Returns a list of all invitations sent that are pending. Required: account_id. Optional: limit.",
+      "method": "GET",
+      "path": "/api/v1/users/invite/sent",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account to perform the request from.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_me",
+      "description": "Retrieve informations about account owner. Required: account_id.",
+      "method": "GET",
+      "path": "/api/v1/users/me",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the account to trigger the request from.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_relations",
+      "description": "Returns a list of all the relations of an account. Ensure careful implementation of this action and consult provider limits and restrictions: https://developer.unipile.com/docs/provider-limits-and-restrictions. Required: account_id. Optional: filter, limit.",
+      "method": "GET",
+      "path": "/api/v1/users/relations",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter out results by user name."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The account to get the relations from. (if user_id is not provided)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_respond-received",
+      "description": "Accept or decline a connection invitation. Required: invitation_id. Returns the new UsersRespondReceivedResponse.",
+      "method": "POST",
+      "path": "/api/v1/users/invite/received/{invitation_id}",
+      "params": [
+        {
+          "name": "invitation_id",
+          "type": "string",
+          "location": "path",
+          "description": "The invitation ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_comments_list",
+      "description": "Returns a list of comments written by a user. Required: account_id, identifier. Optional: limit.",
+      "method": "GET",
+      "path": "/api/v1/users/{identifier}/comments",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account to perform the request from.",
+          "required": true
+        },
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "The user's provider internal id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_posts_list",
+      "description": "Returns a list of posts written by a user or a company. Required: account_id, identifier. Optional: limit, is_company.",
+      "method": "GET",
+      "path": "/api/v1/users/{identifier}/posts",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "is_company",
+          "type": "bool",
+          "location": "query",
+          "description": "`Linkedin only` Set it to **'true'** if the posts are from a company."
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account to perform the request from.",
+          "required": true
+        },
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "The entity's provider internal id. `Linkedin`: starts with ACo/ADo for users, while for companies it's a series of numbers. `Instagram`: use the provider_id or the username of the user.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_reactions_list",
+      "description": "Returns a list of reactions to posts or comments from a user. Required: account_id, identifier. Optional: limit.",
+      "method": "GET",
+      "path": "/api/v1/users/{identifier}/reactions",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the account to perform the request from.",
+          "required": true
+        },
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "The user's provider internal id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_create",
+      "description": "Create a webhook. Returns the new WebhooksCreateResponse.",
+      "method": "POST",
+      "path": "/api/v1/webhooks",
+      "params": []
+    },
+    {
+      "name": "webhooks_delete",
+      "description": "Delete a webhook. Required: id. Returns the WebhooksDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/webhooks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the webhook to be deleted.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_list",
+      "description": "Returns a list of the webhooks. Optional: limit.",
+      "method": "GET",
+      "path": "/api/v1/webhooks",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Rate-budget ledger",
+      "command": "budget",
+      "description": "See how many LinkedIn invitations you have left today and this week, counted from your synced invitation history."
+    },
+    {
+      "name": "Offline cross-provider search",
+      "command": "search",
+      "description": "Full-text search every message, email, attendee, and relation across all connected providers at once, offline."
+    },
+    {
+      "name": "Contact 360",
+      "command": "contact",
+      "description": "Everything the local mirror knows about one person: connection state, invitation history, and every conversation with per-direction message counts."
+    },
+    {
+      "name": "Unified unread inbox",
+      "command": "inbox",
+      "description": "One table of everything unread across LinkedIn, WhatsApp, Telegram, Instagram, Messenger, and email."
+    },
+    {
+      "name": "Silence detection",
+      "command": "silent",
+      "description": "Find conversations where you sent the last message and got no reply for N days."
+    },
+    {
+      "name": "Accepted but not messaged",
+      "command": "accepted",
+      "description": "New LinkedIn connections since your last sync that you have not messaged yet."
+    },
+    {
+      "name": "Invitation funnel",
+      "command": "funnel",
+      "description": "Sent, accepted, and replied counts with conversion rates over a time window."
+    },
+    {
+      "name": "Cross-provider digest",
+      "command": "digest",
+      "description": "What changed across every connected provider since the last sync."
+    },
+    {
+      "name": "Resolved thread view",
+      "command": "thread",
+      "description": "Read one conversation end to end with attendee IDs resolved to real names."
+    },
+    {
+      "name": "Post engagement crossmatch",
+      "command": "engagement",
+      "description": "Who reacted to or commented on your posts, flagged by whether they are already a connection."
+    }
+  ]
+}

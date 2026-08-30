@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "irail-pp-mcp",
+  "display_name": "iRail",
+  "version": "0.1.0",
+  "description": "Every Belgian rail lookup the existing tools offer, plus transfer-risk, delay history and accessibility data that none of them have.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/irail-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/irail-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

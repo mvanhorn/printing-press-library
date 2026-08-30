@@ -1,0 +1,13 @@
+version: 2
+
+builds:
+  - id: open-library-pp-cli
+    main: ./cmd/open-library-pp-cli
+    binary: open-library-pp-cli
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64

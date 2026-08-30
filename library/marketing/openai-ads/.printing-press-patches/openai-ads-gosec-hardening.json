@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "openai-ads-gosec-hardening",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-171540-a9bb0a03",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Check rows.Err() before rows.Close() in novel-feature store loaders, and add a narrow documented #nosec G202 for SQLite VACUUM INTO.",
+  "reason": "Six novel loaders closed *sql.Rows without checking rows.Err(), so a mid-iteration failure would surface as a complete result set — orphans could have reported live entities as orphaned. VACUUM INTO cannot be parameterized in SQLite; the path is program-derived and quote-escaped.",
+  "files": [
+    "internal/cli/novel_helpers.go",
+    "internal/cli/orphans.go",
+    "internal/cli/drift.go",
+    "internal/cli/geo_resolve.go",
+    "internal/cli/review_watch.go",
+    "internal/platform/migration.go"
+  ],
+  "validated_outcome": "gosec findings in hand-authored code went from 10 to 0; go test ./... still passes."
+}

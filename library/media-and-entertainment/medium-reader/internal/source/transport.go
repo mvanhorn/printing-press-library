@@ -84,6 +84,20 @@ func NewHTTPClient(timeout time.Duration) *http.Client {
 		Timeout(timeout)
 	b = b.ForceHTTP2()
 	b = b.Session()
+	// Preserve the request's headers (notably Cookie) across redirects. read
+	// canonicalises every article to https://medium.com/p/<id>, which Medium
+	// 302-redirects to the post's canonical host — for a custom-domain
+	// publication that host is a DIFFERENT registrable domain (uxdesign.cc,
+	// uxplanet.org, towardsdatascience.com, …). Go's stdlib redirect logic
+	// classifies Cookie as sensitive and strips it on a cross-registrable-domain
+	// hop, so without this the Tier-1 session never reaches the custom host and
+	// the member post comes back as the anonymous preview (IsPreviewOnly=true).
+	// Surf's ForwardHeadersOnRedirect re-copies the original request's headers
+	// onto each redirect hop (via the CheckRedirect that .Std() installs), which
+	// runs AFTER stdlib's strip and therefore restores the cookie. The target
+	// hosts are always Medium-served publication domains, which is exactly where
+	// the user intends their Medium session to apply.
+	b = b.ForwardHeadersOnRedirect()
 	sc := b.Build().Unwrap()
 	if t, ok := sc.GetTransport().(*enetxhttp.Transport); ok {
 		t.ResponseHeaderTimeout = timeout

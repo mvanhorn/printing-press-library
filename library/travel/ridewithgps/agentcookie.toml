@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "ridewithgps-pp-cli"
+display_name = "Ride with GPS"
+description = "Your whole Ride with GPS library, offline — bulk export, gear mileage, and ride analytics no other tool ships."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/ridewithgps-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+RIDEWITHGPS_API_KEY = true

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "clinical-trials",
+  "run_id": "20260623-164233-df565e8d",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 92,
+  "tests_passed": 92,
+  "tests_skipped": 65,
+  "auth_context": {
+    "type": "none"
+  }
+}

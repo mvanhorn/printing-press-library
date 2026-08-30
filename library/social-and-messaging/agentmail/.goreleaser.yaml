@@ -1,0 +1,51 @@
+version: 2
+project_name: agentmail-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: agentmail-pp-cli
+    main: ./cmd/agentmail-pp-cli
+    binary: agentmail-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/social-and-messaging/agentmail/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: agentmail-pp-mcp
+    main: ./cmd/agentmail-pp-mcp
+    binary: agentmail-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: agentmail-pp-cli
+    repository:
+      owner: somsamantray
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "AgentMail operations with local memory, safe sends, and fleet-wide insight."
+    install: |
+      bin.install "agentmail-pp-cli"
+      bin.install "agentmail-pp-mcp"

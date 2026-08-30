@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "nejm",
+  "cli_name": "nejm-pp-cli",
+  "version": "2026.8.2",
+  "released_at": "2026-08-21T04:55:07Z",
+  "source_commit": "8c6c417e7affcead94062c679863e10158c285cc",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260620-035405-a2d4c231",
+  "changes": [
+    {
+      "title": "fix(nejm): bump Go floor to 1.26.6 for stdlib vulnerability fixes",
+      "pr": 1757,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1757",
+      "commit": "8c6c417e7affcead94062c679863e10158c285cc"
+    }
+  ]
+}

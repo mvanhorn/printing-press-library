@@ -39,12 +39,15 @@ func TestReconcilePartition_SweepsDeletedKeepsSeenAndOtherPartitions(t *testing.
 	if deleted != 2 { // m2 and m3
 		t.Fatalf("deleted = %d, want 2 (m2 typed + m3 ghost)", deleted)
 	}
-	assertCount(t, s, `SELECT COUNT(*) FROM resources WHERE resource_type='modules'`, 2)   // m1, m9
-	assertCount(t, s, `SELECT COUNT(*) FROM "modules"`, 2)                                   // m1, m9 typed
-	assertCount(t, s, `SELECT COUNT(*) FROM resources WHERE id='m9'`, 1)                     // partition B intact
-	assertCount(t, s, `SELECT COUNT(*) FROM module_issues WHERE module_id='m2'`, 0)          // cascade
-	assertCount(t, s, `SELECT COUNT(*) FROM module_issues WHERE module_id='m1'`, 1)          // survives
-	assertCount(t, s, `SELECT COUNT(*) FROM resources_fts WHERE rowid=?`, 0, ftsRowID("modules", "m2"))
+	// engine-4.27: dependent resources (modules) store a NUL-composite
+	// parent-keyed storage id ("<id>\x00<projects_id>"); assert against the
+	// stored ids, and match junction/FTS on the BARE id the cascade uses.
+	assertCount(t, s, `SELECT COUNT(*) FROM resources WHERE resource_type='modules'`, 2) // m1, m9
+	assertCount(t, s, `SELECT COUNT(*) FROM "modules"`, 2)                               // m1, m9 typed
+	assertCount(t, s, `SELECT COUNT(*) FROM resources WHERE id=?`, 1, "m9\x00B")         // partition B intact
+	assertCount(t, s, `SELECT COUNT(*) FROM module_issues WHERE module_id='m2'`, 0)      // cascade
+	assertCount(t, s, `SELECT COUNT(*) FROM module_issues WHERE module_id='m1'`, 1)      // survives
+	assertCount(t, s, `SELECT COUNT(*) FROM resources_fts WHERE rowid=?`, 0, ftsRowID("modules", "m2\x00A"))
 }
 
 func TestReconcilePartition_SkipsMalformedJSONRow(t *testing.T) {
@@ -74,8 +77,8 @@ func TestReconcilePartition_SkipsMalformedJSONRow(t *testing.T) {
 	if deleted != 1 { // m2 only; m1 seen, mjunk unparseable => never a victim
 		t.Fatalf("deleted = %d, want 1 (m2 only)", deleted)
 	}
-	assertCount(t, s, `SELECT COUNT(*) FROM resources WHERE id='mjunk'`, 1) // junk untouched
-	assertCount(t, s, `SELECT COUNT(*) FROM resources WHERE id='m1'`, 1)    // seen survives
+	assertCount(t, s, `SELECT COUNT(*) FROM resources WHERE id='mjunk'`, 1)      // junk untouched (generic-only, bare id)
+	assertCount(t, s, `SELECT COUNT(*) FROM resources WHERE id=?`, 1, "m1\x00A") // seen survives (composite storage id)
 }
 
 func TestReconcilePartition_EmptyScopeErrors(t *testing.T) {

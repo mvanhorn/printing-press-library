@@ -1,0 +1,51 @@
+version: 2
+project_name: flighty-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: flighty-pp-cli
+    main: ./cmd/flighty-pp-cli
+    binary: flighty-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/flighty/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: flighty-pp-mcp
+    main: ./cmd/flighty-pp-mcp
+    binary: flighty-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: flighty-pp-cli
+    repository:
+      owner: somsamantray
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Flighty Airports meltdown map feature, plus cross-airport intelligence no web page can answer."
+    install: |
+      bin.install "flighty-pp-cli"
+      bin.install "flighty-pp-mcp"

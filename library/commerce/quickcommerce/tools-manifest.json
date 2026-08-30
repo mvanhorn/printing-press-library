@@ -1,0 +1,359 @@
+{
+  "api_name": "quickcommerce",
+  "base_url": "https://api.quickcommerceapi.com",
+  "description": "Compare live Indian product prices, stock, and delivery ETAs from the terminal, then keep the history locally.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-API-Key",
+    "in": "header",
+    "env_vars": [
+      "QUICKCOMMERCE_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "QUICKCOMMERCE_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://quickcommerceapi.com/auth/signup"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "account_credits",
+      "description": "Check credit balance, usage, and expiry. Returns the Credits.",
+      "method": "GET",
+      "path": "/v1/credits",
+      "params": []
+    },
+    {
+      "name": "comparison_search",
+      "description": "Search and compare products across multiple platforms. Required: query, platforms, latitude, longitude. Optional: group (default: false), pincode. Returns the GroupSearch.",
+      "method": "GET",
+      "path": "/v1/groupsearch",
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Product keyword to compare across platforms.",
+          "required": true,
+          "aliases": [
+            "q"
+          ]
+        },
+        {
+          "name": "platforms",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated platform names to compare.",
+          "required": true
+        },
+        {
+          "name": "latitude",
+          "wire_name": "lat",
+          "type": "float",
+          "location": "query",
+          "description": "Delivery latitude in decimal degrees.",
+          "required": true,
+          "aliases": [
+            "lat"
+          ]
+        },
+        {
+          "name": "longitude",
+          "wire_name": "lon",
+          "type": "float",
+          "location": "query",
+          "description": "Delivery longitude in decimal degrees.",
+          "required": true,
+          "aliases": [
+            "lon"
+          ]
+        },
+        {
+          "name": "group",
+          "type": "bool",
+          "location": "query",
+          "description": "Return the provider's grouped product response."
+        },
+        {
+          "name": "pincode",
+          "wire_name": "x-geolocation-pincode",
+          "type": "string",
+          "location": "query",
+          "description": "Six-digit pincode required by DMart, JioMart, and Minutes.",
+          "aliases": [
+            "geolocation-pincode"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "delivery_compare",
+      "description": "Compare delivery ETAs across quick-commerce platforms. Required: platforms, latitude, longitude. Optional: pincode. Returns the GroupETA.",
+      "method": "GET",
+      "path": "/v1/groupeta",
+      "params": [
+        {
+          "name": "platforms",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated quick-commerce platform names.",
+          "required": true
+        },
+        {
+          "name": "latitude",
+          "wire_name": "lat",
+          "type": "float",
+          "location": "query",
+          "description": "Delivery latitude in decimal degrees.",
+          "required": true,
+          "aliases": [
+            "lat"
+          ]
+        },
+        {
+          "name": "longitude",
+          "wire_name": "lon",
+          "type": "float",
+          "location": "query",
+          "description": "Delivery longitude in decimal degrees.",
+          "required": true,
+          "aliases": [
+            "lon"
+          ]
+        },
+        {
+          "name": "pincode",
+          "wire_name": "x-geolocation-pincode",
+          "type": "string",
+          "location": "query",
+          "description": "Six-digit pincode required by DMart, JioMart, and Minutes.",
+          "aliases": [
+            "geolocation-pincode"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "delivery_eta",
+      "description": "Get delivery ETA and store availability for one platform. Required: latitude, longitude, platform. Optional: pincode. Returns the DeliveryETA.",
+      "method": "GET",
+      "path": "/v1/eta",
+      "params": [
+        {
+          "name": "latitude",
+          "wire_name": "lat",
+          "type": "float",
+          "location": "query",
+          "description": "Delivery latitude in decimal degrees.",
+          "required": true,
+          "aliases": [
+            "lat"
+          ]
+        },
+        {
+          "name": "longitude",
+          "wire_name": "lon",
+          "type": "float",
+          "location": "query",
+          "description": "Delivery longitude in decimal degrees.",
+          "required": true,
+          "aliases": [
+            "lon"
+          ]
+        },
+        {
+          "name": "platform",
+          "type": "string",
+          "location": "query",
+          "description": "Quick-commerce platform to check.",
+          "required": true
+        },
+        {
+          "name": "pincode",
+          "wire_name": "x-geolocation-pincode",
+          "type": "string",
+          "location": "query",
+          "description": "Six-digit pincode required by DMart, JioMart, and Minutes.",
+          "aliases": [
+            "geolocation-pincode"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "items_get",
+      "description": "Get live price, stock, and availability for an item ID. Required: item-id, latitude, longitude, platform. Optional: pincode. Returns array of Item.",
+      "method": "GET",
+      "path": "/v1/item",
+      "params": [
+        {
+          "name": "item-id",
+          "wire_name": "item_id",
+          "type": "string",
+          "location": "query",
+          "description": "Platform-specific item ID returned by product search.",
+          "required": true,
+          "aliases": [
+            "item"
+          ]
+        },
+        {
+          "name": "latitude",
+          "wire_name": "lat",
+          "type": "float",
+          "location": "query",
+          "description": "Delivery latitude in decimal degrees.",
+          "required": true,
+          "aliases": [
+            "lat"
+          ]
+        },
+        {
+          "name": "longitude",
+          "wire_name": "lon",
+          "type": "float",
+          "location": "query",
+          "description": "Delivery longitude in decimal degrees.",
+          "required": true,
+          "aliases": [
+            "lon"
+          ]
+        },
+        {
+          "name": "platform",
+          "type": "string",
+          "location": "query",
+          "description": "Platform that owns the item ID.",
+          "required": true
+        },
+        {
+          "name": "pincode",
+          "wire_name": "x-geolocation-pincode",
+          "type": "string",
+          "location": "query",
+          "description": "Six-digit pincode required by DMart, JioMart, and Minutes.",
+          "aliases": [
+            "geolocation-pincode"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "platforms_list",
+      "description": "List platforms supported by each endpoint. Returns the SupportedPlatforms. (public)",
+      "method": "GET",
+      "path": "/v1/supported-platforms",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "products_search",
+      "description": "Search products on one platform by keyword and location. Required: query (default: milk), latitude (default: 12.9021), longitude (default: 77.6639), platform (default: BlinkIt). Optional: pincode. Returns array of Product.",
+      "method": "GET",
+      "path": "/v1/search",
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Product keyword such as milk or atta 5kg.",
+          "required": true,
+          "aliases": [
+            "q"
+          ]
+        },
+        {
+          "name": "latitude",
+          "wire_name": "lat",
+          "type": "float",
+          "location": "query",
+          "description": "Delivery latitude in decimal degrees.",
+          "required": true,
+          "aliases": [
+            "lat"
+          ]
+        },
+        {
+          "name": "longitude",
+          "wire_name": "lon",
+          "type": "float",
+          "location": "query",
+          "description": "Delivery longitude in decimal degrees.",
+          "required": true,
+          "aliases": [
+            "lon"
+          ]
+        },
+        {
+          "name": "platform",
+          "type": "string",
+          "location": "query",
+          "description": "Platform to search, for example BlinkIt or Zepto.",
+          "required": true
+        },
+        {
+          "name": "pincode",
+          "wire_name": "x-geolocation-pincode",
+          "type": "string",
+          "location": "query",
+          "description": "Six-digit pincode required by DMart, JioMart, and Minutes.",
+          "aliases": [
+            "geolocation-pincode"
+          ]
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Price and availability history",
+      "command": "history prices",
+      "description": "Query local observations to see price, stock, rating, and availability movement over time."
+    },
+    {
+      "name": "Observation diff",
+      "command": "history diff",
+      "description": "Show the field-level changes between the latest saved observations."
+    },
+    {
+      "name": "Fastest available delivery",
+      "command": "delivery fastest",
+      "description": "Rank currently available delivery options while preserving closed or unparseable platforms."
+    },
+    {
+      "name": "Credit-aware request planner",
+      "command": "requests plan",
+      "description": "Calculate fan-out credit cost and affordability before making paid platform requests."
+    },
+    {
+      "name": "Manual mirror ingestion",
+      "command": "mirror ingest",
+      "description": "Persist real QuickCommerce command responses and metadata into the local SQLite mirror."
+    },
+    {
+      "name": "Stale-observation report",
+      "command": "mirror stale",
+      "description": "Find saved product and ETA observations that are older than a chosen trust window."
+    },
+    {
+      "name": "Local platform/location coverage",
+      "command": "mirror coverage",
+      "description": "Report observed, missing, and stale platform coverage for a location."
+    },
+    {
+      "name": "Price-per-unit value view",
+      "command": "prices value",
+      "description": "Compare price per unit from explicit pack quantities without guessing missing units."
+    }
+  ]
+}

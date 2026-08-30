@@ -8,47 +8,39 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/cliutil/testenv"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/config"
+	"github.com/pelletier/go-toml/v2"
 )
 
 func resetCredentialEnv(t *testing.T) (home, configPath string) {
 	t.Helper()
-	home = t.TempDir()
-	t.Setenv("HOME", home)
-	for _, name := range []string{
-		"SCRAPE_CREATORS_CONFIG",
-		"SCRAPE_CREATORS_CONFIG_DIR",
-		"SCRAPE_CREATORS_DATA_DIR",
-		"SCRAPE_CREATORS_STATE_DIR",
-		"SCRAPE_CREATORS_CACHE_DIR",
-		"SCRAPE_CREATORS_HOME",
-		"XDG_CONFIG_HOME",
-		"XDG_DATA_HOME",
-		"XDG_STATE_HOME",
-		"XDG_CACHE_HOME",
-		"SCRAPECREATORS_API_KEY",
-	} {
-		t.Setenv(name, "")
-	}
 	if restore, err := cliutil.SetHomeOverride(""); err == nil {
 		t.Cleanup(restore)
 	} else {
 		t.Fatalf("reset home override: %v", err)
 	}
+	home = testenv.Isolate(t, cliutil.ConfigDir, cliutil.DataDir, cliutil.StateDir, cliutil.CacheDir)
+	for _, name := range []string{
+		"SCRAPECREATORS_API_KEY",
+	} {
+		t.Setenv(name, "")
+	}
 	return home, filepath.Join(home, ".config", "scrape-creators-pp-cli", "config.toml")
 }
 
-func TestCredentialsFileWinsWhenLegacyConfigAlsoHasSecrets(t *testing.T) {
+func TestConfigFileWinsWhenCredentialsFileAlsoHasSecrets(t *testing.T) {
 	_, configPath := resetCredentialEnv(t)
 	if err := os.MkdirAll(filepath.Dir(configPath), 0o700); err != nil {
 		t.Fatalf("mkdir config: %v", err)
 	}
-	if err := os.WriteFile(configPath, []byte("base_url = \"https://legacy.example\"\n"+legacyCredentialTOML("legacy-secret")), 0o600); err != nil {
+	if err := os.WriteFile(configPath, legacyConfigData(t, "https://legacy.example", "legacy-secret"), 0o600); err != nil {
 		t.Fatalf("write legacy config: %v", err)
 	}
 	if err := cliutil.SaveCredentials(testCredentials("data-secret")); err != nil {
@@ -59,18 +51,205 @@ func TestCredentialsFileWinsWhenLegacyConfigAlsoHasSecrets(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Load() error = %v", err)
 	}
-	assertConfigCredential(t, cfg, "data-secret")
-	if got := cfg.AuthHeader(); !strings.Contains(got, "data-secret") || strings.Contains(got, "legacy-secret") {
-		t.Fatalf("AuthHeader() = %q, want credentials-file value and not legacy value", got)
+	assertConfigCredential(t, cfg, "legacy-secret")
+	if got := cfg.AuthHeader(); !strings.Contains(got, "legacy-secret") || strings.Contains(got, "data-secret") {
+		t.Fatalf("AuthHeader() = %q, want config-file value and not credentials-file value", got)
+	}
+}
+func TestPartialConfigCredentialsMergeMissingFields(t *testing.T) {
+	_, configPath := resetCredentialEnv(t)
+	if err := os.MkdirAll(filepath.Dir(configPath), 0o700); err != nil {
+		t.Fatalf("mkdir config: %v", err)
+	}
+	if err := os.WriteFile(configPath, partialConfigData(t), 0o600); err != nil {
+		t.Fatalf("write partial config: %v", err)
+	}
+	creds := &cliutil.Credentials{AccessToken: "credentials-access", RefreshToken: "credentials-refresh"}
+	data, err := toml.Marshal(creds)
+	if err != nil {
+		t.Fatalf("marshal credentials: %v", err)
+	}
+	credentialsPath, err := cliutil.CredentialsFilePath()
+	if err != nil {
+		t.Fatalf("credentials path: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Dir(credentialsPath), 0o700); err != nil {
+		t.Fatalf("mkdir credentials dir: %v", err)
+	}
+	if err := os.WriteFile(credentialsPath, data, 0o600); err != nil {
+		t.Fatalf("write credentials: %v", err)
+	}
+
+	cfg, err := config.Load("")
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if cfg.RefreshToken != "config-refresh" {
+		t.Fatalf("RefreshToken = %q, want config-refresh", cfg.RefreshToken)
+	}
+	if cfg.AccessToken != "credentials-access" {
+		t.Fatalf("AccessToken = %q, want credentials-access", cfg.AccessToken)
 	}
 }
 
-func TestCorruptCredentialsFallsBackToLegacyConfig(t *testing.T) {
+func TestSymlinkedExplicitConfigUsesResolvedSiblingCredentials(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("POSIX symlink test")
+	}
+	home, _ := resetCredentialEnv(t)
+	realDir := filepath.Join(home, "real-home")
+	linkDir := filepath.Join(home, "linked-home")
+	realConfigPath := filepath.Join(realDir, "config.toml")
+	linkConfigPath := filepath.Join(linkDir, filepath.Base(realConfigPath))
+	if err := os.MkdirAll(filepath.Dir(realConfigPath), 0o700); err != nil {
+		t.Fatalf("mkdir real config dir: %v", err)
+	}
+	if err := os.WriteFile(realConfigPath, legacyConfigData(t, "https://real.example", ""), 0o600); err != nil {
+		t.Fatalf("write real config: %v", err)
+	}
+	if err := os.MkdirAll(linkDir, 0o700); err != nil {
+		t.Fatalf("mkdir link config dir: %v", err)
+	}
+	if err := os.Symlink(realConfigPath, linkConfigPath); err != nil {
+		t.Fatalf("symlink config: %v", err)
+	}
+	writeCredentialsFile(t, filepath.Join(realDir, "data", "credentials.toml"), "real-secret")
+	writeCredentialsFile(t, filepath.Join(linkDir, "data", "credentials.toml"), "link-secret")
+
+	cfg, err := config.Load(linkConfigPath)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	assertConfigCredential(t, cfg, "real-secret")
+}
+
+func TestExplicitConfigUsesSiblingCredentialsBeforeGlobal(t *testing.T) {
+	home, _ := resetCredentialEnv(t)
+	explicitDir := filepath.Join(home, "store-b")
+	configPath := filepath.Join(explicitDir, "config.toml")
+	if err := os.MkdirAll(filepath.Dir(configPath), 0o700); err != nil {
+		t.Fatalf("mkdir explicit config: %v", err)
+	}
+	if err := os.WriteFile(configPath, legacyConfigData(t, "https://store-b.example", ""), 0o600); err != nil {
+		t.Fatalf("write explicit config: %v", err)
+	}
+	siblingPath := filepath.Join(explicitDir, "data", "credentials.toml")
+	writeCredentialsFile(t, siblingPath, "sibling-secret")
+	if err := cliutil.SaveCredentials(testCredentials("global-secret")); err != nil {
+		t.Fatalf("SaveCredentials() error = %v", err)
+	}
+	t.Setenv("SCRAPE_CREATORS_CONFIG", configPath)
+
+	cfg, err := config.Load("")
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	assertConfigCredential(t, cfg, "sibling-secret")
+}
+
+func TestExplicitConfigFallsBackToGlobalCredentialsWhenSiblingMissing(t *testing.T) {
+	home, _ := resetCredentialEnv(t)
+	explicitDir := filepath.Join(home, "store-b")
+	configPath := filepath.Join(explicitDir, "config.toml")
+	if err := os.MkdirAll(filepath.Dir(configPath), 0o700); err != nil {
+		t.Fatalf("mkdir explicit config: %v", err)
+	}
+	if err := os.WriteFile(configPath, legacyConfigData(t, "https://store-b.example", ""), 0o600); err != nil {
+		t.Fatalf("write explicit config: %v", err)
+	}
+	if err := cliutil.SaveCredentials(testCredentials("global-secret")); err != nil {
+		t.Fatalf("SaveCredentials() error = %v", err)
+	}
+
+	cfg, err := config.Load(configPath)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	assertConfigCredential(t, cfg, "global-secret")
+}
+
+func TestExplicitConfigFallsBackToGlobalCredentialsWhenSiblingEmpty(t *testing.T) {
+	home, _ := resetCredentialEnv(t)
+	explicitDir := filepath.Join(home, "store-b")
+	configPath := filepath.Join(explicitDir, "config.toml")
+	if err := os.MkdirAll(filepath.Dir(configPath), 0o700); err != nil {
+		t.Fatalf("mkdir explicit config: %v", err)
+	}
+	if err := os.WriteFile(configPath, legacyConfigData(t, "https://store-b.example", ""), 0o600); err != nil {
+		t.Fatalf("write explicit config: %v", err)
+	}
+	emptySiblingPath := filepath.Join(explicitDir, "data", "credentials.toml")
+	if err := os.MkdirAll(filepath.Dir(emptySiblingPath), 0o700); err != nil {
+		t.Fatalf("mkdir empty sibling credentials dir: %v", err)
+	}
+	if err := os.WriteFile(emptySiblingPath, []byte{}, 0o600); err != nil {
+		t.Fatalf("write empty sibling credentials: %v", err)
+	}
+	if err := cliutil.SaveCredentials(testCredentials("global-secret")); err != nil {
+		t.Fatalf("SaveCredentials() error = %v", err)
+	}
+
+	cfg, err := config.Load(configPath)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	assertConfigCredential(t, cfg, "global-secret")
+}
+
+func TestExplicitConfigRejectsMalformedSiblingInsteadOfUsingGlobal(t *testing.T) {
+	home, _ := resetCredentialEnv(t)
+	explicitDir := filepath.Join(home, "store-b")
+	configPath := filepath.Join(explicitDir, "config.toml")
+	if err := os.MkdirAll(filepath.Dir(configPath), 0o700); err != nil {
+		t.Fatalf("mkdir explicit config: %v", err)
+	}
+	if err := os.WriteFile(configPath, legacyConfigData(t, "https://store-b.example", ""), 0o600); err != nil {
+		t.Fatalf("write explicit config: %v", err)
+	}
+	malformedSiblingPath := filepath.Join(explicitDir, "data", "credentials.toml")
+	if err := os.MkdirAll(filepath.Dir(malformedSiblingPath), 0o700); err != nil {
+		t.Fatalf("mkdir malformed sibling credentials dir: %v", err)
+	}
+	if err := os.WriteFile(malformedSiblingPath, []byte("not = [toml"), 0o600); err != nil {
+		t.Fatalf("write malformed sibling credentials: %v", err)
+	}
+	if err := cliutil.SaveCredentials(testCredentials("global-secret")); err != nil {
+		t.Fatalf("SaveCredentials() error = %v", err)
+	}
+
+	if _, err := config.Load(configPath); err == nil {
+		t.Fatal("Load() succeeded with malformed explicit sibling credentials")
+	}
+}
+
+func TestExplicitConfigFileCredentialsWinOverSiblingAndGlobal(t *testing.T) {
+	home, _ := resetCredentialEnv(t)
+	explicitDir := filepath.Join(home, "store-b")
+	configPath := filepath.Join(explicitDir, "config.toml")
+	if err := os.MkdirAll(filepath.Dir(configPath), 0o700); err != nil {
+		t.Fatalf("mkdir explicit config: %v", err)
+	}
+	if err := os.WriteFile(configPath, legacyConfigData(t, "https://store-b.example", "config-secret"), 0o600); err != nil {
+		t.Fatalf("write explicit config: %v", err)
+	}
+	writeCredentialsFile(t, filepath.Join(explicitDir, "data", "credentials.toml"), "sibling-secret")
+	if err := cliutil.SaveCredentials(testCredentials("global-secret")); err != nil {
+		t.Fatalf("SaveCredentials() error = %v", err)
+	}
+
+	cfg, err := config.Load(configPath)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	assertConfigCredential(t, cfg, "config-secret")
+}
+
+func TestCorruptCredentialsDoesNotOverrideLegacyConfig(t *testing.T) {
 	home, configPath := resetCredentialEnv(t)
 	if err := os.MkdirAll(filepath.Dir(configPath), 0o700); err != nil {
 		t.Fatalf("mkdir config: %v", err)
 	}
-	if err := os.WriteFile(configPath, []byte("base_url = \"https://legacy.example\"\n"+legacyCredentialTOML("legacy-secret")), 0o600); err != nil {
+	if err := os.WriteFile(configPath, legacyConfigData(t, "https://legacy.example", "legacy-secret"), 0o600); err != nil {
 		t.Fatalf("write legacy config: %v", err)
 	}
 	credentialsPath := filepath.Join(home, ".local", "share", "scrape-creators-pp-cli", "credentials.toml")
@@ -91,8 +270,8 @@ func TestCorruptCredentialsFallsBackToLegacyConfig(t *testing.T) {
 			t.Fatalf("AuthHeader() = %q, want legacy credential", got)
 		}
 	})
-	if !strings.Contains(stderr, credentialsPath) || !strings.Contains(stderr, "parse") {
-		t.Fatalf("stderr %q does not mention corrupt credentials path and parse action", stderr)
+	if strings.Contains(stderr, credentialsPath) {
+		t.Fatalf("config credentials should avoid reading the corrupt global file, stderr=%q", stderr)
 	}
 }
 func TestCorruptCredentialsFallsBackToEnvCredential(t *testing.T) {
@@ -125,7 +304,7 @@ func TestEmptyCredentialsFileDoesNotClearLegacyConfig(t *testing.T) {
 	if err := os.MkdirAll(filepath.Dir(configPath), 0o700); err != nil {
 		t.Fatalf("mkdir config: %v", err)
 	}
-	if err := os.WriteFile(configPath, []byte("base_url = \"https://legacy.example\"\n"+legacyCredentialTOML("legacy-secret")), 0o600); err != nil {
+	if err := os.WriteFile(configPath, legacyConfigData(t, "https://legacy.example", "legacy-secret"), 0o600); err != nil {
 		t.Fatalf("write legacy config: %v", err)
 	}
 	credentialsPath := filepath.Join(home, ".local", "share", "scrape-creators-pp-cli", "credentials.toml")
@@ -151,7 +330,7 @@ func TestAuthWriteMigratesLegacyConfigToCredentialsOnly(t *testing.T) {
 	if err := os.MkdirAll(filepath.Dir(configPath), 0o700); err != nil {
 		t.Fatalf("mkdir config: %v", err)
 	}
-	if err := os.WriteFile(configPath, []byte("base_url = \"https://settings.example\"\n"+legacyCredentialTOML("legacy-secret")), 0o600); err != nil {
+	if err := os.WriteFile(configPath, legacyConfigData(t, "https://settings.example", "legacy-secret"), 0o600); err != nil {
 		t.Fatalf("write legacy config: %v", err)
 	}
 
@@ -187,7 +366,7 @@ func TestAuthWriteScrubsLegacyConfigWhenRelocated(t *testing.T) {
 	if err := os.MkdirAll(filepath.Dir(defaultConfigPath), 0o700); err != nil {
 		t.Fatalf("mkdir config: %v", err)
 	}
-	if err := os.WriteFile(defaultConfigPath, []byte("base_url = \"https://settings.example\"\n"+legacyCredentialTOML("legacy-secret")), 0o600); err != nil {
+	if err := os.WriteFile(defaultConfigPath, legacyConfigData(t, "https://settings.example", "legacy-secret"), 0o600); err != nil {
 		t.Fatalf("write legacy config: %v", err)
 	}
 
@@ -241,7 +420,7 @@ func TestClearTokensFromBothStateClearsCredentialsAndLegacy(t *testing.T) {
 	if err := os.MkdirAll(filepath.Dir(configPath), 0o700); err != nil {
 		t.Fatalf("mkdir config: %v", err)
 	}
-	if err := os.WriteFile(configPath, []byte("base_url = \"https://settings.example\"\n"+legacyCredentialTOML("legacy-secret")), 0o600); err != nil {
+	if err := os.WriteFile(configPath, legacyConfigData(t, "https://settings.example", "legacy-secret"), 0o600); err != nil {
 		t.Fatalf("write legacy config: %v", err)
 	}
 	if err := cliutil.SaveCredentials(testCredentials("data-secret")); err != nil {
@@ -328,12 +507,35 @@ func testCredentials(token string) *cliutil.Credentials {
 	return creds
 }
 
+func writeCredentialsFile(t *testing.T, path, token string) {
+	t.Helper()
+	data, err := toml.Marshal(testCredentials(token))
+	if err != nil {
+		t.Fatalf("marshal credentials: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
+		t.Fatalf("mkdir credentials dir: %v", err)
+	}
+	if err := os.WriteFile(path, data, 0o600); err != nil {
+		t.Fatalf("write credentials: %v", err)
+	}
+}
+
 func legacyCredentialKey() string {
 	return "api_key"
 }
 
-func legacyCredentialTOML(token string) string {
-	return legacyCredentialKey() + " = \"" + token + "\"\n"
+func legacyConfigData(t *testing.T, baseURL, token string) []byte {
+	t.Helper()
+	data := "base_url = \"" + baseURL + "\"\n"
+	if token != "" {
+		data += legacyCredentialKey() + " = \"" + token + "\"\n"
+	}
+	return []byte(data)
+}
+func partialConfigData(t *testing.T) []byte {
+	t.Helper()
+	return []byte("base_url = \"https://partial.example\"\nrefresh_token = \"config-refresh\"\n")
 }
 
 func writeConfigCredential(t *testing.T, cfg *config.Config, token string) {
@@ -381,10 +583,36 @@ func captureCredentialStderr(t *testing.T, fn func()) string {
 		t.Fatalf("pipe: %v", err)
 	}
 	os.Stderr = w
+	done := make(chan string, 1)
+	go func() {
+		var buf bytes.Buffer
+		_, _ = io.Copy(&buf, r)
+		done <- buf.String()
+	}()
+	drained := false
+	defer func() {
+		os.Stderr = old
+		_ = w.Close()
+		if !drained {
+			<-done
+		}
+		_ = r.Close()
+	}()
 	fn()
 	_ = w.Close()
 	os.Stderr = old
-	var buf bytes.Buffer
-	_, _ = io.Copy(&buf, r)
-	return buf.String()
+	captured := <-done
+	drained = true
+	_ = r.Close()
+	return captured
+}
+
+func TestCaptureCredentialStderrDrainsConcurrently(t *testing.T) {
+	want := strings.Repeat("x", 128*1024)
+	got := captureCredentialStderr(t, func() {
+		_, _ = os.Stderr.Write([]byte(want))
+	})
+	if got != want {
+		t.Fatalf("captured stderr length = %d, want %d", len(got), len(want))
+	}
 }

@@ -11,7 +11,8 @@ func newNovelCommissioneCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "commissione",
-		Short:       "Comandi relativi alle commissioni parlamentari",
+		Short:       "Vista completa di una commissione (dossier: convocazioni, sommari, pareri e DDL assegnati).",
+		Long:        "Raggruppa il dossier di una singola commissione: una vista aggregata di convocazioni, sommari, pareri e DDL assegnati. Per i singoli archivi grezzi dei lavori di commissione usa il gruppo commissioni (convocazioni e sommari).",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}

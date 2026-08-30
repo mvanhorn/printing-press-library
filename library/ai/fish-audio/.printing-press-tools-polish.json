@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-08-29T15:20:30.592493Z",
+  "cli_dir": "\u003ccli-dir\u003e/fish-audio-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Accurate as written: `client list` prints the tenant-gated client profiles and takes no filters, so there is nothing further to name. The file is a generated framework surface (DO-NOT-EDIT); a richer Short belongs in the platform-client template, not this printed copy."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Accurate as written: `learnings list` prints the rows of the local search_learnings table. The file is generated learn-loop scaffolding (DO-NOT-EDIT); if the Short should name the --query and --limit filters, that is a change to the learn-loop template."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 5,
+    "captured": "2026-08-29T15:02:06.54082Z"
+  },
+  "progress": {
+    "last_processed_finding_id": "thin-short:teach.go:691"
+  }
+}

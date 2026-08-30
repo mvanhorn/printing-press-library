@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "clarify-feedback-help-examples",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260817-102905-ca271321",
+  "base_printing_press_version": "4.30.3",
+  "summary": "Added an Examples block to the framework feedback command's help.",
+  "reason": "Live dogfood's help check requires an Examples section; the generated feedback command ships without one (generator template gap, retro candidate).",
+  "files": ["internal/cli/feedback.go"],
+  "validated_outcome": "dogfood --live --level full help check passes for feedback."
+}

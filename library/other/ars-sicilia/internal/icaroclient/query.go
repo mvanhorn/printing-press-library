@@ -47,6 +47,15 @@ func BuildQuery(arc Archive, params map[string]string, isisRaw string) string {
 			freeText = append(freeText, andJoinWords(v))
 			continue
 		}
+		// `frase` cerca le parole ADIACENTI, nell'ordine dato. È l'accesso
+		// esplicito al comportamento nativo di ISIS che andJoinWords converte in
+		// AND: l'AND vale sull'intero testo del documento, quindi "aree idonee"
+		// aggancia anche un ddl che ha "aree" in un articolo e "idonee" in un
+		// altro. Con adj restano solo i documenti che contengono la locuzione.
+		if k == "frase" || k == "phrase" {
+			freeText = append(freeText, adjJoinWords(v))
+			continue
+		}
 		field, ok := arc.FieldMap[k]
 		if !ok {
 			// Unmapped flag: drop into free-text as fallback.
@@ -106,6 +115,27 @@ func andJoinWords(v string) string {
 		}
 	}
 	return strings.Join(fields, " E ")
+}
+
+// adjJoinWords fa combaciare le parole come locuzione, unendole con
+// l'operatore di adiacenza ISIS. Una parola sola non ha adiacenza da esprimere
+// e passa così com'è; un valore che contiene già parentesi o operatori è
+// un'espressione scritta dal chiamante e non va toccata (stesse guardie di
+// andJoinWords).
+func adjJoinWords(v string) string {
+	if strings.ContainsAny(v, "()") {
+		return v
+	}
+	fields := strings.Fields(v)
+	if len(fields) < 2 {
+		return v
+	}
+	for _, f := range fields {
+		if isISISOperator(f) {
+			return v
+		}
+	}
+	return strings.Join(fields, " adj ")
 }
 
 // isISISOperator reports whether a token is an ISIS boolean/proximity operator

@@ -1,0 +1,229 @@
+name: logitech-docs
+description: "Search and fetch Logitech support documentation (manuals, spec sheets, install guides, downloads) with an offline full-text index"
+version: "0.1.0"
+base_url: "https://support.logi.com"
+http_transport: standard
+category: devices
+
+auth:
+  type: none
+
+learn:
+  synonyms:
+    "spec sheet": "specs"
+    "spec sheets": "specs"
+    "technical specifications": "specs"
+    "user manual": "manual"
+    "quick start": "setup"
+    "getting started": "setup"
+    "install guide": "setup"
+    "setup guide": "setup"
+    "installation guide": "setup"
+
+resources:
+  categories:
+    description: "Support categories (Mice and Pointers, Keyboards, Webcams, Gaming, ...)"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/v2/help_center/en-us/categories.json"
+        description: "List support categories"
+        response:
+          type: array
+          item: Category
+          response_path: categories
+
+  sections:
+    description: "Product-family sections within the support site"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/v2/help_center/en-us/sections.json"
+        description: "List sections (optionally filtered by category)"
+        params:
+          - name: category_id
+            type: string
+            description: "Filter sections by category ID"
+          - name: per_page
+            type: int
+            default: 100
+            description: "Sections per page"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+        response:
+          type: array
+          item: Section
+          response_path: sections
+  articles:
+    description: "Support articles: manuals, spec sheets, install guides, FAQs, downloads"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/v2/help_center/en-us/articles.json"
+        description: "List articles (filter by label)"
+        params:
+          - name: label_names
+            type: string
+            description: "Filter by label, e.g. webcontent=productspecs or webcontent=productdocument"
+          - name: "page[size]"
+            flag_name: page-size
+            type: int
+            default: 100
+            description: "Articles per page"
+          - name: "page[after]"
+            flag_name: cursor
+            type: string
+            description: "Pagination cursor from a previous response"
+        response:
+          type: array
+          item: ArticleSummary
+          response_path: articles
+        pagination:
+          type: cursor
+          cursor_param: "page[after]"
+          limit_param: "page[size]"
+          page_size: 100
+          cursor_field: meta.after_cursor
+          has_more_field: meta.has_more
+      by_section:
+        method: GET
+        path: "/api/v2/help_center/en-us/sections/{section_id}/articles.json"
+        description: "List articles in one section (server-side scoped)"
+        example: "  logitech-docs-pp-cli articles by-section 360004159593"
+        happy_args: "section_id=360004159593"
+        params:
+          - name: section_id
+            type: string
+            required: true
+            positional: true
+            description: "Section ID"
+          - name: "page[size]"
+            flag_name: page-size
+            type: int
+            default: 100
+            description: "Articles per page"
+          - name: "page[after]"
+            flag_name: cursor
+            type: string
+            description: "Pagination cursor from a previous response"
+        response:
+          type: array
+          item: ArticleSummary
+          response_path: articles
+        pagination:
+          type: cursor
+          cursor_param: "page[after]"
+          limit_param: "page[size]"
+          page_size: 100
+          cursor_field: meta.after_cursor
+          has_more_field: meta.has_more
+      get:
+        method: GET
+        path: "/api/v2/help_center/en-us/articles/{article_id}.json"
+        description: "Get a single article including its HTML body"
+        params:
+          - name: article_id
+            type: string
+            required: true
+            positional: true
+            description: "Article ID"
+        response:
+          type: object
+          item: Article
+          response_path: article
+      search:
+        method: GET
+        path: "/api/v2/help_center/articles/search.json"
+        description: "Search articles by text"
+        params:
+          - name: query
+            type: string
+            required: true
+            description: "Search query"
+          - name: label_names
+            type: string
+            description: "Filter results by label, e.g. webcontent=productspecs"
+          - name: per_page
+            type: int
+            default: 25
+            description: "Results per page"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+        response:
+          type: array
+          item: ArticleSummary
+          response_path: results
+
+types:
+  Category:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: html_url
+        type: string
+      - name: position
+        type: int
+  Section:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: category_id
+        type: string
+      - name: parent_section_id
+        type: string
+      - name: description
+        type: string
+      - name: html_url
+        type: string
+  ArticleSummary:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: title
+        type: string
+      - name: section_id
+        type: string
+      - name: draft
+        type: bool
+      - name: promoted
+        type: bool
+      - name: created_at
+        type: string
+      - name: updated_at
+        type: string
+      - name: html_url
+        type: string
+  Article:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: title
+        type: string
+      - name: body
+        type: string
+      - name: section_id
+        type: string
+      - name: draft
+        type: bool
+      - name: promoted
+        type: bool
+      - name: created_at
+        type: string
+      - name: updated_at
+        type: string
+      - name: html_url
+        type: string

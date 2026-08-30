@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-strict-numeric-args",
+  "applied_at": "2026-08-29",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.30.3",
+  "summary": "Parse positional numeric arguments with strconv.Atoi instead of fmt.Sscanf(\"%d\"), and name the base number when an argument carries the portal's amended-text suffix.",
+  "reason": "Sscanf(\"%d\") reads the leading digits and discards the rest without an error, so every command taking <legisl> <numero> silently accepted a trailing suffix and answered about a different document: `ddl stralci 18 1030/A` became 1030, and `ddl get 18 1030/A` opened ddl 1030 while claiming to have opened what was asked. The `N/A` form is not a typo - it is how the portal's committee summaries and the press cite the amended text of a bill - so it reaches the CLI from anyone starting out from a news story. Rejecting it with a message that names the base number is the only reading that neither guesses nor hides the reinterpretation. `ddl stralci` is the one declared exception: there the family of split-off bills genuinely is the same for 1030 and 1030/A, so the suffix is accepted and the report says in `note` why the answer coincides with the bare number, and `--dry-run` says the same. The accepted suffix is \"/A\" and nothing else: measured over the ddl references of legislatures XVI-XVIII, the only variant the portal writes in that position is \"/A\" (24 occurrences, no other form). Accepting \"/B\" because it is plausible would be the same unverified claim one notch down, and would contradict the error message, which states the measurement. A tail that is not \"/A\" is rejected with a message that names the base number without claiming to know what the tail means - accepting `1030/XYZ` would have answered about ddl 1030 while asserting that /XYZ is its amended text, which is the same unverified claim this change exists to remove.",
+  "files": [
+    "internal/cli/icaro_helpers.go",
+    "internal/cli/ddl_stralci.go",
+    "internal/cli/root_test.go"
+  ],
+  "validated_outcome": "`ddl get 18 1030/A` now exits with `argomento \"numero\" non valido: 1030/A. Il suffisso \"/A\" indica il testo emendato, ma l'archivio indicizza per numero base: ripeti con 1030` instead of returning ddl 1030; `ddl stralci 18 1030/A` returns the same nine split-off bills as `18 1030` plus a note explaining why, and `ddl stralci 18 6030/A` (a base with no split-offs) keeps both the suffix note and the empty-result note. TestAtoiArgRifiutaLaCoda and TestNumeroConSuffisso cover the parse; `go test ./...` and `go vet ./...` pass. `ddl stralci 18 1030/XYZ`, `18 1030/IV` and `18 1030/B` are rejected and name ddl 1030, while `18 1030/A` still returns the nine split-off bills.",
+  "upstream_issue": null
+}

@@ -1,0 +1,263 @@
+{
+  "api_name": "fish-audio",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "elevenlabs-pp-cli",
+      "url": "https://github.com/mvanhorn/printing-press-library",
+      "language": "Go",
+      "install_method": "",
+      "stars": 1965,
+      "last_updated": "",
+      "command_count": 19,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "fish-audio-python",
+      "url": "https://github.com/fishaudio/fish-audio-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 211,
+      "last_updated": "",
+      "command_count": 13,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "fish-audio-go",
+      "url": "https://github.com/fishaudio/fish-audio-go",
+      "language": "Go",
+      "install_method": "",
+      "stars": 7,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "fish-audio-typescript",
+      "url": "https://github.com/fishaudio/fish-audio-typescript",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 14,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-fish-audio-server",
+      "url": "https://github.com/da-okazaki/mcp-fish-audio-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 13,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-28T10:00:00Z",
+  "novel_features": [
+    {
+      "name": "Local render history",
+      "command": "render log",
+      "description": "See every past TTS render with its text, model, voice, byte count, and cost.",
+      "rationale": "Fish Audio has no server-side history endpoint; the local SQLite render log is the only record of what you generated and what it cost.",
+      "example": "fish-audio-pp-cli render log --limit 20 --agent",
+      "why_it_matters": "Use it to recover what was already rendered before spending credit again.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Grouped spend report",
+      "command": "render spend",
+      "description": "Total Fish Audio spend grouped by voice, model, or day for a side-by-side with your ElevenLabs invoice.",
+      "rationale": "Requires aggregating the local render log; no wallet endpoint breaks spend down by voice or day.",
+      "example": "fish-audio-pp-cli render spend --group-by model --since 30d --agent",
+      "why_it_matters": "Reach for it when the question is 'what did this voice cost us this month'.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Skip identical re-renders",
+      "command": "tts render",
+      "description": "Hash the request and reuse a prior identical render instead of paying for it again.",
+      "rationale": "Requires the local render log keyed by request hash; the API re-bills every call.",
+      "example": "fish-audio-pp-cli tts render --text \"Hi, this is Pearl.\" --voice 802e3bc2b27e49c2995d23ef70e6ac89 --out greeting.mp3 --skip-if-rendered --agent",
+      "why_it_matters": "Use it in iteration loops where most lines have not changed.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Clone fidelity check",
+      "command": "voice verify",
+      "description": "Render a reference phrase with a cloned voice, transcribe it back, and report word-error-rate.",
+      "rationale": "Chains TTS and ASR with local WER math; neither endpoint alone gives a quality number.",
+      "example": "fish-audio-pp-cli voice verify 7f92f8afb8ec43bf81429cc1c9199cb1 --agent",
+      "why_it_matters": "Run it before swapping a production voice to a new clone.",
+      "group": "Verify before you ship"
+    },
+    {
+      "name": "Pre-batch budget guard",
+      "command": "tts batch",
+      "description": "Estimate a batch's cost against your live API credit and refuse to start if it would overdraw.",
+      "rationale": "Joins the live wallet balance with local per-line cost estimates before any render is sent.",
+      "example": "fish-audio-pp-cli tts batch --input lines.txt --voice 802e3bc2b27e49c2995d23ef70e6ac89 --out-dir ./out --budget-guard --agent",
+      "why_it_matters": "Use it for unattended batch jobs so a long script cannot fail halfway on credit.",
+      "group": "Verify before you ship"
+    },
+    {
+      "name": "Compare two renders",
+      "command": "render diff",
+      "description": "Show the cost, model, and byte deltas between two past renders.",
+      "rationale": "Requires two rows from the local render log; the API has no render identity at all.",
+      "example": "fish-audio-pp-cli render diff 1 2 --agent",
+      "why_it_matters": "Use it when picking between two takes of the same line.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Local render history",
+      "command": "render log",
+      "description": "See every past TTS render with its text, model, voice, byte count, and cost.",
+      "rationale": "Fish Audio has no server-side history endpoint; the local SQLite render log is the only record of what you generated and what it cost.",
+      "example": "fish-audio-pp-cli render log --limit 20 --agent",
+      "why_it_matters": "Use it to recover what was already rendered before spending credit again.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Grouped spend report",
+      "command": "render spend",
+      "description": "Total Fish Audio spend grouped by voice, model, or day for a side-by-side with your ElevenLabs invoice.",
+      "rationale": "Requires aggregating the local render log; no wallet endpoint breaks spend down by voice or day.",
+      "example": "fish-audio-pp-cli render spend --group-by model --since 30d --agent",
+      "why_it_matters": "Reach for it when the question is 'what did this voice cost us this month'.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Skip identical re-renders",
+      "command": "tts render",
+      "description": "Hash the request and reuse a prior identical render instead of paying for it again.",
+      "rationale": "Requires the local render log keyed by request hash; the API re-bills every call.",
+      "example": "fish-audio-pp-cli tts render --text \"Hi, this is Pearl.\" --voice 802e3bc2b27e49c2995d23ef70e6ac89 --out greeting.mp3 --skip-if-rendered --agent",
+      "why_it_matters": "Use it in iteration loops where most lines have not changed.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Clone fidelity check",
+      "command": "voice verify",
+      "description": "Render a reference phrase with a cloned voice, transcribe it back, and report word-error-rate.",
+      "rationale": "Chains TTS and ASR with local WER math; neither endpoint alone gives a quality number.",
+      "example": "fish-audio-pp-cli voice verify 7f92f8afb8ec43bf81429cc1c9199cb1 --agent",
+      "why_it_matters": "Run it before swapping a production voice to a new clone.",
+      "group": "Verify before you ship"
+    },
+    {
+      "name": "Pre-batch budget guard",
+      "command": "tts batch",
+      "description": "Estimate a batch's cost against your live API credit and refuse to start if it would overdraw.",
+      "rationale": "Joins the live wallet balance with local per-line cost estimates before any render is sent.",
+      "example": "fish-audio-pp-cli tts batch --input lines.txt --voice 802e3bc2b27e49c2995d23ef70e6ac89 --out-dir ./out --budget-guard --agent",
+      "why_it_matters": "Use it for unattended batch jobs so a long script cannot fail halfway on credit.",
+      "group": "Verify before you ship"
+    },
+    {
+      "name": "Compare two renders",
+      "command": "render diff",
+      "description": "Show the cost, model, and byte deltas between two past renders.",
+      "rationale": "Requires two rows from the local render log; the API has no render identity at all.",
+      "example": "fish-audio-pp-cli render diff 1 2 --agent",
+      "why_it_matters": "Use it when picking between two takes of the same line.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "FISH_AUDIO_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Fish Audio",
+    "headline": "Fish Audio text-to-speech, voice cloning, and transcription from the terminal, with a local render log that tracks every byte and dollar the API never records.",
+    "value_prop": "Render text to audio files, clone a voice from a sample, design a voice from a prompt, and transcribe audio, all with agent-friendly JSON output. Every render lands in a local SQLite log so you can skip duplicate renders, report spend by voice or model, and verify a clone's fidelity before it goes live.",
+    "auth_narrative": "Set FISH_AUDIO_API_KEY (from https://fish.audio/app/api-keys) or store it with `fish-audio-pp-cli auth set-token`. The `model` header selects the TTS model (s1, s2-pro, s2.1-pro, s2.1-pro-free); the CLI validates it because the API silently falls back to s2.1-pro on typos.",
+    "quickstart": [
+      {
+        "command": "fish-audio-pp-cli doctor --dry-run",
+        "comment": "confirm the key and API reachability"
+      },
+      {
+        "command": "fish-audio-pp-cli voice discover --query \"warm female narrator\" --limit 5",
+        "comment": "find a public voice by description"
+      },
+      {
+        "command": "fish-audio-pp-cli tts render --text \"Hi, this is Pearl. How can I help?\" --voice 802e3bc2b27e49c2995d23ef70e6ac89 --out greeting.mp3",
+        "comment": "render one line to a file and log its cost"
+      },
+      {
+        "command": "fish-audio-pp-cli voice clone --title \"Pearl greeting\" --audio sample.wav",
+        "comment": "clone a voice from a reference clip"
+      },
+      {
+        "command": "fish-audio-pp-cli render spend --group-by model",
+        "comment": "see what you have spent so far"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "audio sounds like a different model than requested",
+        "fix": "The API falls back to s2.1-pro on unknown model strings; run `fish-audio-pp-cli tts resolve --voice 7f92f8afb8ec43bf81429cc1c9199cb1 --model s2.1-pro` to validate before rendering."
+      },
+      {
+        "symptom": "402 or 'insufficient credit' on render",
+        "fix": "Run `fish-audio-pp-cli wallet balance`; dev API credit and subscription package are separate ledgers."
+      },
+      {
+        "symptom": "multi-speaker tags rejected",
+        "fix": "`\u003c|speaker:N|\u003e` tags need an S2-family model; pass `--model s2.1-pro`."
+      },
+      {
+        "symptom": "429 on batch jobs",
+        "fix": "Concurrency is capped by spend tier (5/15/50 slots); lower `--concurrency` on `tts batch`."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to turn text into audio files, clone or design a voice, transcribe audio, or account for Fish Audio spend. It is the right tool for scripted, repeatable rendering with cost tracking and for verifying a cloned voice before production use.",
+    "anti_triggers": [
+      "Do not use it for live conversational voice agents or phone calls; that is Fish Audio's Agents product, out of scope here.",
+      "Do not use it for dubbing, music, or sound-effect generation; Fish Audio has no such endpoints.",
+      "Do not use it for real-time WebSocket streaming playback; use the official SDK."
+    ],
+    "recipes": [
+      {
+        "title": "Render a greeting and check its cost",
+        "command": "fish-audio-pp-cli tts render --text \"Hi, this is Pearl.\" --voice 802e3bc2b27e49c2995d23ef70e6ac89 --out greeting.mp3 --agent --select file,bytes,cost_usd,model",
+        "explanation": "Writes the file and returns only the fields an agent needs to log."
+      },
+      {
+        "title": "Batch a script with a budget guard",
+        "command": "fish-audio-pp-cli tts batch --input lines.txt --voice 802e3bc2b27e49c2995d23ef70e6ac89 --out-dir ./out --budget-guard --agent",
+        "explanation": "Refuses to start if the estimated cost exceeds live API credit."
+      },
+      {
+        "title": "Verify a clone before going live",
+        "command": "fish-audio-pp-cli voice verify 7f92f8afb8ec43bf81429cc1c9199cb1 --agent",
+        "explanation": "Reports word-error-rate from a TTS-then-ASR round trip."
+      },
+      {
+        "title": "Find a public voice",
+        "command": "fish-audio-pp-cli voice discover --query \"calm British male\" --limit 5 --agent --select id,title,languages",
+        "explanation": "Searches the cached public catalog with FTS."
+      }
+    ],
+    "trigger_phrases": [
+      "render this text to speech with fish audio",
+      "clone a voice from this clip",
+      "transcribe this audio with fish audio",
+      "how much have we spent on fish audio",
+      "verify this cloned voice",
+      "use fish-audio",
+      "run fish-audio"
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "review-runtime-hygiene",
+  "applied_at": "2026-08-25",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Remove unreachable helper and flag code, and add adaptive request pacing with typed 429 errors.",
+  "reason": "Dogfood identified unused error-classification helpers and global flags, while the AnyList protobuf client had no request pacing or structured rate-limit response. The removed helpers had no production callers; pagination helpers remain because an existing regression test exercises them, although the current dogfood analyzer reports those same-file helper calls as dead.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/root.go",
+    "internal/anylist/client.go",
+    "internal/anylist/client_test.go",
+    "internal/config/config.go"
+  ],
+  "validated_outcome": "Dogfood now reports zero dead flags and no source-client rate-limit warning. The only remaining dead-function warning is the analyzer's known same-file false positive for pagination helpers. Focused tests pass, including typed HTTP 429 coverage."
+}

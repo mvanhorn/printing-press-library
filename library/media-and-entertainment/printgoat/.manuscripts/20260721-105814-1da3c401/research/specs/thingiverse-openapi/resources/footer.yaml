@@ -1,0 +1,24 @@
+newsletter:
+    post:
+    tags:
+      - Footer
+    summary: Subscribe to the newsletter
+    security:
+      - BearerAuth: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - email
+            properties:
+              email:
+                description: the email to subscribe to the newsletter
+                type: string
+                example: john@meep.com
+    responses:
+      '200':
+        $ref: '../responses/ok.yaml'
+      '400':
+        $ref : "../responses/badrequest.yaml"

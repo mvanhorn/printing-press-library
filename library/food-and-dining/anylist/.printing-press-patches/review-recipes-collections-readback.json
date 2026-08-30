@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "id": "review-recipes-collections-readback",
+  "applied_at": "2026-08-16",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Verify recipe collection writes from fresh AnyList data and expose safe nutrition-only recipe updates.",
+  "reason": "Collection save/remove operations can return HTTP success without proving that the requested collection identity, ordered recipe memberships, or settings reached AnyList. Read back by collection ID before updating the local cache, reject mismatches, and confirm deletion by absence. The existing save-recipe protobuf also carries nutritional_info safely; expose that scalar with explicit read-after-write verification while leaving photo upload/attachment unsupported.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "tools-manifest.json",
+    "internal/mcp/code_orch_data.go",
+    "internal/anylist/client_test.go",
+    "internal/cli/collections_add.go",
+    "internal/cli/collections_create.go",
+    "internal/cli/collections_delete.go",
+    "internal/cli/collections_remove.go",
+    "internal/cli/collections_test.go",
+    "internal/cli/local_anylist.go",
+    "internal/cli/recipes_update.go",
+    "internal/cli/recipes_update_test.go"
+  ],
+  "validated_outcome": "Collection protobuf request tests cover save-recipe-collection and remove-recipe-collection handlers; pure read-back tests cover collection ID, name, ordered memberships, settings, and missing-ID lookup. Nutrition update apply/parse/verification tests pass, and focused AnyList/CLI tests, gofmt, and diff hygiene pass. No live collection or recipe mutation was performed in this validation.",
+  "findings_addressed": [
+    "collection-read-after-write",
+    "collection-cache-before-verification",
+    "recipe-nutrition-update-gap",
+    "photo-write-unsupported"
+  ]
+}

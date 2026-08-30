@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "gfonts-go-1266-vuln-floor",
+  "applied_at": "2026-08-21",
+  "base_run_id": "20260719-182127",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Raise go.mod toolchain floor from go 1.26.5 to go 1.26.6 so standard-library vulnerability fixes (GO-2026-6218 net/url, GO-2026-6090 crypto/tls, GO-2026-5972 encoding/asn1, GO-2026-5026 net/http) are enforced; govulncheck in publish validate was failing on reachable stdlib traces.",
+  "reason": "publish validate's govulncheck check reported 4 reachable standard-library vulnerabilities fixed only in go1.26.6. Matches the catalog precedent patch catalog-go-1264-vuln-floor.",
+  "files": [
+    "go.mod"
+  ],
+  "validated_outcome": "publish validate govulncheck check passes with go 1.26.6 (GOTOOLCHAIN=auto)."
+}

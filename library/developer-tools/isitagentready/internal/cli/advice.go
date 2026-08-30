@@ -47,6 +47,36 @@ func newAdviceCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+
+			if flags.sourceOrDefault() == store.SourceIsAgentic {
+				rep, err := store.ParseAgenticReport(raw)
+				if err != nil {
+					return err
+				}
+				items := store.AgenticOpenItems(rep)
+				if checkID != "" {
+					var f []store.OpenItem
+					for _, it := range items {
+						if it.Check == checkID {
+							f = append(f, it)
+						}
+					}
+					items = f
+				}
+				if limit > 0 && len(items) > limit {
+					items = items[:limit]
+				}
+				if copyBlock {
+					return renderAgenticAdviceCopy(cmd, rep, items)
+				}
+				if !wantsHumanTable(cmd.OutOrStdout(), flags) {
+					return printJSONFiltered(cmd.OutOrStdout(), agenticAdviceJSON{
+						URL: rep.Target, Score: rep.Score, ScoreLabel: rep.ScoreLabel, ScannedAt: rep.ScannedAt, Fixes: items,
+					}, flags)
+				}
+				return renderAgenticAdvice(cmd, rep, items)
+			}
+
 			rep, err := store.ParseReport(raw)
 			if err != nil {
 				return err

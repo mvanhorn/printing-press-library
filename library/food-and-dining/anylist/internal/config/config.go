@@ -26,6 +26,13 @@ type Config struct {
 	UserID           string            `toml:"user_id"`
 	ClientIdentifier string            `toml:"client_identifier"`
 	Path             string            `toml:"-"`
+	// DatabasePath overrides the cache location for one invocation. It is
+	// intentionally not persisted in the credentials file; callers use the
+	// root --db flag when they need an isolated cache for tests or automation.
+	DatabasePath string `toml:"-"`
+	// RateLimit is a per-invocation request ceiling. It is not persisted in the
+	// credentials file; zero selects the conservative AnyList default.
+	RateLimit float64 `toml:"-"`
 }
 
 func Load(configPath string) (*Config, error) {

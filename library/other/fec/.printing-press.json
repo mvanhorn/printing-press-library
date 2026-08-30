@@ -1,0 +1,67 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-21T20:14:19.3908033Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "fec",
+  "display_name": "Openfec",
+  "cli_name": "fec-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Hunter Veltri"
+  },
+  "owner": "mvanhorn",
+  "printer": "mvanhorn",
+  "printer_name": "Hunter Veltri",
+  "spec_url": "https://api.open.fec.gov/swagger/",
+  "spec_path": "fec-swagger.json",
+  "spec_format": "openapi3",
+  "spec_source": "official",
+  "spec_checksum": "sha256:d124898e1635ae69b83e33cdc4f04d0b5ca15d4b8bb44e85561ecfe658126abf",
+  "run_id": "20260821-194418",
+  "category": "other",
+  "description": "This application programming interface (API)",
+  "mcp_binary": "fec-pp-mcp",
+  "mcp_tool_count": 100,
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "api_key",
+  "auth_preference": "ApiKeyQueryAuth",
+  "auth_env_vars": [
+    "FEC_API_KEY_QUERY_AUTH"
+  ],
+  "auth_key_url": "https://www.fec.gov/data/advanced/?tab=bulk-data",
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 54,
+    "total": 54,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 92,
+      "grade": "A",
+      "total": 92
+    }
+  },
+  "novel_features": [
+    {
+      "name": "Money-window default",
+      "command": "schedules list --committee-id <ID> --two-year-transaction-period <YYYY>",
+      "description": "schedule_a queries pair committee + two-year period so bare lookups return live recent money instead of the upstream 504 the API returns for unfiltered schedule_a scans; sort defaults to contribution_receipt_date.",
+      "rationale": "The API's most common journalist query works on the first try with no param archaeology."
+    },
+    {
+      "name": "Donor-first search flow",
+      "command": "names list --q <name>",
+      "description": "One name query fans out to candidate and committee matches, giving the FEC ID needed by schedules/totals in a single call before any money lookup.",
+      "rationale": "Every workflow starts 'who is this person and what is their ID'; the CLI front-loads it."
+    },
+    {
+      "name": "Efile live feed",
+      "command": "schedules list-schedulea-6 --min-date MM/DD/YYYY --max-date MM/DD/YYYY",
+      "description": "Real-time electronic filings window for contributions as they post, separate from processed paper data.",
+      "rationale": "Nightly bulk vs realtime efile distinction surfaced directly as commands."
+    }
+  ]
+}

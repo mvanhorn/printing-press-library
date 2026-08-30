@@ -1,0 +1,43 @@
+{
+  "schema_version": 2,
+  "id": "review-list-sharing-live-probe",
+  "applied_at": "2026-08-24",
+  "task_id": "anylist-sharing-invite-live-20260824",
+  "summary": "Authenticated browser capture proved the shopping-list invite write: POST /data/shopping-lists/share-list with a multipart field named operation carrying an ordinary string part containing protobuf bytes. The outer message contains metadata (field 1), list ID (field 2), and target email (field 4). Removal, stop-sharing, and household-user writes remain fail-closed because their payloads were not captured.",
+  "live_capture": {
+    "route": "POST /data/shopping-lists/share-list",
+    "content_type": "multipart/form-data",
+    "multipart_field": {
+      "name": "operation",
+      "shape": "ordinary string multipart part with no Content-Type header; not application/octet-stream and not JSON"
+    },
+    "request_payload_layout": {
+      "field_1": "length-delimited PBOperationMetadata with fresh operationId, handlerId share-shopping-list, and authenticated userId",
+      "field_2": "length-delimited shopping-list ID",
+      "field_4": "length-delimited target email",
+      "field_3": "absent in the capture and never populated"
+    },
+    "response": {
+      "type": "PBShareListOperationResponse",
+      "gating": "non-OK HTTP, non-zero statusCode, or any errorTitle/errorMessage is rejected; HTTP 200 alone is not success"
+    },
+    "fresh_read": "The authenticated UI showed the list still present and displayed the unregistered invite as pending. AnyList's fresh data may contain an email-only shared-user pair for that pending invite; the CLI requires a non-empty stable user ID before reporting an accepted share."
+  },
+  "cleanup": {
+    "fixture": "disposable list created solely for the probe",
+    "fixture_removal": "removed through the already verified remove-shopping-list operation and confirmed absent by fresh read",
+    "invite_side_effect": "the pending invite itself has no captured retract route; it targeted a redacted address on the disposable fixture and no account or list identifiers are recorded"
+  },
+  "gate_state": "Invite-add is live-proven and enabled through lists sharing add; preview is default and --apply is required. Removal, stop-sharing, and household-user writes remain fail-closed.",
+  "verification": [
+    "client tests assert the exact route, ordinary operation part, protobuf field set, response gating, and byte-for-byte 401 retry",
+    "CLI tests assert preview/default/dry-run/apply gating, exact ID or unique-name resolution, and honest pending-versus-accepted wording",
+    "no live request is made by unit tests; this record is the only live evidence"
+  ],
+  "invariants_held": [
+    "No real email, account identifier, cookie, token, or raw captured body is stored",
+    "HTTP 200 alone is never reported as acceptance",
+    "A pending invitation is never represented as an accepted shared user",
+    "Unproven removal, stop-sharing, and household-user operations remain fail-closed"
+  ]
+}

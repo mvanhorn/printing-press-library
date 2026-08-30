@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "irail",
+  "run_id": "20260724-212701-ae5b4630",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 130,
+  "tests_passed": 130,
+  "tests_skipped": 73,
+  "auth_context": {
+    "type": "none"
+  }
+}

@@ -12,7 +12,7 @@ import (
 
 func newCollectionsDeleteCmd(flags *rootFlags) *cobra.Command {
 	var bodyName string
-	var stdinBody bool
+	var stdinBody, apply bool
 
 	cmd := &cobra.Command{
 		Use:         "delete",
@@ -26,12 +26,16 @@ func newCollectionsDeleteCmd(flags *rootFlags) *cobra.Command {
 					return err
 				}
 				bodyName = stringFromBody(body, "name")
+				apply = apply || boolFromBody(body, "apply")
 			}
 			if bodyName == "" && !cmd.Flags().Changed("name") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "name")
 			}
-			if dryRunOK(flags) {
-				return nil
+			if !apply || dryRunOK(flags) {
+				return collectionWritePreview(cmd, flags, "delete recipe collection "+bodyName, apply, map[string]any{"name": bodyName})
+			}
+			if !recipeCollectionLiveWritesEnabled() {
+				return fmt.Errorf("recipe collection live writes are disabled until AnyList collection persistence is proven by fresh read-back")
 			}
 			ctx := cmd.Context()
 			cfg, st, err := openAuthedLocalStore(flags)
@@ -50,7 +54,11 @@ func newCollectionsDeleteCmd(flags *rootFlags) *cobra.Command {
 			if err := anylist.New(cfg).RemoveRecipeCollection(ctx, recipeDataID, collection); err != nil {
 				return err
 			}
-			if err := syncStoreFromLive(ctx, cfg, st); err != nil {
+			verifiedData, err := verifyLiveRecipeCollectionDeleted(ctx, cfg, collection.GetIdentifier())
+			if err != nil {
+				return err
+			}
+			if err := st.SyncFromUserData(verifiedData); err != nil {
 				return fmt.Errorf("refreshing data after deleting collection: %w", err)
 			}
 			if flags.asJSON {
@@ -66,6 +74,7 @@ func newCollectionsDeleteCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVarP(&bodyName, "name", "n", "", "Name of the recipe collection to permanently delete")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.Flags().BoolVar(&apply, "apply", false, "Enable live mutation with fresh read-after-write verification")
 
 	return cmd
 }

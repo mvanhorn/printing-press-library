@@ -9,6 +9,7 @@
 package gaclient
 
 import (
+	"bytes"
 	"regexp"
 	"strconv"
 	"strings"
@@ -34,6 +35,21 @@ type Provvedimento struct {
 	NomeFile     string `json:"nome_file"`
 	URL          string `json:"url"`
 	FullText     string `json:"full_text,omitempty"`
+	// Duplicati is set (>0) when near-duplicate results sharing the same
+	// snippet were folded into this one (ricorsi gemelli: multiple parties
+	// challenging the same provvedimento). It holds the total group size;
+	// the folded siblings are omitted from the result list.
+	Duplicati int `json:"duplicati,omitempty"`
+	// MatchCount is set (>0) when the full text was found in the local store
+	// and the search terms were counted in it. It distinguishes "1 match in
+	// an obiter" from "12 matches in the dispositivo" — the portal's snippet
+	// shows only one occurrence, so relevance is invisible without it.
+	// Absent when the text is not cached (first search on a fresh store).
+	MatchCount int `json:"match_count,omitempty"`
+	// Meta holds the registry metadata read from the XML form of the
+	// document (see meta.go). Absent unless it was explicitly requested: it
+	// costs a second request to the portal.
+	Meta *Meta `json:"meta,omitempty"`
 }
 
 var (
@@ -130,10 +146,68 @@ func parseItem(block string) Provvedimento {
 }
 
 // normalizeDocURL rewrites the printable "/visualizza/" variant to the
-// "/visualizzah2/" highlighted full-text endpoint, which both serve the same
-// public document.
+// "/visualizzah2/" highlighted full-text endpoint. The two serve the same
+// public document only when it is HTML: visualizzah2 renders the document as
+// a highlighted page and cannot do that for a PDF, where it answers with a
+// 159-byte "net::ERR_ABORTED" string instead of the file. The portal's own
+// result rows already carry the working /visualizza/ URL, so for a PDF the
+// rewrite is what breaks it — leave those alone.
 func normalizeDocURL(u string) string {
+	if isPDFPath(u) {
+		return u
+	}
 	return strings.Replace(u, "/visualizza/?", "/visualizzah2/?", 1)
+}
+
+// isPDFPath reports whether a document URL or file name refers to a PDF.
+func isPDFPath(s string) bool {
+	low := strings.ToLower(s)
+	return strings.HasSuffix(low, ".pdf") || strings.Contains(low, ".pdf&") || strings.Contains(low, ".pdf?")
+}
+
+// isErrorPage reports whether the mdp subdomain answered with its own error
+// page instead of the document. A stale nomeFile/nrg does not produce a 404:
+// the response is HTTP 200 carrying a styled "404 - Pagina non trovata" page,
+// which converts to a short, plausible-looking Markdown body and would be
+// stored, exported and quoted as if it were the provvedimento.
+//
+// The check trusts the body, not the status or the file extension: the
+// document endpoint is polymorphic (XML for the HTML rulings, the file itself
+// for the PDF ones), so anything that begins as XML or PDF is a real document.
+func isErrorPage(body []byte) bool {
+	head := body
+	if len(head) > 4096 {
+		head = head[:4096]
+	}
+	trimmed := bytes.TrimLeft(head, " \t\r\n")
+	if bytes.HasPrefix(trimmed, []byte("%PDF-")) ||
+		bytes.HasPrefix(trimmed, []byte("<?xml")) ||
+		bytes.HasPrefix(trimmed, []byte("<GA")) {
+		return false
+	}
+	low := bytes.ToLower(trimmed)
+	// A real provvedimento served as HTML opens with the portal's own markup:
+	// the body class and the registry lines. Checking for them first keeps a
+	// ruling that happens to discuss a missing web page from being discarded
+	// as the error page.
+	for _, marker := range [][]byte{
+		[]byte(`class="corpo"`),
+		[]byte("reg.prov"),
+		[]byte("reg.ric"),
+	} {
+		if bytes.Contains(low, marker) {
+			return false
+		}
+	}
+	for _, marker := range [][]byte{
+		[]byte("pagina non trovata"),
+		[]byte("documento che stai cercando non esiste"),
+	} {
+		if bytes.Contains(low, marker) {
+			return true
+		}
+	}
+	return false
 }
 
 func normalizeTipo(t string) string {

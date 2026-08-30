@@ -1,0 +1,612 @@
+name: rapidapi
+description: "RapidAPI Hub marketplace CLI - search APIs, browse categories & collections, inspect providers, and manage your account (subscriptions, favorites, notifications, workspace) via the hub's own GraphQL gateway"
+version: "0.1.0"
+source: ""
+base_url: "https://rapidapi.com"
+health_check_path: "/gateway/csrf"
+http_transport: standard
+required_headers:
+  - name: Content-Type
+    value: "application/json"
+  - name: rapid-client
+    value: "default-auth-v2-dashboard-service"
+
+auth:
+  type: api_key
+  header: "x-csrf-token"
+  format: "{token}"
+  env_vars:
+    - RAPIDAPI_CSRF_TOKEN
+    - RAPIDAPI_COOKIE
+    - RAPIDAPI_CLEARANCE
+
+config:
+  format: toml
+  path: "~/.config/rapidapi-pp-cli/config.toml"
+
+resources:
+  marketplace:
+    description: "Search the RapidAPI marketplace"
+    endpoints:
+      search:
+        method: POST
+        path: "/gateway/graphql"
+        description: "Search APIs across the marketplace with filters, facets, scores, and pagination"
+        example: "  rapidapi-pp-cli search apis weather --category Weather --limit 5"
+        happy_args: "term=weather;--limit=3"
+        body:
+          - name: operationName
+            type: string
+            required: true
+            default: searchApis
+            description: "GraphQL operation name"
+          - name: query
+            type: string
+            required: true
+            description: "GraphQL query document"
+          - name: variables
+            type: string
+            required: true
+            description: "JSON string of variables: {searchApiWhereInput: {term, categoryNames, tags}, paginationInput: {first, after}, searchApiOrderByInput: {sortingFields: [{by, fieldName}]}}"
+        response:
+          type: object
+          item: SearchResponse
+        response_path: "data.products.nodes"
+
+  categories:
+    description: "Browse API categories"
+    endpoints:
+      list:
+        method: POST
+        path: "/gateway/graphql"
+        description: "List top-level marketplace categories with weights and descriptions"
+        example: "  rapidapi-pp-cli categories list --limit 20"
+        happy_args: "--limit=5"
+        body:
+          - name: operationName
+            type: string
+            required: true
+            default: getCategoriesByCtx
+            description: "GraphQL operation name"
+          - name: query
+            type: string
+            required: true
+            description: "GraphQL query document"
+          - name: variables
+            type: string
+            required: true
+            description: "JSON string of variables: {limit: Int}"
+        response:
+          type: array
+          item: Category
+        response_path: "data.categoriesByCtx"
+
+  collections:
+    description: "Browse curated API collections"
+    endpoints:
+      list:
+        method: POST
+        path: "/gateway/graphql"
+        description: "List curated collections (Recommended, Popular, Free, AI-based)"
+        example: "  rapidapi-pp-cli collections list --limit 10"
+        happy_args: "--limit=5"
+        body:
+          - name: operationName
+            type: string
+            required: true
+            default: GetCollectionsCollapsed
+            description: "GraphQL operation name"
+          - name: query
+            type: string
+            required: true
+            description: "GraphQL query document"
+          - name: variables
+            type: string
+            required: true
+            description: "JSON string of variables: {page: Int, limit: Int}"
+        response:
+          type: array
+          item: Collection
+        response_path: "data.collections"
+      show:
+        method: POST
+        path: "/gateway/graphql"
+        description: "Show a collection's detail and its APIs"
+        example: "  rapidapi-pp-cli collections show recommended-apis"
+        happy_args: "slug=recommended-apis"
+        params:
+          - name: slug
+            type: string
+            required: true
+            description: "Collection slugified key"
+        body:
+          - name: operationName
+            type: string
+            required: true
+            default: getCollectionBySlug
+            description: "GraphQL operation name"
+          - name: query
+            type: string
+            required: true
+            description: "GraphQL query document"
+          - name: variables
+            type: string
+            required: true
+            description: "JSON string of variables: {slug: String!}"
+        response:
+          type: object
+          item: CollectionDetail
+        response_path: "data.collection"
+
+  apis:
+    description: "Inspect individual marketplace APIs"
+    endpoints:
+      show:
+        method: POST
+        path: "/gateway/graphql"
+        description: "Show a single API's full detail: endpoints, versions, billing plans, rating, owner"
+        example: "  rapidapi-pp-cli apis show meteostat/meteostat"
+        happy_args: "owner=meteostat;api=meteostat"
+        params:
+          - name: owner
+            type: string
+            required: true
+            description: "API owner slugified name"
+          - name: api
+            type: string
+            required: true
+            description: "API slugified name"
+        body:
+          - name: operationName
+            type: string
+            required: true
+            default: getApiBySlugAndOwner
+            description: "GraphQL operation name"
+          - name: query
+            type: string
+            required: true
+            description: "GraphQL query document"
+          - name: variables
+            type: string
+            required: true
+            description: "JSON string of variables: {apiOwnerSlug, apiSlug, withEndpoints}"
+        response:
+          type: object
+          item: ApiDetail
+        response_path: "data.apiBySlugifiedNameAndOwnerName"
+
+  users:
+    description: "Inspect marketplace users"
+    endpoints:
+      show:
+        method: POST
+        path: "/gateway/graphql"
+        description: "Show a user profile and their published APIs"
+        example: "  rapidapi-pp-cli users show meteostat"
+        happy_args: "username=meteostat"
+        params:
+          - name: username
+            type: string
+            required: true
+            description: "Username"
+        body:
+          - name: operationName
+            type: string
+            required: true
+            default: getUserProfile
+            description: "GraphQL operation name"
+          - name: query
+            type: string
+            required: true
+            description: "GraphQL query document"
+          - name: variables
+            type: string
+            required: true
+            description: "JSON string of variables: {username: String!}"
+        response:
+          type: object
+          item: UserProfile
+        response_path: "data.userProfile"
+
+  metrics:
+    description: "Hub-wide marketplace statistics"
+    endpoints:
+      show:
+        method: POST
+        path: "/gateway/graphql"
+        description: "Show public marketplace metrics: total APIs, users, consumers, API traffic"
+        example: "  rapidapi-pp-cli metrics show --from 2026-08-01 --to 2026-08-28"
+        happy_args: "--from=2026-08-01;--to=2026-08-28"
+        body:
+          - name: operationName
+            type: string
+            required: true
+            default: getHubMetrics
+            description: "GraphQL operation name"
+          - name: query
+            type: string
+            required: true
+            description: "GraphQL query document"
+          - name: variables
+            type: string
+            required: true
+            description: "JSON string of variables: {where: {fromDate, toDate}}"
+        response:
+          type: object
+          item: HubMetrics
+        response_path: "data.publicMetrics"
+
+  account:
+    description: "Your RapidAPI account (requires login)"
+    endpoints:
+      whoami:
+        method: POST
+        path: "/gateway/graphql"
+        description: "Show the active logged-in user, their entities, and tenant"
+        example: "  rapidapi-pp-cli account whoami"
+        body:
+          - name: operationName
+            type: string
+            required: true
+            default: activeUser
+            description: "GraphQL operation name"
+          - name: query
+            type: string
+            required: true
+            description: "GraphQL query document"
+          - name: variables
+            type: string
+            required: true
+            description: "JSON string of variables: {}"
+        response:
+          type: object
+          item: ActiveUser
+        response_path: "data.activeUser"
+      saved:
+        method: POST
+        path: "/gateway/graphql"
+        description: "List APIs you saved as favorites"
+        example: "  rapidapi-pp-cli account saved"
+        body:
+          - name: operationName
+            type: string
+            required: true
+            default: getUserSavedApis
+            description: "GraphQL operation name"
+          - name: query
+            type: string
+            required: true
+            description: "GraphQL query document"
+          - name: variables
+            type: string
+            required: true
+            description: "JSON string of variables: {}"
+        response:
+          type: array
+          item: SavedApi
+        response_path: "data.userSavedApis"
+      subscriptions:
+        method: POST
+        path: "/gateway/graphql"
+        description: "List your API subscriptions with plan details and status"
+        example: "  rapidapi-pp-cli account subscriptions --limit 20"
+        happy_args: "--limit=5"
+        body:
+          - name: operationName
+            type: string
+            required: true
+            default: getApiSubscriptions
+            description: "GraphQL operation name"
+          - name: query
+            type: string
+            required: true
+            description: "GraphQL query document"
+          - name: variables
+            type: string
+            required: true
+            description: "JSON string of variables: {input: {statuses: [], limit}}"
+        response:
+          type: array
+          item: Subscription
+        response_path: "data.getApiSubscriptions.rows"
+      notifications:
+        method: POST
+        path: "/gateway/graphql"
+        description: "List your notifications"
+        example: "  rapidapi-pp-cli account notifications --limit 10"
+        happy_args: "--limit=3"
+        body:
+          - name: operationName
+            type: string
+            required: true
+            default: getNotifications
+            description: "GraphQL operation name"
+          - name: query
+            type: string
+            required: true
+            description: "GraphQL query document"
+          - name: variables
+            type: string
+            required: true
+            description: "JSON string of variables: {userId, limit, offset}"
+        response:
+          type: array
+          item: Notification
+        response_path: "data.newNotificationsByUserId"
+      workspace:
+        method: POST
+        path: "/gateway/graphql"
+        description: "Show your workspace: owned APIs, subscribed APIs, metrics"
+        example: "  rapidapi-pp-cli account workspace --from 2026-08-01 --to 2026-08-28"
+        happy_args: "--from=2026-08-01;--to=2026-08-28"
+        body:
+          - name: operationName
+            type: string
+            required: true
+            default: getWorkspaceData
+            description: "GraphQL operation name"
+          - name: query
+            type: string
+            required: true
+            description: "GraphQL query document"
+          - name: variables
+            type: string
+            required: true
+            description: "JSON string of variables: {fromDate, toDate}"
+        response:
+          type: object
+          item: WorkspaceData
+        response_path: "data.workspaceData"
+
+  system:
+    description: "Gateway bootstrap and health endpoints"
+    endpoints:
+      csrf:
+        method: GET
+        path: "/gateway/csrf"
+        description: "Fetch the session-bound CSRF token used to authenticate GraphQL gateway calls"
+        example: "  rapidapi-pp-cli system csrf"
+        response:
+          type: object
+          item: CsrfToken
+
+types:
+  CsrfToken:
+    fields:
+      - name: csrfToken
+        type: string
+  SearchResponse:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: title
+        type: string
+      - name: description
+        type: string
+      - name: slugifiedName
+        type: string
+      - name: thumbnail
+        type: string
+      - name: pricing
+        type: string
+      - name: updatedAt
+        type: string
+      - name: categoryName
+        type: string
+      - name: isSavedApi
+        type: bool
+      - name: visibility
+        type: string
+      - name: score
+        type: object
+      - name: user
+        type: object
+  Category:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: weight
+        type: int
+      - name: thumbnail
+        type: string
+      - name: shortDescription
+        type: string
+      - name: slugifiedName
+        type: string
+      - name: color
+        type: string
+  Collection:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: slugifiedKey
+        type: string
+      - name: weight
+        type: int
+      - name: thumbnail
+        type: string
+      - name: shortDescription
+        type: string
+  CollectionDetail:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: thumbnail
+        type: string
+      - name: shortDescription
+        type: string
+      - name: longDescription
+        type: string
+      - name: slugifiedKey
+        type: string
+      - name: collectionType
+        type: string
+      - name: apis
+        type: array
+  ApiDetail:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: title
+        type: string
+      - name: description
+        type: string
+      - name: longDescription
+        type: string
+      - name: slugifiedName
+        type: string
+      - name: thumbnail
+        type: string
+      - name: apiType
+        type: string
+      - name: status
+        type: string
+      - name: createdAt
+        type: string
+      - name: quality
+        type: object
+      - name: owner
+        type: object
+      - name: versions
+        type: array
+      - name: version
+        type: object
+      - name: billingPlans
+        type: array
+      - name: rating
+        type: object
+      - name: subscriptionsCount
+        type: int
+      - name: websiteUrl
+        type: string
+  UserProfile:
+    fields:
+      - name: id
+        type: string
+      - name: thumbnail
+        type: string
+      - name: name
+        type: string
+      - name: username
+        type: string
+      - name: bio
+        type: string
+      - name: company
+        type: string
+      - name: location
+        type: string
+      - name: createdAt
+        type: string
+      - name: publishedApisList
+        type: array
+  HubMetrics:
+    fields:
+      - name: publicApis
+        type: object
+      - name: users
+        type: object
+      - name: activeApiConsumers
+        type: object
+      - name: totalApiTraffic
+        type: object
+  ActiveUser:
+    fields:
+      - name: name
+        type: string
+      - name: id
+        type: string
+      - name: mashapeId
+        type: string
+      - name: email
+        type: string
+      - name: username
+        type: string
+      - name: entity
+        type: object
+      - name: thumbnail
+        type: string
+      - name: billingType
+        type: string
+      - name: paymentProvider
+        type: string
+      - name: verified
+        type: bool
+      - name: organizations
+        type: array
+  SavedApi:
+    fields:
+      - name: api
+        type: object
+  Subscription:
+    fields:
+      - name: id
+        type: int
+      - name: status
+        type: string
+      - name: userId
+        type: int
+      - name: apiId
+        type: string
+      - name: billingPlanVersion
+        type: object
+  Notification:
+    fields:
+      - name: id
+        type: int
+      - name: type
+        type: string
+      - name: createdAt
+        type: string
+      - name: isRead
+        type: bool
+      - name: title
+        type: string
+      - name: body
+        type: string
+      - name: callToAction
+        type: string
+      - name: image
+        type: string
+  WorkspaceData:
+    fields:
+      - name: ownedApis
+        type: object
+      - name: subscribedApis
+        type: object
+      - name: invitedApis
+        type: array
+
+paths:
+  /gateway/graphql:
+    post:
+      operationId: graphql
+      responses:
+        "200":
+          description: GraphQL response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      nodes:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            name:
+                              type: string

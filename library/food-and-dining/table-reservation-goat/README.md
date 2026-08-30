@@ -3,7 +3,7 @@
 One reservation CLI for OpenTable, Tock, and Resy — search all three networks at once, watch for cancellations, book + cancel end-to-end, and track changes from a local store agents can query.
 
 Created by [@pejmanjohn](https://github.com/pejmanjohn) (Pejman Pour-Moezzi).
-Contributors: [@ganes-j](https://github.com/ganes-j) (Jesse Ganes), [@teebs4140](https://github.com/teebs4140) (Dylan Thibault).
+Contributors: [@ganes-j](https://github.com/ganes-j) (Jesse Ganes), [@teebs4140](https://github.com/teebs4140) (Dylan Thibault), [@wbell2000](https://github.com/wbell2000) (William Bell).
 
 ## Install
 
@@ -34,7 +34,7 @@ npx -y @mvanhorn/printing-press-library install table-reservation-goat --agent c
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/cmd/table-reservation-goat-pp-cli@latest

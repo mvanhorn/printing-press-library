@@ -1,0 +1,100 @@
+openapi: 3.0.0
+info:
+  contact: {}
+  description: This REST API provides endpoints to get analyst report details.
+  termsOfService: http://swagger.io/terms/
+  title: Analyst Reports Raw Text API
+  version: 1.0.0
+paths:
+  /analyst/reports/raw-text:
+    get:
+      description: Retrieves raw text content from professional analyst research reports.
+        Returns full-text analyst reports, research notes, and investment recommendations
+        from financial institutions. Includes report metadata, rating changes, price
+        targets, and detailed analysis. Essential for accessing institutional research
+        and analyst sentiment.
+      operationId: get-analyst-reports-raw-text-data
+      parameters:
+        - description: 'Page number for pagination. Zero-indexed (0 = first page,
+            1 = second page, etc.). Default: 0'
+          in: query
+          name: page
+          schema:
+            type: integer
+        - description: 'Number of results per page. Default: 100. Maximum: 100. Returns
+            most recent reports first.'
+          in: query
+          name: pagesize
+          schema:
+            type: integer
+        - description: 'If true, includes a presigned pdf_url for each report. Default:
+            false.'
+          in: query
+          name: pdf_url
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Array of analyst reports with full text content and metadata
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/models.AnalystReportRawText'
+                type: array
+        '400':
+          description: Bad request - invalid parameters
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                type: array
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                type: array
+      security:
+        - ApiKeyAuth: []
+      summary: Analyst Research Reports
+      tags:
+        - Analyst Reports
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      in: query
+      name: token
+      type: apiKey
+  schemas:
+    models.AnalystReportRawText:
+      properties:
+        date:
+          example: '2024-01-09'
+          type: string
+        exchange:
+          example: NASDAQ
+          type: string
+        extracted_paragraphs:
+          items:
+            type: string
+          type: array
+        firm_id:
+          example: GS-12345
+          type: string
+        id:
+          example: 507f1f77bcf86cd799439011
+          type: string
+        pdf_url:
+          example: analyst_rating/AAPL/GS-12345/20240109.pdf
+          type: string
+        ticker:
+          example: AAPL
+          type: string
+      type: object
+servers:
+  - url: https://api.benzinga.com
+    description: PROD

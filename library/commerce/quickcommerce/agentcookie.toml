@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "quickcommerce-pp-cli"
+display_name = "QuickCommerce API"
+description = "Compare live Indian product prices, stock, and delivery ETAs from the terminal, then keep the history locally."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/quickcommerce-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+QUICKCOMMERCE_API_KEY = true

@@ -1,8 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/sales-and-crm/gladly
 
-go 1.26.5
-
-toolchain go1.26.5
+go 1.26.6
 
 require (
 	github.com/pelletier/go-toml/v2 v2.2.4

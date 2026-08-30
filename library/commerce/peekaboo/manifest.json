@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "peekaboo-pp-mcp",
+  "display_name": "Peekaboo",
+  "version": "0.1.0",
+  "description": "Every Peekaboo deal, branch, and bank-card offer from the terminal, with a local database that ranks discounts and exports branch map links no Peekaboo tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/peekaboo-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/peekaboo-pp-mcp",
+      "args": [],
+      "env": {
+        "PEEKABOO_TOKEN": "${user_config.peekaboo_token}"
+      }
+    }
+  },
+  "user_config": {
+    "peekaboo_token": {
+      "type": "string",
+      "title": "PEEKABOO_TOKEN",
+      "description": "Optional override for the Peekaboo MCP server; it bootstraps the public guest token when omitted.",
+      "sensitive": true,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

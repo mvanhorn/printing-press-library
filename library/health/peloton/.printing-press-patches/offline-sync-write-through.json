@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "offline-sync-write-through",
+  "applied_at": "2026-08-13",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "The `offline` command family (internal/cli/offline.go) reads from the provider_payloads table via GetProviderFact/ListProviderFacts, keyed by a provider-fact `family` name. Every write path that lands rows for a resourceType (sync's batches, sync's single-object fallback, the live-read write-through cache, mutation write-back) must also record a provider fact under that same resourceType as `family`, or `offline` silently reports empty despite a fully populated `resources` table. Any future regen must keep RecordProviderFact wired into every UpsertBatch/Upsert call site, not just the generated `resources` write.",
+  "reason": "internal/store/peloton.go's RecordProviderFact (and the provider_payloads table it writes) had zero callers anywhere in the generated or hand-authored code -- confirmed by grep across the whole tree before this patch. sync wrote exclusively to the generic `resources` table via db.UpsertBatch; offline.go's existing tests only ever seeded provider_payloads directly via RecordProviderFact, never through a real sync, which is why the disconnect was never caught. `SELECT resource_type, COUNT(*) FROM resources` showed workouts=3574 after a successful sync while `offline history` reported zero rows.",
+  "files": [
+    "internal/store/peloton.go",
+    "internal/cli/sync.go",
+    "internal/cli/data_source.go",
+    "internal/cli/sync_offline_test.go"
+  ],
+  "validated_outcome": "New end-to-end test (TestSyncWorkoutsPopulatesOfflineHistory) drives syncResource against a fixture client with no HTTP server or auth involved, then asserts both `resources` (via db.Count) and provider_payloads (via db.ListProviderFacts, and via the real `offline history` command) see the same rows. Full go build/vet/test suite passes.",
+  "upstream_issue": "Known remaining gap, not fixed by this patch: offline.go also reads families \"workout_details\" and \"filters\" that no live command anywhere writes under those exact names (workouts show/list both write resourceType \"workouts\"; nothing fetches a provider filter vocabulary at all). Those are missing-source gaps, not a write/read mismatch, and are out of scope here."
+}

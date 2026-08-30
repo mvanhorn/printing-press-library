@@ -1,0 +1,13 @@
+{
+  "run_id": "20260821-194418",
+  "api_name": "fec",
+  "checked_at": "2026-08-21T13:48:00Z",
+  "decision": "PASS",
+  "probe": {
+    "method": "GET",
+    "url": "https://api.open.fec.gov/v1/audit-category/",
+    "status": 200,
+    "note": "simple GET, no required params; also verified /v1/candidates/search/?q=lee -> 200 with real payload"
+  },
+  "auth_profile": "api-key (api.data.gov), query param api_key or x-api-key header; registered key verified live"
+}

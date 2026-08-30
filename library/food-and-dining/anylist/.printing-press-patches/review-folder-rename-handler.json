@@ -1,0 +1,11 @@
+{
+  "id": "review-folder-rename-handler",
+  "source": "direct-input",
+  "summary": "Verify and wire AnyList folder rename through set-folder-name.",
+  "evidence": {
+    "handler": "set-folder-name",
+    "endpoint": "POST /data/list-folders/update",
+    "result": "A disposable folder name read back as the requested revised name; delete-folder-items cleanup and fresh list verification left no marker."
+  },
+  "implementation": "RenameListFolder and rename-only CLI update are enabled; ordering, nesting, and parent moves were not enabled by this record."
+}

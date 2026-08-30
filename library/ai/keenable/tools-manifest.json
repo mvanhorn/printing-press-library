@@ -1,0 +1,276 @@
+{
+  "api_name": "keenable",
+  "base_url": "https://api.keenable.ai",
+  "description": "Keenable web search with reproducible research, citations, and a local evidence trail.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "X-API-Key",
+    "in": "header",
+    "env_vars": [
+      "KEENABLE_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "KEENABLE_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "fetch_fetch",
+      "description": "Extract clean content (markdown) from a web page URL. Required: url. Optional: max_chars (default: 50000), live (default: false), prompt. Returns the FetchResponse.",
+      "method": "GET",
+      "path": "/v1/fetch",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "URL of the page to fetch",
+          "required": true
+        },
+        {
+          "name": "max_chars",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of characters of content to return. Longer content is truncated and a notice is appended after the cut, so the response runs slightly past this number."
+        },
+        {
+          "name": "live",
+          "type": "bool",
+          "location": "query",
+          "description": "Fetch the page live from the source instead of returning Keenable's indexed copy. Enables fetching URLs that are not indexed."
+        },
+        {
+          "name": "prompt",
+          "type": "string",
+          "location": "query",
+          "description": "Optional extraction instruction. When set, an LLM reads the fetched page and the response content is only the output for this instruction instead of the full page. Example: 'List all pricing tiers with their monthly prices'."
+        }
+      ]
+    },
+    {
+      "name": "fetch_public",
+      "description": "Keyless twin of GET /v1/fetch. Same query parameters and same response, no API key. Rate limited per IP rather than per organization, and consumes no credits. Required: X-Keenable-Title, url. Optional: max_chars (default: 50000), live (default: false), prompt. Returns the FetchResponse.",
+      "method": "GET",
+      "path": "/v1/fetch/public",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "X-Keenable-Title",
+          "type": "string",
+          "location": "query",
+          "description": "Name of the application making the call. Required on the public endpoints; without it the request is rejected with 400 'Missing app identifier'. Longer values are truncated. The keenable_title query parameter carries the same value when a header is not an option.",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "URL of the page to fetch",
+          "required": true
+        },
+        {
+          "name": "max_chars",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of characters of content to return. Longer content is truncated and a notice is appended after the cut, so the response runs slightly past this number."
+        },
+        {
+          "name": "live",
+          "type": "bool",
+          "location": "query",
+          "description": "Fetch the page live from the source instead of returning Keenable's indexed copy. Enables fetching URLs that are not indexed."
+        },
+        {
+          "name": "prompt",
+          "type": "string",
+          "location": "query",
+          "description": "Optional extraction instruction. When set, an LLM reads the fetched page and the response content is only the output for this instruction instead of the full page. Example: 'List all pricing tiers with their monthly prices'."
+        }
+      ]
+    },
+    {
+      "name": "web_search_search-post",
+      "description": "Perform a web search using a JSON request body. Supports date filters and site restriction. Required: query. Optional: acquired_after, acquired_before, max_results (plus 5 more). Returns array of SearchResult.",
+      "method": "POST",
+      "path": "/v1/search",
+      "params": [
+        {
+          "name": "acquired_after",
+          "type": "string",
+          "location": "body",
+          "description": "Filter: pages acquired after this date (YYYY-MM-DD, ISO 8601, or relative like '7d')"
+        },
+        {
+          "name": "acquired_before",
+          "type": "string",
+          "location": "body",
+          "description": "Filter: pages acquired before this date. A bare YYYY-MM-DD includes that whole day (up to 23:59:59.999 UTC); pass a timestamp to cut at an exact instant"
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of results to return. When omitted, up to 10 results are returned."
+        },
+        {
+          "name": "published_after",
+          "type": "string",
+          "location": "body",
+          "description": "Filter: pages published after this date"
+        },
+        {
+          "name": "published_before",
+          "type": "string",
+          "location": "body",
+          "description": "Filter: pages published before this date. A bare YYYY-MM-DD includes that whole day (up to 23:59:59.999 UTC); pass a timestamp to cut at an exact instant"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Search query",
+          "required": true
+        },
+        {
+          "name": "query_time",
+          "type": "string",
+          "location": "body",
+          "description": "Search the index as it stood at this point in time: pages acquired after it are excluded. A bare YYYY-MM-DD resolves to 00:00:00 UTC. Relative deltas on the date filters are computed from this instant instead of the request time"
+        },
+        {
+          "name": "site",
+          "type": "string",
+          "location": "body",
+          "description": "Restrict results to a specific domain"
+        },
+        {
+          "name": "snippet_max_length",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum length, in characters, of the snippet returned per result. When omitted, a default snippet length is used."
+        }
+      ]
+    },
+    {
+      "name": "web_search_search-post-public",
+      "description": "Keyless twin of POST /v1/search. Same request body and same response, no API key. Rate limited per IP rather than per organization, and consumes no credits. Required: X-Keenable-Title, query. Optional: acquired_after, acquired_before, max_results (plus 5 more). Returns array of SearchResult.",
+      "method": "POST",
+      "path": "/v1/search/public",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "X-Keenable-Title",
+          "type": "string",
+          "location": "query",
+          "description": "Name of the application making the call. Required on the public endpoints; without it the request is rejected with 400 'Missing app identifier'. Longer values are truncated. The keenable_title query parameter carries the same value when a header is not an option.",
+          "required": true
+        },
+        {
+          "name": "acquired_after",
+          "type": "string",
+          "location": "body",
+          "description": "Filter: pages acquired after this date (YYYY-MM-DD, ISO 8601, or relative like '7d')"
+        },
+        {
+          "name": "acquired_before",
+          "type": "string",
+          "location": "body",
+          "description": "Filter: pages acquired before this date. A bare YYYY-MM-DD includes that whole day (up to 23:59:59.999 UTC); pass a timestamp to cut at an exact instant"
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of results to return. When omitted, up to 10 results are returned."
+        },
+        {
+          "name": "published_after",
+          "type": "string",
+          "location": "body",
+          "description": "Filter: pages published after this date"
+        },
+        {
+          "name": "published_before",
+          "type": "string",
+          "location": "body",
+          "description": "Filter: pages published before this date. A bare YYYY-MM-DD includes that whole day (up to 23:59:59.999 UTC); pass a timestamp to cut at an exact instant"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Search query",
+          "required": true
+        },
+        {
+          "name": "query_time",
+          "type": "string",
+          "location": "body",
+          "description": "Search the index as it stood at this point in time: pages acquired after it are excluded. A bare YYYY-MM-DD resolves to 00:00:00 UTC. Relative deltas on the date filters are computed from this instant instead of the request time"
+        },
+        {
+          "name": "site",
+          "type": "string",
+          "location": "body",
+          "description": "Restrict results to a specific domain"
+        },
+        {
+          "name": "snippet_max_length",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum length, in characters, of the snippet returned per result. When omitted, a default snippet length is used."
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Reproducible research snapshot",
+      "command": "research snapshot",
+      "description": "Save an exact search and fetch run as an immutable local evidence snapshot."
+    },
+    {
+      "name": "Snapshot replay",
+      "command": "research replay",
+      "description": "Rerun a saved research recipe and report how current evidence changed."
+    },
+    {
+      "name": "Citation bundle export",
+      "command": "research citations",
+      "description": "Export source-linked Markdown or JSON citations from a saved research run."
+    },
+    {
+      "name": "Bounded multi-page fetch",
+      "command": "research fetch-many",
+      "description": "Fetch a bounded URL list with concurrency limits and explicit partial failures."
+    },
+    {
+      "name": "Offline local FTS recall",
+      "command": "research local-search",
+      "description": "Search saved titles, snippets, URLs, and Markdown without spending an upstream request."
+    },
+    {
+      "name": "Result and content drift comparison",
+      "command": "research diff",
+      "description": "Compare saved runs for URL changes, rank movement, metadata edits, and content-hash drift."
+    },
+    {
+      "name": "Domain and source coverage report",
+      "command": "research coverage",
+      "description": "Measure domain diversity, rank share, timestamp coverage, and missing metadata in a saved run."
+    }
+  ]
+}

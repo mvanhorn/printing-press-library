@@ -36,9 +36,20 @@ func newWorkoutsPerformanceCmd(flags *rootFlags) *cobra.Command {
 			if flagEveryN != 0 {
 				params["every_n"] = formatCLIParamValue(flagEveryN)
 			}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "workouts", false, path, params, nil, "", cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "performance", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
+			}
+			if prov.Source == "live" {
+				// The generic write-through cache (data_source.go) extracts
+				// its cache key from the response body, but performance_graph
+				// responses carry no id field at all -- the workout id lives
+				// only in the request path, which write-through never sees.
+				// Without this, a live "auto"-mode fetch always warned "not
+				// cached locally" and never populated offline reads for this
+				// command, even though sync's dependent fan-out (which does
+				// have the id externally) already fixed the same gap there.
+				cacheWorkoutPerformance(cmd.Context(), args[0], data)
 			}
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,

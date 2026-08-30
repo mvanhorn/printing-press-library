@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-08-15T16:02:49.766443Z",
+  "cli_dir": "\u003ccli-dir\u003e/ynab",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template fix"
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template fix"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 5,
+    "captured": "2026-08-15T16:00:55.104532Z"
+  }
+}

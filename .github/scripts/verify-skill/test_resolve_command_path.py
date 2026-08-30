@@ -43,6 +43,15 @@ def _write_cli(tmp: Path, files: dict[str, str]) -> Path:
     return tmp
 
 
+def _write_nested_cli(tmp: Path, module_name: str, files: dict[str, str]) -> Path:
+    """Materialize a CLI whose source lives under a nested Go module."""
+    cli_dir = tmp / module_name / "internal" / "cli"
+    cli_dir.mkdir(parents=True, exist_ok=True)
+    for name, content in files.items():
+        (cli_dir / name).write_text(content)
+    return tmp
+
+
 class TestExtractFunctionBody(unittest.TestCase):
     def test_simple_body(self):
         text = "func foo() {\n  return 1\n}\n"
@@ -245,6 +254,46 @@ func newSearchCmd() *cobra.Command {
             # Legacy fallback returns the file; not empty
             self.assertEqual([f.name for f in files], ["search.go"])
             self.assertEqual(use, "search <query>")
+
+    def test_nested_module_source_tree_is_resolved_from_catalog_parent(self):
+        """Catalog docs can be verified against a nested install module."""
+        with tempfile.TemporaryDirectory() as td:
+            cli_dir = _write_nested_cli(Path(td), "vzero", {
+                "root.go": '''package cli
+import "github.com/spf13/cobra"
+func Execute() error {
+    rootCmd := &cobra.Command{Use: "fixture-pp-cli"}
+    rootCmd.AddCommand(newSearchCmd())
+    return rootCmd.Execute()
+}
+''',
+                "search.go": '''package cli
+import "github.com/spf13/cobra"
+func newSearchCmd() *cobra.Command {
+    cmd := &cobra.Command{Use: "search"}
+    var level string
+    cmd.Flags().StringVar(&level, "level", "", "filter level")
+    return cmd
+}
+''',
+            })
+            cli_binary = f"{cli_dir.name}-pp-cli"
+            (cli_dir / "SKILL.md").write_text(
+                f"""# Fixture
+
+```bash
+{cli_binary} search --level high
+```
+""",
+                encoding="utf-8",
+            )
+
+            files, use, _ = find_command_source(cli_dir, ["search"])
+            self.assertEqual([f.name for f in files], ["search.go"])
+            self.assertEqual(use, "search")
+
+            report = run_checks(cli_dir, {"flag-names", "flag-commands"})
+            self.assertEqual([], report.findings)
 
 
 class TestFlagChecks(unittest.TestCase):

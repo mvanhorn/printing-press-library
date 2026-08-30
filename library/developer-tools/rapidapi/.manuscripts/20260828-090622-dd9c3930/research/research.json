@@ -1,0 +1,42 @@
+{
+  "api_name": "rapidapi",
+  "novel_features": [
+    {
+      "name": "offline-sync-and-search",
+      "description": "Sync marketplace data into a local SQLite store with sync-state tracking, then search it offline.",
+      "commands": ["sync", "search"],
+      "verified": true
+    },
+    {
+      "name": "hub-analytics-with-aggregation",
+      "description": "Hub-wide metrics plus per-day API traffic aggregated from the local store (SUM, AVG, error rates).",
+      "commands": ["analytics", "stats", "trends"],
+      "verified": true
+    },
+    {
+      "name": "marketplace-export",
+      "description": "Export cached marketplace records to JSON or CSV for offline analysis.",
+      "commands": ["export"],
+      "verified": true
+    },
+    {
+      "name": "chrome-tls-transport",
+      "description": "uTLS Chrome-fingerprint HTTP/2 transport that passes the Cloudflare bot gate, enabling live CLI access to the hub gateway.",
+      "commands": ["system csrf"],
+      "verified": true
+    },
+    {
+      "name": "cache-freshness-doctor",
+      "description": "Doctor reports cache freshness with schema-gated auto-refresh.",
+      "commands": ["doctor"],
+      "verified": true
+    }
+  ],
+  "novel_features_built": [
+    "offline-sync-and-search",
+    "hub-analytics-with-aggregation",
+    "marketplace-export",
+    "chrome-tls-transport",
+    "cache-freshness-doctor"
+  ]
+}

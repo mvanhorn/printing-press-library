@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/pinecone-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260813-214420-550eb813",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

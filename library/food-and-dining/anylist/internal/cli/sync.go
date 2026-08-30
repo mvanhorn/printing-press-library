@@ -14,6 +14,8 @@ import (
 
 func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var quietFlag bool
+	var resourcesFlag string
+	var fullFlag bool
 
 	cmd := &cobra.Command{
 		Use:   "sync",
@@ -25,6 +27,7 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return configErr(err)
 			}
+			cfg.DatabasePath = flags.databasePath
 
 			if err := anylist.EnsureClientIdentifier(cfg); err != nil {
 				return fmt.Errorf("ensuring client identifier: %w", err)
@@ -88,6 +91,8 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.Flags().BoolVar(&quietFlag, "quiet", false, "Suppress output")
+	cmd.Flags().StringVar(&resourcesFlag, "resources", "", "Optional resource hint; AnyList sync returns the complete user-data envelope")
+	cmd.Flags().BoolVar(&fullFlag, "full", false, "Request a complete cache refresh (the default for AnyList)")
 
 	cmd.AddCommand(newSyncStatusCmd(flags))
 
@@ -98,13 +103,15 @@ func newSyncStatusCmd(flags *rootFlags) *cobra.Command {
 	var staleAfter time.Duration
 
 	cmd := &cobra.Command{
-		Use:   "status",
-		Short: "Show local cache freshness and exit 1 if stale",
+		Use:     "status",
+		Short:   "Show local cache freshness and exit 1 if stale",
+		Example: "  anylist-pp-cli sync status --json",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
 			}
+			cfg.DatabasePath = flags.databasePath
 
 			st, err := store.Open(cfg)
 			if err != nil {

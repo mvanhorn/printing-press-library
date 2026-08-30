@@ -1,0 +1,123 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-27T01:30:52.064407985Z",
+  "printing_press_version": "4.31.1",
+  "api_name": "redmine",
+  "display_name": "Redmine",
+  "cli_name": "redmine-pp-cli",
+  "contributors": [
+    {
+      "handle": "yosimasu",
+      "name": "Masu Lin"
+    }
+  ],
+  "printer": "yosimasu",
+  "printer_name": "Masu Lin",
+  "spec_path": "spec.yaml",
+  "spec_format": "openapi3",
+  "spec_source": "community",
+  "spec_checksum": "sha256:ec753de002e94f868e8b5e632e263629189dcd02140242296db4ecb8dfb7bfc2",
+  "run_id": "20260826-150701-249752e9",
+  "category": "project-management",
+  "description": "Every Redmine feature, plus a local mirror that finally answers the cross-project questions the Roadmap page never could.",
+  "mcp_binary": "redmine-pp-mcp",
+  "mcp_tool_count": 93,
+  "mcp_ready": "full",
+  "api_version": "6.1.3-r1",
+  "auth_type": "api_key",
+  "auth_preference": "ApiKey",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "endpoint_template_vars": [
+    "project_id"
+  ],
+  "novel_features": [
+    {
+      "name": "Roadmap Burndown",
+      "command": "roadmap burndown",
+      "description": "See open/closed issue counts, average completion, and logged-vs-estimated hours for a release version — the Roadmap page Redmine never exposed as an API."
+    },
+    {
+      "name": "Assignee Workload Report",
+      "command": "workload",
+      "description": "See every assignee's open-issue count and estimated hours in one aggregate view, with a flag for anyone over threshold."
+    },
+    {
+      "name": "Stale Issue Detection",
+      "command": "issues stale",
+      "description": "Find open issues nobody has touched in N days — Redmine has no built-in staleness concept."
+    },
+    {
+      "name": "Since-Last-Sync Digest",
+      "command": "digest",
+      "description": "A personal activity report of what was created, updated, or closed in a time window, optionally scoped to issues assigned to or watched by you."
+    },
+    {
+      "name": "Cycle-Time by Tracker",
+      "command": "issues cycle-time",
+      "description": "Average days from creation to close, grouped by tracker or project — real duration math the API can't do."
+    },
+    {
+      "name": "Transitive Blocker Chain",
+      "command": "issues blockers",
+      "description": "Walk the full multi-hop 'blocks'/'blocked by' dependency chain for an issue, not just its direct relations."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Roadmap Burndown",
+      "command": "roadmap burndown",
+      "description": "See open/closed issue counts, average completion, and logged-vs-estimated hours for a release version — the Roadmap page Redmine never exposed as an API."
+    },
+    {
+      "name": "Assignee Workload Report",
+      "command": "workload",
+      "description": "See every assignee's open-issue count and estimated hours in one aggregate view, with a flag for anyone over threshold."
+    },
+    {
+      "name": "Stale Issue Detection",
+      "command": "issues stale",
+      "description": "Find open issues nobody has touched in N days — Redmine has no built-in staleness concept."
+    },
+    {
+      "name": "Since-Last-Sync Digest",
+      "command": "digest",
+      "description": "A personal activity report of what was created, updated, or closed in a time window, optionally scoped to issues assigned to or watched by you."
+    },
+    {
+      "name": "Cycle-Time by Tracker",
+      "command": "issues cycle-time",
+      "description": "Average days from creation to close, grouped by tracker or project — real duration math the API can't do."
+    },
+    {
+      "name": "Transitive Blocker Chain",
+      "command": "issues blockers",
+      "description": "Walk the full multi-hop 'blocks'/'blocked by' dependency chain for an issue, not just its direct relations."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 98.51851851851852,
+    "passed": 133,
+    "total": 135,
+    "failed": 2,
+    "data_pipeline": true,
+    "verdict": "WARN"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 98,
+      "grade": "A",
+      "total": 98
+    }
+  }
+}

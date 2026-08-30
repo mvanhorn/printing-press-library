@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "sync-alias-substitution-note",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "sync's RunE (internal/cli/sync.go) emits an explicit {\"event\":\"sync_note\",\"reason\":\"resource_alias_substituted\",\"from\":\"strength\",\"to\":\"workout_details\"} (or a human-friendly stderr line under --agent/human mode) whenever the caller's --resources list names \"strength\", checked before normalizeSyncResourceAliases resolves/dedupes it. Any future regen touching resource-alias normalization must keep this note paired with the substitution so a caller never sees sync report results under a resource name they didn't ask for with no explanation.",
+  "reason": "NEW ISSUE D from a second live post-fix verification sweep: `sync --resources strength --dry-run` silently reported sync_start/sync_complete events under \"workout_details\" with no indication \"strength\" was substituted, and `sync --resources workout_details,strength` reported resources:1 with no hint the two collapsed into one. The alias itself (introduced this session, workout-details-dependent-sync.json) was correct; only the caller-visible substitution signal was missing.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/sync_performance_test.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. New test TestSyncCommandNotesStrengthAliasSubstitution drives the real `sync` command end-to-end and confirms the sync_note event fires with the correct from/to fields."
+}

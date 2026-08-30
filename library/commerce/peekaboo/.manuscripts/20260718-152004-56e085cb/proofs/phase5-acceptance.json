@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "peekaboo",
+  "run_id": "20260718-152004-56e085cb",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 106,
+  "tests_passed": 106,
+  "tests_skipped": 60,
+  "auth_context": {
+    "type": "bearer_token"
+  }
+}

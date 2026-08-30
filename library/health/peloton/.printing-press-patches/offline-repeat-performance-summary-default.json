@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "offline-repeat-performance-summary-default",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "offline_repeat's per-workout performance data (repeatFact in internal/cli/offline.go) defaults to a compact view -- performanceSummaryFields (summaries, average_summaries, duration, effort_zones, splits_data, splits_metrics, summary_available) copied verbatim, plus \"metrics\" with each entry's aggregate fields (average_value/max_value/zones[] durations) kept and only its per-second \"values\" array (stripMetricSampleValues) removed -- rather than the complete raw performance record. A new --full bool flag on offline_repeat opts into the complete record, values arrays included. Any future change to the performance payload shape must preserve this split: per-metric aggregates are cheap and are often the ONLY comparison signal for workouts with thin summaries/average_summaries (non-power activities like stretches or yoga), so they must never be dropped wholesale the way a first version of this fix did -- only true per-second sample data (metrics[].values, location_data, seconds_since_pedaling_start) should be excluded by default.",
+  "reason": "A round-7 live verification report flagged that offline_repeat's full per-workout performance record (added in offline-repeat-includes-performance.json) risks exceeding the ~60KB MCP result budget for realistic long rides, since the raw record's per-second sample arrays can run into the megabytes. The first fix (performanceSummaryFields excluding \"metrics\" entirely) shipped, but a round-8 report found it over-trimmed: on a real workout pair it left only a single comparable number (calories), while --full showed metrics[] aggregates (heart_rate average/max, per-zone durations) that were the actual signal for that comparison. Verified live: a metrics[] entry mixes small aggregate fields with one large \"values\" array (300 points for a 5-minute segment); stripping only \"values\" keeps the size win (default output stayed at 4,901 bytes on the same real pair, vs. 29,173 with --full) while restoring the comparison.",
+  "files": [
+    "internal/cli/offline.go",
+    "internal/cli/offline_test.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. TestOfflineRepeatDefaultsToPerformanceSummaryUnlessFull covers default vs --full, and now asserts metric aggregate fields (e.g. average_value) survive by default while the values array does not. Live-verified against the real account with the same workout pair from round 7: default output now includes a metrics entry with average_value/max_value/zones[] durations intact and no values array, at 4,901 bytes; --full still returns the complete record including values, at 29,173 bytes."
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "id": "retraction-checker-rate-limit-and-crossref-rows",
+  "applied_at": "2026-07-03",
+  "base_run_id": "20260702-090842-5bac53b7",
+  "base_printing_press_version": "4.25.0",
+  "summary": "fix(retraction-checker): Crossref sync param limit->rows; wire --rate-limit into OpenAlex; exempt free-text watch from error-path probe; document --rate-limit for OpenAlex load-shedding",
+  "reason": "Post-print hand fixes surfaced by Phase 5 live dogfood and a --rate-limit feature request. (1) The generated sync paginator sent Crossref /works?limit=..., but Crossref has no 'limit' parameter and rejected every sync with HTTP 400 (unknown-parameter: limit); its page-size parameter is 'rows'. (2) The --rate-limit flag paced only the generated Crossref client; the hand-authored OpenAlex leg in superseded (fetchOpenAlexRelated) used an unthrottled http.Client, so batched runs could not be throttled below OpenAlex's anonymous limit. (3) The dogfood error-path probe expected watch <topic> to reject a nonsense arg, but watch's arg is a free-text search topic (any string is valid, returns an empty baseline), so it needs the pp:no-error-path-probe exemption. (4) README lacked --rate-limit docs explaining why the 0 default matters and how to avoid OpenAlex 503 load-shedding on scan/superseded batches.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/retraction.go",
+    "internal/cli/superseded.go",
+    "internal/cli/watch.go",
+    "README.md"
+  ],
+  "validated_outcome": "go build/vet clean; live sync now completes (sync_complete, exit 0) against real Crossref; Phase 5 full dogfood PASS 46/46 (phase5-acceptance.json status=pass); scan --help shows --rate-limit; --rate-limit 0.15 recommended for batched OpenAlex runs.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Generator pagination profiling should emit Crossref's 'rows' page-size parameter (not the generic 'limit') for the Crossref /works list endpoint.",
+      "reason": "The generic paginationDefaults assumed a 'limit' param; Crossref rejects it. A CLI-specific fix now; generator should learn the Crossref convention."
+    },
+    {
+      "feature": "Hand-authored secondary-source HTTP legs (e.g. OpenAlex in superseded) should share the generated client's AdaptiveLimiter so --rate-limit applies uniformly without per-command wiring.",
+      "reason": "Novel-feature files currently build their own http.Client and bypass the rate limiter; the machine could thread the limiter into novel-feature scaffolding."
+    },
+    {
+      "feature": "Dogfood error-path probe should auto-apply pp:no-error-path-probe (or skip) for commands whose sole positional arg is a free-text search query rather than an identifier.",
+      "reason": "The generic invalid-argument probe false-positives on free-text search commands, producing a FAIL gate on an otherwise-correct CLI until a human annotates each one."
+    }
+  ]
+}

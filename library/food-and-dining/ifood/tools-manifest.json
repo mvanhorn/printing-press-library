@@ -1,0 +1,251 @@
+{
+  "api_name": "ifood",
+  "base_url": "https://www.ifood.com.br/site-api",
+  "description": "Agent-ready iFood grocery quoting with browser-owned authentication and confirmation-gated cart planning.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "orchestration": "endpoint-mirror"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "IFOOD_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "IFOOD_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "bm_list-market-home",
+      "description": "List grocery-market home sections for a delivery location. Required: latitude, longitude, supported-actions, supported-cards, supported-headers. Optional: channel (default: IFOOD), size (default: 20), alias (default: HOME_GROCERIES_V3) (plus 2 more). Returns array of BmListMarketHomeItem.",
+      "method": "POST",
+      "path": "/v2/bm/home",
+      "params": [
+        {
+          "name": "latitude",
+          "type": "float",
+          "location": "query",
+          "description": "Latitude",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "float",
+          "location": "query",
+          "description": "Longitude",
+          "required": true
+        },
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Channel"
+        },
+        {
+          "name": "size",
+          "type": "int",
+          "location": "query",
+          "description": "Size"
+        },
+        {
+          "name": "alias",
+          "type": "string",
+          "location": "query",
+          "description": "Alias"
+        },
+        {
+          "name": "faster-overrides",
+          "type": "string",
+          "location": "body",
+          "description": "Faster overrides"
+        },
+        {
+          "name": "feed-feature-name",
+          "type": "string",
+          "location": "body",
+          "description": "Feed feature name"
+        },
+        {
+          "name": "supported-actions",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Supported actions",
+          "required": true
+        },
+        {
+          "name": "supported-cards",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Supported cards",
+          "required": true
+        },
+        {
+          "name": "supported-headers",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Supported headers",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ifood-web-read-search_merchant-catalog-items",
+      "description": "Search product items inside one grocery merchant. Required: merchant_id, latitude, longitude, term. Optional: channel (default: IFOOD), size (default: 100), page (default: 0) (plus 1 more). Returns the ProductSearchResponse.",
+      "method": "GET",
+      "path": "/v2/search/merchants/{merchant_id}/catalog-items",
+      "params": [
+        {
+          "name": "merchant_id",
+          "type": "string",
+          "location": "path",
+          "description": "Merchant id",
+          "required": true
+        },
+        {
+          "name": "latitude",
+          "type": "float",
+          "location": "query",
+          "description": "Latitude",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "float",
+          "location": "query",
+          "description": "Longitude",
+          "required": true
+        },
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Channel"
+        },
+        {
+          "name": "term",
+          "type": "string",
+          "location": "query",
+          "description": "Term",
+          "required": true
+        },
+        {
+          "name": "size",
+          "type": "int",
+          "location": "query",
+          "description": "Size"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "item_from_merchant_ids",
+          "type": "string",
+          "location": "query",
+          "description": "Merchant UUID repeated for compatibility with the web client."
+        }
+      ]
+    },
+    {
+      "name": "merchants_get-catalog",
+      "description": "Get a grocery merchant catalog. Required: merchant_id. Optional: scheduling_time, category_items_size (default: 12). Returns the MerchantsGetCatalogResponse.",
+      "method": "GET",
+      "path": "/v1/merchants/multicategory/{merchant_id}/catalog",
+      "params": [
+        {
+          "name": "merchant_id",
+          "type": "string",
+          "location": "path",
+          "description": "Merchant id",
+          "required": true
+        },
+        {
+          "name": "scheduling_time",
+          "type": "int",
+          "location": "query",
+          "description": "Scheduling time"
+        },
+        {
+          "name": "category_items_size",
+          "type": "int",
+          "location": "query",
+          "description": "Category items size"
+        }
+      ]
+    },
+    {
+      "name": "merchants_promotions_list-merchant",
+      "description": "List promotions available for a merchant. Required: merchant_id, latitude, longitude. Optional: accessPoint (default: GROCERIES). Returns the PromotionsListMerchantResponse.",
+      "method": "GET",
+      "path": "/v1/merchants/{merchant_id}/promotions",
+      "params": [
+        {
+          "name": "merchant_id",
+          "type": "string",
+          "location": "path",
+          "description": "Merchant id",
+          "required": true
+        },
+        {
+          "name": "latitude",
+          "type": "float",
+          "location": "query",
+          "description": "Latitude",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "float",
+          "location": "query",
+          "description": "Longitude",
+          "required": true
+        },
+        {
+          "name": "accessPoint",
+          "type": "string",
+          "location": "query",
+          "description": "Access point"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Browser-safe workflow plan",
+      "command": "browser plan",
+      "description": "Emit the complete browser-owned quotation and cart workflow without exporting credentials."
+    },
+    {
+      "name": "Three-market quotation validator",
+      "command": "browser validate-quote",
+      "description": "Validate complete product observations from at least three markets meeting a configurable rating floor."
+    },
+    {
+      "name": "Confirmation-gated cart plan",
+      "command": "browser cart-plan",
+      "description": "Produce the exact selected merchant, products, quantities, and expected total before any cart interaction."
+    },
+    {
+      "name": "Cross-market grocery quote",
+      "command": "quote",
+      "description": "Compare requested grocery terms across eligible markets and return complete price estimates."
+    },
+    {
+      "name": "Preview-first cart builder",
+      "command": "cart build",
+      "description": "Resolve product terms into an exact read-only cart-item preview."
+    }
+  ]
+}

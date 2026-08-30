@@ -1,0 +1,62 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-27T16:47:27.80476Z",
+  "printing_press_version": "4.31.1",
+  "api_name": "mcpmarket",
+  "cli_name": "mcpmarket-pp-cli",
+  "contributors": [],
+  "printer": "SomSamantray",
+  "printer_name": "Som Samantray",
+  "run_id": "20260827-211137-37906ad0",
+  "category": "developer-tools",
+  "auth_env_vars": [],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Trending Delta",
+      "command": "trending",
+      "description": "See which MCP servers/skills are rising fastest vs. holding steady, computed from your own browse history."
+    },
+    {
+      "name": "Sync Diff",
+      "command": "diff",
+      "description": "See exactly which servers, clients, or skills were added, removed, or changed between two snapshots."
+    },
+    {
+      "name": "Author Portfolio",
+      "command": "author",
+      "description": "See everything one GitHub org has published across servers, skills, and clients in one view."
+    },
+    {
+      "name": "Time-Travel Leaderboard",
+      "command": "leaderboard",
+      "description": "See what the top-100 leaderboard looked like on a past date, not just right now."
+    },
+    {
+      "name": "Stack Recommendation",
+      "command": "stack",
+      "description": "Chain the similar-tools recommendation graph multiple hops to build a ranked shortlist around a server you already use."
+    },
+    {
+      "name": "Category Watch",
+      "command": "watch category",
+      "description": "Flag newly-appeared listings in a category since your last check."
+    },
+    {
+      "name": "Duplicate Detector",
+      "command": "dedupe",
+      "description": "Surface near-identical listings from different authors within a category."
+    }
+  ],
+  "creator": {
+    "handle": "SomSamantray",
+    "name": "Som Samantray"
+  }
+}

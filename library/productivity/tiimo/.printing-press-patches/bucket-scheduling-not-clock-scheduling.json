@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "bucket-scheduling-not-clock-scheduling",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260814-154828-17a1784d",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Native Tiimo activities are ordered inside time-of-day buckets and carry no clock time; only imported calendar events do.",
+  "reason": "Treating midnight-anchored bucket activities as real spans made every activity on a day collide with every other and made free-time arithmetic meaningless. Also means --at can only pick a bucket.",
+  "files": ["internal/cli/tiimo_local.go", "internal/cli/overlaps.go", "internal/cli/gaps.go", "internal/cli/tiimo_write.go"],
+  "validated_outcome": "overlaps went from 91 false pairs to 0 on a single day; 0 of 1190 mirrored activities carry a clock time."
+}

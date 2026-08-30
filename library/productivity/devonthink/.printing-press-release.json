@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "devonthink",
+  "cli_name": "devonthink-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-21T09:48:01Z",
+  "source_commit": "506626f1909597bea2c178964b306bfb696fffbe",
+  "printing_press_version": "4.27.0",
+  "run_id": "20260629T175310Z-b4705e85",
+  "changes": [
+    {
+      "title": "feat(devonthink): add devonthink",
+      "pr": 1778,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1778",
+      "commit": "506626f1909597bea2c178964b306bfb696fffbe"
+    }
+  ]
+}

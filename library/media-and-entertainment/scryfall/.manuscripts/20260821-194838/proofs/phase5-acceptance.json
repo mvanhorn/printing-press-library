@@ -1,0 +1,17 @@
+{
+  "run_id": "20260821-194838",
+  "cli": "scryfall-pp-cli",
+  "phase": "5-acceptance",
+  "created": "2026-08-21",
+  "checks": [
+    {"name": "go build ./...", "result": "PASS"},
+    {"name": "go vet ./...", "result": "PASS"},
+    {"name": "cli-printing-press verify --dir . --spec <spec>", "result": "PASS", "detail": "31/31, 0 critical; workflow leg 2/3 non-critical"},
+    {"name": "cli-printing-press dogfood --dir . --spec <spec>", "result": "PASS", "detail": "path validity 6/6, examples 10/10, MCP surface PASS"},
+    {"name": "cli-printing-press scorecard --dir . --spec <spec>", "result": "86/100 Grade A", "detail": "gap: mcp_description_quality 3/10 (generated defaults, non-blocking)"},
+    {"name": "cli-printing-press verify-skill --dir .", "result": "PASS", "detail": "flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command"},
+    {"name": "polish --remove-dead-code", "result": "SKIPPED", "detail": "dry-run found candidates but removal broke build (decodeWriteThroughNonEmptyArray still referenced); tool auto-reverted; dead-code score already 5/5 so no loss."},
+    {"name": "live API spot checks", "result": "PASS", "detail": "cards search c:red f:modern (4648 hits), get-named Sol Ring, post-collection batch of 2 with prices (Bolt $0.95 / Sol Ring $1.46), get-by-code-by-number neo 1, sets list, rulings by set code"}
+  ],
+  "verdict": "PASS"
+}

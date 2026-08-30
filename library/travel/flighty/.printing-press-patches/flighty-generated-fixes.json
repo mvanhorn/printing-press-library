@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-08-28",
+  "base_run_id": "20260827-213420-70c6dbaf",
+  "base_printing_press_version": "4.31.1",
+  "id": "flighty-generated-fixes",
+  "summary": "tv --status filter added, feedback Example added, three dead framework helpers removed, write-through resource scoping (airports-tv/airport_detail/flight), slug resolution before positional fetches.",
+  "reason": "Spec example drift (tv example promised --status), dogfood help-probe requires Examples, scorecard dead-code findings, and URL slug requirements (site needs {slug}-{iata} paths, not bare IATA).",
+  "files": [
+    "internal/cli/airports_tv.go",
+    "internal/cli/feedback.go",
+    "internal/cli/helpers.go",
+    "internal/cli/airports_list.go"
+  ],
+  "validated_outcome": "Dogfood matrix 0 failures; scorecard dead_code 5/5."
+}

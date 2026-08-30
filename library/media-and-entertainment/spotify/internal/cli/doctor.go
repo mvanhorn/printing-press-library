@@ -244,6 +244,27 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			// whether to trust the cached data before issuing queries.
 			report["cache"] = collectCacheReport(cmd.Context(), "")
 
+			// PATCH(amend-2026-08-08: surface endpoint-scoped quota blocks)
+			// — Spotify quota blocks are endpoint-class-scoped: the /me
+			// probes above can report "reachable" and "valid" while /search
+			// is blocked for hours. Surface persisted blocks so the doctor
+			// verdict matches what real commands will experience. Blocks are
+			// scoped to this config's client ID — quota is enforced per app.
+			if cfg != nil {
+				cliutil.SetQuotaIdentity(cfg.ClientID)
+			}
+			if blocks := cliutil.ActiveQuotaBlocks(); len(blocks) > 0 {
+				quota := make([]map[string]any, 0, len(blocks))
+				for _, b := range blocks {
+					quota = append(quota, map[string]any{
+						"class":         b.Class,
+						"blocked_until": b.BlockedUntil.UTC().Format(time.RFC3339),
+						"remaining":     time.Until(b.BlockedUntil).Round(time.Minute).String(),
+					})
+				}
+				report["quota_blocks"] = quota
+			}
+
 			// Verify mode state. Surfaced so an operator who unintentionally
 			// inherits PRINTING_PRESS_VERIFY=1 (parent shell, CI runner, container
 			// image) detects the foot-gun without inspecting a response body.
@@ -326,6 +347,16 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			}
 			if keyURL, ok := report["auth_key_url"]; ok {
 				fmt.Fprintf(w, "  Get a key at: %v\n", keyURL)
+			}
+			// Quota-block section: endpoint classes currently under a
+			// persisted quota block, with wall-clock reset times.
+			if blocksAny, ok := report["quota_blocks"]; ok {
+				if blocks, ok := blocksAny.([]map[string]any); ok && len(blocks) > 0 {
+					fmt.Fprintf(w, "  %s API quota: %d endpoint class(es) blocked:\n", yellow("WARN"), len(blocks))
+					for _, b := range blocks {
+						fmt.Fprintf(w, "    - /%v blocked until %v (%v remaining)\n", b["class"], b["blocked_until"], b["remaining"])
+					}
+				}
 			}
 			// Cache section: render after the primary health block so it
 			// sits next to version info, mirroring the JSON report layout.

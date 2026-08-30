@@ -1,0 +1,456 @@
+name: wanderlog
+category: travel
+description: "Wanderlog public guides, places, shared itineraries, and optional cookie-backed trip access"
+version: "0.1.0"
+base_url: "https://wanderlog.com"
+http_transport: standard
+health_check_path: "/"
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (compatible; wanderlog-pp-cli/0.1; +https://wanderlog.com)"
+  - name: Accept-Language
+    value: "en"
+
+auth:
+  type: api_key
+  header: Cookie
+  format: "{token}"
+  env_vars:
+    - WANDERLOG_COOKIE
+
+config:
+  format: toml
+  path: "~/.config/wanderlog-pp-cli/config.toml"
+
+resources:
+  session:
+    description: "Read anonymous Wanderlog session preferences"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/sessionStore"
+        no_auth: true
+        description: "Get current anonymous session preferences"
+        response:
+          type: object
+          item: SessionStoreResponse
+        response_format: json
+
+  geos:
+    description: "Search Wanderlog destinations and guide-rich geos"
+    endpoints:
+      autocomplete:
+        method: GET
+        path: "/api/geo/autocomplete/{query}"
+        no_auth: true
+        description: "Search destinations by name"
+        params:
+          - name: query
+            type: string
+            required: true
+            positional: true
+            description: "Destination search text, for example Paris"
+        response:
+          type: array
+          item: Geo
+        response_path: data
+        response_format: json
+      good_guides:
+        method: GET
+        path: "/api/geo/geosWithGoodGuides"
+        no_auth: true
+        description: "List destinations known to have good public guides"
+        response:
+          type: object
+          item: GenericObject
+        response_format: json
+
+  guides:
+    description: "Browse and inspect public Wanderlog guides"
+    endpoints:
+      list_for_geo:
+        method: GET
+        path: "/api/tripPlans/browse/guides/{geo_id}"
+        no_auth: true
+        description: "List public guides for a destination geo id"
+        params:
+          - name: geo_id
+            type: string
+            required: true
+            positional: true
+            description: "Wanderlog geo id"
+        response:
+          type: object
+          item: GenericObject
+        response_format: json
+      get:
+        method: GET
+        path: "/api/tripPlans/{view_key}"
+        no_auth: true
+        description: "Get a public guide or shared trip by view key"
+        params:
+          - name: view_key
+            type: string
+            required: true
+            positional: true
+            description: "Public guide or shared trip key"
+          - name: clientSchemaVersion
+            flag_name: client-schema-version
+            type: int
+            required: false
+            default: 2
+            description: "Wanderlog client schema version"
+        response:
+          type: object
+          item: TripPlanResponse
+        response_format: json
+      comments:
+        method: GET
+        path: "/api/tripPlans/{trip_key}/comments"
+        no_auth: true
+        description: "List comments for a public trip or guide key"
+        params:
+          - name: trip_key
+            type: string
+            required: true
+            positional: true
+            description: "Trip or guide key"
+        response:
+          type: object
+          item: GenericObject
+        response_format: json
+      distinction:
+        method: GET
+        path: "/api/tripPlans/{trip_key}/distinction"
+        no_auth: true
+        description: "Get distinction metadata for a public trip or guide key"
+        params:
+          - name: trip_key
+            type: string
+            required: true
+            positional: true
+            description: "Trip or guide key"
+        response:
+          type: object
+          item: GenericObject
+        response_format: json
+
+  places:
+    description: "Search places and retrieve Wanderlog place card details"
+    endpoints:
+      autocomplete:
+        method: GET
+        path: "/api/placesAPI/autocomplete/v2"
+        no_auth: true
+        description: "Search places with Wanderlog's Places API autocomplete request envelope"
+        params:
+          - name: request
+            type: string
+            required: true
+            description: "JSON request envelope with input, sessiontoken, optional location, radius, and language"
+        response:
+          type: object
+          item: GenericObject
+        response_format: json
+      details:
+        method: GET
+        path: "/api/placesAPI/getPlaceDetails/v2"
+        no_auth: true
+        description: "Get details for a Google/Wanderlog place id"
+        params:
+          - name: placeId
+            flag_name: place-id
+            type: string
+            required: true
+            description: "Place id"
+          - name: language
+            type: string
+            required: false
+            default: en
+            description: "Language code"
+        response:
+          type: object
+          item: PlaceDetailsResponse
+        response_format: json
+      card:
+        method: GET
+        path: "/api/placesAPI/getPlaceDetailsAndCardData"
+        no_auth: true
+        description: "Get rich place details and card data"
+        params:
+          - name: placeId
+            flag_name: place-id
+            type: string
+            required: true
+            description: "Place id"
+          - name: language
+            type: string
+            required: false
+            default: en
+            description: "Language code"
+        response:
+          type: object
+          item: PlaceDetailsResponse
+        response_format: json
+
+  place_lists:
+    description: "Read destination category and list pages"
+    endpoints:
+      geo_category:
+        method: GET
+        path: "/api/placesList/geoCategory/{geo_category_id}"
+        no_auth: true
+        description: "Get places in a destination category list"
+        params:
+          - name: geo_category_id
+            type: string
+            required: true
+            positional: true
+            description: "Geo category id"
+          - name: includeRelatedPagesData
+            flag_name: include-related-pages-data
+            type: bool
+            required: false
+            default: true
+            description: "Include related page data"
+        response:
+          type: object
+          item: GenericObject
+        response_format: json
+
+  pages:
+    description: "Extract useful HTML fallback pages"
+    endpoints:
+      explore:
+        method: GET
+        path: "/explore/{geo_id}/{slug}"
+        no_auth: true
+        description: "Fetch a destination explore page"
+        params:
+          - name: geo_id
+            type: string
+            required: true
+            positional: true
+            description: "Wanderlog geo id"
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Destination slug"
+        response_format: html
+        html_extract:
+          mode: page
+      shared_view:
+        method: GET
+        path: "/view/{view_key}/{slug}/shared"
+        no_auth: true
+        description: "Fetch a public shared itinerary page"
+        params:
+          - name: view_key
+            type: string
+            required: true
+            positional: true
+            description: "Public shared view key"
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Shared view slug"
+        response_format: html
+        html_extract:
+          mode: page
+      geo_category_page:
+        method: GET
+        path: "/list/geoCategory/{geo_category_id}/{slug}"
+        no_auth: true
+        description: "Fetch a public geo category list page"
+        params:
+          - name: geo_category_id
+            type: string
+            required: true
+            positional: true
+            description: "Geo category id"
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "List page slug"
+        response_format: html
+        html_extract:
+          mode: page
+
+  account:
+    description: "Read cookie-backed account metadata"
+    endpoints:
+      me:
+        method: GET
+        path: "/api/user"
+        description: "Get the current Wanderlog account for WANDERLOG_COOKIE"
+        response:
+          type: object
+          item: GenericObject
+        response_format: json
+
+  trips:
+    description: "Read and manage cookie-backed Wanderlog trips"
+    endpoints:
+      home:
+        method: GET
+        path: "/api/tripPlans/home"
+        description: "List home trips for the authenticated Wanderlog account"
+        response:
+          type: object
+          item: GenericObject
+        response_format: json
+      get:
+        method: GET
+        path: "/api/tripPlans/{trip_key}"
+        description: "Get an authenticated trip with resources"
+        params:
+          - name: trip_key
+            type: string
+            required: true
+            positional: true
+            description: "Trip key"
+          - name: clientSchemaVersion
+            flag_name: client-schema-version
+            type: int
+            required: false
+            default: 2
+            description: "Wanderlog client schema version"
+          - name: registerView
+            flag_name: register-view
+            type: bool
+            required: false
+            default: true
+            description: "Register a view while fetching"
+        response:
+          type: object
+          item: TripPlanResponse
+        response_format: json
+      create:
+        method: POST
+        path: "/api/tripPlans"
+        description: "Create a Wanderlog trip for the authenticated account"
+        body:
+          - name: geoIds
+            flag_name: geo-ids
+            type: string
+            required: true
+            description: "JSON array of Wanderlog geo ids"
+          - name: title
+            type: string
+            required: false
+            description: "Trip title"
+          - name: startDate
+            flag_name: start-date
+            type: string
+            required: false
+            description: "Trip start date"
+          - name: endDate
+            flag_name: end-date
+            type: string
+            required: false
+            description: "Trip end date"
+          - name: privacy
+            type: string
+            required: false
+            default: private
+            description: "Trip privacy"
+          - name: type
+            type: string
+            required: false
+            default: plan
+            description: "Trip type"
+          - name: language
+            type: string
+            required: false
+            default: en
+            description: "Trip language"
+          - name: initialMapsPlaceIds
+            flag_name: initial-maps-place-ids
+            type: string
+            required: false
+            default: "[]"
+            description: "JSON array of initial map place ids"
+          - name: initialEmailId
+            flag_name: initial-email-id
+            type: string
+            required: false
+            description: "Initial email id"
+          - name: isMapEmbed
+            flag_name: is-map-embed
+            type: bool
+            required: false
+            default: false
+            description: "Whether the trip is for a map embed"
+        response:
+          type: object
+          item: GenericObject
+        response_format: json
+      delete:
+        method: DELETE
+        path: "/api/tripPlans/{trip_key}"
+        description: "Delete an authenticated Wanderlog trip"
+        params:
+          - name: trip_key
+            type: string
+            required: true
+            positional: true
+            description: "Trip key"
+        response:
+          type: object
+          item: GenericObject
+        response_format: json
+
+extra_commands:
+  - name: plan clone
+    description: Clone a public or shared Wanderlog plan into a new cookie-backed trip
+  - name: plan fill
+    description: Fill an existing cookie-backed trip from a public or shared Wanderlog plan template
+  - name: plan preview
+    description: Preview what would be copied from a public or shared Wanderlog plan
+
+types:
+  GenericObject:
+    fields:
+      - name: success
+        type: bool
+      - name: data
+        type: object
+  SessionStoreResponse:
+    fields:
+      - name: success
+        type: bool
+      - name: data
+        type: object
+  Geo:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: fullName
+        type: string
+      - name: slug
+        type: string
+      - name: latitude
+        type: float
+      - name: longitude
+        type: float
+  TripPlanResponse:
+    fields:
+      - name: success
+        type: bool
+      - name: tripPlan
+        type: object
+      - name: resources
+        type: object
+      - name: error
+        type: object
+  PlaceDetailsResponse:
+    fields:
+      - name: success
+        type: bool
+      - name: data
+        type: object

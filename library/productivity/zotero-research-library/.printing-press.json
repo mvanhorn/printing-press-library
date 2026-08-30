@@ -1,0 +1,79 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-06T18:02:57.858975Z",
+  "printing_press_version": "4.30.1",
+  "api_name": "zotero-research-library",
+  "display_name": "Zotero",
+  "cli_name": "zotero-research-library-pp-cli",
+  "creator": {
+    "handle": "erash11",
+    "name": "Eric Rash"
+  },
+  "owner": "erash11",
+  "printer": "erash11",
+  "printer_name": "Eric Rash",
+  "spec_path": "zotero-research-library-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "internal-yaml: authored from Zotero Web API v3 official documentation (api.zotero.org, API version 3) and pyzotero wire behavior; endpoints verified against live library userID 13524464",
+  "spec_checksum": "sha256:42a193a7367b1674d67b971ef5d3606fe77682a8d010f2885b46e2bebf6ad7e2",
+  "run_id": "20260806-100315-0ed5c3e3",
+  "category": "productivity",
+  "description": "Your entire Zotero research library, searchable offline \u2014 version-based incremental sync into SQLite with full-text search no other Zotero tool has.",
+  "mcp_binary": "zotero-research-library-pp-mcp",
+  "mcp_tool_count": 17,
+  "mcp_ready": "full",
+  "api_version": "0.2.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Offline research-grounding search",
+      "command": "ground",
+      "description": "Ranked full-text search over your synced library \u2014 title, abstract, creators, tags, and attachment full text \u2014 answered offline in under a second, with snippets and citation-ready metadata."
+    },
+    {
+      "name": "Recently-added triage",
+      "command": "items recent",
+      "description": "What landed in the library recently, sorted by dateAdded from the local cache, with a --days cutoff and pipeable keys."
+    },
+    {
+      "name": "Citekey bridge",
+      "command": "cite",
+      "description": "Resolves a Better BibTeX citekey to its item from the local cache and exports citekey-faithful BibTeX; sync backfills citekeys via the desktop's local JSON-RPC when available."
+    },
+    {
+      "name": "Cached collection tree",
+      "command": "collections tree",
+      "description": "Renders the full collection hierarchy with per-node item counts in one command \u2014 a shape the flat API cannot return in one call."
+    },
+    {
+      "name": "Cache health and offline reindex",
+      "command": "cache status",
+      "description": "Sync cursors, row and FTS counts, and last-sync age from the local cache; 'cache reindex' rebuilds the FTS index from base tables with zero network."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 100,
+    "passed": 47,
+    "total": 47,
+    "verdict": "FAIL"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 91,
+      "grade": "A",
+      "total": 91
+    }
+  }
+}

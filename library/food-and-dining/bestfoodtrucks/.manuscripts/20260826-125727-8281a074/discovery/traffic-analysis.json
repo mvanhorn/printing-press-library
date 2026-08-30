@@ -1,0 +1,3024 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://www.bestfoodtrucks.com/lots/playa-district",
+    "entry_count": 196,
+    "api_entry_count": 25,
+    "noise_entry_count": 171,
+    "host_distribution": {
+      "ad.doubleclick.net": 2,
+      "analytics.google.com": 3,
+      "api.bestfoodtrucks.com": 16,
+      "aplo-evnt.com": 4,
+      "assets.apollo.io": 2,
+      "bat.bing.com": 19,
+      "bestfoodtrucks.mo.cloudinary.net": 12,
+      "cdn.bestfoodtrucks.com": 78,
+      "connect.facebook.net": 4,
+      "d-code.liadm.com": 1,
+      "data": 4,
+      "googleads.g.doubleclick.net": 2,
+      "i.liadm.com": 1,
+      "idx.liadm.com": 1,
+      "o4510663507771392.ingest.us.sentry.io": 4,
+      "px.ads.linkedin.com": 10,
+      "rp.liadm.com": 1,
+      "snap.licdn.com": 4,
+      "stats.g.doubleclick.net": 1,
+      "www.bestfoodtrucks.com": 6,
+      "www.google.com": 6,
+      "www.googletagmanager.com": 4,
+      "www.linkedin.com": 1
+    },
+    "http_version_distribution": {
+      "h2": 58,
+      "h3": 120,
+      "http/1.1": 18
+    },
+    "time_start": "2026-08-26T20:08:27.439960064Z",
+    "time_end": "2026-08-26T20:12:12.865349888Z"
+  },
+  "secondary_hosts": [
+    {
+      "host": "analytics.google.com",
+      "count": 3,
+      "reason": "telemetry host"
+    },
+    {
+      "host": "aplo-evnt.com",
+      "count": 4,
+      "reason": "non-primary host"
+    },
+    {
+      "host": "o4510663507771392.ingest.us.sentry.io",
+      "count": 4,
+      "reason": "telemetry host"
+    },
+    {
+      "host": "px.ads.linkedin.com",
+      "count": 2,
+      "reason": "non-primary host"
+    },
+    {
+      "host": "rp.liadm.com",
+      "count": 1,
+      "reason": "non-primary host"
+    },
+    {
+      "host": "www.bestfoodtrucks.com",
+      "count": 3,
+      "reason": "non-primary host"
+    }
+  ],
+  "reachability": {
+    "mode": "browser_http",
+    "confidence": 0.78,
+    "reasons": [
+      "bot-protection signals observed; use browser-like HTTP transport"
+    ],
+    "evidence": [
+      {
+        "entry_index": 1,
+        "method": "GET",
+        "host": "cdn.bestfoodtrucks.com",
+        "path": "/_next/static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+        "status": 200,
+        "content_type": "font/woff2",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 2,
+        "method": "GET",
+        "host": "cdn.bestfoodtrucks.com",
+        "path": "/_next/static/media/ce62453a442c7f35-s.p.0333ktddfbsxy.woff2",
+        "status": 200,
+        "content_type": "font/woff2",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 3,
+        "method": "GET",
+        "host": "cdn.bestfoodtrucks.com",
+        "path": "/_next/static/media/f7aa21714c1c53f8-s.p.0bhxxck2.9j91.woff2",
+        "status": 200,
+        "content_type": "font/woff2",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 4,
+        "method": "GET",
+        "host": "cdn.bestfoodtrucks.com",
+        "path": "/_next/static/media/8a4bb24664ac8500-s.p.0yjesinu1g_v..woff2",
+        "status": 200,
+        "content_type": "font/woff2",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 5,
+        "method": "GET",
+        "host": "cdn.bestfoodtrucks.com",
+        "path": "/_next/static/media/BlockBertholdBQ_Regular-s.p.0vvoghf0ma3nj.otf",
+        "status": 200,
+        "content_type": "font/otf",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 6,
+        "method": "GET",
+        "host": "cdn.bestfoodtrucks.com",
+        "path": "/_next/static/chunks/1110thsjvew67.css",
+        "status": 200,
+        "content_type": "text/css",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 7,
+        "method": "GET",
+        "host": "cdn.bestfoodtrucks.com",
+        "path": "/_next/static/chunks/0sjm0j0w1sf6q.css",
+        "status": 200,
+        "content_type": "text/css",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 8,
+        "method": "GET",
+        "host": "cdn.bestfoodtrucks.com",
+        "path": "/_next/static/chunks/13g6vy-y.i7jl.js",
+        "status": 200,
+        "content_type": "application/javascript",
+        "reason": "Cloudflare header or challenge marker"
+      }
+    ]
+  },
+  "protocols": [
+    {
+      "label": "graphql",
+      "confidence": 0.92,
+      "evidence": [
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 53,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 54,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 55,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 56,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 57,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 71,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 167,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 168,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 169,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 170,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 194,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "graphql path or operation body"
+        }
+      ],
+      "details": {
+        "operation_name": "CheckoutMobileQuery"
+      }
+    },
+    {
+      "label": "graphql_persisted_query",
+      "confidence": 0.9,
+      "evidence": [
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "GraphQL persisted-query hash"
+        },
+        {
+          "entry_index": 53,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "GraphQL persisted-query hash"
+        },
+        {
+          "entry_index": 54,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "GraphQL persisted-query hash"
+        },
+        {
+          "entry_index": 71,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "GraphQL persisted-query hash"
+        },
+        {
+          "entry_index": 167,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "GraphQL persisted-query hash"
+        },
+        {
+          "entry_index": 168,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "GraphQL persisted-query hash"
+        },
+        {
+          "entry_index": 169,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "GraphQL persisted-query hash"
+        },
+        {
+          "entry_index": 170,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "GraphQL persisted-query hash"
+        }
+      ],
+      "details": {
+        "hash": "91da53aaa1a7824954478c4db67d1f7c7b189dc8f70b2f982ea914a37755e12f",
+        "operation_name": "CheckoutMobileQuery"
+      }
+    },
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 45,
+          "method": "POST",
+          "host": "o4510663507771392.ingest.us.sentry.io",
+          "path": "/api/4510794393255936/envelope/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 47,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/track-referrer.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 58,
+          "method": "GET",
+          "host": "www.bestfoodtrucks.com",
+          "path": "/_next/data/-dh7Qe2PYMUxWzoOQbyo3/shifts/179609-playa-district-on-2026-08-26.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 74,
+          "method": "GET",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/can_track_visitor",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 75,
+          "method": "GET",
+          "host": "px.ads.linkedin.com",
+          "path": "/attribution_trigger",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 91,
+          "method": "POST",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/track_request",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 99,
+          "method": "GET",
+          "host": "rp.liadm.com",
+          "path": "/j",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 101,
+          "method": "GET",
+          "host": "www.bestfoodtrucks.com",
+          "path": "/_next/data/-dh7Qe2PYMUxWzoOQbyo3/lots/playa-district/schedule.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 107,
+          "method": "HEAD",
+          "host": "www.bestfoodtrucks.com",
+          "path": "/_next/data/-dh7Qe2PYMUxWzoOQbyo3/lots/playa-district/schedule.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 108,
+          "method": "POST",
+          "host": "o4510663507771392.ingest.us.sentry.io",
+          "path": "/api/4510794393255936/envelope/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 109,
+          "method": "POST",
+          "host": "o4510663507771392.ingest.us.sentry.io",
+          "path": "/api/4510794393255936/envelope/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 114,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/track-referrer.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 160,
+          "method": "POST",
+          "host": "o4510663507771392.ingest.us.sentry.io",
+          "path": "/api/4510794393255936/envelope/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 162,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/track-referrer.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 185,
+          "method": "POST",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/track_request",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 186,
+          "method": "GET",
+          "host": "px.ads.linkedin.com",
+          "path": "/attribution_trigger",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    }
+  ],
+  "auth": {},
+  "protections": [
+    {
+      "label": "cloudflare",
+      "confidence": 0.9,
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/media/ce62453a442c7f35-s.p.0333ktddfbsxy.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/media/f7aa21714c1c53f8-s.p.0bhxxck2.9j91.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/media/8a4bb24664ac8500-s.p.0yjesinu1g_v..woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/media/BlockBertholdBQ_Regular-s.p.0vvoghf0ma3nj.otf",
+          "status": 200,
+          "content_type": "font/otf",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/1110thsjvew67.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0sjm0j0w1sf6q.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/13g6vy-y.i7jl.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0xkxujjt6a9bc.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/037u~e35p5b1..js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0drwfbaqa1tg5.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/13~9~niwulws9.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 13,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/02vdv_r48d.5~.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 14,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/12vy9xubqkud_.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 15,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/13ru15.jyi~9y.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 16,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/turbopack-0qwji9uv~_z54.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 17,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0az~27epfv~a9.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 18,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0si.i.991h2_m.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 19,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0aysmn5tx77nz.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 20,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/10q9qh7et-l2o.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 21,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0e_iu20578get.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 22,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/06qctefp39d~o.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 23,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0ro62g4z3omoz.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 24,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0cdin39ngeh4r.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 25,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/153zone~8grrj.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 26,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0mdsgh~twh82y.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 27,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0azyps5~f-mhb.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 28,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/turbopack-010xomdxe6~82.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 29,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/-dh7Qe2PYMUxWzoOQbyo3/_buildManifest.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 30,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/-dh7Qe2PYMUxWzoOQbyo3/_ssgManifest.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 31,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/-dh7Qe2PYMUxWzoOQbyo3/_clientMiddlewareManifest.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 47,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/track-referrer.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 53,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 54,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 55,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 56,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 57,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 60,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/track-referrer.json",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 61,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/15o.tmq-9_l40.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 62,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/15o.tmq-9_l40.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 63,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0z1rk-~6lq292.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 64,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/09w2ltzv-kh.6.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 65,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0r4j5jx82i1.f.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 66,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/16k80d77f~9ps.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 67,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0yw2l-jtf8n5m.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 68,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/15~2b_gb7puem.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 69,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0fo.8zo-7xxta.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 70,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/turbopack-06eh6v92hgvi~.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 71,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 74,
+          "method": "GET",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/can_track_visitor",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 75,
+          "method": "GET",
+          "host": "px.ads.linkedin.com",
+          "path": "/attribution_trigger",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 91,
+          "method": "POST",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/track_request",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 93,
+          "method": "OPTIONS",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/track_request",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 95,
+          "method": "GET",
+          "host": "px.ads.linkedin.com",
+          "path": "/collect",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 97,
+          "method": "POST",
+          "host": "px.ads.linkedin.com",
+          "path": "/wa/",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 102,
+          "method": "POST",
+          "host": "px.ads.linkedin.com",
+          "path": "/wa/",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 103,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0u6xrpgnmr8ka.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 104,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0of22sk86gp1p.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 105,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0fm16kqwyw.2c.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 106,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/turbopack-0w6.i3xqkbcrc.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 113,
+          "method": "POST",
+          "host": "px.ads.linkedin.com",
+          "path": "/wa/",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 114,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/track-referrer.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 115,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/image",
+          "status": 200,
+          "content_type": "image/webp",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 120,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 121,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/media/ce62453a442c7f35-s.p.0333ktddfbsxy.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 122,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/media/f7aa21714c1c53f8-s.p.0bhxxck2.9j91.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 123,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/media/8a4bb24664ac8500-s.p.0yjesinu1g_v..woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 124,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/media/BlockBertholdBQ_Regular-s.p.0vvoghf0ma3nj.otf",
+          "status": 200,
+          "content_type": "font/otf",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 125,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/1110thsjvew67.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 126,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0sjm0j0w1sf6q.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 127,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/13g6vy-y.i7jl.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 128,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0xkxujjt6a9bc.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 129,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/037u~e35p5b1..js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 130,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0drwfbaqa1tg5.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 131,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/13~9~niwulws9.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 132,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/02vdv_r48d.5~.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 133,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/12vy9xubqkud_.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 134,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/13ru15.jyi~9y.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 135,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/turbopack-0qwji9uv~_z54.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 136,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0z1rk-~6lq292.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 137,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0az~27epfv~a9.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 138,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/09w2ltzv-kh.6.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 139,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0r4j5jx82i1.f.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 140,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0e_iu20578get.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 141,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/16k80d77f~9ps.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 142,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0yw2l-jtf8n5m.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 143,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/15~2b_gb7puem.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 144,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/06qctefp39d~o.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 145,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0mdsgh~twh82y.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 146,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/153zone~8grrj.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 147,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/0fo.8zo-7xxta.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 148,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/chunks/turbopack-06eh6v92hgvi~.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 149,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/-dh7Qe2PYMUxWzoOQbyo3/_buildManifest.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 150,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/-dh7Qe2PYMUxWzoOQbyo3/_ssgManifest.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 151,
+          "method": "GET",
+          "host": "cdn.bestfoodtrucks.com",
+          "path": "/_next/static/-dh7Qe2PYMUxWzoOQbyo3/_clientMiddlewareManifest.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 162,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/track-referrer.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 167,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 168,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 169,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 170,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 185,
+          "method": "POST",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/track_request",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 186,
+          "method": "GET",
+          "host": "px.ads.linkedin.com",
+          "path": "/attribution_trigger",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 187,
+          "method": "GET",
+          "host": "px.ads.linkedin.com",
+          "path": "/collect",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 191,
+          "method": "POST",
+          "host": "px.ads.linkedin.com",
+          "path": "/wa/",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 194,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        }
+      ]
+    }
+  ],
+  "endpoint_clusters": [
+    {
+      "host": "api.bestfoodtrucks.com",
+      "method": "OPTIONS",
+      "path": "/graphql",
+      "count": 3,
+      "statuses": [
+        204
+      ],
+      "content_types": [
+        "text/plain"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 55,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 56,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 57,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "api.bestfoodtrucks.com",
+      "method": "POST",
+      "path": "/graphql",
+      "count": 9,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "extensions",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "operationName",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "variables",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {},
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 53,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 54,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 71,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 167,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 168,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 169,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 170,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 194,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "api.bestfoodtrucks.com",
+      "method": "POST",
+      "path": "/track-referrer.json",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "web_tracking",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {},
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 47,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/track-referrer.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 114,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/track-referrer.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 162,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/track-referrer.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "aplo-evnt.com",
+      "method": "GET",
+      "path": "/api/v1/intent_pixel/can_track_visitor",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 74,
+          "method": "GET",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/can_track_visitor",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "aplo-evnt.com",
+      "method": "OPTIONS",
+      "path": "/api/v1/intent_pixel/track_request",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/octet-stream"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 93,
+          "method": "OPTIONS",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/track_request",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "aplo-evnt.com",
+      "method": "POST",
+      "path": "/api/v1/intent_pixel/track_request",
+      "count": 2,
+      "statuses": [
+        204
+      ],
+      "content_types": [
+        "application/octet-stream"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "apollo_anon_id",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          },
+          {
+            "name": "event_type",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "page",
+            "type": "string",
+            "required": true,
+            "format": "url"
+          }
+        ]
+      },
+      "response_shape": {},
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 91,
+          "method": "POST",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/track_request",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 185,
+          "method": "POST",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/track_request",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "px.ads.linkedin.com",
+      "method": "GET",
+      "path": "/attribution_trigger",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 75,
+          "method": "GET",
+          "host": "px.ads.linkedin.com",
+          "path": "/attribution_trigger",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 186,
+          "method": "GET",
+          "host": "px.ads.linkedin.com",
+          "path": "/attribution_trigger",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "rp.liadm.com",
+      "method": "GET",
+      "path": "/j",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 99,
+          "method": "GET",
+          "host": "rp.liadm.com",
+          "path": "/j",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.bestfoodtrucks.com",
+      "method": "GET",
+      "path": "/_next/data/-dh7Qe2PYMUxWzoOQbyo3/lots/playa-district/schedule.json",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 101,
+          "method": "GET",
+          "host": "www.bestfoodtrucks.com",
+          "path": "/_next/data/-dh7Qe2PYMUxWzoOQbyo3/lots/playa-district/schedule.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.bestfoodtrucks.com",
+      "method": "HEAD",
+      "path": "/_next/data/-dh7Qe2PYMUxWzoOQbyo3/lots/playa-district/schedule.json",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 107,
+          "method": "HEAD",
+          "host": "www.bestfoodtrucks.com",
+          "path": "/_next/data/-dh7Qe2PYMUxWzoOQbyo3/lots/playa-district/schedule.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.bestfoodtrucks.com",
+      "method": "GET",
+      "path": "/_next/data/-dh7Qe2PYMUxWzoOQbyo3/shifts/179609-playa-district-on-2026-08-26.json",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 58,
+          "method": "GET",
+          "host": "www.bestfoodtrucks.com",
+          "path": "/_next/data/-dh7Qe2PYMUxWzoOQbyo3/shifts/179609-playa-district-on-2026-08-26.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "request_sequences": [
+    {
+      "label": "observed_api_flow",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 47,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/track-referrer.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 53,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 54,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 55,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 56,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 57,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 58,
+          "method": "GET",
+          "host": "www.bestfoodtrucks.com",
+          "path": "/_next/data/-dh7Qe2PYMUxWzoOQbyo3/shifts/179609-playa-district-on-2026-08-26.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        }
+      ],
+      "notes": [
+        "HAR timing available for at least one request."
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "create_graphql",
+      "resource": "graphql",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /graphql traffic.",
+      "evidence": [
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 53,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 54,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 71,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 167,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 168,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 169,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 170,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 194,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_track_referrer.json",
+      "resource": "track_referrer.json",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /track-referrer.json traffic.",
+      "evidence": [
+        {
+          "entry_index": 47,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/track-referrer.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 114,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/track-referrer.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 162,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/track-referrer.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_track_request",
+      "resource": "track_request",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/v1/intent_pixel/track_request traffic.",
+      "evidence": [
+        {
+          "entry_index": 91,
+          "method": "POST",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/track_request",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 185,
+          "method": "POST",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/track_request",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "head_schedule.json",
+      "resource": "schedule.json",
+      "confidence": 0.55,
+      "rationale": "Derived from observed HEAD /_next/data/-dh7Qe2PYMUxWzoOQbyo3/lots/playa-district/schedule.json traffic.",
+      "evidence": [
+        {
+          "entry_index": 107,
+          "method": "HEAD",
+          "host": "www.bestfoodtrucks.com",
+          "path": "/_next/data/-dh7Qe2PYMUxWzoOQbyo3/lots/playa-district/schedule.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_179609_playa_district_on_2026_08_26.json",
+      "resource": "179609_playa_district_on_2026_08_26.json",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /_next/data/-dh7Qe2PYMUxWzoOQbyo3/shifts/179609-playa-district-on-2026-08-26.json traffic.",
+      "evidence": [
+        {
+          "entry_index": 58,
+          "method": "GET",
+          "host": "www.bestfoodtrucks.com",
+          "path": "/_next/data/-dh7Qe2PYMUxWzoOQbyo3/shifts/179609-playa-district-on-2026-08-26.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_attribution_trigger",
+      "resource": "attribution_trigger",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /attribution_trigger traffic.",
+      "evidence": [
+        {
+          "entry_index": 75,
+          "method": "GET",
+          "host": "px.ads.linkedin.com",
+          "path": "/attribution_trigger",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 186,
+          "method": "GET",
+          "host": "px.ads.linkedin.com",
+          "path": "/attribution_trigger",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_can_track_visitor",
+      "resource": "can_track_visitor",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/v1/intent_pixel/can_track_visitor traffic.",
+      "evidence": [
+        {
+          "entry_index": 74,
+          "method": "GET",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/can_track_visitor",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_j",
+      "resource": "j",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /j traffic.",
+      "evidence": [
+        {
+          "entry_index": 99,
+          "method": "GET",
+          "host": "rp.liadm.com",
+          "path": "/j",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_schedule.json",
+      "resource": "schedule.json",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /_next/data/-dh7Qe2PYMUxWzoOQbyo3/lots/playa-district/schedule.json traffic.",
+      "evidence": [
+        {
+          "entry_index": 101,
+          "method": "GET",
+          "host": "www.bestfoodtrucks.com",
+          "path": "/_next/data/-dh7Qe2PYMUxWzoOQbyo3/lots/playa-district/schedule.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "options_graphql",
+      "resource": "graphql",
+      "confidence": 0.55,
+      "rationale": "Derived from observed OPTIONS /graphql traffic.",
+      "evidence": [
+        {
+          "entry_index": 55,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 56,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 57,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "options_track_request",
+      "resource": "track_request",
+      "confidence": 0.55,
+      "rationale": "Derived from observed OPTIONS /api/v1/intent_pixel/track_request traffic.",
+      "evidence": [
+        {
+          "entry_index": 93,
+          "method": "OPTIONS",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/track_request",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "generation_hints": [
+    "browser_http_transport",
+    "graphql_persisted_query",
+    "requires_protected_client",
+    "weak_schema_confidence"
+  ],
+  "warnings": [
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 108,
+          "method": "POST",
+          "host": "o4510663507771392.ingest.us.sentry.io",
+          "path": "/api/4510794393255936/envelope/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 109,
+          "method": "POST",
+          "host": "o4510663507771392.ingest.us.sentry.io",
+          "path": "/api/4510794393255936/envelope/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 160,
+          "method": "POST",
+          "host": "o4510663507771392.ingest.us.sentry.io",
+          "path": "/api/4510794393255936/envelope/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 167,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 168,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 169,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 170,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 185,
+          "method": "POST",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/track_request",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 194,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 45,
+          "method": "POST",
+          "host": "o4510663507771392.ingest.us.sentry.io",
+          "path": "/api/4510794393255936/envelope/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 53,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 54,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 55,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 56,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 57,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 71,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 74,
+          "method": "GET",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/can_track_visitor",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 91,
+          "method": "POST",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/track_request",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 93,
+          "method": "OPTIONS",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/track_request",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_response_shapes",
+      "message": "All endpoint clusters have empty response shapes; capture may have omitted response bodies. Re-fetch discovered endpoints with curl or another direct HTTP path before generating types.",
+      "confidence": 0.9,
+      "evidence": [
+        {
+          "entry_index": 55,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 56,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 57,
+          "method": "OPTIONS",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 53,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 54,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 71,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 167,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/graphql",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 47,
+          "method": "POST",
+          "host": "api.bestfoodtrucks.com",
+          "path": "/track-referrer.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 74,
+          "method": "GET",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/can_track_visitor",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 93,
+          "method": "OPTIONS",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/track_request",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 91,
+          "method": "POST",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/track_request",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 75,
+          "method": "GET",
+          "host": "px.ads.linkedin.com",
+          "path": "/attribution_trigger",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 99,
+          "method": "GET",
+          "host": "rp.liadm.com",
+          "path": "/j",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 101,
+          "method": "GET",
+          "host": "www.bestfoodtrucks.com",
+          "path": "/_next/data/-dh7Qe2PYMUxWzoOQbyo3/lots/playa-district/schedule.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 107,
+          "method": "HEAD",
+          "host": "www.bestfoodtrucks.com",
+          "path": "/_next/data/-dh7Qe2PYMUxWzoOQbyo3/lots/playa-district/schedule.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 58,
+          "method": "GET",
+          "host": "www.bestfoodtrucks.com",
+          "path": "/_next/data/-dh7Qe2PYMUxWzoOQbyo3/shifts/179609-playa-district-on-2026-08-26.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 102,
+          "method": "POST",
+          "host": "px.ads.linkedin.com",
+          "path": "/wa/",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 113,
+          "method": "POST",
+          "host": "px.ads.linkedin.com",
+          "path": "/wa/",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 185,
+          "method": "POST",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/track_request",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 191,
+          "method": "POST",
+          "host": "px.ads.linkedin.com",
+          "path": "/wa/",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 76,
+          "method": "GET",
+          "host": "px.ads.linkedin.com",
+          "path": "/collect",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 85,
+          "method": "GET",
+          "host": "px.ads.linkedin.com",
+          "path": "/collect",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 91,
+          "method": "POST",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/track_request",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 92,
+          "method": "GET",
+          "host": "www.linkedin.com",
+          "path": "/px/li_sync",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 93,
+          "method": "OPTIONS",
+          "host": "aplo-evnt.com",
+          "path": "/api/v1/intent_pixel/track_request",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 97,
+          "method": "POST",
+          "host": "px.ads.linkedin.com",
+          "path": "/wa/",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    }
+  ]
+}

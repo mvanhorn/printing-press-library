@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "review-recipe-sharing-unavailable",
+  "applied_at": "2026-08-16",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Historical finding: recipe sharing and link-request management were unavailable before the verified sharing slice (superseded).",
+  "reason": "The AnyList schema defines PBRecipeLinkRequest, PBRecipeLinkRequestResponse, pendingRecipeLinkRequests, recipeLinkRequestsToConfirm, linkedUsers, and PBRecipeOperation.recipeLinkRequest. The current client has no sender for those operations and no fresh read-after-write verification path, so the schema fields are not sufficient evidence for a safe sharing or link-request command.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "tools-manifest.json",
+    "internal/mcp/tools.go",
+    "internal/mcp/code_orch_data.go"
+  ],
+  "validated_outcome": "Superseded by review-recipe-sharing-links.json, which adds the now-verified typed client paths and guarded CLI commands. This record remains as historical provenance for the earlier schema-only state; no live probe or mutation was performed for that earlier finding.",
+  "superseded_by": "review-recipe-sharing-links",
+  "superseded_at": "2026-08-16",
+  "findings_addressed": [
+    "recipe-sharing-unverified",
+    "recipe-link-request-unverified",
+    "schema-only-operation-not-advertised"
+  ]
+}

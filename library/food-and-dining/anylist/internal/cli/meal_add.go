@@ -4,10 +4,7 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
-	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -18,119 +15,68 @@ func newMealAddCmd(flags *rootFlags) *cobra.Command {
 	var bodyTitle string
 	var bodyLabel string
 	var bodyDetails string
+	var bodyScaleFactor float64
+	var scaleFactorProvided bool
 	var stdinBody bool
+	var apply bool
 
 	cmd := &cobra.Command{
 		Use:         "add",
-		Short:       "Add an event to the meal planning calendar",
+		Short:       "Add an event to the meal planning calendar (preview unless --apply)",
 		Example:     "  anylist-pp-cli meal add --date 2026-01-15",
 		Annotations: map[string]string{"pp:endpoint": "meal.add", "pp:method": "POST", "pp:path": "/data/meal-planning-calendar/update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !stdinBody {
-				if !cmd.Flags().Changed("date") && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "date")
-				}
-			}
-			c, err := flags.newClient()
-			if err != nil {
-				return err
-			}
-
-			path := "/data/meal-planning-calendar/update"
-			var body map[string]any
 			if stdinBody {
-				stdinData, err := io.ReadAll(os.Stdin)
-				if err != nil {
-					return fmt.Errorf("reading stdin: %w", err)
-				}
-				var jsonBody map[string]any
-				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
-					return fmt.Errorf("parsing stdin JSON: %w", err)
-				}
-				body = jsonBody
-			} else {
-				body = map[string]any{}
-				if bodyDate != "" {
-					body["date"] = bodyDate
-				}
-				if bodyRecipe != "" {
-					body["recipe"] = bodyRecipe
-				}
-				if bodyTitle != "" {
-					body["title"] = bodyTitle
-				}
-				if bodyLabel != "" {
-					body["label"] = bodyLabel
-				}
-				if bodyDetails != "" {
-					body["details"] = bodyDetails
-				}
-			}
-			data, statusCode, err := c.Post(path, body)
-			if err != nil {
-				return classifyAPIError(err, flags)
-			}
-			if wantsHumanTable(cmd.OutOrStdout(), flags) {
-				// Check if response contains an array (directly or wrapped in "data")
-				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
-					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
-						fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
-					} else {
-						return nil
-					}
-				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
-					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
-						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
-							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
-						} else {
-							return nil
-						}
-					}
-				}
-			}
-			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
-				if flags.quiet {
-					return nil
-				}
-				// Apply --compact and --select to the API response before wrapping.
-				// --select wins when both are set: explicit field choice trumps the
-				// generic high-gravity allow-list. Otherwise --compact still applies
-				// when --agent is on but the user did not name fields.
-				filtered := data
-				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
-				} else if flags.compact {
-					filtered = compactFields(filtered)
-				}
-				envelope := map[string]any{
-					"action":   "post",
-					"resource": "meal",
-					"path":     path,
-					"status":   statusCode,
-					"success":  statusCode >= 200 && statusCode < 300,
-				}
-				if flags.dryRun {
-					envelope["dry_run"] = true
-					envelope["status"] = 0
-					envelope["success"] = false
-				}
-				if len(filtered) > 0 {
-					var parsed any
-					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
-					}
-				}
-				envelopeJSON, err := json.Marshal(envelope)
+				body, err := readStdinJSONMap()
 				if err != nil {
 					return err
 				}
-				return printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true)
+				bodyDate = stringFromBody(body, "date")
+				bodyRecipe = stringFromBody(body, "recipe")
+				bodyTitle = stringFromBody(body, "title")
+				bodyLabel = stringFromBody(body, "label")
+				bodyDetails = stringFromBody(body, "details")
+				if v, ok := body["scale_factor"].(float64); ok {
+					bodyScaleFactor = v
+					scaleFactorProvided = true
+				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			if cmd.Flags().Changed("scale-factor") {
+				scaleFactorProvided = true
+			}
+			if scaleFactorProvided {
+				if err := validateScaleFactor(bodyScaleFactor); err != nil {
+					return err
+				}
+				if bodyRecipe == "" {
+					return fmt.Errorf("scale factor requires a recipe: set --recipe")
+				}
+			}
+			if bodyDate == "" && !flags.dryRun && apply {
+				return fmt.Errorf("required flag \"date\" not set")
+			}
+			if !apply || flags.dryRun {
+				previewFields := map[string]any{
+					"date": bodyDate, "recipe": bodyRecipe, "title": bodyTitle,
+					"label": bodyLabel, "details": bodyDetails,
+				}
+				if scaleFactorProvided {
+					previewFields["scale_factor"] = bodyScaleFactor
+				}
+				return printMealCalendarPreview(cmd, flags, "create", previewFields)
+			}
+			input := mealEventInput{
+				Date: bodyDate, RecipeName: bodyRecipe, Title: bodyTitle,
+				LabelName: bodyLabel, Details: bodyDetails,
+			}
+			if scaleFactorProvided {
+				input.ScaleFactor = bodyScaleFactor
+			}
+			result, err := applyMealEventCreate(cmd.Context(), flags, input)
+			if err != nil {
+				return err
+			}
+			return printMealCalendarResult(cmd, flags, result)
 		},
 	}
 	cmd.Flags().StringVar(&bodyDate, "date", "", "Event date (YYYY-MM-DD)")
@@ -138,7 +84,9 @@ func newMealAddCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTitle, "title", "", "Event title (for non-recipe events)")
 	cmd.Flags().StringVar(&bodyLabel, "label", "", "Meal label (Breakfast/Lunch/Dinner/etc.)")
 	cmd.Flags().StringVar(&bodyDetails, "details", "", "Optional event details/notes")
+	cmd.Flags().Float64Var(&bodyScaleFactor, "scale-factor", 0, "Scale factor for recipe servings (finite positive number)")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.Flags().BoolVar(&apply, "apply", false, "Enable live mutation with fresh read-after-write verification")
 
 	return cmd
 }

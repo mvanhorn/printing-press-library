@@ -12,7 +12,7 @@ func newProjectsCmd(flags *rootFlags) *cobra.Command {
 		Use:         "projects",
 		Short:       "**Project Management** Create and manage projects to organize your development work.",
 		Hidden:      true,
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "scientific-consensus-pp-mcp",
+  "display_name": "Scientific Consensus",
+  "version": "0.0.0",
+  "description": "Aggregate PubMed, OpenAlex, Crossref, and Europe PMC into evidence summaries, consensus scores, and study-design pyramids no single search tool produces.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/scientific-consensus-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/scientific-consensus-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

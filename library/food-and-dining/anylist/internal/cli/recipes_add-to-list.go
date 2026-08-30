@@ -11,10 +11,11 @@ import (
 
 func newRecipesAddToListCmd(flags *rootFlags) *cobra.Command {
 	var bodyRecipe string
+	var bodyRecipeID string
 	var bodyListName string
 	var bodyScale int
-	var bodyMerge bool
 	var stdinBody bool
+	var apply bool
 
 	cmd := &cobra.Command{
 		Use:         "add-to-list",
@@ -28,50 +29,51 @@ func newRecipesAddToListCmd(flags *rootFlags) *cobra.Command {
 					return err
 				}
 				bodyRecipe = stringFromBody(body, "recipe")
+				bodyRecipeID = stringFromBody(body, "recipe_id")
 				bodyListName = stringFromBody(body, "list_name")
 				if bodyListName == "" {
 					bodyListName = stringFromBody(body, "list")
 				}
 				bodyScale = intFromBody(body, "scale")
+				apply = boolFromBody(body, "apply")
 			}
-			if bodyRecipe == "" && !cmd.Flags().Changed("recipe") && !flags.dryRun {
-				return fmt.Errorf("required flag \"recipe\" not set")
+			if bodyRecipe != "" && bodyRecipeID != "" {
+				return fmt.Errorf("provide only one of \"recipe\" or \"recipe-id\"")
+			}
+			if bodyRecipe == "" && bodyRecipeID == "" && !flags.dryRun {
+				return fmt.Errorf("required flag \"recipe\" or \"recipe-id\" not set")
 			}
 			if bodyListName == "" && !cmd.Flags().Changed("list") && !flags.dryRun {
 				return fmt.Errorf("required flag \"list\" not set")
 			}
-			if dryRunOK(flags) {
+			if !apply || flags.dryRun {
+				preview := map[string]any{
+					"dry_run":   true,
+					"recipe":    bodyRecipe,
+					"recipe_id": bodyRecipeID,
+					"list":      bodyListName,
+					"scale":     bodyScale,
+					"apply":     apply,
+				}
+				if flags.asJSON {
+					return printJSONFiltered(cmd.OutOrStdout(), preview, flags)
+				}
+				label := bodyRecipe
+				if label == "" {
+					label = bodyRecipeID
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "Dry run: would add ingredients from %q to %q (pass --apply to write)\n", label, bodyListName)
 				return nil
 			}
-
-			ctx := cmd.Context()
-			cfg, st, err := openAuthedLocalStore(flags)
-			if err != nil {
-				return err
-			}
-			defer st.Close()
-
-			// PATCH: Keep one clear dedup/merge switch instead of duplicate equivalent flags.
-			added, err := addRecipeIngredientsToList(ctx, cfg, st, bodyRecipe, bodyListName, bodyScale, bodyMerge)
-			if err != nil {
-				return err
-			}
-			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-					"added":  added,
-					"recipe": bodyRecipe,
-					"list":   bodyListName,
-				}, flags)
-			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Added %d ingredients from %q to %q\n", added, bodyRecipe, bodyListName)
-			return nil
+			return fmt.Errorf("bulk recipe-to-list writes are disabled; use 'recipes ingredients' for facts, then apply explicit item operations selected by the AI")
 		},
 	}
 	cmd.Flags().StringVar(&bodyRecipe, "recipe", "", "Recipe name")
+	cmd.Flags().StringVar(&bodyRecipeID, "recipe-id", "", "Stable AnyList recipe ID (preferred for agent workflows)")
 	cmd.Flags().StringVar(&bodyListName, "list", "", "Target shopping list name")
 	cmd.Flags().IntVar(&bodyScale, "scale", 0, "Scale to this many servings before adding (0 = use recipe default)")
-	cmd.Flags().BoolVar(&bodyMerge, "merge", true, "Avoid duplicate unchecked items already on the list")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.Flags().BoolVar(&apply, "apply", false, "Enable the shopping-list write after explicit AI selection")
 
 	return cmd
 }

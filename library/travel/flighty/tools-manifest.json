@@ -1,0 +1,109 @@
+{
+  "api_name": "flighty",
+  "base_url": "https://flighty.com",
+  "description": "Every Flighty Airports meltdown map feature, plus cross-airport intelligence no web page can answer.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": ""
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "airports_arrivals",
+      "description": "Show the live arrivals board for an airport. Required: airport. Returns array of FlightBoardEntry.",
+      "method": "GET",
+      "path": "/airports/{airport}/arrivals",
+      "params": [
+        {
+          "name": "airport",
+          "type": "string",
+          "location": "path",
+          "description": "Airport IATA code, ICAO code, slug, or name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "airports_departures",
+      "description": "Show the live departures board for an airport. Required: airport. Returns array of FlightBoardEntry.",
+      "method": "GET",
+      "path": "/airports/{airport}/departures",
+      "params": [
+        {
+          "name": "airport",
+          "type": "string",
+          "location": "path",
+          "description": "Airport IATA code, ICAO code, slug, or name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "airports_list",
+      "description": "List the tracked airports with live delay status (meltdown map catalog). Returns array of AirportSummary.",
+      "method": "GET",
+      "path": "/airports",
+      "params": []
+    },
+    {
+      "name": "airports_show",
+      "description": "Show live status, weather, and performance for one airport. Required: airport. Returns the AirportDetail.",
+      "method": "GET",
+      "path": "/airports/{airport}",
+      "params": [
+        {
+          "name": "airport",
+          "type": "string",
+          "location": "path",
+          "description": "Airport IATA code, ICAO code, slug, or name (e.g. DEN, KDEN, denver-intl-den, Denver)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "airports_tv",
+      "description": "List disrupted airports from the TV dashboard (same catalog, status-sorted). Returns array of AirportSummary.",
+      "method": "GET",
+      "path": "/airports/tv",
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Worst-airports ranking",
+      "command": "airports worst",
+      "description": "Rank the network's airports right now by cumulative delay and cancellations — the web map color-codes but never ranks."
+    },
+    {
+      "name": "Flight lookup by number",
+      "command": "airports find-flight",
+      "description": "Find one flight by number across arrivals and departures boards — status, original vs actual time, gate, belt, terminal."
+    },
+    {
+      "name": "Network airline disruption",
+      "command": "airports airline",
+      "description": "One airline's delay/cancel/divert footprint aggregated across every synced airport — impossible per-airport on the site."
+    },
+    {
+      "name": "Airport comparison",
+      "command": "airports compare",
+      "description": "Side-by-side status, delays, warnings, and flight rules for two airports."
+    },
+    {
+      "name": "Route disruption check",
+      "command": "airports route",
+      "description": "Both directions of one origin-destination pair's delay/cancel/divert stats, joined from each side's disrupted routes."
+    },
+    {
+      "name": "Healthy-alternates finder",
+      "command": "airports nearby",
+      "description": "Distance-ranked nearby airports, flagging which have normal operations right now."
+    },
+    {
+      "name": "Change diff since last sync",
+      "command": "airports diff",
+      "description": "What changed since the last sync: status transitions, new/cleared warnings, delay deltas."
+    }
+  ]
+}

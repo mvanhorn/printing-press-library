@@ -1,0 +1,796 @@
+name: iclasspro
+display_name: iClassPro
+description: "Query any iClassPro gym, swim school, or dance studio portal from the terminal"
+cli_description: "The only iClassPro tool that remembers yesterday — a queryable local mirror of any gym's catalog, with the search and filter surface the portal keeps to itself."
+version: "0.1.0"
+category: productivity
+base_url: "https://app.iclasspro.com/api/open/v1"
+http_transport: standard
+health_check_path: "/scottsdalegymnastics/locations"
+
+# The Open API is fully public: verified with bare curl (no User-Agent, no Referer,
+# no cookie) across 6 independent tenants. probe-reachability reports standard_http
+# at 0.95 confidence. Tenants MAY set a portal flag that gates classes/camps behind
+# customer sign-in, which returns HTTP 200 with data:[] and a "Please sign in to see
+# classes." message. That gate is lifted by a hand-authored read-only `auth login`
+# (POST /api/jwt/v1/login), kept out of this block deliberately: the token is a
+# per-tenant customer session, not a CLI-wide credential, and the default surface
+# needs no auth at all.
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/iclasspro-pp-cli/config.toml"
+
+cache:
+  enabled: true
+  stale_after: 12h
+  refresh_timeout: 30s
+
+learn:
+  # No `entity_lookup_seeds`: the aliasable entities in this domain are program,
+  # level, and class names, and every one of them is tenant-specific
+  # (for example, a localized beginner class and an advanced gymnastics class).
+  # `canonical` must match upstream responses exactly, so there is no cross-tenant
+  # seed set that would be correct for any two accounts. Synonyms and stopwords
+  # below are tenant-independent and safe to ship.
+  synonyms:
+    "spots": "openings"
+    "spaces": "openings"
+    "seats": "openings"
+    "open spots": "openings"
+    "sign up": "register"
+    "signup": "register"
+    "enrol": "enroll"
+    "most recent": "latest"
+    "kids night out": "camp"
+    "open gym": "camp"
+    "clinic": "camp"
+    "birthday party": "party"
+  stopwords:
+    - gym
+    - gymnastics
+    - class
+    - classes
+
+resources:
+  locations:
+    description: "Physical locations for an account"
+    endpoints:
+      list:
+        method: GET
+        path: "/{account}/locations"
+        description: "List every location on an iClassPro account, with contact details and portal branding"
+        example: "  iclasspro-pp-cli locations scottsdalegymnastics"
+        happy_args: "account=scottsdalegymnastics"
+        response_path: data
+        response:
+          type: array
+          item: Location
+        params:
+          - name: account
+            type: string
+            required: true
+            positional: true
+            description: "Portal slug, e.g. scottsdalegymnastics (the path segment in portal.iclasspro.com/<slug>)"
+
+  bookings:
+    description: "The portal booking menu — the authoritative source of camp typeIds"
+    endpoints:
+      list:
+        method: GET
+        path: "/{account}/bookings/{locationId}"
+        description: "Booking menu tiles for a location; camp tiles carry the typeId that 'camps list' requires"
+        example: "  iclasspro-pp-cli bookings scottsdalegymnastics 1"
+        happy_args: "account=scottsdalegymnastics;locationId=1"
+        response_path: data
+        response:
+          type: array
+          item: BookingMenuItem
+        params:
+          - name: account
+            type: string
+            required: true
+            positional: true
+            description: "Portal slug"
+          - name: locationId
+            flag_name: location-id
+            type: int
+            required: true
+            positional: true
+            description: "Location id from 'locations'"
+
+  programs:
+    description: "Program categories for classes, camps, and appointments"
+    endpoints:
+      classes:
+        method: GET
+        path: "/{account}/class-programs/{locationId}"
+        description: "Class program categories; ids are valid values for 'classes list --programs'"
+        example: "  iclasspro-pp-cli programs classes scottsdalegymnastics 1"
+        happy_args: "account=scottsdalegymnastics;locationId=1"
+        response_path: data
+        response:
+          type: array
+          item: Program
+        params:
+          - name: account
+            type: string
+            required: true
+            positional: true
+            description: "Portal slug"
+          - name: locationId
+            flag_name: location-id
+            type: int
+            required: true
+            positional: true
+            description: "Location id from 'locations'"
+      camps:
+        method: GET
+        path: "/{account}/camp-programs/{locationId}"
+        description: "Camp program categories. These ids are programIds, NOT the typeIds 'camps list' needs — use 'bookings' for those"
+        example: "  iclasspro-pp-cli programs camps scottsdalegymnastics 1"
+        happy_args: "account=scottsdalegymnastics;locationId=1"
+        response_path: data
+        response:
+          type: array
+          item: Program
+        params:
+          - name: account
+            type: string
+            required: true
+            positional: true
+            description: "Portal slug"
+          - name: locationId
+            flag_name: location-id
+            type: int
+            required: true
+            positional: true
+            description: "Location id from 'locations'"
+      appointments:
+        method: GET
+        path: "/{account}/appointment-programs/{locationId}"
+        description: "Appointment program categories; returns a plan-gate message on accounts without the appointments subscription"
+        example: "  iclasspro-pp-cli programs appointments scottsdalegymnastics 1"
+        happy_args: "account=scottsdalegymnastics;locationId=1"
+        response_path: data
+        response:
+          type: array
+          item: Program
+        params:
+          - name: account
+            type: string
+            required: true
+            positional: true
+            description: "Portal slug"
+          - name: locationId
+            flag_name: location-id
+            type: int
+            required: true
+            positional: true
+            description: "Location id from 'locations'"
+
+  levels:
+    description: "Skill levels used to band classes"
+    endpoints:
+      list:
+        method: GET
+        path: "/{account}/levels/active/{locationId}"
+        description: "Active skill levels with display colors; ids are valid values for 'classes list --levels'"
+        example: "  iclasspro-pp-cli levels scottsdalegymnastics 1"
+        happy_args: "account=scottsdalegymnastics;locationId=1"
+        response_path: data
+        response:
+          type: array
+          item: Level
+        params:
+          - name: account
+            type: string
+            required: true
+            positional: true
+            description: "Portal slug"
+          - name: locationId
+            flag_name: location-id
+            type: int
+            required: true
+            positional: true
+            description: "Location id from 'locations'"
+
+  instructors:
+    description: "Instructors teaching classes at a location"
+    endpoints:
+      list:
+        method: GET
+        path: "/{account}/instructors/{locationId}/classes"
+        description: "Instructors who teach classes; ids are valid values for 'classes list --instructors'"
+        example: "  iclasspro-pp-cli instructors scottsdalegymnastics 1"
+        happy_args: "account=scottsdalegymnastics;locationId=1"
+        response_path: data
+        response:
+          type: array
+          item: Instructor
+        params:
+          - name: account
+            type: string
+            required: true
+            positional: true
+            description: "Portal slug"
+          - name: locationId
+            flag_name: location-id
+            type: int
+            required: true
+            positional: true
+            description: "Location id from 'locations'"
+
+  sessions:
+    description: "Enrollment sessions (date-bounded terms)"
+    endpoints:
+      list:
+        method: GET
+        path: "/{account}/sessions"
+        description: "Sessions for an account; ids are valid values for 'classes list --sessions'"
+        example: "  iclasspro-pp-cli sessions scaq"
+        happy_args: "account=scaq"
+        response_path: data
+        response:
+          type: array
+          item: Session
+        params:
+          - name: account
+            type: string
+            required: true
+            positional: true
+            description: "Portal slug"
+
+  classes:
+    description: "Ongoing classes — the primary catalog"
+    endpoints:
+      list:
+        method: GET
+        path: "/{account}/classes"
+        description: "List classes with server-side filtering. Only the flags below are honored upstream; any other filter is applied locally"
+        example: "  iclasspro-pp-cli classes list scottsdalegymnastics --q ninja --openings --limit 25"
+        happy_args: "account=scottsdalegymnastics;--limit=5"
+        response_path: data
+        response:
+          type: array
+          item: Class
+        params:
+          - name: account
+            type: string
+            required: true
+            positional: true
+            description: "Portal slug"
+          - name: locationId
+            flag_name: location-id
+            type: int
+            required: false
+            description: "Location id from 'locations'"
+          - name: q
+            flag_name: q
+            type: string
+            required: false
+            description: "Free-text search over class names (server-side; verified 96 results to 30 for 'ninja')"
+          - name: openings
+            type: int
+            required: false
+            description: "Set to 1 to return only classes with at least one opening (server-side)"
+          - name: programs
+            type: string
+            required: false
+            description: "Comma-separated program ids from 'programs classes' (server-side)"
+          - name: levels
+            type: string
+            required: false
+            description: "Comma-separated level ids from 'levels' (server-side)"
+          - name: instructors
+            type: string
+            required: false
+            description: "Comma-separated instructor ids from 'instructors' (server-side; ids, not names)"
+          - name: days
+            type: string
+            required: false
+            description: "Comma-separated day numbers, 1=Sunday through 7=Saturday (server-side)"
+          - name: ages
+            type: string
+            required: false
+            description: "Comma-separated ages in years (server-side)"
+          - name: genders
+            type: string
+            required: false
+            description: "Comma-separated gender ids (server-side)"
+          - name: sessions
+            type: string
+            required: false
+            description: "Comma-separated session ids from 'sessions' (server-side)"
+          - name: limit
+            type: int
+            required: false
+            default: 24
+            description: "Results per page"
+          - name: page
+            type: int
+            required: false
+            default: 1
+            description: "Page number; total is reported as totalRecords"
+      get:
+        method: GET
+        path: "/{account}/classes/{classId}"
+        description: "Full class detail including the HTML description the list endpoint omits"
+        example: "  iclasspro-pp-cli classes get scaq 16010"
+        happy_args: "account=scaq;classId=16010"
+        response_path: data
+        response:
+          type: object
+          item: ClassDetail
+        params:
+          - name: account
+            type: string
+            required: true
+            positional: true
+            description: "Portal slug"
+          - name: classId
+            flag_name: class-id
+            type: int
+            required: true
+            positional: true
+            description: "Class id from 'classes list'"
+
+  camps:
+    description: "Camps and events — open gyms, clinics, kids night out, school-break camps"
+    endpoints:
+      list:
+        method: GET
+        path: "/{account}/camps"
+        description: "List camps for one camp type. typeId comes from 'bookings', NOT from 'programs camps'"
+        example: "  iclasspro-pp-cli camps list scottsdalegymnastics --location-id 1 --type-id 5 --sort-by time"
+        happy_args: "account=scottsdalegymnastics;--location-id=1;--type-id=5;--limit=5"
+        response_path: data
+        response:
+          type: array
+          item: Camp
+        params:
+          - name: account
+            type: string
+            required: true
+            positional: true
+            description: "Portal slug"
+          - name: locationId
+            flag_name: location-id
+            type: int
+            required: false
+            description: "Location id from 'locations'"
+          - name: typeId
+            flag_name: type-id
+            type: int
+            required: false
+            description: "Camp type id from 'bookings' targetParams.typeId. Passing a programId from 'programs camps' silently returns no camps"
+          - name: sortBy
+            flag_name: sort-by
+            type: string
+            required: false
+            enum: ["time", "name"]
+            description: "Sort order (honored on camps; ignored on classes)"
+          - name: limit
+            type: int
+            required: false
+            default: 24
+            description: "Results per page"
+          - name: page
+            type: int
+            required: false
+            default: 1
+            description: "Page number; total is reported as totalRecords"
+      get:
+        method: GET
+        path: "/{account}/camps/{campId}"
+        description: "Full camp detail including HTML description, per-session blocks, room, instructors, and deletion/expiry flags"
+        example: "  iclasspro-pp-cli camps get scottsdalegymnastics 2035"
+        happy_args: "account=scottsdalegymnastics;campId=2035"
+        response_path: data
+        response:
+          type: object
+          item: CampDetail
+        params:
+          - name: account
+            type: string
+            required: true
+            positional: true
+            description: "Portal slug"
+          - name: campId
+            flag_name: camp-id
+            type: int
+            required: true
+            positional: true
+            description: "Camp id from 'camps list'"
+
+  parties:
+    description: "Birthday party booking availability"
+    endpoints:
+      availability:
+        method: GET
+        path: "/{account}/parties/create/{locationId}"
+        description: "Dates a party can be booked at a location"
+        example: "  iclasspro-pp-cli parties scottsdalegymnastics 1"
+        happy_args: "account=scottsdalegymnastics;locationId=1"
+        response_path: data
+        response:
+          type: object
+          item: PartyAvailability
+        params:
+          - name: account
+            type: string
+            required: true
+            positional: true
+            description: "Portal slug"
+          - name: locationId
+            flag_name: location-id
+            type: int
+            required: true
+            positional: true
+            description: "Location id from 'locations'"
+
+  products:
+    description: "ProShop retail catalog"
+    endpoints:
+      list:
+        method: GET
+        path: "/{account}/products/{locationId}"
+        description: "Retail products with pricing, sale state, variations, and inventory"
+        example: "  iclasspro-pp-cli products scottsdalegymnastics 1"
+        happy_args: "account=scottsdalegymnastics;locationId=1"
+        response_path: data
+        response:
+          type: array
+          item: Product
+        params:
+          - name: account
+            type: string
+            required: true
+            positional: true
+            description: "Portal slug"
+          - name: locationId
+            flag_name: location-id
+            type: int
+            required: true
+            positional: true
+            description: "Location id from 'locations'"
+
+  news:
+    description: "Portal news articles"
+    endpoints:
+      get:
+        method: GET
+        path: "/{account}/news/{articleId}"
+        description: "Fetch a single portal news article by id"
+        example: "  iclasspro-pp-cli news scottsdalegymnastics 1"
+        happy_args: "account=scottsdalegymnastics;articleId=1"
+        response_path: data
+        response:
+          type: object
+          item: NewsArticle
+        params:
+          - name: account
+            type: string
+            required: true
+            positional: true
+            description: "Portal slug"
+          - name: articleId
+            flag_name: article-id
+            type: int
+            required: true
+            positional: true
+            description: "News article id"
+
+types:
+  Location:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: email
+        type: string
+      - name: phone
+        type: string
+      - name: url
+        type: string
+      - name: address
+        type: string
+      - name: address2
+        type: string
+      - name: city
+        type: string
+      - name: state
+        type: string
+      - name: zip
+        type: string
+      - name: country
+        type: string
+      - name: active
+        type: bool
+      - name: primaryColor
+        type: string
+      - name: secondaryColor
+        type: string
+      - name: colorTheme
+        type: string
+      - name: logo
+        type: string
+      - name: logoImage
+        type: string
+      - name: headerImage
+        type: string
+      - name: showAddressOnPortal
+        type: bool
+      - name: showPhoneNumberOnPortal
+        type: bool
+
+  BookingMenuItem:
+    fields:
+      - name: title
+        type: string
+      - name: subTitle
+        type: string
+      - name: pluralTitle
+        type: string
+      - name: image
+        type: string
+      - name: target
+        type: string
+
+  Program:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+
+  Level:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: sortOrder
+        type: int
+      - name: color
+        type: string
+      - name: textColor
+        type: string
+      - name: image
+        type: string
+
+  Instructor:
+    fields:
+      - name: id
+        type: int
+      - name: firstName
+        type: string
+      - name: lastName
+        type: string
+
+  Session:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: startDate
+        type: string
+
+  Class:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: programId
+        type: int
+      - name: levelId
+        type: int
+      - name: minAgeYear
+        type: int
+      - name: minAgeMonth
+        type: int
+      - name: maxAgeYear
+        type: int
+      - name: maxAgeMonth
+        type: int
+      - name: openings
+        type: int
+      - name: futureOpenings
+        type: int
+      - name: futureOpeningDate
+        type: string
+      - name: showOpenings
+        type: bool
+      - name: allowWaitlist
+        type: bool
+      - name: allowWebRegistration
+        type: int
+      - name: autoApprove
+        type: bool
+      - name: isOnedayEnabled
+        type: bool
+      - name: onedayEnrollmentLabel
+        type: string
+      - name: startDate
+        type: string
+      - name: endDate
+        type: string
+
+  ClassDetail:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: programId
+        type: int
+      - name: levelId
+        type: int
+      - name: openings
+        type: int
+      - name: futureOpenings
+        type: int
+      - name: allowWaitlist
+        type: bool
+      - name: startDate
+        type: string
+      - name: endDate
+        type: string
+
+  Camp:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: programId
+        type: int
+      - name: typeId
+        type: int
+      - name: minAge
+        type: int
+      - name: maxAge
+        type: int
+      - name: startDate
+        type: string
+      - name: endDate
+        type: string
+      - name: registrationStartDate
+        type: string
+      - name: registrationEndDate
+        type: string
+      - name: openings
+        type: int
+      - name: openingsDisplay
+        type: string
+      - name: hasOpenings
+        type: bool
+      - name: showOpenings
+        type: bool
+      - name: allowToRequestCampThatIsFull
+        type: bool
+      - name: allowChooseDays
+        type: bool
+      - name: image
+        type: string
+
+  CampDetail:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: programId
+        type: int
+      - name: programName
+        type: string
+      - name: typeId
+        type: int
+      - name: roomName
+        type: string
+      - name: minAge
+        type: int
+      - name: maxAge
+        type: int
+      - name: startDate
+        type: string
+      - name: endDate
+        type: string
+      - name: registrationStartDate
+        type: string
+      - name: registrationEndDate
+        type: string
+      - name: openings
+        type: int
+      - name: openingsDisplay
+        type: string
+      - name: hasOpenings
+        type: bool
+      - name: allowWebRegistration
+        type: bool
+      - name: showOnWeb
+        type: bool
+      - name: autoApprove
+        type: bool
+      - name: programIsDeleted
+        type: bool
+      - name: campRegisterExpired
+        type: bool
+      - name: allowToRequestCampThatIsFull
+        type: bool
+      - name: image
+        type: string
+
+  PartyAvailability:
+    fields:
+      - name: date
+        type: string
+      - name: useInclusiveTax
+        type: bool
+
+  Product:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: slug
+        type: string
+      - name: sku
+        type: string
+      - name: description
+        type: string
+      - name: shortDescription
+        type: string
+      - name: price
+        type: string
+      - name: salePrice
+        type: float
+      - name: activePrice
+        type: float
+      - name: sale
+        type: bool
+      - name: salePriceStartDate
+        type: string
+      - name: salePriceEndDate
+        type: string
+      - name: programId
+        type: int
+      - name: programName
+        type: string
+      - name: inventoryCount
+        type: int
+      - name: enableInventory
+        type: bool
+      - name: taxRate
+        type: string
+      - name: active
+        type: bool
+      - name: hidden
+        type: bool
+      - name: showOnCustomerPortal
+        type: bool
+      - name: createdAt
+        type: string
+      - name: updatedAt
+        type: string
+
+  NewsArticle:
+    fields:
+      - name: id
+        type: int
+      - name: title
+        type: string
+      - name: body
+        type: string
+      - name: createdAt
+        type: string

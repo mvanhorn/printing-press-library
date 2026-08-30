@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "zotero-research-library-key-origin-guard",
+  "applied_at": "2026-08-06",
+  "base_run_id": "20260806-100315-0ed5c3e3",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Zotero-API-Key is only ever sent to https zotero.org origins: scheme + hostname enforced on the final header set of every request and on redirect reattachment.",
+  "reason": "Greptile P1 (security) on publish PR #1668: a hostile ZOTERO_RESEARCH_LIBRARY_BASE_URL received the configured API key on every request. Generator retro candidate: generated clients should scope credential headers to the spec's canonical origins by default.",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "Requests to non-zotero.org hosts carry no Zotero-API-Key and emit a stderr warning; live zotero.org calls unchanged; build/tests pass.",
+  "upstream_issue": null
+}

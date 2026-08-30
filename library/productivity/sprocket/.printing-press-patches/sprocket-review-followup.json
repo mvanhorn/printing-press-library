@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "sprocket-review-followup",
+  "applied_at": "2026-06-18",
+  "base_run_id": "20260617-211906-50f83ca4",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Second review round: buildDeadlines now propagates the asObjects ok guard (errors on unexpected shape instead of silently 'No open programs'); icalUID hashes distinguishing fields so distinct zero-ID events at the same start get distinct UIDs.",
+  "reason": "A follow-up PR review found the zero-ID and ok-guard fixes were applied to since.go/owed.go but not the parallel cases in ical.go (icalUID) and deadlines.go (buildDeadlines).",
+  "files": ["internal/cli/ical.go","internal/cli/deadlines.go","internal/cli/sprocket_schedule_test.go"],
+  "validated_outcome": "go test ./internal/cli/... passes incl. TestIcalUIDZeroIDDistinct, TestBuildICSDistinctUIDsForZeroIDEvents, TestBuildDeadlinesUninterpretable."
+}

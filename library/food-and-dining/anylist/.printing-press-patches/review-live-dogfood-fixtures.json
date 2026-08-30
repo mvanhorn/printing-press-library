@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "review-live-dogfood-fixtures",
+  "applied_at": "2026-08-25",
+  "base_run_id": "20260514-120439",
+  "summary": "Make affected command help and local examples runnable by full live dogfood.",
+  "reason": "The refreshed full matrix found missing Examples sections plus examples that referenced a nonexistent Paprika file or required an empty local recipe cache. The command behavior remains unchanged: preview/apply gates and missing-cache errors are preserved; only examples and a harmless checked-in Paprika fixture were added.",
+  "files": [
+    "internal/cli/starter_mutations.go",
+    "internal/cli/folders_update.go",
+    "internal/cli/lists_notifications.go",
+    "internal/cli/recipes_import_paprika.go",
+    "internal/cli/recipes_ingredients.go",
+    "internal/cli/recipes_link.go",
+    "testdata/paprika/Example.paprikarecipe"
+  ],
+  "validated_outcome": "Full live dogfood passes 244/244 tests with zero failures; publish validation and canonical SKILL verification pass."
+}

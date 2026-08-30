@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-07-24T20:31:55.169844Z",
+  "cli_dir": "\u003ccli-dir\u003e/irail-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-24T20:31:28.380123Z"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "forkable",
+  "cli_name": "forkable-pp-cli",
+  "version": "2026.8.5",
+  "released_at": "2026-08-28T09:20:44Z",
+  "source_commit": "ccc5ef2cf0359f1d4a234dbeb957b9d99278454b",
+  "printing_press_version": "4.28.0",
+  "run_id": "20260717-100008-2c197495",
+  "changes": [
+    {
+      "title": "feat(forkable): add meal feedback command reporting delivery issues to real Forkable support",
+      "pr": 1846,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1846",
+      "commit": "ccc5ef2cf0359f1d4a234dbeb957b9d99278454b"
+    }
+  ]
+}

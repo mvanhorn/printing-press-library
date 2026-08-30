@@ -1,0 +1,528 @@
+{
+  "export": {
+    "app": "Corpova",
+    "analysis": "Consensus analysis",
+    "query": "vaccines cause autism",
+    "filters": [],
+    "rows_exported": 1,
+    "rows_total": 1,
+    "source": "OpenAlex (CC0)",
+    "exported_at": "2026-07-24T08:02:05.417Z"
+  },
+  "rows": [
+    {
+      "claim": "vaccines cause autism",
+      "verdict": "evidence-refutes",
+      "consensus_score": -0.95,
+      "confidence": 0.74,
+      "evidence_strength": "moderate",
+      "apex_design": "systematic-review",
+      "studies_analyzed": 37,
+      "supporting": 1,
+      "refuting": 17,
+      "mixed": 1,
+      "inconclusive": 18,
+      "method": "heuristic",
+      "ai_stance": "refutes",
+      "ai_confidence": 0.95,
+      "ai_model": "openrouter/free"
+    }
+  ],
+  "response": {
+    "stance_source": "llm:openrouter",
+    "llm_synthesis": {
+      "stance": "refutes",
+      "confidence": 0.95,
+      "reasoning": "Extensive epidemiological and cohort studies involving hundreds of thousands of children have consistently found no causal link between vaccines (specifically MMR) and autism. Major studies, including nationwide cohorts in Denmark and the US, show no increased risk of autism even in high-risk subgroups, such as children with older siblings with ASD. The initial study that suggested a link was found to be fraudulent and was retracted.",
+      "key_evidence": [
+        "Large-scale cohort study of 537,303 children in Denmark showed no increased risk of autism following MMR vaccination (relative risk 0.92).",
+        "A US-based retrospective cohort study of 95,727 children with older siblings confirmed no association between MMR vaccine receipt and ASD occurrence.",
+        "A nationwide Danish cohort study (1999-2010) found an autism hazard ratio of 0.93 for MMR-vaccinated vs. unvaccinated children.",
+        "Systematic review of clinical evidence confirms the MMR vaccine does not cause autism or related developmental regression syndromes."
+      ],
+      "excluded_studies": [
+        {
+          "title": "The Genetics of Autism",
+          "reason": "off-topic: focus on genetic causes rather than vaccine causation"
+        },
+        {
+          "title": "What causes autism? Exploring the environmental contribution",
+          "reason": "off-topic: discusses general environmental factors without specific evidence for vaccines"
+        },
+        {
+          "title": "The Vaccine-Autism Connection: A Public Health Crisis Caused by Unethical Medical Practices and Fraudulent Science",
+          "reason": "off-topic: discussing the social/legal crisis caused by the fraud rather than providing new evidence"
+        },
+        {
+          "title": "Parental Vaccine Safety Concerns in 2009",
+          "reason": "off-topic: survey of parental opinions/concerns rather than clinical outcomes"
+        },
+        {
+          "title": "Beliefs about causes of autism and vaccine hesitancy among parents of children with autism spectrum disorder",
+          "reason": "off-topic: studies parental beliefs/attitudes rather than biological causality"
+        },
+        {
+          "title": "Beliefs in vaccine as causes of autism among SPARK cohort caregivers",
+          "reason": "off-topic: studies caregiver beliefs/perceptions"
+        },
+        {
+          "title": "Extension: Beliefs about causes of autism and vaccine hesitancy",
+          "reason": "off-topic: studies survey-based beliefs"
+        },
+        {
+          "title": "Cases in Vaccine Court — Legal Battles over Vaccines and Autism",
+          "reason": "off-topic: legal/compensation review rather than clinical evidence"
+        },
+        {
+          "title": "Mercury, Vaccines, and Autism",
+          "reason": "off-topic: historical/social analysis of the controversy"
+        },
+        {
+          "title": "Vaccines Did Not Cause Rachel's Autism: My Journey as a Vaccine Scientist, Pediatrician, and Autism Dad",
+          "reason": "off-topic: personal/narrative account"
+        },
+        {
+          "title": "Vaccine Safety: Myths and Misinformation",
+          "reason": "off-topic: review of general misinformation topics"
+        },
+        {
+          "title": "Adverse Effects of Vaccines: Evidence and Causality",
+          "reason": "off-topic: general review of diverse vaccine adverse effects"
+        }
+      ],
+      "model": "openrouter/free"
+    },
+    "divergence": false,
+    "result": {
+      "claim": "vaccines cause autism",
+      "verdict": "evidence-refutes",
+      "consensus_score": -0.95,
+      "confidence": 0.74,
+      "evidence_strength": "moderate",
+      "apex_design": "systematic-review",
+      "study_count": 37,
+      "supporting": 1,
+      "refuting": 17,
+      "mixed": 1,
+      "inconclusive": 18,
+      "total_citations": 10280,
+      "stance_method": "heuristic",
+      "relevant_count": 37,
+      "near_unanimous": false,
+      "evidence_guarded": false,
+      "top_supporting": [
+        {
+          "title": "Mumps, measles, and rubella vaccine and the incidence of autism recorded by general practitioners: a time trend analysis",
+          "year": 2001,
+          "doi": "10.1136/bmj.322.7284.460",
+          "cited_by_count": 394,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.7,
+          "abstract": "OBJECTIVE: To estimate changes in the risk of autism and assess the relation of autism to the mumps, measles, and rubella (MMR) vaccine. DESIGN: Time trend analysis of data from the UK general practice research database (GPRD). SETTING: General practices in the United Kingdom. SUBJECTS: Children aged 12 years or younger diagnosed with autism 1988-99, with further analysis of boys aged 2 to 5 years born 1988-93. MAIN OUTCOME MEASURES: Annual and age specific incidence for first recorded diagnoses of autism (that is, when the diagnosis of autism was first recorded) in the children aged 12 years or younger; annual, birth cohort specific risk of autism diagnosed in the 2 to 5 year old boys; coverage (prevalence) of MMR vaccination in the same birth cohorts. RESULTS: The incidence of newly diagnosed autism increased sevenfold, from 0.3 per 10 000 person years in 1988 to 2.1 per 10 000 person years in 1999. The peak incidence was among 3 and 4 year olds, and 83% (254/305) of cases were boys. In an annual birth cohort analysis of 114 boys born in 1988-93, the risk of autism in 2 to 5 year old boys increased nearly fourfold over time, from 8 (95% confidence interval 4 to 14) per 10 000 for boys born in 1988 to 29 (20 to 43) per 10 000 for boys born in 1993. For the same annual birth cohorts the prevalence of MMR vaccination was over 95%. CONCLUSIONS: Because the incidence of autism among 2 to 5 year olds increased markedly among boys born in each year separately from 1988 to 1993 whi"
+        }
+      ],
+      "top_refuting": [
+        {
+          "title": "Effective Messages in Vaccine Promotion: A Randomized Trial",
+          "year": 2014,
+          "doi": "10.1542/peds.2013-2365",
+          "cited_by_count": 1319,
+          "design": "randomized-controlled-trial",
+          "stance": "refuting",
+          "stance_confidence": 0.9,
+          "abstract": "OBJECTIVES: To test the effectiveness of messages designed to reduce vaccine misperceptions and increase vaccination rates for measles-mumps-rubella (MMR). METHODS: A Web-based nationally representative 2-wave survey experiment was conducted with 1759 parents age 18 years and older residing in the United States who have children in their household age 17 years or younger (conducted June-July 2011). Parents were randomly assigned to receive 1 of 4 interventions: (1) information explaining the lack of evidence that MMR causes autism from the Centers for Disease Control and Prevention; (2) textual information about the dangers of the diseases prevented by MMR from the Vaccine Information Statement; (3) images of children who have diseases prevented by the MMR vaccine; (4) a dramatic narrative about an infant who almost died of measles from a Centers for Disease Control and Prevention fact sheet; or to a control group. RESULTS: None of the interventions increased parental intent to vaccinate a future child. Refuting claims of an MMR/autism link successfully reduced misperceptions that vaccines cause autism but nonetheless decreased intent to vaccinate among parents who had the least favorable vaccine attitudes. In addition, images of sick children increased expressed belief in a vaccine/autism link and a dramatic narrative about an infant in danger increased self-reported belief in serious vaccine side effects. CONCLUSIONS: Current public health communications about vaccines may "
+        },
+        {
+          "title": "A Population-Based Study of Measles, Mumps, and Rubella Vaccination and Autism",
+          "year": 2002,
+          "doi": "10.1056/nejmoa021134",
+          "cited_by_count": 707,
+          "design": "cohort-study",
+          "stance": "refuting",
+          "stance_confidence": 0.9,
+          "abstract": "BACKGROUND: It has been suggested that vaccination against measles, mumps, and rubella (MMR) is a cause of autism. METHODS: We conducted a retrospective cohort study of all children born in Denmark from January 1991 through December 1998. The cohort was selected on the basis of data from the Danish Civil Registration System, which assigns a unique identification number to every live-born infant and new resident in Denmark. MMR-vaccination status was obtained from the Danish National Board of Health. Information on the children's autism status was obtained from the Danish Psychiatric Central Register, which contains information on all diagnoses received by patients in psychiatric hospitals and outpatient clinics in Denmark. We obtained information on potential confounders from the Danish Medical Birth Registry, the National Hospital Registry, and Statistics Denmark. RESULTS: Of the 537,303 children in the cohort (representing 2,129,864 person-years), 440,655 (82.0 percent) had received the MMR vaccine. We identified 316 children with a diagnosis of autistic disorder and 422 with a diagnosis of other autistic-spectrum disorders. After adjustment for potential confounders, the relative risk of autistic disorder in the group of vaccinated children, as compared with the unvaccinated group, was 0.92 (95 percent confidence interval, 0.68 to 1.24), and the relative risk of another autistic-spectrum disorder was 0.83 (95 percent confidence interval, 0.65 to 1.07). There was no associa"
+        },
+        {
+          "title": "Measles, Mumps, Rubella Vaccination and Autism",
+          "year": 2019,
+          "doi": "10.7326/m18-2101",
+          "cited_by_count": 245,
+          "design": "cohort-study",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Background: The hypothesized link between the measles, mumps, rubella (MMR) vaccine and autism continues to cause concern and challenge vaccine uptake. Objective: To evaluate whether the MMR vaccine increases the risk for autism in children, subgroups of children, or time periods after vaccination. Design: Nationwide cohort study. Setting: Denmark. Participants: 657 461 children born in Denmark from 1999 through 31 December 2010, with follow-up from 1 year of age and through 31 August 2013. Measurements: Danish population registries were used to link information on MMR vaccination, autism diagnoses, other childhood vaccines, sibling history of autism, and autism risk factors to children in the cohort. Survival analysis of the time to autism diagnosis with Cox proportional hazards regression was used to estimate hazard ratios of autism according to MMR vaccination status, with adjustment for age, birth year, sex, other childhood vaccines, sibling history of autism, and autism risk factors (based on a disease risk score). Results: During 5 025 754 person-years of follow-up, 6517 children were diagnosed with autism (incidence rate, 129.7 per 100 000 person-years). Comparing MMR-vaccinated with MMR-unvaccinated children yielded a fully adjusted autism hazard ratio of 0.93 (95% CI, 0.85 to 1.02). Similarly, no increased risk for autism after MMR vaccination was consistently observed in subgroups of children defined according to sibling history of autism, autism risk factors (based"
+        }
+      ],
+      "all_studies": [
+        {
+          "title": "Does the MMR triple vaccine cause autism?",
+          "year": 2004,
+          "doi": "10.1016/j.ehbc.2004.08.004",
+          "cited_by_count": 116,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Effective Messages in Vaccine Promotion: A Randomized Trial",
+          "year": 2014,
+          "doi": "10.1542/peds.2013-2365",
+          "cited_by_count": 1319,
+          "design": "randomized-controlled-trial",
+          "stance": "refuting",
+          "stance_confidence": 0.9,
+          "abstract": "OBJECTIVES: To test the effectiveness of messages designed to reduce vaccine misperceptions and increase vaccination rates for measles-mumps-rubella (MMR). METHODS: A Web-based nationally representative 2-wave survey experiment was conducted with 1759 parents age 18 years and older residing in the United States who have children in their household age 17 years or younger (conducted June-July 2011). Parents were randomly assigned to receive 1 of 4 interventions: (1) information explaining the lack of evidence that MMR causes autism from the Centers for Disease Control and Prevention; (2) textual information about the dangers of the diseases prevented by MMR from the Vaccine Information Statement; (3) images of children who have diseases prevented by the MMR vaccine; (4) a dramatic narrative about an infant who almost died of measles from a Centers for Disease Control and Prevention fact sheet; or to a control group. RESULTS: None of the interventions increased parental intent to vaccinate a future child. Refuting claims of an MMR/autism link successfully reduced misperceptions that vaccines cause autism but nonetheless decreased intent to vaccinate among parents who had the least favorable vaccine attitudes. In addition, images of sick children increased expressed belief in a vaccine/autism link and a dramatic narrative about an infant in danger increased self-reported belief in serious vaccine side effects. CONCLUSIONS: Current public health communications about vaccines may "
+        },
+        {
+          "title": "Vaccines and Autism: A Tale of Shifting Hypotheses",
+          "year": 2009,
+          "doi": "10.1086/596476",
+          "cited_by_count": 340,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "Although child vaccination rates remain high, some parental concern persists that vaccines might cause autism. Three specific hypotheses have been proposed: (1) the combination measles-mumps-rubella vaccine causes autism by damaging the intestinal lining, which allows the entrance of encephalopathic proteins; (2) thimerosal, an ethylmercury-containing preservative in some vaccines, is toxic to the central nervous system; and (3) the simultaneous administration of multiple vaccines overwhelms or weakens the immune system. We will discuss the genesis of each of these theories and review the relevant epidemiological evidence."
+        },
+        {
+          "title": "The Genetics of Autism",
+          "year": 2004,
+          "doi": "10.1542/peds.113.5.e472",
+          "cited_by_count": 1212,
+          "design": "narrative-review",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Autism is a complex, behaviorally defined, static disorder of the immature brain that is of great concern to the practicing pediatrician because of an astonishing 556% reported increase in pediatric prevalence between 1991 and 1997, to a prevalence higher than that of spina bifida, cancer, or Down syndrome. This jump is probably attributable to heightened awareness and changing diagnostic criteria rather than to new environmental influences. Autism is not a disease but a syndrome with multiple nongenetic and genetic causes. By autism (the autistic spectrum disorders [ASDs]), we mean the wide spectrum of developmental disorders characterized by impairments in 3 behavioral domains: 1) social interaction; 2) language, communication, and imaginative play; and 3) range of interests and activities. Autism corresponds in this article to pervasive developmental disorder (PDD) of the Diagnostic and Statistical Manual of Mental Disorders, Fourth Edition and International Classification of Diseases, Tenth Revision. Except for Rett syndrome--attributable in most affected individuals to mutations of the methyl-CpG-binding protein 2 (MeCP2) gene--the other PDD subtypes (autistic disorder, Asperger disorder, disintegrative disorder, and PDD Not Otherwise Specified [PDD-NOS]) are not linked to any particular genetic or nongenetic cause. Review of 2 major textbooks on autism and of papers published between 1961 and 2003 yields convincing evidence for multiple interacting genetic factors as th"
+        },
+        {
+          "title": "What causes autism? Exploring the environmental contribution",
+          "year": 2010,
+          "doi": "10.1097/mop.0b013e328336eb9a",
+          "cited_by_count": 433,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "PURPOSE OF REVIEW: Autism is a biologically based disorder of brain development. Genetic factors--mutations, deletions, and copy number variants--are clearly implicated in causation of autism. However, they account for only a small fraction of cases, and do not easily explain key clinical and epidemiological features. This suggests that early environmental exposures also contribute. This review explores this hypothesis. RECENT FINDINGS: Indirect evidence for an environmental contribution to autism comes from studies demonstrating the sensitivity of the developing brain to external exposures such as lead, ethyl alcohol and methyl mercury. But the most powerful proof-of-concept evidence derives from studies specifically linking autism to exposures in early pregnancy - thalidomide, misoprostol, and valproic acid; maternal rubella infection; and the organophosphate insecticide, chlorpyrifos. There is no credible evidence that vaccines cause autism. SUMMARY: Expanded research is needed into environmental causation of autism. Children today are surrounded by thousands of synthetic chemicals. Two hundred of them are neurotoxic in adult humans, and 1000 more in laboratory models. Yet fewer than 20% of high-volume chemicals have been tested for neurodevelopmental toxicity. I propose a targeted discovery strategy focused on suspect chemicals, which combines expanded toxicological screening, neurobiological research and prospective epidemiological studies."
+        },
+        {
+          "title": "The Vaccine-Autism Connection: A Public Health Crisis Caused by Unethical Medical Practices and Fraudulent Science",
+          "year": 2011,
+          "doi": "10.1345/aph.1q318",
+          "cited_by_count": 178,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.9,
+          "abstract": "In 1998, Dr. Andrew Wakefield, a British gastroenterologist, described a new autism phenotype called the regressive autism-enterocolitis syndrome triggered by environmental factors such as measles, mumps, and rubella (MMR) vaccination. The speculative vaccination-autism connection decreased parental confidence in public health vaccination programs and created a public health crisis in England and questions about vaccine safety in North America. After 10 years of controversy and investigation, Dr. Wakefield was found guilty of ethical, medical, and scientific misconduct in the publication of the autism paper. Additional studies showed that the data presented were fraudulent. The alleged autism-vaccine connection is, perhaps, the most damaging medical hoax of the last 100 years."
+        },
+        {
+          "title": "Parental Vaccine Safety Concerns in 2009",
+          "year": 2010,
+          "doi": "10.1542/peds.2009-1962",
+          "cited_by_count": 502,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "OBJECTIVE: Vaccine safety concerns can diminish parents' willingness to vaccinate their children. The objective of this study was to characterize the current prevalence of parental vaccine refusal and specific vaccine safety concerns and to determine whether such concerns were more common in specific population groups. METHODS: In January 2009, as part of a larger study of parents and nonparents, 2521 online surveys were sent to a nationally representative sample of parents of children who were aged </=17 years. The main outcome measures were parental opinions on vaccine safety and whether the parent had ever refused a vaccine that a doctor recommended for his or her child. RESULTS: The response rate was 62%. Most parents agreed that vaccines protect their child(ren) from diseases; however, more than half of the respondents also expressed concerns regarding serious adverse effects. Overall, 11.5% of the parents had refused at least 1 recommended vaccine. Women were more likely to be concerned about serious adverse effects, to believe that some vaccines cause autism, and to have ever refused a vaccine for their child(ren). Hispanic parents were more likely than white or black parents to report that they generally follow their doctor's recommendations about vaccines for their children and less likely to have ever refused a vaccine. Hispanic parents were also more likely to be concerned about serious adverse effects of vaccines and to believe that some vaccines cause autism. CON"
+        },
+        {
+          "title": "A Population-Based Study of Measles, Mumps, and Rubella Vaccination and Autism",
+          "year": 2002,
+          "doi": "10.1056/nejmoa021134",
+          "cited_by_count": 707,
+          "design": "cohort-study",
+          "stance": "refuting",
+          "stance_confidence": 0.9,
+          "abstract": "BACKGROUND: It has been suggested that vaccination against measles, mumps, and rubella (MMR) is a cause of autism. METHODS: We conducted a retrospective cohort study of all children born in Denmark from January 1991 through December 1998. The cohort was selected on the basis of data from the Danish Civil Registration System, which assigns a unique identification number to every live-born infant and new resident in Denmark. MMR-vaccination status was obtained from the Danish National Board of Health. Information on the children's autism status was obtained from the Danish Psychiatric Central Register, which contains information on all diagnoses received by patients in psychiatric hospitals and outpatient clinics in Denmark. We obtained information on potential confounders from the Danish Medical Birth Registry, the National Hospital Registry, and Statistics Denmark. RESULTS: Of the 537,303 children in the cohort (representing 2,129,864 person-years), 440,655 (82.0 percent) had received the MMR vaccine. We identified 316 children with a diagnosis of autistic disorder and 422 with a diagnosis of other autistic-spectrum disorders. After adjustment for potential confounders, the relative risk of autistic disorder in the group of vaccinated children, as compared with the unvaccinated group, was 0.92 (95 percent confidence interval, 0.68 to 1.24), and the relative risk of another autistic-spectrum disorder was 0.83 (95 percent confidence interval, 0.65 to 1.07). There was no associa"
+        },
+        {
+          "title": "Do Vaccines Cause Autism?",
+          "year": 2018,
+          "doi": "10.1007/978-3-319-94694-8_26",
+          "cited_by_count": 5,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Communicating science to the public: MMR vaccine and autism",
+          "year": 2003,
+          "doi": "10.1016/s0264-410x(03)00532-2",
+          "cited_by_count": 118,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "The MMR Vaccine and Autism",
+          "year": 2019,
+          "doi": "10.1146/annurev-virology-092818-015515",
+          "cited_by_count": 115,
+          "design": "narrative-review",
+          "stance": "refuting",
+          "stance_confidence": 0.9,
+          "abstract": "Autism is a developmental disability that can cause significant social, communication, and behavioral challenges. A report published in 1998, but subsequently retracted by the journal, suggested that measles, mumps, and rubella (MMR) vaccine causes autism. However, autism is a neurodevelopmental condition that has a strong genetic component with genesis before one year of age, when MMR vaccine is typically administered. Several epidemiologic studies have not found an association between MMR vaccination and autism, including a study that found that MMR vaccine was not associated with an increased risk of autism even among high-risk children whose older siblings had autism. Despite strong evidence of its safety, some parents are still hesitant to accept MMR vaccination of their children. Decreasing acceptance of MMR vaccination has led to outbreaks or resurgence of measles. Health-care providers have a vital role in maintaining confidence in vaccination and preventing suffering, disability, and death from measles and other vaccine-preventable diseases."
+        },
+        {
+          "title": "Mercury, Vaccines, and Autism",
+          "year": 2008,
+          "doi": "10.2105/ajph.2007.113159",
+          "cited_by_count": 168,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "The controversy regarding the once widely used mercury-containing preservative thimerosal in childhood vaccines has raised many historical questions that have not been adequately explored. Why was this preservative incorporated in the first place? Was there any real evidence that it caused harm? And how did thimerosal become linked in the public mind to the \"autism epidemic\"? I examine the origins of the thimerosal controversy and their legacy for the debate that has followed. More specifically, I explore the parallel histories of three factors that converged to create the crisis: vaccine preservatives, mercury poisoning, and autism. An understanding of this history provides important lessons for physicians and policymakers seeking to preserve the public's trust in the nation's vaccine system."
+        },
+        {
+          "title": "Autism Occurrence by MMR Vaccine Status Among US Children With Older Siblings With and Without Autism",
+          "year": 2015,
+          "doi": "10.1001/jama.2015.3077",
+          "cited_by_count": 203,
+          "design": "cohort-study",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "IMPORTANCE: Despite research showing no link between the measles-mumps-rubella (MMR) vaccine and autism spectrum disorders (ASD), beliefs that the vaccine causes autism persist, leading to lower vaccination levels. Parents who already have a child with ASD may be especially wary of vaccinations. OBJECTIVE: To report ASD occurrence by MMR vaccine status in a large sample of US children who have older siblings with and without ASD. DESIGN, SETTING, AND PARTICIPANTS: A retrospective cohort study using an administrative claims database associated with a large commercial health plan. Participants included children continuously enrolled in the health plan from birth to at least 5 years of age during 2001-2012 who also had an older sibling continuously enrolled for at least 6 months between 1997 and 2012. EXPOSURES: MMR vaccine receipt (0, 1, 2 doses) between birth and 5 years of age. MAIN OUTCOMES AND MEASURES: ASD status defined as 2 claims with a diagnosis code in any position for autistic disorder or other specified pervasive developmental disorder (PDD) including Asperger syndrome, or unspecified PDD (International Classification of Diseases, Ninth Revision, Clinical Modification 299.0x, 299.8x, 299.9x). RESULTS: Of 95,727 children with older siblings, 994 (1.04%) were diagnosed with ASD and 1929 (2.01%) had an older sibling with ASD. Of those with older siblings with ASD, 134 (6.9%) had ASD, vs 860 (0.9%) children with unaffected siblings (P < .001). MMR vaccination rates (≥1 "
+        },
+        {
+          "title": "The MMR vaccine and autism: Sensation, refutation, retraction, and fraud",
+          "year": 2011,
+          "doi": "10.4103/0019-5545.82529",
+          "cited_by_count": 258,
+          "design": "case-series",
+          "stance": "refuting",
+          "stance_confidence": 0.9,
+          "abstract": "In 1998, Andrew Wakefield and 12 of his colleagues[1] published a case series in the Lancet, which suggested that the measles, mumps, and rubella (MMR) vaccine may predispose to behavioral regression and pervasive developmental disorder in children. Despite the small sample size (n=12), the uncontrolled design, and the speculative nature of the conclusions, the paper received wide publicity, and MMR vaccination rates began to drop because parents were concerned about the risk of autism after vaccination.[2] Almost immediately afterward, epidemiological studies were conducted and published, refuting the posited link between MMR vaccination and autism.[34] The logic that the MMR vaccine may trigger autism was also questioned because a temporal link between the two is almost predestined: both events, by design (MMR vaccine) or definition (autism), occur in early childhood. The next episode in the saga was a short retraction of the interpretation of the original data by 10 of the 12 co-authors of the paper. According to the retraction, “no causal link was established between MMR vaccine and autism as the data were insufficient”.[5] This was accompanied by an admission by the Lancet that Wakefield et al.[1] had failed to disclose financial interests (e.g., Wakefield had been funded by lawyers who had been engaged by parents in lawsuits against vaccine-producing companies). However, the Lancet exonerated Wakefield and his colleagues from charges of ethical violations and scientific"
+        },
+        {
+          "title": "Beliefs about causes of autism and vaccine hesitancy among parents of children with autism spectrum disorder",
+          "year": 2020,
+          "doi": "10.1016/j.vaccine.2020.07.034",
+          "cited_by_count": 38,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Beliefs in vaccine as causes of autism among SPARK cohort caregivers",
+          "year": 2020,
+          "doi": "10.1016/j.vaccine.2019.12.026",
+          "cited_by_count": 33,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Vaccines Did Not Cause Rachel's Autism: My Journey as a Vaccine Scientist, Pediatrician, and Autism Dad",
+          "year": 2018,
+          "cited_by_count": 22,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.9,
+          "abstract": "Foreword, by Arthur L. Caplan Preface 1. Family Interrupted 2. Saving Lives with Vaccines 3. A Mostly Noncompliant Little Girl 4. Derailment 5. Like Rome during the Roman Empire 6. The British Invasion 7. Montrose 8. Vaccines Don't Cause Autism: The Scientific Evidence 9. What Does Cause Autism? The Scientific Evidence 10. Struck by Lightning 11. Our Family's Future 12. Science Tikkun Epilogue: Talking Points References Index"
+        },
+        {
+          "title": "Extension: Beliefs about causes of autism and vaccine hesitancy",
+          "year": 2021,
+          "doi": "10.46439/pediatrics.1.008",
+          "cited_by_count": 33,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Cases in Vaccine Court — Legal Battles over Vaccines and Autism",
+          "year": 2007,
+          "doi": "10.1056/nejmp078168",
+          "cited_by_count": 68,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "Do childhood vaccines cause autism? More than 5000 families have filed claims with the federal Vaccine Injury Compensation Program. Stephen Sugarman discusses the autism cases."
+        },
+        {
+          "title": "Measles, mumps, and rubella vaccination and bowel problems or developmental regression in children with autism: population study",
+          "year": 2002,
+          "doi": "10.1136/bmj.324.7334.393",
+          "cited_by_count": 349,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.9,
+          "abstract": "<h3>Abstract</h3> <b>Objectives:</b> To investigate whether measles, mumps, and rubella (MMR) vaccination is associated with bowel problems and developmental regression in children with autism, looking for evidence of a “new variant” form of autism. <b>Design:</b> Population study with case note review linked to independently recorded vaccine data. <b>Setting:</b> Five health districts in north east London. <b>Participants:</b> 278 children with core autism and 195 with atypical autism, mainly identified from computerised disability registers and born between 1979 and 1998. <b>Main outcome measures:</b> Recorded bowel problems lasting at least three months, age of reported regression of the child9s development where it was a feature, and relation of these to MMR vaccination. <b>Results:</b> The proportion of children with developmental regression (25% overall) or bowel symptoms (17%) did not change significantly (P value for trend 0.50 and 0.47, respectively) during the 20 years from 1979, a period which included the introduction of MMR vaccination in October 1988. No significant difference was found in rates of bowel problems or regression in children who received the MMR vaccine before their parents became concerned about their development (where MMR might have caused or triggered the autism with regression or bowel problem), compared with those who received it only after such concern and those who had not received the MMR vaccine. A possible association between non-specifi"
+        },
+        {
+          "title": "Vaccine Safety: Myths and Misinformation",
+          "year": 2020,
+          "doi": "10.3389/fmicb.2020.00372",
+          "cited_by_count": 282,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "The World Health Organization has named vaccine hesitancy as one of the top ten threats to global health in 2019. The reasons why people choose not to vaccinate are complex, but lack of confidence in vaccine safety, driven by concerns about adverse events, has been identified as one of the key factors. Healthcare workers, especially those in primary care, remain key influencers on vaccine decisions. It is important, therefore, that they be supported by having easy access to trusted, evidence-based information on vaccines. Although parents and patients have a number of concerns about vaccine safety, among the most common are fears that adjuvants like aluminum, preservatives like mercury, inactivating agents like formaldehyde, manufacturing residuals like human or animal DNA fragments, and simply the sheer number of vaccines might be overwhelming, weakening or perturbing the immune system. As a consequence, some fear that vaccines are causing autism, diabetes, developmental delays, hyperactivity, and attention-deficit disorders, amongst others. In this review we will address several of these topics and highlight the robust body of scientific evidence that refutes common concerns about vaccine safety."
+        },
+        {
+          "title": "Measles, Mumps, Rubella Vaccination and Autism",
+          "year": 2019,
+          "doi": "10.7326/m18-2101",
+          "cited_by_count": 245,
+          "design": "cohort-study",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Background: The hypothesized link between the measles, mumps, rubella (MMR) vaccine and autism continues to cause concern and challenge vaccine uptake. Objective: To evaluate whether the MMR vaccine increases the risk for autism in children, subgroups of children, or time periods after vaccination. Design: Nationwide cohort study. Setting: Denmark. Participants: 657 461 children born in Denmark from 1999 through 31 December 2010, with follow-up from 1 year of age and through 31 August 2013. Measurements: Danish population registries were used to link information on MMR vaccination, autism diagnoses, other childhood vaccines, sibling history of autism, and autism risk factors to children in the cohort. Survival analysis of the time to autism diagnosis with Cox proportional hazards regression was used to estimate hazard ratios of autism according to MMR vaccination status, with adjustment for age, birth year, sex, other childhood vaccines, sibling history of autism, and autism risk factors (based on a disease risk score). Results: During 5 025 754 person-years of follow-up, 6517 children were diagnosed with autism (incidence rate, 129.7 per 100 000 person-years). Comparing MMR-vaccinated with MMR-unvaccinated children yielded a fully adjusted autism hazard ratio of 0.93 (95% CI, 0.85 to 1.02). Similarly, no increased risk for autism after MMR vaccination was consistently observed in subgroups of children defined according to sibling history of autism, autism risk factors (based"
+        },
+        {
+          "title": "Adverse Effects of Vaccines: Evidence and Causality",
+          "year": 2013,
+          "cited_by_count": 349,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "In 1900, for every 1,000 babies born in the United States, 100 would die before their first birthday, often due to infectious diseases. Today, vaccines exist for many viral and bacterial diseases. The National Childhood Vaccine Injury Act, passed in 1986, was intended to bolster vaccine research and development through the federal coordination of vaccine initiatives and to provide relief to vaccine manufacturers facing financial burdens. The legislation also intended to address concerns about the safety of vaccines by instituting a compensation program, setting up a passive surveillance system for vaccine adverse events, and by providing information to consumers. A key component of the legislation required the U.S. Department of Health and Human Services to collaborate with the Institute of Medicine to assess concerns about the safety of vaccines and potential adverse events, especially in children. Adverse Effects of Vaccines reviews the epidemiological, clinical, and biological evidence regarding adverse health events associated with specific vaccines covered by the National Vaccine Injury Compensation Program (VICP), including the varicella zoster vaccine, influenza vaccines, the hepatitis B vaccine, and the human papillomavirus vaccine, among others. For each possible adverse event, the report reviews peer-reviewed primary studies, summarizes their findings, and evaluates the epidemiological, clinical, and biological evidence. It finds that while no vaccine is 100 percent"
+        },
+        {
+          "title": "Vaccines and Autism: Evidence Does Not Support a Causal Association",
+          "year": 2007,
+          "doi": "10.1038/sj.clpt.6100407",
+          "cited_by_count": 131,
+          "design": "narrative-review",
+          "stance": "refuting",
+          "stance_confidence": 0.9,
+          "abstract": "A suggested association between certain childhood vaccines and autism has been one of the most contentious vaccine safety controversies in recent years. Despite compelling scientific evidence against a causal association, many parents and parent advocacy groups continue to suspect that vaccines, particularly measles-mumps-rubella (MMR) vaccine and thimerosal-containing vaccines (TCVs), can cause autism."
+        },
+        {
+          "title": "MMR vaccine and autism: an update of the scientific evidence",
+          "year": 2004,
+          "doi": "10.1586/14760584.3.1.19",
+          "cited_by_count": 124,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "An hypothesis published in 1998 suggested that measles-mumps-rubella vaccine may cause autism as a result of persistent measles virus infection of the gastrointestinal tract. Results of early studies were not supportive and in 2001 a review by the Institute of Medicine concluded that the evidence favors the rejection of a causal relationship at the population level between measles-mumps-rubella vaccine and autistic spectrum disorder. Studies published since the Institute of Medicine report have continued not to find an increased risk of autistic spectrum disorder associated with measles-mumps-rubella. The vaccine also has not been found to be associated with a unique syndrome of developmental regression and gastrointestinal disorders. The evidence now is convincing that the measles-mumps-rubella vaccine does not cause autism or any particular subtypes of autistic spectrum disorder."
+        },
+        {
+          "title": "Vaccine Criticism on the World Wide Web",
+          "year": 2005,
+          "doi": "10.2196/jmir.7.2.e17",
+          "cited_by_count": 296,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.95,
+          "abstract": "BACKGROUND: The incidence of vaccine-preventable diseases is directly related to the number of unvaccinated children. Parents who refuse vaccination of their children frequently express concerns about vaccine safety. The Internet can influence perceptions about vaccines because it is the fastest growing source of consumer health information. However, few studies have analyzed vaccine criticism on the Web. OBJECTIVE: The purposes of this paper are to examine vaccine criticism on the Internet and to analyze the websites in order to identify common characteristics and ethical allegations. METHODS: A structured Web search was conducted for the terms \"vaccine,\" \"vaccination,\" \"vaccinate,\" and \"anti-vaccination\" using a metasearch program that incorporated 8 search engines. This yielded 1138 Web pages representing 750 sites. Two researchers reviewed the sites for inclusion/exclusion criteria, resulting in 78 vaccine-critical sites, which were then abstracted for design, content, and allegations. RESULTS: The most common characteristic of vaccine-critical websites was the inclusion of statements linking vaccinations with specific adverse reactions, especially idiopathic chronic diseases such as multiple sclerosis, autism, and diabetes. Other common attributes (> or = 70% of websites) were links to other vaccine-critical websites; charges that vaccines contain contaminants, mercury, or \"hot lots\" that cause adverse events; claims that vaccines provide only temporary protection and th"
+        },
+        {
+          "title": "Mumps, measles, and rubella vaccine and the incidence of autism recorded by general practitioners: a time trend analysis",
+          "year": 2001,
+          "doi": "10.1136/bmj.322.7284.460",
+          "cited_by_count": 394,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.7,
+          "abstract": "OBJECTIVE: To estimate changes in the risk of autism and assess the relation of autism to the mumps, measles, and rubella (MMR) vaccine. DESIGN: Time trend analysis of data from the UK general practice research database (GPRD). SETTING: General practices in the United Kingdom. SUBJECTS: Children aged 12 years or younger diagnosed with autism 1988-99, with further analysis of boys aged 2 to 5 years born 1988-93. MAIN OUTCOME MEASURES: Annual and age specific incidence for first recorded diagnoses of autism (that is, when the diagnosis of autism was first recorded) in the children aged 12 years or younger; annual, birth cohort specific risk of autism diagnosed in the 2 to 5 year old boys; coverage (prevalence) of MMR vaccination in the same birth cohorts. RESULTS: The incidence of newly diagnosed autism increased sevenfold, from 0.3 per 10 000 person years in 1988 to 2.1 per 10 000 person years in 1999. The peak incidence was among 3 and 4 year olds, and 83% (254/305) of cases were boys. In an annual birth cohort analysis of 114 boys born in 1988-93, the risk of autism in 2 to 5 year old boys increased nearly fourfold over time, from 8 (95% confidence interval 4 to 14) per 10 000 for boys born in 1988 to 29 (20 to 43) per 10 000 for boys born in 1993. For the same annual birth cohorts the prevalence of MMR vaccination was over 95%. CONCLUSIONS: Because the incidence of autism among 2 to 5 year olds increased markedly among boys born in each year separately from 1988 to 1993 whi"
+        },
+        {
+          "title": "Misinformation About COVID-19 Vaccines on Social Media: Rapid Review",
+          "year": 2022,
+          "doi": "10.2196/37367",
+          "cited_by_count": 338,
+          "design": "systematic-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "BACKGROUND: The development of COVID-19 vaccines has been crucial in fighting the pandemic. However, misinformation about the COVID-19 pandemic and vaccines is spread on social media platforms at a rate that has made the World Health Organization coin the phrase infodemic. False claims about adverse vaccine side effects, such as vaccines being the cause of autism, were already considered a threat to global health before the outbreak of COVID-19. OBJECTIVE: We aimed to synthesize the existing research on misinformation about COVID-19 vaccines spread on social media platforms and its effects. The secondary aim was to gain insight and gather knowledge about whether misinformation about autism and COVID-19 vaccines is being spread on social media platforms. METHODS: We performed a literature search on September 9, 2021, and searched PubMed, PsycINFO, ERIC, EMBASE, Cochrane Library, and the Cochrane COVID-19 Study Register. We included publications in peer-reviewed journals that fulfilled the following criteria: original empirical studies, studies that assessed social media and misinformation, and studies about COVID-19 vaccines. Thematic analysis was used to identify the patterns (themes) of misinformation. Narrative qualitative synthesis was undertaken with the guidance of the PRISMA (Preferred Reporting Items for Systematic Reviews and Meta-Analyses) 2020 Statement and the Synthesis Without Meta-analysis reporting guideline. The risk of bias was assessed using the Joanna Briggs"
+        },
+        {
+          "title": "No effect of MMR withdrawal on the incidence of autism: a total population study",
+          "year": 2005,
+          "doi": "10.1111/j.1469-7610.2005.01425.x",
+          "cited_by_count": 299,
+          "design": "unclassified",
+          "stance": "mixed",
+          "stance_confidence": 0.5,
+          "abstract": "BACKGROUND: A causal relationship between the measles, mumps, and rubella (MMR) vaccine and occurrence of autism spectrum disorders (ASD) has been claimed, based on an increase in ASD in the USA and the UK after introduction of the MMR vaccine. However, the possibility that this increase is coincidental has not been eliminated. The unique circumstances of a Japanese MMR vaccination program provide an opportunity for comparison of ASD incidence before and after termination of the program. METHODS: This study examined cumulative incidence of ASD up to age seven for children born from 1988 to 1996 in Kohoku Ward (population approximately 300,000), Yokohama, Japan. ASD cases included all cases of pervasive developmental disorders according to ICD-10 guidelines. RESULTS: The MMR vaccination rate in the city of Yokohama declined significantly in the birth cohorts of years 1988 through 1992, and not a single vaccination was administered in 1993 or thereafter. In contrast, cumulative incidence of ASD up to age seven increased significantly in the birth cohorts of years 1988 through 1996 and most notably rose dramatically beginning with the birth cohort of 1993. CONCLUSIONS: The significance of this finding is that MMR vaccination is most unlikely to be a main cause of ASD, that it cannot explain the rise over time in the incidence of ASD, and that withdrawal of MMR in countries where it is still being used cannot be expected to lead to a reduction in the incidence of ASD."
+        },
+        {
+          "title": "Thimerosal and Autism?",
+          "year": 2003,
+          "doi": "10.1542/peds.111.3.674",
+          "cited_by_count": 125,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "Concern has been expressed over the possibility that the mercury-containing compound thimerosal in vaccines may cause autism.1–4 Thimerosal is sodium ethylmercury thiosalicylate, an organic compound of ethyl mercury, included in certain vaccines to protect multiple dose ampules from bacterial and fungal contamination. Mercury in sufficient dose is neurotoxic, and probably more toxic in the immature brain. It is reasonable to ask whether thimerosal in childhood vaccine increases risk of chronic childhood neurologic disability and specifically of autism. The available data with which to address the question are very limited and largely inferential. Most of the information we have about mercury toxicity is related to exposure to methyl rather than ethyl mercury.\n\nBernard et al1 offered an hypothesis that autism is an expression of mercury toxicity resulting from thimerosal in vaccines. They base this hypothesis on their views2 that the clinical signs of mercury toxicity are similar to the manifestations of autism, that the onset of autism is temporally associated with immunization in some children, that the recent increase in diagnosis of autism parallels exposure to thimerosal, and that there are higher levels of mercury in persons with than without autism.\n\nThis review will examine these issues and others to ask whether, according to evidence now available, thimerosal is a probable cause of autism. We will not discuss which, if any, of the differing guidelines designed to limi"
+        },
+        {
+          "title": "Vaccines and the changing epidemiology of autism",
+          "year": 2006,
+          "doi": "10.1111/j.1365-2214.2006.00655.x",
+          "cited_by_count": 72,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "BACKGROUND: The epidemiology of autism has been rather confusing, with very variable published prevalence figures and no clear incidence data. The cause of autism is unclear; vaccines have been incriminated. METHODS: Literature review and interpretation. RESULTS: The recorded prevalence of autism has increased considerably in recent years. This reflects greater recognition, with changes in diagnostic practice associated with more trained diagnosticians; broadening of diagnostic criteria to include a spectrum of disorder; a greater willingness by parents and educationalists to accept the label (in part because of entitlement to services); and better recording systems, among other factors. The cause(s) of autism remains unclear. There is a strong genetic component which, along with prenatally determined neuro-anatomical/biochemical changes, makes any post-natal 'cause' unlikely. CONCLUSIONS: There has (probably) been no real increase in the incidence of autism. There is no scientific evidence that the measles, mumps and rubella (MMR) vaccine or the mercury preservative used in some vaccines plays any part in the aetiology or triggering of autism, even in a subgroup of children with the condition."
+        },
+        {
+          "title": "Vaccine hesitancy and (fake) news: Quasi‐experimental evidence from Italy",
+          "year": 2019,
+          "doi": "10.1002/hec.3937",
+          "cited_by_count": 250,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "The spread of fake news and misinformation on social media is blamed as a primary cause of vaccine hesitancy, which is one of the major threats to global health, according to the World Health Organization. This paper studies the effect of the diffusion of misinformation on immunization rates in Italy by exploiting a quasi-experiment that occurred in 2012, when the Court of Rimini officially recognized a causal link between the measles-mumps-rubella vaccine and autism and awarded injury compensation. To this end, we exploit the virality of misinformation following the 2012 Italian court's ruling, along with the intensity of exposure to nontraditional media driven by regional infrastructural differences in Internet broadband coverage. Using a Difference-in-Differences regression on regional panel data, we show that the spread of this news resulted in a decrease in child immunization rates for all types of vaccines."
+        },
+        {
+          "title": "Mercury and autism: accelerating evidence?",
+          "year": 2005,
+          "cited_by_count": 172,
+          "design": "narrative-review",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "The causes of autism and neurodevelopmental disorders are unknown. Genetic and environmental risk factors seem to be involved. Because of an observed increase in autism in the last decades, which parallels cumulative mercury exposure, it was proposed that autism may be in part caused by mercury. We review the evidence for this proposal. Several epidemiological studies failed to find a correlation between mercury exposure through thimerosal, a preservative used in vaccines, and the risk of autism. Recently, it was found that autistic children had a higher mercury exposure during pregnancy due to maternal dental amalgam and thimerosal-containing immunoglobulin shots. It was hypothesized that children with autism have a decreased detoxification capacity due to genetic polymorphism. In vitro, mercury and thimerosal in levels found several days after vaccination inhibit methionine synthetase (MS) by 50%. Normal function of MS is crucial in biochemical steps necessary for brain development, attention and production of glutathione, an important antioxidative and detoxifying agent. Repetitive doses of thimerosal leads to neurobehavioral deteriorations in autoimmune susceptible mice, increased oxidative stress and decreased intracellular levels of glutathione in vitro. Subsequently, autistic children have significantly decreased level of reduced glutathione. Promising treatments of autism involve detoxification of mercury, and supplementation of deficient metabolites."
+        },
+        {
+          "title": "Environmental risk factors for autism: an evidence-based review of systematic reviews and meta-analyses",
+          "year": 2017,
+          "doi": "10.1186/s13229-017-0121-4",
+          "cited_by_count": 804,
+          "design": "narrative-review",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "BACKGROUND: According to recent evidence, up to 40-50% of variance in autism spectrum disorder (ASD) liability might be determined by environmental factors. In the present paper, we conducted a review of systematic reviews and meta-analyses of environmental risk factors for ASD. We assessed each review for quality of evidence and provided a brief overview of putative mechanisms of environmental risk factors for ASD. FINDINGS: Current evidence suggests that several environmental factors including vaccination, maternal smoking, thimerosal exposure, and most likely assisted reproductive technologies are unrelated to risk of ASD. On the contrary, advanced parental age is associated with higher risk of ASD. Birth complications that are associated with trauma or ischemia and hypoxia have also shown strong links to ASD, whereas other pregnancy-related factors such as maternal obesity, maternal diabetes, and caesarian section have shown a less strong (but significant) association with risk of ASD. The reviews on nutritional elements have been inconclusive about the detrimental effects of deficiency in folic acid and omega 3, but vitamin D seems to be deficient in patients with ASD. The studies on toxic elements have been largely limited by their design, but there is enough evidence for the association between some heavy metals (most important inorganic mercury and lead) and ASD that warrants further investigation. Mechanisms of the association between environmental factors and ASD ar"
+        },
+        {
+          "title": "Aetiology of autism: findings and questions*",
+          "year": 2005,
+          "doi": "10.1111/j.1365-2788.2005.00676.x",
+          "cited_by_count": 168,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "BACKGROUND: Although there is good evidence that autism is a multifactorial disorder, an adequate understanding of the genetic and non-genetic causes has yet to be achieved. METHODS: Empirical research findings and conceptual reviews are reviewed with respect to evidence on possible causal influences. RESULTS: Much the strongest evidence concerns the importance of susceptibility genes, but such genes have yet to be identified. Specific somatic conditions (such as tuberous sclerosis and the fragile X anomaly) account for a small proportion of cases. Over recent decades there has been a major rise in the rate of diagnosed autism. The main explanation for this rise is to be found in better ascertainment and a broadening of the diagnostic concept. Nevertheless, some degree of true rise cannot be firmly excluded. However, the epidemiological evidence on the main hypothesized environmental explanation, namely the measles-mumps-rubella vaccine, is consistently negative. CONCLUSION: Progress on the elucidation of the causes of autism will be crucially dependent on the combination of epidemiology with more basic science laboratory studies."
+        },
+        {
+          "title": "Vaccines Did Not Cause Rachel's Autism",
+          "year": 2020,
+          "doi": "10.1353/book.99577",
+          "cited_by_count": 13,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.9,
+          "abstract": ""
+        },
+        {
+          "title": "Do vaccines cause autism?",
+          "year": 2002,
+          "cited_by_count": 1,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        }
+      ],
+      "note": "1 off-topic work(s) excluded by relevance gate; 13 work(s) excluded by PICO gate (missing intervention [vacci] or outcome [autis] in abstract/title)"
+    }
+  }
+}

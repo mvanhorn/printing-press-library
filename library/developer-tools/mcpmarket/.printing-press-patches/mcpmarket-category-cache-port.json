@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "mcpmarket-category-cache-port",
+  "applied_at": "2026-08-27",
+  "base_run_id": "20260827-211137-37906ad0",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Ported the generator's cache-enabled auto-refresh scaffolding (internal/cli/auto_refresh.go, internal/cliutil/freshness.go, and the PersistentPreRunE wiring in root.go) from a scratch cache-enabled regeneration, scoped only to the category resource.",
+  "reason": "The initial print declared cache.enabled without a working syncable list endpoint for server/skill/mcpclient (those were later rebuilt as hand-written commands, see mcpmarket-jsonld-extraction.json), which caused a data-corruption bug when auto-refresh fired against them. Removing cache entirely regressed the cache_freshness quality dimension. Since category kept its generator-emitted list endpoint (link extraction, no JSON-LD ambiguity), auto-refresh is safe to enable for that resource specifically; the scaffolding was generated once into a scratch directory and copied in rather than risking a full in-place regeneration over the hand-written novel command files.",
+  "files": [
+    "internal/cli/auto_refresh.go",
+    "internal/cliutil/freshness.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "doctor reports 'Cache: fresh' after a category browse; 127/127 live dogfood tests passing; scorecard cache_freshness dimension went from 5/10 to 10/10."
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "retraction-excluded-from-the-scored-corpus",
+  "applied_at": "2026-08-26",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "A retracted work is not evidence and must never reach the consensus scoring loop: retraction is detected on the live fetch path from two independent signals — a publisher marker anchored at the start of the title and the source index's retraction flag — and the affected works are gated out before enrichment and scoring, on every path that calls scengine.Consensus. Retraction is an axis of its own, never a stance: a stance value would still be tallied as inconclusive while the work's design set the apex evidence tier and its citations joined the total. Excluded works stay in the reported study list with their reason attached, and the count is reported separately so the reader sees that works were dropped rather than inferring it from a gap.",
+  "reason": "scengine's retraction detector existed but nothing on the live path called it, so retracted works were scored as ordinary evidence; independently, the OpenAlex select list did not request is_retracted, which left the index-only tier dead even once the detector was wired — and that is the tier covering the worst measured case, a retracted meta-analysis carrying no title marker that would otherwise supply supporting evidence at the highest evidence tier. Any regeneration that rebuilds the select list or the normalization struct must keep the index flag, or the gate silently degrades to the title rule alone.",
+  "files": [
+    "internal/scengine/retracted.go",
+    "internal/cli/scwork.go",
+    "internal/cli/consensus.go",
+    "internal/cli/compare.go",
+    "internal/cli/retraction_gate_test.go"
+  ],
+  "validated_outcome": "TestFetchWorksRequestsAndCarriesIsRetracted asserts the select list requests is_retracted and that the parsed flag survives normalization onto the scored struct. TestFilterRetracted pins the three signal combinations (title marker only, index flag only, neither) plus the bibliometrics-title false positive the start anchor rejects, and that the gate does not mutate its input. TestConsensusExcludesRetractedFromScoreAndApex runs the full fetch-to-consensus path twice over one corpus differing only in the retraction flag of a heavily cited supporting meta-analysis, and asserts the retracted run loses that work from apex_design, total_citations, supporting and study_count, reports retracted_excluded=1, scores strictly below the control, and still lists the work with its retraction reason and no stance."
+}

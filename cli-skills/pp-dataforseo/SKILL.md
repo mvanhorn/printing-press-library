@@ -25,7 +25,7 @@ This skill drives the `dataforseo-pp-cli` binary. **You must verify the CLI is i
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install dataforseo --cli-only
+   npx -y @mvanhorn/printing-press-library install dataforseo --cli-only
    ```
 2. Verify: `dataforseo-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

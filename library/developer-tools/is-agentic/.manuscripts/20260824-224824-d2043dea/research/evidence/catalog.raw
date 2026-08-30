@@ -1,0 +1,19 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://is-agentic.com/api/v1/report",
+      "service-desc": [
+        {
+          "href": "https://is-agentic.com/openapi.json",
+          "type": "application/vnd.oai.openapi+json"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://is-agentic.com/docs",
+          "type": "text/html"
+        }
+      ]
+    }
+  ]
+}

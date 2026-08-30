@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "deepseek-provider-and-temperature-zero",
+  "applied_at": "2026-08-19",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "DeepSeek registered as an optional stance provider (DEEPSEEK_API_KEY, compile-time deepseek-chat) in the shared OpenAI-compatible helper, placed after Anthropic/OpenAI and before Gemini/Groq/Mistral; all OpenAI-compatible providers now send temperature 0 so stance labels are reproducible.",
+  "reason": "A reprint must keep DeepSeek in that priority slot (DEEPSEEK_API_KEY, compile-time deepseek-chat) and keep temperature 0 on the shared OpenAI-compatible helper — otherwise the optional low-cost path disappears and the same work/claim can receive different stance labels across runs.",
+  "files": ["internal/scengine/llm_stance.go"],
+  "validated_outcome": "Author measured DeepSeek deepseek-chat temperature 0 across 13 stored corpora / 295 works, 0 call errors, 5m22s; unrelated-claim control 36/39 vs heuristic 12/39. No new dependencies."
+}

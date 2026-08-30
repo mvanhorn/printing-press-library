@@ -38,6 +38,9 @@ func newFavoritesPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if len(items) == 0 {
+				if flags.asJSON {
+					return printJSONFiltered(cmd.OutOrStdout(), []any{}, flags)
+				}
 				fmt.Fprintln(cmd.OutOrStdout(), "No favorite items found — run 'anylist-pp-cli sync' first")
 				return nil
 			}
@@ -63,5 +66,7 @@ func newFavoritesPromotedCmd(flags *rootFlags) *cobra.Command {
 			return tw.Flush()
 		},
 	}
+	cmd.AddCommand(newStarterListAddCmd(flags, starterListFavorites))
+	cmd.AddCommand(newStarterListRemoveCmd(flags, starterListFavorites))
 	return cmd
 }

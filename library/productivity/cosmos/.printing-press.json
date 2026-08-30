@@ -1,0 +1,123 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-02T05:51:21.847029Z",
+  "printing_press_version": "4.30.0",
+  "api_name": "cosmos",
+  "display_name": "Cosmos",
+  "cli_name": "cosmos-pp-cli",
+  "creator": {
+    "handle": "elliottrjacobs",
+    "name": "Elliott Jacobs"
+  },
+  "owner": "elliottrjacobs",
+  "printer": "elliottrjacobs",
+  "printer_name": "Elliott Jacobs",
+  "spec_path": "cosmos-browser-sniff-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:4b3030dbcd228bb5b3aca0ad1f4233438dc5e905dc6c36d939ab92c89a65e755",
+  "run_id": "20260801-232017-c67b1670",
+  "category": "productivity",
+  "description": "Search, organize, export, and audit your Cosmos inspiration library from the terminal.",
+  "mcp_binary": "cosmos-pp-mcp",
+  "mcp_tool_count": 53,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE",
+    "COSMOS_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    },
+    {
+      "name": "COSMOS_TOKEN",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Weekly library review",
+      "command": "review",
+      "description": "Turn recent saves, unfiled elements, duplicate connections, AI flags, and missing attribution into a deterministic maintenance queue."
+    },
+    {
+      "name": "Collection overlap",
+      "command": "collection overlap",
+      "description": "Compare two collections and report shared elements, duplicate media, and references unique to each side."
+    },
+    {
+      "name": "Search coverage gap",
+      "command": "collection coverage",
+      "description": "Compare live Cosmos search results with live collection membership and return promising references that are not already saved."
+    },
+    {
+      "name": "Provenance audit",
+      "command": "provenance audit",
+      "description": "Report missing source URLs or authors and show source concentration from live collection elements."
+    },
+    {
+      "name": "Similarity trail",
+      "command": "element trail",
+      "description": "Walk visual similarity results to a bounded depth and emit a deduplicated, source-aware graph."
+    },
+    {
+      "name": "Snapshot diff",
+      "command": "snapshot diff",
+      "description": "Compare historical collection membership and show added, removed, and moved elements."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Weekly library review",
+      "command": "review",
+      "description": "Turn recent saves, unfiled elements, duplicate connections, AI flags, and missing attribution into a deterministic maintenance queue."
+    },
+    {
+      "name": "Collection overlap",
+      "command": "collection overlap",
+      "description": "Compare two collections and report shared elements, duplicate media, and references unique to each side."
+    },
+    {
+      "name": "Search coverage gap",
+      "command": "collection coverage",
+      "description": "Compare live Cosmos search results with live collection membership and return promising references that are not already saved."
+    },
+    {
+      "name": "Provenance audit",
+      "command": "provenance audit",
+      "description": "Report missing source URLs or authors and show source concentration from live collection elements."
+    },
+    {
+      "name": "Similarity trail",
+      "command": "element trail",
+      "description": "Walk visual similarity results to a bounded depth and emit a deduplicated, source-aware graph."
+    },
+    {
+      "name": "Snapshot diff",
+      "command": "snapshot diff",
+      "description": "Compare historical collection membership and show added, removed, and moved elements."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 51,
+    "total": 51,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 75,
+      "grade": "B",
+      "total": 75
+    }
+  }
+}

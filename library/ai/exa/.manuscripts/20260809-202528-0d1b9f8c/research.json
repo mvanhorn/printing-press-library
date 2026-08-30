@@ -1,0 +1,228 @@
+{
+  "api_name": "exa",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "exa-mcp-server",
+      "url": "https://github.com/exa-labs/exa-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 4843,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "exa-js",
+      "url": "https://github.com/exa-labs/exa-js",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "exa-py",
+      "url": "https://github.com/exa-labs/exa-py",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "exa-direct",
+      "url": "https://github.com/BjornMelin/exa-direct",
+      "language": "Python",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-09T15:05:54Z",
+  "novel_features": [
+    {
+      "name": "Spend report",
+      "command": "spend",
+      "description": "See cumulative API spend across every Exa call, broken down by day and resource.",
+      "rationale": "Every Exa response carries costDollars.total but no endpoint aggregates spend; only the local store can join cost across calls.",
+      "example": "exa-pp-cli spend --days 30 --resource searches",
+      "why_it_matters": "Agents should reach for this when they need to know how much Exa usage costs before running another batch.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Monitor run diff",
+      "command": "monitor diff",
+      "description": "Compare two synced monitor runs and see exactly which URLs are new, gone, or unchanged.",
+      "rationale": "Joining two monitor-run result sets is a local-SQLite operation the Exa API cannot express.",
+      "example": "exa-pp-cli monitor diff \u003cmonitor-id\u003e",
+      "why_it_matters": "Reach for this to see what a scheduled search found since the last run instead of re-reading entire run outputs.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Entity report",
+      "command": "entity report",
+      "description": "Build a first-seen / last-seen / mention-count timeline for any company or person across your synced searches and webset items.",
+      "rationale": "Requires an FTS5 join across webset entity items and search/monitor results that only exists together in the local store.",
+      "example": "exa-pp-cli entity report \"Acme Corp\" --type company --since 30d",
+      "why_it_matters": "Reach for this to track when an entity first appeared and how often it shows up across all your research surfaces.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Webset new",
+      "command": "webset new",
+      "description": "List items added to a live webset since your last sync, so you only see what changed.",
+      "rationale": "Diffing current synced item state against the previous snapshot is a local join; the API exposes items but not deltas.",
+      "example": "exa-pp-cli webset new \u003cwebset-id\u003e --since 7d",
+      "why_it_matters": "Reach for this for the weekly what's-new sweep over a curated set instead of re-listing every item.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Spend report",
+      "command": "spend",
+      "description": "See cumulative API spend across every Exa call, broken down by day and resource.",
+      "rationale": "Every Exa response carries costDollars.total but no endpoint aggregates spend; only the local store can join cost across calls.",
+      "example": "exa-pp-cli spend --days 30 --resource searches",
+      "why_it_matters": "Agents should reach for this when they need to know how much Exa usage costs before running another batch.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Monitor run diff",
+      "command": "monitor diff",
+      "description": "Compare two synced monitor runs and see exactly which URLs are new, gone, or unchanged.",
+      "rationale": "Joining two monitor-run result sets is a local-SQLite operation the Exa API cannot express.",
+      "example": "exa-pp-cli monitor diff \u003cmonitor-id\u003e",
+      "why_it_matters": "Reach for this to see what a scheduled search found since the last run instead of re-reading entire run outputs.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Entity report",
+      "command": "entity report",
+      "description": "Build a first-seen / last-seen / mention-count timeline for any company or person across your synced searches and webset items.",
+      "rationale": "Requires an FTS5 join across webset entity items and search/monitor results that only exists together in the local store.",
+      "example": "exa-pp-cli entity report \"Acme Corp\" --type company --since 30d",
+      "why_it_matters": "Reach for this to track when an entity first appeared and how often it shows up across all your research surfaces.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Webset new",
+      "command": "webset new",
+      "description": "List items added to a live webset since your last sync, so you only see what changed.",
+      "rationale": "Diffing current synced item state against the previous snapshot is a local join; the API exposes items but not deltas.",
+      "example": "exa-pp-cli webset new \u003cwebset-id\u003e --since 7d",
+      "why_it_matters": "Reach for this for the weekly what's-new sweep over a curated set instead of re-listing every item.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "EXA_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Exa",
+    "headline": "Every Exa search API feature, plus local history, spend tracking, and diffing no other Exa tool has.",
+    "value_prop": "exa-pp-cli wraps the full Exa API — search, contents, answer, find-similar, monitors, agent runs, websets, webhooks, imports — and adds a local SQLite store so every result, run, and cost lands on disk. Re-run past queries, diff monitor runs, track entity first-seens, and watch spend in real time.",
+    "quickstart": [
+      {
+        "command": "exa-pp-cli doctor --dry-run",
+        "comment": "Verify the install and API key wiring without spending credits."
+      },
+      {
+        "command": "exa-pp-cli websearch --query \"latest developments in LLMs\" --num-results 5 --contents '{\"highlights\":true}'",
+        "comment": "Run a semantic web search with key excerpts for agent context."
+      },
+      {
+        "command": "exa-pp-cli contents --urls \"https://example.com\" --highlights true",
+        "comment": "Extract clean markdown text from a known URL."
+      },
+      {
+        "command": "exa-pp-cli answer --query \"What is the capital of France?\"",
+        "comment": "Get a grounded LLM answer with citations."
+      },
+      {
+        "command": "exa-pp-cli sync --resources monitors --full",
+        "comment": "Persist monitor run history locally, then query it offline."
+      },
+      {
+        "command": "exa-pp-cli spend --days 30",
+        "comment": "See per-day, per-resource API spend from stored cost data."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 invalid API key",
+        "fix": "Set EXA_API_KEY to a key from https://dashboard.exa.ai/api-keys; pass it via Authorization: Bearer or x-api-key."
+      },
+      {
+        "symptom": "402 NO_MORE_CREDITS",
+        "fix": "Top up credits at dashboard.exa.ai or raise the API key spending budget."
+      },
+      {
+        "symptom": "429 rate limit exceeded",
+        "fix": "Search is limited to 10 QPS and contents to 100 QPS; the CLI retries with backoff, slow down parallel loops."
+      },
+      {
+        "symptom": "contents returns 200 but some URLs failed",
+        "fix": "Check the statuses[] array in the response for per-URL error tags like CRAWL_NOT_FOUND."
+      },
+      {
+        "symptom": "answer returns 501 UNABLE_TO_GENERATE_RESPONSE",
+        "fix": "Rephrase the query or adjust parameters; the model could not answer from available information."
+      }
+    ],
+    "when_to_use": "Use exa-pp-cli whenever an agent needs live web research with grounded citations, clean page content, scheduled monitoring, or entity tracking — and wants every search persisted locally for later querying.",
+    "anti_triggers": [
+      "Do not use exa-pp-cli for general web crawling at scale; use a dedicated crawler.",
+      "Do not use exa-pp-cli to bypass paywalls or scrape restricted content.",
+      "Do not use exa-pp-cli for real-time monitoring dashboards at sub-second cadence; use the API directly."
+    ],
+    "recipes": [
+      {
+        "title": "Deep research with structured output",
+        "command": "exa-pp-cli websearch --query \"compare the latest frontier AI model releases\" --type deep --output-schema '{\"type\":\"object\",\"required\":[\"models\"],\"properties\":{\"models\":{\"type\":\"array\",\"items\":{\"type\":\"object\"}}}}'",
+        "explanation": "Run deep search and get a synthesized, schema-shaped answer with grounding."
+      },
+      {
+        "title": "Monitor a competitor's news",
+        "command": "exa-pp-cli monitors create --name \"competitor-news\" --search-query \"new product launches\" --search-contents-highlights true",
+        "explanation": "Schedule a recurring search, then run `sync` to persist runs locally."
+      },
+      {
+        "title": "What changed since last monitor run",
+        "command": "exa-pp-cli monitor diff \u003cmonitor-id\u003e",
+        "explanation": "Schedule a recurring search, then run `sync` to persist runs locally."
+      },
+      {
+        "title": "Track an entity over time",
+        "command": "exa-pp-cli entity report \"Acme Corp\" --since 30d --agent --select entity,mentionCount",
+        "explanation": "Get an agent-shaped first-seen/last-seen timeline for a company across all synced research."
+      },
+      {
+        "title": "Narrow a search response with --select",
+        "command": "exa-pp-cli websearch --query \"AI regulation policy updates\" --category news --num-results 5 --select results.title,results.url",
+        "explanation": "Request only the high-gravity fields so agent context is not flooded with full result payloads."
+      }
+    ],
+    "trigger_phrases": [
+      "search the web for",
+      "get the latest news on",
+      "answer this question with sources",
+      "find similar pages",
+      "monitor this topic",
+      "exa search",
+      "run exa"
+    ]
+  }
+}

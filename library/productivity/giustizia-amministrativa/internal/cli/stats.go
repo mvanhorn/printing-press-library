@@ -32,7 +32,7 @@ func newNovelStatsCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if gaSkip(flags) {
-				return nil
+				return emitSkip(cmd, flags)
 			}
 			dims := splitDims(by)
 			if len(dims) == 0 {
@@ -50,17 +50,49 @@ func newNovelStatsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			for _, w := range res.Warnings {
+				fmt.Fprintf(cmd.ErrOrStderr(), "Attenzione: %s\n", w)
+			}
+			// Under a sede sweep the sample holds an equal quota per sede by
+			// construction, so counting its rows by sede measures the quota,
+			// not the country: every sede comes out with the same figure, and
+			// against the real totals the ranking can even invert. It looks
+			// like a distribution and is an artefact — the worst shape for a
+			// number someone may put in a filing. The sweep already collected
+			// each sede's declared total, so report those instead.
 			counts := map[string]int{}
-			for _, p := range res.Items {
-				counts[dimKey(p, dims)]++
+			fromTotals := false
+			if len(dims) == 1 && dims[0] == "sede" && len(res.TotalsBySede) > 0 {
+				for sede, n := range res.TotalsBySede {
+					if n > 0 {
+						counts[strings.ToUpper(sede)] = n
+					}
+				}
+				fromTotals = true
+			} else {
+				for _, p := range res.Items {
+					counts[dimKey(p, dims)]++
+				}
+			}
+			// When the sample stops short of the declared total, the buckets are
+			// not equally trustworthy: the portal returns results in a fixed
+			// order, so every bucket before the cut is complete and the one
+			// holding the last returned item is sliced through the middle —
+			// while anything that would have come after it is missing outright.
+			// Reporting all of them as plain numbers is what turns "103
+			// provvedimenti in 2023" into "53", with nothing to show it happened.
+			troncato := ""
+			if !fromTotals && len(res.Items) > 0 && res.Total > len(res.Items) {
+				troncato = dimKey(res.Items[len(res.Items)-1], dims)
 			}
 			type row struct {
-				Key   string `json:"key"`
-				Count int    `json:"count"`
+				Key      string `json:"key"`
+				Count    int    `json:"count"`
+				Troncato bool   `json:"troncato,omitempty"`
 			}
 			rows := make([]row, 0, len(counts))
 			for k, v := range counts {
-				rows = append(rows, row{Key: k, Count: v})
+				rows = append(rows, row{Key: k, Count: v, Troncato: k == troncato})
 			}
 			sort.Slice(rows, func(i, j int) bool {
 				if rows[i].Count != rows[j].Count {
@@ -69,14 +101,24 @@ func newNovelStatsCmd(flags *rootFlags) *cobra.Command {
 				return rows[i].Key < rows[j].Key
 			})
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
-				fmt.Fprintf(cmd.ErrOrStderr(), "Totale risultati per la query: %d. Distribuzione su un campione di %d (per %s).\n",
-					res.Total, len(res.Items), strings.Join(dims, "+"))
+				if fromTotals {
+					fmt.Fprintf(cmd.ErrOrStderr(), "Totale risultati per la query: %d. Distribuzione sui totali dichiarati dal portale per ciascuna sede (non su un campione).\n", res.Total)
+				} else {
+					fmt.Fprintf(cmd.ErrOrStderr(), "Totale risultati per la query: %d. Distribuzione su un campione di %d (per %s).\n",
+						res.Total, len(res.Items), strings.Join(dims, "+"))
+				}
+			}
+			if troncato != "" {
+				fmt.Fprintf(cmd.ErrOrStderr(), "Attenzione: %s\n",
+					avvisoGruppoTroncato(len(res.Items), res.Total, troncato, dims))
 			}
 			out := map[string]any{
-				"total_results": res.Total,
-				"sample_size":   len(res.Items),
-				"by":            dims,
-				"distribution":  rows,
+				"gruppo_troncato": troncato,
+				"total_results":   res.Total,
+				"sample_size":     len(res.Items),
+				"conteggi_da":     map[bool]string{true: "totali dichiarati dal portale per sede", false: "campione scaricato"}[fromTotals],
+				"by":              dims,
+				"distribution":    rows,
 			}
 			data, _ := json.Marshal(out)
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)

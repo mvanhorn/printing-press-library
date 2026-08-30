@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-bd-oratore",
+  "applied_at": "2026-07-23",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "Ricerca per oratore su resoconti e classifica oratori. Il campo $Ispeakers del form /bd/resoconti e' un <select> che include l'anagrafica completa degli oratori (id + nome + legislature attive): resoconti cerca --oratore '<nome>' risolve il nome negli id e filtra le sedute. analytics --group-by oratore diventa un percorso LIVE (runOratoreAnalyticsLive + icaroclient.SpeakerSessionCounts) che enumera gli oratori della legislatura e conta le sedute di ciascuno, richiedendo --legisl. Rimossa la vecchia groupOratori che leggeva $.oratori (mai popolato).",
+  "reason": "Gli oratori non sono nei dati Icaro ne' nello store: la ricerca/classifica per oratore era ritenuta impossibile. Il backend /bd/ espone l'anagrafica nel form, rendendola risolvibile ed enumerabile.",
+  "files": [
+    "internal/icaroclient/bd.go",
+    "internal/cli/analytics.go",
+    "internal/cli/resoconti_cerca.go"
+  ],
+  "validated_outcome": "resoconti cerca --legisl 18 --oratore Cracolici -> 20 sedute; --oratore 'Abbate Ignazio' -> 11; inesistente -> 0. analytics --type resoconti --group-by oratore --legisl 18 -> La Vardera 179, Burtone 165, Schillaci 141; senza --legisl -> errore chiaro."
+}

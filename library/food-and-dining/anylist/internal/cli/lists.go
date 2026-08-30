@@ -18,7 +18,10 @@ func newListsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newListsCreateCmd(flags))
 	cmd.AddCommand(newListsDeleteCmd(flags))
 	cmd.AddCommand(newListsListCmd(flags))
+	cmd.AddCommand(newListsRenameCmd(flags))
 	cmd.AddCommand(newListsResetCmd(flags))
+	cmd.AddCommand(newListsSharingCmd(flags))
 	cmd.AddCommand(newListsSettingsCmd(flags))
+	cmd.AddCommand(newListsNotificationsCmd(flags))
 	return cmd
 }

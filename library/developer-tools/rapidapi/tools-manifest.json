@@ -1,0 +1,435 @@
+{
+  "api_name": "rapidapi",
+  "base_url": "https://rapidapi.com",
+  "description": "RapidAPI Hub marketplace CLI - search APIs, browse categories \u0026 collections, inspect providers",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "x-csrf-token",
+    "format": "{RAPIDAPI_CSRF_TOKEN}",
+    "env_vars": [
+      "RAPIDAPI_CSRF_TOKEN",
+      "RAPIDAPI_COOKIE",
+      "RAPIDAPI_CLEARANCE"
+    ],
+    "env_var_specs": [
+      {
+        "name": "RAPIDAPI_CSRF_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "RAPIDAPI_COOKIE",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "RAPIDAPI_CLEARANCE",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "Content-Type",
+      "value": "application/json"
+    },
+    {
+      "name": "rapid-client",
+      "value": "default-auth-v2-dashboard-service"
+    }
+  ],
+  "tools": [
+    {
+      "name": "account_notifications",
+      "description": "List your notifications. Required: operationName (default: getNotifications), query, variables. Returns array of Notification.",
+      "method": "POST",
+      "path": "/gateway/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document",
+          "required": true
+        },
+        {
+          "name": "variables",
+          "type": "string",
+          "location": "body",
+          "description": "JSON string of variables: {userId, limit, offset}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "account_saved",
+      "description": "List APIs you saved as favorites. Required: operationName (default: getUserSavedApis), query, variables. Returns array of SavedApi.",
+      "method": "POST",
+      "path": "/gateway/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document",
+          "required": true
+        },
+        {
+          "name": "variables",
+          "type": "string",
+          "location": "body",
+          "description": "JSON string of variables: {}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "account_subscriptions",
+      "description": "List your API subscriptions with plan details and status. Required: operationName (default: getApiSubscriptions), query, variables. Returns array of Subscription.",
+      "method": "POST",
+      "path": "/gateway/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document",
+          "required": true
+        },
+        {
+          "name": "variables",
+          "type": "string",
+          "location": "body",
+          "description": "JSON string of variables: {input: {statuses: [], limit}}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "account_whoami",
+      "description": "Show the active logged-in user, their entities, and tenant. Required: operationName (default: activeUser), query, variables. Returns the new ActiveUser.",
+      "method": "POST",
+      "path": "/gateway/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document",
+          "required": true
+        },
+        {
+          "name": "variables",
+          "type": "string",
+          "location": "body",
+          "description": "JSON string of variables: {}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "account_workspace",
+      "description": "Show your workspace: owned APIs, subscribed APIs, metrics. Required: operationName (default: getWorkspaceData), query, variables. Returns the new WorkspaceData.",
+      "method": "POST",
+      "path": "/gateway/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document",
+          "required": true
+        },
+        {
+          "name": "variables",
+          "type": "string",
+          "location": "body",
+          "description": "JSON string of variables: {fromDate, toDate}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apis_show",
+      "description": "Show a single API's full detail: endpoints, versions, billing plans, rating, owner. Required: owner, api, operationName (default: getApiBySlugAndOwner), query, variables. Returns the new ApiDetail.",
+      "method": "POST",
+      "path": "/gateway/graphql",
+      "params": [
+        {
+          "name": "owner",
+          "type": "string",
+          "location": "query",
+          "description": "API owner slugified name",
+          "required": true
+        },
+        {
+          "name": "api",
+          "type": "string",
+          "location": "query",
+          "description": "API slugified name",
+          "required": true
+        },
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document",
+          "required": true
+        },
+        {
+          "name": "variables",
+          "type": "string",
+          "location": "body",
+          "description": "JSON string of variables: {apiOwnerSlug, apiSlug, withEndpoints}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_list",
+      "description": "List top-level marketplace categories with weights and descriptions. Required: operationName (default: getCategoriesByCtx), query, variables. Returns array of Category.",
+      "method": "POST",
+      "path": "/gateway/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document",
+          "required": true
+        },
+        {
+          "name": "variables",
+          "type": "string",
+          "location": "body",
+          "description": "JSON string of variables: {limit: Int}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_list",
+      "description": "List curated collections (Recommended, Popular, Free, AI-based). Required: operationName (default: GetCollectionsCollapsed), query, variables. Returns array of Collection.",
+      "method": "POST",
+      "path": "/gateway/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document",
+          "required": true
+        },
+        {
+          "name": "variables",
+          "type": "string",
+          "location": "body",
+          "description": "JSON string of variables: {page: Int, limit: Int}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_show",
+      "description": "Show a collection's detail and its APIs. Required: slug, operationName (default: getCollectionBySlug), query, variables. Returns the new CollectionDetail.",
+      "method": "POST",
+      "path": "/gateway/graphql",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "query",
+          "description": "Collection slugified key",
+          "required": true
+        },
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document",
+          "required": true
+        },
+        {
+          "name": "variables",
+          "type": "string",
+          "location": "body",
+          "description": "JSON string of variables: {slug: String!}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "marketplace_search",
+      "description": "Search APIs across the marketplace with filters, facets, scores, and pagination. Required: operationName (default: searchApis), query, variables. Returns the new SearchResponse.",
+      "method": "POST",
+      "path": "/gateway/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document",
+          "required": true
+        },
+        {
+          "name": "variables",
+          "type": "string",
+          "location": "body",
+          "description": "JSON string of variables: {searchApiWhereInput: {term, categoryNames, tags}, paginationInput: {first, after}, searchApiOrderByInput: {sortingFields: [{by, fieldName}]}}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "metrics_show",
+      "description": "Show public marketplace metrics: total APIs, users, consumers, API traffic. Required: operationName (default: getHubMetrics), query, variables. Returns the new HubMetrics.",
+      "method": "POST",
+      "path": "/gateway/graphql",
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document",
+          "required": true
+        },
+        {
+          "name": "variables",
+          "type": "string",
+          "location": "body",
+          "description": "JSON string of variables: {where: {fromDate, toDate}}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "system_csrf",
+      "description": "Fetch the session-bound CSRF token used to authenticate GraphQL gateway calls. Returns the CsrfToken.",
+      "method": "GET",
+      "path": "/gateway/csrf",
+      "params": []
+    },
+    {
+      "name": "users_show",
+      "description": "Show a user profile and their published APIs. Required: username, operationName (default: getUserProfile), query, variables. Returns the new UserProfile.",
+      "method": "POST",
+      "path": "/gateway/graphql",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "query",
+          "description": "Username",
+          "required": true
+        },
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document",
+          "required": true
+        },
+        {
+          "name": "variables",
+          "type": "string",
+          "location": "body",
+          "description": "JSON string of variables: {username: String!}",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

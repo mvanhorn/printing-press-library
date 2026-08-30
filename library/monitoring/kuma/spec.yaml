@@ -1,0 +1,54 @@
+openapi: 3.0.3
+info:
+  title: Uptime Kuma v2 Operator API
+  version: 2.0.0
+  description: Uptime Kuma v2 operator surfaces represented by the generated CLI.
+servers:
+  - url: https://uptime.example.com
+security:
+  - basicAuth: []
+paths:
+  /api/monitors:
+    get:
+      operationId: listMonitors
+      summary: List monitors
+      responses:
+        '200':
+          description: Monitor list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Monitor'
+  /api/monitors/{monitorId}:
+    get:
+      operationId: getMonitor
+      summary: Get a monitor
+      parameters:
+        - name: monitorId
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        '200':
+          description: Monitor
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Monitor'}
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    Monitor:
+      type: object
+      required: [id, name]
+      properties:
+        id: {type: string}
+        name: {type: string}
+        type: {type: string}
+        url: {type: string}
+        interval: {type: integer}
+        maxretries: {type: integer}

@@ -1,0 +1,51 @@
+version: 2
+project_name: workspace-admin-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: workspace-admin-pp-cli
+    main: ./cmd/workspace-admin-pp-cli
+    binary: workspace-admin-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/workspace-admin/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: workspace-admin-pp-mcp
+    main: ./cmd/workspace-admin-pp-mcp
+    binary: workspace-admin-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: workspace-admin-pp-cli
+    repository:
+      owner: ryangravetteidla
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "GAT-style Google Workspace auditing as an agent-native CLI: sync Directory, Drive, Gmail, Reports, and Alert Center into a local store, then run offline cross-API audits, offboarding, and OAuth-app risk checks that GAM and the official gws CLI cannot persist."
+    install: |
+      bin.install "workspace-admin-pp-cli"
+      bin.install "workspace-admin-pp-mcp"

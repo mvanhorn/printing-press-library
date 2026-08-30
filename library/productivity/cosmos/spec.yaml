@@ -1,0 +1,5539 @@
+---
+name: cosmos
+description: Discovered API spec for cosmos
+version: 0.1.0
+base_url: https://api.cosmos.so
+spec_source: sniffed
+http_transport: standard
+mcp:
+  endpoint_tools: hidden
+auth:
+  type: bearer_token
+  header: Authorization
+  format: ''
+  env_vars:
+  - COSMOS_TOKEN
+  env_var_specs:
+  - name: COSMOS_TOKEN
+    kind: per_call
+    required: true
+    sensitive: true
+    inferred: true
+auth_warnings:
+- 'rejected auth candidate "q" from query: search input'
+- 'rejected auth candidate "query" from body: search input'
+config:
+  format: toml
+  path: "~/.config/cosmos-pp-cli/config.toml"
+resources:
+  actives:
+    description: GraphQL BFF operations for actives
+    endpoints:
+      imports:
+        method: POST
+        path: "/graphql"
+        description: Fetch actives imports
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetActiveImports
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetActiveImports($userId: UserId!, $clusterId: ClusterId) {
+              activeImports(userId: $userId, clusterId: $clusterId) {
+                items {
+                  userId
+                  sourceUrl
+                  sourceType
+                  numberOfElements
+                  clusterId
+                  status
+                  __typename
+                }
+                importProgressTracker {
+                  totalElementsInImport
+                  elementsImported
+                  __typename
+                }
+                meta {
+                  pageSize
+                  count
+                  __typename
+                }
+                __typename
+              }
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_active_imports
+        pagination:
+        observed_auth:
+        - authorization
+  activities:
+    description: GraphQL BFF operations for activities
+    endpoints:
+      get:
+        method: POST
+        path: "/graphql"
+        description: Fetch activities
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetActivities
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetActivities($ownerId: UserId!, $start: DateTime, $end: DateTime, $onlyFollows: Boolean, $pageCursor: String) {
+              activityFeed(
+                meta: {pageSize: 16, pageCursor: $pageCursor}
+                filters: {ownerId: $ownerId, start: $start, end: $end, onlyFollows: $onlyFollows}
+              ) {
+                items {
+                  ...ActivityLogEntry
+                  __typename
+                }
+                meta {
+                  nextPageCursor
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment ActivityLogEntry on ActivityInterface {
+              id
+              isRead
+              createdAt
+              ...ClusterFollowerClusterCreatedActivityLogEntry
+              ...CollaborationInviteActivityLogEntry
+              ...UserFollowerClusterCreatedActivityLogEntry
+              ...ClusterFollowerClusterCreatedActivityLogEntry
+              ...UserFollowedActivityLogEntry
+              ...UserConnectedYourElementAggregatableActivityLogEntry
+              ...UserConnectedElementToCollaborativeClusterAggregatableActivityLogEntry
+              ...UsersFollowedYourClusterAggregatableActivityLogEntry
+              ...ImportCompleteAtomicActivityLogEntry
+              ...ImportFailedAtomicActivityLogEntry
+              ...UserAcceptedCollaborationInviteAtomicActivityLogEntry
+              __typename
+            }
+
+            fragment ClusterFollowerClusterCreatedActivityLogEntry on ClusterFollowerClusterCreatedActivity {
+              id
+              ownerId
+              isRead
+              createdAt
+              creator {
+                ...UserPublicProfile
+                __typename
+              }
+              cluster {
+                id
+                name
+                slug
+                owner {
+                  id
+                  username
+                  __typename
+                }
+                cover {
+                  url
+                  blurHash
+                  notSafeForWorkStatus
+                  aiGenerated
+                  __typename
+                }
+                parentCluster {
+                  id
+                  slug
+                  name
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+
+            fragment UserPublicProfile on UserPublicProfile {
+              id
+              fullName
+              username
+              avatarUrl
+              isPremium
+              isVerifiedProfile
+              publicElementsCluster {
+                id
+                numberOfElements
+                __typename
+              }
+              verifiedProfile {
+                ...VerifiedProfile
+                __typename
+              }
+              __typename
+            }
+
+            fragment VerifiedProfile on VerifiedProfile {
+              __typename
+              id
+              slug
+              isPublic
+              status
+              name
+              avatarUrl
+              avatarThumbnailCropParameters {
+                width
+                height
+                __typename
+              }
+              coverImage {
+                url
+                hash
+                thumbnailUrl
+                __typename
+              }
+            }
+
+            fragment CollaborationInviteActivityLogEntry on CollaborationInviteActivity {
+              id
+              ownerId
+              isRead
+              inviteCode
+              createdAt
+              inviter {
+                ...UserPublicProfile
+                __typename
+              }
+              cluster {
+                id
+                name
+                coverImageUrl
+                slug
+                shareUrl
+                owner {
+                  id
+                  username
+                  __typename
+                }
+                isCollaborator(userId: $ownerId)
+                parentCluster {
+                  id
+                  slug
+                  name
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+
+            fragment UserFollowerClusterCreatedActivityLogEntry on UserFollowerClusterCreatedActivity {
+              id
+              ownerId
+              isRead
+              createdAt
+              creator {
+                ...UserPublicProfile
+                __typename
+              }
+              cluster {
+                id
+                name
+                slug
+                owner {
+                  id
+                  username
+                  __typename
+                }
+                cover {
+                  url
+                  blurHash
+                  notSafeForWorkStatus
+                  aiGenerated
+                  __typename
+                }
+                parentCluster {
+                  id
+                  slug
+                  name
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+
+            fragment UserFollowedActivityLogEntry on UserFollowedActivity {
+              id
+              ownerId
+              isRead
+              createdAt
+              follower {
+                ...UserPublicProfile
+                isFollowed(followerId: $ownerId)
+                __typename
+              }
+              __typename
+            }
+
+            fragment UserConnectedYourElementAggregatableActivityLogEntry on UserConnectedYourElementAggregatableActivity {
+              id
+              __typename
+              ownerId
+              isRead
+              createdAt
+              aggregationKey
+              numberOfConnections
+              lastConnectedUser {
+                ...UserPublicProfile
+                __typename
+              }
+              secondToLastConnectedUser {
+                ...UserPublicProfile
+                __typename
+              }
+              element {
+                id
+                image {
+                  url
+                  hash
+                  __typename
+                }
+                notSafeForWorkStatus
+                aiGenerated
+                __typename
+              }
+            }
+
+            fragment UserConnectedElementToCollaborativeClusterAggregatableActivityLogEntry on UserConnectedElementToCollaborativeClusterAggregatableActivity {
+              id
+              __typename
+              ownerId
+              isRead
+              createdAt
+              aggregationKey
+              numberOfConnectedElements
+              collaborator {
+                ...UserPublicProfile
+                __typename
+              }
+              cluster {
+                id
+                name
+                slug
+                owner {
+                  id
+                  username
+                  __typename
+                }
+                cover {
+                  url
+                  blurHash
+                  notSafeForWorkStatus
+                  aiGenerated
+                  __typename
+                }
+                parentCluster {
+                  id
+                  slug
+                  name
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment UsersFollowedYourClusterAggregatableActivityLogEntry on UsersFollowedYourClusterAggregatableActivity {
+              id
+              __typename
+              ownerId
+              isRead
+              createdAt
+              aggregationKey
+              numberOfFollows
+              lastFollower {
+                ...UserPublicProfile
+                __typename
+              }
+              secondToLastFollower {
+                ...UserPublicProfile
+                __typename
+              }
+              cluster {
+                id
+                name
+                slug
+                owner {
+                  id
+                  username
+                  __typename
+                }
+                cover {
+                  url
+                  blurHash
+                  notSafeForWorkStatus
+                  aiGenerated
+                  __typename
+                }
+                parentCluster {
+                  id
+                  slug
+                  name
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment ImportCompleteAtomicActivityLogEntry on ImportCompleteAtomicActivity {
+              id
+              ownerId
+              isRead
+              createdAt
+              numberOfElements
+              source
+              cluster {
+                id
+                name
+                slug
+                isPublicElementsCluster
+                owner {
+                  id
+                  username
+                  __typename
+                }
+                cover {
+                  url
+                  blurHash
+                  notSafeForWorkStatus
+                  aiGenerated
+                  __typename
+                }
+                parentCluster {
+                  id
+                  slug
+                  name
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+
+            fragment ImportFailedAtomicActivityLogEntry on ImportFailedAtomicActivity {
+              id
+              source
+              cluster {
+                id
+                name
+                __typename
+              }
+              __typename
+            }
+
+            fragment UserAcceptedCollaborationInviteAtomicActivityLogEntry on UserAcceptedCollaborationInviteAtomicActivity {
+              id
+              ownerId
+              isRead
+              createdAt
+              collaborator {
+                ...UserPublicProfile
+                __typename
+              }
+              cluster {
+                id
+                name
+                slug
+                owner {
+                  id
+                  username
+                  __typename
+                }
+                cover {
+                  url
+                  blurHash
+                  notSafeForWorkStatus
+                  aiGenerated
+                  __typename
+                }
+                parentCluster {
+                  id
+                  slug
+                  name
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_activities
+        pagination:
+        observed_auth:
+        - authorization
+  alls:
+    description: GraphQL BFF operations for alls
+    endpoints:
+      elements:
+        method: POST
+        path: "/graphql"
+        description: Fetch alls elements
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetAllElements
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetAllElements($userId: UserId!, $filters: AllElementsFilters, $order: ElementOrder, $pageCursor: String, $pageSize: Int = 40, $isLoggedIn: Boolean!) {
+              allElementsV2(
+                userId: $userId
+                filters: $filters
+                order: $order
+                meta: {pageSize: $pageSize, pageCursor: $pageCursor}
+              ) {
+                items {
+                  ...ElementTile
+                  userContext(userId: $userId) @include(if: $isLoggedIn) {
+                    ...ElementUserContext
+                    __typename
+                  }
+                  __typename
+                }
+                meta {
+                  nextPageCursor
+                  count
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment ElementTile on ElementTile {
+              __typename
+              id
+              processingState
+              contentAccessibility
+              createdAt
+              isFeatured
+              isReadyToShow
+              hasIllegalReports
+              ownerId
+              owner {
+                username
+                isVerifiedProfile
+                verifiedProfile {
+                  slug
+                  avatarUrl
+                  avatarThumbnailCropParameters {
+                    width
+                    height
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+              shareUrl
+              originalClusterId
+              generatedCaption {
+                text
+                __typename
+              }
+              source {
+                ...ElementSource
+                __typename
+              }
+              ... on MediaElementTile {
+                hasMoreMedia
+                multipleMedia {
+                  ...ElementMedia
+                  __typename
+                }
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                __typename
+              }
+              ... on ProductElementTile {
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                productPrice: price {
+                  value
+                  currency
+                  __typename
+                }
+                productBrand: brand
+                productTitle: name
+                productDescription: description
+                __typename
+              }
+              ... on WebsiteElementTile {
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                websiteTitle: title
+                websiteDescription: description
+                __typename
+              }
+              ... on TextElementTile {
+                text
+                __typename
+              }
+            }
+
+            fragment ElementMedia on Media {
+              mediaId
+              url
+              width
+              height
+              notSafeForWorkStatus
+              aiGenerated
+              __typename
+              ... on StaticImage {
+                blurHash
+                __typename
+              }
+              ... on AnimatedImage {
+                blurHash
+                video {
+                  url
+                  thumbnailUrl
+                  __typename
+                }
+                __typename
+              }
+              ... on Video {
+                thumbnail {
+                  hash
+                  url
+                  __typename
+                }
+                duration
+                isStored
+                mux {
+                  playbackUrl
+                  mp4Url(quality: LOW)
+                  downloadableUrl: mp4Url(quality: HIGH)
+                  __typename
+                }
+                width
+                height
+                __typename
+              }
+              ... on Media {
+                __typename
+              }
+            }
+
+            fragment ElementSource on ElementSource {
+              url
+              isEditable
+              isPublicDomain
+              author {
+                username
+                fullName
+                profileUrl
+                avatarUrl
+                __typename
+              }
+              __typename
+            }
+
+            fragment ElementUserContext on ElementUserContext {
+              isDisliked
+              isPublicElement
+              connections {
+                meta {
+                  count
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_all_elements
+        pagination:
+        observed_auth:
+        - authorization
+      elements_count:
+        method: POST
+        path: "/graphql"
+        description: Fetch alls elements count
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetAllElementsCount
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetAllElementsCount($userId: UserId!) {
+              allElementsV2(userId: $userId) {
+                meta {
+                  count
+                  __typename
+                }
+                __typename
+              }
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_all_elements_count
+        pagination:
+        observed_auth:
+        - authorization
+      recent_activity:
+        method: POST
+        path: "/graphql"
+        description: Fetch alls recent activity
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetAllRecentActivity
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetAllRecentActivity($ownerId: UserId!, $username: String!, $userId: UserId!, $pageSize: Int = 5, $sortDefinitions: [SortDefinitionInput!], $isLoggedIn: Boolean!) {
+              globalSearchHistory(ownerId: $ownerId) {
+                ownerId
+                entries {
+                  ...GlobalRecentSearchListItem
+                  __typename
+                }
+                __typename
+              }
+              cluster(input: {slug: "recently-viewed", ownerUsername: $username}) {
+                id
+                topElements(elementCount: 24) {
+                  id
+                  ...ElementTile
+                  __typename
+                }
+                __typename
+              }
+              clusters(
+                meta: {pageSize: $pageSize}
+                filters: {ownerId: $ownerId}
+                sortDefinitions: $sortDefinitions
+              ) {
+                items {
+                  ...ClusterTile
+                  __typename
+                }
+                meta {
+                  nextPageCursor
+                  count
+                  __typename
+                }
+                __typename
+              }
+              searches {
+                trendingSearches {
+                  items {
+                    ...TrendingSearch
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment GlobalRecentSearchListItem on GlobalSearchHistoryEntry {
+              ...GlobalClusterRecentSearchListItem
+              ...GlobalSearchTermRecentSearchListItem
+              ...GlobalUserRecentSearchListItem
+              __typename
+            }
+
+            fragment GlobalClusterRecentSearchListItem on VisitedClusterGlobalSearchHistoryEntry {
+              clusterId
+              cluster {
+                id
+                coverImageUrl
+                name
+                slug
+                owner {
+                  username
+                  __typename
+                }
+                cover {
+                  url
+                  notSafeForWorkStatus
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+
+            fragment GlobalSearchTermRecentSearchListItem on SearchTermGlobalSearchHistoryEntry {
+              searchTerm
+              __typename
+            }
+
+            fragment GlobalUserRecentSearchListItem on VisitedUserGlobalSearchHistoryEntry {
+              userId
+              user {
+                ...UserPublicProfile
+                __typename
+              }
+              __typename
+            }
+
+            fragment UserPublicProfile on UserPublicProfile {
+              id
+              fullName
+              username
+              avatarUrl
+              isPremium
+              isVerifiedProfile
+              publicElementsCluster {
+                id
+                numberOfElements
+                __typename
+              }
+              verifiedProfile {
+                ...VerifiedProfile
+                __typename
+              }
+              __typename
+            }
+
+            fragment VerifiedProfile on VerifiedProfile {
+              __typename
+              id
+              slug
+              isPublic
+              status
+              name
+              avatarUrl
+              avatarThumbnailCropParameters {
+                width
+                height
+                __typename
+              }
+              coverImage {
+                url
+                hash
+                thumbnailUrl
+                __typename
+              }
+            }
+
+            fragment ElementTile on ElementTile {
+              __typename
+              id
+              processingState
+              contentAccessibility
+              createdAt
+              isFeatured
+              isReadyToShow
+              hasIllegalReports
+              ownerId
+              owner {
+                username
+                isVerifiedProfile
+                verifiedProfile {
+                  slug
+                  avatarUrl
+                  avatarThumbnailCropParameters {
+                    width
+                    height
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+              shareUrl
+              originalClusterId
+              generatedCaption {
+                text
+                __typename
+              }
+              source {
+                ...ElementSource
+                __typename
+              }
+              ... on MediaElementTile {
+                hasMoreMedia
+                multipleMedia {
+                  ...ElementMedia
+                  __typename
+                }
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                __typename
+              }
+              ... on ProductElementTile {
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                productPrice: price {
+                  value
+                  currency
+                  __typename
+                }
+                productBrand: brand
+                productTitle: name
+                productDescription: description
+                __typename
+              }
+              ... on WebsiteElementTile {
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                websiteTitle: title
+                websiteDescription: description
+                __typename
+              }
+              ... on TextElementTile {
+                text
+                __typename
+              }
+            }
+
+            fragment ElementMedia on Media {
+              mediaId
+              url
+              width
+              height
+              notSafeForWorkStatus
+              aiGenerated
+              __typename
+              ... on StaticImage {
+                blurHash
+                __typename
+              }
+              ... on AnimatedImage {
+                blurHash
+                video {
+                  url
+                  thumbnailUrl
+                  __typename
+                }
+                __typename
+              }
+              ... on Video {
+                thumbnail {
+                  hash
+                  url
+                  __typename
+                }
+                duration
+                isStored
+                mux {
+                  playbackUrl
+                  mp4Url(quality: LOW)
+                  downloadableUrl: mp4Url(quality: HIGH)
+                  __typename
+                }
+                width
+                height
+                __typename
+              }
+              ... on Media {
+                __typename
+              }
+            }
+
+            fragment ElementSource on ElementSource {
+              url
+              isEditable
+              isPublicDomain
+              author {
+                username
+                fullName
+                profileUrl
+                avatarUrl
+                __typename
+              }
+              __typename
+            }
+
+            fragment ClusterTile on Cluster {
+              ...ClusterBasic
+              collaboratorsCount
+              numberOfElements
+              collaborators {
+                items {
+                  ...ClusterCollaborator
+                  isOwner
+                  __typename
+                }
+                __typename
+              }
+              subClusters {
+                items {
+                  ...SubclusterPill
+                  __typename
+                }
+                meta {
+                  count
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+
+            fragment ClusterBasic on Cluster {
+              id
+              name
+              isPublicElementsCluster
+              description
+              slug
+              isPrivate
+              ownerId
+              owner {
+                ...UserPublicProfile
+                isFollowed(followerId: $userId) @include(if: $isLoggedIn)
+                __typename
+              }
+              coverImageElementId
+              coverImageUrl
+              isFollowed(userId: $userId) @include(if: $isLoggedIn)
+              isFeatured
+              parentClusterId
+              isPinnedToUserProfile(userId: $userId) @include(if: $isLoggedIn)
+              numberOfElements
+              cover {
+                notSafeForWorkStatus
+                url
+                blurHash
+                width
+                height
+                aiGenerated
+                ... on AnimatedImage {
+                  video {
+                    url
+                    thumbnailUrl
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+              collaborators {
+                items {
+                  ...ClusterCollaborator
+                  isOwner
+                  status
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+
+            fragment ClusterCollaborator on Collaborator {
+              userId
+              collaboratorPublicProfile {
+                ...UserPublicProfile
+                __typename
+              }
+              __typename
+            }
+
+            fragment SubclusterPill on Cluster {
+              id
+              name
+              slug
+              numberOfElements
+              coverImageUrl
+              cover {
+                url
+                width
+                height
+                blurHash
+                notSafeForWorkStatus
+                aiGenerated
+                __typename
+              }
+              owner {
+                id
+                username
+                __typename
+              }
+              isPrivate
+              collaboratorsCount
+              collaborators {
+                items {
+                  ...ClusterCollaborator
+                  isOwner
+                  status
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+
+            fragment TrendingSearch on SavedSearch {
+              searchTerm
+              searchCategory
+              coverImage {
+                url
+                blurHash
+                notSafeForWorkStatus
+                width
+                height
+                aiGenerated
+                __typename
+              }
+              displayName
+              __typename
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_all_recent_activity
+        pagination:
+        observed_auth:
+        - authorization
+  clusters:
+    description: GraphQL BFF operations for clusters
+    endpoints:
+      basic:
+        method: POST
+        path: "/graphql"
+        description: Fetch clusters basic
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetClusterBasic
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetClusterBasic($slug: String!, $subclusterSlug: String, $ownerUsername: String!, $userId: UserId!, $fetchSubCluster: Boolean!, $isLoggedIn: Boolean!) {
+              cluster(input: {slug: $slug, ownerUsername: $ownerUsername}) {
+                ...ClusterBasic
+                isCollaborator(userId: $userId)
+                subCluster(slug: $subclusterSlug) @include(if: $fetchSubCluster) {
+                  ...ClusterBasic
+                  isCollaborator(userId: $userId)
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment ClusterBasic on Cluster {
+              id
+              name
+              isPublicElementsCluster
+              description
+              slug
+              isPrivate
+              ownerId
+              owner {
+                ...UserPublicProfile
+                isFollowed(followerId: $userId) @include(if: $isLoggedIn)
+                __typename
+              }
+              coverImageElementId
+              coverImageUrl
+              isFollowed(userId: $userId) @include(if: $isLoggedIn)
+              isFeatured
+              parentClusterId
+              isPinnedToUserProfile(userId: $userId) @include(if: $isLoggedIn)
+              numberOfElements
+              cover {
+                notSafeForWorkStatus
+                url
+                blurHash
+                width
+                height
+                aiGenerated
+                ... on AnimatedImage {
+                  video {
+                    url
+                    thumbnailUrl
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+              collaborators {
+                items {
+                  ...ClusterCollaborator
+                  isOwner
+                  status
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+
+            fragment ClusterCollaborator on Collaborator {
+              userId
+              collaboratorPublicProfile {
+                ...UserPublicProfile
+                __typename
+              }
+              __typename
+            }
+
+            fragment UserPublicProfile on UserPublicProfile {
+              id
+              fullName
+              username
+              avatarUrl
+              isPremium
+              isVerifiedProfile
+              publicElementsCluster {
+                id
+                numberOfElements
+                __typename
+              }
+              verifiedProfile {
+                ...VerifiedProfile
+                __typename
+              }
+              __typename
+            }
+
+            fragment VerifiedProfile on VerifiedProfile {
+              __typename
+              id
+              slug
+              isPublic
+              status
+              name
+              avatarUrl
+              avatarThumbnailCropParameters {
+                width
+                height
+                __typename
+              }
+              coverImage {
+                url
+                hash
+                thumbnailUrl
+                __typename
+              }
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_cluster_basic
+        pagination:
+        observed_auth:
+        - authorization
+      by_slug:
+        method: POST
+        path: "/graphql"
+        description: Fetch clusters by slug
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetClusterBySlug
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetClusterBySlug($input: ClusterGetInput!, $userId: UserId!, $ownerOrgId: OrganizationId, $isAdmin: Boolean! = false, $isSubcluster: Boolean! = false, $subClusterSlug: String, $isLoggedIn: Boolean!, $includeFollowersCount: Boolean = true) {
+              cluster(input: $input) {
+                ...ClusterDetails
+                ownerOrgIsPinnedToUserProfile: isPinnedToUserProfile(
+                  userId: $userId
+                  ownerOrgId: $ownerOrgId
+                ) @include(if: $isLoggedIn)
+                ...ClusterAdminDetails @include(if: $isAdmin)
+                subCluster(slug: $subClusterSlug) @include(if: $isSubcluster) {
+                  ...ClusterDetails
+                  __typename
+                }
+                subClusters {
+                  items {
+                    __typename
+                    id
+                    ...SubclusterPill
+                  }
+                  meta {
+                    count
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+              clusterConnections(clusterInput: $input) {
+                meta {
+                  count
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment ClusterDetails on Cluster {
+              ...ClusterBasic
+              owner {
+                ...UserPublicProfile
+                __typename
+              }
+              collaborators {
+                items {
+                  userId
+                  isOwner
+                  status
+                  collaboratorPublicProfile {
+                    ...UserPublicProfile
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+              isFollowed(userId: $userId) @include(if: $isLoggedIn)
+              isCollaborator(userId: $userId) @include(if: $isLoggedIn)
+              followersCount @include(if: $includeFollowersCount)
+              numberOfElements
+              __typename
+            }
+
+            fragment ClusterBasic on Cluster {
+              id
+              name
+              isPublicElementsCluster
+              description
+              slug
+              isPrivate
+              ownerId
+              owner {
+                ...UserPublicProfile
+                isFollowed(followerId: $userId) @include(if: $isLoggedIn)
+                __typename
+              }
+              coverImageElementId
+              coverImageUrl
+              isFollowed(userId: $userId) @include(if: $isLoggedIn)
+              isFeatured
+              parentClusterId
+              isPinnedToUserProfile(userId: $userId) @include(if: $isLoggedIn)
+              numberOfElements
+              cover {
+                notSafeForWorkStatus
+                url
+                blurHash
+                width
+                height
+                aiGenerated
+                ... on AnimatedImage {
+                  video {
+                    url
+                    thumbnailUrl
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+              collaborators {
+                items {
+                  ...ClusterCollaborator
+                  isOwner
+                  status
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+
+            fragment ClusterCollaborator on Collaborator {
+              userId
+              collaboratorPublicProfile {
+                ...UserPublicProfile
+                __typename
+              }
+              __typename
+            }
+
+            fragment UserPublicProfile on UserPublicProfile {
+              id
+              fullName
+              username
+              avatarUrl
+              isPremium
+              isVerifiedProfile
+              publicElementsCluster {
+                id
+                numberOfElements
+                __typename
+              }
+              verifiedProfile {
+                ...VerifiedProfile
+                __typename
+              }
+              __typename
+            }
+
+            fragment VerifiedProfile on VerifiedProfile {
+              __typename
+              id
+              slug
+              isPublic
+              status
+              name
+              avatarUrl
+              avatarThumbnailCropParameters {
+                width
+                height
+                __typename
+              }
+              coverImage {
+                url
+                hash
+                thumbnailUrl
+                __typename
+              }
+            }
+
+            fragment ClusterAdminDetails on Cluster {
+              id
+              isBanned
+              categories {
+                id
+                name
+                __typename
+              }
+              isAesthetic
+              __typename
+            }
+
+            fragment SubclusterPill on Cluster {
+              id
+              name
+              slug
+              numberOfElements
+              coverImageUrl
+              cover {
+                url
+                width
+                height
+                blurHash
+                notSafeForWorkStatus
+                aiGenerated
+                __typename
+              }
+              owner {
+                id
+                username
+                __typename
+              }
+              isPrivate
+              collaboratorsCount
+              collaborators {
+                items {
+                  ...ClusterCollaborator
+                  isOwner
+                  status
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_cluster_by_slug
+        pagination:
+        observed_auth:
+        - authorization
+      elements:
+        method: POST
+        path: "/graphql"
+        description: Fetch clusters elements
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetClusterElements
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetClusterElements($clusterId: ClusterId, $pageCursor: String, $userId: UserId, $pageSize: Int, $isLoggedIn: Boolean!, $showCollaborator: Boolean!) {
+              clusterConnections(
+                clusterId: $clusterId
+                meta: {pageSize: $pageSize, pageCursor: $pageCursor}
+              ) {
+                items {
+                  element {
+                    ...ElementTile
+                    userContext(userId: $userId) @include(if: $isLoggedIn) {
+                      ...ElementUserContext
+                      __typename
+                    }
+                    connection(cluster: {id: $clusterId}) @include(if: $showCollaborator) {
+                      collaborator {
+                        id
+                        username
+                        avatarUrl
+                        isPremium
+                        __typename
+                      }
+                      __typename
+                    }
+                    __typename
+                  }
+                  __typename
+                }
+                meta {
+                  nextPageCursor
+                  count
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment ElementTile on ElementTile {
+              __typename
+              id
+              processingState
+              contentAccessibility
+              createdAt
+              isFeatured
+              isReadyToShow
+              hasIllegalReports
+              ownerId
+              owner {
+                username
+                isVerifiedProfile
+                verifiedProfile {
+                  slug
+                  avatarUrl
+                  avatarThumbnailCropParameters {
+                    width
+                    height
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+              shareUrl
+              originalClusterId
+              generatedCaption {
+                text
+                __typename
+              }
+              source {
+                ...ElementSource
+                __typename
+              }
+              ... on MediaElementTile {
+                hasMoreMedia
+                multipleMedia {
+                  ...ElementMedia
+                  __typename
+                }
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                __typename
+              }
+              ... on ProductElementTile {
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                productPrice: price {
+                  value
+                  currency
+                  __typename
+                }
+                productBrand: brand
+                productTitle: name
+                productDescription: description
+                __typename
+              }
+              ... on WebsiteElementTile {
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                websiteTitle: title
+                websiteDescription: description
+                __typename
+              }
+              ... on TextElementTile {
+                text
+                __typename
+              }
+            }
+
+            fragment ElementMedia on Media {
+              mediaId
+              url
+              width
+              height
+              notSafeForWorkStatus
+              aiGenerated
+              __typename
+              ... on StaticImage {
+                blurHash
+                __typename
+              }
+              ... on AnimatedImage {
+                blurHash
+                video {
+                  url
+                  thumbnailUrl
+                  __typename
+                }
+                __typename
+              }
+              ... on Video {
+                thumbnail {
+                  hash
+                  url
+                  __typename
+                }
+                duration
+                isStored
+                mux {
+                  playbackUrl
+                  mp4Url(quality: LOW)
+                  downloadableUrl: mp4Url(quality: HIGH)
+                  __typename
+                }
+                width
+                height
+                __typename
+              }
+              ... on Media {
+                __typename
+              }
+            }
+
+            fragment ElementSource on ElementSource {
+              url
+              isEditable
+              isPublicDomain
+              author {
+                username
+                fullName
+                profileUrl
+                avatarUrl
+                __typename
+              }
+              __typename
+            }
+
+            fragment ElementUserContext on ElementUserContext {
+              isDisliked
+              isPublicElement
+              connections {
+                meta {
+                  count
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_cluster_elements
+        pagination:
+        observed_auth:
+        - authorization
+      recommendations:
+        method: POST
+        path: "/graphql"
+        description: Fetch clusters recommendations
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetClusterRecommendations
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetClusterRecommendations($userId: UserId, $clusterId: ClusterId!, $isAdmin: Boolean! = false, $isLoggedIn: Boolean! = false) {
+              clusterRecommendations(clusterId: $clusterId) {
+                elementsV2 {
+                  items {
+                    ...ElementTile
+                    slateId
+                    isFeatured @include(if: $isAdmin)
+                    userContext(userId: $userId) {
+                      ...ElementUserContext
+                      __typename
+                    }
+                    connection(cluster: {id: $clusterId}) @include(if: $isLoggedIn) {
+                      clusterId
+                      __typename
+                    }
+                    __typename
+                  }
+                  meta {
+                    nextPageCursor
+                    count
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment ElementTile on ElementTile {
+              __typename
+              id
+              processingState
+              contentAccessibility
+              createdAt
+              isFeatured
+              isReadyToShow
+              hasIllegalReports
+              ownerId
+              owner {
+                username
+                isVerifiedProfile
+                verifiedProfile {
+                  slug
+                  avatarUrl
+                  avatarThumbnailCropParameters {
+                    width
+                    height
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+              shareUrl
+              originalClusterId
+              generatedCaption {
+                text
+                __typename
+              }
+              source {
+                ...ElementSource
+                __typename
+              }
+              ... on MediaElementTile {
+                hasMoreMedia
+                multipleMedia {
+                  ...ElementMedia
+                  __typename
+                }
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                __typename
+              }
+              ... on ProductElementTile {
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                productPrice: price {
+                  value
+                  currency
+                  __typename
+                }
+                productBrand: brand
+                productTitle: name
+                productDescription: description
+                __typename
+              }
+              ... on WebsiteElementTile {
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                websiteTitle: title
+                websiteDescription: description
+                __typename
+              }
+              ... on TextElementTile {
+                text
+                __typename
+              }
+            }
+
+            fragment ElementMedia on Media {
+              mediaId
+              url
+              width
+              height
+              notSafeForWorkStatus
+              aiGenerated
+              __typename
+              ... on StaticImage {
+                blurHash
+                __typename
+              }
+              ... on AnimatedImage {
+                blurHash
+                video {
+                  url
+                  thumbnailUrl
+                  __typename
+                }
+                __typename
+              }
+              ... on Video {
+                thumbnail {
+                  hash
+                  url
+                  __typename
+                }
+                duration
+                isStored
+                mux {
+                  playbackUrl
+                  mp4Url(quality: LOW)
+                  downloadableUrl: mp4Url(quality: HIGH)
+                  __typename
+                }
+                width
+                height
+                __typename
+              }
+              ... on Media {
+                __typename
+              }
+            }
+
+            fragment ElementSource on ElementSource {
+              url
+              isEditable
+              isPublicDomain
+              author {
+                username
+                fullName
+                profileUrl
+                avatarUrl
+                __typename
+              }
+              __typename
+            }
+
+            fragment ElementUserContext on ElementUserContext {
+              isDisliked
+              isPublicElement
+              connections {
+                meta {
+                  count
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_cluster_recommendations
+        pagination:
+        observed_auth:
+        - authorization
+  connectables:
+    description: GraphQL BFF operations for connectables
+    endpoints:
+      clusters:
+        method: POST
+        path: "/graphql"
+        description: Fetch connectables clusters
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetConnectableClusters
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetConnectableClusters($userId: UserId!, $elementIds: [ElementId!]!, $searchTerm: String, $pageCursor: String) {
+              areSavedToLibrary(userId: $userId, elementIds: $elementIds)
+              connectableClusters(
+                userId: $userId
+                elementIds: $elementIds
+                searchTerm: $searchTerm
+                meta: {pageSize: 10, pageCursor: $pageCursor}
+              ) {
+                items {
+                  ...ConnectableClusterItem
+                  __typename
+                }
+                meta {
+                  pageCursor
+                  nextPageCursor
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment ConnectableClusterItem on ConnectableCluster {
+              cluster {
+                id
+                name
+                slug
+                coverImage {
+                  url
+                  notSafeForWorkStatus: isNotSafeForWork
+                  hash
+                  __typename
+                }
+                url
+                numberOfElements
+                hasSubClusters
+                isPrivate
+                __typename
+              }
+              hasConnections
+              __typename
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_connectable_clusters
+        pagination:
+        observed_auth:
+        - authorization
+  dids:
+    description: GraphQL BFF operations for dids
+    endpoints:
+      setup_profile:
+        method: POST
+        path: "/graphql"
+        description: Fetch dids setup profile
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetDidSetupProfile
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetDidSetupProfile {
+              tutorialTracker {
+                setupProfile
+                __typename
+              }
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_did_setup_profile
+        pagination:
+        observed_auth:
+        - authorization
+  elements:
+    description: GraphQL BFF operations for elements
+    endpoints:
+      get:
+        method: POST
+        path: "/graphql"
+        description: Fetch elements
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetElementDetails
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetElementDetails($elementId: ElementId!, $userId: UserId!, $isLoggedIn: Boolean!) {
+              elementView(elementId: $elementId) {
+                __typename
+                element {
+                  ...ElementTile
+                  userContext(userId: $userId) @include(if: $isLoggedIn) {
+                    ...ElementUserContext
+                    __typename
+                  }
+                  generatedCaption {
+                    text
+                    __typename
+                  }
+                  __typename
+                }
+                ... on MultiMediaElementView {
+                  media {
+                    ...ElementMedia
+                    __typename
+                  }
+                  __typename
+                }
+                ... on OembedElementView {
+                  html
+                  __typename
+                }
+                verifiedProfile {
+                  ...VerifiedProfile
+                  __typename
+                }
+                verifiedProfileSourceCluster {
+                  ...ClusterWithParentCluster
+                  __typename
+                }
+              }
+              elementQuickConnectRecommendation(userId: $userId, elementId: $elementId) @include(if: $isLoggedIn) {
+                isConnected
+                cluster {
+                  id
+                  name
+                  cover {
+                    url
+                    blurHash
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment ClusterWithParentCluster on Cluster {
+              parentCluster {
+                ...ClusterBasic
+                __typename
+              }
+              ...ClusterBasic
+              __typename
+            }
+
+            fragment ClusterBasic on Cluster {
+              id
+              name
+              isPublicElementsCluster
+              description
+              slug
+              isPrivate
+              ownerId
+              owner {
+                ...UserPublicProfile
+                isFollowed(followerId: $userId) @include(if: $isLoggedIn)
+                __typename
+              }
+              coverImageElementId
+              coverImageUrl
+              isFollowed(userId: $userId) @include(if: $isLoggedIn)
+              isFeatured
+              parentClusterId
+              isPinnedToUserProfile(userId: $userId) @include(if: $isLoggedIn)
+              numberOfElements
+              cover {
+                notSafeForWorkStatus
+                url
+                blurHash
+                width
+                height
+                aiGenerated
+                ... on AnimatedImage {
+                  video {
+                    url
+                    thumbnailUrl
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+              collaborators {
+                items {
+                  ...ClusterCollaborator
+                  isOwner
+                  status
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+
+            fragment ClusterCollaborator on Collaborator {
+              userId
+              collaboratorPublicProfile {
+                ...UserPublicProfile
+                __typename
+              }
+              __typename
+            }
+
+            fragment UserPublicProfile on UserPublicProfile {
+              id
+              fullName
+              username
+              avatarUrl
+              isPremium
+              isVerifiedProfile
+              publicElementsCluster {
+                id
+                numberOfElements
+                __typename
+              }
+              verifiedProfile {
+                ...VerifiedProfile
+                __typename
+              }
+              __typename
+            }
+
+            fragment VerifiedProfile on VerifiedProfile {
+              __typename
+              id
+              slug
+              isPublic
+              status
+              name
+              avatarUrl
+              avatarThumbnailCropParameters {
+                width
+                height
+                __typename
+              }
+              coverImage {
+                url
+                hash
+                thumbnailUrl
+                __typename
+              }
+            }
+
+            fragment ElementTile on ElementTile {
+              __typename
+              id
+              processingState
+              contentAccessibility
+              createdAt
+              isFeatured
+              isReadyToShow
+              hasIllegalReports
+              ownerId
+              owner {
+                username
+                isVerifiedProfile
+                verifiedProfile {
+                  slug
+                  avatarUrl
+                  avatarThumbnailCropParameters {
+                    width
+                    height
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+              shareUrl
+              originalClusterId
+              generatedCaption {
+                text
+                __typename
+              }
+              source {
+                ...ElementSource
+                __typename
+              }
+              ... on MediaElementTile {
+                hasMoreMedia
+                multipleMedia {
+                  ...ElementMedia
+                  __typename
+                }
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                __typename
+              }
+              ... on ProductElementTile {
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                productPrice: price {
+                  value
+                  currency
+                  __typename
+                }
+                productBrand: brand
+                productTitle: name
+                productDescription: description
+                __typename
+              }
+              ... on WebsiteElementTile {
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                websiteTitle: title
+                websiteDescription: description
+                __typename
+              }
+              ... on TextElementTile {
+                text
+                __typename
+              }
+            }
+
+            fragment ElementMedia on Media {
+              mediaId
+              url
+              width
+              height
+              notSafeForWorkStatus
+              aiGenerated
+              __typename
+              ... on StaticImage {
+                blurHash
+                __typename
+              }
+              ... on AnimatedImage {
+                blurHash
+                video {
+                  url
+                  thumbnailUrl
+                  __typename
+                }
+                __typename
+              }
+              ... on Video {
+                thumbnail {
+                  hash
+                  url
+                  __typename
+                }
+                duration
+                isStored
+                mux {
+                  playbackUrl
+                  mp4Url(quality: LOW)
+                  downloadableUrl: mp4Url(quality: HIGH)
+                  __typename
+                }
+                width
+                height
+                __typename
+              }
+              ... on Media {
+                __typename
+              }
+            }
+
+            fragment ElementSource on ElementSource {
+              url
+              isEditable
+              isPublicDomain
+              author {
+                username
+                fullName
+                profileUrl
+                avatarUrl
+                __typename
+              }
+              __typename
+            }
+
+            fragment ElementUserContext on ElementUserContext {
+              isDisliked
+              isPublicElement
+              connections {
+                meta {
+                  count
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_element_details
+        pagination:
+        observed_auth:
+        - authorization
+      get_2:
+        method: POST
+        path: "/graphql"
+        description: Fetch elements
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: ViewElement
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            mutation ViewElement($input: ViewElementInput!) {
+              element {
+                view(input: $input) {
+                  success
+                  __typename
+                }
+                __typename
+              }
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: view_element
+        pagination:
+        observed_auth:
+        - authorization
+      social_graph:
+        method: POST
+        path: "/graphql"
+        description: Fetch elements social graph
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetElementSocialGraph
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetElementSocialGraph($elementId: ElementId!, $userId: UserId!, $isLoggedIn: Boolean!) {
+              elementTopConnections(
+                elementId: $elementId
+                userId: $userId
+                meta: {pageSize: 3}
+              ) {
+                items {
+                  ...Connection
+                  __typename
+                }
+                meta {
+                  nextPageCursor
+                  count
+                  __typename
+                }
+                __typename
+              }
+              elementTopUsers(elementId: $elementId, userId: $userId, meta: {pageSize: 3}) {
+                items {
+                  ...UserPublicProfile
+                  isFollowed(followerId: $userId) @include(if: $isLoggedIn)
+                  __typename
+                }
+                meta {
+                  nextPageCursor
+                  count
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment Connection on Connection {
+              clusterId
+              elementId
+              userId
+              createdAt
+              cluster {
+                ...ClusterWithTopElements
+                __typename
+              }
+              collaborator {
+                id
+                username
+                avatarUrl
+                isPremium
+                __typename
+              }
+              __typename
+            }
+
+            fragment ClusterWithTopElements on Cluster {
+              ...ClusterBasic
+              topElements(elementCount: 4) {
+                ...ElementTile
+                __typename
+              }
+              parentCluster {
+                id
+                name
+                slug
+                __typename
+              }
+              __typename
+            }
+
+            fragment ClusterBasic on Cluster {
+              id
+              name
+              isPublicElementsCluster
+              description
+              slug
+              isPrivate
+              ownerId
+              owner {
+                ...UserPublicProfile
+                isFollowed(followerId: $userId) @include(if: $isLoggedIn)
+                __typename
+              }
+              coverImageElementId
+              coverImageUrl
+              isFollowed(userId: $userId) @include(if: $isLoggedIn)
+              isFeatured
+              parentClusterId
+              isPinnedToUserProfile(userId: $userId) @include(if: $isLoggedIn)
+              numberOfElements
+              cover {
+                notSafeForWorkStatus
+                url
+                blurHash
+                width
+                height
+                aiGenerated
+                ... on AnimatedImage {
+                  video {
+                    url
+                    thumbnailUrl
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+              collaborators {
+                items {
+                  ...ClusterCollaborator
+                  isOwner
+                  status
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+
+            fragment ClusterCollaborator on Collaborator {
+              userId
+              collaboratorPublicProfile {
+                ...UserPublicProfile
+                __typename
+              }
+              __typename
+            }
+
+            fragment UserPublicProfile on UserPublicProfile {
+              id
+              fullName
+              username
+              avatarUrl
+              isPremium
+              isVerifiedProfile
+              publicElementsCluster {
+                id
+                numberOfElements
+                __typename
+              }
+              verifiedProfile {
+                ...VerifiedProfile
+                __typename
+              }
+              __typename
+            }
+
+            fragment VerifiedProfile on VerifiedProfile {
+              __typename
+              id
+              slug
+              isPublic
+              status
+              name
+              avatarUrl
+              avatarThumbnailCropParameters {
+                width
+                height
+                __typename
+              }
+              coverImage {
+                url
+                hash
+                thumbnailUrl
+                __typename
+              }
+            }
+
+            fragment ElementTile on ElementTile {
+              __typename
+              id
+              processingState
+              contentAccessibility
+              createdAt
+              isFeatured
+              isReadyToShow
+              hasIllegalReports
+              ownerId
+              owner {
+                username
+                isVerifiedProfile
+                verifiedProfile {
+                  slug
+                  avatarUrl
+                  avatarThumbnailCropParameters {
+                    width
+                    height
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+              shareUrl
+              originalClusterId
+              generatedCaption {
+                text
+                __typename
+              }
+              source {
+                ...ElementSource
+                __typename
+              }
+              ... on MediaElementTile {
+                hasMoreMedia
+                multipleMedia {
+                  ...ElementMedia
+                  __typename
+                }
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                __typename
+              }
+              ... on ProductElementTile {
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                productPrice: price {
+                  value
+                  currency
+                  __typename
+                }
+                productBrand: brand
+                productTitle: name
+                productDescription: description
+                __typename
+              }
+              ... on WebsiteElementTile {
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                websiteTitle: title
+                websiteDescription: description
+                __typename
+              }
+              ... on TextElementTile {
+                text
+                __typename
+              }
+            }
+
+            fragment ElementMedia on Media {
+              mediaId
+              url
+              width
+              height
+              notSafeForWorkStatus
+              aiGenerated
+              __typename
+              ... on StaticImage {
+                blurHash
+                __typename
+              }
+              ... on AnimatedImage {
+                blurHash
+                video {
+                  url
+                  thumbnailUrl
+                  __typename
+                }
+                __typename
+              }
+              ... on Video {
+                thumbnail {
+                  hash
+                  url
+                  __typename
+                }
+                duration
+                isStored
+                mux {
+                  playbackUrl
+                  mp4Url(quality: LOW)
+                  downloadableUrl: mp4Url(quality: HIGH)
+                  __typename
+                }
+                width
+                height
+                __typename
+              }
+              ... on Media {
+                __typename
+              }
+            }
+
+            fragment ElementSource on ElementSource {
+              url
+              isEditable
+              isPublicDomain
+              author {
+                username
+                fullName
+                profileUrl
+                avatarUrl
+                __typename
+              }
+              __typename
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_element_social_graph
+        pagination:
+        observed_auth:
+        - authorization
+      top_counts:
+        method: POST
+        path: "/graphql"
+        description: Fetch elements top counts
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetElementTopCounts
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetElementTopCounts($elementId: ElementId!, $userId: UserId) {
+              elementTopConnections(elementId: $elementId, userId: $userId) {
+                meta {
+                  nextPageCursor
+                  count
+                  __typename
+                }
+                __typename
+              }
+              elementTopUsers(elementId: $elementId, userId: $userId, meta: {pageSize: 3}) {
+                items {
+                  avatarUrl
+                  __typename
+                }
+                meta {
+                  nextPageCursor
+                  count
+                  __typename
+                }
+                __typename
+              }
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_element_top_counts
+        pagination:
+        observed_auth:
+        - authorization
+  fors:
+    description: GraphQL BFF operations for fors
+    endpoints:
+      you_elements:
+        method: POST
+        path: "/graphql"
+        description: Fetch fors you elements
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetForYouElements
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetForYouElements($pageCursor: String, $userId: UserId!, $fetchRecommendationContext: Boolean = false) {
+              forYouElements(userId: $userId, meta: {pageSize: 120, pageCursor: $pageCursor}) {
+                items {
+                  element {
+                    ...ElementTile
+                    userContext(userId: $userId) {
+                      ...ElementUserContext
+                      __typename
+                    }
+                    __typename
+                  }
+                  ...ForYouElementRecommendationContext
+                  __typename
+                }
+                meta {
+                  nextPageCursor
+                  count
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment ElementTile on ElementTile {
+              __typename
+              id
+              processingState
+              contentAccessibility
+              createdAt
+              isFeatured
+              isReadyToShow
+              hasIllegalReports
+              ownerId
+              owner {
+                username
+                isVerifiedProfile
+                verifiedProfile {
+                  slug
+                  avatarUrl
+                  avatarThumbnailCropParameters {
+                    width
+                    height
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+              shareUrl
+              originalClusterId
+              generatedCaption {
+                text
+                __typename
+              }
+              source {
+                ...ElementSource
+                __typename
+              }
+              ... on MediaElementTile {
+                hasMoreMedia
+                multipleMedia {
+                  ...ElementMedia
+                  __typename
+                }
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                __typename
+              }
+              ... on ProductElementTile {
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                productPrice: price {
+                  value
+                  currency
+                  __typename
+                }
+                productBrand: brand
+                productTitle: name
+                productDescription: description
+                __typename
+              }
+              ... on WebsiteElementTile {
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                websiteTitle: title
+                websiteDescription: description
+                __typename
+              }
+              ... on TextElementTile {
+                text
+                __typename
+              }
+            }
+
+            fragment ElementMedia on Media {
+              mediaId
+              url
+              width
+              height
+              notSafeForWorkStatus
+              aiGenerated
+              __typename
+              ... on StaticImage {
+                blurHash
+                __typename
+              }
+              ... on AnimatedImage {
+                blurHash
+                video {
+                  url
+                  thumbnailUrl
+                  __typename
+                }
+                __typename
+              }
+              ... on Video {
+                thumbnail {
+                  hash
+                  url
+                  __typename
+                }
+                duration
+                isStored
+                mux {
+                  playbackUrl
+                  mp4Url(quality: LOW)
+                  downloadableUrl: mp4Url(quality: HIGH)
+                  __typename
+                }
+                width
+                height
+                __typename
+              }
+              ... on Media {
+                __typename
+              }
+            }
+
+            fragment ElementSource on ElementSource {
+              url
+              isEditable
+              isPublicDomain
+              author {
+                username
+                fullName
+                profileUrl
+                avatarUrl
+                __typename
+              }
+              __typename
+            }
+
+            fragment ForYouElementRecommendationContext on ForYouElement {
+              recommendationContext @include(if: $fetchRecommendationContext) {
+                forYouVersion
+                sources
+                slateId
+                cluster {
+                  id
+                  name
+                  isCollaborator(userId: $userId)
+                  parentCluster {
+                    id
+                    name
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+
+            fragment ElementUserContext on ElementUserContext {
+              isDisliked
+              isPublicElement
+              connections {
+                meta {
+                  count
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_for_you_elements
+        pagination:
+        observed_auth:
+        - authorization
+      you_user_configuration:
+        method: POST
+        path: "/graphql"
+        description: Fetch fors you user configuration
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetForYouUserConfiguration
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetForYouUserConfiguration($userId: UserId!) {
+              forYouUserConfiguration(userId: $userId) {
+                userId
+                isFeedPrepared
+                selectedTopicCount
+                libraryElementCount
+                canSkipTopicSelection
+                healthReport {
+                  feedGenerationRequirements
+                  mitigationStatus
+                  seedBucket {
+                    cursorAction
+                    __typename
+                  }
+                  forYouFeed {
+                    cursorAction
+                    __typename
+                  }
+                  __typename
+                }
+                selectedTopicClusters {
+                  items {
+                    id
+                    __typename
+                  }
+                  __typename
+                }
+                currentForYouVersion
+                desiredForYouVersion
+                __typename
+              }
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_for_you_user_configuration
+        pagination:
+        observed_auth:
+        - authorization
+  globals:
+    description: GraphQL BFF operations for globals
+    endpoints:
+      clusters:
+        method: POST
+        path: "/graphql"
+        description: Fetch globals clusters
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: SearchGlobalClusters
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query SearchGlobalClusters($searchTerm: String!, $userId: UserId, $pageSize: Int = 20, $pageCursor: String) {
+              searchClusters(
+                searchTerm: $searchTerm
+                filters: {userId: $userId}
+                meta: {pageSize: $pageSize, pageCursor: $pageCursor}
+              ) {
+                items {
+                  __typename
+                  ...SearchClusterListItem
+                }
+                meta {
+                  nextPageCursor
+                  count
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment SearchClusterListItem on Cluster {
+              id
+              name
+              slug
+              cover {
+                ... on AnimatedImage {
+                  url
+                  blurHash
+                  notSafeForWorkStatus
+                  __typename
+                }
+                ... on StaticImage {
+                  url
+                  blurHash
+                  notSafeForWorkStatus
+                  __typename
+                }
+                __typename
+              }
+              parentCluster {
+                id
+                name
+                slug
+                __typename
+              }
+              owner {
+                fullName
+                firstName
+                lastName
+                username
+                isPremium
+                __typename
+              }
+              numberOfElements
+              followersCount
+              __typename
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: search_global_clusters
+        pagination:
+        observed_auth:
+        - authorization
+      elements:
+        method: POST
+        path: "/graphql"
+        description: Fetch globals elements
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: SearchGlobalElements
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query SearchGlobalElements($userId: UserId, $searchTerm: String!, $contentType: ElementContentTypeFilter, $origin: SearchOrigin, $pageCursor: String, $order: ElementOrder, $color: String) {
+              searchElements(
+                filters: {color: $color, userId: $userId, contentType: $contentType}
+                order: $order
+                searchTerm: $searchTerm
+                searchOrigin: $origin
+                meta: {pageSize: 40, pageCursor: $pageCursor}
+              ) {
+                items {
+                  ...ElementTile
+                  slateId
+                  __typename
+                }
+                meta {
+                  nextPageCursor
+                  count
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment ElementTile on ElementTile {
+              __typename
+              id
+              processingState
+              contentAccessibility
+              createdAt
+              isFeatured
+              isReadyToShow
+              hasIllegalReports
+              ownerId
+              owner {
+                username
+                isVerifiedProfile
+                verifiedProfile {
+                  slug
+                  avatarUrl
+                  avatarThumbnailCropParameters {
+                    width
+                    height
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+              shareUrl
+              originalClusterId
+              generatedCaption {
+                text
+                __typename
+              }
+              source {
+                ...ElementSource
+                __typename
+              }
+              ... on MediaElementTile {
+                hasMoreMedia
+                multipleMedia {
+                  ...ElementMedia
+                  __typename
+                }
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                __typename
+              }
+              ... on ProductElementTile {
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                productPrice: price {
+                  value
+                  currency
+                  __typename
+                }
+                productBrand: brand
+                productTitle: name
+                productDescription: description
+                __typename
+              }
+              ... on WebsiteElementTile {
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                websiteTitle: title
+                websiteDescription: description
+                __typename
+              }
+              ... on TextElementTile {
+                text
+                __typename
+              }
+            }
+
+            fragment ElementMedia on Media {
+              mediaId
+              url
+              width
+              height
+              notSafeForWorkStatus
+              aiGenerated
+              __typename
+              ... on StaticImage {
+                blurHash
+                __typename
+              }
+              ... on AnimatedImage {
+                blurHash
+                video {
+                  url
+                  thumbnailUrl
+                  __typename
+                }
+                __typename
+              }
+              ... on Video {
+                thumbnail {
+                  hash
+                  url
+                  __typename
+                }
+                duration
+                isStored
+                mux {
+                  playbackUrl
+                  mp4Url(quality: LOW)
+                  downloadableUrl: mp4Url(quality: HIGH)
+                  __typename
+                }
+                width
+                height
+                __typename
+              }
+              ... on Media {
+                __typename
+              }
+            }
+
+            fragment ElementSource on ElementSource {
+              url
+              isEditable
+              isPublicDomain
+              author {
+                username
+                fullName
+                profileUrl
+                avatarUrl
+                __typename
+              }
+              __typename
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: search_global_elements
+        pagination:
+        observed_auth:
+        - authorization
+      get:
+        method: POST
+        path: "/graphql"
+        description: Fetch globals
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: SearchGlobal
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query SearchGlobal($searchTerm: String!, $fetchAutocomplete: Boolean!, $userId: UserId) {
+              search(searchTerm: $searchTerm) {
+                users(meta: {pageSize: 10}, filters: {userId: $userId}) {
+                  items {
+                    ...UserSearchListItem
+                    __typename
+                  }
+                  __typename
+                }
+                autocompleteSuggestions @include(if: $fetchAutocomplete) {
+                  items {
+                    searchTerm
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+              searchClusters(searchTerm: $searchTerm, meta: {pageSize: 10}) {
+                items {
+                  ...SearchClusterListItem
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment UserSearchListItem on SearchUser {
+              id
+              name
+              username
+              isPremium
+              isVerifiedProfile
+              avatarUrl
+              verifiedProfile {
+                avatarUrl
+                avatarThumbnailCropParameters {
+                  width
+                  height
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+
+            fragment SearchClusterListItem on Cluster {
+              id
+              name
+              slug
+              cover {
+                ... on AnimatedImage {
+                  url
+                  blurHash
+                  notSafeForWorkStatus
+                  __typename
+                }
+                ... on StaticImage {
+                  url
+                  blurHash
+                  notSafeForWorkStatus
+                  __typename
+                }
+                __typename
+              }
+              parentCluster {
+                id
+                name
+                slug
+                __typename
+              }
+              owner {
+                fullName
+                firstName
+                lastName
+                username
+                isPremium
+                __typename
+              }
+              numberOfElements
+              followersCount
+              __typename
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: search_global
+        pagination:
+        observed_auth:
+        - authorization
+  has:
+    description: GraphQL BFF operations for has
+    endpoints:
+      user_seen_new_feature:
+        method: POST
+        path: "/graphql"
+        description: Fetch has user seen new feature
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetHasUserSeenNewFeature
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetHasUserSeenNewFeature($feature: NewFeature!) {
+              me {
+                id
+                hasSeenNewFeature(feature: $feature)
+                __typename
+              }
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_has_user_seen_new_feature
+        pagination:
+        observed_auth:
+        - authorization
+  loaders:
+    description: GraphQL BFF operations for loaders
+    endpoints:
+      state:
+        method: POST
+        path: "/graphql"
+        description: Fetch loaders state
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetLoaderState
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetLoaderState($userId: UserId!, $clusterId: ClusterId) {
+              loader(userId: $userId, clusterId: $clusterId) {
+                numberOfElements
+                sources
+                timeEstimate
+                __typename
+              }
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_loader_state
+        pagination:
+        observed_auth:
+        - authorization
+  profiles:
+    description: GraphQL BFF operations for profiles
+    endpoints:
+      counts:
+        method: POST
+        path: "/graphql"
+        description: Fetch profiles counts
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetProfileCounts
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetProfileCounts($userId: UserId!, $filters: UserClusterListFilters) {
+              userClusters(userId: $userId, filters: $filters) {
+                meta {
+                  count
+                  __typename
+                }
+                __typename
+              }
+              allElementsV2(userId: $userId) {
+                meta {
+                  count
+                  __typename
+                }
+                __typename
+              }
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_profile_counts
+        pagination:
+        observed_auth:
+        - authorization
+  quicks:
+    description: GraphQL BFF operations for quicks
+    endpoints:
+      connect_recommendation:
+        method: POST
+        path: "/graphql"
+        description: Fetch quicks connect recommendation
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetQuickConnectRecommendation
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetQuickConnectRecommendation($userId: UserId!, $elementId: ElementId!, $includeHasConnections: Boolean! = false) {
+              quickConnectRecommendation(userId: $userId) {
+                clusterId
+                cluster {
+                  id
+                  name
+                  slug
+                  isPublicElementsCluster
+                  cover {
+                    url
+                    blurHash
+                    __typename
+                  }
+                  parentCluster {
+                    id
+                    name
+                    slug
+                    __typename
+                  }
+                  hasConnections(elementIds: [$elementId]) @include(if: $includeHasConnections)
+                  __typename
+                }
+                __typename
+              }
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_quick_connect_recommendation
+        pagination:
+        observed_auth:
+        - authorization
+  recentlies:
+    description: GraphQL BFF operations for recentlies
+    endpoints:
+      viewed_element_count:
+        method: POST
+        path: "/graphql"
+        description: Fetch recentlies viewed element count
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetRecentlyViewedElementCount
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetRecentlyViewedElementCount($username: String!) {
+              cluster(input: {slug: "recently-viewed", ownerUsername: $username}) {
+                id
+                numberOfElements
+                __typename
+              }
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_recently_viewed_element_count
+        pagination:
+        observed_auth:
+        - authorization
+  recents:
+    description: GraphQL BFF operations for recents
+    endpoints:
+      global_searches:
+        method: POST
+        path: "/graphql"
+        description: Fetch recents global searches
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetRecentGlobalSearches
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetRecentGlobalSearches($ownerId: UserId!) {
+              globalSearchHistory(ownerId: $ownerId) {
+                ownerId
+                entries {
+                  ...GlobalRecentSearchListItem
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment GlobalRecentSearchListItem on GlobalSearchHistoryEntry {
+              ...GlobalClusterRecentSearchListItem
+              ...GlobalSearchTermRecentSearchListItem
+              ...GlobalUserRecentSearchListItem
+              __typename
+            }
+
+            fragment GlobalClusterRecentSearchListItem on VisitedClusterGlobalSearchHistoryEntry {
+              clusterId
+              cluster {
+                id
+                coverImageUrl
+                name
+                slug
+                owner {
+                  username
+                  __typename
+                }
+                cover {
+                  url
+                  notSafeForWorkStatus
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+
+            fragment GlobalSearchTermRecentSearchListItem on SearchTermGlobalSearchHistoryEntry {
+              searchTerm
+              __typename
+            }
+
+            fragment GlobalUserRecentSearchListItem on VisitedUserGlobalSearchHistoryEntry {
+              userId
+              user {
+                ...UserPublicProfile
+                __typename
+              }
+              __typename
+            }
+
+            fragment UserPublicProfile on UserPublicProfile {
+              id
+              fullName
+              username
+              avatarUrl
+              isPremium
+              isVerifiedProfile
+              publicElementsCluster {
+                id
+                numberOfElements
+                __typename
+              }
+              verifiedProfile {
+                ...VerifiedProfile
+                __typename
+              }
+              __typename
+            }
+
+            fragment VerifiedProfile on VerifiedProfile {
+              __typename
+              id
+              slug
+              isPublic
+              status
+              name
+              avatarUrl
+              avatarThumbnailCropParameters {
+                width
+                height
+                __typename
+              }
+              coverImage {
+                url
+                hash
+                thumbnailUrl
+                __typename
+              }
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_recent_global_searches
+        pagination:
+        observed_auth:
+        - authorization
+  remembers:
+    description: GraphQL BFF operations for remembers
+    endpoints:
+      global_search_term:
+        method: POST
+        path: "/graphql"
+        description: Fetch remembers global search term
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: RememberGlobalSearchTerm
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            mutation RememberGlobalSearchTerm($ownerId: UserId!, $searchTerm: String!) {
+              globalSearchHistory {
+                rememberSearchTerm(input: {ownerId: $ownerId, searchTerm: $searchTerm}) {
+                  success
+                  __typename
+                }
+                __typename
+              }
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: remember_global_search_term
+        pagination:
+        observed_auth:
+        - authorization
+  similars:
+    description: GraphQL BFF operations for similars
+    endpoints:
+      elements:
+        method: POST
+        path: "/graphql"
+        description: Fetch similars elements
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetSimilarElements
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetSimilarElements($userId: UserId, $elementIds: [ElementId!]!, $isLoggedIn: Boolean! = false, $isAdmin: Boolean! = false, $pageCursor: String, $pageSize: Int = 40) {
+              similarElementsV2(
+                elementIds: $elementIds
+                meta: {pageSize: $pageSize, pageCursor: $pageCursor}
+              ) {
+                items {
+                  ...ElementTile
+                  slateId
+                  isFeatured @include(if: $isAdmin)
+                  userContext(userId: $userId) @include(if: $isLoggedIn) {
+                    ...ElementUserContext
+                    __typename
+                  }
+                  __typename
+                }
+                meta {
+                  nextPageCursor
+                  count
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment ElementTile on ElementTile {
+              __typename
+              id
+              processingState
+              contentAccessibility
+              createdAt
+              isFeatured
+              isReadyToShow
+              hasIllegalReports
+              ownerId
+              owner {
+                username
+                isVerifiedProfile
+                verifiedProfile {
+                  slug
+                  avatarUrl
+                  avatarThumbnailCropParameters {
+                    width
+                    height
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+              shareUrl
+              originalClusterId
+              generatedCaption {
+                text
+                __typename
+              }
+              source {
+                ...ElementSource
+                __typename
+              }
+              ... on MediaElementTile {
+                hasMoreMedia
+                multipleMedia {
+                  ...ElementMedia
+                  __typename
+                }
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                __typename
+              }
+              ... on ProductElementTile {
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                productPrice: price {
+                  value
+                  currency
+                  __typename
+                }
+                productBrand: brand
+                productTitle: name
+                productDescription: description
+                __typename
+              }
+              ... on WebsiteElementTile {
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                websiteTitle: title
+                websiteDescription: description
+                __typename
+              }
+              ... on TextElementTile {
+                text
+                __typename
+              }
+            }
+
+            fragment ElementMedia on Media {
+              mediaId
+              url
+              width
+              height
+              notSafeForWorkStatus
+              aiGenerated
+              __typename
+              ... on StaticImage {
+                blurHash
+                __typename
+              }
+              ... on AnimatedImage {
+                blurHash
+                video {
+                  url
+                  thumbnailUrl
+                  __typename
+                }
+                __typename
+              }
+              ... on Video {
+                thumbnail {
+                  hash
+                  url
+                  __typename
+                }
+                duration
+                isStored
+                mux {
+                  playbackUrl
+                  mp4Url(quality: LOW)
+                  downloadableUrl: mp4Url(quality: HIGH)
+                  __typename
+                }
+                width
+                height
+                __typename
+              }
+              ... on Media {
+                __typename
+              }
+            }
+
+            fragment ElementSource on ElementSource {
+              url
+              isEditable
+              isPublicDomain
+              author {
+                username
+                fullName
+                profileUrl
+                avatarUrl
+                __typename
+              }
+              __typename
+            }
+
+            fragment ElementUserContext on ElementUserContext {
+              isDisliked
+              isPublicElement
+              connections {
+                meta {
+                  count
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_similar_elements
+        pagination:
+        observed_auth:
+        - authorization
+  subclusters:
+    description: GraphQL BFF operations for subclusters
+    endpoints:
+      get:
+        method: POST
+        path: "/graphql"
+        description: Fetch subclusters
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetSubclusters
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetSubclusters($clusterId: ClusterId!) {
+              cluster(id: $clusterId) {
+                id
+                subClusters {
+                  items {
+                    ...SubclusterPill
+                    __typename
+                  }
+                  meta {
+                    nextPageCursor
+                    count
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment SubclusterPill on Cluster {
+              id
+              name
+              slug
+              numberOfElements
+              coverImageUrl
+              cover {
+                url
+                width
+                height
+                blurHash
+                notSafeForWorkStatus
+                aiGenerated
+                __typename
+              }
+              owner {
+                id
+                username
+                __typename
+              }
+              isPrivate
+              collaboratorsCount
+              collaborators {
+                items {
+                  ...ClusterCollaborator
+                  isOwner
+                  status
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+
+            fragment ClusterCollaborator on Collaborator {
+              userId
+              collaboratorPublicProfile {
+                ...UserPublicProfile
+                __typename
+              }
+              __typename
+            }
+
+            fragment UserPublicProfile on UserPublicProfile {
+              id
+              fullName
+              username
+              avatarUrl
+              isPremium
+              isVerifiedProfile
+              publicElementsCluster {
+                id
+                numberOfElements
+                __typename
+              }
+              verifiedProfile {
+                ...VerifiedProfile
+                __typename
+              }
+              __typename
+            }
+
+            fragment VerifiedProfile on VerifiedProfile {
+              __typename
+              id
+              slug
+              isPublic
+              status
+              name
+              avatarUrl
+              avatarThumbnailCropParameters {
+                width
+                height
+                __typename
+              }
+              coverImage {
+                url
+                hash
+                thumbnailUrl
+                __typename
+              }
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_subclusters
+        pagination:
+        observed_auth:
+        - authorization
+  users:
+    description: GraphQL BFF operations for users
+    endpoints:
+      clusters:
+        method: POST
+        path: "/graphql"
+        description: Fetch users clusters
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetUserClusters
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetUserClusters($ownerId: UserId!, $ownerOrgId: OrganizationId, $userId: UserId!, $pageCursor: String, $pageSize: Int = 20, $order: UserProfileClusterOrder, $filters: UserClusterListFilters, $isLoggedIn: Boolean!) {
+              userClusters(
+                userId: $ownerId
+                ownerOrgId: $ownerOrgId
+                meta: {pageSize: $pageSize, pageCursor: $pageCursor}
+                order: $order
+                filters: $filters
+              ) {
+                items {
+                  ...ClusterTile
+                  ownerOrgIsPinnedToUserProfile: isPinnedToUserProfile(
+                    userId: $userId
+                    ownerOrgId: $ownerOrgId
+                  ) @include(if: $isLoggedIn)
+                  ...Subclusters
+                  __typename
+                }
+                meta {
+                  nextPageCursor
+                  count
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment ClusterTile on Cluster {
+              ...ClusterBasic
+              collaboratorsCount
+              numberOfElements
+              collaborators {
+                items {
+                  ...ClusterCollaborator
+                  isOwner
+                  __typename
+                }
+                __typename
+              }
+              subClusters {
+                items {
+                  ...SubclusterPill
+                  __typename
+                }
+                meta {
+                  count
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+
+            fragment ClusterBasic on Cluster {
+              id
+              name
+              isPublicElementsCluster
+              description
+              slug
+              isPrivate
+              ownerId
+              owner {
+                ...UserPublicProfile
+                isFollowed(followerId: $userId) @include(if: $isLoggedIn)
+                __typename
+              }
+              coverImageElementId
+              coverImageUrl
+              isFollowed(userId: $userId) @include(if: $isLoggedIn)
+              isFeatured
+              parentClusterId
+              isPinnedToUserProfile(userId: $userId) @include(if: $isLoggedIn)
+              numberOfElements
+              cover {
+                notSafeForWorkStatus
+                url
+                blurHash
+                width
+                height
+                aiGenerated
+                ... on AnimatedImage {
+                  video {
+                    url
+                    thumbnailUrl
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+              collaborators {
+                items {
+                  ...ClusterCollaborator
+                  isOwner
+                  status
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+
+            fragment ClusterCollaborator on Collaborator {
+              userId
+              collaboratorPublicProfile {
+                ...UserPublicProfile
+                __typename
+              }
+              __typename
+            }
+
+            fragment UserPublicProfile on UserPublicProfile {
+              id
+              fullName
+              username
+              avatarUrl
+              isPremium
+              isVerifiedProfile
+              publicElementsCluster {
+                id
+                numberOfElements
+                __typename
+              }
+              verifiedProfile {
+                ...VerifiedProfile
+                __typename
+              }
+              __typename
+            }
+
+            fragment VerifiedProfile on VerifiedProfile {
+              __typename
+              id
+              slug
+              isPublic
+              status
+              name
+              avatarUrl
+              avatarThumbnailCropParameters {
+                width
+                height
+                __typename
+              }
+              coverImage {
+                url
+                hash
+                thumbnailUrl
+                __typename
+              }
+            }
+
+            fragment SubclusterPill on Cluster {
+              id
+              name
+              slug
+              numberOfElements
+              coverImageUrl
+              cover {
+                url
+                width
+                height
+                blurHash
+                notSafeForWorkStatus
+                aiGenerated
+                __typename
+              }
+              owner {
+                id
+                username
+                __typename
+              }
+              isPrivate
+              collaboratorsCount
+              collaborators {
+                items {
+                  ...ClusterCollaborator
+                  isOwner
+                  status
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+
+            fragment Subclusters on Cluster {
+              subClusters {
+                __typename
+                items {
+                  __typename
+                  id
+                  name
+                  slug
+                  coverImageUrl
+                  cover {
+                    __typename
+                    blurHash
+                    url
+                    aiGenerated
+                    notSafeForWorkStatus
+                    width
+                    height
+                  }
+                  numberOfElements
+                  isPrivate
+                }
+              }
+              __typename
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_user_clusters
+        pagination:
+        observed_auth:
+        - authorization
+      clusters_2:
+        method: POST
+        path: "/graphql"
+        description: Fetch users clusters
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: SearchUserClusters
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query SearchUserClusters($searchTerm: String!, $userId: UserId!, $pageCursor: String, $isPrivate: Boolean) {
+              searchClusters(
+                searchTerm: $searchTerm
+                meta: {pageSize: 20, pageCursor: $pageCursor}
+                filters: {userId: $userId, isPrivate: $isPrivate}
+              ) {
+                __typename
+                items {
+                  ...SearchClusterListItem
+                  __typename
+                }
+                meta {
+                  nextPageCursor
+                  count
+                  __typename
+                }
+              }
+            }
+
+            fragment SearchClusterListItem on Cluster {
+              id
+              name
+              slug
+              cover {
+                ... on AnimatedImage {
+                  url
+                  blurHash
+                  notSafeForWorkStatus
+                  __typename
+                }
+                ... on StaticImage {
+                  url
+                  blurHash
+                  notSafeForWorkStatus
+                  __typename
+                }
+                __typename
+              }
+              parentCluster {
+                id
+                name
+                slug
+                __typename
+              }
+              owner {
+                fullName
+                firstName
+                lastName
+                username
+                isPremium
+                __typename
+              }
+              numberOfElements
+              followersCount
+              __typename
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: search_user_clusters
+        pagination:
+        observed_auth:
+        - authorization
+      elements:
+        method: POST
+        path: "/graphql"
+        description: Fetch users elements
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: SearchUserElements
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query SearchUserElements($searchTerm: String!, $userId: UserId, $pageCursor: String, $searchColor: String, $searchUserId: UserId!, $order: ElementOrder, $origin: SearchOrigin, $clusterId: ClusterId, $contentType: ElementContentTypeFilter, $isLoggedIn: Boolean!) {
+              searchElements(
+                searchTerm: $searchTerm
+                meta: {pageSize: 40, pageCursor: $pageCursor}
+                filters: {userId: $searchUserId, color: $searchColor, clusterId: $clusterId, contentType: $contentType}
+                order: $order
+                searchOrigin: $origin
+              ) {
+                items {
+                  ...ElementTile
+                  userContext(userId: $userId) @include(if: $isLoggedIn) {
+                    __typename
+                    ...ElementUserContext
+                  }
+                  __typename
+                }
+                meta {
+                  nextPageCursor
+                  count
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment ElementTile on ElementTile {
+              __typename
+              id
+              processingState
+              contentAccessibility
+              createdAt
+              isFeatured
+              isReadyToShow
+              hasIllegalReports
+              ownerId
+              owner {
+                username
+                isVerifiedProfile
+                verifiedProfile {
+                  slug
+                  avatarUrl
+                  avatarThumbnailCropParameters {
+                    width
+                    height
+                    __typename
+                  }
+                  __typename
+                }
+                __typename
+              }
+              shareUrl
+              originalClusterId
+              generatedCaption {
+                text
+                __typename
+              }
+              source {
+                ...ElementSource
+                __typename
+              }
+              ... on MediaElementTile {
+                hasMoreMedia
+                multipleMedia {
+                  ...ElementMedia
+                  __typename
+                }
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                __typename
+              }
+              ... on ProductElementTile {
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                productPrice: price {
+                  value
+                  currency
+                  __typename
+                }
+                productBrand: brand
+                productTitle: name
+                productDescription: description
+                __typename
+              }
+              ... on WebsiteElementTile {
+                media {
+                  ...ElementMedia
+                  __typename
+                }
+                websiteTitle: title
+                websiteDescription: description
+                __typename
+              }
+              ... on TextElementTile {
+                text
+                __typename
+              }
+            }
+
+            fragment ElementMedia on Media {
+              mediaId
+              url
+              width
+              height
+              notSafeForWorkStatus
+              aiGenerated
+              __typename
+              ... on StaticImage {
+                blurHash
+                __typename
+              }
+              ... on AnimatedImage {
+                blurHash
+                video {
+                  url
+                  thumbnailUrl
+                  __typename
+                }
+                __typename
+              }
+              ... on Video {
+                thumbnail {
+                  hash
+                  url
+                  __typename
+                }
+                duration
+                isStored
+                mux {
+                  playbackUrl
+                  mp4Url(quality: LOW)
+                  downloadableUrl: mp4Url(quality: HIGH)
+                  __typename
+                }
+                width
+                height
+                __typename
+              }
+              ... on Media {
+                __typename
+              }
+            }
+
+            fragment ElementSource on ElementSource {
+              url
+              isEditable
+              isPublicDomain
+              author {
+                username
+                fullName
+                profileUrl
+                avatarUrl
+                __typename
+              }
+              __typename
+            }
+
+            fragment ElementUserContext on ElementUserContext {
+              isDisliked
+              isPublicElement
+              connections {
+                meta {
+                  count
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: search_user_elements
+        pagination:
+        observed_auth:
+        - authorization
+      follows_basic:
+        method: POST
+        path: "/graphql"
+        description: Fetch users follows basic
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetUserFollowsBasic
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetUserFollowsBasic($userId: UserId, $followeeId: UserId!, $followerId: UserId!) {
+              userFollowees: userFollows(
+                userId: $userId
+                filters: {followerId: $followerId}
+                meta: {pageSize: 3}
+              ) {
+                items {
+                  followeeId
+                  followee {
+                    id
+                    avatarUrl
+                    username
+                    verifiedProfile {
+                      avatarUrl
+                      avatarThumbnailCropParameters {
+                        width
+                        height
+                        __typename
+                      }
+                      __typename
+                    }
+                    __typename
+                  }
+                  __typename
+                }
+                meta {
+                  count
+                  __typename
+                }
+                __typename
+              }
+              userFollowers: userFollows(
+                userId: $userId
+                filters: {followeeId: $followeeId}
+                meta: {pageSize: 3}
+              ) {
+                items {
+                  followerId
+                  follower {
+                    id
+                    avatarUrl
+                    username
+                    verifiedProfile {
+                      avatarUrl
+                      avatarThumbnailCropParameters {
+                        width
+                        height
+                        __typename
+                      }
+                      __typename
+                    }
+                    __typename
+                  }
+                  __typename
+                }
+                meta {
+                  count
+                  __typename
+                }
+                __typename
+              }
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_user_follows_basic
+        pagination:
+        observed_auth:
+        - authorization
+      for_member:
+        method: POST
+        path: "/graphql"
+        description: Fetch users for member
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetUserForMemberPage
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetUserForMemberPage($username: String!, $userId: UserId!, $isLoggedIn: Boolean!, $isAdmin: Boolean! = false) {
+              user(username: $username) {
+                ...ProfileUserCard
+                isBanned
+                isFeatured @include(if: $isAdmin)
+                categories @include(if: $isAdmin) {
+                  id
+                  name
+                  __typename
+                }
+                verifiedProfile {
+                  id
+                  __typename
+                }
+                __typename
+              }
+            }
+
+            fragment ProfileUserCard on UserPublicProfile {
+              id
+              fullName
+              username
+              bio
+              avatarUrl
+              isPremium
+              isAesthetic
+              websiteUrl
+              isFollowed(followerId: $userId) @include(if: $isLoggedIn)
+              publicElementsCluster {
+                id
+                numberOfElements
+                __typename
+              }
+              socialLinks {
+                spotify
+                instagram
+                twitter
+                tikTok
+                instagramUrl
+                twitterUrl
+                tiktokUrl
+                __typename
+              }
+              __typename
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_user_for_member_page
+        pagination:
+        observed_auth:
+        - authorization
+      public_clusters_count:
+        method: POST
+        path: "/graphql"
+        description: Fetch users public clusters count
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetUserPublicClustersCount
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetUserPublicClustersCount($userId: UserId!) {
+              userClusters(userId: $userId, filters: {isPrivate: false}) {
+                meta {
+                  count
+                  __typename
+                }
+                __typename
+              }
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_user_public_clusters_count
+        pagination:
+        observed_auth:
+        - authorization
+      public_elements_cluster_id:
+        method: POST
+        path: "/graphql"
+        description: Fetch users public elements cluster id
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetUserPublicElementsClusterId
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetUserPublicElementsClusterId($userId: UserId!) {
+              userPublicElementsCluster(userId: $userId) {
+                id
+                __typename
+              }
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_user_public_elements_cluster_id
+        pagination:
+        observed_auth:
+        - authorization
+      public_elements_count:
+        method: POST
+        path: "/graphql"
+        description: Fetch users public elements count
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetUserPublicElementsCount
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: |-
+            query GetUserPublicElementsCount($userId: UserId!) {
+              userPublicElements(userId: $userId) {
+                meta {
+                  count
+                  __typename
+                }
+                __typename
+              }
+            }
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        - name: extensions
+          type: object
+          required: false
+          positional: false
+          default:
+            clientLibrary:
+              name: "@apollo/client"
+              version: 4.1.4
+          description: GraphQL extensions as JSON
+          fields: []
+        response:
+          type: object
+          item: get_user_public_elements_count
+        pagination:
+        observed_auth:
+        - authorization
+types:
+  NegotiateAvailableTransport:
+    fields:
+    - name: transferFormats
+      type: array
+    - name: transport
+      type: string

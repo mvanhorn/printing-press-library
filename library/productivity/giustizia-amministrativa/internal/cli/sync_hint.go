@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/productivity/giustizia-amministrativa/internal/store"
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/productivity/giustizia-amministrativa/internal/store"
 )
 
 type syncHintState struct {

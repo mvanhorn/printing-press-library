@@ -1,0 +1,9 @@
+autocomplete                               GET  404  3B  404
+piesCategories                             GET  200  769768B  {"Categories":[{"NodeId":"specialsgroup","Description":"Specials","NodeLevel":1,"ParentNodeId":null,"DisplayOrder":1,"IsRestricted":false,"ProductCoun
+trolley-info                               GET  404  3B  404
+shopper-details                            GET  404  3B  404
+fulfilment-methods                         GET  404  3B  404
+lists                                      GET  404  3B  404
+schemaorg-product                          GET  200  4140B  {"@context":"http://schema.org","@type":"Product","@id":null,"name":"Full+ On The Go Meal Replacement Chocolate 480mL","description":"Full+ is the nex
+browse-category                            POST 200  605125B  {"SeoMetaTags":{"Title":"Fresh Fruit & Vegetables | Woolworths","MetaDescription":"Shop online for Woolworths great range of Fresh Fruit & Veg. Delive
+search-specials                            POST 400  98B  {"ResponseStatus":{"ErrorCode":"BadRequest","Message":"BadRequest","StackTrace":null,"Errors":[]}}

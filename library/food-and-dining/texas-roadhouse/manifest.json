@@ -1,0 +1,57 @@
+{
+  "manifest_version": "0.3",
+  "name": "texas-roadhouse-pp-mcp",
+  "display_name": "Texas Roadhouse - call ahead seating",
+  "version": "0.1.0",
+  "description": "Waitlist CLI for Texas Roadhouse. Find a nearby store, read the quote, join and leave the list.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/texas-roadhouse-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/texas-roadhouse-pp-mcp",
+      "args": [],
+      "env": {
+        "PRINTING_PRESS_CLIENT_PROFILE": "${user_config.printing_press_client_profile}",
+        "TEXAS_ROADHOUSE_BASE_URL": "${user_config.texas_roadhouse_base_url}",
+        "TEXAS_ROADHOUSE_SKIP_TLS_VERIFY": "${user_config.texas_roadhouse_skip_tls_verify}"
+      }
+    }
+  },
+  "user_config": {
+    "printing_press_client_profile": {
+      "type": "string",
+      "title": "Client profile",
+      "description": "Binds the MCP server to an existing tenant-gated Printing Press client profile.",
+      "required": true
+    },
+    "texas_roadhouse_base_url": {
+      "type": "string",
+      "title": "TEXAS_ROADHOUSE_BASE_URL",
+      "description": "Optional. Sets TEXAS_ROADHOUSE_BASE_URL for the Texas Roadhouse MCP server. Per-instance, non-secret setting; not a credential."
+    },
+    "texas_roadhouse_skip_tls_verify": {
+      "type": "string",
+      "title": "TEXAS_ROADHOUSE_SKIP_TLS_VERIFY",
+      "description": "Optional. Sets TEXAS_ROADHOUSE_SKIP_TLS_VERIFY for the Texas Roadhouse MCP server. Per-instance, non-secret setting; not a credential."
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  },
+  "creator": {
+    "handle": "DashLabsDev",
+    "name": "Thomas McCormick"
+  },
+  "owner": "DashLabsDev",
+  "printer": "DashLabsDev",
+  "printer_name": "Thomas McCormick"
+}

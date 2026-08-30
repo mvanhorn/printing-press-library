@@ -1,0 +1,626 @@
+{
+  "api_name": "scryfall",
+  "base_url": "https://api.scryfall.com",
+  "description": "Printing Press CLI for Scryfall.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "bulk-data_get-all",
+      "description": "Returns a List of all bulk data items on Scryfall.",
+      "method": "GET",
+      "path": "/bulk-data",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "cards_autocomplete",
+      "description": "Autocomplete. Required: q. Returns array of string.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/cards/autocomplete",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Q",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cards_get-all",
+      "description": "Returns a `List` object that contains all cards in Scryfall’s database. This method is paginated, returning 175 cards at a time. The cards are ordered roughly newest to oldest. Optional: page, format, pretty.",
+      "method": "GET",
+      "path": "/cards",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number to return, default 1."
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "The data format to return. This method only supports `json`."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, the returned JSON will be prettified. Avoid using for production code."
+        }
+      ]
+    },
+    {
+      "name": "cards_get-by-arena-id",
+      "description": "Get by arena id. Required: id. Returns the Card.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/cards/arena/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cards_get-by-cardmarket-id",
+      "description": "Fetch a card by its Cardmarket ID. Required: id. Returns the Card.",
+      "method": "GET",
+      "path": "/cards/cardmarket/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The marketplace ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cards_get-by-code-by-number",
+      "description": "Get by code by number. Required: code, number. Returns the Card.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/cards/{code}/{number}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "code",
+          "type": "string",
+          "location": "path",
+          "description": "Code",
+          "required": true
+        },
+        {
+          "name": "number",
+          "type": "int",
+          "location": "path",
+          "description": "Number",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cards_get-by-id",
+      "description": "Get by id. Required: id. Returns the Card.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/cards/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cards_get-by-mtgo-id",
+      "description": "Get by mtgo id. Required: id. Returns the Card.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/cards/mtgo/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cards_get-by-multiverse-id",
+      "description": "Get by multiverse id. Required: id. Returns the Card.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/cards/multiverse/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cards_get-by-tcgplayer-id",
+      "description": "Fetch a card by its TCGplayer ID. Required: id. Returns the Card.",
+      "method": "GET",
+      "path": "/cards/tcgplayer/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The marketplace ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cards_get-named",
+      "description": "Get named. Optional: exact, fuzzy, set (plus 4 more). Returns the Card.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/cards/named",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "exact",
+          "type": "string",
+          "location": "query",
+          "description": "Exact"
+        },
+        {
+          "name": "fuzzy",
+          "type": "string",
+          "location": "query",
+          "description": "Fuzzy"
+        },
+        {
+          "name": "set",
+          "type": "string",
+          "location": "query",
+          "description": "Set"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Format"
+        },
+        {
+          "name": "face",
+          "type": "string",
+          "location": "query",
+          "description": "Face"
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "location": "query",
+          "description": "Version"
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "Pretty"
+        }
+      ]
+    },
+    {
+      "name": "cards_get-random",
+      "description": "Get random. Returns the Card.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/cards/random",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "cards_post-collection",
+      "description": "Accepts a JSON body with an identifiers array (max 75). Supported identifier keys: id, mtgo_id, arena_id, multiverse_id, name, set + collector_number, collector_number. Required: identifiers. Returns array of Card.",
+      "method": "POST",
+      "path": "/cards/collection",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "identifiers",
+          "type": "array",
+          "location": "body",
+          "description": "Identifiers",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cards_rulings-get-by-mtgo-id",
+      "description": "Rulings get by mtgo id. Required: id. Returns array of Ruling.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/cards/mtgo/{id}/rulings",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cards_rulings-get-by-multiverse-id",
+      "description": "Rulings get by multiverse id. Required: id. Returns array of Ruling.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/cards/multiverse/{id}/rulings",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cards_search",
+      "description": "Returns a List object containing Cards found using a fulltext search string. This string supports the same [fulltext search system](https://scryfall.com/docs/syntax) that the main site uses. Required: q. Optional: unique, order, dir (plus 2 more).",
+      "method": "GET",
+      "path": "/cards/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Q",
+          "required": true
+        },
+        {
+          "name": "unique",
+          "type": "string",
+          "location": "query",
+          "description": "Unique"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        },
+        {
+          "name": "dir",
+          "type": "string",
+          "location": "query",
+          "description": "Dir"
+        },
+        {
+          "name": "include_extras",
+          "type": "bool",
+          "location": "query",
+          "description": "Include extras"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "cards_rulings_get-by-code-by-number-id",
+      "description": "Get by code by number id. Required: code, number. Returns array of Ruling.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/cards/{code}/{number}/rulings",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "code",
+          "type": "string",
+          "location": "path",
+          "description": "Code",
+          "required": true
+        },
+        {
+          "name": "number",
+          "type": "int",
+          "location": "path",
+          "description": "Number",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cards_rulings_get-by-id",
+      "description": "Get by id. Required: id. Returns array of Ruling.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/cards/{id}/rulings",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "catalog_get-artifact-types",
+      "description": "Get artifact types. Returns array of string.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/catalog/artifact-types",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "catalog_get-card-names",
+      "description": "Get card names. Returns array of string.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/catalog/card-names",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "catalog_get-creature-types",
+      "description": "Get creature types. Returns array of string.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/catalog/creature-types",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "catalog_get-enchantment-types",
+      "description": "Get enchantment types. Returns array of string.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/catalog/enchantment-types",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "catalog_get-land-types",
+      "description": "Get land types. Returns array of string.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/catalog/land-types",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "catalog_get-loyalties",
+      "description": "Get loyalties. Returns array of string.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/catalog/loyalties",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "catalog_get-planeswalker-types",
+      "description": "Get planeswalker types. Returns array of string.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/catalog/planeswalker-types",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "catalog_get-powers",
+      "description": "Get powers. Returns array of string.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/catalog/powers",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "catalog_get-spell-types",
+      "description": "Get spell types. Returns array of string.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/catalog/spell-types",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "catalog_get-toughnesses",
+      "description": "Get toughnesses. Returns array of string.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/catalog/toughnesses",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "catalog_get-watermarks",
+      "description": "Get watermarks. Returns array of string.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/catalog/watermarks",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "catalog_get-word-bank",
+      "description": "Get word bank. Returns array of string.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/catalog/word-bank",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "sets_get-all",
+      "description": "Returns a List object of all Sets on Scryfall. Optional: format, pretty.",
+      "method": "GET",
+      "path": "/sets",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "The data format to return. This method only supports `json`."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, the returned JSON will be prettified. Avoid using for production code."
+        }
+      ]
+    },
+    {
+      "name": "sets_get-by-code",
+      "description": "Returns a `Set` with the given set code. The code can be either the `code` or the `mtgo_code` for the set. Required: code. Optional: format, pretty.",
+      "method": "GET",
+      "path": "/sets/{code}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "code",
+          "type": "string",
+          "location": "path",
+          "description": "The three to five-letter set code.",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "The data format to return. This method only supports `json`."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, the returned JSON will be prettified. Avoid using for production code."
+        }
+      ]
+    },
+    {
+      "name": "sets_get-by-id",
+      "description": "Returns a `Set` with the given Scryfall `id`. Required: id. Optional: format, pretty.",
+      "method": "GET",
+      "path": "/sets/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Scryfall ID",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "The data format to return. This method only supports `json`."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, the returned JSON will be prettified. Avoid using for production code."
+        }
+      ]
+    },
+    {
+      "name": "sets_get-by-tcgplayer-id",
+      "description": "Returns a `Set` with the given `tcgplayer_id`, also known as the `groupId` on [TCGplayer’s API](https://docs.tcgplayer.com/docs). Required: id. Optional: format, pretty.",
+      "method": "GET",
+      "path": "/sets/tcgplayer/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The `tcgplayer_id` or `groupId`.",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "The data format to return. This method only supports `json`."
+        },
+        {
+          "name": "pretty",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, the returned JSON will be prettified. Avoid using for production code."
+        }
+      ]
+    },
+    {
+      "name": "symbology_get-all",
+      "description": "Get all. Returns array of CardSymbol.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/symbology",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "symbology_parse-mana",
+      "description": "Parse mana. Required: cost. Returns the ManaCost.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/symbology/parse-mana",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "cost",
+          "type": "string",
+          "location": "query",
+          "description": "Cost",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

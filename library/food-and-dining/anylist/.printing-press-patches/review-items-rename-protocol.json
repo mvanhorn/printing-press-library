@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "review-items-rename-protocol",
+  "applied_at": "2026-08-16",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Expose the live-verified per-item rename operation and document unverified metadata mutations.",
+  "reason": "AnyList accepts item renames through the set-list-item-name protobuf handler. Add the safe CLI name field with stdin support, fresh live read-back verification, and local-cache synchronization. Do not expose category, price, or store/aisle writes because their candidate handlers returned HTTP success without changing a fresh user-data read.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "tools-manifest.json",
+    "internal/anylist/client_test.go",
+    "internal/cli/items_update.go",
+    "internal/cli/items_update_test.go"
+  ],
+  "validated_outcome": "Rename round-tripped through set-list-item-name on a disposable marker item and was verified from fresh GetUserData before cache sync. Candidate category-match, price, and store-id operations were probed separately and did not round-trip; they remain unsupported. The marker list was deleted and independently confirmed absent."
+}

@@ -1,0 +1,4032 @@
+# learn no-entities escape: categories/payees/accounts are fully per-user dynamic data, not a fixed cross-user catalog known at generation time
+openapi: 3.1.1
+info:
+  title: YNAB API Endpoints
+  description: |-
+    Our API uses a REST based design, leverages the JSON data format, and relies upon HTTPS for transport. We respond with meaningful HTTP response codes and if an error occurs, we include error details in the response body.
+
+    Read the [API Documentation](https://api.ynab.com) for more information about the API, including how to obtain an access token and how to use it to make requests.
+  version: 1.86.0
+servers:
+  - url: https://api.ynab.com/v1
+security:
+  - bearer: []
+tags:
+  - name: User
+    description: The currently authenticated user
+  - name: Plans
+    description: Plans are the top-level container for your YNAB data; accounts,
+      categories, payees, and transactions all belong to a plan. Most endpoints
+      require a plan_id, which can be obtained from "Get all plans".
+      Alternatively, "last-used" can be used in place of a plan_id to specify
+      the most recently used plan, and "default" can be used if [default plan
+      selection](https://api.ynab.com/#oauth-default-plan) is enabled.
+  - name: Accounts
+    description: The accounts for a plan. Every transaction belongs to an account,
+      and an account is either "on budget", where its activity is categorized
+      and planned, or a tracking account, where only its balance is tracked
+      (see the on_budget flag).
+  - name: Categories
+    description: The categories for a plan, organized into category groups.
+      Category amounts (assigned, activity, available) are specific to a month,
+      and can be read and updated through the month-scoped category endpoints.
+  - name: Payees
+    description: The payees for a plan. Transfers between accounts are represented
+      with special transfer payees; a payee with transfer_account_id set is the
+      transfer payee for that account.
+  - name: Payee Locations
+    description: When you enter a transaction and specify a payee on the YNAB mobile
+      apps, the GPS coordinates for that location are stored, with your
+      permission, so that the next time you are in the same place (like the
+      Grocery store) we can pre-populate nearby payees for you!  It’s handy and
+      saves you time. This resource makes these locations available.  Locations
+      will not be available for all payees.
+  - name: Months
+    description: Each plan contains one or more months, which is where Ready to
+      Assign, Age of Money and category (assigned / activity / available)
+      amounts are available.
+  - name: Money Movements
+    description: Money movements record money moved between two categories, or
+      between a category and Ready to Assign, within a plan month. Movements
+      performed together as a single action are linked by a money movement
+      group.
+  - name: Transactions
+    description: The transactions for a plan. Transaction amounts are specified in
+      [milliunits format](https://api.ynab.com/#formats). Split transactions
+      are represented with subtransactions, and transfers between accounts are
+      represented with transfer payees.
+  - name: Scheduled Transactions
+    description: The scheduled transactions for a plan; upcoming and recurring
+      transactions that have not yet been entered into an account. Each has a
+      frequency along with the first and next dates it will occur (date_first
+      and date_next).
+paths:
+  /user:
+    get:
+      tags:
+        - User
+      summary: Get user
+      description: Returns authenticated user information
+      operationId: getUser
+      responses:
+        "200":
+          description: The user info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+  /plans:
+    get:
+      tags:
+        - Plans
+      summary: Get all plans
+      description: Returns plans list with summary information
+      operationId: getPlans
+      parameters:
+        - name: include_accounts
+          in: query
+          description: Whether to include the list of plan accounts
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: The list of plans
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlanSummaryResponse"
+        "404":
+          description: No plans were found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /plans/{plan_id}:
+    get:
+      tags:
+        - Plans
+      summary: Get a plan
+      description: Returns a single plan with all related entities.  This resource is
+        effectively a full plan export.
+      operationId: getPlanById
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: last_knowledge_of_server
+          in: query
+          description: The starting server knowledge.  If provided, only entities that
+            have changed since `last_knowledge_of_server` will be included.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: The requested plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlanDetailResponse"
+        "404":
+          description: The specified plan was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /plans/{plan_id}/settings:
+    get:
+      tags:
+        - Plans
+      summary: Get plan settings
+      description: Returns settings for a plan
+      operationId: getPlanSettingsById
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The requested plan settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlanSettingsResponse"
+        "404":
+          description: The specified plan was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /plans/{plan_id}/accounts:
+    get:
+      tags:
+        - Accounts
+      summary: Get all accounts
+      description: Returns all accounts
+      operationId: getAccounts
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: last_knowledge_of_server
+          in: query
+          description: The starting server knowledge.  If provided, only entities that
+            have changed since `last_knowledge_of_server` will be included.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: The list of requested accounts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountsResponse"
+        "404":
+          description: No accounts were found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      tags:
+        - Accounts
+      summary: Create an account
+      description: Creates a new account
+      operationId: createAccount
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan ("last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan)'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The account to create.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostAccountWrapper"
+        required: true
+      responses:
+        "201":
+          description: The account was successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountResponse"
+        "400":
+          description: The request could not be understood due to malformed syntax or
+            validation error(s).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      x-codegen-request-body-name: data
+  /plans/{plan_id}/accounts/{account_id}:
+    get:
+      tags:
+        - Accounts
+      summary: Get an account
+      description: Returns a single account
+      operationId: getAccountById
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: account_id
+          in: path
+          description: The id of the account
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The requested account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountResponse"
+        "404":
+          description: The requested account was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /plans/{plan_id}/categories:
+    get:
+      tags:
+        - Categories
+      summary: Get all categories
+      description: Returns all categories grouped by category group.  Amounts
+        (assigned, activity, available, etc.) are specific to the current plan
+        month (UTC).
+      operationId: getCategories
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: last_knowledge_of_server
+          in: query
+          description: The starting server knowledge.  If provided, only entities that
+            have changed since `last_knowledge_of_server` will be included.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: The categories grouped by category group
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoriesResponse"
+        "404":
+          description: No categories were found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      tags:
+        - Categories
+      summary: Create a category
+      description: Creates a new category
+      operationId: createCategory
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan ("last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan)'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The category to create.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostCategoryWrapper"
+        required: true
+      responses:
+        "201":
+          description: The category was successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SaveCategoryResponse"
+        "400":
+          description: The request could not be understood due to malformed syntax or
+            validation error(s).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      x-codegen-request-body-name: data
+  /plans/{plan_id}/categories/{category_id}:
+    get:
+      tags:
+        - Categories
+      summary: Get a category
+      description: Returns a single category.  Amounts (assigned, activity, available,
+        etc.) are specific to the current plan month (UTC).
+      operationId: getCategoryById
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: category_id
+          in: path
+          description: The id of the category
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The requested category
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryResponse"
+        "404":
+          description: The category was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      tags:
+        - Categories
+      summary: Update a category
+      description: Update a category
+      operationId: updateCategory
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: category_id
+          in: path
+          description: The id of the category
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The category to update
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchCategoryWrapper"
+        required: true
+      responses:
+        "200":
+          description: The category was successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SaveCategoryResponse"
+        "400":
+          description: The request could not be understood due to malformed syntax or
+            validation error(s)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      x-codegen-request-body-name: data
+  /plans/{plan_id}/months/{month}/categories/{category_id}:
+    get:
+      tags:
+        - Categories
+      summary: Get a category for a specific plan month
+      description: Returns a single category for a specific plan month.  Amounts
+        (assigned, activity, available, etc.) are specific to the current plan
+        month (UTC).
+      operationId: getMonthCategoryById
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: month
+          in: path
+          description: The plan month in ISO format (e.g. 2016-12-01) ("current" can also
+            be used to specify the current calendar month (UTC))
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: category_id
+          in: path
+          description: The id of the category
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The requested month category
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryResponse"
+        "404":
+          description: The month category was not was found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      tags:
+        - Categories
+      summary: Update a category for a specific month
+      description: Update a category for a specific month.  Only `budgeted` (assigned)
+        amount can be updated.
+      operationId: updateMonthCategory
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: month
+          in: path
+          description: The plan month in ISO format (e.g. 2016-12-01) ("current" can also
+            be used to specify the current calendar month (UTC))
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: category_id
+          in: path
+          description: The id of the category
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The category to update.  Only `budgeted` (assigned) amount can be
+          updated and any other fields specified will be ignored.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchMonthCategoryWrapper"
+        required: true
+      responses:
+        "200":
+          description: The month category was successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SaveCategoryResponse"
+        "400":
+          description: The request could not be understood due to malformed syntax or
+            validation error(s)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      x-codegen-request-body-name: data
+  /plans/{plan_id}/category_groups:
+    post:
+      tags:
+        - Categories
+      summary: Create a category group
+      description: Creates a new category group
+      operationId: createCategoryGroup
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan ("last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan)'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The category group to create.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostCategoryGroupWrapper"
+        required: true
+      responses:
+        "201":
+          description: The category group was successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SaveCategoryGroupResponse"
+        "400":
+          description: The request could not be understood due to malformed syntax or
+            validation error(s).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      x-codegen-request-body-name: data
+  /plans/{plan_id}/category_groups/{category_group_id}:
+    patch:
+      tags:
+        - Categories
+      summary: Update a category group
+      description: Update a category group
+      operationId: updateCategoryGroup
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: category_group_id
+          in: path
+          description: The id of the category group
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The category group to update
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchCategoryGroupWrapper"
+        required: true
+      responses:
+        "200":
+          description: The category group was successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SaveCategoryGroupResponse"
+        "400":
+          description: The request could not be understood due to malformed syntax or
+            validation error(s)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      x-codegen-request-body-name: data
+  /plans/{plan_id}/payees:
+    get:
+      tags:
+        - Payees
+      summary: Get all payees
+      description: Returns all payees
+      operationId: getPayees
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: last_knowledge_of_server
+          in: query
+          description: The starting server knowledge.  If provided, only entities that
+            have changed since `last_knowledge_of_server` will be included.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: The requested list of payees
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayeesResponse"
+        "404":
+          description: No payees were found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      tags:
+        - Payees
+      summary: Create a payee
+      description: Creates a new payee
+      operationId: createPayee
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The payee to create
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostPayeeWrapper"
+        required: true
+      responses:
+        "201":
+          description: The payee was successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavePayeeResponse"
+        "400":
+          description: The request could not be understood due to malformed syntax or
+            validation error(s)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      x-codegen-request-body-name: data
+  /plans/{plan_id}/payees/{payee_id}:
+    get:
+      tags:
+        - Payees
+      summary: Get a payee
+      description: Returns a single payee
+      operationId: getPayeeById
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: payee_id
+          in: path
+          description: The id of the payee
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The requested payee
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayeeResponse"
+        "404":
+          description: The payee was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      tags:
+        - Payees
+      summary: Update a payee
+      description: Update a payee
+      operationId: updatePayee
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: payee_id
+          in: path
+          description: The id of the payee
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The payee to update
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchPayeeWrapper"
+        required: true
+      responses:
+        "200":
+          description: The payee was successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavePayeeResponse"
+        "400":
+          description: The request could not be understood due to malformed syntax or
+            validation error(s)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      x-codegen-request-body-name: data
+  /plans/{plan_id}/payee_locations:
+    get:
+      tags:
+        - Payee Locations
+      summary: Get all payee locations
+      description: Returns all payee locations
+      operationId: getPayeeLocations
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The list of payee locations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayeeLocationsResponse"
+        "404":
+          description: No payees locations were found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /plans/{plan_id}/payee_locations/{payee_location_id}:
+    get:
+      tags:
+        - Payee Locations
+      summary: Get a payee location
+      description: Returns a single payee location
+      operationId: getPayeeLocationById
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: payee_location_id
+          in: path
+          description: id of payee location
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The payee location
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayeeLocationResponse"
+        "404":
+          description: The payee location was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /plans/{plan_id}/payees/{payee_id}/payee_locations:
+    get:
+      tags:
+        - Payee Locations
+      summary: Get all locations for a payee
+      description: Returns all payee locations for a specified payee
+      operationId: getPayeeLocationsByPayee
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: payee_id
+          in: path
+          description: id of payee
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The list of requested payee locations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayeeLocationsResponse"
+        "404":
+          description: No payees locations were found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /plans/{plan_id}/months:
+    get:
+      tags:
+        - Months
+      summary: Get all plan months
+      description: Returns all plan months
+      operationId: getPlanMonths
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: last_knowledge_of_server
+          in: query
+          description: The starting server knowledge.  If provided, only entities that
+            have changed since `last_knowledge_of_server` will be included.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: The list of plan months
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MonthSummariesResponse"
+        "404":
+          description: No plan months were found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /plans/{plan_id}/months/{month}:
+    get:
+      tags:
+        - Months
+      summary: Get a plan month
+      description: Returns a single plan month
+      operationId: getPlanMonth
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: month
+          in: path
+          description: The plan month in ISO format (e.g. 2016-12-01) ("current" can also
+            be used to specify the current calendar month (UTC))
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: The plan month detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MonthDetailResponse"
+        "404":
+          description: The plan month was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /plans/{plan_id}/money_movements:
+    get:
+      tags:
+        - Money Movements
+      summary: Get all money movements
+      description: Returns all money movements
+      operationId: getMoneyMovements
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The list of requested money movements
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MoneyMovementsResponse"
+        "404":
+          description: No money movements were found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /plans/{plan_id}/months/{month}/money_movements:
+    get:
+      tags:
+        - Money Movements
+      summary: Get money movements for a plan month
+      description: Returns all money movements for a specific month
+      operationId: getMoneyMovementsByMonth
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: month
+          in: path
+          description: The plan month in ISO format (e.g. 2016-12-01) ("current" can also
+            be used to specify the current calendar month (UTC))
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: The list of requested money movements
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MoneyMovementsResponse"
+        "404":
+          description: No money movements were found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /plans/{plan_id}/money_movement_groups:
+    get:
+      tags:
+        - Money Movements
+      summary: Get all money movement groups
+      description: Returns all money movement groups
+      operationId: getMoneyMovementGroups
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The list of requested money movement groups
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MoneyMovementGroupsResponse"
+        "404":
+          description: No money movement groups were found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /plans/{plan_id}/months/{month}/money_movement_groups:
+    get:
+      tags:
+        - Money Movements
+      summary: Get money movement groups for a plan month
+      description: Returns all money movement groups for a specific month
+      operationId: getMoneyMovementGroupsByMonth
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: month
+          in: path
+          description: The plan month in ISO format (e.g. 2016-12-01) ("current" can also
+            be used to specify the current calendar month (UTC))
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: The list of requested money movement groups
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MoneyMovementGroupsResponse"
+        "404":
+          description: No money movement groups were found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /plans/{plan_id}/transactions:
+    get:
+      tags:
+        - Transactions
+      summary: Get transactions
+      description: Returns plan transactions, excluding any pending transactions
+      operationId: getTransactions
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: since_date
+          in: query
+          description: If specified, only transactions on or after this date will be
+            included.  The date should be ISO formatted (e.g. 2016-12-30).
+            Defaults to one year ago when not specified.
+          schema:
+            type: string
+            format: date
+        - name: until_date
+          in: query
+          description: If specified, only transactions on or before this date will be
+            included.  The date should be ISO formatted (e.g. 2016-12-30).
+          schema:
+            type: string
+            format: date
+        - name: type
+          in: query
+          description: If specified, only transactions of the specified type will be
+            included. "uncategorized" and "unapproved" are currently supported.
+          schema:
+            type: string
+            enum:
+              - uncategorized
+              - unapproved
+        - name: last_knowledge_of_server
+          in: query
+          description: The starting server knowledge.  If provided, only entities that
+            have changed since `last_knowledge_of_server` will be included.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: The list of requested transactions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionsResponse"
+        "400":
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: No transactions were found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      tags:
+        - Transactions
+      summary: Create a single transaction or multiple transactions
+      description: Creates a single transaction or multiple transactions.  If you
+        provide a body containing a `transaction` object, a single transaction
+        will be created and if you provide a body containing a `transactions`
+        array, multiple transactions will be created.  Scheduled transactions
+        (transactions with a future date) cannot be created on this endpoint.
+      operationId: createTransaction
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The transaction or transactions to create.  To create a single
+          transaction you can specify a value for the `transaction` object and
+          to create multiple transactions you can specify an array of
+          `transactions`.  It is expected that you will only provide a value for
+          one of these objects.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostTransactionsWrapper"
+        required: true
+      responses:
+        "201":
+          description: The transaction or transactions were successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SaveTransactionsResponse"
+        "400":
+          description: The request could not be understood due to malformed syntax or
+            validation error(s).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: A transaction on the same account with the same `import_id` already
+            exists.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      x-codegen-request-body-name: data
+    patch:
+      tags:
+        - Transactions
+      summary: Update multiple transactions
+      description: Updates multiple transactions, by `id` or `import_id`.
+      operationId: updateTransactions
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The transactions to update. Each transaction must have either an
+          `id` or `import_id` specified. If `id` is specified as null an
+          `import_id` value can be provided which will allow transaction(s) to
+          be updated by its `import_id`. If an `id` is specified, it will always
+          be used for lookup.  You should not specify both `id` and
+          `import_id`.  Updating an `import_id` on an existing transaction is
+          not allowed; if an `import_id` is specified, it will only be used to
+          lookup the transaction.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchTransactionsWrapper"
+        required: true
+      responses:
+        "200":
+          description: The transactions were successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SaveTransactionsResponse"
+        "400":
+          description: The request could not be understood due to malformed syntax or
+            validation error(s).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      x-codegen-request-body-name: data
+  /plans/{plan_id}/transactions/import:
+    post:
+      tags:
+        - Transactions
+      summary: Import transactions
+      description: Imports available transactions on all linked accounts for the given
+        plan.  Linked accounts allow transactions to be imported directly from a
+        specified financial institution and this endpoint initiates that
+        import.  Sending a request to this endpoint is the equivalent of
+        clicking "Import" on each account in the web application or tapping the
+        "New Transactions" banner in the mobile applications.  The response for
+        this endpoint contains the transaction ids that have been imported.
+      operationId: importTransactions
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The request was successful but there were no transactions to import
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionsImportResponse"
+        "201":
+          description: One or more transactions were imported successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionsImportResponse"
+        "400":
+          description: The request could not be understood due to malformed syntax or
+            validation error(s)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /plans/{plan_id}/transactions/{transaction_id}:
+    get:
+      tags:
+        - Transactions
+      summary: Get a transaction
+      description: Returns a single transaction
+      operationId: getTransactionById
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: transaction_id
+          in: path
+          description: The id of the transaction
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The requested transaction
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionResponse"
+        "404":
+          description: The transaction was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      tags:
+        - Transactions
+      summary: Update a transaction
+      description: Updates a single transaction
+      operationId: updateTransaction
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: transaction_id
+          in: path
+          description: The id of the transaction
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The transaction to update
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PutTransactionWrapper"
+        required: true
+      responses:
+        "200":
+          description: The transaction was successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionResponse"
+        "400":
+          description: The request could not be understood due to malformed syntax or
+            validation error(s)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      x-codegen-request-body-name: data
+    delete:
+      tags:
+        - Transactions
+      summary: Delete a transaction
+      description: Deletes a transaction
+      operationId: deleteTransaction
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: transaction_id
+          in: path
+          description: The id of the transaction
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The transaction was successfully deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionResponse"
+        "404":
+          description: The transaction was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /plans/{plan_id}/accounts/{account_id}/transactions:
+    get:
+      tags:
+        - Transactions
+      summary: Get account transactions
+      description: Returns all transactions for a specified account, excluding any
+        pending transactions
+      operationId: getTransactionsByAccount
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: account_id
+          in: path
+          description: The id of the account
+          required: true
+          schema:
+            type: string
+        - name: since_date
+          in: query
+          description: If specified, only transactions on or after this date will be
+            included.  The date should be ISO formatted (e.g. 2016-12-30).
+            Defaults to one year ago when not specified.
+          schema:
+            type: string
+            format: date
+        - name: until_date
+          in: query
+          description: If specified, only transactions on or before this date will be
+            included.  The date should be ISO formatted (e.g. 2016-12-30).
+          schema:
+            type: string
+            format: date
+        - name: type
+          in: query
+          description: If specified, only transactions of the specified type will be
+            included. "uncategorized" and "unapproved" are currently supported.
+          schema:
+            type: string
+            enum:
+              - uncategorized
+              - unapproved
+        - name: last_knowledge_of_server
+          in: query
+          description: The starting server knowledge.  If provided, only entities that
+            have changed since `last_knowledge_of_server` will be included.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: The list of requested transactions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionsResponse"
+        "404":
+          description: No transactions were found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /plans/{plan_id}/categories/{category_id}/transactions:
+    get:
+      tags:
+        - Transactions
+      summary: Get category transactions
+      description: Returns all transactions for a specified category, excluding any
+        pending transactions
+      operationId: getTransactionsByCategory
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: category_id
+          in: path
+          description: The id of the category
+          required: true
+          schema:
+            type: string
+        - name: since_date
+          in: query
+          description: If specified, only transactions on or after this date will be
+            included.  The date should be ISO formatted (e.g. 2016-12-30).
+            Defaults to one year ago when not specified.
+          schema:
+            type: string
+            format: date
+        - name: until_date
+          in: query
+          description: If specified, only transactions on or before this date will be
+            included.  The date should be ISO formatted (e.g. 2016-12-30).
+          schema:
+            type: string
+            format: date
+        - name: type
+          in: query
+          description: If specified, only transactions of the specified type will be
+            included. "uncategorized" and "unapproved" are currently supported.
+          schema:
+            type: string
+            enum:
+              - uncategorized
+              - unapproved
+        - name: last_knowledge_of_server
+          in: query
+          description: The starting server knowledge.  If provided, only entities that
+            have changed since `last_knowledge_of_server` will be included.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: The list of requested transactions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HybridTransactionsResponse"
+        "404":
+          description: No transactions were found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /plans/{plan_id}/payees/{payee_id}/transactions:
+    get:
+      tags:
+        - Transactions
+      summary: Get payee transactions
+      description: Returns all transactions for a specified payee, excluding any
+        pending transactions
+      operationId: getTransactionsByPayee
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: payee_id
+          in: path
+          description: The id of the payee
+          required: true
+          schema:
+            type: string
+        - name: since_date
+          in: query
+          description: If specified, only transactions on or after this date will be
+            included.  The date should be ISO formatted (e.g. 2016-12-30).
+            Defaults to one year ago when not specified.
+          schema:
+            type: string
+            format: date
+        - name: until_date
+          in: query
+          description: If specified, only transactions on or before this date will be
+            included.  The date should be ISO formatted (e.g. 2016-12-30).
+          schema:
+            type: string
+            format: date
+        - name: type
+          in: query
+          description: If specified, only transactions of the specified type will be
+            included. "uncategorized" and "unapproved" are currently supported.
+          schema:
+            type: string
+            enum:
+              - uncategorized
+              - unapproved
+        - name: last_knowledge_of_server
+          in: query
+          description: The starting server knowledge.  If provided, only entities that
+            have changed since `last_knowledge_of_server` will be included.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: The list of requested transactions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HybridTransactionsResponse"
+        "404":
+          description: No transactions were found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /plans/{plan_id}/months/{month}/transactions:
+    get:
+      tags:
+        - Transactions
+      summary: Get plan month transactions
+      description: Returns all transactions for a specified month, excluding any
+        pending transactions
+      operationId: getTransactionsByMonth
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: month
+          in: path
+          description: The plan month in ISO format (e.g. 2016-12-01) ("current" can also
+            be used to specify the current calendar month (UTC))
+          required: true
+          schema:
+            type: string
+        - name: since_date
+          in: query
+          description: If specified, only transactions on or after this date will be
+            included.  The date should be ISO formatted (e.g. 2016-12-30).
+          schema:
+            type: string
+            format: date
+        - name: until_date
+          in: query
+          description: If specified, only transactions on or before this date will be
+            included.  The date should be ISO formatted (e.g. 2016-12-30).
+          schema:
+            type: string
+            format: date
+        - name: type
+          in: query
+          description: If specified, only transactions of the specified type will be
+            included. "uncategorized" and "unapproved" are currently supported.
+          schema:
+            type: string
+            enum:
+              - uncategorized
+              - unapproved
+        - name: last_knowledge_of_server
+          in: query
+          description: The starting server knowledge.  If provided, only entities that
+            have changed since `last_knowledge_of_server` will be included.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: The list of requested transactions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionsResponse"
+        "404":
+          description: No transactions were found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /plans/{plan_id}/scheduled_transactions:
+    get:
+      tags:
+        - Scheduled Transactions
+      summary: Get all scheduled transactions
+      description: Returns all scheduled transactions
+      operationId: getScheduledTransactions
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: last_knowledge_of_server
+          in: query
+          description: The starting server knowledge.  If provided, only entities that
+            have changed since `last_knowledge_of_server` will be included.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: The list of requested scheduled transactions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduledTransactionsResponse"
+        "404":
+          description: No scheduled transactions were found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      tags:
+        - Scheduled Transactions
+      summary: Create a scheduled transaction
+      description: Creates a single scheduled transaction (a transaction with a future
+        date).
+      operationId: createScheduledTransaction
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The scheduled transaction to create
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostScheduledTransactionWrapper"
+        required: true
+      responses:
+        "201":
+          description: The scheduled transaction was successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduledTransactionResponse"
+        "400":
+          description: The request could not be understood due to malformed syntax or
+            validation error(s).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      x-codegen-request-body-name: data
+  /plans/{plan_id}/scheduled_transactions/{scheduled_transaction_id}:
+    get:
+      tags:
+        - Scheduled Transactions
+      summary: Get a scheduled transaction
+      description: Returns a single scheduled transaction
+      operationId: getScheduledTransactionById
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: scheduled_transaction_id
+          in: path
+          description: The id of the scheduled transaction
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The requested Scheduled Transaction
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduledTransactionResponse"
+        "404":
+          description: The scheduled transaction was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      tags:
+        - Scheduled Transactions
+      summary: Update a scheduled transaction
+      description: Updates a single scheduled transaction
+      operationId: updateScheduledTransaction
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: scheduled_transaction_id
+          in: path
+          description: The id of the scheduled transaction
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The scheduled transaction to update
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PutScheduledTransactionWrapper"
+        required: true
+      responses:
+        "200":
+          description: The scheduled transaction was successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduledTransactionResponse"
+        "400":
+          description: The request could not be understood due to malformed syntax or
+            validation error(s)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      tags:
+        - Scheduled Transactions
+      summary: Delete a scheduled transaction
+      description: Deletes a scheduled transaction
+      operationId: deleteScheduledTransaction
+      parameters:
+        - name: plan_id
+          in: path
+          description: 'The id of the plan. "last-used" can be used to specify the last
+            used plan and "default" can be used if default plan selection is
+            enabled (see: https://api.ynab.com/#oauth-default-plan).'
+          required: true
+          schema:
+            type: string
+        - name: scheduled_transaction_id
+          in: path
+          description: The id of the scheduled transaction
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The scheduled transaction was successfully deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduledTransactionResponse"
+        "404":
+          description: The scheduled transaction was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    ErrorResponse:
+      required:
+        - error
+      type: object
+      properties:
+        error:
+          $ref: "#/components/schemas/ErrorDetail"
+    ErrorDetail:
+      required:
+        - detail
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        detail:
+          type: string
+    UserResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - user
+          type: object
+          properties:
+            user:
+              $ref: "#/components/schemas/User"
+    User:
+      required:
+        - id
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+    DateFormat:
+      required:
+        - format
+      type:
+        - object
+        - "null"
+      properties:
+        format:
+          type: string
+      description: The date format setting for the plan.  In some cases the format
+        will not be available and will be specified as null.
+    CurrencyFormat:
+      required:
+        - currency_symbol
+        - decimal_digits
+        - decimal_separator
+        - display_symbol
+        - example_format
+        - group_separator
+        - iso_code
+        - symbol_first
+      type:
+        - object
+        - "null"
+      properties:
+        iso_code:
+          type: string
+        example_format:
+          type: string
+        decimal_digits:
+          type: integer
+          format: int32
+        decimal_separator:
+          type: string
+        symbol_first:
+          type: boolean
+        group_separator:
+          type: string
+        currency_symbol:
+          type: string
+        display_symbol:
+          type: boolean
+      description: The currency format setting for the plan.  In some cases the format
+        will not be available and will be specified as null.
+    PlanSummaryResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - plans
+          type: object
+          properties:
+            plans:
+              type: array
+              items:
+                $ref: "#/components/schemas/PlanSummary"
+            default_plan:
+              allOf:
+                - $ref: "#/components/schemas/PlanSummary"
+              nullable: true
+    PlanSummary:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        last_modified_on:
+          type: string
+          description: The last time any changes were made to the plan from either a web
+            or mobile client
+          format: date-time
+        first_month:
+          type: string
+          description: The earliest plan month
+          format: date
+        last_month:
+          type: string
+          description: The latest plan month
+          format: date
+        date_format:
+          $ref: "#/components/schemas/DateFormat"
+        currency_format:
+          $ref: "#/components/schemas/CurrencyFormat"
+        accounts:
+          type: array
+          description: The plan accounts (only included if `include_accounts=true`
+            specified as query parameter)
+          items:
+            $ref: "#/components/schemas/Account"
+    PlanDetailResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - plan
+            - server_knowledge
+          type: object
+          properties:
+            plan:
+              $ref: "#/components/schemas/PlanDetail"
+            server_knowledge:
+              type: integer
+              description: The knowledge of the server
+              format: int64
+    PlanDetail:
+      allOf:
+        - $ref: "#/components/schemas/PlanSummary"
+        - type: object
+          properties:
+            accounts:
+              type: array
+              items:
+                $ref: "#/components/schemas/AccountBase"
+            payees:
+              type: array
+              items:
+                $ref: "#/components/schemas/Payee"
+            payee_locations:
+              type: array
+              items:
+                $ref: "#/components/schemas/PayeeLocation"
+            category_groups:
+              type: array
+              items:
+                $ref: "#/components/schemas/CategoryGroup"
+            categories:
+              type: array
+              items:
+                $ref: "#/components/schemas/CategoryBase"
+            months:
+              type: array
+              items:
+                $ref: "#/components/schemas/MonthDetailBase"
+            transactions:
+              type: array
+              items:
+                $ref: "#/components/schemas/TransactionSummaryBase"
+            subtransactions:
+              type: array
+              items:
+                $ref: "#/components/schemas/SubTransactionBase"
+            scheduled_transactions:
+              type: array
+              items:
+                $ref: "#/components/schemas/ScheduledTransactionSummaryBase"
+            scheduled_subtransactions:
+              type: array
+              items:
+                $ref: "#/components/schemas/ScheduledSubTransactionBase"
+    PlanSettingsResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - settings
+          type: object
+          properties:
+            settings:
+              $ref: "#/components/schemas/PlanSettings"
+    PlanSettings:
+      required:
+        - currency_format
+        - date_format
+      type: object
+      properties:
+        date_format:
+          $ref: "#/components/schemas/DateFormat"
+        currency_format:
+          $ref: "#/components/schemas/CurrencyFormat"
+    AccountsResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - accounts
+            - server_knowledge
+          type: object
+          properties:
+            accounts:
+              type: array
+              items:
+                $ref: "#/components/schemas/Account"
+            server_knowledge:
+              type: integer
+              description: The knowledge of the server
+              format: int64
+    AccountResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - account
+          type: object
+          properties:
+            account:
+              $ref: "#/components/schemas/Account"
+    AccountBase:
+      required:
+        - balance
+        - cleared_balance
+        - closed
+        - deleted
+        - id
+        - name
+        - on_budget
+        - transfer_payee_id
+        - type
+        - uncleared_balance
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          $ref: "#/components/schemas/AccountType"
+        on_budget:
+          type: boolean
+          description: Whether this account is "on budget" or not
+        closed:
+          type: boolean
+          description: Whether this account is closed or not
+        note:
+          type:
+            - string
+            - "null"
+        balance:
+          type: integer
+          description: The current available balance of the account in milliunits format
+          format: int64
+        cleared_balance:
+          type: integer
+          description: The current cleared balance of the account in milliunits format
+          format: int64
+        uncleared_balance:
+          type: integer
+          description: The current uncleared balance of the account in milliunits format
+          format: int64
+        transfer_payee_id:
+          type:
+            - string
+            - "null"
+          description: The payee id which should be used when transferring to this account
+          format: uuid
+        direct_import_linked:
+          type: boolean
+          description: Whether or not the account is linked to a financial institution for
+            automatic transaction import.
+        direct_import_in_error:
+          type: boolean
+          description: If an account linked to a financial institution
+            (direct_import_linked=true) and the linked connection is not in a
+            healthy state, this will be true.
+        last_reconciled_at:
+          type:
+            - string
+            - "null"
+          description: A date/time specifying when the account was last reconciled.
+          format: date-time
+        debt_original_balance:
+          type:
+            - integer
+            - "null"
+          description: This field is deprecated and will always be null.
+          format: int64
+        debt_interest_rates:
+          $ref: "#/components/schemas/LoanAccountPeriodicValue"
+        debt_minimum_payments:
+          $ref: "#/components/schemas/LoanAccountPeriodicValue"
+        debt_escrow_amounts:
+          $ref: "#/components/schemas/LoanAccountPeriodicValue"
+        deleted:
+          type: boolean
+          description: Whether or not the account has been deleted.  Deleted accounts will
+            only be included in delta requests.
+    Account:
+      allOf:
+        - $ref: "#/components/schemas/AccountBase"
+        - type: object
+          properties:
+            balance_formatted:
+              type: string
+              description: The current available balance of the account formatted in the plan's currency format
+            balance_currency:
+              type: number
+              format: double
+              description: The current available balance of the account as a decimal currency amount
+            cleared_balance_formatted:
+              type: string
+              description: The current cleared balance of the account formatted in the plan's currency format
+            cleared_balance_currency:
+              type: number
+              format: double
+              description: The current cleared balance of the account as a decimal currency amount
+            uncleared_balance_formatted:
+              type: string
+              description: The current uncleared balance of the account formatted in the plan's currency format
+            uncleared_balance_currency:
+              type: number
+              format: double
+              description: The current uncleared balance of the account as a decimal currency amount
+    PostAccountWrapper:
+      required:
+        - account
+      type: object
+      properties:
+        account:
+          $ref: "#/components/schemas/SaveAccount"
+    SaveAccount:
+      required:
+        - balance
+        - name
+        - type
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the account
+        type:
+          $ref: "#/components/schemas/SaveAccountType"
+        balance:
+          type: integer
+          description: The current balance of the account in milliunits format
+          format: int64
+    LoanAccountPeriodicValue:
+      type:
+        - object
+        - "null"
+      additionalProperties:
+        type: integer
+        format: int64
+    SaveAccountType:
+      type: string
+      description: The type of account to create or update
+      enum:
+        - checking
+        - savings
+        - cash
+        - creditCard
+        - otherAsset
+        - otherLiability
+    AccountType:
+      type: string
+      description: The type of account
+      enum:
+        - checking
+        - savings
+        - cash
+        - creditCard
+        - lineOfCredit
+        - otherAsset
+        - otherLiability
+        - mortgage
+        - autoLoan
+        - studentLoan
+        - personalLoan
+        - medicalDebt
+        - otherDebt
+    CategoriesResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - category_groups
+            - server_knowledge
+          type: object
+          properties:
+            category_groups:
+              type: array
+              items:
+                $ref: "#/components/schemas/CategoryGroupWithCategories"
+            server_knowledge:
+              type: integer
+              description: The knowledge of the server
+              format: int64
+    CategoryResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - category
+          type: object
+          properties:
+            category:
+              $ref: "#/components/schemas/Category"
+    CategoryGroupWithCategories:
+      allOf:
+        - $ref: "#/components/schemas/CategoryGroup"
+        - required:
+            - categories
+          type: object
+          properties:
+            categories:
+              type: array
+              description: Category group categories.  Amounts (assigned, activity, available,
+                etc.) are specific to the current plan month (UTC).
+              items:
+                $ref: "#/components/schemas/Category"
+    CategoryGroup:
+      required:
+        - deleted
+        - hidden
+        - internal
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        hidden:
+          type: boolean
+          description: Whether or not the category group is hidden
+        internal:
+          type: boolean
+          description: Whether or not the category group is internal
+        deleted:
+          type: boolean
+          description: Whether or not the category group has been deleted.  Deleted
+            category groups will only be included in delta requests.
+    CategoryBase:
+      required:
+        - activity
+        - balance
+        - budgeted
+        - category_group_id
+        - deleted
+        - hidden
+        - internal
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        category_group_id:
+          type: string
+          format: uuid
+        category_group_name:
+          type: string
+        name:
+          type: string
+        hidden:
+          type: boolean
+          description: Whether or not the category is hidden
+        internal:
+          type: boolean
+          description: Whether or not the category is internal
+        original_category_group_id:
+          type:
+            - string
+            - "null"
+          description: "DEPRECATED: No longer used.  Value will always be null."
+          format: uuid
+        note:
+          type:
+            - string
+            - "null"
+        budgeted:
+          type: integer
+          description: Assigned (budgeted) amount in milliunits format
+          format: int64
+        activity:
+          type: integer
+          description: Activity amount in milliunits format
+          format: int64
+        balance:
+          type: integer
+          description: Available balance in milliunits format
+          format: int64
+        goal_type:
+          type:
+            - string
+            - "null"
+          description: The type of goal, if the category has a goal (TB='Target Category
+            Balance', TBD='Target Category Balance by Date', MF='Monthly
+            Funding', NEED='Plan Your Spending')
+          enum:
+            - TB
+            - TBD
+            - MF
+            - NEED
+            - DEBT
+            - null
+        goal_needs_whole_amount:
+          type:
+            - boolean
+            - "null"
+          description: Indicates the monthly rollover behavior for "NEED"-type goals. When
+            "true", the goal will always ask for the target amount in the new
+            month ("Set Aside"). When "false", previous month category funding
+            is used ("Refill"). For other goal types, this field will be null.
+          default: null
+        goal_day:
+          type:
+            - integer
+            - "null"
+          description: A day offset modifier for the goal's due date. When goal_cadence is
+            2 (Weekly), this value specifies which day of the week the goal is
+            due (0 = Sunday, 6 = Saturday). Otherwise, this value specifies
+            which day of the month the goal is due (1 = 1st, 31 = 31st, null =
+            Last day of Month).
+          format: int32
+        goal_cadence:
+          type:
+            - integer
+            - "null"
+          description: The goal cadence. Value in range 0-14. There are two subsets of
+            these values which behave differently. For values 0, 1, 2, and 13,
+            the goal's due date repeats every goal_cadence *
+            goal_cadence_frequency, where 0 = None, 1 = Monthly, 2 = Weekly, and
+            13 = Yearly. For example, goal_cadence 1 with goal_cadence_frequency
+            2 means the goal is due every other month. For values 3-12 and 14,
+            goal_cadence_frequency is ignored and the goal's due date repeats
+            every goal_cadence, where 3 = Every 2 Months, 4 = Every 3 Months,
+            ..., 12 = Every 11 Months, and 14 = Every 2 Years.
+          format: int32
+        goal_cadence_frequency:
+          type:
+            - integer
+            - "null"
+          description: The goal cadence frequency. When goal_cadence is 0, 1, 2, or 13, a
+            goal's due date repeats every goal_cadence * goal_cadence_frequency.
+            For example, goal_cadence 1 with goal_cadence_frequency 2 means the
+            goal is due every other month.  When goal_cadence is 3-12 or 14,
+            goal_cadence_frequency is ignored.
+          format: int32
+        goal_creation_month:
+          type:
+            - string
+            - "null"
+          description: The month a goal was created
+          format: date
+        goal_target:
+          type:
+            - integer
+            - "null"
+          description: The goal target amount in milliunits
+          format: int64
+        goal_target_month:
+          type:
+            - string
+            - "null"
+          description: "DEPRECATED: No longer used.  Use `goal_target_date` instead."
+          format: date
+        goal_target_date:
+          type:
+            - string
+            - "null"
+          description: The target date for the goal to be completed.  Only some goal types
+            specify this date.
+          format: date
+        goal_percentage_complete:
+          type:
+            - integer
+            - "null"
+          description: The percentage completion of the goal
+          format: int32
+        goal_months_to_budget:
+          type:
+            - integer
+            - "null"
+          description: The number of months, including the current month, left in the
+            current goal period.
+          format: int32
+        goal_under_funded:
+          type:
+            - integer
+            - "null"
+          description: The amount of funding still needed in the current month to stay on
+            track towards completing the goal within the current goal period.
+            This amount will generally correspond to the 'Underfunded' amount in
+            the web and mobile clients except when viewing a category with a
+            Needed for Spending Goal in a future month.  The web and mobile
+            clients will ignore any funding from a prior goal period when
+            viewing category with a Needed for Spending Goal in a future month.
+          format: int64
+        goal_overall_funded:
+          type:
+            - integer
+            - "null"
+          description: The total amount funded towards the goal within the current goal
+            period.
+          format: int64
+        goal_overall_left:
+          type:
+            - integer
+            - "null"
+          description: The amount of funding still needed to complete the goal within the
+            current goal period.
+          format: int64
+        goal_snoozed_at:
+          type:
+            - string
+            - "null"
+          description: The date/time the goal was snoozed.  If the goal is not snoozed,
+            this will be null.
+          format: date-time
+        deleted:
+          type: boolean
+          description: Whether or not the category has been deleted.  Deleted categories
+            will only be included in delta requests.
+    Category:
+      allOf:
+        - $ref: "#/components/schemas/CategoryBase"
+        - type: object
+          properties:
+            balance_formatted:
+              type: string
+              description: Available balance of the category formatted in the plan's currency format
+            balance_currency:
+              type: number
+              format: double
+              description: Available balance of the category as a decimal currency amount
+            activity_formatted:
+              type: string
+              description: Activity of the category formatted in the plan's currency format
+            activity_currency:
+              type: number
+              format: double
+              description: Activity of the category as a decimal currency amount
+            budgeted_formatted:
+              type: string
+              description: Assigned (budgeted) amount of the category formatted in the plan's currency format
+            budgeted_currency:
+              type: number
+              format: double
+              description: Assigned (budgeted) amount of the category as a decimal currency amount
+            goal_target_formatted:
+              type:
+                - string
+                - "null"
+              description: The goal target amount formatted in the plan's currency format
+            goal_target_currency:
+              type:
+                - number
+                - "null"
+              format: double
+              description: The goal target amount as a decimal currency amount
+            goal_under_funded_formatted:
+              type:
+                - string
+                - "null"
+              description: The goal underfunded amount formatted in the plan's currency format
+            goal_under_funded_currency:
+              type:
+                - number
+                - "null"
+              format: double
+              description: The goal underfunded amount as a decimal currency amount
+            goal_overall_funded_formatted:
+              type:
+                - string
+                - "null"
+              description: The total amount funded towards the goal formatted in the plan's currency format
+            goal_overall_funded_currency:
+              type:
+                - number
+                - "null"
+              format: double
+              description: The total amount funded towards the goal as a decimal currency amount
+            goal_overall_left_formatted:
+              type:
+                - string
+                - "null"
+              description: The amount of funding still needed to complete the goal formatted in the plan's currency format
+            goal_overall_left_currency:
+              type:
+                - number
+                - "null"
+              format: double
+              description: The amount of funding still needed to complete the goal as a decimal currency amount
+    SaveCategoryResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - category
+            - server_knowledge
+          type: object
+          properties:
+            category:
+              $ref: "#/components/schemas/Category"
+            server_knowledge:
+              type: integer
+              description: The knowledge of the server
+              format: int64
+    SaveCategoryGroupResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - category_group
+            - server_knowledge
+          type: object
+          properties:
+            category_group:
+              $ref: "#/components/schemas/CategoryGroup"
+            server_knowledge:
+              type: integer
+              description: The knowledge of the server
+              format: int64
+    PayeesResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - payees
+            - server_knowledge
+          type: object
+          properties:
+            payees:
+              type: array
+              items:
+                $ref: "#/components/schemas/Payee"
+            server_knowledge:
+              type: integer
+              description: The knowledge of the server
+              format: int64
+    PayeeResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - payee
+          type: object
+          properties:
+            payee:
+              $ref: "#/components/schemas/Payee"
+    SavePayeeResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - payee
+            - server_knowledge
+          type: object
+          properties:
+            payee:
+              $ref: "#/components/schemas/Payee"
+            server_knowledge:
+              type: integer
+              description: The knowledge of the server
+              format: int64
+    Payee:
+      required:
+        - deleted
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        transfer_account_id:
+          type:
+            - string
+            - "null"
+          description: If a transfer payee, the `account_id` to which this payee transfers
+            to
+        deleted:
+          type: boolean
+          description: Whether or not the payee has been deleted.  Deleted payees will
+            only be included in delta requests.
+    PayeeLocationsResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - payee_locations
+          type: object
+          properties:
+            payee_locations:
+              type: array
+              items:
+                $ref: "#/components/schemas/PayeeLocation"
+    PayeeLocationResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - payee_location
+          type: object
+          properties:
+            payee_location:
+              $ref: "#/components/schemas/PayeeLocation"
+    PayeeLocation:
+      required:
+        - deleted
+        - id
+        - latitude
+        - longitude
+        - payee_id
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        payee_id:
+          type: string
+          format: uuid
+        latitude:
+          type: string
+        longitude:
+          type: string
+        deleted:
+          type: boolean
+          description: Whether or not the payee location has been deleted.  Deleted payee
+            locations will only be included in delta requests.
+    TransactionsResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - server_knowledge
+            - transactions
+          type: object
+          properties:
+            transactions:
+              type: array
+              items:
+                $ref: "#/components/schemas/TransactionDetail"
+            server_knowledge:
+              type: integer
+              description: The knowledge of the server
+              format: int64
+    HybridTransactionsResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - transactions
+          type: object
+          properties:
+            transactions:
+              type: array
+              items:
+                $ref: "#/components/schemas/HybridTransaction"
+            server_knowledge:
+              type: integer
+              description: The knowledge of the server
+              format: int64
+    PutTransactionWrapper:
+      required:
+        - transaction
+      type: object
+      properties:
+        transaction:
+          $ref: "#/components/schemas/ExistingTransaction"
+    PostTransactionsWrapper:
+      type: object
+      properties:
+        transaction:
+          $ref: "#/components/schemas/NewTransaction"
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/NewTransaction"
+    PatchTransactionsWrapper:
+      required:
+        - transactions
+      type: object
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/SaveTransactionWithIdOrImportId"
+    ExistingTransaction:
+      allOf:
+        - type: object
+        - $ref: "#/components/schemas/SaveTransactionWithOptionalFields"
+    NewTransaction:
+      allOf:
+        - $ref: "#/components/schemas/SaveTransactionWithOptionalFields"
+        - type: object
+          properties:
+            import_id:
+              maxLength: 36
+              type:
+                - string
+                - "null"
+              description: 'If specified, a new transaction will be assigned this `import_id`
+                and considered "imported".  We will also attempt to match this
+                imported transaction to an existing "user-entered" transaction
+                on the same account, with the same amount, and with a date +/-10
+                days from the imported transaction date.<br><br>Transactions
+                imported through File Based Import or Direct Import (not through
+                the API) are assigned an import_id in the format:
+                ''YNAB:[milliunit_amount]:[iso_date]:[occurrence]''. For example,
+                a transaction dated 2015-12-30 in the amount of -$294.23 USD
+                would have an import_id of ''YNAB:-294230:2015-12-30:1''.  If a
+                second transaction on the same account was imported and had the
+                same date and same amount, its import_id would be
+                ''YNAB:-294230:2015-12-30:2''.  Using a consistent format will
+                prevent duplicates through Direct Import and File Based
+                Import.<br><br>If import_id is omitted or specified as null, the
+                transaction will be treated as a "user-entered" transaction.
+                As such, it will be eligible to be matched against transactions
+                later being imported (via DI, FBI, or API).'
+    SaveTransactionWithIdOrImportId:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type:
+                - string
+                - "null"
+              description: If specified, this id will be used to lookup a transaction by its
+                `id` for the purpose of updating the transaction itself. If not
+                specified, an `import_id` should be supplied.
+            import_id:
+              maxLength: 36
+              type:
+                - string
+                - "null"
+              description: If specified, this id will be used to lookup a transaction by its
+                `import_id` for the purpose of updating the transaction itself.
+                If not specified, an `id` should be supplied.  You may not
+                provide both an `id` and an `import_id` and updating an
+                `import_id` on an existing transaction is not allowed.
+        - $ref: "#/components/schemas/SaveTransactionWithOptionalFields"
+    SaveTransactionWithOptionalFields:
+      type: object
+      properties:
+        account_id:
+          type: string
+          format: uuid
+        date:
+          type: string
+          description: The transaction date in ISO format (e.g. 2016-12-01).  Future dates
+            (scheduled transactions) are not permitted.  Split transaction dates
+            cannot be changed and if a different date is supplied it will be
+            ignored.
+          format: date
+        amount:
+          type: integer
+          description: The transaction amount in milliunits format.  Split transaction
+            amounts cannot be changed and if a different amount is supplied it
+            will be ignored.
+          format: int64
+        payee_id:
+          type:
+            - string
+            - "null"
+          description: The payee for the transaction.  To create a transfer between two
+            accounts, use the account transfer payee pointing to the target
+            account.  Account transfer payees are specified as
+            `transfer_payee_id` on the account resource.
+          format: uuid
+        payee_name:
+          maxLength: 200
+          type:
+            - string
+            - "null"
+          description: The payee name.  If a `payee_name` value is provided and `payee_id`
+            has a null value, the `payee_name` value will be used to resolve the
+            payee by either (1) a matching payee rename rule (only if
+            `import_id` is also specified) or (2) a payee with the same name or
+            (3) creation of a new payee.
+        category_id:
+          type:
+            - string
+            - "null"
+          description: The category for the transaction.  To configure a split
+            transaction, you can specify null for `category_id` and provide a
+            `subtransactions` array as part of the transaction object.  If an
+            existing transaction is a split, the `category_id` cannot be
+            changed.  Credit Card Payment categories are not permitted and will
+            be ignored if supplied.
+          format: uuid
+        memo:
+          maxLength: 500
+          type:
+            - string
+            - "null"
+        cleared:
+          $ref: "#/components/schemas/TransactionClearedStatus"
+        approved:
+          type: boolean
+          description: Whether or not the transaction is approved.  If not supplied,
+            transaction will be unapproved by default.
+        flag_color:
+          $ref: "#/components/schemas/TransactionFlagColor"
+        subtransactions:
+          type: array
+          description: An array of subtransactions to configure a transaction as a split.
+            Updating `subtransactions` on an existing split transaction is not
+            supported and will return an error.  Splits are not allowed on
+            tracking accounts or on transfers between on-budget accounts; a
+            transfer to a tracking account can be a split.
+          items:
+            $ref: "#/components/schemas/SaveSubTransaction"
+    SaveSubTransaction:
+      required:
+        - amount
+      type: object
+      properties:
+        amount:
+          type: integer
+          description: The subtransaction amount in milliunits format.
+          format: int64
+        payee_id:
+          type:
+            - string
+            - "null"
+          description: The payee for the subtransaction.
+          format: uuid
+        payee_name:
+          maxLength: 200
+          type:
+            - string
+            - "null"
+          description: The payee name.  If a `payee_name` value is provided and `payee_id`
+            has a null value, the `payee_name` value will be used to resolve the
+            payee by either (1) a matching payee rename rule (only if import_id
+            is also specified on parent transaction) or (2) a payee with the
+            same name or (3) creation of a new payee.
+        category_id:
+          type:
+            - string
+            - "null"
+          description: The category for the subtransaction.  Credit Card Payment
+            categories are not permitted and will be ignored if supplied.
+          format: uuid
+        memo:
+          maxLength: 500
+          type:
+            - string
+            - "null"
+    SaveTransactionsResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - server_knowledge
+            - transaction_ids
+          type: object
+          properties:
+            transaction_ids:
+              type: array
+              description: The transaction ids that were saved
+              items:
+                type: string
+            transaction:
+              $ref: "#/components/schemas/TransactionDetail"
+            transactions:
+              type: array
+              description: If multiple transactions were specified, the transactions that were
+                saved
+              items:
+                $ref: "#/components/schemas/TransactionDetail"
+            duplicate_import_ids:
+              type: array
+              description: If multiple transactions were specified, a list of import_ids that
+                were not created because of an existing `import_id` found on the
+                same account
+              items:
+                type: string
+            server_knowledge:
+              type: integer
+              description: The knowledge of the server
+              format: int64
+    TransactionResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - transaction
+            - server_knowledge
+          type: object
+          properties:
+            transaction:
+              $ref: "#/components/schemas/TransactionDetail"
+            server_knowledge:
+              type: integer
+              description: The knowledge of the server
+              format: int64
+    TransactionSummaryBase:
+      required:
+        - account_id
+        - amount
+        - approved
+        - cleared
+        - date
+        - deleted
+        - id
+      type: object
+      properties:
+        id:
+          type: string
+        date:
+          type: string
+          description: The transaction date in ISO format (e.g. 2016-12-01)
+          format: date
+        amount:
+          type: integer
+          description: The transaction amount in milliunits format
+          format: int64
+        memo:
+          type:
+            - string
+            - "null"
+        cleared:
+          $ref: "#/components/schemas/TransactionClearedStatus"
+        approved:
+          type: boolean
+          description: Whether or not the transaction is approved
+        flag_color:
+          $ref: "#/components/schemas/TransactionFlagColor"
+        flag_name:
+          $ref: "#/components/schemas/TransactionFlagName"
+        account_id:
+          type: string
+          format: uuid
+        payee_id:
+          type:
+            - string
+            - "null"
+          format: uuid
+        category_id:
+          type:
+            - string
+            - "null"
+          format: uuid
+        transfer_account_id:
+          type:
+            - string
+            - "null"
+          description: If a transfer transaction, the account to which it transfers
+          format: uuid
+        transfer_transaction_id:
+          type:
+            - string
+            - "null"
+          description: If a transfer transaction, the id of transaction on the other side
+            of the transfer
+        matched_transaction_id:
+          type:
+            - string
+            - "null"
+          description: If transaction is matched, the id of the matched transaction
+        import_id:
+          type:
+            - string
+            - "null"
+          description: "If the transaction was imported, this field is a unique (by
+            account) import identifier.  If this transaction was imported
+            through File Based Import or Direct Import and not through the API,
+            the import_id will have the format:
+            'YNAB:[milliunit_amount]:[iso_date]:[occurrence]'.  For example, a
+            transaction dated 2015-12-30 in the amount of -$294.23 USD would
+            have an import_id of 'YNAB:-294230:2015-12-30:1'.  If a second
+            transaction on the same account was imported and had the same date
+            and same amount, its import_id would be
+            'YNAB:-294230:2015-12-30:2'."
+        import_payee_name:
+          type:
+            - string
+            - "null"
+          description: If the transaction was imported, the payee name that was used when
+            importing and before applying any payee rename rules
+        import_payee_name_original:
+          type:
+            - string
+            - "null"
+          description: If the transaction was imported, the original payee name as it
+            appeared on the statement
+        debt_transaction_type:
+          type:
+            - string
+            - "null"
+          description: If the transaction is a debt/loan account transaction, the type of
+            transaction
+          enum:
+            - payment
+            - refund
+            - fee
+            - interest
+            - escrow
+            - balanceAdjustment
+            - credit
+            - charge
+            - null
+        deleted:
+          type: boolean
+          description: Whether or not the transaction has been deleted.  Deleted
+            transactions will only be included in delta requests.
+    TransactionSummary:
+      allOf:
+        - $ref: "#/components/schemas/TransactionSummaryBase"
+        - type: object
+          properties:
+            amount_formatted:
+              type: string
+              description: The transaction amount formatted in the plan's currency format
+            amount_currency:
+              type: number
+              format: double
+              description: The transaction amount as a decimal currency amount
+
+    TransactionDetail:
+      allOf:
+        - $ref: "#/components/schemas/TransactionSummary"
+        - required:
+            - account_name
+            - subtransactions
+          type: object
+          properties:
+            account_name:
+              type: string
+            payee_name:
+              type:
+                - string
+                - "null"
+            category_name:
+              type:
+                - string
+                - "null"
+              description: The name of the category.  If a split transaction, this will be
+                'Split'.
+            subtransactions:
+              type: array
+              description: If a split transaction, the subtransactions.
+              items:
+                $ref: "#/components/schemas/SubTransaction"
+    HybridTransaction:
+      allOf:
+        - $ref: "#/components/schemas/TransactionSummary"
+        - required:
+            - account_name
+            - type
+          type: object
+          properties:
+            type:
+              type: string
+              description: Whether the hybrid transaction represents a regular transaction or
+                a subtransaction
+              enum:
+                - transaction
+                - subtransaction
+            parent_transaction_id:
+              type:
+                - string
+                - "null"
+              description: For subtransaction types, this is the id of the parent
+                transaction.  For transaction types, this id will be always be
+                null.
+            account_name:
+              type: string
+            payee_name:
+              type:
+                - string
+                - "null"
+            category_name:
+              type: string
+              description: The name of the category.  If a split transaction, this will be
+                'Split'.
+    PostPayeeWrapper:
+      required:
+        - payee
+      type: object
+      properties:
+        payee:
+          $ref: "#/components/schemas/PostPayee"
+    PostPayee:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: false
+          maxLength: 500
+          description: The name of the payee.
+    PatchPayeeWrapper:
+      required:
+        - payee
+      type: object
+      properties:
+        payee:
+          $ref: "#/components/schemas/SavePayee"
+    SavePayee:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: false
+          maxLength: 500
+          description: The name of the payee.
+    PostCategoryGroupWrapper:
+      required:
+        - category_group
+      type: object
+      properties:
+        category_group:
+          $ref: "#/components/schemas/SaveCategoryGroup"
+    PatchCategoryGroupWrapper:
+      required:
+        - category_group
+      type: object
+      properties:
+        category_group:
+          $ref: "#/components/schemas/SaveCategoryGroup"
+    SaveCategoryGroup:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the category group. The name must be a maximum of 50
+            characters.
+          maxLength: 50
+    PostCategoryWrapper:
+      required:
+        - category
+      type: object
+      properties:
+        category:
+          $ref: "#/components/schemas/NewCategory"
+    PatchCategoryWrapper:
+      required:
+        - category
+      type: object
+      properties:
+        category:
+          $ref: "#/components/schemas/ExistingCategory"
+    SaveCategory:
+      type: object
+      properties:
+        name:
+          type:
+            - string
+            - "null"
+        note:
+          type:
+            - string
+            - "null"
+        category_group_id:
+          type: string
+          format: uuid
+          description: The id of the category group to which this category belongs.  An internal category group may not be specified.
+        goal_target:
+          type:
+            - integer
+            - "null"
+          description: The goal target amount in milliunits format.  If value is specified
+            and goal has not already been configured for category, a monthly goal
+            will be created for the category with this target amount.  If goal_type is
+            not specified, it will default to 'NEED' or 'MF' for Credit Card Payment categories.
+            When updating a category, passing null removes any existing target.
+          format: int64
+        goal_target_date:
+          type:
+            - string
+            - "null"
+          description: The goal target date in ISO format (e.g. 2016-12-01).
+          format: date
+        goal_needs_whole_amount:
+          type:
+            - boolean
+            - "null"
+          description: Whether the goal requires the full target amount each period. Only supported for 'NEED' goals.
+            When true, the goal is configured as 'Set aside another...'.
+            When false, the goal is configured as 'Refill up to...'.
+        goal_frequency:
+          type: string
+          enum:
+            - monthly
+            - weekly
+            - yearly
+          description: When specified, configures a recurring 'NEED' target of goal_target that repeats at this
+            frequency, replacing any existing target. Requires goal_target. Cannot be combined with goal_target_date
+            and is not supported for Credit Card Payment categories. Omit to leave an existing target's cadence unchanged.
+    ExistingCategory:
+      allOf:
+        - $ref: "#/components/schemas/SaveCategory"
+        - type: object
+    NewCategory:
+      allOf:
+        - $ref: "#/components/schemas/SaveCategory"
+        - required:
+            - name
+            - category_group_id
+    PatchMonthCategoryWrapper:
+      required:
+        - category
+      type: object
+      properties:
+        category:
+          $ref: "#/components/schemas/SaveMonthCategory"
+    SaveMonthCategory:
+      required:
+        - budgeted
+      type: object
+      properties:
+        budgeted:
+          type: integer
+          description: Assigned (budgeted) amount in milliunits format
+          format: int64
+    TransactionsImportResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - transaction_ids
+          type: object
+          properties:
+            transaction_ids:
+              type: array
+              description: The list of transaction ids that were imported.
+              items:
+                type: string
+    BulkResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - bulk
+          type: object
+          properties:
+            bulk:
+              required:
+                - duplicate_import_ids
+                - transaction_ids
+              type: object
+              properties:
+                transaction_ids:
+                  type: array
+                  description: The list of Transaction ids that were created.
+                  items:
+                    type: string
+                duplicate_import_ids:
+                  type: array
+                  description: If any Transactions were not created because they had an
+                    `import_id` matching a transaction already on the same
+                    account, the specified import_id(s) will be included in this
+                    list.
+                  items:
+                    type: string
+    BulkTransactions:
+      required:
+        - transactions
+      type: object
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/SaveTransactionWithOptionalFields"
+    SubTransactionBase:
+      required:
+        - amount
+        - deleted
+        - id
+        - transaction_id
+      type: object
+      properties:
+        id:
+          type: string
+        transaction_id:
+          type: string
+        amount:
+          type: integer
+          description: The subtransaction amount in milliunits format
+          format: int64
+        memo:
+          type:
+            - string
+            - "null"
+        payee_id:
+          type:
+            - string
+            - "null"
+          format: uuid
+        payee_name:
+          type:
+            - string
+            - "null"
+        category_id:
+          type:
+            - string
+            - "null"
+          format: uuid
+        category_name:
+          type:
+            - string
+            - "null"
+        transfer_account_id:
+          type:
+            - string
+            - "null"
+          description: If a transfer, the account_id which the subtransaction transfers to
+          format: uuid
+        transfer_transaction_id:
+          type:
+            - string
+            - "null"
+          description: If a transfer, the id of transaction on the other side of the
+            transfer
+        deleted:
+          type: boolean
+          description: Whether or not the subtransaction has been deleted.  Deleted
+            subtransactions will only be included in delta requests.
+    SubTransaction:
+      allOf:
+        - $ref: "#/components/schemas/SubTransactionBase"
+        - type: object
+          properties:
+            amount_formatted:
+              type: string
+              description: The subtransaction amount formatted in the plan's currency format
+            amount_currency:
+              type: number
+              format: double
+              description: The subtransaction amount as a decimal currency amount
+    ScheduledTransactionsResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - scheduled_transactions
+            - server_knowledge
+          type: object
+          properties:
+            scheduled_transactions:
+              type: array
+              items:
+                $ref: "#/components/schemas/ScheduledTransactionDetail"
+            server_knowledge:
+              type: integer
+              description: The knowledge of the server
+              format: int64
+    ScheduledTransactionResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - scheduled_transaction
+          type: object
+          properties:
+            scheduled_transaction:
+              $ref: "#/components/schemas/ScheduledTransactionDetail"
+    PutScheduledTransactionWrapper:
+      required:
+        - scheduled_transaction
+      type: object
+      properties:
+        scheduled_transaction:
+          $ref: "#/components/schemas/SaveScheduledTransaction"
+    PostScheduledTransactionWrapper:
+      required:
+        - scheduled_transaction
+      type: object
+      properties:
+        scheduled_transaction:
+          $ref: "#/components/schemas/SaveScheduledTransaction"
+    SaveScheduledTransaction:
+      required:
+        - account_id
+        - date
+      type: object
+      properties:
+        account_id:
+          type: string
+          format: uuid
+        date:
+          type: string
+          description: The scheduled transaction date in ISO format (e.g.
+            2016-12-01).  This should be a future date no more than 5 years into
+            the future.
+          format: date
+        amount:
+          type: integer
+          description: The scheduled transaction amount in milliunits format.
+          format: int64
+        payee_id:
+          type:
+            - string
+            - "null"
+          description: The payee for the scheduled transaction.  To create a transfer
+            between two accounts, use the account transfer payee pointing to the
+            target account.  Account transfer payees are specified as
+            `transfer_payee_id` on the account resource.
+          format: uuid
+        payee_name:
+          maxLength: 200
+          type:
+            - string
+            - "null"
+          description: The payee name for the the scheduled transaction.  If a
+            `payee_name` value is provided and `payee_id` has a null value, the
+            `payee_name` value will be used to resolve the payee by either (1) a
+            payee with the same name or (2) creation of a new payee.
+        category_id:
+          type:
+            - string
+            - "null"
+          description: The category for the scheduled transaction. Credit Card Payment
+            categories are not permitted. Creating a split scheduled transaction
+            is not currently supported.
+          format: uuid
+        memo:
+          maxLength: 500
+          type:
+            - string
+            - "null"
+        flag_color:
+          $ref: "#/components/schemas/TransactionFlagColor"
+        frequency:
+          $ref: "#/components/schemas/ScheduledTransactionFrequency"
+    ScheduledTransactionSummaryBase:
+      required:
+        - account_id
+        - amount
+        - date_first
+        - date_next
+        - deleted
+        - frequency
+        - id
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        date_first:
+          type: string
+          description: The first date for which the Scheduled Transaction was scheduled.
+          format: date
+        date_next:
+          type: string
+          description: The next date for which the Scheduled Transaction is scheduled.
+          format: date
+        frequency:
+          type: string
+          enum:
+            - never
+            - daily
+            - weekly
+            - everyOtherWeek
+            - twiceAMonth
+            - every4Weeks
+            - monthly
+            - everyOtherMonth
+            - every3Months
+            - every4Months
+            - twiceAYear
+            - yearly
+            - everyOtherYear
+        amount:
+          type: integer
+          description: The scheduled transaction amount in milliunits format
+          format: int64
+        memo:
+          type:
+            - string
+            - "null"
+        flag_color:
+          $ref: "#/components/schemas/TransactionFlagColor"
+        flag_name:
+          $ref: "#/components/schemas/TransactionFlagName"
+        account_id:
+          type: string
+          format: uuid
+        payee_id:
+          type:
+            - string
+            - "null"
+          format: uuid
+        category_id:
+          type:
+            - string
+            - "null"
+          format: uuid
+        transfer_account_id:
+          type:
+            - string
+            - "null"
+          description: If a transfer, the account_id which the scheduled transaction
+            transfers to
+          format: uuid
+        deleted:
+          type: boolean
+          description: Whether or not the scheduled transaction has been deleted.  Deleted
+            scheduled transactions will only be included in delta requests.
+    ScheduledTransactionSummary:
+      allOf:
+        - $ref: "#/components/schemas/ScheduledTransactionSummaryBase"
+        - type: object
+          properties:
+            amount_formatted:
+              type: string
+              description: The scheduled transaction amount formatted in the plan's currency format
+            amount_currency:
+              type: number
+              format: double
+              description: The scheduled transaction amount as a decimal currency amount
+    ScheduledTransactionDetail:
+      allOf:
+        - $ref: "#/components/schemas/ScheduledTransactionSummary"
+        - required:
+            - account_name
+            - subtransactions
+          type: object
+          properties:
+            account_name:
+              type: string
+            payee_name:
+              type:
+                - string
+                - "null"
+            category_name:
+              type:
+                - string
+                - "null"
+              description: The name of the category.  If a split scheduled transaction, this
+                will be 'Split'.
+            subtransactions:
+              type: array
+              description: If a split scheduled transaction, the subtransactions.
+              items:
+                $ref: "#/components/schemas/ScheduledSubTransaction"
+    ScheduledSubTransactionBase:
+      required:
+        - amount
+        - deleted
+        - id
+        - scheduled_transaction_id
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        scheduled_transaction_id:
+          type: string
+          format: uuid
+        amount:
+          type: integer
+          description: The scheduled subtransaction amount in milliunits format
+          format: int64
+        memo:
+          type:
+            - string
+            - "null"
+        payee_id:
+          type:
+            - string
+            - "null"
+          format: uuid
+        payee_name:
+          type:
+            - string
+            - "null"
+        category_id:
+          type:
+            - string
+            - "null"
+          format: uuid
+        category_name:
+          type:
+            - string
+            - "null"
+        transfer_account_id:
+          type:
+            - string
+            - "null"
+          description: If a transfer, the account_id which the scheduled subtransaction
+            transfers to
+          format: uuid
+        deleted:
+          type: boolean
+          description: Whether or not the scheduled subtransaction has been deleted.
+            Deleted scheduled subtransactions will only be included in delta
+            requests.
+    ScheduledSubTransaction:
+      allOf:
+        - $ref: "#/components/schemas/ScheduledSubTransactionBase"
+        - type: object
+          properties:
+            amount_formatted:
+              type: string
+              description: The scheduled subtransaction amount formatted in the plan's currency format
+            amount_currency:
+              type: number
+              format: double
+              description: The scheduled subtransaction amount as a decimal currency amount
+    MonthSummariesResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - months
+            - server_knowledge
+          type: object
+          properties:
+            months:
+              type: array
+              items:
+                $ref: "#/components/schemas/MonthSummary"
+            server_knowledge:
+              type: integer
+              description: The knowledge of the server
+              format: int64
+    MonthDetailResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - month
+          type: object
+          properties:
+            month:
+              $ref: "#/components/schemas/MonthDetail"
+    MonthSummaryBase:
+      required:
+        - activity
+        - budgeted
+        - deleted
+        - income
+        - month
+        - to_be_budgeted
+      type: object
+      properties:
+        month:
+          type: string
+          format: date
+        note:
+          type:
+            - string
+            - "null"
+        income:
+          type: integer
+          description: "The total amount of transactions categorized to 'Inflow: Ready to
+            Assign' in the month"
+          format: int64
+        budgeted:
+          type: integer
+          description: The total amount assigned (budgeted) in the month
+          format: int64
+        activity:
+          type: integer
+          description: "The total amount of transactions in the month, excluding those
+            categorized to 'Inflow: Ready to Assign'"
+          format: int64
+        to_be_budgeted:
+          type: integer
+          description: The available amount for 'Ready to Assign'
+          format: int64
+        age_of_money:
+          type:
+            - integer
+            - "null"
+          description: The Age of Money as of the month
+          format: int32
+        deleted:
+          type: boolean
+          description: Whether or not the month has been deleted.  Deleted months will
+            only be included in delta requests.
+    MonthSummary:
+      allOf:
+        - $ref: "#/components/schemas/MonthSummaryBase"
+        - type: object
+          properties:
+            income_formatted:
+              type: string
+              description: The total income formatted in the plan's currency format
+            income_currency:
+              type: number
+              format: double
+              description: The total income as a decimal currency amount
+            budgeted_formatted:
+              type: string
+              description: The total amount assigned formatted in the plan's currency format
+            budgeted_currency:
+              type: number
+              format: double
+              description: The total amount assigned as a decimal currency amount
+            activity_formatted:
+              type: string
+              description: The total activity amount formatted in the plan's currency format
+            activity_currency:
+              type: number
+              format: double
+              description: The total activity amount as a decimal currency amount
+            to_be_budgeted_formatted:
+              type: string
+              description: The available amount for 'Ready to Assign' formatted in the plan's currency format
+            to_be_budgeted_currency:
+              type: number
+              format: double
+              description: The available amount for 'Ready to Assign' as a decimal currency amount
+    MonthDetailBase:
+      allOf:
+        - $ref: "#/components/schemas/MonthSummaryBase"
+        - required:
+            - categories
+          type: object
+          properties:
+            categories:
+              type: array
+              description: The plan month categories.  Amounts (budgeted, activity, balance,
+                etc.) are specific to the {month} parameter specified.
+              items:
+                $ref: "#/components/schemas/CategoryBase"
+    MonthDetail:
+      allOf:
+        - $ref: "#/components/schemas/MonthSummary"
+        - required:
+            - categories
+          type: object
+          properties:
+            categories:
+              type: array
+              description: The plan month categories.  Amounts (budgeted, activity, balance,
+                etc.) are specific to the {month} parameter specified.
+              items:
+                $ref: "#/components/schemas/Category"
+    TransactionFlagColor:
+      type:
+        - string
+        - "null"
+      description: The transaction flag
+      enum:
+        - red
+        - orange
+        - yellow
+        - green
+        - blue
+        - purple
+        - ""
+        - null
+    TransactionFlagName:
+      type:
+        - string
+        - "null"
+      description: The customized name of a transaction flag
+    TransactionClearedStatus:
+      type: string
+      description: The cleared status of the transaction
+      enum:
+        - cleared
+        - uncleared
+        - reconciled
+    ScheduledTransactionFrequency:
+      type: string
+      description: The scheduled transaction frequency
+      enum:
+        - never
+        - daily
+        - weekly
+        - everyOtherWeek
+        - twiceAMonth
+        - every4Weeks
+        - monthly
+        - everyOtherMonth
+        - every3Months
+        - every4Months
+        - twiceAYear
+        - yearly
+        - everyOtherYear
+    MoneyMovementsResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - money_movements
+            - server_knowledge
+          type: object
+          properties:
+            money_movements:
+              type: array
+              items:
+                $ref: "#/components/schemas/MoneyMovement"
+            server_knowledge:
+              type: integer
+              description: The knowledge of the server
+              format: int64
+    MoneyMovementBase:
+      required:
+        - id
+        - amount
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        month:
+          type:
+            - string
+            - "null"
+          description: The month of the money movement in ISO format (e.g. 2024-01-01)
+          format: date
+        moved_at:
+          type:
+            - string
+            - "null"
+          description: The date/time the money movement was processed on the server in ISO
+            format (e.g. 2024-01-01T12:00:00Z)
+          format: date-time
+        note:
+          type:
+            - string
+            - "null"
+        money_movement_group_id:
+          type:
+            - string
+            - "null"
+          description: The id of the money movement group this movement belongs to
+          format: uuid
+        performed_by_user_id:
+          type:
+            - string
+            - "null"
+          description: The id of the user who performed the money movement
+          format: uuid
+        from_category_id:
+          type:
+            - string
+            - "null"
+          description: The id of the category the money was moved from
+          format: uuid
+        to_category_id:
+          type:
+            - string
+            - "null"
+          description: The id of the category the money was moved to
+          format: uuid
+        amount:
+          type: integer
+          description: The amount of the money movement in milliunits format
+          format: int64
+    MoneyMovement:
+      allOf:
+        - $ref: "#/components/schemas/MoneyMovementBase"
+        - type: object
+          properties:
+            amount_formatted:
+              type: string
+              description: The money movement amount formatted in the plan's currency format
+            amount_currency:
+              type: number
+              format: double
+              description: The money movement amount as a decimal currency amount
+    MoneyMovementGroupsResponse:
+      required:
+        - data
+      type: object
+      properties:
+        data:
+          required:
+            - money_movement_groups
+            - server_knowledge
+          type: object
+          properties:
+            money_movement_groups:
+              type: array
+              items:
+                $ref: "#/components/schemas/MoneyMovementGroup"
+            server_knowledge:
+              type: integer
+              description: The knowledge of the server
+              format: int64
+    MoneyMovementGroup:
+      required:
+        - id
+        - group_created_at
+        - month
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        group_created_at:
+          type: string
+          description: When the money movement group was created
+          format: date-time
+        month:
+          type: string
+          description: The month of the money movement group in ISO format (e.g. 2024-01-01)
+          format: date
+        note:
+          type:
+            - string
+            - "null"
+        performed_by_user_id:
+          type:
+            - string
+            - "null"
+          description: The id of the user who performed the money movement group
+          format: uuid
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer

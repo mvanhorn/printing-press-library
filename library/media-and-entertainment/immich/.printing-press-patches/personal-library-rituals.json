@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "personal-library-rituals",
+  "applied_at": "2026-07-21",
+  "base_run_id": "20260721-133855-89f4eb09",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Preserve source-aware Immich import adapters and eight safe personal-library rituals across regeneration.",
+  "reason": "The official OpenAPI surface needs API-specific file-source adaptation and compound personal workflows; all custom calls are verified against the archived v3 contract.",
+  "files": ["internal/cli/personal_library_rituals.go", "internal/cli/personal_library_rituals_test.go"],
+  "validated_outcome": "Focused HTTP tests cover importer safety and every compound custom route, query, and body."
+}

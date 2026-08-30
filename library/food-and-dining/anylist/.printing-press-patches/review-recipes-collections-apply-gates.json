@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "review-recipes-collections-apply-gates",
+  "applied_at": "2026-08-26",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Require explicit apply for recipe collection writes.",
+  "reason": "The collection create, add, remove, and delete commands could send live writes without an explicit apply flag. After adding the gate, a disposable create acknowledged HTTP success but was absent from fresh AnyList data, so every collection write must remain fail-closed until the exact persistence contract is proven.",
+  "files": [
+    "internal/cli/collections.go",
+    "internal/cli/collections_create.go",
+    "internal/cli/collections_add.go",
+    "internal/cli/collections_remove.go",
+    "internal/cli/collections_delete.go",
+    "internal/cli/collections_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Collection writes preview without --apply, accept apply:true through stdin, and fail closed before any request when live persistence proof is absent. The disposable collection create was absent on fresh read-back and a follow-up listing confirmed no residue; no collection or recipe data remains from the probe.",
+  "gate_state": "Collection listing is supported; create, add, remove, and delete remain preview-only and fail-closed pending a proven live persistence contract.",
+  "findings_addressed": [
+    "collection-write-missing-apply-gate"
+  ]
+}

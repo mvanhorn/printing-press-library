@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "carol-bike-pp-mcp",
+  "display_name": "CAROL Bike",
+  "version": "3.9.1",
+  "description": "Read and locally mirror personal CAROL Bike workout data.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/carol-bike-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/carol-bike-pp-mcp",
+      "args": [],
+      "env": {
+        "PRINTING_PRESS_CLIENT_PROFILE": "${user_config.printing_press_client_profile}"
+      }
+    }
+  },
+  "user_config": {
+    "printing_press_client_profile": {
+      "type": "string",
+      "title": "Client profile",
+      "description": "Binds the MCP server to an existing tenant-gated Printing Press client profile.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

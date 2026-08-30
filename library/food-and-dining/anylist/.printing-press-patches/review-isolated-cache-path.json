@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "review-isolated-cache-path",
+  "applied_at": "2026-08-25",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Support an explicit per-invocation SQLite cache path for isolated automation and verifier runs.",
+  "reason": "The AnyList CLI stores its synchronized protobuf projection in SQLite, but the generic data-pipeline verifier needs to place that cache in a temporary database. A real --db option also lets agents and tests isolate cache state without changing credentials or HOME.",
+  "files": [
+    "internal/config/config.go",
+    "internal/store/store.go",
+    "internal/store/store_test.go",
+    "internal/cli/root.go",
+    "internal/cli/sync.go",
+    "internal/cli/rawsql.go"
+  ],
+  "validated_outcome": "Added a non-persisted --db override, wired sync and SQL to the selected cache, accepted full-sync/resource-hint flags used by automation, and added explicit-path coverage. Full Go tests pass; the remaining mock-pipeline failure is caused by the verifier supplying JSON to AnyList's protobuf-only user-data endpoint, not by cache-path handling."
+}

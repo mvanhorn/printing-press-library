@@ -5,6 +5,7 @@ package cli
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/anylist"
 	"github.com/spf13/cobra"
@@ -13,13 +14,17 @@ import (
 func newFoldersDeleteCmd(flags *rootFlags) *cobra.Command {
 	var bodyName string
 	var stdinBody bool
+	var apply bool
 
 	cmd := &cobra.Command{
 		Use:         "delete",
-		Short:       "Delete a list folder",
+		Short:       "Delete a list folder (preview unless --apply)",
 		Example:     "  anylist-pp-cli folders delete --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "folders.delete", "pp:method": "POST", "pp:path": "/data/list-folders/update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if apply && strings.TrimSpace(bodyName) == "" && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "name")
+			}
 			if stdinBody {
 				body, err := readStdinJSONMap()
 				if err != nil {
@@ -27,38 +32,59 @@ func newFoldersDeleteCmd(flags *rootFlags) *cobra.Command {
 				}
 				bodyName = stringFromBody(body, "name")
 			}
-			if bodyName == "" && !cmd.Flags().Changed("name") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "name")
+			if !apply || flags.dryRun {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"status": "preview",
+					"action": "delete",
+					"name":   strings.TrimSpace(bodyName),
+				}, flags)
 			}
-			if dryRunOK(flags) {
-				return nil
+			if !folderCreateDeleteLiveWritesEnabled() {
+				return fmt.Errorf("folder delete live mutation is disabled until AnyList's folder protobuf round-trip is verified")
 			}
+
 			ctx := cmd.Context()
 			cfg, st, err := openAuthedLocalStore(flags)
 			if err != nil {
 				return err
 			}
 			defer st.Close()
-			userData, listDataID, _, err := currentListFolderData(ctx, cfg)
+			userData, listDataID, rootID, err := currentListFolderData(ctx, cfg)
 			if err != nil {
 				return err
 			}
-			folder, err := findLiveListFolderByName(userData, bodyName)
+			folder, err := findLiveListFolderForMutation(userData, bodyName)
 			if err != nil {
 				return err
 			}
-			if err := anylist.New(cfg).RemoveListFolder(ctx, listDataID, folder); err != nil {
-				return err
+			if folder == nil {
+				return fmt.Errorf("list folder %q not found", bodyName)
 			}
-			if err := syncStoreFromLive(ctx, cfg, st); err != nil {
-				return fmt.Errorf("refreshing data after deleting folder: %w", err)
+			if len(folder.GetItems()) != 0 {
+				return fmt.Errorf("cannot delete non-empty folder %q; move or delete its child entries first", folder.GetName())
+			}
+			parentID := folderParentMap(userData.GetListFoldersResponse().GetListFolders(), rootID)[folder.GetIdentifier()]
+			if parentID == "" {
+				parentID = rootID
+			}
+			if err := anylist.New(cfg).RemoveListFolderFromParent(ctx, listDataID, folder, parentID); err != nil {
+				return fmt.Errorf("deleting folder %q: %w", folder.GetName(), err)
+			}
+			verifiedData, err := anylist.New(cfg).GetUserData(ctx)
+			if err != nil {
+				return fmt.Errorf("verifying deletion of folder %q: %w", folder.GetName(), err)
+			}
+			if _, found := findLiveListFolderByID(verifiedData, folder.GetIdentifier()); found {
+				return fmt.Errorf("folder deletion verification failed: %q is still present", folder.GetName())
+			}
+			if err := st.SyncFromUserData(verifiedData); err != nil {
+				return fmt.Errorf("updating local cache after deleting folder: %w", err)
+			}
+			if flags.quiet {
+				return nil
 			}
 			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-					"deleted": true,
-					"folder":  folder.GetName(),
-					"id":      folder.GetIdentifier(),
-				}, flags)
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"deleted": true, "folder": folder.GetName(), "id": folder.GetIdentifier()}, flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Deleted folder %q\n", folder.GetName())
 			return nil
@@ -66,6 +92,7 @@ func newFoldersDeleteCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&bodyName, "name", "", "Folder name to delete")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.Flags().BoolVar(&apply, "apply", false, "Enable live mutation with fresh read-after-write verification")
 
 	return cmd
 }

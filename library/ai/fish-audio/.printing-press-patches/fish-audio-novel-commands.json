@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "fish-audio-novel-commands",
+  "applied_at": "2026-08-29",
+  "base_run_id": "20260828-094138-3dcac761",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Hand-authored tts render/batch/resolve, render log/spend/diff, voice clone/design/design-save/discover/verify, wallet balance, asr transcribe, plus msgpack TTS references, multipart model upload, WAV header repair, render-log store, WER package, and 402 credit error mapping.",
+  "reason": "The generator emits endpoint mirrors only; the approved transcendence rows need a local render log, msgpack and repeated multipart fields the generated client cannot send, and TTS-to-ASR synthesis. Also fixes generated promoted_asr.go dry-run ordering and adds a feedback Example.",
+  "files": ["internal/cli/tts_render.go","internal/cli/tts_batch.go","internal/cli/tts_resolve.go","internal/cli/render.go","internal/cli/render_log.go","internal/cli/render_spend.go","internal/cli/render_diff.go","internal/cli/voice.go","internal/cli/voice_verify.go","internal/cli/fish_audio_shared.go","internal/cli/fish_audio_voice.go","internal/cli/fish_audio_asr.go","internal/cli/fish_audio_wiring.go","internal/cli/promoted_asr.go","internal/cli/feedback.go","internal/fishaudio","internal/wer","internal/client/fish_audio_raw.go","internal/store/fish_audio_migrations.go","mcp-descriptions.json"],
+  "validated_outcome": "Full live dogfood 142/142 with real free-model renders; voice verify WER 0 on a public voice; shipcheck 95/100.",
+  "upstream_issue": ""
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "extron",
+  "cli_name": "extron-pp-cli",
+  "version": "2026.8.3",
+  "released_at": "2026-08-25T09:30:29Z",
+  "source_commit": "6ab477bd4140d6d524a5fee21ac3cae548d8359a",
+  "printing_press_version": "4.30.1",
+  "run_id": "20260811-011552-d999fbbe",
+  "changes": [
+    {
+      "title": "fix(devices): document the corpus builder for extron/qsys/crestron; harden extron catalog sync",
+      "pr": 1804,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1804",
+      "commit": "6ab477bd4140d6d524a5fee21ac3cae548d8359a"
+    }
+  ]
+}

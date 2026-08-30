@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "rapidapi-utls-transport",
+  "applied_at": "2026-08-28",
+  "base_run_id": "20260828-090622-dd9c3930",
+  "base_printing_press_version": "4.31.1",
+  "summary": "uTLS Chrome-fingerprint HTTP/2 transport replacing the standard net/http transport.",
+  "reason": "The hub gateway is Cloudflare TLS-fingerprint-gated; Go stdlib TLS gets 403 even with valid session CSRF. uTLS HelloChrome_120 over HTTP/2 passes the gate.",
+  "files": ["internal/client/client.go"],
+  "validated_outcome": "Live CSRF bootstrap + GraphQL queries return real data through the CLI."
+}

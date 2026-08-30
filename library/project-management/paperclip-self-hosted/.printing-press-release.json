@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "paperclip-self-hosted",
   "cli_name": "paperclip-pp-cli",
-  "version": "2026.7.1",
-  "released_at": "2026-07-20T22:21:21Z",
-  "source_commit": "193cbef34a2c90008ea2e061c16cf26692129082",
+  "version": "2026.8.1",
+  "released_at": "2026-08-30T09:05:02Z",
+  "source_commit": "ca452d7a56a9a7bb443505f6d490f8add00bb542",
   "printing_press_version": "4.28.0",
   "run_id": "pp-pp-local-2026-07-11",
   "changes": [
     {
-      "title": "feat(paperclip-self-hosted): add paperclip-self-hosted",
-      "pr": 1502,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1502",
-      "commit": "193cbef34a2c90008ea2e061c16cf26692129082"
+      "title": "fix(paperclip): validate board auth and cache workspaces",
+      "pr": 1868,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1868",
+      "commit": "ca452d7a56a9a7bb443505f6d490f8add00bb542"
     }
   ]
 }

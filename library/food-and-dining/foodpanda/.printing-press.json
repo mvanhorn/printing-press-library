@@ -1,0 +1,140 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-08T11:22:00.185372Z",
+  "printing_press_version": "4.30.1",
+  "api_name": "foodpanda",
+  "cli_name": "foodpanda-pp-cli",
+  "contributors": [
+    {
+      "handle": "qazmataz",
+      "name": "qazmataz"
+    }
+  ],
+  "printer": "qazmataz",
+  "printer_name": "qazmataz",
+  "run_id": "20260808-044349-820894b7",
+  "category": "food-and-dining",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Home delivery-fee board",
+      "command": "home",
+      "description": "Rank every restaurant near your saved home address by what delivery actually costs you."
+    },
+    {
+      "name": "Cross-restaurant dish search",
+      "command": "dish",
+      "description": "Find which nearby restaurant sells a specific dish cheapest, searching every synced menu at once."
+    },
+    {
+      "name": "Menu and price drift",
+      "command": "menu-diff",
+      "description": "Show what changed in a restaurant's menu and prices between two syncs."
+    },
+    {
+      "name": "Commercial posture signals",
+      "command": "posture",
+      "description": "Rank vendors by advertising and placement signals: CPC ad participation, promoted and premium status, and ranking score."
+    },
+    {
+      "name": "Delivery coverage test",
+      "command": "coverage",
+      "description": "Determine which vendors actually deliver to an arbitrary point using each vendor's published delivery radius."
+    },
+    {
+      "name": "True cost fee board",
+      "command": "fees",
+      "description": "Compare the full cost structure across an area: delivery fee, minimum order, service fee and VAT together."
+    },
+    {
+      "name": "Review topic breakdown",
+      "command": "digest",
+      "description": "Split a restaurant's blended star rating into per-topic scores so food quality and delivery quality are separated."
+    },
+    {
+      "name": "Cross-market comparison",
+      "command": "market-compare",
+      "description": "Run the same query across every foodpanda market and compare vendor counts, ratings and fees side by side."
+    },
+    {
+      "name": "Live search with match confidence",
+      "command": "find",
+      "description": "Search vendors live upstream and label how strongly each result actually matched the query."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Home delivery-fee board",
+      "command": "home",
+      "description": "Rank every restaurant near your saved home address by what delivery actually costs you."
+    },
+    {
+      "name": "Cross-restaurant dish search",
+      "command": "dish",
+      "description": "Find which nearby restaurant sells a specific dish cheapest, searching every synced menu at once."
+    },
+    {
+      "name": "Menu and price drift",
+      "command": "menu-diff",
+      "description": "Show what changed in a restaurant's menu and prices between two syncs."
+    },
+    {
+      "name": "Commercial posture signals",
+      "command": "posture",
+      "description": "Rank vendors by advertising and placement signals: CPC ad participation, promoted and premium status, and ranking score."
+    },
+    {
+      "name": "Delivery coverage test",
+      "command": "coverage",
+      "description": "Determine which vendors actually deliver to an arbitrary point using each vendor's published delivery radius."
+    },
+    {
+      "name": "True cost fee board",
+      "command": "fees",
+      "description": "Compare the full cost structure across an area: delivery fee, minimum order, service fee and VAT together."
+    },
+    {
+      "name": "Review topic breakdown",
+      "command": "digest",
+      "description": "Split a restaurant's blended star rating into per-topic scores so food quality and delivery quality are separated."
+    },
+    {
+      "name": "Cross-market comparison",
+      "command": "market-compare",
+      "description": "Run the same query across every foodpanda market and compare vendor counts, ratings and fees side by side."
+    },
+    {
+      "name": "Live search with match confidence",
+      "command": "find",
+      "description": "Search vendors live upstream and label how strongly each result actually matched the query."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 43,
+    "total": 43,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 85,
+      "grade": "A (1 of 25 dimensions unverified: live_api_verification)",
+      "total": 85
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

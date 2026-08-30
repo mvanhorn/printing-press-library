@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-leggi-get-anno-hint",
+  "applied_at": "2026-08-29",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.30.3",
+  "summary": "Warn on stderr and in `nota` which regional law `leggi get` opened when the caller did not pin --anno, and say the same in the --dry-run preview.",
+  "reason": "The leggi archive (201) reuses the same law number every year of a legislature and returns only one of them, so `leggi get 17 9` opened L.R. 9/2018 (\"Bilancio di previsione 2018-2020\") instead of the 9/2020 the caller meant - with an empty stderr and no `nota`, that is, looking exactly like an answer to the question asked. The existing \"more than one document for this number\" warning is deliberately suppressed for this archive by unDocPerNumero, because the archive is indexed per article and several rows per number are the norm there; the real ambiguity therefore had nobody speaking for it. `legge cronologia` already warns about the same thing, so its wording is reused rather than invented, and the hint is computed after the short-list fields are merged into the document - before that merge the date is empty and annoNonPinnatoHint stays silent.",
+  "files": [
+    "internal/cli/icaro_helpers.go"
+  ],
+  "validated_outcome": "`leggi get 17 9` prints `hint: --anno non indicato: uso la L.R. 9 promulgata il 8.05.2018 ...` on stderr and carries the same text in `nota`; `leggi get 17 9 --anno 2020` returns \"Legge di stabilita regionale 2020-2022\" with no hint; `leggi get 17 9 --dry-run` now names the ambiguity in its note, as `legge cronologia --dry-run` already did.",
+  "upstream_issue": null
+}

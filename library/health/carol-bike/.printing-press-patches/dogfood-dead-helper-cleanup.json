@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "dogfood-dead-helper-cleanup",
+  "applied_at": "2026-08-25",
+  "base_run_id": "20260825-194050",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Remove two generated helpers with no callers.",
+  "reason": "Printing Press dogfood identified hasChangedLocalFlags and successfulNoop as dead code; repository-wide search confirmed both were definition-only.",
+  "files": [
+    "internal/cli/helpers.go"
+  ],
+  "validated_outcome": "Dogfood reports zero dead helper functions and the full Go suite remains green."
+}

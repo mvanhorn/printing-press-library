@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "review-feedback-hardening",
+  "applied_at": "2026-08-22",
+  "base_run_id": "20260822-095304-45ca41a1",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Reject extensionless image inputs and keep the HTTP MCP listener on loopback unless an authentication boundary is added.",
+  "reason": "The generated image conversion path sliced an empty extension and could panic, while the HTTP MCP transport exposed local-data and command-backed tools without authentication when bound externally.",
+  "files": [
+    "internal/cli/local_ops.go",
+    "internal/cli/local_ops_test.go",
+    "cmd/ihatepdf-cv-pp-mcp/main.go",
+    "cmd/ihatepdf-cv-pp-mcp/main_test.go"
+  ],
+  "validated_outcome": "Unit tests cover extensionless image rejection and loopback-only HTTP binding."
+}

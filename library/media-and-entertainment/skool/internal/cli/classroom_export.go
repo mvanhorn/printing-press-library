@@ -51,11 +51,15 @@ func newClassroomExportCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("creating out dir: %w", err)
 			}
 
-			path := "/_next/data/{buildId}/" + community + "/classroom/" + courseSlug + ".json"
-			params := map[string]string{
-				"g":  community,
-				"md": courseSlug,
-			}
+			// PATCH(amend-2026-08-12: build the path like the generated commands do)
+			// Hand-concatenating the slugs skipped replacePathParam and pinned
+			// `md` (a module id) to the course slug, which Skool answers with
+			// 404 {"notFound":true}. The whole-course export must not pin a
+			// module at all.
+			path := "/_next/data/{buildId}/{community}/classroom/{course_slug}.json"
+			path = replacePathParam(path, "community", community)
+			path = replacePathParam(path, "course_slug", courseSlug)
+			params := map[string]string{"g": community}
 			raw, err := c.Get(path, params)
 			if err != nil {
 				return classifyAPIError(err, flags)

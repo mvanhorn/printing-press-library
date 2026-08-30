@@ -5,6 +5,7 @@ package cli
 
 import (
 	"fmt"
+	"io"
 	"sort"
 	"strings"
 
@@ -22,20 +23,89 @@ type whichEntry struct {
 	WhyItMatters string `json:"why_it_matters,omitempty"`
 }
 
-// whichIndex is the curated list of capabilities this CLI advertises as
-// its hero features. Endpoint-level commands are discoverable via
-// `--help`; `which` exists to resolve a natural-language capability
-// query to one of the commands the skill says matter most.
+// whichIndex is the curated list of capabilities this CLI advertises.
+//
+// Nasce dalla lista NovelFeature che alimenta anche la sezione feature di
+// SKILL.md, ma non si ferma lì: chi arriva a `which` sta chiedendo «con quale
+// comando faccio X» in italiano corrente, e le domande più comuni riguardano
+// il mestiere ordinario — cercare un atto per numero, per testo, per data —
+// non le capacità di punta. Con il solo elenco delle 9 hero feature domande
+// legittime come «chi parla di più in aula» o «novità degli ultimi sette
+// giorni» non agganciavano nulla, pur essendo `analytics --group-by oratore`
+// e `ddl drift`: la risposta mancava perché la voce non c'era, non perché il
+// confronto sbagliasse.
+//
+// Il patto che resta invariato: ogni `Command` qui dentro è invocabile così
+// com'è scritto. Dove la capacità si distingue per una flag — le cinque
+// classifiche di `analytics` — la flag fa parte del nome, altrimenti tre voci
+// diverse rispondevano tutte «analytics» e chi legge non sapeva che lanciare.
 var whichIndex = []whichEntry{
-	{Command: "ddl iter", Description: "Ricostruisce la cronologia completa di un disegno di legge: presentazione, passaggio in commissione, lavori d'aula, eventuale promulgazione come legge regionale.", Group: "Vista cronologica cross-archivio", WhyItMatters: "Quando un agente deve raccontare 'a che punto sta il DDL X', questa è l'unica chiamata che restituisce la timeline completa senza incollare 5 ricerche manuali."},
-	{Command: "deputato profilo", Description: "Aggrega in un'unica vista tutti gli atti firmati o pronunciati da un deputato: DDL, interrogazioni, interpellanze, mozioni, ordini del giorno, risoluzioni e interventi in resoconti d'aula.", Group: "Vista cronologica cross-archivio", WhyItMatters: "Sostituisce un workflow di 7 click manuali con un'unica chiamata strutturata: pensata per agenti che rispondono a 'che ha fatto il deputato X?'."},
-	{Command: "analytics", Description: "Identifica i deputati che firmano insieme atti parlamentari, restituendo coppie e cluster con conteggio per analisi di network politico.", Group: "Analytics su campi strutturati", WhyItMatters: "Per ricercatori e giornalisti che analizzano alleanze e dinamiche politiche: niente foglio Excel di trascrizioni manuali."},
-	{Command: "analytics", Description: "Classifica i deputati per numero di interventi nei resoconti d'aula, con range date e legislatura, opzionale conteggio parole.", Group: "Analytics su campi strutturati", WhyItMatters: "Per le persone che vogliono sapere 'chi parla di più' senza scaricare 200 resoconti PDF e fare ctrl+F."},
-	{Command: "commissione dossier", Description: "Vista completa su una commissione: convocazioni in calendario, sommari lavori, DDL assegnati e pareri richiesti al Governo regionale.", Group: "Vista cronologica cross-archivio", WhyItMatters: "Quando segui i lavori di una commissione specifica, questa è l'unica chiamata che dà il quadro completo invece di 3 ricerche separate."},
-	{Command: "ddl drift", Description: "Confronta lo stato dell'iter dei DDL nella sync corrente con la precedente e segnala i disegni di legge che si sono mossi nel periodo (passati da commissione ad aula, approvati, ritirati).", Group: "Stato e monitoraggio", WhyItMatters: "L'RSS shell esistente segnala solo 'nuovi'; per 'mossi' non c'è alternativa. Questo è il segnale che cercavano i journalist che seguono iter politici."},
-	{Command: "leggi cerca", Description: "Flag --isis-query disponibile su tutti i comandi cerca: bypassa il traduttore automatico flag→ISIS e inoltra l'espressione di ricerca direttamente al motore Icaro per query complesse (VICINO N, IMG, SEL su campi formattati, intervalli numerici).", Group: "Potenza ai power user", WhyItMatters: "Power user (incluso l'autore degli scraper esistenti) può fare query che la CLI ergonomica non sa esprimere — escape hatch per chi conosce il linguaggio."},
-	{Command: "sync stale", Description: "Mostra per ognuno dei 12 archivi ARS: timestamp ultima sync, n. record locali, età della sync, eventuale segnalazione di staleness.", Group: "Stato e monitoraggio", WhyItMatters: "Per agenti che orchestrano sync automatico: decide se rinfrescare prima di rispondere o se i dati locali sono ancora freschi."},
-	{Command: "legge cronologia", Description: "Partendo da una legge regionale promulgata (archivio 201), risale al DDL originario, agli emendamenti citati nei resoconti d'aula e ai pareri di commissione: l'inverso temporale di ddl iter.", Group: "Vista cronologica cross-archivio", WhyItMatters: "Per ricercatori e giornalisti che partono dalla legge promulgata e vogliono raccontare come ci si è arrivati."},
+	// Viste che attraversano più archivi in una chiamata sola.
+	{Command: "ddl iter", Description: "Cronologia completa di un disegno di legge: presentazione, assegnazione e passaggio in commissione, lavori d'aula, voto finale, eventuale promulgazione come legge regionale. A che punto sta un ddl, quando è stato approvato o ritirato.", Group: "Vista cronologica cross-archivio", WhyItMatters: "Quando devi raccontare 'a che punto sta il DDL X', questa è l'unica chiamata che restituisce la timeline completa senza incollare 5 ricerche manuali."},
+	{Command: "legge cronologia", Description: "Storia di una legge regionale promulgata a ritroso: risale al disegno di legge originario, ai pareri di commissione e al voto d'aula. Da dove nasce una legge, come ci si è arrivati. L'inverso temporale di ddl iter.", Group: "Vista cronologica cross-archivio", WhyItMatters: "Per ricercatori e giornalisti che partono dalla legge promulgata e vogliono raccontare come ci si è arrivati."},
+	{Command: "ddl stralci", Description: "Elenca i disegni di legge ricavati per stralcio da un ddl base, tipicamente la finanziaria spacchettata in tronconi che proseguono da soli. In cosa è stata divisa la manovra.", Group: "Vista cronologica cross-archivio", WhyItMatters: "La numerazione degli stralci non segue una regola: il legame lo dichiara il portale, non si calcola."},
+	{Command: "deputato profilo", Description: "Tutta l'attività parlamentare di un deputato in un'unica vista: disegni di legge, interrogazioni, interpellanze, mozioni, ordini del giorno, risoluzioni e interventi in aula, filtrabili per data. Che cosa ha fatto, presentato o firmato un parlamentare.", Group: "Vista cronologica cross-archivio", WhyItMatters: "Sostituisce un workflow di 7 click manuali con un'unica chiamata strutturata: pensata per rispondere a 'che ha fatto il deputato X?'."},
+	{Command: "commissione dossier", Description: "Quadro completo dei lavori di una commissione parlamentare: convocazioni in calendario, sommari delle sedute, disegni di legge assegnati e pareri richiesti dal Governo regionale. Di che cosa si occupa e cosa ha in agenda una commissione.", Group: "Vista cronologica cross-archivio", WhyItMatters: "Quando segui i lavori di una commissione specifica, questa è l'unica chiamata che dà il quadro completo invece di 3 ricerche separate."},
+
+	// Classifiche e aggregazioni. La flag fa parte del nome: sono cinque
+	// domande diverse, non un comando solo.
+	{Command: "analytics --type resoconti --group-by oratore", Description: "Classifica dei deputati per numero di interventi nelle sedute d'aula. Chi parla di più in aula, chi interviene più spesso, quanto parla ciascun parlamentare.", Group: "Analytics su campi strutturati", WhyItMatters: "Per chi vuole sapere 'chi parla di più' senza scaricare 200 resoconti PDF e fare ctrl+F."},
+	{Command: "analytics --type ddl --group-by proponente", Description: "Classifica dei deputati per numero di disegni di legge presentati come primo firmatario. Chi propone più leggi, i parlamentari più prolifici. Una sola richiesta, nessuna sync.", Group: "Analytics su campi strutturati", WhyItMatters: "Risponde subito a 'chi presenta più DDL' leggendo le viste già aggregate dal portale."},
+	{Command: "analytics --type ddl --group-by gruppo", Description: "Classifica dei gruppi parlamentari per numero di disegni di legge presentati. Quale partito o gruppo è più prolifico, il peso legislativo delle forze politiche.", Group: "Analytics su campi strutturati", WhyItMatters: "Una sola richiesta, nessuna sync. Attenzione: l'anagrafica dei gruppi del portale non è normalizzata e lo stesso gruppo può comparire in più righe."},
+	{Command: "analytics --type ddl --group-by cofirme", Description: "Quante volte ciascun deputato ha cofirmato un atto senza esserne il primo firmatario. Chi appoggia le proposte altrui, quanto cofirma un parlamentare. In diretta dal portale, nessuna sync.", Group: "Analytics su campi strutturati", WhyItMatters: "Diverso da --group-by cofirmatari, che conta le coppie: qui la domanda è quanto cofirma ciascuno."},
+	{Command: "analytics --type ddl --group-by cofirmatari", Description: "Coppie e cluster di deputati che firmano insieme gli atti parlamentari, per analisi di rete politica. Chi firma con chi, alleanze e vicinanze fra parlamentari. Richiede una deep sync dei ddl.", Group: "Analytics su campi strutturati", WhyItMatters: "Per chi analizza alleanze e dinamiche politiche: niente foglio Excel di trascrizioni manuali."},
+
+	// Anagrafiche dal sito istituzionale: la seconda sorgente della CLI.
+	// Finché queste voci non esistevano, «che gruppo è», «chi sta in quale
+	// gruppo» erano domande a cui which rispondeva con silenzio o con
+	// `analytics --group-by gruppo` (la classifica dei DDL, non l'anagrafica).
+	{Command: "gruppi elenco", Description: "Elenco dei gruppi parlamentari di una legislatura (16, 17, 18), dall'anagrafica del sito istituzionale: quali gruppi esistono, con lo slug per aprire il dettaglio. Con --deputato \"<nome>\" risponde alla domanda inversa: in quale gruppo sta un parlamentare, con ruolo e collegio di elezione.", Group: "Anagrafiche dal sito istituzionale", WhyItMatters: "L'anagrafica dei gruppi non sta nel motore documentale (dati.ars.sicilia.it), dove il gruppo compare solo come stringa accanto a una firma: è il primo comando che legge il sito istituzionale (www.ars.sicilia.it), una richiesta per l'elenco, una per gruppo con --deputato."},
+	{Command: "gruppi get", Description: "Composizione completa di un gruppo parlamentare: cariche (Presidente, Vice-Presidente, Segretario, Tesoriere), collegio di elezione, email istituzionale e scheda di ogni componente. Chi ne fa parte, chi lo presiede, da quale collegio viene ciascuno.", Group: "Anagrafiche dal sito istituzionale", WhyItMatters: "Da un nome di gruppo trovato negli atti si risale alla sua composizione: accetta lo slug (dall'elenco) o il nome del gruppo — gli stessi nomi che compaiono nel campo gruppo delle firme sugli atti."},
+
+	// Cosa è cambiato, e fin dove arriva il dato.
+	{Command: "novita --since 7d", Description: "Cosa è comparso negli archivi negli ultimi giorni, tutti gli archivi in una chiamata. Novità, aggiornamenti, atti nuovi, cosa è successo dall'ultimo controllo, cosa c'è di recente all'Assemblea.", Group: "Stato e monitoraggio", WhyItMatters: "Accanto a ogni archivio c'è il ritardo della fonte: senza, uno zero non si distingue da «la fonte non l'ha ancora pubblicato», e su questo portale il ritardo va dai 9 ai 45 giorni."},
+	{Command: "ddl drift", Description: "Disegni di legge che si sono mossi da un controllo all'altro: passati da commissione ad aula, approvati, ritirati. Cosa è cambiato, novità e aggiornamenti degli ultimi giorni sull'iter dei ddl. Richiede due deep sync a distanza di tempo.", Group: "Stato e monitoraggio", WhyItMatters: "Per 'nuovi' basta un RSS; per 'mossi' non c'è alternativa. È il segnale che cerca chi segue un iter politico."},
+	{Command: "sync coverage", Description: "Fin dove arriva la fonte, archivio per archivio: la data del documento più recente che il portale espone e il ritardo in giorni rispetto a oggi. Quanto è aggiornato il portale, se un risultato vuoto è latenza o assenza vera.", Group: "Stato e monitoraggio", WhyItMatters: "Serve a leggere un risultato vuoto per quello che è: senza questa misura 'non esiste' e 'la fonte non l'ha ancora pubblicato' si somigliano."},
+	{Command: "sync stale", Description: "Per ognuno dei 12 archivi: quando è stata fatta l'ultima sincronizzazione locale, quanti record ci sono e quanto sono vecchi. Se i dati locali sono ancora freschi.", Group: "Stato e monitoraggio", WhyItMatters: "Per chi orchestra sync automatiche: decide se rinfrescare prima di rispondere."},
+	{Command: "doctor", Description: "Verifica che la CLI funzioni: portale raggiungibile, cache locale, età dei dati sincronizzati.", Group: "Stato e monitoraggio", WhyItMatters: "Primo comando da lanciare quando qualcosa non torna."},
+
+	// Il mestiere ordinario: trovare un atto. È il grosso delle domande.
+	{Command: "ddl cerca", Description: "Cerca disegni di legge e proposte di legge per numero, anno, data o intervallo di date di presentazione, legislatura, firmatario, materia o testo libero. Trovare un ddl, le proposte su un tema, quelle presentate in un periodo, da un deputato o dal Governo regionale.", Group: "Ricerca negli archivi", WhyItMatters: "I valori di --materia e --firmatario si chiedono con ddl materie e ddl firmatari: un valore inventato non dà errore, dà zero risultati."},
+	{Command: "leggi cerca", Description: "Cerca le leggi regionali promulgate per numero, anno, legislatura o testo. Trovare una legge regionale, sapere quali leggi sono state approvate in un anno, cercare una norma per argomento.", Group: "Ricerca negli archivi", WhyItMatters: "Restituisce una riga per legge, non per articolo; con --articoli tornano le righe per articolo, che servono con --testo per sapere in quale articolo ricorre il termine."},
+	{Command: "interrogazioni cerca", Description: "Cerca le interrogazioni parlamentari per numero, data, legislatura, firmatario, rubrica o testo. Cosa ha chiesto un deputato al Governo regionale, le interrogazioni su un tema o su un territorio.", Group: "Ricerca negli archivi", WhyItMatters: "È l'archivio più fresco dopo le sedute: il ritardo di pubblicazione sta intorno ai dieci giorni."},
+	{Command: "interpellanze cerca", Description: "Cerca le interpellanze parlamentari per numero, data, legislatura, firmatario o testo.", Group: "Ricerca negli archivi"},
+	{Command: "mozioni cerca", Description: "Cerca le mozioni parlamentari per numero, data, legislatura, firmatario o testo.", Group: "Ricerca negli archivi"},
+	{Command: "odg cerca", Description: "Cerca gli ordini del giorno per numero, data, legislatura, firmatario o testo.", Group: "Ricerca negli archivi"},
+	{Command: "risoluzioni cerca", Description: "Cerca le risoluzioni parlamentari per numero, data, legislatura, commissione, firmatario o testo.", Group: "Ricerca negli archivi"},
+	{Command: "resoconti cerca", Description: "Cerca i resoconti delle sedute d'aula per data, numero di seduta, oratore o testo. Chi ha parlato di un tema in aula, cosa si è detto in una seduta, quando l'Assemblea ha discusso di un argomento.", Group: "Ricerca negli archivi", WhyItMatters: "--oratore risolve il nome sull'anagrafica del portale: un nome che non corrisponde esce con errore e i nomi vicini, non con una lista vuota."},
+	{Command: "commissioni convocazioni", Description: "Convocazioni delle commissioni: quando si riuniscono e con quale ordine del giorno. Cosa si discute nelle prossime sedute, l'agenda dei lavori. È l'unico archivio che guarda avanti nel tempo.", Group: "Ricerca negli archivi", WhyItMatters: "Le date future sono normali qui, perché annuncia sedute ancora da tenere."},
+	{Command: "commissioni sommari", Description: "Sommari dei lavori delle commissioni: cosa è stato esaminato in una seduta di commissione, per numero di seduta, anno, commissione o argomento.", Group: "Ricerca negli archivi", WhyItMatters: "Se sai il numero della seduta usa --numero: il backend consegna intere le risposte piccole e tronca quelle grandi."},
+	{Command: "pareri cerca", Description: "Cerca i pareri che il Governo regionale ha chiesto alle commissioni, per commissione o oggetto.", Group: "Ricerca negli archivi"},
+	{Command: "biblioteca cerca", Description: "Cerca nel catalogo bibliografico dell'Assemblea per autore, titolo, soggetto, ISBN o classificazione Dewey.", Group: "Ricerca negli archivi"},
+	{Command: "biblioteca multimediali", Description: "Cerca nelle opere multimediali del catalogo dell'Assemblea.", Group: "Ricerca negli archivi"},
+
+	// Scaricare un singolo atto, quando il numero lo sai già.
+	{Command: "ddl get", Description: "Scarica un singolo disegno di legge con il testo, i firmatari, lo stato dell'iter e il permalink citabile.", Group: "Scaricare un atto"},
+	{Command: "leggi get", Description: "Scarica una singola legge regionale con il testo dei suoi articoli.", Group: "Scaricare un atto"},
+	{Command: "resoconti get", Description: "Scarica il resoconto di una seduta d'aula. Per le sedute recenti restituisce l'indirizzo del PDF stenografico, dove sta il testo integrale.", Group: "Scaricare un atto", WhyItMatters: "L'indice testuale è fermo indietro nel tempo: l'assenza del campo body non significa testo non disponibile."},
+	{Command: "interrogazioni get", Description: "Scarica una singola interrogazione parlamentare con il testo e i firmatari.", Group: "Scaricare un atto"},
+	{Command: "interpellanze get", Description: "Scarica una singola interpellanza parlamentare.", Group: "Scaricare un atto"},
+	{Command: "mozioni get", Description: "Scarica una singola mozione parlamentare.", Group: "Scaricare un atto"},
+	{Command: "odg get", Description: "Scarica un singolo ordine del giorno.", Group: "Scaricare un atto"},
+	{Command: "risoluzioni get", Description: "Scarica una singola risoluzione parlamentare.", Group: "Scaricare un atto"},
+	{Command: "pareri get", Description: "Scarica un singolo parere richiesto dal Governo regionale.", Group: "Scaricare un atto"},
+
+	// I valori che i filtri accettano non si indovinano: si chiedono.
+	{Command: "ddl materie", Description: "Elenca le 123 materie e i settori con cui il portale classifica i disegni di legge, da usare come valore di --materia. Quali argomenti e temi esistono, il vocabolario delle materie.", Group: "Vocabolari dei filtri", WhyItMatters: "Un valore di --materia inventato non dà errore: dà zero risultati, che si legge come 'non esiste'."},
+	{Command: "ddl firmatari", Description: "Elenca i deputati di una legislatura nella forma esatta in cui il portale li indicizza, da usare come valore di --firmatario. Come si scrive il nome di un parlamentare, chi c'era in una legislatura.", Group: "Vocabolari dei filtri", WhyItMatters: "I nomi valgono per legislatura e la forma indicizzata non sempre coincide con quella d'uso corrente."},
+	{Command: "ddl iniziative", Description: "Elenca i tipi di iniziativa legislativa: governativa, parlamentare, popolare, dei consigli comunali e provinciali. Chi può proporre una legge, come distinguere i ddl del Governo da quelli dei deputati.", Group: "Vocabolari dei filtri", WhyItMatters: "Non esiste un flag --iniziativa: il valore si passa a --firmatario, perché il portale lo scrive in quel campo."},
+
+	// Dati in locale.
+	{Command: "sync", Description: "Scarica gli archivi del portale nel database SQLite locale, per interrogarli offline o con SQL.", Group: "Dati in locale", WhyItMatters: "Alcune analisi (cofirmatari, drift) leggono solo dallo store, e i firmatari stanno nelle schede di dettaglio: servono --deep."},
+	{Command: "search", Description: "Ricerca full-text nei dati già sincronizzati in locale.", Group: "Dati in locale", WhyItMatters: "Legge solo lo store locale: senza una sync completa risponde vuoto. Per cercare sul portale usa i comandi cerca del singolo archivio."},
+
+	// Escape hatch.
+	{Command: "ddl cerca --isis-query", Description: "Inoltra al motore di ricerca del portale un'espressione ISIS grezza, per le query che le flag ergonomiche non sanno esprimere: prossimita', esclusioni combinate, campi senza flag dedicata.", Group: "Potenza ai power user", WhyItMatters: "Per l'intervallo di date su ddl non serve piu': c'e' --data (YYYY-MM-DD, range con i due punti). Serve quando il criterio non ha nessuna flag, come la legge di destinazione di un ddl: alr adj 2024.P010,P012."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.
@@ -97,17 +167,53 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 	return filtered
 }
 
+// paroleVuote sono i token che in una domanda in italiano non dicono nulla
+// sulla capacità cercata. Senza questo filtro «chi ha parlato di rifiuti in
+// aula» pescava `sync` e `search` per via del «in» dentro il gruppo «Dati in
+// locale»: un punto vale poco, ma su una domanda a cui la risposta giusta è
+// «nessuna di queste» anche un punto è un falso positivo.
+var paroleVuote = map[string]bool{
+	"a": true, "ai": true, "al": true, "alla": true, "alle": true, "allo": true,
+	"che": true, "chi": false, // «chi» chiede una persona: è informativo, resta
+	"con": true, "cosa": true, "come": true, "da": true, "dai": true, "dal": true,
+	"del": true, "della": true, "delle": true, "dello": true, "dei": true, "degli": true,
+	"di": true, "e": true, "ed": true, "gli": true, "i": true, "il": true, "in": true,
+	"la": true, "le": true, "lo": true, "ma": true, "mi": true, "nel": true, "nella": true,
+	"non": true, "o": true, "per": true, "piu": true, "più": true, "quale": true,
+	"quali": true, "quando": true, "quanto": true, "quanti": true, "si": true,
+	"sono": true, "su": true, "sul": true, "sulla": true, "un": true, "una": true,
+	"uno": true, "è": true, "ha": true, "hanno": true, "sta": true,
+	// Ausiliari: «quali emendamenti sono **stati** presentati» pescava
+	// `sync stale` perché «stati» e «stata» collidono dopo la vocale finale.
+	"stati": true, "stata": true, "state": true, "essere": true, "avere": true,
+}
+
+func tokenUtili(qTokens []string) []string {
+	out := make([]string, 0, len(qTokens))
+	for _, t := range qTokens {
+		if !paroleVuote[t] {
+			out = append(out, t)
+		}
+	}
+	return out
+}
+
 func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	score := 0
 	cmd := strings.ToLower(e.Command)
 	cmdTokens := strings.Fields(cmd)
 	desc := strings.ToLower(e.Description)
 	group := strings.ToLower(e.Group)
+	qTokens = tokenUtili(qTokens)
 
-	// Exact token match on the command path (any token).
+	// Token match on the command path (any token). Il confronto passa da
+	// parolaCorrisponde come quello sulla descrizione: «lavori delle
+	// commissioni» non agganciava `commissione dossier` perché l'uguaglianza
+	// esatta separa il singolare dal plurale, ed è la forma in cui la domanda
+	// arriva quasi sempre.
 	for _, qt := range qTokens {
 		for _, ct := range cmdTokens {
-			if qt == ct {
+			if parolaCorrisponde(ct, qt) {
 				score += 3
 				break
 			}
@@ -117,20 +223,131 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	if strings.Contains(cmd, query) {
 		score += 2
 	}
-	// Substring match on the description.
-	if strings.Contains(desc, query) {
+	// Match della query sulla descrizione. Il bonus grosso resta alla
+	// locuzione intera, ma da solo non basta: una domanda lunga come «disegni
+	// di legge che si sono mossi nel periodo» non è mai una sequenza contigua
+	// dentro una descrizione, e `ddl drift` — che parla proprio di quello —
+	// restava a zero mentre le voci con «legge» nel nome vincevano. Quindi
+	// ogni parola piena che ricorre nella descrizione vale un punto.
+	if contieneParole(desc, query) {
 		score += 2
+	}
+	paroleDesc := strings.FieldsFunc(desc, nonAlfanumerico)
+	for _, qt := range qTokens {
+		for _, pd := range paroleDesc {
+			if parolaCorrisponde(pd, qt) {
+				score++
+				break
+			}
+		}
 	}
 	// Group tag match.
 	if group != "" {
 		for _, qt := range qTokens {
-			if strings.Contains(group, qt) {
+			if contienePrefissoDiParola(group, qt) {
 				score += 1
 				break
 			}
 		}
 	}
 	return score
+}
+
+// contieneParole dice se il testo contiene la query come sequenza contigua di
+// parole, ciascuna riconosciuta per prefisso.
+//
+// La contiguità è quella che c'era già: prima il confronto era
+// strings.Contains(desc, query), cioè la query intera come sottostringa. Qui
+// cambia solo che i confini sono quelli delle parole — «chi» non entra più in
+// «richiesti» — non quanto la query deve corrispondere.
+func contieneParole(testo, query string) bool {
+	qTokens := strings.Fields(query)
+	if len(qTokens) == 0 {
+		return false
+	}
+	parole := strings.FieldsFunc(testo, nonAlfanumerico)
+	for i := 0; i+len(qTokens) <= len(parole); i++ {
+		ok := true
+		for j, qt := range qTokens {
+			if !parolaCorrisponde(parole[i+j], qt) {
+				ok = false
+				break
+			}
+		}
+		if ok {
+			return true
+		}
+	}
+	return false
+}
+
+// contienePrefissoDiParola dice se una parola del testo comincia col token
+// dato.
+//
+// Prima qui c'era strings.Contains, che matchava in mezzo alle parole: la
+// query «chi» prendeva due punti da «ri*chi*esti» nella descrizione e uno da
+// «cross-ar*chi*vio» nel gruppo, e usciva un `commissione dossier` con score 3
+// — cioè presentato con la stessa confidenza dei match veri. Le domande su
+// capacità che questa CLI non ha («chi era assente alla seduta») pescavano
+// così un comando plausibile e sbagliato, mentre il meccanismo del «nessun
+// match» funzionava già bene quando il rumore non lo affogava.
+//
+// Il confronto resta per prefisso e non per parola intera perché la morfologia
+// italiana lo richiede: «disegni» deve continuare ad agganciare «disegno»,
+// «commissioni» «commissione». Un prefisso di due o tre lettere invece deve
+// corrispondere a una parola intera, altrimenti «chi», «un», «in» tornerebbero
+// ad agganciare mezzo indice.
+func contienePrefissoDiParola(testo, token string) bool {
+	if token == "" {
+		return false
+	}
+	for _, parola := range strings.FieldsFunc(testo, nonAlfanumerico) {
+		if parolaCorrisponde(parola, token) {
+			return true
+		}
+	}
+	return false
+}
+
+// parolaCorrisponde confronta una parola del testo con un token della query.
+//
+// I token sotto le quattro lettere devono corrispondere per intero: «chi»,
+// «un», «in» aggancerebbero altrimenti mezzo indice. Sopra, il confronto
+// ignora la vocale finale da entrambe le parti, perché è lì che sta quasi
+// tutta la differenza fra la forma dell'indice e quella della domanda —
+// l'indice scrive «disegno di legge» e «commissione», e le domande arrivano
+// al plurale. Senza questo, «disegni» non aggancia «disegno» e il prefisso
+// nudo non serve a niente: è più corto solo nella direzione sbagliata.
+func parolaCorrisponde(parola, token string) bool {
+	if len([]rune(token)) < 4 {
+		return parola == token
+	}
+	if strings.HasPrefix(parola, token) {
+		return true
+	}
+	return senzaVocaleFinale(parola) == senzaVocaleFinale(token)
+}
+
+func senzaVocaleFinale(s string) string {
+	r := []rune(s)
+	if len(r) < 4 {
+		return s
+	}
+	switch r[len(r)-1] {
+	case 'a', 'e', 'i', 'o', 'u':
+		return string(r[:len(r)-1])
+	}
+	return s
+}
+
+func nonAlfanumerico(r rune) bool {
+	switch {
+	case r >= 'a' && r <= 'z', r >= 'A' && r <= 'Z', r >= '0' && r <= '9':
+		return false
+	case r >= 0x00C0 && r <= 0x024F: // lettere accentate latine
+		return false
+	}
+	return true
 }
 
 func newWhichCmd(flags *rootFlags) *cobra.Command {
@@ -162,6 +379,12 @@ Exit codes:
 				return renderWhich(cmd, flags, rankWhichAll(whichIndex))
 			}
 
+			// Le domande su ciò che il portale non pubblica meritano il
+			// motivo, non il silenzio: viaggiano accanto ai match, perché
+			// spesso la domanda tocca insieme una capacità che c'è e una che
+			// non c'è («in quale gruppo sta il deputato che ha votato X»).
+			assenti := assentiPerQuery(query)
+
 			if len(matches) == 0 {
 				// Under --json, return an empty matches envelope at exit 0
 				// so agents can branch on `matches.length == 0` instead of
@@ -169,12 +392,16 @@ Exit codes:
 				// exit-2 path so terminal users see the help hint.
 				if flags.asJSON {
 					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-						"matches": []whichMatch{},
+						"matches":     []whichMatch{},
+						"non_coperto": assenti,
 					}, flags)
+				}
+				if len(assenti) > 0 {
+					stampaAssenti(cmd.ErrOrStderr(), assenti)
 				}
 				return usageErr(fmt.Errorf("no match for %q; try '%s --help' for the full command list", query, cmd.Root().Name()))
 			}
-			return renderWhich(cmd, flags, matches)
+			return renderWhichConAssenti(cmd, flags, matches, assenti)
 		},
 	}
 	cmd.Flags().IntVar(&limit, "limit", 3, "Maximum number of matches to return")
@@ -193,6 +420,12 @@ func rankWhichAll(index []whichEntry) []whichMatch {
 }
 
 func renderWhich(cmd *cobra.Command, flags *rootFlags, matches []whichMatch) error {
+	return renderWhichConAssenti(cmd, flags, matches, nil)
+}
+
+// renderWhichConAssenti stampa i match e, quando la domanda tocca una
+// capacità che il portale non pubblica, anche il perché.
+func renderWhichConAssenti(cmd *cobra.Command, flags *rootFlags, matches []whichMatch, assenti []capacitaAssente) error {
 	w := cmd.OutOrStdout()
 	// Output shape follows the same rule as every other generated
 	// command: JSON when the caller asked for it OR when stdout is not
@@ -210,11 +443,39 @@ func renderWhich(cmd *cobra.Command, flags *rootFlags, matches []whichMatch) err
 		if matches == nil {
 			matches = []whichMatch{}
 		}
-		return printJSONFiltered(w, map[string]any{"matches": matches}, flags)
+		payload := map[string]any{"matches": matches}
+		if len(assenti) > 0 {
+			payload["non_coperto"] = assenti
+		}
+		return printJSONFiltered(w, payload, flags)
 	}
-	fmt.Fprintf(w, "%-24s  %-8s  %s\n", "COMMAND", "SCORE", "DESCRIPTION")
+	fmt.Fprintf(w, "%-44s  %-8s  %s\n", "COMMAND", "SCORE", "DESCRIPTION")
 	for _, m := range matches {
-		fmt.Fprintf(w, "%-24s  %-8d  %s\n", m.Entry.Command, m.Score, m.Entry.Description)
+		fmt.Fprintf(w, "%-44s  %-8d  %s\n", m.Entry.Command, m.Score, primaFrase(m.Entry.Description))
+	}
+	if len(assenti) > 0 {
+		stampaAssenti(cmd.ErrOrStderr(), assenti)
 	}
 	return nil
+}
+
+// stampaAssenti scrive su stderr le capacità che il portale non pubblica,
+// così restano fuori dallo stdout che un agente sta interpretando.
+func stampaAssenti(w io.Writer, assenti []capacitaAssente) {
+	for _, a := range assenti {
+		fmt.Fprintf(w, "\nnon coperto — %s: %s\n", a.Capacita, a.Perche)
+		if a.Invece != "" {
+			fmt.Fprintf(w, "  invece: %s\n", a.Invece)
+		}
+	}
+}
+
+// primaFrase accorcia la descrizione alla prima frase per la vista a
+// terminale, dove la riga è larga quanto è larga. Il JSON porta il testo
+// intero.
+func primaFrase(s string) string {
+	if i := strings.Index(s, ". "); i > 0 {
+		return s[:i+1]
+	}
+	return s
 }

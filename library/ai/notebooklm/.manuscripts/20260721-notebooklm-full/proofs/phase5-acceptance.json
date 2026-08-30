@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "notebooklm",
+  "run_id": "20260721-notebooklm-full",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 50,
+  "tests_passed": 50,
+  "tests_skipped": 47,
+  "auth_context": {
+    "type": "cookie"
+  }
+}

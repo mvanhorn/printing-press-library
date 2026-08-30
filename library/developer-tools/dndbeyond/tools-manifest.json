@@ -1,0 +1,69 @@
+{
+  "api_name": "dndbeyond",
+  "base_url": "https://www.dndbeyond.com",
+  "description": "Read public D\u0026D Beyond rules pages from the terminal.",
+  "mcp_ready": "full",
+  "http_transport": "browser-http",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "pages_basic_rules",
+      "description": "Read the public D\u0026D Beyond Basic Rules landing page.",
+      "method": "GET",
+      "path": "/sources/dnd/br-2024",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "pages_rules_glossary",
+      "description": "Read the public 2024 rules glossary page.",
+      "method": "GET",
+      "path": "/sources/dnd/br-2024/rules-glossary",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "pages_search",
+      "description": "Search D\u0026D Beyond's public site search page. Optional: query.",
+      "method": "GET",
+      "path": "/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search term."
+        }
+      ]
+    },
+    {
+      "name": "pages_section",
+      "description": "Read a public Basic Rules section by its documented URL slug. Required: section.",
+      "method": "GET",
+      "path": "/sources/dnd/br-2024/{section}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "section",
+          "type": "string",
+          "location": "path",
+          "description": "URL slug such as playing-the-game or character-classes.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pages_srd",
+      "description": "Read the public System Reference Document landing page.",
+      "method": "GET",
+      "path": "/srd",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

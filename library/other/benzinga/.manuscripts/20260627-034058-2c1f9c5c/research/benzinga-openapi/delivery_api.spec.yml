@@ -1,0 +1,1104 @@
+openapi: 3.0.0
+info:
+  contact: {}
+  description: This REST API provides endpoints to fetch conference calls and summaries.
+  termsOfService: http://swagger.io/terms/
+  title: Conference call transcripts
+  version: 2.1.0
+paths:
+  /api/v1/transcripts/calls:
+    get:
+      description: Retrieve a list of calls with optional filtering and pagination.
+        By default, only COMPLETED calls are returned. Use status=ALL to return all
+        statuses.
+      operationId: get-conference-calls
+      parameters:
+        - description: The page number for pagination (starts at 1)
+          in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - description: The number of items to return per page
+          in: query
+          name: page_size
+          schema:
+            type: integer
+            default: 10
+        - description: Filter by call status. Defaults to COMPLETED. Use ALL to return
+            all statuses.
+          in: query
+          name: status
+          schema:
+            type: string
+            default: COMPLETED
+        - description: Filter by stock ticker symbol (e.g. AAPL)
+          in: query
+          name: symbol
+          schema:
+            type: string
+        - description: Filter calls starting on or after this date (RFC3339, e.g.
+            2024-01-01T00:00:00)
+          in: query
+          name: from
+          schema:
+            type: string
+        - description: Filter calls starting on or before this date (RFC3339, e.g.
+            2024-12-31T23:59:59)
+          in: query
+          name: to
+          schema:
+            type: string
+        - description: Field to sort results by (e.g. start_time)
+          in: query
+          name: sort_by
+          schema:
+            type: string
+        - description: Filter by Share Class FiGi identifier (e.g. BBG000B9XRY4)
+          in: query
+          name: share_class_figi
+          schema:
+            type: string
+        - description: If true, includes securities information in the response
+          in: query
+          name: securities
+          schema:
+            type: boolean
+        - description: If true, returns only call metadata without transcript content
+          in: query
+          name: info_only
+          schema:
+            type: boolean
+        - description: General filter; pass 'all' to bypass default status filter
+          in: query
+          name: filter
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      security:
+        - ApiKeyAuth: []
+      summary: Fetch all calls
+      tags:
+        - calls
+  /api/v1/transcripts/calls/{call_id}:
+    delete:
+      description: Delete a specific call by its ID
+      operationId: delete-conference-call-by-id
+      parameters:
+        - description: The unique identifier of the transcript call
+          in: path
+          name: call_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      security:
+        - ApiKeyAuth: []
+      summary: Delete call by ID
+      tags:
+        - calls
+    get:
+      description: Retrieve detailed information about a specific call by its ID
+      operationId: get-conference-call-by-id
+      parameters:
+        - description: The unique identifier of the transcript call
+          in: path
+          name: call_id
+          required: true
+          schema:
+            type: string
+        - description: Set to false to exclude audio recordings. Defaults to true;
+            returns pre-signed/CDN URLs when included
+          in: query
+          name: audio
+          schema:
+            type: boolean
+        - description: If true, includes pre-signed URLs for the PDF transcript
+          in: query
+          name: pdf
+          schema:
+            type: boolean
+        - description: If true, includes pre-signed URLs for external assets (e.g.
+            slide deck PDFs)
+          in: query
+          name: assets
+          schema:
+            type: boolean
+        - description: If true, returns a cleaner simplified output format
+          in: query
+          name: clean
+          schema:
+            type: boolean
+        - description: 'Response format: ''json'' (default) or ''html'''
+          in: query
+          name: format
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/domain.Calls'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      security:
+        - ApiKeyAuth: []
+      summary: Fetch call by ID
+      tags:
+        - calls
+    put:
+      description: Update details of a specific call by its ID
+      operationId: update-conference-call-by-id
+      parameters:
+        - description: The unique identifier of the transcript call
+          in: path
+          name: call_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/domain.UpdateCallReq'
+        description: Call update details
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      security:
+        - ApiKeyAuth: []
+      summary: Update call by ID
+      tags:
+        - calls
+  /api/v1/transcripts/participants/{participant_id}:
+    delete:
+      description: Delete a specific participant by their ID
+      operationId: delete-participant-by-id
+      parameters:
+        - description: The unique identifier of the participant
+          in: path
+          name: participant_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      security:
+        - ApiKeyAuth: []
+      summary: Delete participant by ID
+      tags:
+        - participants
+    put:
+      description: Update details of a specific participant by their ID
+      operationId: update-participant-by-id
+      parameters:
+        - description: The unique identifier of the participant
+          in: path
+          name: participant_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/domain.UpdateParticipantReq'
+        description: Participant update details
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      security:
+        - ApiKeyAuth: []
+      summary: Update participant by ID
+      tags:
+        - participants
+  /api/v1/transcripts/status:
+    get:
+      description: Query a specific view with filters and pagination. Supports both
+        GET (query params) and POST (JSON body).
+      operationId: query-status-view
+      parameters:
+        - description: View name (for GET)
+          in: query
+          name: view_name
+          schema:
+            type: string
+        - description: JSON encoded where clause (for GET)
+          in: query
+          name: where
+          schema:
+            type: string
+        - description: JSON encoded order_by (for GET)
+          in: query
+          name: order_by
+          schema:
+            type: string
+        - description: Page number
+          in: query
+          name: page
+          schema:
+            type: integer
+        - description: Page size
+          in: query
+          name: page_size
+          schema:
+            type: integer
+      requestBody:
+        $ref: '#/components/requestBodies/api.QueryRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      security:
+        - ApiKeyAuth: []
+      summary: Query status view
+      tags:
+        - status
+    post:
+      description: Query a specific view with filters and pagination. Supports both
+        GET (query params) and POST (JSON body).
+      operationId: query-status-view
+      parameters:
+        - description: View name (for GET)
+          in: query
+          name: view_name
+          schema:
+            type: string
+        - description: JSON encoded where clause (for GET)
+          in: query
+          name: where
+          schema:
+            type: string
+        - description: JSON encoded order_by (for GET)
+          in: query
+          name: order_by
+          schema:
+            type: string
+        - description: Page number
+          in: query
+          name: page
+          schema:
+            type: integer
+        - description: Page size
+          in: query
+          name: page_size
+          schema:
+            type: integer
+      requestBody:
+        $ref: '#/components/requestBodies/api.QueryRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      security:
+        - ApiKeyAuth: []
+      summary: Query status view
+      tags:
+        - status
+  /api/v1/transcripts/summaries:
+    get:
+      description: Retrieve a list of summaries with optional filtering and pagination
+      operationId: get-summaries
+      parameters:
+        - description: The page number for pagination (starts at 1)
+          in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - description: The number of items to return per page
+          in: query
+          name: page_size
+          schema:
+            type: integer
+            default: 10
+        - description: Filter by stock ticker symbol (e.g. AAPL)
+          in: query
+          name: symbol
+          schema:
+            type: string
+        - description: Filter summaries for calls starting on or after this date (RFC3339,
+            e.g. 2024-01-01T00:00:00)
+          in: query
+          name: from
+          schema:
+            type: string
+        - description: Filter summaries for calls starting on or before this date
+            (RFC3339, e.g. 2024-12-31T23:59:59)
+          in: query
+          name: to
+          schema:
+            type: string
+        - description: Field to sort results by (e.g. created_at)
+          in: query
+          name: sort_by
+          schema:
+            type: string
+        - description: Filter by Share Class FiGi identifier (e.g. BBG000B9XRY4)
+          in: query
+          name: share_class_figi
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      security:
+        - ApiKeyAuth: []
+      summary: Fetch summaries
+      tags:
+        - summaries
+  /api/v1/transcripts/summaries/{call_id}:
+    get:
+      description: Retrieve summary details for a specific call ID
+      operationId: get-summary-by-call-id
+      parameters:
+        - description: The unique identifier of the call associated with the summary
+          in: path
+          name: call_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/domain.Summaries'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      security:
+        - ApiKeyAuth: []
+      summary: Fetch summary by Call ID
+      tags:
+        - summaries
+    put:
+      description: Update summary details for a specific call ID
+      operationId: update-summary-by-call-id
+      parameters:
+        - description: The unique identifier of the call
+          in: path
+          name: call_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/domain.UpdateSummaryReq'
+        description: Summary update details
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      security:
+        - ApiKeyAuth: []
+      summary: Update summary by Call ID
+      tags:
+        - summaries
+  /api/v1/transcripts/transcripts/{transcript_id}/segment/{segment_id}:
+    delete:
+      description: Delete a specific transcript segment
+      operationId: delete-transcript-segments-by-id
+      parameters:
+        - description: The unique identifier of the transcript
+          in: path
+          name: transcript_id
+          required: true
+          schema:
+            type: string
+        - description: The unique identifier of the segment
+          in: path
+          name: segment_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      security:
+        - ApiKeyAuth: []
+      summary: Delete transcript segment by ID
+      tags:
+        - transcripts
+    put:
+      description: Update specific transcript segment details
+      operationId: update-transcript-segments-by-id
+      parameters:
+        - description: The unique identifier of the transcript
+          in: path
+          name: transcript_id
+          required: true
+          schema:
+            type: string
+        - description: The unique identifier of the segment
+          in: path
+          name: segment_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/domain.UpdateTranscriptSegmentsReq'
+        description: Segment update details
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      security:
+        - ApiKeyAuth: []
+      summary: Update transcript segment by ID
+      tags:
+        - transcripts
+  /api/v1/transcripts/transcripts/{transcript_id}/speaker:
+    put:
+      description: Rename a speaker (and optionally set its role) everywhere it appears
+        in a transcript. Locates segments + participant by the speaker's current name,
+        relabels every matching segment, and upserts the participant entry. Renaming
+        into an existing name merges the two speakers.
+      operationId: update-transcript-speaker
+      parameters:
+        - description: The unique identifier of the transcript
+          in: path
+          name: transcript_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/domain.UpdateTranscriptSpeakerReq'
+        description: Speaker update details
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      security:
+        - ApiKeyAuth: []
+      summary: Update a speaker across a transcript
+      tags:
+        - transcripts
+components:
+  requestBodies:
+    api.QueryRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/api.QueryRequest'
+      description: Query details (for POST)
+  securitySchemes:
+    ApiKeyAuth:
+      in: query
+      name: token
+      type: apiKey
+  schemas:
+    api.QueryRequest:
+      type: object
+    domain.Calls:
+      properties:
+        call_id:
+          example: 80753086-444f-4dcf-961d-15509ba09dc7
+          type: string
+        call_title:
+          example: Q3 2023 Earnings Call
+          type: string
+        created_at:
+          type: string
+        deleted_at:
+          type: string
+        description:
+          example: Quarterly earnings report
+          type: string
+        duration:
+          example: 60
+          type: integer
+        end_time:
+          example: '2023-10-25T15:00:00Z'
+          type: string
+        exchange:
+          example: NASDAQ
+          type: string
+        figis:
+          example:
+            - '["BBG000B9XRY4"]'
+          items:
+            type: string
+          type: array
+        headline:
+          example: Company X Reports Strong Q3 Results
+          type: string
+        name:
+          example: Apple Inc.
+          type: string
+        participants:
+          items:
+            $ref: '#/components/schemas/domain.Participants'
+          type: array
+        period:
+          example: Q3
+          type: string
+        recordings:
+          items:
+            $ref: '#/components/schemas/domain.Recordings'
+          type: array
+        securities:
+          $ref: '#/components/schemas/pgtype.JSONB'
+        start_time:
+          example: '2023-10-25T14:00:00Z'
+          type: string
+        status:
+          example: completed
+          type: string
+        summary:
+          $ref: '#/components/schemas/domain.Summaries'
+        symbol:
+          example: AAPL
+          type: string
+        transcripts:
+          items:
+            $ref: '#/components/schemas/domain.Transcripts'
+          type: array
+        updated_at:
+          type: string
+        webcast_url:
+          example: https://example.com/webcast
+          type: string
+        year:
+          example: 2023
+          type: integer
+      type: object
+    domain.Participants:
+      properties:
+        call_id:
+          type: string
+        deleted_at:
+          type: string
+        human_verified:
+          type: boolean
+        mentions:
+          type: integer
+        name:
+          type: string
+        organization:
+          type: string
+        participant_id:
+          type: string
+        role:
+          type: string
+      type: object
+    domain.Recordings:
+      properties:
+        bucket:
+          type: string
+        created_at:
+          type: string
+        duration:
+          type: integer
+        formats:
+          $ref: '#/components/schemas/pgtype.JSONB'
+        language:
+          type: string
+        location:
+          type: string
+        recording_id:
+          type: string
+        total_files:
+          type: integer
+        total_size:
+          type: integer
+        updated_at:
+          type: string
+      type: object
+    domain.Summaries:
+      properties:
+        call_id:
+          example: 770e8400-e29b-41d4-a716-446655440000
+          type: string
+        created_at:
+          type: string
+        deleted_at:
+          type: string
+        language:
+          example: en
+          type: string
+        sentiment:
+          example: 0.85
+          type: number
+        summary:
+          example: The company reported positive growth...
+          type: string
+        summary_id:
+          example: 550e8400-e29b-41d4-a716-446655440000
+          type: string
+        symbol:
+          example: MSFT
+          type: string
+        transcript_id:
+          example: 660e8400-e29b-41d4-a716-446655440000
+          type: string
+        updated_at:
+          type: string
+      type: object
+    domain.TranscriptSegments:
+      properties:
+        confidence:
+          type: number
+        end_time:
+          type: string
+        segment_id:
+          type: integer
+        sentiment:
+          type: number
+        speaker:
+          type: string
+        start_time:
+          type: string
+        text:
+          type: string
+      type: object
+    domain.Transcripts:
+      properties:
+        confidence_score:
+          type: number
+        language:
+          type: string
+        segments:
+          items:
+            $ref: '#/components/schemas/domain.TranscriptSegments'
+          type: array
+        text:
+          type: string
+        transcript_id:
+          type: string
+        type:
+          $ref: '#/components/schemas/domain.TranscriptsType'
+      type: object
+    domain.TranscriptsType:
+      enum:
+        - LIVE
+        - NON_LIVE
+      type: string
+      x-enum-varnames:
+        - LiveTranscripts
+        - NonLiveTranscripts
+    domain.UpdateCallReq:
+      properties:
+        call_title:
+          example: Q3 2023 Earnings Call
+          type: string
+        cusip:
+          example: 037833100
+          type: string
+        duration:
+          example: 60
+          type: integer
+        end_time:
+          example: '2023-10-25T15:00:00Z'
+          type: string
+        exchange:
+          example: NASDAQ
+          type: string
+        headline:
+          example: Company X Reports Strong Q3 Results
+          type: string
+        isin:
+          example: US0378331005
+          type: string
+        name:
+          example: Apple Inc.
+          type: string
+        start_time:
+          example: '2023-10-25T14:00:00Z'
+          type: string
+        status:
+          example: completed
+          type: string
+        symbol:
+          example: AAPL
+          type: string
+      type: object
+    domain.UpdateParticipantReq:
+      properties:
+        human_verified:
+          example: true
+          type: boolean
+        mentions:
+          example: 5
+          type: integer
+        name:
+          example: Tim Cook
+          type: string
+        organization:
+          example: Apple Inc.
+          type: string
+        role:
+          example: CEO
+          type: string
+      type: object
+    domain.UpdateSummaryReq:
+      properties:
+        language:
+          example: en
+          type: string
+        summary:
+          example: Overall, the quarter was strong with 5% revenue growth...
+          type: string
+        symbol:
+          example: AAPL
+          type: string
+      type: object
+    domain.UpdateTranscriptSegmentsReq:
+      properties:
+        end_time:
+          example: 00:05:30
+          type: string
+        speaker:
+          example: Elon Musk
+          type: string
+        start_time:
+          example: 00:00:10
+          type: string
+        text:
+          example: Welcome everyone to the Q3 earnings call.
+          type: string
+      type: object
+    domain.UpdateTranscriptSpeakerReq:
+      properties:
+        current_name:
+          example: Speaker 1
+          type: string
+        name:
+          example: John Doe
+          type: string
+        role:
+          example: Chief Executive Officer
+          type: string
+      type: object
+    pgtype.JSONB:
+      properties:
+        bytes:
+          items:
+            type: integer
+          type: array
+        status:
+          $ref: '#/components/schemas/pgtype.Status'
+      type: object
+    pgtype.Status:
+      enum:
+        - 0
+        - 1
+        - 2
+      type: integer
+      x-enum-varnames:
+        - Undefined
+        - 'Null'
+        - Present
+servers:
+  - url: https://api.benzinga.com
+    description: PROD

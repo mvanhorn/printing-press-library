@@ -222,6 +222,7 @@ async function installOne(
 
     const binary = cliBinaryName(entry);
     const moduleRoot =
+      installModuleOverride(entry) ??
       (await deps.resolveModulePath(entry.path, options.registryUrl)) ??
       `github.com/mvanhorn/printing-press-library/${entry.path}`;
     const modulePath = `${moduleRoot}/cmd/${binary}`;
@@ -402,6 +403,13 @@ function reportResults(outcomes: InstallOutcome[], options: InstallOptions, deps
 }
 
 export const installCommand = createInstallCommand();
+
+function installModuleOverride(entry: { name: string; api: string; path: string }): string | null {
+  if (entry.name === "v0" && entry.api === "v0" && entry.path === "library/ai/v0") {
+    return "github.com/mvanhorn/printing-press-library/library/ai/v0/vzero";
+  }
+  return null;
+}
 
 function parseInstallArgs(
   args: string[],

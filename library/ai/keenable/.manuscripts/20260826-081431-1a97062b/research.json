@@ -1,0 +1,250 @@
+{
+  "api_name": "keenable",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "keenable-cli",
+      "url": "https://github.com/keenableai/keenable-cli",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "keenable-mcp",
+      "url": "https://github.com/keenableai/keenable-mcp",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "keenable-sdk",
+      "url": "https://github.com/keenableai/keenable-sdk",
+      "language": "Python/TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-26T02:52:55Z",
+  "novel_features": [
+    {
+      "name": "Reproducible research snapshot",
+      "command": "research snapshot",
+      "description": "Save an exact search and fetch run as an immutable local evidence snapshot.",
+      "rationale": "The API returns ephemeral ranked results; preserving inputs, responses, timestamps, and hashes requires local state beyond one call.",
+      "example": "keenable-pp-cli research snapshot --query \"AI agent evaluation methods\" --max-results 8 --agent",
+      "why_it_matters": "Choose this when an agent needs to reproduce or audit the evidence behind a research answer.",
+      "group": "Evidence that compounds"
+    },
+    {
+      "name": "Snapshot replay",
+      "command": "research replay",
+      "description": "Rerun a saved research recipe and report how current evidence changed.",
+      "rationale": "Point-in-time and date-filter inputs can be preserved locally, then compared with newly fetched rankings and metadata.",
+      "example": "keenable-pp-cli research replay --snapshot latest --agent",
+      "why_it_matters": "Choose this for weekly monitoring and regression checks where ranking drift matters.",
+      "group": "Evidence that compounds"
+    },
+    {
+      "name": "Citation bundle export",
+      "command": "research citations",
+      "description": "Export source-linked Markdown or JSON citations from a saved research run.",
+      "rationale": "Citation records require a local join across result rank, fetched metadata, content, and snapshot identity.",
+      "example": "keenable-pp-cli research citations --snapshot latest --format markdown",
+      "why_it_matters": "Choose this when another agent or reviewer needs portable, inspectable evidence rather than raw API output.",
+      "group": "Agent-ready evidence"
+    },
+    {
+      "name": "Bounded multi-page fetch",
+      "command": "research fetch-many",
+      "description": "Fetch a bounded URL list with concurrency limits and explicit partial failures.",
+      "rationale": "The API exposes one-page fetch; safe fan-out, retry-after handling, and failure accounting belong in the CLI.",
+      "example": "keenable-pp-cli research fetch-many --url https://docs.keenable.ai/api-reference --url https://docs.keenable.ai/mcp-server --agent",
+      "why_it_matters": "Choose this when a pipeline has several known sources and must not silently drop a failed fetch.",
+      "group": "Agent-ready evidence"
+    },
+    {
+      "name": "Offline local FTS recall",
+      "command": "research local-search",
+      "description": "Search saved titles, snippets, URLs, and Markdown without spending an upstream request.",
+      "rationale": "Local FTS5 over persisted results and pages provides recall that Keenable’s remote API cannot provide offline.",
+      "example": "keenable-pp-cli research local-search \"retrieval evaluation\" --agent",
+      "why_it_matters": "Choose this when an agent needs to recall prior evidence while preserving a clear local-versus-live boundary.",
+      "group": "Evidence that compounds"
+    },
+    {
+      "name": "Result and content drift comparison",
+      "command": "research diff",
+      "description": "Compare saved runs for URL changes, rank movement, metadata edits, and content-hash drift.",
+      "rationale": "No single search or fetch response can explain how evidence changed between two runs; local snapshots enable the comparison.",
+      "example": "keenable-pp-cli research diff --before latest --after latest --agent",
+      "why_it_matters": "Choose this to detect changing sources before an agent relies on stale research.",
+      "group": "Evidence that compounds"
+    },
+    {
+      "name": "Domain and source coverage report",
+      "command": "research coverage",
+      "description": "Measure domain diversity, rank share, timestamp coverage, and missing metadata in a saved run.",
+      "rationale": "Coverage quality requires aggregating many saved result rows and metadata fields, not another upstream endpoint.",
+      "example": "keenable-pp-cli research coverage --snapshot latest --agent",
+      "why_it_matters": "Choose this when an agent must explain whether its evidence is broad, balanced, and date-grounded.",
+      "group": "Agent-ready evidence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Reproducible research snapshot",
+      "command": "research snapshot",
+      "description": "Save an exact search and fetch run as an immutable local evidence snapshot.",
+      "rationale": "The API returns ephemeral ranked results; preserving inputs, responses, timestamps, and hashes requires local state beyond one call.",
+      "example": "keenable-pp-cli research snapshot --query \"AI agent evaluation methods\" --max-results 8 --agent",
+      "why_it_matters": "Choose this when an agent needs to reproduce or audit the evidence behind a research answer.",
+      "group": "Evidence that compounds"
+    },
+    {
+      "name": "Snapshot replay",
+      "command": "research replay",
+      "description": "Rerun a saved research recipe and report how current evidence changed.",
+      "rationale": "Point-in-time and date-filter inputs can be preserved locally, then compared with newly fetched rankings and metadata.",
+      "example": "keenable-pp-cli research replay --snapshot latest --agent",
+      "why_it_matters": "Choose this for weekly monitoring and regression checks where ranking drift matters.",
+      "group": "Evidence that compounds"
+    },
+    {
+      "name": "Citation bundle export",
+      "command": "research citations",
+      "description": "Export source-linked Markdown or JSON citations from a saved research run.",
+      "rationale": "Citation records require a local join across result rank, fetched metadata, content, and snapshot identity.",
+      "example": "keenable-pp-cli research citations --snapshot latest --format markdown",
+      "why_it_matters": "Choose this when another agent or reviewer needs portable, inspectable evidence rather than raw API output.",
+      "group": "Agent-ready evidence"
+    },
+    {
+      "name": "Bounded multi-page fetch",
+      "command": "research fetch-many",
+      "description": "Fetch a bounded URL list with concurrency limits and explicit partial failures.",
+      "rationale": "The API exposes one-page fetch; safe fan-out, retry-after handling, and failure accounting belong in the CLI.",
+      "example": "keenable-pp-cli research fetch-many --url https://docs.keenable.ai/api-reference --url https://docs.keenable.ai/mcp-server --agent",
+      "why_it_matters": "Choose this when a pipeline has several known sources and must not silently drop a failed fetch.",
+      "group": "Agent-ready evidence"
+    },
+    {
+      "name": "Offline local FTS recall",
+      "command": "research local-search",
+      "description": "Search saved titles, snippets, URLs, and Markdown without spending an upstream request.",
+      "rationale": "Local FTS5 over persisted results and pages provides recall that Keenable’s remote API cannot provide offline.",
+      "example": "keenable-pp-cli research local-search \"retrieval evaluation\" --agent",
+      "why_it_matters": "Choose this when an agent needs to recall prior evidence while preserving a clear local-versus-live boundary.",
+      "group": "Evidence that compounds"
+    },
+    {
+      "name": "Result and content drift comparison",
+      "command": "research diff",
+      "description": "Compare saved runs for URL changes, rank movement, metadata edits, and content-hash drift.",
+      "rationale": "No single search or fetch response can explain how evidence changed between two runs; local snapshots enable the comparison.",
+      "example": "keenable-pp-cli research diff --before latest --after latest --agent",
+      "why_it_matters": "Choose this to detect changing sources before an agent relies on stale research.",
+      "group": "Evidence that compounds"
+    },
+    {
+      "name": "Domain and source coverage report",
+      "command": "research coverage",
+      "description": "Measure domain diversity, rank share, timestamp coverage, and missing metadata in a saved run.",
+      "rationale": "Coverage quality requires aggregating many saved result rows and metadata fields, not another upstream endpoint.",
+      "example": "keenable-pp-cli research coverage --snapshot latest --agent",
+      "why_it_matters": "Choose this when an agent must explain whether its evidence is broad, balanced, and date-grounded.",
+      "group": "Agent-ready evidence"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "KEENABLE_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Keenable",
+    "headline": "Keenable web search with reproducible research, citations, and a local evidence trail.",
+    "value_prop": "Search current web knowledge and fetch clean Markdown through the documented Keenable API, then preserve the evidence locally so agents can replay, compare, and cite prior research instead of starting from a blank response.",
+    "auth_narrative": "Set KEEENABLE_API_KEY for authenticated organization-scoped usage. Keenable also exposes keyless public endpoints that require an X-Keenable-Title application header and share an IP-based pool.",
+    "quickstart": [
+      {
+        "command": "keenable-pp-cli doctor --dry-run",
+        "comment": "Check the generated CLI without making a request."
+      },
+      {
+        "command": "keenable-pp-cli web-search search-post --dry-run",
+        "comment": "Preview the typed search operation and its request shape."
+      },
+      {
+        "command": "keenable-pp-cli fetch fetch --dry-run",
+        "comment": "Preview Markdown page retrieval."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "400 Missing app identifier on a keyless request",
+        "fix": "Use KEEENABLE_API_KEY or set the generated CLI's application title so it sends X-Keenable-Title."
+      },
+      {
+        "symptom": "401 or 403 authentication failure",
+        "fix": "Rotate the Keenable key and export it as KEEENABLE_API_KEY; do not paste it into command arguments."
+      },
+      {
+        "symptom": "429 rate limit exceeded",
+        "fix": "Retry after the server's Retry-After value or use authenticated organization-scoped access."
+      },
+      {
+        "symptom": "Fetch returns not indexed",
+        "fix": "Retry with the fetch live=true option when the source permits direct retrieval."
+      }
+    ],
+    "when_to_use": "Use Keenable when an agent needs current web evidence, clean page content, or a reproducible research trail. Prefer the local evidence commands when the task involves comparing runs, citing sources, or assembling a multi-page brief.",
+    "anti_triggers": [
+      "Do not use this CLI for writing or mutating remote Keenable resources; the API exposes read-only search and fetch operations.",
+      "Do not treat local snapshots as fresh remote data; refresh explicitly when current evidence matters.",
+      "Do not use the keyless tier for sustained high-volume workloads when an organization-scoped key is available."
+    ],
+    "recipes": [
+      {
+        "title": "Save a reproducible run",
+        "command": "keenable-pp-cli research snapshot --query \"AI agent evaluation methods\" --max-results 8 --agent",
+        "explanation": "Persist the exact query and evidence for later replay."
+      },
+      {
+        "title": "Fetch several sources safely",
+        "command": "keenable-pp-cli research fetch-many --url https://docs.keenable.ai/api-reference --url https://docs.keenable.ai/mcp-server --agent",
+        "explanation": "Keep successes and failures explicit in one structured result."
+      },
+      {
+        "title": "Recall saved evidence",
+        "command": "keenable-pp-cli research local-search \"retrieval evaluation\" --agent --select results",
+        "explanation": "Search the local corpus without claiming fresh upstream data."
+      },
+      {
+        "title": "Compare research drift",
+        "command": "keenable-pp-cli research diff --before latest --after latest --agent",
+        "explanation": "Inspect changed sources and content between two saved runs."
+      }
+    ],
+    "trigger_phrases": [
+      "search the web with Keenable",
+      "fetch a page with Keenable",
+      "build a cited research brief",
+      "compare Keenable research snapshots",
+      "use Keenable",
+      "run Keenable"
+    ]
+  }
+}

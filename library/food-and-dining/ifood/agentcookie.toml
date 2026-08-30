@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "ifood-pp-cli"
+display_name = "iFood"
+description = "Agent-ready iFood grocery quoting with browser-owned authentication and confirmation-gated cart planning."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/ifood-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+IFOOD_BEARER_AUTH = true

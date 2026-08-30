@@ -1,0 +1,65 @@
+name: bestfoodtrucks
+description: |
+  Best Food Trucks (BFT) — food truck booking, location scheduling, and
+  order-ahead platform. No official public developer API exists; this spec
+  documents the GraphQL backend discovered via browser-sniff against the
+  live site (api.bestfoodtrucks.com/graphql).
+version: 0.1.0
+category: food-and-dining
+cli_description: "Look up food truck schedules, menus, and truck rotations from Best Food Trucks — offline search, agent-native output, no browser or login needed."
+base_url: https://api.bestfoodtrucks.com
+spec_source: sniffed
+http_transport: standard
+auth:
+  type: none
+
+learn:
+  entity_lookup_seeds:
+    lot:
+      - canonical: Playa District
+        aliases: [playa, playa vista, playa district office campus]
+    market:
+      - canonical: Los Angeles
+        aliases: [la, los angeles ca]
+
+resources:
+  graphql:
+    description: >
+      Raw GraphQL passthrough against the Best Food Trucks API. This is a
+      generic escape-hatch endpoint; Phase 3 hand-writes typed, well-named
+      commands (lot get/schedule/digest, shift get, truck schedule, market
+      list/hotlist, trucks find, lots digest) on top of a hand-authored
+      GraphQL client rather than relying on this endpoint's auto-emitted
+      command surface. The CLI always sends full query text (no
+      extensions.persistedQuery hash) to avoid depending on the server's
+      Apollo Automatic Persisted Query cache.
+    endpoints:
+      query:
+        method: POST
+        path: /graphql
+        description: Execute a raw GraphQL query or mutation against the Best Food Trucks API
+        body:
+          - name: operationName
+            type: string
+            required: false
+            positional: false
+            default: ""
+            description: GraphQL operation name (optional; informational for multi-operation documents)
+          - name: query
+            type: string
+            required: true
+            positional: false
+            default: ""
+            description: Full GraphQL query or mutation document text
+          - name: variables
+            type: object
+            required: false
+            positional: false
+            default: {}
+            description: GraphQL variables as a JSON object
+        response:
+          type: object
+          item: graphql_response
+        no_auth: true
+
+types: {}

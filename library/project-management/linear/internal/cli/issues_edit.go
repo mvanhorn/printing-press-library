@@ -18,6 +18,7 @@ func newIssuesEditCmd(flags *rootFlags, dbPath *string) *cobra.Command {
 	var noParentFlag bool
 	var priorityFlag int
 	var labelsFlag []string
+	var labelNamesFlag []string
 	var mediaFlag []string
 	var mediaPublic bool
 	cmd := &cobra.Command{
@@ -89,9 +90,6 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 			if noParentFlag {
 				input["parentId"] = nil
 			}
-			if len(labelsFlag) > 0 {
-				input["labelIds"] = labelsFlag
-			}
 
 			descBody, descSet, err := readMarkdownBody(cmd, markdownBodySpec{
 				InlineFlag: "description",
@@ -140,8 +138,36 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 					input["projectId"] = projectID
 				}
 			}
+			if len(labelNamesFlag) > 0 {
+				if c == nil {
+					var err error
+					lookupClient, err := newPortfolioLookupClient(flags)
+					if err != nil {
+						return err
+					}
+					c = lookupClient
+				}
+				if !issueMetaLoaded {
+					existing, err := fetchIssueLive(c, args[0])
+					if err != nil {
+						return classifyLiveReadError(err, flags)
+					}
+					loadDescription := len(mediaFlag) > 0 && !descSet
+					if err := parseIssueEditMetadata(args[0], existing, &issueID, &issueTeam, &issueMetaLoaded, &descBody, &descSet, loadDescription); err != nil {
+						return err
+					}
+				}
+				resolvedLabelIDs, err := resolveLabelNamesForWriteLive(c, labelNamesFlag, firstNonEmpty(issueTeam.Key, issueTeam.ID), flags)
+				if err != nil {
+					return err
+				}
+				labelsFlag = mergeLabelIDs(labelsFlag, resolvedLabelIDs)
+			}
+			if len(labelsFlag) > 0 {
+				input["labelIds"] = labelsFlag
+			}
 			if len(input) == 0 && len(mediaFlag) == 0 && stateNameFlag == "" && stateTypeFlag == "" {
-				return usageErr(fmt.Errorf("no issue fields supplied; pass --title, --description-file, --media, --state, --state-name, --state-type, --project, --project-name, --assignee, --priority, --label, --parent, or --no-parent"))
+				return usageErr(fmt.Errorf("no issue fields supplied; pass --title, --description-file, --media, --state, --state-name, --state-type, --project, --project-name, --assignee, --priority, --label, --label-name, --parent, or --no-parent"))
 			}
 			if flags.dryRun {
 				out := map[string]any{"issue": args[0], "input": input}
@@ -164,33 +190,17 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 					return err
 				}
 			}
-			if (len(mediaFlag) > 0 && !descSet) || len(labelsFlag) > 0 || stateNameFlag != "" || stateTypeFlag != "" {
+			needsExistingDescription := len(mediaFlag) > 0 && !descSet
+			needsIssueMetadata := !issueMetaLoaded && (len(labelsFlag) > 0 || stateNameFlag != "" || stateTypeFlag != "")
+			if needsExistingDescription || needsIssueMetadata {
 				existing, err := fetchIssueLive(c, args[0])
 				if err != nil {
 					return classifyLiveReadError(err, flags)
 				}
-				var issue struct {
-					ID          string `json:"id"`
-					Description string `json:"description"`
-					Team        struct {
-						ID  string `json:"id"`
-						Key string `json:"key"`
-					} `json:"team"`
+				if err := parseIssueEditMetadata(args[0], existing, &issueID, &issueTeam, &issueMetaLoaded, &descBody, &descSet, needsExistingDescription); err != nil {
+					return err
 				}
-				if err := json.Unmarshal(existing, &issue); err != nil {
-					return fmt.Errorf("parsing existing issue: %w", err)
-				}
-				if issue.ID == "" {
-					return fmt.Errorf("issue %q did not include an id", args[0])
-				}
-				issueID = issue.ID
-				issueTeam = issueTeamInfo{ID: issue.Team.ID, Key: issue.Team.Key}
-				issueMetaLoaded = true
-				if len(mediaFlag) > 0 && !descSet {
-					descBody = issue.Description
-					descSet = true
-				}
-			} else {
+			} else if !issueMetaLoaded {
 				var err error
 				issueID, err = resolveIssueID(c, args[0])
 				if err != nil {
@@ -241,6 +251,7 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 						assignee { id name displayName email }
 						parent { id identifier title }
 						children { nodes { id identifier title } }
+						labels { nodes { id name color } }
 					}
 				}
 			}`
@@ -278,9 +289,35 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 	cmd.Flags().StringVar(&parentFlag, "parent", "", "Parent issue identifier or UUID")
 	cmd.Flags().BoolVar(&noParentFlag, "no-parent", false, "Clear issue parentage")
 	cmd.Flags().StringSliceVar(&labelsFlag, "label", nil, "Replacement label UUIDs (repeatable)")
+	cmd.Flags().StringSliceVar(&labelNamesFlag, "label-name", nil, "Resolve and attach label(s) by exact name (repeatable; team-scoped + team-safe global)")
 	cmd.Flags().StringSliceVar(&mediaFlag, "media", nil, "Upload file and append it to the description markdown (repeatable)")
 	cmd.Flags().BoolVar(&mediaPublic, "media-public", false, "Request public Linear asset URLs for uploaded media")
 	return cmd
+}
+
+func parseIssueEditMetadata(issueRef string, raw json.RawMessage, issueID *string, issueTeam *issueTeamInfo, issueMetaLoaded *bool, descBody *string, descSet *bool, loadDescription bool) error {
+	var issue struct {
+		ID          string `json:"id"`
+		Description string `json:"description"`
+		Team        struct {
+			ID  string `json:"id"`
+			Key string `json:"key"`
+		} `json:"team"`
+	}
+	if err := json.Unmarshal(raw, &issue); err != nil {
+		return fmt.Errorf("parsing existing issue: %w", err)
+	}
+	if issue.ID == "" {
+		return fmt.Errorf("issue %q did not include an id", issueRef)
+	}
+	*issueID = issue.ID
+	*issueTeam = issueTeamInfo{ID: issue.Team.ID, Key: issue.Team.Key}
+	*issueMetaLoaded = true
+	if loadDescription {
+		*descBody = issue.Description
+		*descSet = true
+	}
+	return nil
 }
 
 func writeIssueBack(dbPath string, raw json.RawMessage) {

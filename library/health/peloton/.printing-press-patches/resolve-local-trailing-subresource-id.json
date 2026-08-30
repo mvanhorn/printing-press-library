@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "resolve-local-trailing-subresource-id",
+  "applied_at": "2026-08-13",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "resolveLocal's single-item lookup extracts the local-store id from the resolved request path's last segment, which is correct for endpoints shaped /api/<resource>/{id} but wrong for endpoints with a trailing static sub-resource after the id, like /api/workout/{workout_id}/performance_graph (last segment is literally \"performance_graph\"). Any future regen must preserve the two-segment fallback: try the last segment first, and only if that misses (sql.ErrNoRows) try the second-to-last segment before giving up. The fallback is deliberately fail-safe -- db.Get requires an exact key match, so a wrong guess just falls through to the original not-found error naming the last-segment id, never returns data for the wrong id.",
+  "reason": "--data-source local (and the auto-mode network-unreachable fallback) on `workouts performance <id>` always 404'd with 'resource \"performance\" with ID \"performance_graph\" not found', even after a successful sync or live fetch had genuinely stored that workout's performance data under the correct id -- confirmed live against a real account before and after this fix. workouts_show.go and promoted_strength.go are unaffected: both their endpoints (/api/workout/{workout_id}) already end in the id, so the last-segment extraction was already correct for them.",
+  "files": [
+    "internal/cli/data_source.go",
+    "internal/cli/data_source_test.go"
+  ],
+  "validated_outcome": "New tests cover the fallback firing for a trailing-sub-resource path, the common case still resolving on the first try without needing the fallback, and a genuine not-found case still reporting the original last-segment id rather than a confusing alternate. Verified live: `workouts performance <id> --data-source local` (previously erroring even with the row present) now returns the stored data. Full go build/vet/test suite, govulncheck, and verify_skill.py all pass."
+}

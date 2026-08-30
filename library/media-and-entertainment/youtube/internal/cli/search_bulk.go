@@ -47,11 +47,7 @@ func newYoutubeSearchBulkCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "search-bulk [terms...]",
 		Short: "Search YouTube for multiple terms in one call, return top-N per term",
-		Long: `Run a YouTube search for each term and aggregate the top-N results into a single JSON document.
-
-Reads terms from positional args, or from stdin (one per line) when --stdin is set. For each term,
-calls search.list with part=snippet&type=video and returns the top results with title, channel,
-embed URL, thumbnail, and description.`,
+		Long:  `Run a YouTube search for each term and aggregate the top-N results into one JSON document. Terms come from positional args, or from stdin one per line with --stdin.`,
 		Example: `  youtube-pp-cli youtube search-bulk "sourdough scoring" "knife sharpening"
   printf "term1\nterm2\n" | youtube-pp-cli youtube search-bulk --stdin --top 3`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
@@ -95,7 +91,7 @@ embed URL, thumbnail, and description.`,
 				if lang != "" {
 					params["relevanceLanguage"] = lang
 				}
-				_, _ = c.GetWithHeaders("/youtube/v3/search", params, nil)
+				_, _ = c.GetWithHeaders(cmd.Context(), "/youtube/v3/search", params, nil)
 				return nil
 			}
 
@@ -103,8 +99,6 @@ embed URL, thumbnail, and description.`,
 			if err != nil {
 				return err
 			}
-			c = c.WithContext(cmd.Context())
-
 			out := bulkResponse{Terms: make([]bulkTermGroup, 0, len(terms))}
 			for _, term := range terms {
 				params := map[string]string{
@@ -121,7 +115,7 @@ embed URL, thumbnail, and description.`,
 				}
 
 				group := bulkTermGroup{Query: term, Results: []bulkSearchResult{}}
-				data, err := c.GetWithHeaders("/youtube/v3/search", params, nil)
+				data, err := c.GetWithHeaders(cmd.Context(), "/youtube/v3/search", params, nil)
 				if err != nil {
 					group.Error = err.Error()
 					out.Terms = append(out.Terms, group)

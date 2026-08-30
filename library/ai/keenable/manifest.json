@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "keenable-pp-mcp",
+  "display_name": "Keenable",
+  "version": "1.0.0",
+  "description": "Keenable web search with reproducible research, citations, and a local evidence trail.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/keenable-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/keenable-pp-mcp",
+      "args": [],
+      "env": {
+        "PRINTING_PRESS_CLIENT_PROFILE": "${user_config.printing_press_client_profile}"
+      }
+    }
+  },
+  "user_config": {
+    "printing_press_client_profile": {
+      "type": "string",
+      "title": "Client profile",
+      "description": "Binds the MCP server to an existing tenant-gated Printing Press client profile.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

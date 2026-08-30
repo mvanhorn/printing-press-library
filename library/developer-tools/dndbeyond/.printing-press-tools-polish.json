@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-08-02T04:35:56.1653749Z",
+  "cli_dir": "\u003ccli-dir\u003e\\cli-neutral",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 451,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Generated platform adapter; the list command is a precise local profile listing and the source is DO-NOT-EDIT."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Generated learning surface; the list command is a precise local learning listing and the source is DO-NOT-EDIT."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 5,
+    "captured": "2026-08-02T04:28:28.0058305Z"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "exa-contents-polymorphic-coercion",
+  "applied_at": "2026-08-09",
+  "base_run_id": "20260809-202528-0d1b9f8c",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Add coerceBoolOrComposite() so --text/--highlights/--summary on contents map true/false and JSON-object values to the correct wire types.",
+  "reason": "The /contents endpoint's text/highlights/summary fields are bool|object polymorphic; the generated string flags sent 'true' as a literal string, which the API rejects with HTTP 400.",
+  "files": ["internal/cli/promoted_contents.go"],
+  "validated_outcome": "contents --urls https://example.com --text true returns extracted text (was HTTP 400).",
+  "upstream_issue": ""
+}

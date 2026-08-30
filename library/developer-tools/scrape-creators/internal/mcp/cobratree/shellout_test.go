@@ -16,6 +16,7 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/mcp/bound"
 	"github.com/spf13/cobra"
 )
 
@@ -66,6 +67,7 @@ func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {
 		"config":   "/tmp/evil.yaml",
 		"deliver":  "fd:3",
 		"home":     "/tmp/evil-home",
+		"insecure": true,
 		"profile":  "attacker",
 		"token":    "stolen-token",
 		// Keys containing "=" must not be emitted verbatim as flag=value.
@@ -83,6 +85,7 @@ func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {
 		"config":   true,
 		"deliver":  true,
 		"home":     true,
+		"insecure": true,
 		"profile":  true,
 		"token":    true,
 	})
@@ -90,7 +93,7 @@ func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("cliArgsFromMCP dropped/kept wrong keys: got %v, want %v", got, want)
 	}
-	for _, blocked := range []string{"--base-url", "--client", "--config", "--deliver", "--home", "--profile", "--token", "--args"} {
+	for _, blocked := range []string{"--base-url", "--client", "--config", "--deliver", "--home", "--insecure", "--profile", "--token", "--args"} {
 		for _, tok := range got {
 			if tok == blocked {
 				t.Errorf("blocked flag %q leaked through cliArgsFromMCP", blocked)
@@ -423,6 +426,30 @@ func TestToolOptionsHideBlockedRootFlagsButKeepLocalCollisions(t *testing.T) {
 	}
 }
 
+func TestPositionalVariadicNestedAngleBracketsSanitizesKey(t *testing.T) {
+	// "[<slug>...]" is a nested optional variadic. A naive end-trim leaves an
+	// inner ">" (schema key "slug>"), which the Anthropic API rejects with a
+	// 400 and wedges the whole session. The key must be plain "slug", and the
+	// repeated "<slug> [<slug>...]" must collapse to a single positional slot.
+	cmd := &cobra.Command{Use: "add <slug> [<slug>...]"}
+	positionals := positionalArgsForCommand(cmd, blockedStructuredArgsForCommand(cmd))
+	if len(positionals) != 1 {
+		t.Fatalf("expected 1 collapsed positional, got %d: %#v", len(positionals), positionals)
+	}
+	if positionals[0].InputName != "slug" {
+		t.Fatalf("expected InputName %q, got %q", "slug", positionals[0].InputName)
+	}
+
+	tool := mcplib.NewTool("add", toolOptionsForFlags(cmd, blockedStructuredArgsForCommand(cmd), positionals)...)
+	props := tool.InputSchema.Properties
+	if _, ok := props["slug"]; !ok {
+		t.Fatalf("clean positional key %q missing from schema: %#v", "slug", props)
+	}
+	if _, ok := props["slug>"]; ok {
+		t.Fatalf("invalid schema key %q leaked into schema: %#v", "slug>", props)
+	}
+}
+
 func TestRegisterAllPreservesTypedToolsAndExposesHandBuiltSearchWithoutTypedEquivalent(t *testing.T) {
 	root := &cobra.Command{Use: "root"}
 	root.AddCommand(
@@ -471,6 +498,42 @@ func TestRegisterAllPreservesTypedToolsAndExposesHandBuiltSearchWithoutTypedEqui
 	RegisterAll(sWithTypedSearch, root, func() (string, error) { return "missing-binary", nil })
 	if got := sWithTypedSearch.ListTools()["search"].Tool.Description; got != "typed search" {
 		t.Fatalf("typed search tool was overwritten: %q", got)
+	}
+}
+
+func TestRegisterAllDescendsThroughCobraHiddenButPrunesMCPHidden(t *testing.T) {
+	root := &cobra.Command{Use: "root"}
+	cobraHidden := &cobra.Command{Use: "orders", Hidden: true}
+	cobraHidden.AddCommand(&cobra.Command{
+		Use:  "triage",
+		RunE: func(cmd *cobra.Command, args []string) error { return nil },
+	})
+	mcpHidden := &cobra.Command{
+		Use:         "secrets",
+		Annotations: map[string]string{"mcp:hidden": "true"},
+	}
+	mcpHidden.AddCommand(&cobra.Command{
+		Use:  "inspect",
+		RunE: func(cmd *cobra.Command, args []string) error { return nil },
+	})
+	hiddenFramework := &cobra.Command{Use: "auth", Hidden: true}
+	hiddenFramework.AddCommand(&cobra.Command{
+		Use:  "status",
+		RunE: func(cmd *cobra.Command, args []string) error { return nil },
+	})
+	root.AddCommand(cobraHidden, mcpHidden, hiddenFramework)
+
+	s := server.NewMCPServer("test", "0.0.0")
+	RegisterAll(s, root, func() (string, error) { return "missing-binary", nil })
+	tools := s.ListTools()
+
+	if _, ok := tools["orders_triage"]; !ok {
+		t.Fatalf("visible descendant under Cobra-hidden parent was not mirrored: %#v", tools)
+	}
+	for _, excluded := range []string{"orders", "secrets", "secrets_inspect", "auth_status"} {
+		if _, ok := tools[excluded]; ok {
+			t.Fatalf("excluded command %q was mirrored: %#v", excluded, tools)
+		}
 	}
 }
 
@@ -571,6 +634,49 @@ func TestShellOutRejectsUnknownStructuredParameters(t *testing.T) {
 	}
 }
 
+func TestShellOutBoundsFinalError(t *testing.T) {
+	for _, mode := range []string{"fail-large-stderr", "fail-large-stdout"} {
+		t.Run(mode, func(t *testing.T) {
+			bin := writeShelloutHelper(t, mode)
+			handler := shellOutToCLI(
+				func() (string, error) { return bin, nil },
+				nil,
+				map[string]bool{},
+				map[string]bool{},
+				nil,
+				false,
+				nil,
+			)
+
+			result, err := handler(context.Background(), mcplib.CallToolRequest{})
+			if err != nil {
+				t.Fatalf("handler returned transport error: %v", err)
+			}
+			if !result.IsError {
+				t.Fatalf("handler returned success: %s", toolResultText(result))
+			}
+			if got := len(toolResultText(result)); got > bound.MaxBytes {
+				t.Fatalf("final MCP error was not bounded: %d bytes", got)
+			}
+		})
+	}
+}
+
+func TestCappedCaptureDrainsWithoutRetainingFullInput(t *testing.T) {
+	capture := newCappedCapture()
+	input := strings.Repeat("x", shelloutCaptureLimit+100)
+	n, err := capture.Write([]byte(input))
+	if err != nil {
+		t.Fatalf("capped capture write: %v", err)
+	}
+	if n != len(input) {
+		t.Fatalf("capped capture wrote %d bytes, want %d", n, len(input))
+	}
+	if got := len(capture.String()); got != shelloutCaptureLimit {
+		t.Fatalf("capped capture retained %d bytes, want %d", got, shelloutCaptureLimit)
+	}
+}
+
 func TestRunCLICommandKeepsStdoutSeparateFromStderr(t *testing.T) {
 	bin := writeShelloutHelper(t, "success")
 	got, err := RunCLICommand(context.Background(), bin, []string{"alpha", "beta"})
@@ -613,6 +719,24 @@ func TestRunCLICommandFallsBackToStdoutOnFailureWithoutStderr(t *testing.T) {
 	}
 }
 
+func TestRunCLICommandBoundsFailureOutput(t *testing.T) {
+	for _, mode := range []string{"fail-large-stderr", "fail-large-stdout"} {
+		t.Run(mode, func(t *testing.T) {
+			bin := writeShelloutHelper(t, mode)
+			_, err := RunCLICommand(context.Background(), bin, nil)
+			if err == nil {
+				t.Fatalf("RunCLICommand %s succeeded unexpectedly", mode)
+			}
+			if len(err.Error()) > bound.MaxBytes+512 {
+				t.Fatalf("failure output was not bounded: %d bytes", len(err.Error()))
+			}
+			if !strings.Contains(err.Error(), `"truncated":true`) {
+				t.Fatalf("bounded failure output did not include a preview envelope: %v", err)
+			}
+		})
+	}
+}
+
 func writeShelloutHelper(t *testing.T, mode string) string {
 	t.Helper()
 	dir := t.TempDir()
@@ -626,6 +750,10 @@ func writeShelloutHelper(t *testing.T, mode string) string {
 			body = "@echo off\r\necho boom from stderr 1>&2\r\nexit /b 7\r\n"
 		case "fail-stdout":
 			body = "@echo off\r\necho stdout failure\r\nexit /b 7\r\n"
+		case "fail-large-stderr":
+			body = "@echo off\r\nfor /L %%i in (1,1,70000) do <nul set /p =x 1>&2\r\nexit /b 7\r\n"
+		case "fail-large-stdout":
+			body = "@echo off\r\nfor /L %%i in (1,1,70000) do <nul set /p =x\r\nexit /b 7\r\n"
 		default:
 			t.Fatalf("unknown mode %q", mode)
 		}
@@ -643,6 +771,10 @@ func writeShelloutHelper(t *testing.T, mode string) string {
 		body = "#!/bin/sh\necho boom from stderr >&2\nexit 7\n"
 	case "fail-stdout":
 		body = "#!/bin/sh\necho stdout failure\nexit 7\n"
+	case "fail-large-stderr":
+		body = "#!/bin/sh\nhead -c 70000 /dev/zero | tr '\\000' x >&2\nexit 7\n"
+	case "fail-large-stdout":
+		body = "#!/bin/sh\nhead -c 70000 /dev/zero | tr '\\000' x\nexit 7\n"
 	default:
 		t.Fatalf("unknown mode %q", mode)
 	}

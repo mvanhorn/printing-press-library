@@ -5,6 +5,7 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -55,25 +56,46 @@ func newNovelCompareCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			// Scan the sites concurrently (each scan is several seconds) so the
-			// matrix returns in roughly one scan's time rather than the sum.
+			// matrix returns in roughly one scan's time rather than the sum. For
+			// --source is-agentic every worker goes through the one process-wide
+			// client from newAgenticClient, so the four workers share a single
+			// 2 req/s limiter and no extra throttle is needed here.
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 			results, ferrs := cliutil.FanoutRun(ctx, urls,
 				func(u string) string { return u },
-				func(c context.Context, u string) (*store.Report, error) {
-					raw, err := resolveReportCtx(c, flags, u)
-					if err != nil {
-						return nil, err
-					}
-					return store.ParseReport(raw)
+				func(c context.Context, u string) (json.RawMessage, error) {
+					return resolveReportCtx(c, flags, u)
 				})
-			for _, fe := range ferrs {
-				fmt.Fprintf(cmd.ErrOrStderr(), "warning: could not scan %s: %v\n", fe.Source, fe.Err)
+			// Surface every per-source failure (429, 404, site error) on stderr
+			// so none is silently dropped from the matrix.
+			cliutil.FanoutReportErrors(cmd.ErrOrStderr(), ferrs)
+
+			if len(results) == 0 {
+				return apiErr(fmt.Errorf("none of the %d site(s) could be scanned", len(urls)))
 			}
+
+			if flags.sourceOrDefault() == store.SourceIsAgentic {
+				reports := make([]*store.AgenticReport, 0, len(results))
+				for _, r := range results {
+					if ag, err := store.ParseAgenticReport(r.Value); err == nil {
+						reports = append(reports, ag)
+					}
+				}
+				if len(reports) == 0 {
+					return apiErr(fmt.Errorf("none of the %d site(s) produced an is-agentic report", len(urls)))
+				}
+				result := store.BuildAgenticCompare(reports)
+				if !wantsHumanTable(cmd.OutOrStdout(), flags) {
+					return printJSONFiltered(cmd.OutOrStdout(), result, flags)
+				}
+				return renderCompare(cmd, result)
+			}
+
 			reports := make([]*store.Report, 0, len(results))
 			for _, r := range results {
-				if r.Value != nil {
-					reports = append(reports, r.Value)
+				if rep, err := store.ParseReport(r.Value); err == nil {
+					reports = append(reports, rep)
 				}
 			}
 			if len(reports) == 0 {
@@ -97,7 +119,11 @@ func renderCompare(cmd *cobra.Command, res store.CompareResult) error {
 	// Header: check column + one column per site (host + level).
 	header := "CHECK"
 	for _, s := range res.Sites {
-		header += "\t" + store.NormalizeURL(s.URL) + " (L" + itoa(s.Level) + ")"
+		if s.Score != nil {
+			header += "\t" + store.NormalizeURL(s.URL) + " (score " + itoa(*s.Score) + ")"
+		} else {
+			header += "\t" + store.NormalizeURL(s.URL) + " (L" + itoa(s.Level) + ")"
+		}
 	}
 	fmt.Fprintln(tw, bold(header))
 

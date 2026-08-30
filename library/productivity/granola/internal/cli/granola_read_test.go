@@ -5,7 +5,9 @@ package cli
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"encoding/json"
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -319,15 +321,431 @@ func TestGranolaRead_StorePrecedesCache(t *testing.T) {
 	}
 }
 
+// --- recipe + chat store readers -------------------------------------------
+//
+// The four tables below (recipes, recipes_usage, chat_threads, chat_messages)
+// are written on every cache sync and, before these readers existed, read by
+// nothing. The tests pin two different merge shapes on purpose: recipes merge
+// field-by-field (so cache-only config.instructions survives a store row),
+// while chat threads/messages fall back all-or-nothing (there is no
+// field-level merge to do).
+
+// withStoreDB opens (creating on first use) the Granola store at dbPath and
+// hands fn the raw handle. Mirrors seedStore for the tables the recipe and
+// chat readers consume.
+func withStoreDB(t *testing.T, dbPath string, fn func(ctx context.Context, db *sql.DB)) {
+	t.Helper()
+	ctx := context.Background()
+	s, err := openGranolaStoreAt(ctx, dbPath)
+	if err != nil {
+		t.Fatalf("openGranolaStoreAt: %v", err)
+	}
+	defer s.Close()
+	fn(ctx, s.DB())
+}
+
+// seedRecipe writes one recipes row with the exact column shape the cache
+// sync writes.
+func seedRecipe(t *testing.T, dbPath, id, slug, name, description, category, source string) {
+	t.Helper()
+	withStoreDB(t, dbPath, func(ctx context.Context, db *sql.DB) {
+		if _, err := db.ExecContext(ctx,
+			`INSERT OR REPLACE INTO recipes(id,slug,name,description,category,source) VALUES (?,?,?,?,?,?)`,
+			id, slug, name, description, category, source); err != nil {
+			t.Fatalf("insert recipe %s: %v", id, err)
+		}
+	})
+}
+
+// seedRecipeUsage writes a recipes_usage row. total_count is an INTEGER
+// column, which is the whole reason the reader has to stringify it back.
+func seedRecipeUsage(t *testing.T, dbPath, recipeID string, total int64, lastUsedAt string) {
+	t.Helper()
+	withStoreDB(t, dbPath, func(ctx context.Context, db *sql.DB) {
+		if _, err := db.ExecContext(ctx,
+			`INSERT OR REPLACE INTO recipes_usage(recipe_id,total_count,last_used_at) VALUES (?,?,?)`,
+			recipeID, total, lastUsedAt); err != nil {
+			t.Fatalf("insert recipe usage %s: %v", recipeID, err)
+		}
+	})
+}
+
+func seedChatThread(t *testing.T, dbPath, id, meetingID, workspaceID, title, createdAt, updatedAt string) {
+	t.Helper()
+	withStoreDB(t, dbPath, func(ctx context.Context, db *sql.DB) {
+		if _, err := db.ExecContext(ctx,
+			`INSERT OR REPLACE INTO chat_threads(id,meeting_id,workspace_id,title,created_at,updated_at) VALUES (?,?,?,?,?,?)`,
+			id, meetingID, workspaceID, title, createdAt, updatedAt); err != nil {
+			t.Fatalf("insert chat thread %s: %v", id, err)
+		}
+	})
+}
+
+func seedChatMessage(t *testing.T, dbPath, id, threadID, role string, turnIndex int, content, createdAt string) {
+	t.Helper()
+	withStoreDB(t, dbPath, func(ctx context.Context, db *sql.DB) {
+		if _, err := db.ExecContext(ctx,
+			`INSERT OR REPLACE INTO chat_messages(id,thread_id,role,turn_index,content,created_at) VALUES (?,?,?,?,?,?)`,
+			id, threadID, role, turnIndex, content, createdAt); err != nil {
+			t.Fatalf("insert chat message %s: %v", id, err)
+		}
+	})
+}
+
+// writeStateCache writes a v6-shaped cache carrying an arbitrary state block
+// and points GRANOLA_CACHE_PATH at it. buildSyntheticCache only knows about
+// documents and transcripts; recipe and chat state needs its own keys.
+func writeStateCache(t *testing.T, dir string, state map[string]any) {
+	t.Helper()
+	path := filepath.Join(dir, "cache.json")
+	data, err := json.Marshal(map[string]any{
+		"cache": map[string]any{"version": 6, "state": state},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, data, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("GRANOLA_CACHE_PATH", path)
+}
+
+// recipeByID finds one recipe in the merged list.
+func recipeByID(recipes []granola.Recipe, id string) *granola.Recipe {
+	for i := range recipes {
+		if recipes[i].ID == id {
+			return &recipes[i]
+		}
+	}
+	return nil
+}
+
+// openRead is the boilerplate every reader test repeats.
+func openRead(t *testing.T) *granolaRead {
+	t.Helper()
+	v, err := openGranolaRead(context.Background())
+	if err != nil {
+		t.Fatalf("openGranolaRead: %v", err)
+	}
+	t.Cleanup(v.Close)
+	return v
+}
+
+// TestGranolaRead_Recipes_ServedFromStore_NoCache is the headline case for
+// R1: recipes hydrated into the store answer with no readable cache, with
+// the derived Source/Name fields LoadCache would have stamped.
+func TestGranolaRead_Recipes_ServedFromStore_NoCache(t *testing.T) {
+	db := newGranolaFixture(t)
+	t.Setenv("GRANOLA_API_KEY", "")
+	seedRecipe(t, db, "rec_a", "action-items", "", "Pull the action items", "meeting", "public")
+	seedRecipe(t, db, "rec_b", "weekly-sync", "Weekly Sync", "Recap the week", "", "user")
+
+	recipes := openRead(t).Recipes()
+	if len(recipes) != 2 {
+		t.Fatalf("expected 2 recipes from the store, got %d (%+v)", len(recipes), recipes)
+	}
+	a := recipeByID(recipes, "rec_a")
+	if a == nil {
+		t.Fatal("rec_a missing from the merged recipe list")
+	}
+	if a.Source != "public" {
+		t.Errorf("rec_a source = %q, want %q", a.Source, "public")
+	}
+	// LoadCache defaults Name to Slug; a store row with an empty name column
+	// must arrive with the same default applied.
+	if a.Name != "action-items" {
+		t.Errorf("rec_a name = %q, want the slug default %q", a.Name, "action-items")
+	}
+	if a.Config.Description != "Pull the action items" {
+		t.Errorf("rec_a description = %q", a.Config.Description)
+	}
+	if a.Category != "meeting" {
+		t.Errorf("rec_a category = %q", a.Category)
+	}
+	b := recipeByID(recipes, "rec_b")
+	if b == nil {
+		t.Fatal("rec_b missing from the merged recipe list")
+	}
+	if b.Name != "Weekly Sync" {
+		t.Errorf("rec_b name = %q, want the stored name", b.Name)
+	}
+	if b.Source != "user" {
+		t.Errorf("rec_b source = %q, want %q", b.Source, "user")
+	}
+}
+
+// TestGranolaRead_Recipes_CacheOnlyFieldsSurviveMerge is the R2 guard: the
+// store has no instructions column, so a store row must not blank the
+// instructions a readable cache still carries.
+func TestGranolaRead_Recipes_CacheOnlyFieldsSurviveMerge(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("GRANOLA_API_KEY", "")
+	writeStateCache(t, home, map[string]any{
+		"userRecipes": []map[string]any{{
+			"id":         "rec_a",
+			"slug":       "weekly-sync",
+			"visibility": "workspace",
+			"config": map[string]any{
+				"description":  "Cache description",
+				"instructions": "Cache instructions",
+			},
+		}},
+	})
+	db := filepath.Join(home, ".local", "share", "granola-pp-cli", "data.db")
+	seedRecipe(t, db, "rec_a", "weekly-sync", "Weekly Sync", "Store description", "meeting", "user")
+
+	recipes := openRead(t).Recipes()
+	if len(recipes) != 1 {
+		t.Fatalf("cache and store rows for one recipe must merge into one, got %d (%+v)", len(recipes), recipes)
+	}
+	r := recipes[0]
+	if r.Config.Instructions != "Cache instructions" {
+		t.Errorf("cache-only instructions were lost: %q", r.Config.Instructions)
+	}
+	if r.Visibility != "workspace" {
+		t.Errorf("cache-only visibility was lost: %q", r.Visibility)
+	}
+	if r.Config.Description != "Store description" {
+		t.Errorf("store description should win, got %q", r.Config.Description)
+	}
+	if r.Name != "Weekly Sync" {
+		t.Errorf("store name should win, got %q", r.Name)
+	}
+	if r.Source != "user" {
+		t.Errorf("source = %q, want %q", r.Source, "user")
+	}
+}
+
+// TestGranolaRead_Recipes_EmptyStoreValuesDoNotBlankCache pins the other
+// half of the field-level merge: an empty store column is "no answer", not
+// an instruction to erase.
+func TestGranolaRead_Recipes_EmptyStoreValuesDoNotBlankCache(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("GRANOLA_API_KEY", "")
+	writeStateCache(t, home, map[string]any{
+		"publicRecipes": []map[string]any{{
+			"id":   "rec_a",
+			"slug": "cache-slug",
+			"config": map[string]any{
+				"description":  "Cache description",
+				"instructions": "Cache instructions",
+			},
+		}},
+	})
+	db := filepath.Join(home, ".local", "share", "granola-pp-cli", "data.db")
+	seedRecipe(t, db, "rec_a", "", "", "", "", "")
+
+	recipes := openRead(t).Recipes()
+	if len(recipes) != 1 {
+		t.Fatalf("expected 1 merged recipe, got %d (%+v)", len(recipes), recipes)
+	}
+	r := recipes[0]
+	if r.Name != "cache-slug" {
+		t.Errorf("empty store name blanked the cache name: %q", r.Name)
+	}
+	if r.Slug != "cache-slug" {
+		t.Errorf("empty store slug blanked the cache slug: %q", r.Slug)
+	}
+	if r.Config.Description != "Cache description" {
+		t.Errorf("empty store description blanked the cache description: %q", r.Config.Description)
+	}
+	if r.Source != "public" {
+		t.Errorf("empty store source blanked the cache-derived source: %q", r.Source)
+	}
+}
+
+// TestGranolaRead_RecipeUsage_TotalCountRoundTripsAsString covers the type
+// mismatch that would otherwise read as zero: the column is an INTEGER, the
+// typed field is the cache's string, and both consumers Sscanf it.
+func TestGranolaRead_RecipeUsage_TotalCountRoundTripsAsString(t *testing.T) {
+	db := newGranolaFixture(t)
+	t.Setenv("GRANOLA_API_KEY", "")
+	seedRecipe(t, db, "rec_a", "action-items", "", "", "", "public")
+	seedRecipeUsage(t, db, "rec_a", 42, "2026-05-01T10:00:00.000Z")
+
+	usage := openRead(t).RecipesUsage()
+	u, ok := usage["rec_a"]
+	if !ok {
+		t.Fatalf("usage for rec_a missing: %+v", usage)
+	}
+	if u.TotalCount != "42" {
+		t.Errorf("total_count = %q, want %q", u.TotalCount, "42")
+	}
+	if u.LastUsedAt != "2026-05-01T10:00:00.000Z" {
+		t.Errorf("last_used_at = %q", u.LastUsedAt)
+	}
+	var n int64
+	if _, err := fmt.Sscanf(u.TotalCount, "%d", &n); err != nil {
+		t.Fatalf("Sscanf(%q): %v", u.TotalCount, err)
+	}
+	if n != 42 {
+		t.Errorf("Sscanf yielded %d, want 42", n)
+	}
+}
+
+// TestGranolaRead_ChatMessages_OrderedByTurnIndex: insertion order is not
+// turn order, and the readers must not leak that.
+func TestGranolaRead_ChatMessages_OrderedByTurnIndex(t *testing.T) {
+	db := newGranolaFixture(t)
+	t.Setenv("GRANOLA_API_KEY", "")
+	seedChatThread(t, db, "thr_1", "not_m1", "ws_1", "Thread One",
+		"2026-05-01T10:00:00.000Z", "2026-05-01T10:05:00.000Z")
+	seedChatMessage(t, db, "msg_c", "thr_1", "assistant", 2, "third", "2026-05-01T10:02:00.000Z")
+	seedChatMessage(t, db, "msg_a", "thr_1", "user", 0, "first", "2026-05-01T10:00:00.000Z")
+	seedChatMessage(t, db, "msg_b", "thr_1", "assistant", 1, "second", "2026-05-01T10:01:00.000Z")
+	// A second thread's messages must not bleed into the first.
+	seedChatThread(t, db, "thr_2", "not_m2", "ws_1", "Thread Two", "", "")
+	seedChatMessage(t, db, "msg_other", "thr_2", "user", 0, "elsewhere", "")
+
+	v := openRead(t)
+	threads := v.ChatThreads()
+	th, ok := threads["thr_1"]
+	if !ok {
+		t.Fatalf("thr_1 missing from the store-served threads: %+v", threads)
+	}
+	if th.Data.Title != "Thread One" || th.Data.DocumentID != "not_m1" || th.WorkspaceID != "ws_1" {
+		t.Errorf("thread not reconstructed faithfully: %+v", th)
+	}
+	if th.CreatedAt != "2026-05-01T10:00:00.000Z" || th.UpdatedAt != "2026-05-01T10:05:00.000Z" {
+		t.Errorf("thread timestamps not reconstructed: %+v", th)
+	}
+
+	msgs := v.ChatThreadMessages("thr_1")
+	if len(msgs) != 3 {
+		t.Fatalf("expected 3 messages for thr_1, got %d (%+v)", len(msgs), msgs)
+	}
+	for i, want := range []string{"first", "second", "third"} {
+		if msgs[i].Data.RawText != want {
+			t.Errorf("message %d = %q, want %q (turn order broken: %+v)", i, msgs[i].Data.RawText, want, msgs)
+		}
+		if msgs[i].Data.TurnIndex != i {
+			t.Errorf("message %d turn_index = %d", i, msgs[i].Data.TurnIndex)
+		}
+	}
+	if msgs[0].Data.Role != "user" || msgs[1].Data.Role != "assistant" {
+		t.Errorf("roles not reconstructed: %+v", msgs)
+	}
+	if msgs[0].ID != "msg_a" {
+		t.Errorf("message id not reconstructed: %q", msgs[0].ID)
+	}
+	if all := v.ChatMessages(); len(all) != 4 {
+		t.Errorf("ChatMessages() = %d messages, want 4", len(all))
+	}
+}
+
+// TestGranolaRead_ChatThreadWithoutMessages_ReturnsEmptyList: a thread
+// nobody replied in is an answer, not an error.
+func TestGranolaRead_ChatThreadWithoutMessages_ReturnsEmptyList(t *testing.T) {
+	db := newGranolaFixture(t)
+	t.Setenv("GRANOLA_API_KEY", "")
+	seedChatThread(t, db, "thr_empty", "not_m1", "ws_1", "Silent Thread", "2026-05-01T10:00:00.000Z", "")
+
+	v := openRead(t)
+	if _, ok := v.ChatThreads()["thr_empty"]; !ok {
+		t.Fatal("thread with no messages should still be listed")
+	}
+	msgs := v.ChatThreadMessages("thr_empty")
+	if msgs == nil {
+		t.Fatal("expected an empty slice, got nil")
+	}
+	if len(msgs) != 0 {
+		t.Errorf("expected no messages, got %+v", msgs)
+	}
+}
+
+// TestGranolaRead_Chat_CacheFallback_WhenStoreEmpty keeps legacy installs
+// working: chat is all-or-nothing, so an empty store defers to the cache.
+func TestGranolaRead_Chat_CacheFallback_WhenStoreEmpty(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("GRANOLA_API_KEY", "")
+	writeStateCache(t, home, map[string]any{
+		"entities": map[string]any{
+			"chat_thread": map[string]any{
+				"thr_1": map[string]any{
+					"id":           "thr_1",
+					"type":         "chat_thread",
+					"workspace_id": "ws_1",
+					"created_at":   "2026-05-01T10:00:00.000Z",
+					"data": map[string]any{
+						"title":       "Cache Thread",
+						"document_id": "not_m1",
+					},
+				},
+			},
+			"chat_message": map[string]any{
+				"msg_b": map[string]any{
+					"id":   "msg_b",
+					"data": map[string]any{"thread_id": "thr_1", "role": "assistant", "turn_index": 1, "raw_text": "cache second"},
+				},
+				"msg_a": map[string]any{
+					"id":   "msg_a",
+					"data": map[string]any{"thread_id": "thr_1", "role": "user", "turn_index": 0, "raw_text": "cache first"},
+				},
+			},
+		},
+	})
+
+	v := openRead(t)
+	th, ok := v.ChatThreads()["thr_1"]
+	if !ok {
+		t.Fatalf("cache thread missing: %+v", v.ChatThreads())
+	}
+	if th.Data.Title != "Cache Thread" {
+		t.Errorf("thread title = %q", th.Data.Title)
+	}
+	msgs := v.ChatThreadMessages("thr_1")
+	if len(msgs) != 2 {
+		t.Fatalf("expected 2 cache messages, got %d (%+v)", len(msgs), msgs)
+	}
+	if msgs[0].Data.RawText != "cache first" || msgs[1].Data.RawText != "cache second" {
+		t.Errorf("cache messages out of turn order: %+v", msgs)
+	}
+	if len(v.ChatMessages()) != 2 {
+		t.Errorf("ChatMessages() = %d, want 2", len(v.ChatMessages()))
+	}
+}
+
+// TestGranolaRead_RecipeAndChatReaders_EmptyEverywhere covers the state a
+// fresh install sits in between `sync-api` and `sync`: the store exists but
+// none of these four tables has a row, and no cache is readable. Every
+// accessor must answer empty rather than panic.
+func TestGranolaRead_RecipeAndChatReaders_EmptyEverywhere(t *testing.T) {
+	db := newGranolaFixture(t)
+	t.Setenv("GRANOLA_API_KEY", "")
+	withStoreDB(t, db, func(context.Context, *sql.DB) {}) // create the schema, seed nothing
+
+	v := openRead(t)
+	if got := v.Recipes(); got == nil || len(got) != 0 {
+		t.Errorf("Recipes() = %+v, want an empty slice", got)
+	}
+	if got := v.RecipesUsage(); got == nil || len(got) != 0 {
+		t.Errorf("RecipesUsage() = %+v, want an empty map", got)
+	}
+	if got := v.ChatThreads(); got == nil || len(got) != 0 {
+		t.Errorf("ChatThreads() = %+v, want an empty map", got)
+	}
+	if got := v.ChatMessages(); got == nil || len(got) != 0 {
+		t.Errorf("ChatMessages() = %+v, want an empty map", got)
+	}
+	if got := v.ChatThreadMessages("nope"); got == nil || len(got) != 0 {
+		t.Errorf("ChatThreadMessages() = %+v, want an empty slice", got)
+	}
+}
+
 // cacheOnlyCallSites is the explicit allowlist for files that legitimately
 // still open the desktop cache directly. Every other openGranolaCache()
 // call site must have been rerouted through openGranolaRead().
 //
 // Keep the reason honest: an entry here is a statement that the data simply
 // is not in the store, not a note that rerouting was skipped.
+// chat.go and recipes.go were retired from this list once they were rerouted
+// through openGranolaRead(): the store's recipes/recipes_usage/chat_threads/
+// chat_messages tables are populated by the cache sync, so that data outlives
+// the cache's decryptability and is not cache-only at read time.
 var cacheOnlyCallSites = map[string]string{
-	"chat.go":       "chat threads and messages are cache-only state; no API sync path fills chat_threads/chat_messages",
-	"recipes.go":    "recipes are cache-only state; the store's recipes table is populated from the cache alone",
 	"workspaces.go": "workspaces are cache-only state with an existing live fallback",
 	"sync_cache.go": "the cache-to-store sync is the writer; reading the cache is the whole point of the command",
 }

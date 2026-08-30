@@ -1,0 +1,670 @@
+{
+  "export": {
+    "app": "Corpova",
+    "analysis": "All analyzed studies",
+    "query": "intermittent fasting improves insulin sensitivity",
+    "filters": [],
+    "rows_exported": 57,
+    "rows_total": 57,
+    "source": "OpenAlex (CC0)",
+    "exported_at": "2026-08-29"
+  },
+  "rows": [],
+  "response": {
+    "stance_source": "heuristic",
+    "llm_error": "",
+    "divergence": null,
+    "result": {
+      "claim": "intermittent fasting improves insulin sensitivity",
+      "verdict": "evidence-supports",
+      "consensus_score": 0.86,
+      "confidence": 0.86,
+      "evidence_strength": "high",
+      "apex_design": "meta-analysis",
+      "study_count": 57,
+      "supporting": 46,
+      "refuting": 3,
+      "mixed": 2,
+      "inconclusive": 6,
+      "total_citations": 18787,
+      "stance_method": "heuristic",
+      "top_supporting": [
+        {
+          "title": "Breaking Up Prolonged Sitting Reduces Postprandial Glucose and Insulin Responses",
+          "year": 2012,
+          "doi": "10.2337/dc11-1931",
+          "cited_by_count": 1199,
+          "design": "randomized-controlled-trial",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "OBJECTIVE: Observational studies show breaking up prolonged sitting has beneficial associations with cardiometabolic risk markers, but intervention studies are required to investigate causality. We examined the acute effects on postprandial glucose and insulin levels of uninterrupted sitting compared with sitting interrupted by brief bouts of light- or moderate-intensity walking. RESEARCH DESIGN AND METHODS: Overweight/obese adults (n = 19), aged 45-65 years, were recruited for a randomized three-period, three-treatment acute crossover trial: 1) uninterrupted sitting; 2) seated with 2-min bouts of light-intensity walking every 20 min; and 3) seated with 2-min bouts of moderate-intensity walking every 20 min. A standardized test drink was provided after an initial 2-h period of uninterrupted sitting. The positive incremental area under curves (iAUC) for glucose and insulin (mean [95% CI]) for the 5 h after the test drink (75 g glucose, 50 g fat) were calculated for the respective treatments. RESULTS: The glucose iAUC (mmol/L) · h after both activity-break conditions was reduced (light: 5.2 [4.1-6.6]; moderate: 4.9 [3.8-6.1]; both P < 0.01) compared with uninterrupted sitting (6.9 [5.5-8.7]). Insulin iAUC (pmol/L) · h was also reduced with both activity-break conditions (light: 633.6 [552.4-727.1]; moderate: 637.6 [555.5-731.9], P < 0.0001) compared with uninterrupted sitting (828.6 [722.0-950.9]). CONCLUSIONS: Interrupting sitting time with short bouts of light- or moderate-in"
+        },
+        {
+          "title": "Insulin Resistance: A Metabolic Pathway to Chronic Liver Disease *",
+          "year": 2005,
+          "doi": "10.1002/hep.20920",
+          "cited_by_count": 899,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Insulin resistance (IR) is the pathophysiological hallmark of nonalcoholic fatty liver disease (NAFLD), one of the most common causes of chronic liver disease in Western countries. We review the definition of IR, the methods for the quantitative assessment of insulin action, the pathophysiology of IR, and the role of IR in the pathogenesis of chronic liver disease. Increased free fatty acid flux from adipose tissue to nonadipose organs, a result of abnormal fat metabolism, leads to hepatic triglyceride accumulation and contributes to impaired glucose metabolism and insulin sensitivity in muscle and in the liver. Several factors secreted or expressed in the adipocyte contribute to the onset of a proinflammatory state, which may be limited to the liver or more extensively expressed throughout the body. IR is the common characteristic of the metabolic syndrome and its related features. It is a systemic disease affecting the nervous system, muscles, pancreas, kidney, heart, and immune system, in addition to the liver. A complex interaction between genes and the environment favors or enhances IR and the phenotypic expression of NAFLD in individual patients. Advanced fibrotic liver disease is associated with multiple features of the metabolic syndrome, and the risk of progressive liver disease should not be underestimated in individuals with metabolic disorders. Finally, the ability of insulin-sensitizing, pharmacological agents to treat NAFLD by reducing IR in the liver (metformin"
+        },
+        {
+          "title": "Exercise‐Induced Reduction in Obesity and Insulin Resistance in Women: a Randomized Controlled Trial",
+          "year": 2004,
+          "doi": "10.1038/oby.2004.95",
+          "cited_by_count": 698,
+          "design": "randomized-controlled-trial",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "OBJECTIVES: To determine the effects of equivalent diet- or exercise-induced weight loss and exercise without weight loss on subcutaneous fat, visceral fat, and insulin sensitivity in obese women. RESEARCH METHODS AND PROCEDURES: Fifty-four premenopausal women with abdominal obesity [waist circumference 110.1 +/- 5.8 cm (mean +/- SD)] (BMI 31.3 +/- 2.0 kg/m2) were randomly assigned to one of four groups: diet weight loss (n = 15), exercise weight loss (n = 17), exercise without weight loss (n = 12), and a weight-stable control group (n = 10). All groups underwent a 14-week intervention. RESULTS: Body weight decreased by approximately 6.5% within both weight loss groups and was unchanged in the exercise without weight loss and control groups. In comparison with controls, cardiorespiratory fitness improved within the exercise groups only (p < 0.01). Reduction in total, abdominal, and abdominal subcutaneous fat within the exercise weight loss group was greater (p < 0.001) than within all other groups. The reduction in total and abdominal fat within the diet weight loss and exercise without weight loss groups was greater than within controls (p < 0.001) but not different from each other (p > 0.05). Visceral fat decreased within all treatment groups (p < 0.008), and these changes were not different from each other. In comparison with the control group, insulin sensitivity improved within the exercise weight loss group alone (p < 0.001). DISCUSSION: Daily exercise without caloric r"
+        }
+      ],
+      "top_refuting": [
+        {
+          "title": "Effect of Low-Fat vs Low-Carbohydrate Diet on 12-Month Weight Loss in Overweight Adults and the Association With Genotype Pattern or Insulin Secretion",
+          "year": 2018,
+          "doi": "10.1001/jama.2018.0245",
+          "cited_by_count": 706,
+          "design": "randomized-controlled-trial",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Importance: Dietary modification remains key to successful weight loss. Yet, no one dietary strategy is consistently superior to others for the general population. Previous research suggests genotype or insulin-glucose dynamics may modify the effects of diets. Objective: To determine the effect of a healthy low-fat (HLF) diet vs a healthy low-carbohydrate (HLC) diet on weight change and if genotype pattern or insulin secretion are related to the dietary effects on weight loss. Design, Setting, and Participants: The Diet Intervention Examining The Factors Interacting with Treatment Success (DIETFITS) randomized clinical trial included 609 adults aged 18 to 50 years without diabetes with a body mass index between 28 and 40. The trial enrollment was from January 29, 2013, through April 14, 2015; the date of final follow-up was May 16, 2016. Participants were randomized to the 12-month HLF or HLC diet. The study also tested whether 3 single-nucleotide polymorphism multilocus genotype responsiveness patterns or insulin secretion (INS-30; blood concentration of insulin 30 minutes after a glucose challenge) were associated with weight loss. Interventions: Health educators delivered the behavior modification intervention to HLF (n = 305) and HLC (n = 304) participants via 22 diet-specific small group sessions administered over 12 months. The sessions focused on ways to achieve the lowest fat or carbohydrate intake that could be maintained long-term and emphasized diet quality. Main O"
+        },
+        {
+          "title": "Hyperhomocysteinemia Is Associated With an Increased Risk of Cardiovascular Disease, Especially in Non–Insulin-Dependent Diabetes Mellitus",
+          "year": 1998,
+          "doi": "10.1161/01.atv.18.1.133",
+          "cited_by_count": 364,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "A high serum total homocysteine (tHcy) level is an independent risk factor for cardiovascular disease. Because it is not known whether the strength of the association between hyperhomocysteinemia and cardiovascular disease is similar for peripheral arterial, coronary artery, and cerebrovascular disease, we compared the three separate risk estimates in an age-, sex-, and glucose tolerance-stratified random sample (n=631) from a 50- to 75-year-old general white population. Furthermore, we investigated the combined effect of hyperhomocysteinemia and diabetes mellitus with regard to cardiovascular disease. The prevalence of fasting hyperhomocysteinemia (>14.0 micromol/L) was 25.8%. After adjustment for age, sex, hypertension, hypercholesterolemia, diabetes, and smoking, the odds ratios (ORs; 95% confidence intervals) per 5-micromol/L increment in tHcy were 1.44 (1.10 to 1.87) for peripheral arterial, 1.25 (1.03 to 1.51) for coronary artery, 1.24 (0.97 to 1.58) for cerebrovascular, and 1.39 (1.15 to 1.68) for any cardiovascular disease. After stratification by glucose tolerance category and adjustment for the classic risk factors and serum creatinine, the ORs per 5-micromol/L increment in tHcy for any cardiovascular disease were 1.38 (1.03 to 1.85) in normal glucose tolerance, 1.55 (1.01 to 2.38) in impaired glucose tolerance, and 2.33 (1.11 to 4.90) in non-insulin-dependent diabetes mellitus (P=.07 for interaction). We conclude that the magnitude of the association between hyperh"
+        },
+        {
+          "title": "Insulin Resistance in Alzheimer's Disease",
+          "year": 2018,
+          "doi": "10.3389/fnins.2018.00830",
+          "cited_by_count": 229,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "The epidemiological connection between diabetes, obesity, and dementia represents an important public health challenge but also an opportunity to further understand these conditions. The key intersection among the three diseases is insulin resistance, which has been classically described to occur in peripheral tissues in diabetes and obesity and has recently been shown to develop in Alzheimer's disease (AD) brains. Here we review encouraging preclinical and clinical data indicating the potential of targeting impaired insulin signaling with antidiabetic drugs to treat dementia. We further discuss biological mechanisms through which peripheral metabolic dysregulation may lead to brain malfunction, providing possible explanations for the connection between diabetes, obesity, and AD. Finally, we briefly discuss how lifelong allostatic load may interact with aging to increase the risk of dementia in late life."
+        }
+      ],
+      "all_studies": [
+        {
+          "title": "Intermittent Fasting During Ramadan Improves Insulin Sensitivity and Anthropometric Parameters in Healthy Young Muslim Men",
+          "year": 2018,
+          "doi": "10.1177/1559827618815430",
+          "cited_by_count": 28,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "The current study aimed to determine the effect of fasting during Ramadan on the metabolic profile, anthropometry, and serum leptin and adiponectin concentrations. Anthropometry and blood samples were examined at 2 phases: baseline (within 3 days of the start of the Ramadan fast) and end-line (in the last 3 days before the end of the Ramadan fast) in 27 healthy Muslim male participants who completed Ramadan fasting. Results demonstrate reductions in body weight (P < .001), body mass index (P < .001), fat mass (P = .003), muscle mass (P = .004), and waist circumference (P < .001) following reductions in energy intake (P = .003). Insulin sensitivity was improved. Serum insulin concentration and homeostatic model assessment of insulin resistance decreased significantly (P = .005 and P = .009). No significant change in fasting plasma glucose was observed. Correlation coefficients showed a significant correlation between the percentage changes in body weight and percentage changes in serum leptin concentration (r = 0.412; P = .037). These results demonstrate that intermittent fasting during Ramadan leads to beneficial effects by improving insulin sensitivity. It also resulted in a beneficial effect on weight and fat loss."
+        },
+        {
+          "title": "Insulin resistance and hypersecretion in obesity. European Group for the Study of Insulin Resistance (EGIR).",
+          "year": 1997,
+          "doi": "10.1172/jci119628",
+          "cited_by_count": 896,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "Insulin resistance and insulin hypersecretion are established features of obesity. Their prevalence, however, has only been inferred from plasma insulin concentrations. We measured insulin sensitivity (as the whole-body insulin-mediated glucose uptake) and fasting posthepatic insulin delivery rate (IDR) with the use of the euglycemic insulin clamp technique in a large group of obese subjects in the database of the European Group for the Study of Insulin Resistance (1,146 nondiabetic, normotensive Caucasian men and women aged 18-85 yr, with a body mass index (BMI) ranging from 15 to 55 kg.m-2). Insulin resistance, defined as the lowest decile of insulin sensitivity in the lean subgroup (608 subjects with a mean BMI of 29 kg.m-2). Insulin sensitivity declined linearly with BMI at an age- and sex-adjusted rate of 1.2 micromol.min-1.kg FFM-1 per BMI unit (95% confidence intervals = 1.0-1.4). Insulin hypersecretion, defined as the upper decile of IDR, was significantly (P<0.0001) more prevalent (38%) than insulin resistance in the obese group. In the whole dataset, IDR rose as a function of both BMI and insulin resistance in a nonlinear fashion. Neither the waist circumference nor the waist-to-hip ratio, indices of body fat distribution, was related to insulin sensitivity after adjustment for age, gender, and BMI; both, however, were positively associated (P<0.001) with insulin hypersecretion, particularly in women. In nondiabetic, normotensive obese subjects, the prevalence of in"
+        },
+        {
+          "title": "Effects of Intermittent Versus Continuous Energy Intakes on Insulin Sensitivity and Metabolic Risk in Women with Overweight",
+          "year": 2018,
+          "doi": "10.1002/oby.22345",
+          "cited_by_count": 149,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8,
+          "abstract": "OBJECTIVE: This study aimed to compare intermittent fasting (IF) versus continuous energy intakes at 100% or 70% of calculated energy requirements on insulin sensitivity, cardiometabolic risk, body weight, and composition. METHODS: ) were randomized to one of four diets (IF70, IF100, dietary restriction [DR70], or control) in a 2:2:2:1 ratio for 8 weeks. IF groups fasted for 24 hours after breakfast on three nonconsecutive days per week. All foods were provided and diets matched for macronutrient composition (35% fat, 15% protein, 50% carbohydrate). Insulin sensitivity by hyperinsulinemic-euglycemic clamp, weight, body composition, and plasma markers were assessed following a \"fed\" day (12-hour fast) and a 24-hour fast (IF only). RESULTS: IF70 displayed greater reductions in weight, fat mass, total- and low-density lipoprotein cholesterol, and nonesterified fatty acids compared with DR70 and IF100 (all P ≤ 0.05). IF100 lost more weight and fat than control. However, fasting insulin was increased. There were no group differences in insulin sensitivity by clamp; however, a 24-hour fast transiently reduced insulin sensitivity. CONCLUSIONS: When prescribed at matched energy restriction, IF reduced weight and fat mass and improved total and low-density lipoprotein cholesterol more than DR. IF prescribed in energy balance did not improve health compared with other groups, despite modest weight loss."
+        },
+        {
+          "title": "The Short-Chain Fatty Acid Acetate in Body Weight Control and Insulin Sensitivity",
+          "year": 2019,
+          "doi": "10.3390/nu11081943",
+          "cited_by_count": 630,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "The interplay of gut microbiota, host metabolism, and metabolic health has gained increased attention. Gut microbiota may play a regulatory role in gastrointestinal health, substrate metabolism, and peripheral tissues including adipose tissue, skeletal muscle, liver, and pancreas via its metabolites short-chain fatty acids (SCFA). Animal and human data demonstrated that, in particular, acetate beneficially affects host energy and substrate metabolism via secretion of the gut hormones like glucagon-like peptide-1 and peptide YY, which, thereby, affects appetite, via a reduction in whole-body lipolysis, systemic pro-inflammatory cytokine levels, and via an increase in energy expenditure and fat oxidation. Thus, potential therapies to increase gut microbial fermentation and acetate production have been under vigorous scientific scrutiny. In this review, the relevance of the colonically and systemically most abundant SCFA acetate and its effects on the previously mentioned tissues will be discussed in relation to body weight control and glucose homeostasis. We discuss in detail the differential effects of oral acetate administration (vinegar intake), colonic acetate infusions, acetogenic fiber, and acetogenic probiotic administrations as approaches to combat obesity and comorbidities. Notably, human data are scarce, which highlights the necessity for further human research to investigate acetate's role in host physiology, metabolic, and cardiovascular health."
+        },
+        {
+          "title": "Breaking Up Prolonged Sitting Reduces Postprandial Glucose and Insulin Responses",
+          "year": 2012,
+          "doi": "10.2337/dc11-1931",
+          "cited_by_count": 1199,
+          "design": "randomized-controlled-trial",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "OBJECTIVE: Observational studies show breaking up prolonged sitting has beneficial associations with cardiometabolic risk markers, but intervention studies are required to investigate causality. We examined the acute effects on postprandial glucose and insulin levels of uninterrupted sitting compared with sitting interrupted by brief bouts of light- or moderate-intensity walking. RESEARCH DESIGN AND METHODS: Overweight/obese adults (n = 19), aged 45-65 years, were recruited for a randomized three-period, three-treatment acute crossover trial: 1) uninterrupted sitting; 2) seated with 2-min bouts of light-intensity walking every 20 min; and 3) seated with 2-min bouts of moderate-intensity walking every 20 min. A standardized test drink was provided after an initial 2-h period of uninterrupted sitting. The positive incremental area under curves (iAUC) for glucose and insulin (mean [95% CI]) for the 5 h after the test drink (75 g glucose, 50 g fat) were calculated for the respective treatments. RESULTS: The glucose iAUC (mmol/L) · h after both activity-break conditions was reduced (light: 5.2 [4.1-6.6]; moderate: 4.9 [3.8-6.1]; both P < 0.01) compared with uninterrupted sitting (6.9 [5.5-8.7]). Insulin iAUC (pmol/L) · h was also reduced with both activity-break conditions (light: 633.6 [552.4-727.1]; moderate: 637.6 [555.5-731.9], P < 0.0001) compared with uninterrupted sitting (828.6 [722.0-950.9]). CONCLUSIONS: Interrupting sitting time with short bouts of light- or moderate-in"
+        },
+        {
+          "title": "Absence of exercise-induced variations in adiponectin levels despite decreased abdominal adiposity and improved insulin sensitivity in type 2 diabetic men",
+          "year": 2003,
+          "doi": "10.1530/eje.0.1490421",
+          "cited_by_count": 190,
+          "design": "randomized-controlled-trial",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "OBJECTIVE: We investigated the effect of an intensive training program on fasting leptin and adiponectin levels. METHODS: Sixteen middle-aged men with type 2 diabetes were randomly assigned to either a training or control group. The training program consisted of 8 weeks of supervised endurance exercise (75% VO(2peak), 45 min) twice a week, with intermittent exercise (five 2 min exercises at 85% VO(2peak) separated by 3 min exercises at 50% VO(2peak)) once a week, on an ergocycle. RESULTS: Training decreased abdominal fat by 44%, increased mid-thigh muscle cross-sectional area by 24%, and improved insulin sensitivity by 58% without significant change in body weight. Compared with controls, no significant variation in leptin or adiponectin levels was observed. However, in the trained group, change in adiponectin correlated with change in body weight (Spearman rank correlation, r(s):-0.76, P=0.03) but not with insulin sensitivity or abdominal adiposity variations. CONCLUSIONS: An 8 week intensive training program inducing a marked reduction in abdominal fat and increase in insulin sensitivity does not affect adiponectin and leptin levels in men with type 2 diabetes."
+        },
+        {
+          "title": "Insulin Resistance: A Metabolic Pathway to Chronic Liver Disease *",
+          "year": 2005,
+          "doi": "10.1002/hep.20920",
+          "cited_by_count": 899,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Insulin resistance (IR) is the pathophysiological hallmark of nonalcoholic fatty liver disease (NAFLD), one of the most common causes of chronic liver disease in Western countries. We review the definition of IR, the methods for the quantitative assessment of insulin action, the pathophysiology of IR, and the role of IR in the pathogenesis of chronic liver disease. Increased free fatty acid flux from adipose tissue to nonadipose organs, a result of abnormal fat metabolism, leads to hepatic triglyceride accumulation and contributes to impaired glucose metabolism and insulin sensitivity in muscle and in the liver. Several factors secreted or expressed in the adipocyte contribute to the onset of a proinflammatory state, which may be limited to the liver or more extensively expressed throughout the body. IR is the common characteristic of the metabolic syndrome and its related features. It is a systemic disease affecting the nervous system, muscles, pancreas, kidney, heart, and immune system, in addition to the liver. A complex interaction between genes and the environment favors or enhances IR and the phenotypic expression of NAFLD in individual patients. Advanced fibrotic liver disease is associated with multiple features of the metabolic syndrome, and the risk of progressive liver disease should not be underestimated in individuals with metabolic disorders. Finally, the ability of insulin-sensitizing, pharmacological agents to treat NAFLD by reducing IR in the liver (metformin"
+        },
+        {
+          "title": "Intermittent Fasting and Obesity-Related Health Outcomes",
+          "year": 2021,
+          "doi": "10.1001/jamanetworkopen.2021.39558",
+          "cited_by_count": 289,
+          "design": "systematic-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Importance: Several meta-analyses of randomized clinical trials (RCTs) have demonstrated the many health benefits of intermittent fasting (IF). However, there has been little synthesis of the strength and quality of this evidence in aggregate to date. Objective: To grade the evidence from published meta-analyses of RCTs that assessed the associations of IF (zero-calorie alternate-day fasting, modified alternate-day fasting, the 5:2 diet, and time-restricted eating) with obesity-related health outcomes. Evidence Review: PubMed, Embase, and Cochrane database of systematic reviews were searched from database inception to January 12, 2021. Data analysis was conducted from April 2021 through July 2021. Meta-analyses of RCTs investigating effects of IF in adults were included. The effect sizes of IF were recalculated using a random-effects model. We assessed the quality of evidence per association by applying the GRADE criteria (Grading of Recommendations, Assessment, Development, and Evaluations) as high, moderate, low, and very low. Findings: A total of 11 meta-analyses comprising 130 RCTs (median [IQR] sample size, 38 [24-69] participants; median [IQR] follow-up period, 3 [2-5] months) were included describing 104 unique associations of different types of IF with obesity-related health outcomes (median [IQR] studies per association, 4 [3-5]). There were 28 statistically significant associations (27%) that demonstrated the beneficial outcomes for body mass index, body weight, fat"
+        },
+        {
+          "title": "High-Intensity Intermittent Exercise and Fat Loss",
+          "year": 2010,
+          "doi": "10.1155/2011/868305",
+          "cited_by_count": 537,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "The effect of regular aerobic exercise on body fat is negligible; however, other forms of exercise may have a greater impact on body composition. For example, emerging research examining high-intensity intermittent exercise (HIIE) indicates that it may be more effective at reducing subcutaneous and abdominal body fat than other types of exercise. The mechanisms underlying the fat reduction induced by HIIE, however, are undetermined. Regular HIIE has been shown to significantly increase both aerobic and anaerobic fitness. HIIE also significantly lowers insulin resistance and results in a number of skeletal muscle adaptations that result in enhanced skeletal muscle fat oxidation and improved glucose tolerance. This review summarizes the results of HIIE studies on fat loss, fitness, insulin resistance, and skeletal muscle. Possible mechanisms underlying HIIE-induced fat loss and implications for the use of HIIE in the treatment and prevention of obesity are also discussed."
+        },
+        {
+          "title": "Intermittent Exercise with and without Hypoxia Improves Insulin Sensitivity in Individuals with Type 2 Diabetes",
+          "year": 2012,
+          "doi": "10.1210/jc.2011-2829",
+          "cited_by_count": 73,
+          "design": "randomized-controlled-trial",
+          "stance": "supporting",
+          "stance_confidence": 0.875,
+          "abstract": "CONTEXT: Hypoxia and muscle contraction stimulate glucose transport activity in vitro. Exercise and hypoxia have additive effects on insulin sensitivity in type 2 diabetics (T2D). OBJECTIVE: The objective of the study was to examine the effectiveness of intermittent exercise with and without hypoxia on acute- and moderate-term glucose kinetics and insulin sensitivity in T2D. SETTING: The study was conducted at a university research center. DESIGN, PARTICIPANTS, AND INTERVENTIONS: Eight male T2D patients completed the following: 1) 60 min of continuous exercise at 90% lactate threshold in hypoxia (HyEx60); 2) intermittent exercise at 120% lactate threshold, separated by periods of passive recovery (5:5 min) in hypoxia [Hy5:5; O₂ ∼ 14.7 (0.2)%]; and 3) intermittent exercise (5:5 min) at 120% lactate threshold in normoxia (O₂ ∼ 20.93%). MAIN OUTCOME MEASURES: Glucose appearance and glucose disappearance, using an adapted non-steady-state one-compartment model were measured. Homeostasis models of insulin resistance (HOMA(IR)), fasting insulin resistance index (FIRI), and β-cell function were calculated 24 and 48 h after exercise conditions. RESULTS: Glucose disappearance increased from baseline (1.85 mg/kg · min⁻¹) compared with 24 h (2.01 min/kg · min⁻¹) after HyEx60 (P = 0.031). No difference was noted for both Hy5:5 (P = 0.064) and normoxia (P = 0.385). Hy5:5 demonstrated improvements in HOMA(IR) from baseline [d 1, 6.20 (0.40)] when comparisons were made with d 2 [4.83 (0.41)"
+        },
+        {
+          "title": "Intermittent fasting and dietary supplementation with 2‐deoxy‐ D ‐glucose improve functional and metabolic cardiovascular risk factors in rats",
+          "year": 2003,
+          "doi": "10.1096/fj.02-0996fje",
+          "cited_by_count": 143,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8500000000000001,
+          "abstract": "Hypertension and insulin resistance syndrome are risk factors for cardiovascular disease, and it is therefore important to identify interventions that can reduce blood pressure and improve glucose metabolism. We performed experiments aimed at determining whether intermittent fasting (IF) can improve cardiovascular health and also tested the hypothesis that beneficial effects of IF can be mimicked by dietary supplementation with 2-deoxy-D-glucose (2DG) a non-metabolizable glucose analog. Four-month-old male rats were implanted with telemetry probes to allow continuous monitoring of heart rate, blood pressure, physical activity, and body temperature. Rats were then maintained for 6 months on one of three different dietary regimens: ad libitum feeding, IF, or 2DG supplementation. Rats on the IF regimen consumed 30% less food over time and had reduced body weights compared with rats fed ad libitum, whereas rats on the 2DG regimen did not reduce their food intake and maintained their body weight. Heart rate and blood pressure were significantly decreased within 1 month in rats on IF and 2DG diets and were maintained at reduced levels thereafter. Body temperature was significantly decreased in group IF, but not in group 2DG. Levels of serum glucose and insulin were significantly decreased in rats maintained on IF and 2DG-supplemented diets, suggesting that IF and 2DG diets affect insulin sensitivity in a similar manner. Finally, rats in groups IF and 2DG exhibited increased levels "
+        },
+        {
+          "title": "Effect of Intermittent Fasting Diet on Glucose and Lipid Metabolism and Insulin Resistance in Patients with Impaired Glucose and Lipid Metabolism: A Systematic Review and Meta-Analysis",
+          "year": 2022,
+          "doi": "10.1155/2022/6999907",
+          "cited_by_count": 102,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "The question of whether or not intermittent fasting diets improve the clinical indicators of glycolipid metabolism remains unclear. This study systematically reviewed the relevant clinical trials to evaluate the effects of intermittent fasting diet on glucose and lipid metabolism and insulin sensitivity in patients with metabolic syndrome. To evaluate the effect of intermittent fasting diet intervention on patients with disorders of glucose and lipid metabolism, random-effect or fixed-effect meta-analysis models were used to calculate the average difference before and after intermittent fasting diet intervention and the corresponding 95% confidence intervals (CIs). After intermittent fasting diet intervention, in terms of glucose metabolism, fasting blood glucose reduced by 0.15 mmol/L (95% CI: −0.23; −0.06), glycosylated hemoglobin reduced by 0.08 (95% CIs: −0.25; −0.10), insulin plasma levels reduced by 13.25 uUI (95% CIs: −16.69; −9.82), and HOMA-IR decreased by 0.31 on an average (95% CIs: −0.44; −0.19). In addition, BMI decreased by 0.8 kg/m2 (95% CIs: −1.32; −0.28), body weight reduced by 1.87 kg (95% CIs: −2.67; −1.07), and the waist circumference decreased by 2.08 cm (95% CIs: −3.06; −1.10). Analysis of lipid metabolism showed that intermittent fasting diet intervention effectively reduced the total cholesterol level by 0.32 mmol/L (95% CIs: −0.60; −0.05), low-density lipoprotein level by 0.22 mmol/L (95% CIs: −0.37; −0.07), and triglyceride level by 0.04 mmol/L (95% "
+        },
+        {
+          "title": "Exercise‐Induced Reduction in Obesity and Insulin Resistance in Women: a Randomized Controlled Trial",
+          "year": 2004,
+          "doi": "10.1038/oby.2004.95",
+          "cited_by_count": 698,
+          "design": "randomized-controlled-trial",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "OBJECTIVES: To determine the effects of equivalent diet- or exercise-induced weight loss and exercise without weight loss on subcutaneous fat, visceral fat, and insulin sensitivity in obese women. RESEARCH METHODS AND PROCEDURES: Fifty-four premenopausal women with abdominal obesity [waist circumference 110.1 +/- 5.8 cm (mean +/- SD)] (BMI 31.3 +/- 2.0 kg/m2) were randomly assigned to one of four groups: diet weight loss (n = 15), exercise weight loss (n = 17), exercise without weight loss (n = 12), and a weight-stable control group (n = 10). All groups underwent a 14-week intervention. RESULTS: Body weight decreased by approximately 6.5% within both weight loss groups and was unchanged in the exercise without weight loss and control groups. In comparison with controls, cardiorespiratory fitness improved within the exercise groups only (p < 0.01). Reduction in total, abdominal, and abdominal subcutaneous fat within the exercise weight loss group was greater (p < 0.001) than within all other groups. The reduction in total and abdominal fat within the diet weight loss and exercise without weight loss groups was greater than within controls (p < 0.001) but not different from each other (p > 0.05). Visceral fat decreased within all treatment groups (p < 0.008), and these changes were not different from each other. In comparison with the control group, insulin sensitivity improved within the exercise weight loss group alone (p < 0.001). DISCUSSION: Daily exercise without caloric r"
+        },
+        {
+          "title": "Caloric restriction and intermittent fasting alter hepatic lipid droplet proteome and diacylglycerol species and prevent diabetes in NZO mice",
+          "year": 2015,
+          "doi": "10.1016/j.bbalip.2015.01.013",
+          "cited_by_count": 125,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Caloric restriction and intermittent fasting are known to improve glucose homeostasis and insulin resistance in several species including humans. The aim of this study was to unravel potential mechanisms by which these interventions improve insulin sensitivity and protect from type 2 diabetes. Diabetes-susceptible New Zealand Obese mice were either 10% calorie restricted (CR) or fasted every other day (IF), and compared to ad libitum (AL) fed control mice. AL mice showed a diabetes prevalence of 43%, whereas mice under CR and IF were completely protected against hyperglycemia. Proteomic analysis of hepatic lipid droplets revealed significantly higher levels of PSMD9 (co-activator Bridge-1), MIF (macrophage migration inhibitor factor), TCEB2 (transcription elongation factor B (SIII), polypeptide 2), ACY1 (aminoacylase 1) and FABP5 (fatty acid binding protein 5), and a marked reduction of GSTA3 (glutathione S-transferase alpha 3) in samples of CR and IF mice. In addition, accumulation of diacylglycerols (DAGs) was significantly reduced in livers of IF mice (P=0.045) while CR mice showed a similar tendency (P=0.062). In particular, 9 DAG species were significantly reduced in response to IF, of which DAG-40:4 and DAG-40:7 also showed significant effects after CR. This was associated with a decreased PKCε activation and might explain the improved insulin sensitivity. In conclusion, our data indicate that protection against diabetes upon caloric restriction and intermittent fasting"
+        },
+        {
+          "title": "Two weeks of early time-restricted feeding (eTRF) improves skeletal muscle insulin and anabolic sensitivity in healthy men",
+          "year": 2020,
+          "doi": "10.1093/ajcn/nqaa192",
+          "cited_by_count": 118,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "BACKGROUND: Altering the temporal distribution of energy intake (EI) and introducing periods of intermittent fasting (IF) exert important metabolic effects. Restricting EI to earlier in the day [early time-restricted feeding (eTRF)] is a novel type of IF. OBJECTIVES: We assessed the chronic effects of eTRF compared with an energy-matched control on whole-body and skeletal muscle insulin and anabolic sensitivity. METHODS: Sixteen healthy males (aged 23 ± 1 y; BMI 24.0 ± 0.6 kg·m-2) were assigned to 2 groups that underwent either 2 wk of eTRF (n = 8) or control/caloric restriction (CON:CR; n = 8) diet. The eTRF diet was consumed ad libitum and the intervention was conducted before the CON:CR, in which the diet was provided to match the reduction in EI and body weight observed in eTRF. During eTRF, daily EI was restricted to between 08:00 and 16:00, which prolonged the overnight fast by ∼5 h. The metabolic responses to a carbohydrate/protein drink were assessed pre- and post-interventions following a 12-h overnight fast. RESULTS: When compared with CON:CR, eTRF improved whole-body insulin sensitivity [between-group difference (95% CI): 1.89 (0.18, 3.60); P = 0.03; η2p = 0.29] and skeletal muscle uptake of glucose [between-group difference (95% CI): 4266 (261, 8270) μmol·min-1·kg-1·180 min; P = 0.04; η2p = 0.31] and branched-chain amino acids (BCAAs) [between-group difference (95% CI): 266 (77, 455) nmol·min-1·kg-1·180 min; P = 0.01; η2p = 0.44]. eTRF caused a reduction in EI (∼4"
+        },
+        {
+          "title": "Effects of Diet, Lifestyle, Chrononutrition and Alternative Dietary Interventions on Postprandial Glycemia and Insulin Resistance",
+          "year": 2022,
+          "doi": "10.3390/nu14040823",
+          "cited_by_count": 192,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "As years progress, we are found more often in a postprandial than a postabsorptive state. Chrononutrition is an integral part of metabolism, pancreatic function, and hormone secretion. Eating most calories and carbohydrates at lunch time and early afternoon, avoiding late evening dinner, and keeping consistent number of daily meals and relative times of eating occasions seem to play a pivotal role for postprandial glycemia and insulin sensitivity. Sequence of meals and nutrients also play a significant role, as foods of low density such as vegetables, salads, or soups consumed first, followed by protein and then by starchy foods lead to ameliorated glycemic and insulin responses. There are several dietary schemes available, such as intermittent fasting regimes, which may improve glycemic and insulin responses. Weight loss is important for the treatment of insulin resistance, and it can be achieved by many approaches, such as low-fat, low-carbohydrate, Mediterranean-style diets, etc. Lifestyle interventions with small weight loss (7-10%), 150 min of weekly moderate intensity exercise and behavioral therapy approach can be highly effective in preventing and treating type 2 diabetes. Similarly, decreasing carbohydrates in meals also improves significantly glycemic and insulin responses, but the extent of this reduction should be individualized, patient-centered, and monitored. Alternative foods or ingredients, such as vinegar, yogurt, whey protein, peanuts and tree nuts should a"
+        },
+        {
+          "title": "Intermittent Hypoxia Impairs Glucose Homeostasis in C57BL6/J Mice: Partial Improvement with Cessation of the Exposure",
+          "year": 2013,
+          "doi": "10.5665/sleep.3040",
+          "cited_by_count": 128,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8833333333333333,
+          "abstract": "OBJECTIVES: Obstructive sleep apnea is associated with insulin resistance, glucose intolerance, and type 2 diabetes mellitus. Although several studies have suggested that intermittent hypoxia in obstructive sleep apnea may induce abnormalities in glucose homeostasis, it remains to be determined whether these abnormalities improve after discontinuation of the exposure. The objective of this study was to delineate the effects of intermittent hypoxia on glucose homeostasis, beta cell function, and liver glucose metabolism and to investigate whether the impairments improve after the hypoxic exposure is discontinued. INTERVENTIONS: C57BL6/J mice were exposed to 14 days of intermittent hypoxia, 14 days of intermittent air, or 7 days of intermittent hypoxia followed by 7 days of intermittent air (recovery paradigm). Glucose and insulin tolerance tests were performed to estimate whole-body insulin sensitivity and calculate measures of beta cell function. Oxidative stress in pancreatic tissue and glucose output from isolated hepatocytes were also assessed. RESULTS: Intermittent hypoxia increased fasting glucose levels and worsened glucose tolerance by 67% and 27%, respectively. Furthermore, intermittent hypoxia exposure was associated with impairments in insulin sensitivity and beta cell function, an increase in liver glycogen, higher hepatocyte glucose output, and an increase in oxidative stress in the pancreas. While fasting glucose levels and hepatic glucose output normalized after"
+        },
+        {
+          "title": "AASLD Practice Guidance on the clinical assessment and management of nonalcoholic fatty liver disease",
+          "year": 2023,
+          "doi": "10.1097/hep.0000000000000323",
+          "cited_by_count": 2468,
+          "design": "cross-sectional-study",
+          "stance": "mixed",
+          "stance_confidence": 0.5090909090909091,
+          "abstract": "PREAMBLE The study of NAFLD has intensified significantly, with more than 1400 publications since 2018, when the last American Association for the Study of Liver Diseases (AASLD) Guidance document was published.1 This new AASLD Guidance document reflects many advances in the field pertinent to any practitioner caring for patients with NAFLD and emphasizes advances in noninvasive risk stratification and therapeutics. A separate guideline focused on the management of patients with NAFLD in the context of diabetes has been written jointly by the American Association of Clinical Endocrinology and AASLD.2 Given the significant growth in pediatric NAFLD, it will not be covered here to allow for a more robust discussion of the diagnosis and management of pediatric NAFLD in the upcoming AASLD Pediatric NAFLD Guidance. A “Guidance” differs from a “Guideline” in that it is not bound by the Grading of Recommendations, Assessment Development and Evaluation system. Thus, actionable statements rather than formal recommendations are provided herein. The highest available level of evidence was used to develop these statements, and, where high-level evidence was not available, expert opinion was used to develop guidance statements to inform clinical practice. Key points highlight important concepts relevant to understanding the disease and its management. The most profound advances in NAFLD relevant to clinical practice are in biomarkers and therapeutics. Biomarkers and noninvasive tests (NIT"
+        },
+        {
+          "title": "The crucial role and mechanism of insulin resistance in metabolic disease",
+          "year": 2023,
+          "doi": "10.3389/fendo.2023.1149239",
+          "cited_by_count": 556,
+          "design": "systematic-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Insulin resistance (IR) plays a crucial role in the development and progression of metabolism-related diseases such as diabetes, hypertension, tumors, and nonalcoholic fatty liver disease, and provides the basis for a common understanding of these chronic diseases. In this study, we provide a systematic review of the causes, mechanisms, and treatments of IR. The pathogenesis of IR depends on genetics, obesity, age, disease, and drug effects. Mechanistically, any factor leading to abnormalities in the insulin signaling pathway leads to the development of IR in the host, including insulin receptor abnormalities, disturbances in the internal environment (regarding inflammation, hypoxia, lipotoxicity, and immunity), metabolic function of the liver and organelles, and other abnormalities. The available therapeutic strategies for IR are mainly exercise and dietary habit improvement, and chemotherapy based on biguanides and glucagon-like peptide-1, and traditional Chinese medicine treatments (e.g., herbs and acupuncture) can also be helpful. Based on the current understanding of IR mechanisms, there are still some vacancies to follow up and consider, and there is also a need to define more precise biomarkers for different chronic diseases and lifestyle interventions, and to explore natural or synthetic drugs targeting IR treatment. This could enable the treatment of patients with multiple combined metabolic diseases, with the aim of treating the disease holistically to reduce health"
+        },
+        {
+          "title": "Exercise Increases Adiponectin Levels and Insulin Sensitivity in Humans",
+          "year": 2004,
+          "doi": "10.2337/diacare.27.2.629",
+          "cited_by_count": 228,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Adiponectin is an abundant circulating adipocytokine with anti-inflammatory properties (1) linked to cardiovascular disease, type 2 diabetes, and obesity (2–5). Numerous reports (3–5), including the present one, confirm plasma adiponectin levels to be inversely related to insulin resistance. Longer term, a rise in adiponectin has been shown to occur in response to weight loss and glitazone therapy, but not after chronic exercise training. However, understanding of the shorter-term regulation of adiponectin in particular remains unclear. As an extension to a previously reported exercise intervention in sedentary males by our group (6), we have now examined the effects of this training intervention on adiponectin levels in overweight males. We demonstrate that the short-term exercise training increased circulating adiponectin levels with accompanied improved insulin sensitivity.\n\nTwenty-six overweight males participated in an exercise program, as previously described (6). Full data were available on 19 subjects who completed the entire program. At …"
+        },
+        {
+          "title": "Skeletal muscle capillary density and fiber type are possible determinants of in vivo insulin resistance in man.",
+          "year": 1987,
+          "doi": "10.1172/jci113088",
+          "cited_by_count": 784,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "We have compared the capillary density and muscle fiber type of musculus vastus lateralis with in vivo insulin action determined by the euglycemic clamp (M value) in 23 Caucasians and 41 Pima Indian nondiabetic men. M value was significantly correlated with capillary density (r = 0.63; P less than or equal to 0.0001), percent type I fibers (r = 0.29; P less than 0.02), and percent type 2B fibers (r = -0.38; P less than 0.003). Fasting plasma glucose and insulin concentrations were significantly negatively correlated with capillary density (r = -0.46, P less than or equal to 0.0001; r = -0.47, P less than or equal to 0.0001, respectively). Waist circumference/thigh circumference ratio was correlated with percent type 1 fibers (r = -0.39; P less than 0.002). These results suggest that diffusion distance from capillary to muscle cells or some associated biochemical change, and fiber type, could play a role in determining in vivo insulin action. The association of muscle fiber type with body fat distribution may indicate that central obesity is only one aspect of a more generalized metabolic syndrome. The data may provide at least a partial explanation for the insulin resistance associated with obesity and for the altered kinetics of insulin action in the obese."
+        },
+        {
+          "title": "Insulin resistance and cardiovascular disease",
+          "year": 2023,
+          "doi": "10.1177/03000605231164548",
+          "cited_by_count": 373,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Insulin resistance (IR) and cardiovascular disease (CVD) represent two universal public health hazards, especially in today's Western societies. A causal-effect relationship has been established that links IR with CVD. The mediating mechanisms are perplexing, under ongoing, rigorous investigation and remain to be fully elucidated. IR is a condition encompassing hyperglycemia and compensatory hyperinsulinemia. It occurs when insulin is not capable of exerting its maximum effects on target tissues, including skeletal muscles, liver and adipose tissue. This alteration of insulin signaling pathways results in the development of cardiometabolic disorders, including obesity, dyslipidemia, low-grade inflammation, endothelial dysfunction and hypertension, all of which are predisposing factors for atherosclerosis and CVD. The management of IR can be achieved through dietary modifications, the inclusion of regular exercise routines in everyday life, pharmacological agents and other interventions tailored to each individual patient's needs. It is important to underline though that, although various antidiabetic drugs that may improve IR are available, no medications are as yet specifically approved for the treatment of IR. This narrative review will focus on the current scientific and clinical evidence pertaining to IR, the mechanisms connecting IR with CVD, as well as plausible strategies for a holistic, personalized approach for IR management."
+        },
+        {
+          "title": "The effect of intermittent energy and carbohydrate restrictionv. daily energy restriction on weight loss and metabolic disease risk markers in overweight women",
+          "year": 2013,
+          "doi": "10.1017/s0007114513000792",
+          "cited_by_count": 460,
+          "design": "randomized-controlled-trial",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Intermittent energy restriction may result in greater improvements in insulin sensitivity and weight control than daily energy restriction (DER). We tested two intermittent energy and carbohydrate restriction (IECR) regimens, including one which allowed ad libitum protein and fat (IECR+PF). Overweight women (n 115) aged 20 and 69 years with a family history of breast cancer were randomised to an overall 25 % energy restriction, either as an IECR (2500-2717 kJ/d, < 40 g carbohydrate/d for 2 d/week) or a 25 % DER (approximately 6000 kJ/d for 7 d/week) or an IECR+PF for a 3-month weight-loss period and 1 month of weight maintenance (IECR or IECR+PF for 1 d/week). Insulin resistance reduced with the IECR diets (mean - 0·34 (95% CI - 0·66, - 0·02) units) and the IECR+PF diet (mean - 0·38 (95% CI - 0·75, - 0·01) units). Reductions with the IECR diets were significantly greater compared with the DER diet (mean 0·2 (95% CI - 0·19, 0·66) μU/unit, P= 0·02). Both IECR groups had greater reductions in body fat compared with the DER group (IECR: mean - 3·7 (95% CI - 2·5, - 4·9) kg, P= 0·007; IECR+PF: mean - 3·7 (95% CI - 2·8, - 4·7) kg, P= 0·019; DER: mean - 2·0 (95% CI - 1·0, 3·0) kg). During the weight maintenance phase, 1 d of IECR or IECR+PF per week maintained the reductions in insulin resistance and weight. In the short term, IECR is superior to DER with respect to improved insulin sensitivity and body fat reduction. Longer-term studies into the safety and effectiveness of IECR diet"
+        },
+        {
+          "title": "Clinical Course of the Syndrome of Autoantibodies to the Insulin Receptor (Type B Insulin Resistance)",
+          "year": 2002,
+          "doi": "10.1097/00005792-200203000-00001",
+          "cited_by_count": 225,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Introduction The type B insulin resistance syndrome is a manifestation of autoantibodies to the insulin receptor. It is representative of a class of disease in which an autoantibody is produced against a cell surface receptor (9,79). Graves disease, caused by autoantibodies to the thyroid stimulating hormone receptor, and myasthenia gravis, caused by autoantibodies to the acetylcholine receptor at the myoneural junction, are typical of these diseases (30). Other rare syndromes include gonadal deficiencies and iron deficiencies (46,61). The exact prevalence of type B insulin resistance syndrome is not known; however, it is quite rare. There have been no population-based studies to answer the question of disease prevalence. Autoantibodies to the insulin receptor were first identified in middle-aged women with other autoimmune diseases (26,36). Subsequently, it was recognized that the disease also affects males and younger patients (4,15,24,53). The disease causes a spectrum of abnormalities in glucose homeostasis, ranging from extreme insulin resistance (30) to fasting hypoglycemia (30,69), and in some other cases a change from extreme insulin resistance to intractable hypoglycemia (1,67,69). In addition, the abnormalities in glucose homeostasis may remit in association with the disappearance of the antibody to the insulin receptor. While all these phenomena have been observed and reported over the years, little is known about the long-term prognosis of the patients. Furthermor"
+        },
+        {
+          "title": "The growth hormone receptor gene‐disrupted mouse fails to respond to an intermittent fasting diet",
+          "year": 2009,
+          "doi": "10.1111/j.1474-9726.2009.00520.x",
+          "cited_by_count": 66,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8,
+          "abstract": "The interaction of longevity-conferring genes with longevity-conferring diets is poorly understood. The growth hormone receptor gene-disrupted (GHR-KO) mouse is long lived; and this longevity is not responsive to 30% caloric restriction, in contrast to wild-type animals from the same strain. To determine whether this may have been limited to a particular level of dietary restriction, we subjected GHR-KO mice to a different dietary restriction regimen, an intermittent fasting diet. The intermittent fasting diet increased the survivorship and improved insulin sensitivity of normal males, but failed to affect either parameter in GHR-KO mice. From the results of two paradigms of dietary restriction, we postulate that GHR-KO mice would be resistant to any manner of dietary restriction; potentially due to their inability to further enhance insulin sensitivity. Insulin sensitivity may be a mechanism and/or a marker of the lifespan extending potential of an intervention."
+        },
+        {
+          "title": "Time-restricted feeding improves blood glucose and insulin sensitivity in overweight patients with type 2 diabetes: a randomised controlled trial",
+          "year": 2021,
+          "doi": "10.1186/s12986-021-00613-9",
+          "cited_by_count": 207,
+          "design": "randomized-controlled-trial",
+          "stance": "supporting",
+          "stance_confidence": 0.8642857142857143,
+          "abstract": "BACKGROUND: Time-restricted feeding is an emerging dietary intervention that is becoming increasingly popular. There are, however, no randomised clinical trials of time-restricted feeding in overweight patients with type 2 diabetes. Here, we explored the effects of time-restricted feeding on glycaemic regulation and weight changes in overweight patients with type 2 diabetes over 12 weeks. METHODS: Overweight adults with type 2 diabetes (n = 120) were randomised 1:1 to two diet groups: time-restricted feeding (n = 60) or control (n = 60). Sixty patients participated in a 10-h restricted feeding treatment program (ad libitum feeding from 8:00 to 18:00 h; fasting between 18:00 and 8:00 h) for 12 weeks. RESULTS: Haemoglobin A1c and body weight decreased in the time-restricted feeding group (- 1.54% ± 0.19 and - 2.98 ± 0.43 kg, respectively) relative to the control group over 12 weeks (p < 0.001). Homeostatic model assessment of β-cell function and insulin resistance changed in the time-restricted feeding group (0.73 ± 0.21, p = 0.005; - 0.51 ± 0.08, p = 0.02, respectively) compared with the control group. The medication effect score, SF-12 score, and the levels of triglycerides, total cholesterol and low-density lipoprotein cholesterol were improved in the time-restricted feeding group (- 0.66 ± 0.17, p = 0.006; 5.92 ± 1.38, p < 0.001; - 0.23 ± 0.08 mmol/L, p = 0.03; - 0.32 ± 0.07 mmol/L, p = 0.01; - 0.42 ± 0.13 mmol/L, p = 0.02, respectively) relative to the control group. High-"
+        },
+        {
+          "title": "Clinical trial demonstrates exercise following bariatric surgery improves insulin sensitivity",
+          "year": 2014,
+          "doi": "10.1172/jci78016",
+          "cited_by_count": 148,
+          "design": "randomized-controlled-trial",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "BACKGROUND: Roux-en-Y gastric bypass (RYGB) surgery causes profound weight loss and improves insulin sensitivity (S(I)) in obese patients. Regular exercise can also improve S(I) in obese individuals; however, it is unknown whether exercise and RYGB surgery-induced weight loss would additively improve S(I) and other cardiometabolic factors. METHODS: We conducted a single-blind, prospective, randomized trial with 128 men and women who recently underwent RYGB surgery (within 1-3 months). Participants were randomized to either a 6-month semi-supervised moderate exercise protocol (EX, n = 66) or a health education control (CON; n = 62) intervention. Main outcomes measured included S(I) and glucose effectiveness (S(G)), which were determined from an intravenous glucose tolerance test and minimal modeling. Secondary outcomes measured were cardiorespiratory fitness (VO2 peak) and body composition. Data were analyzed using an intention-to-treat (ITT) and per-protocol (PP) approach to assess the efficacy of the exercise intervention (>120 min of exercise/week). RESULTS: 119 (93%) participants completed the interventions, 95% for CON and 91% for EX. There was a significant decrease in body weight and fat mass for both groups (P < 0.001 for time effect). S(I) improved in both groups following the intervention (ITT: CON vs. EX; +1.64 vs. +2.24 min⁻¹/μU/ml, P = 0.18 for Δ, P < 0.001 for time effect). A PP analysis revealed that exercise produced an additive S(I) improvement (PP: CON vs. EX"
+        },
+        {
+          "title": "Intermittent hypoxia in obstructive sleep apnoea mediates insulin resistance through adipose tissue inflammation",
+          "year": 2017,
+          "doi": "10.1183/13993003.01731-2016",
+          "cited_by_count": 189,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Obstructive sleep apnoea (OSA) is increasingly associated with insulin resistance. The underlying pathophysiology remains unclear but intermittent hypoxia (IH)-mediated inflammation and subsequent dysfunction of the adipose tissue has been hypothesised to play a key role. We tested this hypothesis employing a comprehensive translational approach using a murine IH model of lean and diet-induced obese mice, an innovative IH system for cell cultures and a tightly controlled patient cohort. IH led to the development of insulin resistance in mice, corrected for the degree of obesity, and reduced insulin-mediated glucose uptake in 3T3-L1 adipocytes, associated with inhibition of the insulin-signalling pathway and downregulation of insulin-receptor substrate-1 mRNA. Providing mechanistic insight, IH induced a pro-inflammatory phenotype of visceral adipose tissue in mice with pro-inflammatory M1 macrophage polarisation correlating with the severity of insulin resistance. Complimentary in vitro analysis demonstrated that IH led to M1 polarisation of THP1-derived macrophages. In subjects without comorbidities (n=186), OSA was independently associated with insulin resistance. Furthermore, we found an independent correlation of OSA severity with the M1 macrophage inflammatory marker sCD163. This study provides evidence that IH induces a pro-inflammatory phenotype of the adipose tissue, which may be a crucial link between OSA and the development of insulin resistance."
+        },
+        {
+          "title": "The Effectiveness of Intermittent Fasting to Reduce Body Mass Index and Glucose Metabolism: A Systematic Review and Meta-Analysis",
+          "year": 2019,
+          "doi": "10.3390/jcm8101645",
+          "cited_by_count": 204,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "The effects of an intermittent fasting diet (IFD) in the general population are still controversial. In this study, we aimed to systematically evaluate the effectiveness of an IFD to reduce body mass index and glucose metabolism in the general population without diabetes mellitus. Cochrane, PubMed, and Embase databases were searched to identify randomized controlled trials and controlled clinical trials that compared an IFD with a regular diet or a continuous calorie restriction diet. The effectiveness of an IFD was estimated by the weighted mean difference (WMD) for several variables associated with glucometabolic parameters including body mass index (BMI) and fasting glucose. The pooled mean differences of outcomes were calculated using a random effects model. From 2814 studies identified through a literature search, we finally selected 12 articles (545 participants). Compared with a control diet, an IFD was associated with a significant decline in BMI (WMD, −0.75 kg/m2; 95% CI, −1.44 to −0.06), fasting glucose level (WMD, −4.16 mg/dL; 95% CI, −6.92 to −1.40), and homeostatic model assessment of insulin resistance (WMD, −0.54; 95% CI, −1.05 to −0.03). Fat mass (WMD, −0.98 kg; 95% CI, −2.32 to 0.36) tended to decrease in the IFD group with a significant increase in adiponectin (WMD, 1008.9 ng/mL; 95% CI, 140.5 to 1877.3) and a decrease in leptin (WMD, −0.51 ng/mL; 95% CI, −0.77 to −0.24) levels. An IFD may provide a significant metabolic benefit by improving glycemic control"
+        },
+        {
+          "title": "Intermittent Fasting and Metabolic Health: From Religious Fast to Time‐Restricted Feeding",
+          "year": 2020,
+          "doi": "10.1002/oby.22829",
+          "cited_by_count": 128,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Over the past 10 to 15 years, intermittent fasting has emerged as an unconventional approach to reduce body weight and improve metabolic health beyond simple calorie restriction. In this review, we summarize findings related to Ramadan and Sunnah fasting. We then discuss the role of caloric restriction not only as an intervention for weight control, but importantly, as a strategy for healthy aging and longevity. Finally, we review the four most common intermittent fasting (IF) strategies used to date for weight management and to improve cardiometabolic health. Weight loss is common after IF but does not appear to be different than daily caloric restriction when compared directly. IF may also provide additional cardiometabolic benefit, such as insulin sensitization, that is independent from weight loss. While no specific fasting regimen stands out as superior at this time, there is indeed heterogeneity in responses to these different IF diets. This suggests that one dietary regimen may not be ideally suited for every individual. Future studies should consider strategies for tailoring dietary prescriptions, including IF, based on advanced phenotyping and genotyping prior to diet initiation."
+        },
+        {
+          "title": "Eight-hour time-restricted feeding improves endocrine and metabolic profiles in women with anovulatory polycystic ovary syndrome",
+          "year": 2021,
+          "doi": "10.1186/s12967-021-02817-2",
+          "cited_by_count": 175,
+          "design": "randomized-controlled-trial",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "BACKGROUND: Time-restricted feeding (TRF) is a form of intermittent fasting, which is beneficial for weight loss and cardiometabolic health. Polycystic ovary syndrome (PCOS) is one of the most common reproductive endocrine and metabolic diseases affecting women of childbearing age. It is associated with an increased prevalence of metabolic syndrome, cardiovascular diseases and type 2 diabetes. The effects of TRF on PCOS patients remains undefined, here we investigated the impact of TRF on women with anovulatory PCOS. METHODS: Eighteen PCOS women aged between 18 and 31 with anovulation participated in a 6-week trial which were divided into two consecutive periods: (1) 1-week baseline weight stabilization period and (2) 5-week TRF period. Fifteen participants completed the study. Changes in body weight, body mass index (BMI), Waist-to-Hip Ratio, skeletal muscle mass, body fat mass (BFM), body fat percentage (BF%), visceral fat area (VFA), luteinizing hormone (LH), follicle-stimulating hormone (FSH), LH/FSH, total testosterone (TT), sex hormone-binding globulin (SHBG), free androgen index (FAI), fasting glucose, fasting insulin (FINS), homeostasis model assessment-insulin resistance (HOMA-IR), area under the curve (AUC) for insulin (AUCIns), area under the curve (AUC) for glucose (AUCGlu), AUCIns/AUCGlu Ratio, lipids, uric acid, alanine aminotransferase (ALT), aspartate aminotransferase, high-sensitivity C-reactive protein (hsCRP), insulin-like growth factor (IGF-1), menstrual c"
+        },
+        {
+          "title": "Intermittent fasting preserves beta-cell mass in obesity-induced diabetes via the autophagy-lysosome pathway",
+          "year": 2017,
+          "doi": "10.1080/15548627.2017.1368596",
+          "cited_by_count": 189,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Obesity-induced diabetes is characterized by hyperglycemia, insulin resistance, and progressive beta cell failure. In islets of mice with obesity-induced diabetes, we observe increased beta cell death and impaired autophagic flux. We hypothesized that intermittent fasting, a clinically sustainable therapeutic strategy, stimulates autophagic flux to ameliorate obesity-induced diabetes. Our data show that despite continued high-fat intake, intermittent fasting restores autophagic flux in islets and improves glucose tolerance by enhancing glucose-stimulated insulin secretion, beta cell survival, and nuclear expression of NEUROG3, a marker of pancreatic regeneration. In contrast, intermittent fasting does not rescue beta-cell death or induce NEUROG3 expression in obese mice with lysosomal dysfunction secondary to deficiency of the lysosomal membrane protein, LAMP2 or haplo-insufficiency of BECN1/Beclin 1, a protein critical for autophagosome formation. Moreover, intermittent fasting is sufficient to provoke beta cell death in nonobese lamp2 null mice, attesting to a critical role for lysosome function in beta cell homeostasis under fasting conditions. Beta cells in intermittently-fasted LAMP2- or BECN1-deficient mice exhibit markers of autophagic failure with accumulation of damaged mitochondria and upregulation of oxidative stress. Thus, intermittent fasting preserves organelle quality via the autophagy-lysosome pathway to enhance beta cell survival and stimulates markers of reg"
+        },
+        {
+          "title": "Potential Benefits and Harms of Intermittent Energy Restriction and Intermittent Fasting Amongst Obese, Overweight and Normal Weight Subjects—A Narrative Review of Human and Animal Evidence",
+          "year": 2017,
+          "doi": "10.3390/bs7010004",
+          "cited_by_count": 176,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.75,
+          "abstract": "Intermittent energy restriction (IER) has become popular as a means of weight control amongst people who are overweight and obese, and is also undertaken by normal weight people hoping spells of marked energy restriction will optimise their health. This review summarises randomised comparisons of intermittent and isoenergetic continuous energy restriction for weight loss to manage overweight and obesity. It also summarises the potential beneficial or adverse effects of IER on body composition, adipose stores and metabolic effects from human studies, including studies amongst normal weight subjects and relevant animal experimentation. Six small short term (<6 month) studies amongst overweight or obese individuals indicate that intermittent energy restriction is equal to continuous restriction for weight loss, with one study reporting greater reductions in body fat, and two studies reporting greater reductions in HOMA insulin resistance in response to IER, with no obvious evidence of harm. Studies amongst normal weight subjects and different animal models highlight the potential beneficial and adverse effects of intermittent compared to continuous energy restriction on ectopic and visceral fat stores, adipocyte size, insulin resistance, and metabolic flexibility. The longer term benefits or harms of IER amongst people who are overweight or obese, and particularly amongst normal weight subjects, is not known and is a priority for further investigation."
+        },
+        {
+          "title": "The Effect of Regular Exercise on Insulin Sensitivity in Type 2 Diabetes Mellitus: A Systematic Review and Meta-Analysis",
+          "year": 2016,
+          "doi": "10.4093/dmj.2016.40.4.253",
+          "cited_by_count": 243,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "The purpose of this study was to examine the effect of regular exercise training on insulin sensitivity in adults with type 2 diabetes mellitus (T2DM) using the pooled data available from randomised controlled trials. In addition, we sought to determine whether short-term periods of physical inactivity diminish the exercise-induced improvement in insulin sensitivity. Eligible trials included exercise interventions that involved ≥3 exercise sessions, and reported a dynamic measurement of insulin sensitivity. There was a significant pooled effect size (ES) for the effect of exercise on insulin sensitivity (ES, -0.588; 95% confidence interval [CI], -0.816 to -0.359; P<0.001). Of the 14 studies included for meta-analyses, nine studies reported the time of data collection from the last exercise bout. There was a significant improvement in insulin sensitivity in favour of exercise versus control between 48 and 72 hours after exercise (ES, -0.702; 95% CI, -1.392 to -0.012; P=0.046); and this persisted when insulin sensitivity was measured more than 72 hours after the last exercise session (ES, -0.890; 95% CI, -1.675 to -0.105; P=0.026). Regular exercise has a significant benefit on insulin sensitivity in adults with T2DM and this may persist beyond 72 hours after the last exercise session."
+        },
+        {
+          "title": "Fasting and rapamycin: diabetes versus benevolent glucose intolerance",
+          "year": 2019,
+          "doi": "10.1038/s41419-019-1822-8",
+          "cited_by_count": 75,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.7,
+          "abstract": "Rapamycin (Sirolimus) slows aging, extends life span, and prevents age-related diseases, including diabetic complications such as retinopathy. Puzzlingly, rapamycin can induce insulin sensitivity, but may also induce insulin resistance or glucose intolerance without insulin resistance. This mirrors the effect of fasting and very low calorie diets, which improve insulin sensitivity and reverse type 2 diabetes, but also can cause a form of glucose intolerance known as benevolent pseudo-diabetes. There is no indication that starvation (benevolent) pseudo-diabetes is detrimental. By contrast, it is associated with better health and life extension. In transplant patients, a weak association between rapamycin/everolimus use and hyperglycemia is mostly due to a drug interaction with calcineurin inhibitors. When it occurs in cancer patients, the hyperglycemia is mild and reversible. No hyperglycemic effects of rapamycin/everolimus have been detected in healthy people. For antiaging purposes, rapamycin/everolimus can be administrated intermittently (e.g., once a week) in combination with intermittent carbohydrate restriction, physical exercise, and metformin."
+        },
+        {
+          "title": "The impact of religious fasting on human health",
+          "year": 2010,
+          "doi": "10.1186/1475-2891-9-57",
+          "cited_by_count": 436,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "The past two decades have seen a rise in the number of investigations examining the health-related effects of religiously motivated fasts. Islamic Ramadan is a 28 - 30 day fast in which food and drink are prohibited during the daylight hours. The majority of health-specific findings related to Ramadan fasting are mixed. The likely causes for these heterogeneous findings are the differences between studies in the following: 1) the amount of daily fasting time; 2) the percentage of subjects who smoke, take oral medications, and/or receive intravenous fluids; and 3) the subjects' typical food choices and eating habits. Greek Orthodox Christians fast for a total of 180 - 200 days each year, and their main fasting periods are the Nativity Fast (40 days prior to Christmas), Lent (48 days prior to Easter), and the Assumption (15 days in August). The fasting periods are more similar than dissimilar, and they can each be described as a variant of vegetarianism. Some of the more favorable effects of these fasts include the lowering of body mass, total cholesterol, LDL-C, and the LDL-C/HDL-C ratio. The Biblical-based Daniel Fast prohibits the consumption of animal products, refined carbohydrates, food additives, preservatives, sweeteners, flavorings, caffeine, and alcohol. It is most commonly partaken for 21 days, although fasts of 10 and 40 days have been observed. Our initial investigation of the Daniel Fast noted favorable effects on several health-related outcomes, including: blood "
+        },
+        {
+          "title": "Preoperative fasting",
+          "year": 2003,
+          "doi": "10.1002/bjs.4066",
+          "cited_by_count": 288,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "BACKGROUND AND METHODS: To avoid pulmonary aspiration, fasting after midnight has become standard in elective surgery, but recent studies have found no scientific support for this practice. Several anaesthesia societies now recommend a 2-h preoperative fast for clear fluids and a 6-h fast for solids in most elective patients. The literature supporting such fasting recommendations was reviewed. RESULTS: The recommendations are safe and improve well-being before operation, mainly by reducing thirst. A carbohydrate-rich beverage given before anaesthesia and surgery alters metabolism from the overnight fasted to the fed state. This reduces the catabolic response (insulin resistance) after operation, which may have implications for postoperative recovery. CONCLUSION: Most patients having elective operations can be allowed a free intake of clear fluids up to 2 h before anaesthesia. Preoperative carbohydrates reduce postoperative insulin resistance."
+        },
+        {
+          "title": "Twelve Months of Time-restricted Eating and Resistance Training Improves Inflammatory Markers and Cardiometabolic Risk Factors",
+          "year": 2021,
+          "doi": "10.1249/mss.0000000000002738",
+          "cited_by_count": 132,
+          "design": "randomized-controlled-trial",
+          "stance": "supporting",
+          "stance_confidence": 0.8300000000000001,
+          "abstract": "INTRODUCTION: Recently, a modified intermittent fasting protocol was demonstrated to be able to maintain muscle mass and strength, decrease fat mass, and improve some inflammation and cardiovascular risk factors in healthy resistance-trained males after 2 months. The present study sought to investigate the long-term effects on these parameters. METHODS: The experiment was a single-blind randomized study. Twenty healthy subjects were enrolled and underwent 12 months of either a time-restricted eating (TRE) diet or a normal diet (ND) protocol, along with resistance training. In the TRE protocol, subjects consumed their energy needs in three meals during an 8-h period of time each day (1 pm, 4 pm, and 8 pm). Subjects in the ND group also had three meals, which were consumed at 8 am, 1 pm, and 8 pm. Groups were matched for kilocalories consumed and macronutrient distribution at baseline. RESULTS: After 12 months of TRE, body mass, fat mass, insulin-like growth factor 1, and testosterone were significantly lower compared with ND. Moreover, inflammatory markers (interleukin 6, interleukin 1β, and tumor necrosis factor α), insulin sensitivity (fasting glucose, insulin, and homeostatic model assessment for insulin resistance index), and lipid profile (cholesterol, HDL, and LDL) significantly improved after TRE compared with ND. Finally, subjects in TRE spontaneously decreased their daily energy intake, whereas those in ND maintained their starting kilocalories per day. No adverse eve"
+        },
+        {
+          "title": "Proteomics analysis of adipose depots after intermittent fasting reveals visceral fat preservation mechanisms",
+          "year": 2021,
+          "doi": "10.1016/j.celrep.2021.108804",
+          "cited_by_count": 66,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Intermittent fasting is a beneficial dietary treatment for obesity. But the response of each distinct adipose depot is currently poorly defined. Here we explore the response of key adipose depots to every-other-day fasting (EODF) in mice using proteomics. A key change in subcutaneous white adipose tissue (scWAT) and visceral WAT (vWAT) depots is an increase in mitochondrial protein content after EODF. This effect is correlated with increased fatty acid synthesis enzymes in both WAT depots but not in brown adipose tissue. Strikingly, EODF treatment downregulates lipolysis specifically in vWAT, mediated by a large decrease in the abundance of the catecholamine receptor (ADRB3). Together, these changes are important for preservation of the visceral lipid store during EODF. Enrichment analysis highlights downregulation of inflammatory collagen IV specifically in vWAT, allowing improved insulin sensitivity. This resource for adipose-depot-specific fasting adaptations in mice is available using a web-based interactive visualization."
+        },
+        {
+          "title": "Regulated Membrane Trafficking of the Insulin-Responsive Glucose Transporter 4 in Adipocytes",
+          "year": 2004,
+          "doi": "10.1210/er.2003-0011",
+          "cited_by_count": 450,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Since the discovery of insulin roughly 80 yr ago, much has been learned about how target cells receive, interpret, and respond to this peptide hormone. For example, we now know that insulin activates the tyrosine kinase activity of its cell surface receptor, thereby triggering intracellular signaling cascades that regulate many cellular processes. With respect to glucose homeostasis, these include the function of insulin to suppress hepatic glucose production and to increase glucose uptake in muscle and adipose tissues, the latter resulting from the translocation of the glucose transporter 4 (GLUT4) to the cell surface membrane. Although simple in broad outline, elucidating the molecular intricacies of these receptor-signaling pathways and membrane-trafficking processes continues to challenge the creative ingenuity of scientists, and many questions remain unresolved, or even perhaps unasked. The identification and functional characterization of specific molecules required for both insulin signaling and GLUT4 vesicle trafficking remain key issues in our pursuit of developing specific therapeutic agents to treat and/or prevent this debilitating disease process. To this end, the combined efforts of numerous research groups employing a range of experimental approaches has led to a clearer molecular picture of how insulin regulates the membrane trafficking of GLUT4. (Endocrine Reviews 25: 177-204, 2004) I. Introduction II. The Hexose Transporter Family A. Family members, structure"
+        },
+        {
+          "title": "Consensus Recommendations for the Use of Automated Insulin Delivery Technologies in Clinical Practice",
+          "year": 2022,
+          "doi": "10.1210/endrev/bnac022",
+          "cited_by_count": 423,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "The significant and growing global prevalence of diabetes continues to challenge people with diabetes (PwD), healthcare providers, and payers. While maintaining near-normal glucose levels has been shown to prevent or delay the progression of the long-term complications of diabetes, a significant proportion of PwD are not attaining their glycemic goals. During the past 6 years, we have seen tremendous advances in automated insulin delivery (AID) technologies. Numerous randomized controlled trials and real-world studies have shown that the use of AID systems is safe and effective in helping PwD achieve their long-term glycemic goals while reducing hypoglycemia risk. Thus, AID systems have recently become an integral part of diabetes management. However, recommendations for using AID systems in clinical settings have been lacking. Such guided recommendations are critical for AID success and acceptance. All clinicians working with PwD need to become familiar with the available systems in order to eliminate disparities in diabetes quality of care. This report provides much-needed guidance for clinicians who are interested in utilizing AIDs and presents a comprehensive listing of the evidence payers should consider when determining eligibility criteria for AID insurance coverage."
+        },
+        {
+          "title": "Intermittent fasting: is there a role in the treatment of diabetes? A review of the literature and guide for primary care physicians",
+          "year": 2021,
+          "doi": "10.1186/s40842-020-00116-1",
+          "cited_by_count": 115,
+          "design": "case-series",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "BACKGROUND: Type 2 Diabetes is a metabolic disorder characterized by hyperglycemia that causes numerous complications with significant long-term morbidity and mortality. The disorder is primarily due to insulin resistance particularly in liver, skeletal muscle, and adipose tissue. In this review, we detail the hormonal mechanisms leading to the development of diabetes and discuss whether intermittent fasting should be considered as an alternative, non-medicinal treatment option for patients with this disorder. METHODS: We searched PubMed, Ovid MEDLINE, and Google Scholar databases for review articles, clinical trials, and case series related to type 2 diabetes, insulin resistance, and intermittent fasting. Articles were carefully reviewed and included based on relevance to our topic. We excluded abstracts and any non-English articles. RESULTS: The majority of the available research demonstrates that intermittent fasting is effective at reducing body weight, decreasing fasting glucose, decreasing fasting insulin, reducing insulin resistance, decreasing levels of leptin, and increasing levels of adiponectin. Some studies found that patients were able to reverse their need for insulin therapy during therapeutic intermittent fasting protocols with supervision by their physician. CONCLUSION: Current evidence suggests that intermittent fasting is an effective non-medicinal treatment option for type 2 diabetes. More research is needed to delineate the effects of intermittent fasting"
+        },
+        {
+          "title": "Intermittent Hypoxia Exacerbates Metabolic Effects of Diet‐Induced Obesity",
+          "year": 2011,
+          "doi": "10.1038/oby.2011.240",
+          "cited_by_count": 209,
+          "design": "unclassified",
+          "stance": "mixed",
+          "stance_confidence": 0.5,
+          "abstract": "Obesity causes insulin resistance (IR) and nonalcoholic fatty liver disease (NAFLD), but the relative contribution of sleep apnea is debatable. The main aim of this study is to evaluate the effects of chronic intermittent hypoxia (CIH), a hallmark of sleep apnea, on IR and NAFLD in lean mice and mice with diet-induced obesity (DIO). Mice (C57BL/6J), 6-8 weeks of age were fed a high fat (n = 18) or regular (n = 16) diet for 12 weeks and then exposed to CIH or control conditions (room air) for 4 weeks. At the end of the exposure, fasting (5 h) blood glucose, insulin, homeostasis model assessment (HOMA) index, liver enzymes, and intraperitoneal glucose tolerance test (1 g/kg) were measured. In DIO mice, body weight remained stable during CIH and did not differ from control conditions. Lean mice under CIH were significantly lighter than control mice by day 28 (P = 0.002). Compared to lean mice, DIO mice had higher fasting levels of blood glucose, plasma insulin, the HOMA index, and had glucose intolerance and hepatic steatosis at baseline. In lean mice, CIH slightly increased HOMA index (from 1.79 ± 0.13 in control to 2.41 ± 0.26 in CIH; P = 0.05), whereas glucose tolerance was not affected. In contrast, in DIO mice, CIH doubled HOMA index (from 10.1 ± 2.1 in control to 22.5 ± 3.6 in CIH; P < 0.01), and induced severe glucose intolerance. In DIO mice, CIH induced NAFLD, inflammation, and oxidative stress, which was not observed in lean mice. In conclusion, CIH exacerbates IR and "
+        },
+        {
+          "title": "Intermittent fasting, adipokines, insulin sensitivity, and hypothalamic neuropeptides in a dietary overload with high-fat or high-fructose diet in mice",
+          "year": 2020,
+          "doi": "10.1016/j.jnutbio.2020.108419",
+          "cited_by_count": 64,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Effect of Intermittent Feeding on Glucose-Insulin Relationship in the Chicken",
+          "year": 1979,
+          "doi": "10.1093/jn/109.4.631",
+          "cited_by_count": 29,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Insulin Regulation of PEPCK Gene Expression: A Model for Rapid and Reversible Modulation",
+          "year": 2005,
+          "doi": "10.2174/156800805774912962",
+          "cited_by_count": 109,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8500000000000001,
+          "abstract": "Insulin and glucagon regulate the expression and/or activity of a variety of proteins to maintain blood glucose within normal limits. A key target is the gene encoding phosphoenolpyruvate carboxykinase (PEPCK), which catalyzes the first committed step in hepatic gluconeogenesis. Acute regulation of PEPCK is achieved by modulating transcription of the gene, which is tightly regulated by cAMP (the mediator of glucagon and catecholamines), glucocorticoids and insulin. Normally, PEPCK expression is induced by glucagon, catecholamines and glucocorticoids during periods of fasting and in response to stress, but is dominantly inhibited by glucose-induced increases in insulin secretion upon feeding. The incomplete effectiveness of insulin action, whether due to intermittent insulin injection in type I diabetics or insulin resistance in type II diabetics, contributes to hyperglycemia and complications, resulting in damage to the eyes, nerves, kidneys and other organs over time. Thus, defining a molecular mechanism for insulin inhibition of PEPCK gene transcription has been a major goal of research in several labs, because it would allow the development of drugs to prevent episodic increases in circulating glucose in diabetics. Here, we review the main lines of investigation into this complex problem and the likely properties of an inhibitor. Any mechanism must account for the rapidity, specificity and dominance with which insulin is known to act in regulating PEPCK transcription. To d"
+        },
+        {
+          "title": "Effect of Low-Fat vs Low-Carbohydrate Diet on 12-Month Weight Loss in Overweight Adults and the Association With Genotype Pattern or Insulin Secretion",
+          "year": 2018,
+          "doi": "10.1001/jama.2018.0245",
+          "cited_by_count": 706,
+          "design": "randomized-controlled-trial",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Importance: Dietary modification remains key to successful weight loss. Yet, no one dietary strategy is consistently superior to others for the general population. Previous research suggests genotype or insulin-glucose dynamics may modify the effects of diets. Objective: To determine the effect of a healthy low-fat (HLF) diet vs a healthy low-carbohydrate (HLC) diet on weight change and if genotype pattern or insulin secretion are related to the dietary effects on weight loss. Design, Setting, and Participants: The Diet Intervention Examining The Factors Interacting with Treatment Success (DIETFITS) randomized clinical trial included 609 adults aged 18 to 50 years without diabetes with a body mass index between 28 and 40. The trial enrollment was from January 29, 2013, through April 14, 2015; the date of final follow-up was May 16, 2016. Participants were randomized to the 12-month HLF or HLC diet. The study also tested whether 3 single-nucleotide polymorphism multilocus genotype responsiveness patterns or insulin secretion (INS-30; blood concentration of insulin 30 minutes after a glucose challenge) were associated with weight loss. Interventions: Health educators delivered the behavior modification intervention to HLF (n = 305) and HLC (n = 304) participants via 22 diet-specific small group sessions administered over 12 months. The sessions focused on ways to achieve the lowest fat or carbohydrate intake that could be maintained long-term and emphasized diet quality. Main O"
+        },
+        {
+          "title": "A randomised controlled trial of nasal continuous positive airway pressure on insulin sensitivity in obstructive sleep apnoea",
+          "year": 2009,
+          "doi": "10.1183/09031936.00047709",
+          "cited_by_count": 171,
+          "design": "randomized-controlled-trial",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "The effects of treatment of obstructive sleep apnoea (OSA) on glucose metabolism have been investigated previously with conflicting results. This study evaluated the impact of nasal continuous positive airway pressure (nCPAP) treatment of OSA on insulin sensitivity. Males with moderate/severe OSA and no significant comorbidity were randomised to a therapeutic or sham nCPAP treatment group for 1 week and then reassessed. Those who received therapeutic nCPAP were further evaluated at 12 weeks. Insulin sensitivity (K(itt)) was estimated by the short insulin tolerance test. Other evaluations included blood pressure, metabolic profile, urinary catecholamines and intra-abdominal fat. In total, 61 Chinese subjects were randomised. 31 subjects receiving therapeutic nCPAP showed an increase in K(itt) (6.6+/-2.9 to 7.6+/-3.2 % x min(-1); p = 0.017), while the 30 patients on sham CPAP had no significant change, and the changes in K(itt) were different between the two groups (p = 0.022). At 12 weeks, improvement in K(itt) was seen in 20 subjects with BMI >or=25 kg x m(-2) (median (interquartile range) 28.3 (26.6-31.5); p = 0.044), but not in the nine subjects with BMI<25 kg x m(-2), or the entire group. The findings indicate that therapeutic nCPAP treatment of OSA for 1 week improved insulin sensitivity in nondiabetic males, and the improvement appeared to be maintained after 12 weeks of treatment in those with moderate obesity."
+        },
+        {
+          "title": "Interval training in the fed or fasted state improves body composition and muscle oxidative capacity in overweight women",
+          "year": 2013,
+          "doi": "10.1002/oby.20379",
+          "cited_by_count": 224,
+          "design": "randomized-controlled-trial",
+          "stance": "supporting",
+          "stance_confidence": 0.8500000000000001,
+          "abstract": "OBJECTIVE: To investigate the effects of low-volume high-intensity interval training (HIT) performed in the fasted (FAST) versus fed (FED) state on body composition, muscle oxidative capacity, and glycemic control in overweight/obese women. DESIGN AND METHODS: Sixteen women (27 ± 8 years, BMI: 29 ± 6 kg/m(2) , VO2peak : 28 ± 3 ml/kg/min) were assigned to either FAST or FED (n = 8 each) and performed 18 sessions of HIT (10× 60-s cycling efforts at ∼90% maximal heart rate, 60-s recovery) over 6 weeks. RESULTS: There was no significant difference between FAST and FED for any measured variable. Body mass was unchanged following training; however, dual energy X-ray absorptiometry revealed lower percent fat in abdominal and leg regions as well as the whole body level (main effects for time, P ≤ 0.05). Fat-free mass increased in leg and gynoid regions (P ≤ 0.05). Resting muscle biopsies revealed a training-induced increase in mitochondrial capacity as evidenced by increased maximal activities of citrate synthase and β-hydroxyacyl-CoA dehydrogenase (P ≤ 0.05). There was no change in insulin sensitivity, although change in insulin area under the curve was correlated with change in abdominal percent fat (r = 0.54, P ≤ 0.05). CONCLUSION: Short-term low-volume HIT is a time-efficient strategy to improve body composition and muscle oxidative capacity in overweight/obese women, but fed- versus fasted-state training does not alter this response."
+        },
+        {
+          "title": "The Effect of High-Intensity Intermittent Exercise on Body Composition of Overweight Young Males",
+          "year": 2012,
+          "doi": "10.1155/2012/480467",
+          "cited_by_count": 239,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "To determine the effect of a 12-week high intensity intermittent exercise (HIIE) intervention on total body, abdominal, trunk, visceral fat mass, and fat free mass of young overweight males. Participants were randomly assigned to either exercise or control group. The intervention group received HIIE three times per week, 20 min per session, for 12 weeks. Aerobic power improved significantly (P < 0.001) by 15% for the exercising group. Exercisers compared to controls experienced significant weight loss of 1.5 kg (P < 0.005) and a significant reduction in total fat mass of 2 kg (P < 0.001). Abdominal and trunk adiposity was also significantly reduced in the exercising group by 0.1 kg (P < 0.05) and 1.5 kg (P < 0.001). Also the exercise group had a significant (P < 0.01) 17% reduction in visceral fat after 12 weeks of HIIE, whereas waist circumference was significantly decreased by week six (P < 0.001). Fat free mass was significantly increased (P < 0.05) in the exercising group by 0.4 kg for the leg and 0.7 kg for the trunk. No significant change (P > 0.05) occurred in levels of insulin, HOMA-IR, and blood lipids. Twelve weeks of HIIE resulted in significant reductions in total, abdominal, trunk, and visceral fat and significant increases in fat free mass and aerobic power."
+        },
+        {
+          "title": "Early Time-Restricted Feeding Improves 24-Hour Glucose Levels and Affects Markers of the Circadian Clock, Aging, and Autophagy in Humans",
+          "year": 2019,
+          "doi": "10.3390/nu11061234",
+          "cited_by_count": 665,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Time-restricted feeding (TRF) is a form of intermittent fasting that involves having a longer daily fasting period. Preliminary studies report that TRF improves cardiometabolic health in rodents and humans. Here, we performed the first study to determine how TRF affects gene expression, circulating hormones, and diurnal patterns in cardiometabolic risk factors in humans. Eleven overweight adults participated in a 4-day randomized crossover study where they ate between 8 am and 2 pm (early TRF (eTRF)) and between 8 am and 8 pm (control schedule). Participants underwent continuous glucose monitoring, and blood was drawn to assess cardiometabolic risk factors, hormones, and gene expression in whole blood cells. Relative to the control schedule, eTRF decreased mean 24-hour glucose levels by 4 ± 1 mg/dl (p = 0.0003) and glycemic excursions by 12 ± 3 mg/dl (p = 0.001). In the morning before breakfast, eTRF increased ketones, cholesterol, and the expression of the stress response and aging gene SIRT1 and the autophagy gene LC3A (all p < 0.04), while in the evening, it tended to increase brain-derived neurotropic factor (BNDF; p = 0.10) and also increased the expression of MTOR (p = 0.007), a major nutrient-sensing protein that regulates cell growth. eTRF also altered the diurnal patterns in cortisol and the expression of several circadian clock genes (p < 0.05). eTRF improves 24-hour glucose levels, alters lipid metabolism and circadian clock gene expression, and may also increase a"
+        },
+        {
+          "title": "Insulin Resistance in Alzheimer's Disease",
+          "year": 2018,
+          "doi": "10.3389/fnins.2018.00830",
+          "cited_by_count": 229,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "The epidemiological connection between diabetes, obesity, and dementia represents an important public health challenge but also an opportunity to further understand these conditions. The key intersection among the three diseases is insulin resistance, which has been classically described to occur in peripheral tissues in diabetes and obesity and has recently been shown to develop in Alzheimer's disease (AD) brains. Here we review encouraging preclinical and clinical data indicating the potential of targeting impaired insulin signaling with antidiabetic drugs to treat dementia. We further discuss biological mechanisms through which peripheral metabolic dysregulation may lead to brain malfunction, providing possible explanations for the connection between diabetes, obesity, and AD. Finally, we briefly discuss how lifelong allostatic load may interact with aging to increase the risk of dementia in late life."
+        },
+        {
+          "title": "Effects of Calorie Restriction on Health Span and Insulin Resistance: Classic Calorie Restriction Diet vs. Ketosis-Inducing Diet",
+          "year": 2021,
+          "doi": "10.3390/nu13041302",
+          "cited_by_count": 97,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "As the incidence of Chronic Non-Communicable Diseases (CNCDs) increases, preventive approaches become more crucial. In this review, calorie restriction (CR) effects on human beings were evaluated, comparing the benefits and risks of different CR diets: classic CR vs. ketosis-inducing diets, including intermittent fasting (IF), classic ketogenic diet (CKD), fasting mimicking diet (FMD), very-low-calorie ketogenic Diet (VLCKD) and Spanish ketogenic Mediterranean diet (SKMD). Special emphasis on insulin resistance (IR) was placed, as it mediates metabolic syndrome (MS), a known risk factor for CNCD, and is predictive of MS diagnosis. CR is the most robust intervention known to increase lifespan and health span, with high evidence and known biochemical mechanisms. CR improves cardiometabolic risk parameters, boosts exercise insulin sensitivity response, and there may be benefits of implementing moderate CR on healthy young and middle-aged individuals. However, there is insufficient evidence to support long-term CR. CKD is effective for weight and MS management, and may have additional benefits such as prevention of muscle loss and appetite control. SKMD has extreme significance benefits for all the metabolic parameters studied. Studies show inconsistent benefits of IF compared to classic CR. More studies are required to study biochemical parameters, reinforce evidence, identify risks, and seek effective and safe nutritional CR approaches."
+        },
+        {
+          "title": "Effects of a Growth Hormone-Releasing Hormone Analog on Endogenous GH Pulsatility and Insulin Sensitivity in Healthy Men",
+          "year": 2010,
+          "doi": "10.1210/jc.2010-1587",
+          "cited_by_count": 163,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "CONTEXT AND OBJECTIVE: Strategies to augment pulsatile GH may be beneficial in patients with excess visceral adiposity, in whom GH secretion is reduced. The objective of this study was to determine the effects of a novel GHRH (GHRH(1-44)) analog, tesamorelin, on endogenous GH pulsatility and insulin sensitivity in healthy men. DESIGN, PARTICIPANTS, AND INTERVENTION: Thirteen males (mean age 45 ± 3 yr and body mass index 27.3 ± 1.2 kg/m(2)) received tesamorelin 2 mg sc once daily for 2 wk, with assessment made at baseline, after 2 wk of treatment, and after 2 wk of withdrawal. OUTCOME MEASURES: The primary end point was change in mean overnight GH as determined by overnight frequent sampling. Secondary end points included insulin-stimulated glucose uptake as measured by euglycemic hyperinsulinemic clamp; IGF-I; and GH secretion parameters, including pulse area, pulse frequency, and basal secretion. RESULTS: Tesamorelin treatment increased mean overnight GH (change +0.5 ± 0.1 μg/liter, P = 0.004), average log(10) GH peak area (change +0.4 ± 0.1 log(10) μg/liter, P = 0.001), and basal GH secretion (change +0.008 ± 0.003 μg/liter · min, P = 0.008). IGF-I increased by 181 ± 22 μg/liter (P < 0.0001). Neither fasting glucose (P = 0.93) nor insulin-stimulated glucose uptake (P = 0.61) was significantly affected by tesamorelin. CONCLUSIONS: Once-daily short-term treatment with a GHRH(1-44) analog, tesamorelin, augments basal and pulsatile GH secretion. Moreover, although tesamorelin s"
+        },
+        {
+          "title": "Hyperhomocysteinemia Is Associated With an Increased Risk of Cardiovascular Disease, Especially in Non–Insulin-Dependent Diabetes Mellitus",
+          "year": 1998,
+          "doi": "10.1161/01.atv.18.1.133",
+          "cited_by_count": 364,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "A high serum total homocysteine (tHcy) level is an independent risk factor for cardiovascular disease. Because it is not known whether the strength of the association between hyperhomocysteinemia and cardiovascular disease is similar for peripheral arterial, coronary artery, and cerebrovascular disease, we compared the three separate risk estimates in an age-, sex-, and glucose tolerance-stratified random sample (n=631) from a 50- to 75-year-old general white population. Furthermore, we investigated the combined effect of hyperhomocysteinemia and diabetes mellitus with regard to cardiovascular disease. The prevalence of fasting hyperhomocysteinemia (>14.0 micromol/L) was 25.8%. After adjustment for age, sex, hypertension, hypercholesterolemia, diabetes, and smoking, the odds ratios (ORs; 95% confidence intervals) per 5-micromol/L increment in tHcy were 1.44 (1.10 to 1.87) for peripheral arterial, 1.25 (1.03 to 1.51) for coronary artery, 1.24 (0.97 to 1.58) for cerebrovascular, and 1.39 (1.15 to 1.68) for any cardiovascular disease. After stratification by glucose tolerance category and adjustment for the classic risk factors and serum creatinine, the ORs per 5-micromol/L increment in tHcy for any cardiovascular disease were 1.38 (1.03 to 1.85) in normal glucose tolerance, 1.55 (1.01 to 2.38) in impaired glucose tolerance, and 2.33 (1.11 to 4.90) in non-insulin-dependent diabetes mellitus (P=.07 for interaction). We conclude that the magnitude of the association between hyperh"
+        },
+        {
+          "title": "Dissection of the insulin signaling pathway via quantitative phosphoproteomics",
+          "year": 2008,
+          "doi": "10.1073/pnas.0711713105",
+          "cited_by_count": 276,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "The insulin signaling pathway is of pivotal importance in metabolic diseases, such as diabetes, and in cellular processes, such as aging. Insulin activates a tyrosine phosphorylation cascade that branches to create a complex network affecting multiple biological processes. To understand the full spectrum of the tyrosine phosphorylation cascade, we have defined the tyrosine-phosphoproteome of the insulin signaling pathway, using high resolution mass spectrometry in combination with phosphotyrosine immunoprecipitation and stable isotope labeling by amino acids in cell culture (SILAC) in differentiated brown adipocytes. Of 40 identified insulin-induced effectors, 7 have not previously been described in insulin signaling, including SDR, PKCdelta binding protein, LRP-6, and PISP/PDZK11, a potential calcium ATPase binding protein. A proteomic interaction screen with PISP/PDZK11 identified the calcium transporting ATPase SERCA2, supporting a connection to calcium signaling. The combination of quantitative phosphoproteomics with cell culture models provides a powerful strategy to dissect the insulin signaling pathways in intact cells."
+        },
+        {
+          "title": "Thermogenesis-independent metabolic benefits conferred by isocaloric intermittent fasting in ob/ob mice",
+          "year": 2019,
+          "doi": "10.1038/s41598-019-39380-2",
+          "cited_by_count": 42,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8954545454545455,
+          "abstract": "Intermittent fasting (IF) is an effective dietary intervention to counteract obesity-associated metabolic abnormalities. Previously, we and others have highlighted white adipose tissue (WAT) browning as the main underlying mechanism of IF-mediated metabolic benefits. However, whether IF retains its efficacy in different models, such as genetically obese/diabetic animals, is unknown. Here, leptin-deficient ob/ob mice were subjected to 16 weeks of isocaloric IF, and comprehensive metabolic phenotyping was conducted to assess the metabolic effects of IF. Unlike our previous study, isocaloric IF-subjected ob/ob animals failed to exhibit reduced body weight gain, lower fat mass, or decreased liver lipid accumulation. Moreover, isocaloric IF did not result in increased thermogenesis nor induce WAT browning in ob/ob mice. These findings indicate that isocaloric IF may not be an effective approach for regulating body weight in ob/ob animals, posing the possible limitations of IF to treat obesity. However, despite the lack of improvement in insulin sensitivity, isocaloric IF-subjected ob/ob animals displayed improved glucose tolerance as well as higher postprandial insulin level, with elevated incretin expression, suggesting that isocaloric IF is effective in improving nutrient-stimulated insulin secretion. Together, this study uncovers the insulinotropic effect of isocaloric IF, independent of adipose thermogenesis, which is potentially complementary for the treatment of type 2 diabe"
+        }
+      ],
+      "note": "43 off-topic work(s) excluded by relevance gate"
+    }
+  }
+}

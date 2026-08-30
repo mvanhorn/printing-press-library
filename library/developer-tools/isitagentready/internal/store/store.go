@@ -25,6 +25,17 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/isitagentready/internal/cliutil"
 )
 
+// Scanner sources. isitagentready.com reports a Level 0-5 across five fixed
+// categories; is-agentic.com reports a score 0-100 over a per-site floating
+// denominator. The two scales are never merged — see the crossref command.
+const (
+	SourceIsItAgentReady = "isitagentready"
+	SourceIsAgentic      = "is-agentic"
+)
+
+// ValidSources lists every scanner source the CLI can read, in flag-help order.
+func ValidSources() []string { return []string{SourceIsItAgentReady, SourceIsAgentic} }
+
 // storeMu guards the JSONL store so concurrent scans (e.g. compare's parallel
 // fan-out) cannot interleave a write with another write or read within this
 // process. Append takes the write lock; Load takes the read lock.
@@ -33,11 +44,21 @@ var storeMu sync.RWMutex
 // ScanRecord is one persisted scan: one line in the JSONL store. Raw holds the
 // full upstream report so any command can reconstruct any view offline.
 type ScanRecord struct {
-	URL       string          `json:"url"`
-	ScannedAt string          `json:"scannedAt"`
-	Level     int             `json:"level"`
-	LevelName string          `json:"levelName"`
-	Raw       json.RawMessage `json:"raw"`
+	URL string `json:"url"`
+	// Source is the scanner that produced this record. Empty on every line
+	// written before the multi-scanner amend; SourceOrDefault backfills those
+	// to SourceIsItAgentReady so old history keeps its meaning without a
+	// migration pass over the JSONL store.
+	Source    string `json:"source,omitempty"`
+	ScannedAt string `json:"scannedAt"`
+	Level     int    `json:"level"`
+	LevelName string `json:"levelName"`
+	// Score and ScoreLabel carry the is-agentic headline. They are pointers /
+	// omitempty because they are meaningless for isitagentready records —
+	// unlike Level, where 0 is a real readiness level and must never be elided.
+	Score      *int            `json:"score,omitempty"`
+	ScoreLabel string          `json:"scoreLabel,omitempty"`
+	Raw        json.RawMessage `json:"raw"`
 }
 
 // Report is the parsed shape of a POST /api/scan response.
@@ -96,6 +117,39 @@ func ParseReport(raw json.RawMessage) (*Report, error) {
 		return nil, fmt.Errorf("parsing scan report: %w", err)
 	}
 	return &r, nil
+}
+
+// SourceOrDefault returns the record's scanner, backfilling the pre-amend
+// default for JSONL lines written before Source existed.
+func (r ScanRecord) SourceOrDefault() string {
+	if r.Source == "" {
+		return SourceIsItAgentReady
+	}
+	return r.Source
+}
+
+// FilterSource returns only the records produced by one scanner. Every command
+// that reads the store must filter through this before any comparison, ranking
+// or diff, so two scanners' incompatible numbers can never mix.
+func FilterSource(recs []ScanRecord, source string) []ScanRecord {
+	var out []ScanRecord
+	for _, r := range recs {
+		if r.SourceOrDefault() == source {
+			out = append(out, r)
+		}
+	}
+	return out
+}
+
+// AssertSameSource errors when two records come from different scanners. Belt
+// and braces for the two-record paths (diff, gate baseline) on top of
+// FilterSource.
+func AssertSameSource(a, b ScanRecord) error {
+	as, bs := a.SourceOrDefault(), b.SourceOrDefault()
+	if as != bs {
+		return fmt.Errorf("records come from different scanners: %s and %s; they use incompatible scales and cannot be compared", as, bs)
+	}
+	return nil
 }
 
 // CheckRef is a flattened check with its category and id.
@@ -371,10 +425,15 @@ func regressedChecks(from, to *Report) []string {
 
 // GateResult is the outcome of a CI gate evaluation.
 type GateResult struct {
-	Pass        bool     `json:"pass"`
-	URL         string   `json:"url"`
-	Level       int      `json:"level"`
-	LevelName   string   `json:"levelName"`
+	Pass      bool   `json:"pass"`
+	URL       string `json:"url"`
+	Level     int    `json:"level"`
+	LevelName string `json:"levelName"`
+	// Score and ScoreLabel carry the is-agentic headline when the gate ran
+	// against that source; omitempty keeps them out of isitagentready gate JSON
+	// where they are meaningless (there, Level is the honest headline).
+	Score       *int     `json:"score,omitempty"`
+	ScoreLabel  string   `json:"scoreLabel,omitempty"`
 	MinLevel    int      `json:"minLevel"`
 	SiteError   bool     `json:"siteError"`
 	Regressions []string `json:"regressions,omitempty"`
@@ -417,11 +476,97 @@ func EvaluateGate(latest, prev *Report, minLevel int, noRegress, strict bool) Ga
 	return res
 }
 
+// EvaluateAgenticGate is the is-agentic counterpart to EvaluateGate. It fails
+// when the site's score is below minScore and, with noRegress, when a check
+// that was passing in the previous report is now failing or partial. is-agentic
+// has no level (its GateResult.Level is always 0); the honest headline is
+// carried in Score/ScoreLabel so the JSON stays truthful for both sources.
+func EvaluateAgenticGate(latest, prev *AgenticReport, minScore int, noRegress bool) GateResult {
+	score := latest.Score
+	res := GateResult{Pass: true, URL: latest.Target, Level: 0, Score: &score, ScoreLabel: latest.ScoreLabel}
+	if minScore > 0 && latest.Score < minScore {
+		res.Pass = false
+		res.Reasons = append(res.Reasons, fmt.Sprintf("score %d is below the required minimum %d", latest.Score, minScore))
+	}
+	if noRegress && prev != nil {
+		if regr := agenticRegressed(prev, latest); len(regr) > 0 {
+			res.Pass = false
+			res.Regressions = regr
+			res.Reasons = append(res.Reasons, fmt.Sprintf("%d check(s) regressed since the last scan: %s", len(regr), strings.Join(regr, ", ")))
+		}
+	}
+	if res.Pass && len(res.Reasons) == 0 {
+		if minScore > 0 {
+			res.Reasons = append(res.Reasons, fmt.Sprintf("score %d meets the required minimum %d", latest.Score, minScore))
+		} else {
+			res.Reasons = append(res.Reasons, "scan completed; no gate condition failed")
+		}
+	}
+	return res
+}
+
+// agenticRegressed returns the is-agentic issue ids that went from passing in
+// prev to non-passing (failed or partial) in latest, over the union of both
+// reports' issue ids.
+func agenticRegressed(prev, latest *AgenticReport) []string {
+	var out []string
+	for _, tr := range DiffAgenticIssues(prev, latest) {
+		if tr.Change == "regressed" && tr.From == "pass" {
+			out = append(out, tr.Check)
+		}
+	}
+	sort.Strings(out)
+	return out
+}
+
+// DiffAgenticIssues compares two is-agentic reports over the union of their
+// issue ids, using AgenticStatus for each side. Because an id absent from a
+// report's issues[] is passing, a failed -> absent transition ranks as
+// improved (fail -> pass) and absent -> failed ranks as regressed (pass ->
+// fail). Transitions share the same change vocabulary as DiffChecks.
+
+func DiffAgenticIssues(from, to *AgenticReport) []CheckTransition {
+	seen := map[string]bool{}
+	var ids []string
+	for _, iss := range from.Issues {
+		if !seen[iss.ID] {
+			seen[iss.ID] = true
+			ids = append(ids, iss.ID)
+		}
+	}
+	for _, iss := range to.Issues {
+		if !seen[iss.ID] {
+			seen[iss.ID] = true
+			ids = append(ids, iss.ID)
+		}
+	}
+	sort.Strings(ids)
+	out := make([]CheckTransition, 0, len(ids))
+	for _, id := range ids {
+		f := from.AgenticStatus(id)
+		t := to.AgenticStatus(id)
+		var change string
+		switch {
+		case statusRank(t) < statusRank(f):
+			change = "regressed"
+		case statusRank(t) > statusRank(f):
+			change = "improved"
+		default:
+			change = "unchanged"
+		}
+		out = append(out, CheckTransition{Check: id, From: f, To: t, Change: change})
+	}
+	return out
+}
+
 // OpenItem is one still-open fix across the portfolio.
 type OpenItem struct {
 	URL         string `json:"url"`
+	Source      string `json:"source"`
 	Level       int    `json:"level"`
 	LevelName   string `json:"levelName"`
+	Score       *int   `json:"score,omitempty"`
+	ScoreLabel  string `json:"scoreLabel,omitempty"`
 	Check       string `json:"check"`
 	Description string `json:"description"`
 	Prompt      string `json:"prompt"`
@@ -437,23 +582,41 @@ func OpenAdvice(latestPerURL []ScanRecord, filterURL, filterCheck string) []Open
 		if filterURL != "" && !MatchURL(rec.URL, filterURL) {
 			continue
 		}
-		rep, err := ParseReport(rec.Raw)
-		if err != nil {
-			continue
-		}
-		for _, req := range rep.NextLevel.Requirements {
-			if filterCheck != "" && req.Check != filterCheck {
+		switch rec.SourceOrDefault() {
+		case SourceIsAgentic:
+			ag, err := ParseAgenticReport(rec.Raw)
+			if err != nil {
 				continue
 			}
-			out = append(out, OpenItem{
-				URL:         rep.URL,
-				Level:       rep.Level,
-				LevelName:   rep.LevelName,
-				Check:       req.Check,
-				Description: req.Description,
-				Prompt:      req.Prompt,
-				SkillURL:    req.SkillURL,
-			})
+			for _, item := range AgenticOpenItems(ag) {
+				if filterURL != "" && !MatchURL(item.URL, filterURL) {
+					continue
+				}
+				if filterCheck != "" && item.Check != filterCheck {
+					continue
+				}
+				out = append(out, item)
+			}
+		default: // SourceIsItAgentReady (including pre-amend backfill)
+			rep, err := ParseReport(rec.Raw)
+			if err != nil {
+				continue
+			}
+			for _, req := range rep.NextLevel.Requirements {
+				if filterCheck != "" && req.Check != filterCheck {
+					continue
+				}
+				out = append(out, OpenItem{
+					URL:         rep.URL,
+					Source:      SourceIsItAgentReady,
+					Level:       rep.Level,
+					LevelName:   rep.LevelName,
+					Check:       req.Check,
+					Description: req.Description,
+					Prompt:      req.Prompt,
+					SkillURL:    req.SkillURL,
+				})
+			}
 		}
 	}
 	return out
@@ -472,6 +635,16 @@ func failingCount(rec ScanRecord) int {
 // count (desc); any other value ranks by level (asc).
 func RankRecords(recs []ScanRecord, by string) []ScanRecord {
 	out := append([]ScanRecord(nil), recs...)
+	if len(out) == 0 {
+		return out
+	}
+	// A batch run is single-source because the store read is filtered by
+	// --source, so branch on the first record's backing scanner. is-agentic has
+	// no level: its Level is always 0, so Level ranking would collapse every
+	// site to a tie — rank by score (worst first) instead.
+	if out[0].SourceOrDefault() == SourceIsAgentic {
+		return rankAgentic(out, by)
+	}
 	if by == "failing" {
 		fc := map[string]int{}
 		for _, r := range out {
@@ -495,13 +668,52 @@ func RankRecords(recs []ScanRecord, by string) []ScanRecord {
 	return out
 }
 
+// rankAgentic ranks is-agentic records worst-first. The default ("level" maps
+// to score) ranks by score ascending so the lowest score leads; "failing"
+// ranks by non-passing issue count descending.
+func rankAgentic(recs []ScanRecord, by string) []ScanRecord {
+	score := map[string]int{}
+	nonPass := map[string]int{}
+	for _, r := range recs {
+		k := NormalizeURL(r.URL)
+		if ag, err := ParseAgenticReport(r.Raw); err == nil {
+			score[k] = ag.Score
+			nonPass[k] = len(ag.FailingIssues())
+		}
+	}
+	if by == "failing" {
+		sort.SliceStable(recs, func(i, j int) bool {
+			fi, fj := nonPass[NormalizeURL(recs[i].URL)], nonPass[NormalizeURL(recs[j].URL)]
+			if fi != fj {
+				return fi > fj
+			}
+			return score[NormalizeURL(recs[i].URL)] < score[NormalizeURL(recs[j].URL)]
+		})
+		return recs
+	}
+	// default: rank by score ascending (worst first), then URL.
+	sort.SliceStable(recs, func(i, j int) bool {
+		si, sj := score[NormalizeURL(recs[i].URL)], score[NormalizeURL(recs[j].URL)]
+		if si != sj {
+			return si < sj
+		}
+		return NormalizeURL(recs[i].URL) < NormalizeURL(recs[j].URL)
+	})
+	return recs
+}
+
 // HistoryEntry is one row of a URL's readiness timeline.
 type HistoryEntry struct {
-	ScannedAt string            `json:"scannedAt"`
-	Level     int               `json:"level"`
-	LevelName string            `json:"levelName"`
-	SiteError bool              `json:"siteError,omitempty"`
-	Flips     []CheckTransition `json:"flips,omitempty"`
+	ScannedAt string `json:"scannedAt"`
+	Level     int    `json:"level"`
+	LevelName string `json:"levelName"`
+	// Score/ScoreLabel carry the is-agentic headline for is-agentic history
+	// rows, where there is no level. omitempty keeps them out of isitagentready
+	// rows (there Level is the honest headline).
+	Score      *int              `json:"score,omitempty"`
+	ScoreLabel string            `json:"scoreLabel,omitempty"`
+	SiteError  bool              `json:"siteError,omitempty"`
+	Flips      []CheckTransition `json:"flips,omitempty"`
 }
 
 // BuildHistory turns an ascending history into timeline entries, computing the
@@ -509,26 +721,50 @@ type HistoryEntry struct {
 // check when non-empty.
 func BuildHistory(history []ScanRecord, filterCheck string) []HistoryEntry {
 	out := make([]HistoryEntry, 0, len(history))
-	var prev *Report
+	var prevR *Report
+	var prevA *AgenticReport
 	for _, rec := range history {
-		rep, err := ParseReport(rec.Raw)
-		if err != nil {
-			continue
-		}
-		entry := HistoryEntry{ScannedAt: rec.ScannedAt, Level: rep.Level, LevelName: rep.LevelName, SiteError: rep.SiteError != nil}
-		if prev != nil && prev.SiteError == nil && rep.SiteError == nil {
-			for _, tr := range DiffChecks(prev, rep) {
-				if tr.Change == "unchanged" {
-					continue
-				}
-				if filterCheck != "" && tr.Check != filterCheck {
-					continue
-				}
-				entry.Flips = append(entry.Flips, tr)
+		switch rec.SourceOrDefault() {
+		case SourceIsAgentic:
+			ag, err := ParseAgenticReport(rec.Raw)
+			if err != nil {
+				continue
 			}
+			sc := ag.Score
+			entry := HistoryEntry{ScannedAt: rec.ScannedAt, Score: &sc, ScoreLabel: ag.ScoreLabel}
+			if prevA != nil {
+				for _, tr := range DiffAgenticIssues(prevA, ag) {
+					if tr.Change == "unchanged" {
+						continue
+					}
+					if filterCheck != "" && tr.Check != filterCheck {
+						continue
+					}
+					entry.Flips = append(entry.Flips, tr)
+				}
+			}
+			out = append(out, entry)
+			prevA, prevR = ag, nil
+		default: // SourceIsItAgentReady (including pre-amend backfill)
+			rep, err := ParseReport(rec.Raw)
+			if err != nil {
+				continue
+			}
+			entry := HistoryEntry{ScannedAt: rec.ScannedAt, Level: rep.Level, LevelName: rep.LevelName, SiteError: rep.SiteError != nil}
+			if prevR != nil && prevR.SiteError == nil && rep.SiteError == nil {
+				for _, tr := range DiffChecks(prevR, rep) {
+					if tr.Change == "unchanged" {
+						continue
+					}
+					if filterCheck != "" && tr.Check != filterCheck {
+						continue
+					}
+					entry.Flips = append(entry.Flips, tr)
+				}
+			}
+			out = append(out, entry)
+			prevR, prevA = rep, nil
 		}
-		out = append(out, entry)
-		prev = rep
 	}
 	return out
 }
@@ -538,7 +774,11 @@ type CompareSite struct {
 	URL       string `json:"url"`
 	Level     int    `json:"level"`
 	LevelName string `json:"levelName"`
-	SiteError bool   `json:"siteError,omitempty"`
+	// Score/ScoreLabel carry the is-agentic headline for agentic compare rows
+	// where there is no level; omitempty keeps them out of isitagentready rows.
+	Score      *int   `json:"score,omitempty"`
+	ScoreLabel string `json:"scoreLabel,omitempty"`
+	SiteError  bool   `json:"siteError,omitempty"`
 }
 
 // CompareRow is one check's status across the compared sites.
@@ -586,6 +826,50 @@ func BuildCompare(reports []*Report) CompareResult {
 			} else {
 				row.Statuses[NormalizeURL(rep.URL)] = "-"
 			}
+		}
+		res.Checks = append(res.Checks, row)
+	}
+	return res
+}
+
+// BuildAgenticCompare builds the same check-by-check matrix shape as
+// BuildCompare but for is-agentic reports: one site per report, one row per
+// issue id (the union of all reports' ids), each site's cell its AgenticStatus,
+// and the issue's tier (essential/recommended) used as the Category column so
+// the shared matrix renderer works unchanged.
+func BuildAgenticCompare(reports []*AgenticReport) CompareResult {
+	res := CompareResult{}
+	category := map[string]string{}
+	seen := map[string]bool{}
+	var checkIDs []string
+	for _, rep := range reports {
+		if rep == nil {
+			continue
+		}
+		sc := rep.Score
+		res.Sites = append(res.Sites, CompareSite{URL: rep.Target, Level: 0, Score: &sc, ScoreLabel: rep.ScoreLabel})
+		for _, iss := range rep.Issues {
+			if !seen[iss.ID] {
+				seen[iss.ID] = true
+				checkIDs = append(checkIDs, iss.ID)
+				category[iss.ID] = iss.Tier
+			}
+		}
+	}
+	// Match BuildCompare's canonical order: group by tier, then id.
+	sort.SliceStable(checkIDs, func(i, j int) bool {
+		if category[checkIDs[i]] != category[checkIDs[j]] {
+			return category[checkIDs[i]] < category[checkIDs[j]]
+		}
+		return checkIDs[i] < checkIDs[j]
+	})
+	for _, id := range checkIDs {
+		row := CompareRow{Check: id, Category: category[id], Statuses: map[string]string{}}
+		for _, rep := range reports {
+			if rep == nil {
+				continue
+			}
+			row.Statuses[NormalizeURL(rep.Target)] = rep.AgenticStatus(id)
 		}
 		res.Checks = append(res.Checks, row)
 	}

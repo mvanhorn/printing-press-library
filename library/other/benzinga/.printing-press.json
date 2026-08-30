@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-29T10:10:41.617028Z",
+  "printing_press_version": "4.27.0",
+  "api_name": "benzinga",
+  "display_name": "Benzinga",
+  "cli_name": "benzinga-pp-cli",
+  "creator": {
+    "handle": "waveriderai",
+    "name": "waveriderai"
+  },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
+  "owner": "waveriderai",
+  "printer": "waveriderai",
+  "printer_name": "waveriderai",
+  "spec_format": "openapi",
+  "run_id": "20260627-034058-2c1f9c5c",
+  "category": "other",
+  "description": "Every Benzinga calendar, news, fundamentals, and signal endpoint as a typed command, plus an offline SQLite store, full-text search, cross-entity queries, and the first Benzinga MCP server.",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "BENZINGA_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Overnight watchlist change scan",
+      "command": "watch",
+      "description": "See everything that changed on your tickers since you last looked \u2014 new ratings, price-target moves, breaking news, and signals in one diff."
+    },
+    {
+      "name": "Single-ticker move explainer",
+      "command": "why",
+      "description": "Build one time-ordered catalyst timeline for a ticker by merging unusual options, block trades, halts, rating changes, and news."
+    },
+    {
+      "name": "Unified forward catalyst agenda",
+      "command": "catalysts",
+      "description": "One forward-dated agenda per ticker set unioning earnings, dividends, splits, IPOs, FDA dates, conference calls, guidance, and offerings."
+    },
+    {
+      "name": "Analyst & firm accuracy scorecard",
+      "command": "analyst-accuracy",
+      "description": "Rank rating-issuing firms and analysts by Benzinga's historical accuracy, and tag today's rating changes with the issuer's hit rate."
+    },
+    {
+      "name": "Earnings surprise tracker",
+      "command": "earnings-season",
+      "description": "Compute EPS and revenue beat/miss and surprise % from the earnings calendar and link each name to its conference call and transcript."
+    },
+    {
+      "name": "Clustered congressional buying",
+      "command": "insider-cluster",
+      "description": "Flag tickers where several distinct members of Congress filed purchases within a window \u2014 cluster detection beyond a single disclosure."
+    }
+  ]
+}

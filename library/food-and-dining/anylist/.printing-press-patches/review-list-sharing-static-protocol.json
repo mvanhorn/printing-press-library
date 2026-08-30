@@ -1,0 +1,108 @@
+{
+  "id": "review-list-sharing-static-protocol",
+  "status": "historical_static_snapshot",
+  "superseded_by": "review-list-sharing-live-probe",
+  "source": "static-apk-and-protobuf",
+  "recorded_at": "2026-08-23",
+  "summary": "Static-only evidence for shopping-list share/unshare and household-user invite writes. No exact request wire shape is provable for any of the four operations; writes remain fail-closed.",
+  "sources": {
+    "android_dex": "/tmp/anylist-classes.dex (7570696 bytes, inspected 2026-08-23; string table mirrored at /tmp/dex-strings.txt)",
+    "checked_in_protobuf": "library/food-and-dining/anylist/internal/anylist/pb/api.proto (1168 lines) and generated api.pb.go descriptors",
+    "current_cli": "library/food-and-dining/anylist/internal/cli/lists_sharing.go (read-only shared_users projection) and internal/anylist/client.go"
+  },
+  "operations": {
+    "share-list": {
+      "route": "/data/shopping-lists/share-list",
+      "route_evidence": "exact dex string constant, adjacent in the string table to other proven /data/ route strings (/data/shopping-lists/all, /data/shopping-lists/update, /data/shopping-lists/update-v2)",
+      "http_method": null,
+      "request_shape": "UNPROVEN — no request message, wrapper type, field name, content type, or HTTP method is statically bound to this route",
+      "response_type": "PBShareListOperationResponse (response-only evidence)"
+    },
+    "share-shopping-list": {
+      "route": null,
+      "route_evidence": "no /data/ route string; 'share-shopping-list' is a kebab-case string constant in the dex, unbound to any route, method, or payload",
+      "http_method": null,
+      "request_shape": "UNPROVEN",
+      "response_type": null
+    },
+    "unshare-shopping-list": {
+      "route": null,
+      "route_evidence": "no /data/ route string; 'unshare-shopping-list' is a kebab-case string constant in the dex, unbound to any route, method, or payload",
+      "http_method": null,
+      "request_shape": "UNPROVEN",
+      "response_type": null
+    },
+    "add-household-users": {
+      "route": null,
+      "route_evidence": "no /data/*household* route string exists in the dex. Closest proven route strings are /data/account/add-subuser and /data/account/remove-subuser, but nothing statically binds them to the 'add-household-users' name; no method or payload is proven for either",
+      "http_method": null,
+      "request_shape": "UNPROVEN",
+      "response_type": null
+    }
+  },
+  "exact_static_facts": {
+    "proven_route_strings": [
+      "/data/shopping-lists/share-list",
+      "/data/account/add-subuser",
+      "/data/account/remove-subuser",
+      "/data/shopping-lists/all",
+      "/data/shopping-lists/update",
+      "/data/shopping-lists/update-v2"
+    ],
+    "response_only_messages": {
+      "PBShareListOperationResponse": {
+        "presence": "api.proto line 597, api.pb.go descriptor, and dex class string Lpcov/proto/Model$PBShareListOperationResponse;",
+        "fields": {
+          "sharedUser": "PBEmailUserIDPair, field 1",
+          "originalListTimestamp": "double, field 2",
+          "updatedListTimestamp": "double, field 3",
+          "statusCode": "int32, field 4",
+          "errorTitle": "string, field 5",
+          "errorMessage": "string, field 6"
+        },
+        "note": "response-only; not evidence of a request payload"
+      },
+      "PBEmailUserIDPair": {
+        "presence": "api.proto line 937 and dex class string Lpcov/proto/Model$PBEmailUserIDPair;",
+        "fields": {
+          "email": "string, field 1",
+          "userId": "string, field 2",
+          "fullName": "string, field 3"
+        }
+      },
+      "PBEmailUserIDPairList": {
+        "presence": "api.proto line 1012 and dex class string Lpcov/proto/Model$PBEmailUserIDPairList;",
+        "fields": {
+          "emailUserIdPair": "repeated PBEmailUserIDPair, field 1"
+        },
+        "note": "no dex method signature takes PBEmailUserIDPairList as a parameter, so it cannot be tied to any share/invite call from static evidence"
+      },
+      "ShoppingList.sharedUsers": "repeated PBEmailUserIDPair, field 7 — user-data read context, not a request",
+      "PBUserSubscriptionInfo.subusers": "repeated PBEmailUserIDPair, field 5 — account read context",
+      "PBAccountInfoResponse.subusers": "repeated PBEmailUserIDPair, field 9 — account read context"
+    },
+    "string_only_clues": [
+      "sharedUserEmail — single unbound dex string constant; the only field-name-like candidate for a share request field, but there is no static binding to a route, multipart part, or message; may be a UI state key or analytics parameter",
+      "share-list, share-recipes, share-shopping-list, unshare-shopping-list, add-household-users, can_add_household_users — kebab-case string constants; not Java/Kotlin method names (dashes), not full route strings; possibly handler/analytics identifiers",
+      "addSharedUsers, clearSharedUsers, mSharedUsers, onManageHouseholdUsersListener, onShareListListener, onClickShareListButton, showShareListUI — client UI/operator symbol strings",
+      "onClickRemoveSharedUserButton(Lpcov/proto/Model$PBEmailUserIDPair;)V and onClickRemoveSubuserButton(Lpcov/proto/Model$PBEmailUserIDPair;)V — UI handler signatures; prove the UI handles a PBEmailUserIDPair, not a wire shape",
+      "ALShareListOperationError: Email mismatch / No shared user / No shopping list / Response contained error / Server error / Unable to read response — client-side handling of a share-list response; response-layer evidence",
+      "MultipartFormDataFilePart(fileName= — the client uses Retrofit multipart somewhere; not bound to share-list"
+    ],
+    "negative_evidence": {
+      "no_request_message_in_proto": "api.proto and the api.pb.go descriptor contain no PBShareListOperationRequest, PBUnshare*, or PBAddHouseholdUsers* message; the only share-named message is PBShareListOperationResponse",
+      "no_request_message_in_dex": "no dex class or method signature for any share/unshare/household-invite request message; no method signatures named shareList(, shareShoppingList(, unshareShoppingList(, or addHouseholdUsers( exist in the dex string table",
+      "no_household_route": "no dex string matches /data/*household*; no /data/ route string mentions unshare"
+    },
+    "current_cli_state": "CLI exposes only read-only 'lists sharing' (shared_users projection from user data); internal/anylist/client.go posts protobuf bodies for /data/shopping-lists/update and /update-v2; no share, unshare, or household-user invite command exists"
+  },
+  "unresolved_gaps": [
+    "No HTTP method is provable for any of the four operations from static evidence.",
+    "No request content type or multipart field name is provable; 'sharedUserEmail' is a string-only candidate with no static binding.",
+    "No request message/wrapper type exists in the checked-in protobuf or the dex for share-list, unshare-shopping-list, or add-household-users, so a request payload cannot be constructed from any static source without inventing it.",
+    "'share-shopping-list', 'unshare-shopping-list', and 'add-household-users' are unbound name strings; their relationship to any route (including /data/account/add-subuser) is unknown.",
+    "A captured live request (authenticated browser or client traffic) is still required before any share/unshare/invite write can be implemented; /data/account/add-subuser and /data/account/remove-subuser are the most promising routes to capture for the household-invite operation."
+  ],
+  "fail_closed": "Shopping-list share, unshare, and household-user invite writes remain fail-closed. Only read-only sharedUsers inspection is supported. No exact request shape is proven, and none has been live-round-tripped.",
+  "validated_outcome": "No live AnyList requests or writes occurred; only static artifacts were inspected. Sharing/invite writes remain fail-closed; only read-only sharedUsers inspection is supported."
+}

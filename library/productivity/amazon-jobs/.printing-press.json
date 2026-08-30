@@ -1,0 +1,53 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-25T05:32:35.868506Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "amazon-jobs",
+  "display_name": "Amazon Jobs",
+  "cli_name": "amazon-jobs-pp-cli",
+  "creator": {
+    "handle": "qazmataz",
+    "name": "qazmataz"
+  },
+  "owner": "qazmataz",
+  "printer": "qazmataz",
+  "printer_name": "qazmataz",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:3f381f882fffd298d02b10a68143e3b935846f865c57426daa2e3eea286767c7",
+  "run_id": "20260725-041142-9944f727",
+  "category": "productivity",
+  "description": "Every Amazon.jobs feature, plus a local job store, new-since diffing, and aggregation Amazon's own site can't do — no login required.",
+  "mcp_binary": "amazon-jobs-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "New-since diff",
+      "command": "new",
+      "description": "See only the Amazon reqs that appeared since you last synced a saved search — no more re-scanning the whole list every morning."
+    },
+    {
+      "name": "Saved searches",
+      "command": "save",
+      "description": "Persist a named query plus its filters and diff cursor so a search and its new-since state survive between runs."
+    },
+    {
+      "name": "Facet aggregation",
+      "command": "stats",
+      "description": "Count synced reqs grouped by city, state, team, or category — the aggregation Amazon's own empty facets[] never returns."
+    },
+    {
+      "name": "Qualification-demand scan",
+      "command": "skills",
+      "description": "Rank teams and cities by how many synced reqs demand a given skill keyword in their basic/preferred qualifications."
+    },
+    {
+      "name": "Pipeline facet filters",
+      "command": "find",
+      "description": "Filter live results by intern, manager, university, and schedule type — fields the .json endpoint silently ignores as server params."
+    }
+  ]
+}

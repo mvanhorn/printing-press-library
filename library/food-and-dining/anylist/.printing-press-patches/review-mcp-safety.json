@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "review-mcp-safety",
+  "applied_at": "2026-08-25",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "anylist_search/anylist_execute are read-only: an explicit endpoint allowlist filters search results, and the execute gate fails closed before client construction or any HTTP request for mutation or unclassified routes, directing callers to the anylist-pp-cli command mirror.",
+  "reason": "The generated code-orchestration dispatch would otherwise let a generic MCP agent POST raw mutation payloads to /data/*/update and related routes with no preview/apply, typed payload, read-after-write, or cache-sync gates. Failing closed keeps write safety owned by the CLI command mirror; a regen that adds new read-only endpoints must consciously extend the allowlist, enforced by code_orch_test.go keeping it in lockstep with endpoint shapes.",
+  "files": [
+    "internal/mcp/code_orch.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/code_orch_test.go"
+  ]
+}

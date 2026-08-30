@@ -1,0 +1,14 @@
+{
+  "id": "review-notification-location-handlers",
+  "source": "direct-input",
+  "summary": "Verify AnyList notification-location add/remove handlers.",
+  "evidence": {
+    "endpoint": "POST /data/shopping-lists/update",
+    "handlers": {
+      "add-list-notification-location": "fake coordinates/name/address read back on the disposable list",
+      "remove-list-notification-location": "same location absent after fresh read-back"
+    },
+    "cleanup": "Disposable list was removed and cache refreshed to 108 lists; no marker remains."
+  },
+  "validated_outcome": "Notification-location add/remove wire contract is evidence-backed; production CLI wiring remains a bounded slice."
+}

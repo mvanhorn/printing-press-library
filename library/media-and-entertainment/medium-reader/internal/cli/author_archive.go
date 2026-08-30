@@ -85,8 +85,14 @@ result's author_id field.`, "\n"),
 			// handle to its id keylessly via the public profile page (v1's
 			// id_for behavior, without the API key). A bare hex id is used
 			// as-is.
+			// archivedHandle is the writer handle the user typed (if any),
+			// normalized (leading @ stripped, lowercased). author-compare matches
+			// rows on it so a writer archived by @handle can be compared by
+			// @handle later — independent of Medium's per-post creator username.
+			archivedHandle := ""
 			if !looksLikeUserID(userID) {
 				handle := userID
+				archivedHandle = normalizeWriterKey(handle)
 				resolvedID, rerr := flags.newPageSource().ResolveUserID(ctx, handle)
 				if rerr != nil {
 					return usageErr(fmt.Errorf("author-archive %q: could not resolve handle to a user id (pass the 12-hex user id, e.g. bcab753a4d4e, or check the @handle): %w", handle, rerr))
@@ -150,7 +156,7 @@ result's author_id field.`, "\n"),
 				// Project into the canonical store record. The keys here MUST
 				// match what digest/corpus/author-compare read back — see
 				// buildArchiveRecord and its test.
-				obj := buildArchiveRecord(s, art, userID)
+				obj := buildArchiveRecord(s, art, userID, archivedHandle)
 
 				merged, merr := json.Marshal(obj)
 				if merr != nil {
@@ -162,6 +168,16 @@ result's author_id field.`, "\n"),
 					continue
 				}
 				archived++
+			}
+
+			// Record the sync_state marker so doctor and the analytics/digest
+			// sync hints stop reporting the store as "not synced". The article
+			// rows above land in the resources table via db.Upsert, which never
+			// touches the separate sync_state table those readers consult — see
+			// recordArchiveSyncState. A marker-write failure must not fail the
+			// archive (the rows are already stored), so warn and continue.
+			if err := recordArchiveSyncState(db, archived); err != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warn: recording sync state: %v\n", err)
 			}
 
 			summary := map[string]any{
@@ -178,6 +194,35 @@ result's author_id field.`, "\n"),
 	return cmd
 }
 
+// recordArchiveSyncState writes the sync_state marker that doctor and the
+// analytics/digest sync hints read to decide whether the local store has been
+// populated. author-archive stores articles via db.Upsert("articles", ...),
+// which only touches the resources table — the store's separate sync_state table
+// stays empty, so without this call a fully archived store still reports "local
+// store has not been synced yet" (and doctor shows the cache as empty). The
+// resource type matches the "articles" table the rows land in and the
+// `analytics --type articles` reader. Guard on archived > 0 so a crawl that
+// fetched nothing does not stamp a misleading last_synced_at that would make an
+// empty store look freshly synced. SaveSyncState is the generated store's
+// existing (previously uncalled) marker writer; we only call it here.
+func recordArchiveSyncState(db *store.Store, archived int) error {
+	if archived <= 0 {
+		return nil
+	}
+	// doctor and the analytics/digest hints display total_count as the cached
+	// row count, so record the CUMULATIVE store count, not just this run's delta
+	// — otherwise a second author-archive would make doctor under-report (it
+	// would show only the last author's count). Fall back to the per-run count
+	// if the cumulative count is briefly unavailable. author-archive fetches up
+	// to --max-articles in one resolver call rather than paginating, so there is
+	// no cursor to persist.
+	total, err := db.Count("articles")
+	if err != nil || total < archived {
+		total = archived
+	}
+	return db.SaveSyncState("articles", "", total)
+}
+
 // buildArchiveRecord projects a fetched summary (plus the optional full-article
 // body) into the JSON record author-archive stores. The keys here are the
 // store's canonical schema — author, published_at, archived_author — and MUST
@@ -187,7 +232,19 @@ result's author_id field.`, "\n"),
 // this projection is unit-tested against those readers' expectations to keep the
 // writer and readers from drifting again. published_at is RFC3339 so digest's
 // parsePublishedAt (via cliutil.ParseStoredTime) parses it back.
-func buildArchiveRecord(s source.PostSummary, art *source.Article, archivedFor string) map[string]any {
+//
+// It also writes the engagement keys author-compare averages —
+// claps/voters/responses/reading_time/tags — sourced from the GraphQL summary
+// (s), and prefers Medium's authoritative word_count over the page-derived count.
+//
+// archived_handle is the writer handle the archive was run under (if the user
+// passed one), normalized. It is the STABLE join key author-compare matches on:
+// the per-post "username" comes from Medium's creator.username, which can be an
+// opaque auto-generated string (e.g. "oldmo860617") and, under
+// includeDistributedResponses, may even belong to a different writer — so it is
+// stored as metadata but is NOT a reliable identity for "the writer this archive
+// is for".
+func buildArchiveRecord(s source.PostSummary, art *source.Article, archivedFor, archivedHandle string) map[string]any {
 	obj := map[string]any{
 		"id":              s.ID,
 		"title":           s.Title,
@@ -196,6 +253,7 @@ func buildArchiveRecord(s source.PostSummary, art *source.Article, archivedFor s
 		"author_id":       s.AuthorID,
 		"username":        s.Username,
 		"archived_author": archivedFor,
+		"archived_handle": archivedHandle,
 	}
 	if !s.PublishedAt.IsZero() {
 		obj["published_at"] = s.PublishedAt.UTC().Format(time.RFC3339)
@@ -209,9 +267,29 @@ func buildArchiveRecord(s source.PostSummary, art *source.Article, archivedFor s
 		}
 		obj["is_locked"] = art.IsLocked
 		obj["is_preview_only"] = art.IsPreviewOnly
-		if art.WordCount > 0 {
-			obj["word_count"] = art.WordCount
-		}
+	}
+
+	// Engagement from the GraphQL archive summary (Tier-0; present even for
+	// member-locked posts; all zero on the minimal-query fallback path). These
+	// keys MUST match exactly what author-compare's computeAuthorStats reads back
+	// — claps/voters/responses/reading_time/tags — the same writer↔reader contract
+	// that caught the earlier author_name drift.
+	obj["claps"] = s.Claps
+	obj["voters"] = s.Voters
+	obj["responses"] = s.Responses
+	if s.ReadingTime > 0 {
+		obj["reading_time"] = s.ReadingTime
+	}
+	if len(s.Tags) > 0 {
+		obj["tags"] = s.Tags
+	}
+	// word_count: prefer Medium's authoritative count (carried on the summary even
+	// when the per-article body fetch fails); fall back to the page-derived count.
+	switch {
+	case s.WordCount > 0:
+		obj["word_count"] = s.WordCount
+	case art != nil && art.WordCount > 0:
+		obj["word_count"] = art.WordCount
 	}
 	return obj
 }

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "tock-confirm-click-recovery-and-interstitial-diagnostics",
+  "applied_at": "2026-07-20",
+  "base_run_id": "20260712-223206",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Preserve Tock checkout confirmation delivery with one shared retry after a proven dialog-free idle interval, while retaining uncapped semantic interstitial and confirm-occlusion diagnostics.",
+  "reason": "Tock checkout can lose a trusted confirm click or interpose a text-alert dialog whose controls fall beyond the capped diagnostic label list. A reprint must retain fresh-coordinate retry delivery, the single retry ceiling shared with post-dismissal recovery, fail-closed opt-out handling, and semantic state probes that distinguish an idle checkout from a blocking dialog.",
+  "files": [
+    "internal/source/tock/chrome_book.go",
+    "internal/source/tock/chrome_book_test.go"
+  ],
+  "validated_outcome": "Fixture coverage guards semantic and legacy dialog detection, uncapped Skip diagnostics, delayed dialog dismissal, lost-click recovery, shared retry exclusivity, confirm occlusion, fail-closed modal selection, and receipt survey acceptance."
+}

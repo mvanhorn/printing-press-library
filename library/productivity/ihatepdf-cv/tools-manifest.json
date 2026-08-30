@@ -1,0 +1,44 @@
+{
+  "api_name": "ihatepdf-cv",
+  "base_url": "https://www.ihatepdf.cv",
+  "description": "Private PDF operations for agents, scripts, and offline pipelines.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "site_health",
+      "description": "Check whether the ihatepdf.cv website landing endpoint is reachable. This browser-facing health probe does not upload or process documents; use the local PDF commands for offline file operations. Returns the site health response and status.",
+      "method": "GET",
+      "path": "/site/health",
+      "no_auth": true,
+      "params": [],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "text/html"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Privacy audit before sharing",
+      "command": "privacy-scan",
+      "description": "Find content and metadata risks before a PDF leaves your machine."
+    },
+    {
+      "name": "Integrity trail",
+      "command": "fingerprint",
+      "description": "Record SHA-256, SHA-1, and MD5 hashes for inputs and outputs."
+    },
+    {
+      "name": "Agent-native inspection",
+      "command": "inspect",
+      "description": "Expose PDF structure, metadata, and hashes as compact JSON."
+    }
+  ]
+}

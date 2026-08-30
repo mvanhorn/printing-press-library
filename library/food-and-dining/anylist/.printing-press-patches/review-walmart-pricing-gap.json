@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "review-walmart-pricing-gap",
+  "applied_at": "2026-08-16",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Keep Walmart and ZIP-aware retailer pricing outside AnyList until a separate verified press exists.",
+  "reason": "A static search of the local Printing Press library found no Walmart CLI or Walmart press. AnyList exposes PBItemPrice, PBStore, and PBStoreFilter fields as synchronized item/store metadata, while product-lookup is a read-only catalog lookup by barcode; neither provides a ZIP-aware Walmart price or availability query. The current CLI deliberately rejects unverified per-item price/store writes. Do not infer Walmart prices from cached AnyList metadata or invent a retailer handler.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "tools-manifest.json",
+    "internal/anylist/pb/api.proto",
+    "internal/anylist/client.go",
+    "internal/cli/items_lookup.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "The CLI documentation and registries now state that AnyList store metadata and barcode catalog lookup are not Walmart/ZIP pricing. No Walmart command or guessed price source was added. A separate Walmart press, accepting a ZIP or store selector and independently verifying price/availability, remains the safe implementation path; no live data changed.",
+  "findings_addressed": [
+    "walmart-press-absent",
+    "zip-aware-pricing-absent",
+    "anylist-price-store-write-unverified",
+    "catalog-lookup-not-retailer-pricing"
+  ]
+}

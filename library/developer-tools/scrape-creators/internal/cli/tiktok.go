@@ -11,16 +11,15 @@ func newTiktokCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "tiktok",
 		Short:       "Scrape TikTok profiles, videos, and more",
-		Hidden:      true,
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:api-resource": "true", "pp:typed-exit-codes": "0,2"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newTiktokListCmd(flags))
 	cmd.AddCommand(newTiktokListAdlibraryCmd(flags))
 	cmd.AddCommand(newTiktokListAdlibrary2Cmd(flags))
+	cmd.AddCommand(newTiktokListCollectionCmd(flags))
 	cmd.AddCommand(newTiktokListCreatorsCmd(flags))
-	cmd.AddCommand(newTiktokListHashtagsCmd(flags))
 	cmd.AddCommand(newTiktokListLiveCmd(flags))
 	cmd.AddCommand(newTiktokListProductCmd(flags))
 	cmd.AddCommand(newTiktokListProfileCmd(flags))

@@ -7,6 +7,8 @@
   "files": [
     "internal/cli/granola_helpers.go",
     "internal/cli/attendee.go",
+    "internal/cli/chat.go",
+    "internal/cli/recipes.go",
     "internal/cli/calendar.go",
     "internal/cli/collect.go",
     "internal/cli/duplicates.go",
@@ -25,9 +27,10 @@
     "internal/cli/transcript.go",
     "internal/cli/extract_test.go",
     "internal/cli/memo_test.go",
-    "internal/cli/granola_read_test.go"
+    "internal/cli/granola_read_test.go",
+    "internal/cli/recipes_chat_store_test.go"
   ],
-  "summary": "Read commands must not be wired to a single data path. They go through a read seam that serves the local store first and falls back to the desktop cache only when the store has no row and a cache is actually readable; documents merge field by field so a legacy install keeps the values only the cache carries. Neither step makes a network call or consults an API key, so whatever has already been synced stays readable offline and by either sync path. A command whose live fallback authenticates with the desktop credential must skip that fallback once the cache has proved unreadable, since the same credential is what the key migration invalidated and the call can only produce the refusal. State that genuinely exists nowhere but the cache — chat threads, recipes, workspaces, and AI panel content — stays on its own path and is honestly unavailable on a migrated install rather than faked.",
+  "summary": "Read commands must not be wired to a single data path. They go through a read seam that serves the local store first and falls back to the desktop cache only when the store has no row and a cache is actually readable; documents merge field by field so a legacy install keeps the values only the cache carries. Neither step makes a network call or consults an API key, so whatever has already been synced stays readable offline and by either sync path. A command whose live fallback authenticates with the desktop credential must skip that fallback once the cache has proved unreadable, since the same credential is what the key migration invalidated and the call can only produce the refusal. \"Cache-only\" is a claim about where the bytes are at read time, not about where they came from: state the cache sync already copied into the store — recipes, recipe usage, chat threads, chat messages — is store data and must be served, while state that exists nowhere but the cache (AI panel content, workspaces) stays on its own path and is honestly unavailable on a migrated install rather than faked. Data served from the store on an install whose cache is unreadable must disclose how current it is — the last-sync timestamp, and whether any code path can advance it at all — in the machine-readable envelope and not only in prose, because a consumer cannot otherwise tell a frozen set from a live one. That disclosure is absent when the cache is readable, since that path is not frozen.",
   "reason": "After the key migration the desktop cache is permanently undecryptable, so every command that opened it directly was unreachable even though sync-api had already written the same rows to disk. A test walks the AST for every direct cache call site and fails in both directions — an un-rerouted call site, or a stale allowlist entry — so the cache-only classification states a real data fact instead of recording a reroute that was skipped.",
   "validated_outcome": "transcript get returns all 564 segments of a post-migration meeting with byte-identical output with and without an API key set, and talktime reports non-zero microphone and system seconds from the same rows."
 }

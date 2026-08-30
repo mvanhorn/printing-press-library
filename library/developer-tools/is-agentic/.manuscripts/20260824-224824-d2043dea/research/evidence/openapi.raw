@@ -1,0 +1,854 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Is Agentic public report API",
+    "version": "1.0.0",
+    "description": "Read the latest completed Is Agentic readiness report stored for a public URL. This public API is read-only, requires no authentication, and never starts a scan.",
+    "termsOfService": "https://is-agentic.com/terms",
+    "license": {
+      "name": "Is Agentic Terms of Use",
+      "url": "https://is-agentic.com/terms"
+    },
+    "contact": {
+      "name": "Is Agentic developer support",
+      "url": "https://is-agentic.com/contact"
+    }
+  },
+  "externalDocs": {
+    "description": "Is Agentic docs, versioning policy, and error guidance",
+    "url": "https://is-agentic.com/docs"
+  },
+  "servers": [
+    {
+      "url": "https://is-agentic.com",
+      "description": "Is Agentic production API"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Reports",
+      "description": "Read completed public Is Agentic reports."
+    }
+  ],
+  "paths": {
+    "/api/v1/report": {
+      "get": {
+        "operationId": "getIsAgenticReportV1",
+        "summary": "Get a completed Is Agentic report",
+        "description": "Returns one latest completed stored report for a public HTTP or HTTPS URL without launching a scan. This is a single-resource read operation: it has no request body, pagination, idempotency key, or asynchronous job.",
+        "security": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "url",
+            "required": true,
+            "description": "Public HTTP or HTTPS URL whose completed report to retrieve.",
+            "schema": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 2048
+            },
+            "example": "https://example.com"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Latest completed report",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Link": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit-Policy": {
+                "description": "Quota policy in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit": {
+                "description": "Current remaining quota and reset time in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Compatibility form of the request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Compatibility form of the remaining request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the current quota window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicScanReport"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The URL is missing or invalid",
+            "headers": {
+              "RateLimit-Policy": {
+                "description": "Quota policy in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit": {
+                "description": "Current remaining quota and reset time in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Compatibility form of the request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Compatibility form of the remaining request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the current quota window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No completed report is stored for the URL",
+            "headers": {
+              "RateLimit-Policy": {
+                "description": "Quota policy in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit": {
+                "description": "Current remaining quota and reset time in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Compatibility form of the request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Compatibility form of the remaining request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the current quota window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "The endpoint received a non-GET method",
+            "headers": {
+              "RateLimit-Policy": {
+                "description": "Quota policy in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit": {
+                "description": "Current remaining quota and reset time in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Compatibility form of the request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Compatibility form of the remaining request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the current quota window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The client exceeded the public report quota",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Policy": {
+                "description": "Quota policy in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit": {
+                "description": "Current remaining quota and reset time in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Compatibility form of the request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Compatibility form of the remaining request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the current quota window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Stored report data is temporarily unavailable",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Policy": {
+                "description": "Quota policy in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit": {
+                "description": "Current remaining quota and reset time in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Compatibility form of the request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Compatibility form of the remaining request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the current quota window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Reports"
+        ]
+      }
+    },
+    "/api/report": {
+      "get": {
+        "operationId": "getIsAgenticReportLegacy",
+        "summary": "Get a completed report through the legacy alias",
+        "description": "Deprecated compatibility alias for GET /api/v1/report. Responses include the RFC 9745 Deprecation header and a successor-version link.",
+        "security": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "url",
+            "required": true,
+            "description": "Public HTTP or HTTPS URL whose completed report to retrieve.",
+            "schema": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 2048
+            },
+            "example": "https://example.com"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Latest completed report",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Link": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit-Policy": {
+                "description": "Quota policy in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit": {
+                "description": "Current remaining quota and reset time in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Compatibility form of the request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Compatibility form of the remaining request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the current quota window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicScanReport"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The URL is missing or invalid",
+            "headers": {
+              "RateLimit-Policy": {
+                "description": "Quota policy in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit": {
+                "description": "Current remaining quota and reset time in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Compatibility form of the request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Compatibility form of the remaining request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the current quota window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No completed report is stored for the URL",
+            "headers": {
+              "RateLimit-Policy": {
+                "description": "Quota policy in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit": {
+                "description": "Current remaining quota and reset time in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Compatibility form of the request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Compatibility form of the remaining request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the current quota window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "The endpoint received a non-GET method",
+            "headers": {
+              "RateLimit-Policy": {
+                "description": "Quota policy in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit": {
+                "description": "Current remaining quota and reset time in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Compatibility form of the request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Compatibility form of the remaining request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the current quota window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The client exceeded the public report quota",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Policy": {
+                "description": "Quota policy in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit": {
+                "description": "Current remaining quota and reset time in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Compatibility form of the request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Compatibility form of the remaining request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the current quota window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Stored report data is temporarily unavailable",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Policy": {
+                "description": "Quota policy in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit": {
+                "description": "Current remaining quota and reset time in the current IETF RateLimit structured-field format.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Compatibility form of the request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Compatibility form of the remaining request quota.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the current quota window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": true,
+        "tags": [
+          "Reports"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ScoreBucket": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "earned",
+          "available",
+          "passing",
+          "total"
+        ],
+        "properties": {
+          "earned": {
+            "type": "number"
+          },
+          "available": {
+            "type": "number"
+          },
+          "passing": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          }
+        }
+      },
+      "PublicScanIssue": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "tier",
+          "result",
+          "details",
+          "recommendation"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "tier": {
+            "enum": [
+              "essential",
+              "recommended",
+              "bonus"
+            ]
+          },
+          "result": {
+            "enum": [
+              "failed",
+              "partial"
+            ]
+          },
+          "details": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "recommendation": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "PublicScanReport": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "target",
+          "display_target",
+          "report_url",
+          "score",
+          "score_label",
+          "scanned_at",
+          "eligible_checks",
+          "score_breakdown",
+          "issues"
+        ],
+        "properties": {
+          "target": {
+            "type": "string",
+            "format": "uri"
+          },
+          "display_target": {
+            "type": "string"
+          },
+          "report_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "score": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 100
+          },
+          "score_label": {
+            "type": "string"
+          },
+          "scanned_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "eligible_checks": {
+            "type": "integer"
+          },
+          "score_breakdown": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "essential",
+              "recommended",
+              "bonus"
+            ],
+            "properties": {
+              "essential": {
+                "$ref": "#/components/schemas/ScoreBucket"
+              },
+              "recommended": {
+                "$ref": "#/components/schemas/ScoreBucket"
+              },
+              "bonus": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "points",
+                  "positive_signals"
+                ],
+                "properties": {
+                  "points": {
+                    "type": "number"
+                  },
+                  "positive_signals": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicScanIssue"
+            }
+          }
+        }
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "type",
+          "title",
+          "status",
+          "detail",
+          "instance",
+          "code",
+          "resolution"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "format": "uri"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "minimum": 400,
+            "maximum": 599
+          },
+          "detail": {
+            "type": "string"
+          },
+          "instance": {
+            "type": "string",
+            "format": "uri"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "invalid_url",
+              "report_not_found",
+              "method_not_allowed",
+              "rate_limit_exceeded",
+              "report_temporarily_unavailable",
+              "api_route_not_found"
+            ]
+          },
+          "resolution": {
+            "type": "string"
+          },
+          "documentation_url": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      }
+    }
+  },
+  "x-rate-limit-policy": {
+    "name": "public-report",
+    "quota": 120,
+    "window_seconds": 60,
+    "partition": "client IP address"
+  },
+  "x-api-lifecycle": {
+    "current_major_version": "v1",
+    "deprecation_policy_url": "https://is-agentic.com/docs#versioning-and-deprecation"
+  }
+}

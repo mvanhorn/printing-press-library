@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-08-28T07:01:52.021393Z",
+  "cli_dir": "\u003ccli-dir\u003e/rapidapi",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template fix. platform_client.go is emitted by the Printing Press platform client generator; the 'list' shell-out Short is terse but precise for a human --help reader and the runtime walker's exemption list covers platform commands. Generator retro candidate: platform client templates should emit parameter-aware Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template fix. teach.go is emitted by the learn-loop generator; 'List recorded learnings' is a standard learn-loop management command whose behavior is fully described by its name and the learn-loop protocol docs. Generator retro candidate: learn-loop templates should emit richer Shorts with filter flags."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-08-28T05:04:24.951105Z"
+  }
+}

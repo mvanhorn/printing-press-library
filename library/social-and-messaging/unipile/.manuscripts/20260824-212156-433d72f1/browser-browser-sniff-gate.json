@@ -1,0 +1,11 @@
+{
+  "run_id": "20260824-212156-433d72f1",
+  "sources": [
+    {
+      "source_name": "unipile",
+      "decision": "skip-silent",
+      "reason": "spec-complete: 94 operations merged from vendor's own per-endpoint OpenAPI definitions covering the entire published v1 API Reference index (llms.txt)",
+      "asked_at": "2026-08-24T15:55:35Z"
+    }
+  ]
+}

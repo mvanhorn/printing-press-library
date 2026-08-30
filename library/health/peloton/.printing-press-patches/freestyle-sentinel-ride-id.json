@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "freestyle-sentinel-ride-id",
+  "applied_at": "2026-08-15",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "workoutDetailRideID (internal/cli/offline.go) treats Peloton's freestyle sentinel ride id (\"00000000000000000000000000000000\", 32 zeros -- used for Just Run/Just Ride/Outdoor/other non-class workouts) as equivalent to no ride id at all, returning \"\" for both cases. offline_intervals and offline_repeat both consume this helper and now correctly treat a freestyle workout as having no class association, rather than treating the sentinel as a genuine (and, when two freestyle workouts share the identical sentinel, spuriously matching) class id. Caveat wording at both call sites was also corrected from language implying a sync gap (\"class structure is unavailable\", \"lack a comparable class identifier\") to language stating the actual fact (\"not class-based\"). Any future regen or new consumer of workout_details' ride id must route through workoutDetailRideID, never a direct stringValue/objectValue read, or the sentinel bug reappears.",
+  "reason": "NEW DEFECT from a sixth live post-fix verification sweep (a round-6 addendum after issue G was independently confirmed resolved via a real workout_details backfill, and offline_strength/offline_repeat were confirmed working on the happy path): confirmed live that 84 of 430 synced workout_details records on the real account carry this exact sentinel, and offline_repeat reported same_class:true for two explicitly unrelated freestyle workouts (\"64 min 39 sec Outdoor Running\" and \"28 min Just Run\") sharing only the sentinel value -- a false positive affecting up to 84*83/2 = 3486 spurious pairs on this one account. offline_intervals's caveat for the same underlying condition read as a sync/data gap rather than the true \"this workout was never a class\" fact.",
+  "files": [
+    "internal/cli/offline.go",
+    "internal/cli/offline_test.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. New test TestOfflineIntervalsAndRepeatTreatFreestyleSentinelAsNoClass confirms both commands correctly treat the sentinel as no-class and never leak the raw sentinel value into output. Existing TestOfflineIntervalsAndRepeatResolveNestedRideID updated for the corrected caveat wording. Live-verified against the exact two real workouts cited in the report: offline_repeat now correctly returns same_class:false with an accurate caveat, and offline_intervals now correctly reports \"not class-based\" instead of the misleading \"stored class structure is unavailable\"."
+}

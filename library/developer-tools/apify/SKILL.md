@@ -25,7 +25,7 @@ This skill drives the `apify-pp-cli` binary. **You must verify the CLI is instal
 2. Verify: `apify-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/developer-tools/apify/cmd/apify-pp-cli@latest
@@ -77,7 +77,7 @@ These capabilities aren't available in any other tool for this API.
   _Use this on any long-tail or untrusted Actor to fail-closed on cost rather than learning about it on the invoice._
 
   ```bash
-  apify-pp run apidojo/twitter-scraper-lite --input @q.json --max-cost 0.50 --max-cu 100
+  apify-pp-cli run xquik/x-tweet-scraper --input @xquik-tweets.json --max-cost 0.50 --wait
   ```
 - **`ab run`** — Run the same input through two competing Actors, normalize via unified schema, report cost-per-novel-item and overlap percentage.
 
@@ -305,13 +305,58 @@ apify-pp workflow run ./weekly-newsletter.yaml --agent
 
 One YAML-declared chain across Twitter + Reddit + HN + News scrapers; emits a single newsletter-ready digest.
 
-### Cost-capped exploratory run
+### Xquik Tweet research
 
-```bash
-apify-pp run apidojo/tweet-scraper --input @q.json --max-cost 0.25 --wait --agent
+Use [Xquik's X Tweet Scraper](https://apify.com/xquik/x-tweet-scraper)
+for tweet search, timelines, threads, replies, quotes, and engagement.
+
+Create `xquik-tweets.json`:
+
+```json
+{
+  "searchTerms": ["from:OpenAI API", "#AI lang:en"],
+  "maxItems": 100,
+  "maxItemsPerTarget": 50,
+  "outputVariant": "rich"
+}
 ```
 
-Pre-flight projection from local history; aborts before start if projected cost exceeds budget.
+```bash
+apify-pp-cli run xquik/x-tweet-scraper --input @xquik-tweets.json --max-cost 0.50 --wait --agent
+```
+
+`maxItems` caps the run. `maxItemsPerTarget` balances explicit targets.
+
+### Xquik audience research
+
+Use [Xquik's X Follower Scraper](https://apify.com/xquik/x-follower-scraper)
+for followers, following, verified followers, lists, and communities.
+
+Create `xquik-followers.json`:
+
+```json
+{
+  "twitterHandles": ["OpenAI", "AnthropicAI"],
+  "relations": ["followers", "verified_followers"],
+  "maxItems": 100,
+  "maxItemsPerTarget": 50,
+  "outputMode": "compact",
+  "includeTargetMetadata": true,
+  "dedupeMode": "merge"
+}
+```
+
+```bash
+apify-pp-cli run xquik/x-follower-scraper --input @xquik-followers.json --max-cost 0.50 --wait --agent
+```
+
+Keep target metadata for multi-target runs. Use merge deduplication for audience overlap.
+`maxItemsPerTarget` optionally balances results across targets.
+
+Check each Actor's live Store schema and pricing before a paid run.
+The CLI projects from local history. `--wait` adds a live watchdog.
+
+Xquik is an independent third-party service. Not affiliated with X Corp. "Twitter" and "X" are trademarks of X Corp.
 
 ### Cross-Actor topic search (compact)
 

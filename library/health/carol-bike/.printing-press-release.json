@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "carol-bike",
+  "cli_name": "carol-bike-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-26T09:29:35Z",
+  "source_commit": "922dc411079fb5600136cbeddffe8a9f202c87d1",
+  "printing_press_version": "4.31.1",
+  "run_id": "20260825-194050",
+  "changes": [
+    {
+      "title": "feat(carol-bike): add carol-bike",
+      "pr": 1819,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1819",
+      "commit": "922dc411079fb5600136cbeddffe8a9f202c87d1"
+    }
+  ]
+}

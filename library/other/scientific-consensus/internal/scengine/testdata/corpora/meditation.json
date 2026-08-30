@@ -1,0 +1,213 @@
+{
+  "export": {
+    "app": "Corpova",
+    "analysis": "Consensus analysis",
+    "query": "meditation reduces anxiety",
+    "filters": [],
+    "rows_exported": 1,
+    "rows_total": 1,
+    "source": "OpenAlex (CC0)",
+    "exported_at": "2026-07-24T08:47:52.574Z"
+  },
+  "rows": [
+    {
+      "claim": "meditation reduces anxiety",
+      "verdict": "evidence-supports",
+      "consensus_score": 0.91,
+      "confidence": 0.58,
+      "evidence_strength": "high",
+      "apex_design": "meta-analysis",
+      "studies_analyzed": 10,
+      "supporting": 5,
+      "refuting": 0,
+      "mixed": 1,
+      "inconclusive": 4,
+      "method": "heuristic",
+      "ai_stance": "supports",
+      "ai_confidence": 0.8,
+      "ai_model": "openrouter/free"
+    }
+  ],
+  "response": {
+    "stance_source": "llm:openrouter",
+    "llm_synthesis": {
+      "stance": "supports",
+      "confidence": 0.8,
+      "reasoning": "Multi‑tier evidence—from a 2014 meta‑analysis of 47 RCTs showing a moderate anxiolytic effect (d≈0.38 at 8 weeks) to a 1992 RCT demonstrating significant reductions in anxiety symptoms—strongly supports the claim that meditation can reduce anxiety. A 2006 systematic review of RCTs and a 2015 narrative synthesis also report positive effects, while the remaining included studies either provide supportive but lower‑tier data or non‑conclusive results. No high‑quality trials demonstrate harm or a lack of benefit.",
+      "key_evidence": [
+        "The 2014 meta‑analysis reported a standardized mean difference of 0.38 (95% CI 0.12–0.64) in anxiety at 8 weeks.",
+        "The 1992 RCT of 22 participants in a mindfulness program showed significant reductions in anxiety and panic symptoms maintained at follow‑up.",
+        "The 2006 systematic review found consistent positive effects of meditation therapy on anxiety disorders across multiple RCTs. ",
+        "The 2015 narrative synthesis of college students reported decreased anxiety scores after mindfulness‑based meditation. ",
+        "The 2016 loving‑kindness meditation RCT had inconclusive results but did not find evidence of harm."
+      ],
+      "excluded_studies": [
+        {
+          "title": "Mindfulness meditation improves cognition: Evidence of brief mental training",
+          "reason": "abstract indicates focus on cognition, not anxiety"
+        },
+        {
+          "title": "Loving-kindness and compassion meditation: Potential for psychological interventions",
+          "reason": "review abstract not specific to anxiety outcomes"
+        },
+        {
+          "title": "Meditation practices for health: state of the research.",
+          "reason": "abstract broadly reviews meditation practices without specific focus on anxiety"
+        }
+      ],
+      "model": "openrouter/free"
+    },
+    "divergence": false,
+    "result": {
+      "claim": "meditation reduces anxiety",
+      "verdict": "evidence-supports",
+      "consensus_score": 0.91,
+      "confidence": 0.58,
+      "evidence_strength": "high",
+      "apex_design": "meta-analysis",
+      "study_count": 10,
+      "supporting": 5,
+      "refuting": 0,
+      "mixed": 1,
+      "inconclusive": 4,
+      "total_citations": 8740,
+      "stance_method": "heuristic",
+      "relevant_count": 10,
+      "near_unanimous": false,
+      "evidence_guarded": false,
+      "top_supporting": [
+        {
+          "title": "Meditation Programs for Psychological Stress and Well-being",
+          "year": 2014,
+          "doi": "10.1001/jamainternmed.2013.13018",
+          "cited_by_count": 2328,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.8,
+          "abstract": "IMPORTANCE: Many people meditate to reduce psychological stress and stress-related health problems. To counsel people appropriately, clinicians need to know what the evidence says about the health benefits of meditation. OBJECTIVE: To determine the efficacy of meditation programs in improving stress-related outcomes (anxiety, depression, stress/distress, positive mood, mental health-related quality of life, attention, substance use, eating habits, sleep, pain, and weight) in diverse adult clinical populations. EVIDENCE REVIEW: We identified randomized clinical trials with active controls for placebo effects through November 2012 from MEDLINE, PsycINFO, EMBASE, PsycArticles, Scopus, CINAHL, AMED, the Cochrane Library, and hand searches. Two independent reviewers screened citations and extracted data. We graded the strength of evidence using 4 domains (risk of bias, precision, directness, and consistency) and determined the magnitude and direction of effect by calculating the relative difference between groups in change from baseline. When possible, we conducted meta-analyses using standardized mean differences to obtain aggregate estimates of effect size with 95% confidence intervals. FINDINGS: After reviewing 18 753 citations, we included 47 trials with 3515 participants. Mindfulness meditation programs had moderate evidence of improved anxiety (effect size, 0.38 [95% CI, 0.12-0.64] at 8 weeks and 0.22 [0.02-0.43] at 3-6 months), depression (0.30 [0.00-0.59] at 8 weeks and 0."
+        },
+        {
+          "title": "Mindfulness meditation improves cognition: Evidence of brief mental training",
+          "year": 2010,
+          "doi": "10.1016/j.concog.2010.03.014",
+          "cited_by_count": 1358,
+          "design": "randomized-controlled-trial",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": ""
+        },
+        {
+          "title": "Meditation practices for health: state of the research.",
+          "year": 2007,
+          "cited_by_count": 481,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "OBJECTIVES: To review and synthesize the state of research on a variety of meditation practices, including: the specific meditation practices examined; the research designs employed and the conditions and outcomes examined; the efficacy and effectiveness of different meditation practices for the three most studied conditions; the role of effect modifiers on outcomes; and the effects of meditation on physiological and neuropsychological outcomes. DATA SOURCES: Comprehensive searches were conducted in 17 electronic databases of medical and psychological literature up to September 2005. Other sources of potentially relevant studies included hand searches, reference tracking, contact with experts, and gray literature searches. REVIEW METHODS: A Delphi method was used to develop a set of parameters to describe meditation practices. Included studies were comparative, on any meditation practice, had more than 10 adult participants, provided quantitative data on health-related outcomes, and published in English. Two independent reviewers assessed study relevance, extracted the data and assessed the methodological quality of the studies. RESULTS: Five broad categories of meditation practices were identified (Mantra meditation, Mindfulness meditation, Yoga, Tai Chi, and Qi Gong). Characterization of the universal or supplemental components of meditation practices was precluded by the theoretical and terminological heterogeneity among practices. Evidence on the state of research in medi"
+        }
+      ],
+      "top_refuting": [],
+      "all_studies": [
+        {
+          "title": "Effectiveness of a meditation-based stress reduction program in the treatment of anxiety disorders",
+          "year": 1992,
+          "doi": "10.1176/ajp.149.7.936",
+          "cited_by_count": 1953,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "OBJECTIVE: This study was designed to determine the effectiveness of a group stress reduction program based on mindfulness meditation for patients with anxiety disorders. METHOD: The 22 study participants were screened with a structured clinical interview and found to meet the DSM-III-R criteria for generalized anxiety disorder or panic disorder with or without agoraphobia. Assessments, including self-ratings and therapists' ratings, were obtained weekly before and during the meditation-based stress reduction and relaxation program and monthly during the 3-month follow-up period. RESULTS: Repeated measures analyses of variance documented significant reductions in anxiety and depression scores after treatment for 20 of the subjects--changes that were maintained at follow-up. The number of subjects experiencing panic symptoms was also substantially reduced. A comparison of the study subjects with a group of nonstudy participants in the program who met the initial screening criteria for entry into the study showed that both groups achieved similar reductions in anxiety scores on the SCL-90-R and on the Medical Symptom Checklist, suggesting generalizability of the study findings. CONCLUSIONS: A group mindfulness meditation training program can effectively reduce symptoms of anxiety and panic and can help maintain these reductions in patients with generalized anxiety disorder, panic disorder, or panic disorder with agoraphobia."
+        },
+        {
+          "title": "Meditation Programs for Psychological Stress and Well-being",
+          "year": 2014,
+          "doi": "10.1001/jamainternmed.2013.13018",
+          "cited_by_count": 2328,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.8,
+          "abstract": "IMPORTANCE: Many people meditate to reduce psychological stress and stress-related health problems. To counsel people appropriately, clinicians need to know what the evidence says about the health benefits of meditation. OBJECTIVE: To determine the efficacy of meditation programs in improving stress-related outcomes (anxiety, depression, stress/distress, positive mood, mental health-related quality of life, attention, substance use, eating habits, sleep, pain, and weight) in diverse adult clinical populations. EVIDENCE REVIEW: We identified randomized clinical trials with active controls for placebo effects through November 2012 from MEDLINE, PsycINFO, EMBASE, PsycArticles, Scopus, CINAHL, AMED, the Cochrane Library, and hand searches. Two independent reviewers screened citations and extracted data. We graded the strength of evidence using 4 domains (risk of bias, precision, directness, and consistency) and determined the magnitude and direction of effect by calculating the relative difference between groups in change from baseline. When possible, we conducted meta-analyses using standardized mean differences to obtain aggregate estimates of effect size with 95% confidence intervals. FINDINGS: After reviewing 18 753 citations, we included 47 trials with 3515 participants. Mindfulness meditation programs had moderate evidence of improved anxiety (effect size, 0.38 [95% CI, 0.12-0.64] at 8 weeks and 0.22 [0.02-0.43] at 3-6 months), depression (0.30 [0.00-0.59] at 8 weeks and 0."
+        },
+        {
+          "title": "Mindfulness meditation improves cognition: Evidence of brief mental training",
+          "year": 2010,
+          "doi": "10.1016/j.concog.2010.03.014",
+          "cited_by_count": 1358,
+          "design": "randomized-controlled-trial",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": ""
+        },
+        {
+          "title": "Does Loving-Kindness Meditation Reduce Anxiety? Results from a Randomized Controlled Trial",
+          "year": 2016,
+          "doi": "10.1007/s12671-016-0630-9",
+          "cited_by_count": 23,
+          "design": "randomized-controlled-trial",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Loving-kindness and compassion meditation: Potential for psychological interventions",
+          "year": 2011,
+          "doi": "10.1016/j.cpr.2011.07.003",
+          "cited_by_count": 948,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Anxiety reduction following exercise and meditation",
+          "year": 1978,
+          "doi": "10.1007/bf01172650",
+          "cited_by_count": 401,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Mindfulness Meditation Training in Adults and Adolescents With ADHD",
+          "year": 2007,
+          "doi": "10.1177/1087054707308502",
+          "cited_by_count": 676,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "OBJECTIVE: ADHD is a childhood-onset psychiatric condition that often continues into adulthood. Stimulant medications are the mainstay of treatment; however, additional approaches are frequently desired. In recent years, mindfulness meditation has been proposed to improve attention, reduce stress, and improve mood. This study tests the feasibility of an 8-week mindfulness training program for adults and adolescents with ADHD. METHOD: Twenty-four adults and eight adolescents with ADHD enrolled in a feasibility study of an 8-week mindfulness training program. RESULTS: The majority of participants completed the training and reported high satisfaction with the training. Pre-post improvements in self-reported ADHD symptoms and test performance on tasks measuring attention and cognitive inhibition were noted. Improvements in anxiety and depressive symptoms were also observed. CONCLUSION: Mindfulness training is a feasible intervention in a subset of ADHD adults and adolescents and may improve behavioral and neurocognitive impairments. A controlled clinical study is warranted."
+        },
+        {
+          "title": "Meditation therapy for anxiety disorders",
+          "year": 2006,
+          "doi": "10.1002/14651858.cd004998.pub2",
+          "cited_by_count": 232,
+          "design": "systematic-review",
+          "stance": "mixed",
+          "stance_confidence": 0.5142857142857143,
+          "abstract": "BACKGROUND: Anxiety disorders are characterised by long term worry, tension, nervousness, fidgeting and symptoms of autonomic system hyperactivity. Meditation is an age-old self regulatory strategy which is gaining more interest in mental health and psychiatry. Meditation can reduce arousal state and may ameliorate anxiety symptoms in various anxiety conditions. OBJECTIVES: To investigate the effectiveness of meditation therapy in treating anxiety disorders SEARCH STRATEGY: Electronic databases searched include CCDANCTR-Studies and CCDANCTR-References, complementary and alternative medicine specific databases, Science Citation Index, Health Services/Technology Assessment Text database, and grey literature databases. Conference proceedings, book chapters and references were checked. Study authors and experts from religious/spiritual organisations were contacted. SELECTION CRITERIA: Types of studies: Randomised controlled trials. TYPES OF PARTICIPANTS: patients with a diagnosis of anxiety disorders, with or without another comorbid psychiatric condition. Types of interventions: concentrative meditation or mindfulness meditation. Comparison conditions: one or combination of 1) pharmacological therapy 2) other psychological treatment 3) other methods of meditation 4) no intervention or waiting list. Types of outcome: 1) improvement in clinical anxiety scale 2) improvement in anxiety level specified by triallists, or global improvement 3) acceptability of treatment, adverse effect"
+        },
+        {
+          "title": "Mindfulness-based meditation to decrease stress and anxiety in college students: A narrative synthesis of the research",
+          "year": 2015,
+          "doi": "10.1016/j.edurev.2015.12.004",
+          "cited_by_count": 340,
+          "design": "unclassified",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Meditation practices for health: state of the research.",
+          "year": 2007,
+          "cited_by_count": 481,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "OBJECTIVES: To review and synthesize the state of research on a variety of meditation practices, including: the specific meditation practices examined; the research designs employed and the conditions and outcomes examined; the efficacy and effectiveness of different meditation practices for the three most studied conditions; the role of effect modifiers on outcomes; and the effects of meditation on physiological and neuropsychological outcomes. DATA SOURCES: Comprehensive searches were conducted in 17 electronic databases of medical and psychological literature up to September 2005. Other sources of potentially relevant studies included hand searches, reference tracking, contact with experts, and gray literature searches. REVIEW METHODS: A Delphi method was used to develop a set of parameters to describe meditation practices. Included studies were comparative, on any meditation practice, had more than 10 adult participants, provided quantitative data on health-related outcomes, and published in English. Two independent reviewers assessed study relevance, extracted the data and assessed the methodological quality of the studies. RESULTS: Five broad categories of meditation practices were identified (Mantra meditation, Mindfulness meditation, Yoga, Tai Chi, and Qi Gong). Characterization of the universal or supplemental components of meditation practices was precluded by the theoretical and terminological heterogeneity among practices. Evidence on the state of research in medi"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "clinical-trials",
+  "cli_name": "clinical-trials-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-21T05:08:21Z",
+  "source_commit": "b919219d91c1d02e7479abf249e1bbb91cb09926",
+  "printing_press_version": "4.25.0",
+  "run_id": "20260623-164233-df565e8d",
+  "changes": [
+    {
+      "title": "feat(clinical-trials): add clinical-trials",
+      "pr": 1356,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1356",
+      "commit": "b919219d91c1d02e7479abf249e1bbb91cb09926"
+    }
+  ]
+}

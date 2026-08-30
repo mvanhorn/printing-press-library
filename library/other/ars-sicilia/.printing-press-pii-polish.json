@@ -1,6 +1,87 @@
 {
-  "timestamp": "2026-06-28T15:30:29.191106452Z",
+  "timestamp": "2026-08-23T11:36:14.179623718Z",
   "cli_dir": "\u003ccli-dir\u003e/ars-sicilia",
-  "findings": null,
+  "findings": [
+    {
+      "kind": "email",
+      "file": "docs/anagrafiche-www-ars.md",
+      "line": 16,
+      "column": 28,
+      "matched_span": "GruppoFIARS@ars.sicilia.it",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Ricognizione su www.ars.sicilia.it: «→ mailto del gruppo (GruppoFIARS@ars.sicilia.it, GruppoPD@…)». È la casella istituzionale di un gruppo parlamentare, pubblicata dal portale ARS e restituita dalla CLI stessa nel campo `email` di `gruppi get` (verificato: `gruppi get XVIII-misto --json` → `GruppoMisto@ars.sicilia.it`). Dato della fonte, non di una persona."
+    },
+    {
+      "kind": "email",
+      "file": "docs/bd-migration/RESUME.md",
+      "line": 49,
+      "column": 235,
+      "matched_span": "segreteriagenerale.ars@pcert.postecert.it",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Appunti sulla corrispondenza con l'ARS per la migrazione /bd/: «PEC: segreteriagenerale.ars@pcert.postecert.it». Domicilio digitale dell'Assemblea Regionale Siciliana, pubblicato nell'Indice delle Pubbliche Amministrazioni (IPA). Casella d'ufficio di un ente pubblico, non di una persona."
+    },
+    {
+      "kind": "email",
+      "file": "docs/bd-migration/RESUME.md",
+      "line": 51,
+      "column": 38,
+      "matched_span": "protocollo.ars@pcert.postecert.it",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Stessi appunti: «Contatti ARS trovati (openipa): PEC protocollo.ars@pcert.postecert.it, segreteriagenerale.ars@pcert.postecert.it; email segreteriagenerale@ars.sicilia.it». Recuperati dall'Indice delle Pubbliche Amministrazioni, che li pubblica come domicilio digitale dell'ente. Caselle d'ufficio, non di persone."
+    },
+    {
+      "kind": "email",
+      "file": "docs/bd-migration/RESUME.md",
+      "line": 51,
+      "column": 75,
+      "matched_span": "segreteriagenerale.ars@pcert.postecert.it",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Stessi appunti: «Contatti ARS trovati (openipa): PEC protocollo.ars@pcert.postecert.it, segreteriagenerale.ars@pcert.postecert.it; email segreteriagenerale@ars.sicilia.it». Recuperati dall'Indice delle Pubbliche Amministrazioni, che li pubblica come domicilio digitale dell'ente. Caselle d'ufficio, non di persone."
+    },
+    {
+      "kind": "email",
+      "file": "docs/bd-migration/RESUME.md",
+      "line": 51,
+      "column": 126,
+      "matched_span": "segreteriagenerale@ars.sicilia.it",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Stessi appunti: «Contatti ARS trovati (openipa): PEC protocollo.ars@pcert.postecert.it, segreteriagenerale.ars@pcert.postecert.it; email segreteriagenerale@ars.sicilia.it». Recuperati dall'Indice delle Pubbliche Amministrazioni, che li pubblica come domicilio digitale dell'ente. Caselle d'ufficio, non di persone."
+    },
+    {
+      "kind": "email",
+      "file": "openspec/changes/archive/2026-08-16-add-gruppi-parlamentari/specs/gruppi-parlamentari/spec.md",
+      "line": 23,
+      "column": 169,
+      "matched_span": "GruppoMisto@ars.sicilia.it",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Criterio di accettazione della specifica di `gruppi get`: «il gruppo ha email GruppoMisto@ars.sicilia.it». È il valore atteso del campo `email` restituito dal portale, citato per fissare il comportamento del comando."
+    },
+    {
+      "kind": "email",
+      "file": "openspec/specs/gruppi-parlamentari/spec.md",
+      "line": 26,
+      "column": 169,
+      "matched_span": "GruppoMisto@ars.sicilia.it",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Criterio di accettazione della specifica di `gruppi get`: «il gruppo ha email GruppoMisto@ars.sicilia.it». È il valore atteso del campo `email` restituito dal portale, citato per fissare il comportamento del comando."
+    },
+    {
+      "kind": "email",
+      "file": "tmp/pec-ars-commissioni.md",
+      "line": 5,
+      "column": 6,
+      "matched_span": "protocollo.ars@pcert.postecert.it",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Appunto di lavoro con i recapiti dell'ARS: «PEC: protocollo.ars@pcert.postecert.it». Domicilio digitale dell'ente pubblicato in IPA. Casella di protocollo, non di una persona."
+    }
+  ],
   "findings_count_before": 0
 }

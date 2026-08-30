@@ -1,0 +1,46 @@
+{
+  "manifest_version": "0.3",
+  "name": "cosmos-pp-mcp",
+  "display_name": "Cosmos",
+  "version": "0.1.0",
+  "description": "Search, organize, export, and audit your Cosmos inspiration library from the terminal.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/cosmos-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/cosmos-pp-mcp",
+      "args": [],
+      "env": {
+        "PRINTING_PRESS_CLIENT_PROFILE": "${user_config.printing_press_client_profile}",
+        "COSMOS_TOKEN": "${user_config.cosmos_token}"
+      }
+    }
+  },
+  "user_config": {
+    "cosmos_token": {
+      "type": "string",
+      "title": "Cosmos token",
+      "description": "Bearer token used by the selected tenant-gated Cosmos client profile.",
+      "sensitive": true,
+      "required": true
+    },
+    "printing_press_client_profile": {
+      "type": "string",
+      "title": "Client profile",
+      "description": "Binds the MCP server to an existing tenant-gated Printing Press client profile.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

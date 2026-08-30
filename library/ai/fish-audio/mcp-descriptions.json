@@ -1,0 +1,15 @@
+{
+  "descriptions": {
+    "asr_create": "Transcribe an audio recording to text. Required: audio. Optional: language hint, ignore_timestamps (default true; set false for segment timings). Returns transcript text, duration, detected language_code, and segments. Reverse of tts_create.",
+    "model_create": "Create a voice model (clone) from training audio. Required: type, title, train_mode, voices. Optional: description, texts, tags, cover_image, visibility, enhance_audio_quality, generate_sample. Returns the model _id, state, and samples. Pass the _id to tts_create as reference_id.",
+    "model_delete": "Permanently delete one voice model owned by the workspace. Required: id (the model _id). Returns an empty body. Not reversible, and later renders passing the id will fail; confirm with model_get first.",
+    "model_get": "Fetch one voice model by id. Required: id (path). Returns title, description, type, train_mode, state, tags, languages, visibility, samples, and timestamps. Use model_list when you still need to find the id.",
+    "model_list": "Search and page voice models, public or workspace-owned. Optional: title, tag, language, title_language, author_id, self, licensed, sort_by, page_size, page_number. Returns items plus total and has_more. Use it to resolve a name to a model _id.",
+    "model_update": "Update the editable metadata on one voice model. Required: id (path). Optional: title, description, cover_image, visibility, tags. Partial update; returns an empty body. Training audio cannot be changed here.",
+    "tts_create": "Synthesize speech from text and return the audio bytes. Required: text. Optional: reference_id (a voice model _id), references (zero-shot audio), model header, format, sample_rate, bitrate, latency, chunk_length, prosody. Returns raw audio, not JSON.",
+    "tts_create-stream": "Synthesize speech and stream it back with word-level timing. Required: text. Optional: the voice and audio options of tts_create. Each chunk returns audio_base64, content, alignment, chunk_seq, chunk_audio_offset_sec. Prefer it for captions or lip-sync.",
+    "voice-design_create": "Generate candidate voices from a written description, with no training audio. Required: instruction, model header. Optional: reference_text, language, n, speed, seed, num_step, guidance_scale. Returns candidates; make one permanent with model_create.",
+    "wallet_api-credit_get": "Read the pay-as-you-go API credit balance. Required: user_id in the path ('self' for the caller). Optional: check_free_credit, team_id. Returns credit, cumulative_top_up, has_free_credit. Use wallet_package_get for subscription state.",
+    "wallet_package_get": "Read the subscription package for an account. Required: user_id in the path ('self' for the caller). Returns plan type, total, balance, billing_period, current_period_end, subscription_status, and trial state. Use wallet_api-credit_get for credit."
+  }
+}

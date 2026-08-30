@@ -1,0 +1,128 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-21T18:36:28.630588Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "immich",
+  "display_name": "Immich",
+  "cli_name": "immich-pp-cli",
+  "creator": {
+    "handle": "Avanderheyde",
+    "name": "avanderheyde"
+  },
+  "owner": "avanderheyde",
+  "printer": "Avanderheyde",
+  "printer_name": "avanderheyde",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:d4160960180c2640834a76236f00853fb873f9bb148957b66ea332035ad7ecef",
+  "run_id": "20260721-133855-89f4eb09",
+  "category": "media-and-entertainment",
+  "description": "Agent-native control and careful personal-library rituals for a self-hosted Immich instance.",
+  "mcp_binary": "immich-pp-mcp",
+  "mcp_tool_count": 254,
+  "mcp_ready": "full",
+  "api_version": "3.0.3",
+  "auth_type": "api_key",
+  "auth_preference": "api_key",
+  "auth_env_vars": [
+    "IMMICH_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Shared event album",
+      "command": "album event",
+      "description": "Create or update a reviewable shared event album from explicit Immich search filters."
+    },
+    {
+      "name": "Duplicate resolution plan",
+      "command": "duplicates plan",
+      "description": "Preview native duplicate groups and a deterministic keeper proposal without changing assets."
+    },
+    {
+      "name": "Duplicate resolution apply",
+      "command": "duplicates apply",
+      "description": "Resolve selected native duplicate groups only after an explicit apply confirmation."
+    },
+    {
+      "name": "Recurring-month people finder",
+      "command": "people july",
+      "description": "Find one or two people across past Julys using real people and metadata search endpoints."
+    },
+    {
+      "name": "Memory review queue",
+      "command": "memories review",
+      "description": "List recent native memories with their dates and asset counts for an intentional review."
+    },
+    {
+      "name": "Favorites/archive review",
+      "command": "library review",
+      "description": "Review bounded favorite and archived asset search results without mutating the library."
+    },
+    {
+      "name": "Stack hygiene review",
+      "command": "stacks review",
+      "description": "Inspect native stacks for empty, singleton, and unusually large groups without changing them."
+    },
+    {
+      "name": "Partner and job health",
+      "command": "library health",
+      "description": "Report partner-sharing and worker-queue facts from the configured Immich server."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Shared event album",
+      "command": "album event",
+      "description": "Create or update a reviewable shared event album from explicit Immich search filters."
+    },
+    {
+      "name": "Duplicate resolution plan",
+      "command": "duplicates plan",
+      "description": "Preview native duplicate groups and a deterministic keeper proposal without changing assets."
+    },
+    {
+      "name": "Duplicate resolution apply",
+      "command": "duplicates apply",
+      "description": "Resolve selected native duplicate groups only after an explicit apply confirmation."
+    },
+    {
+      "name": "Recurring-month people finder",
+      "command": "people july",
+      "description": "Find one or two people across past Julys using real people and metadata search endpoints."
+    },
+    {
+      "name": "Memory review queue",
+      "command": "memories review",
+      "description": "List recent native memories with their dates and asset counts for an intentional review."
+    },
+    {
+      "name": "Favorites/archive review",
+      "command": "library review",
+      "description": "Review bounded favorite and archived asset search results without mutating the library."
+    },
+    {
+      "name": "Stack hygiene review",
+      "command": "stacks review",
+      "description": "Inspect native stacks for empty, singleton, and unusually large groups without changing them."
+    },
+    {
+      "name": "Partner and job health",
+      "command": "library health",
+      "description": "Report partner-sharing and worker-queue facts from the configured Immich server."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 99.40119760479041,
+    "passed": 166,
+    "total": 167,
+    "failed": 1,
+    "verdict": "WARN"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 97,
+      "grade": "A",
+      "total": 97
+    }
+  }
+}

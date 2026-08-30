@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "hotel-goat",
   "cli_name": "hotel-goat-pp-cli",
-  "version": "2026.7.2",
-  "released_at": "2026-07-17T02:06:03Z",
-  "source_commit": "81af5eb6ce846635d369191502e5d693e785ab5c",
+  "version": "2026.8.3",
+  "released_at": "2026-08-21T05:10:35Z",
+  "source_commit": "a9b43cad26b13446af76d75637a1fbd9c79be810",
   "printing_press_version": "4.13.0",
   "run_id": "20260523-203231",
   "changes": [
     {
-      "title": "fix(registry): use canonical GOAT catalog labels",
-      "pr": 1529,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1529",
-      "commit": "81af5eb6ce846635d369191502e5d693e785ab5c"
+      "title": "fix(hotel-goat): repair Trivago source after upstream MCP API change",
+      "pr": 1761,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1761",
+      "commit": "a9b43cad26b13446af76d75637a1fbd9c79be810"
     }
   ]
 }

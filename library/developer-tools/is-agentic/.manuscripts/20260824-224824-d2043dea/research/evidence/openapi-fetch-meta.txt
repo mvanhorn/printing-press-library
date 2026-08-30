@@ -1,0 +1,4 @@
+path=/var/folders/4c/4s9qrz4s335f5whj7y427ns00000gn/T//printing-press-fetch-docs/is-agentic.com-openapi.json-c23b59af45a94861.json
+status=200
+content_type=application/vnd.oai.openapi+json;version=3.1; charset=utf-8
+effective_url=https://is-agentic.com/openapi.json

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "tipo-item-values-descriptions",
+  "applied_at": "2026-08-29",
+  "base_run_id": "20260617-160648",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Correct the MCP tool and fileexport descriptions of tipo-item: the API exposes delibera and determina without authentication too, and repertorio returns the aggregated view of every type.",
+  "reason": "The generated text claimed \"Senza autenticazione utente sono visibili solo bandi e concorsi (logged=false)\". That describes one organisation, not the API. Measured against the live endpoint on 2026-08-29: ASL Bari returns 18218 bandi + 3548 concorsi = 21766 for repertorio and zero delibere and determine, while Policlinico di Bari returns 6184 + 1094 + 30851 + 36300 = 74429, again exactly its repertorio total, and I.R.C.C.S. De Bellis and I.R.C.C.S. G. Paolo II likewise expose delibere and determine anonymously. The per-type counts sum to the repertorio total in every organisation sampled, so repertorio is the union of the subtypes rather than a type of its own, and the availability of each type is a publishing choice of the individual health authority. The CLI help, README.md and SKILL.md already carried the corrected wording; these three strings were missed, so any agent reading the MCP tool definitions still got the false claim. promoted_fileexport.go additionally omitted repertorio from its listed values while accepting it.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/cli/promoted_fileexport.go"
+  ],
+  "validated_outcome": "`aol-puglia-pp-cli atti search --azienda \"Azienda Ospedaliero Universitaria Consorziale Policlinico\" --tipo-item repertorio` returns a mix of tipoItem values (11 bando, 3 concorso, 18 delibera, 18 determina in the first 50 results), and `aol-puglia-pp-cli fileexport --tipo-item repertorio` writes the CSV reporting 74429 matches; `go build ./...`, `go vet ./...` and `go test ./...` all pass. Text only, no behaviour change.",
+  "upstream_issue": null
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "layers-env-only-auth",
+  "applied_at": "2026-08-03",
+  "base_run_id": "20260803-133603",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Remove the token-persistence command and document process-scoped authentication only.",
+  "reason": "Reusable bearer tokens must not be exposed through argv, shell history, command logs, or CLI-managed persistence.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/auth_layers_test.go",
+    "internal/cli/doctor.go",
+    "internal/cli/helpers.go",
+    "internal/client/client.go",
+    "internal/config/config.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "The CLI exposes only environment-based token setup, no auth set-token command, and retains auth logout for removing legacy stored credentials."
+}

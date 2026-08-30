@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "review-meal-calendar-live-roundtrip",
+  "applied_at": "2026-08-18",
+  "summary": "Re-verify meal-calendar create, update, and delete against the live AnyList account.",
+  "supersedes": "review-meal-write-fail-closed",
+  "reason": "A disposable future-dated event was created through meal add --apply, found in fresh user data, updated through meal update --apply and found with the changed fields, then removed through meal delete --apply and confirmed absent from fresh user data.",
+  "validated_outcome": "Calendar create, update, and delete are live-verified. The commands remain preview-first, require --apply, resolve IDs from fresh data, and sync the cache only after read-back verification. The disposable event was deleted; no test data remains.",
+  "verification": [
+    "meal add --apply: created=true, verified=true",
+    "meal update --apply: updated=true, verified=true",
+    "meal delete --apply: deleted=true, verified=true"
+  ],
+  "findings_addressed": [
+    "meal-calendar-create-roundtrip",
+    "meal-calendar-update-roundtrip",
+    "meal-calendar-delete-roundtrip"
+  ]
+}

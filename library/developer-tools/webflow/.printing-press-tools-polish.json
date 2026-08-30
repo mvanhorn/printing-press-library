@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-07-28T19:43:16.196414Z",
+  "cli_dir": "\u003ccli-dir\u003e/webflow-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated learn-loop file (teach.go carries the generator header), so a hand-edit is wiped on the next regen and fixes nothing for the fleet. Retro candidate: the learn-loop template should emit a filter-aware Short for 'learnings list' -- the command already ships --query/--warnings/--agent/--resource/--action/--min-confidence, none of which the Short names."
+    }
+  ],
+  "progress": {
+    "last_processed_finding_id": "thin-short:teach.go:692:list"
+  }
+}

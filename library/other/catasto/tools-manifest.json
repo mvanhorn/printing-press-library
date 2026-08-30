@@ -1,0 +1,43 @@
+{
+  "api_name": "catasto",
+  "base_url": "https://wms.cartografia.agenziaentrate.gov.it",
+  "description": "Italian cadastral CLI — convert between cadastral references (provincia/comune/foglio/particella) and WGS84 GPS coordinates, online or offline. Bridges the Agenzia delle Entrate public ajax endpoint and the community ondata Parquet centroid dataset, with offline cache and agent-native JSON output.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "lookup_gps_to_cadastral",
+      "description": "Resolve a WGS84 longitude/latitude point to the cadastral parcel it falls inside. Returns province code, comune codice belfiore, comune name, sezione, foglio, and particella identifier. Required: op, lon, lat.",
+      "method": "GET",
+      "path": "/inspire/ajax/ajax.php",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "op",
+          "type": "string",
+          "location": "query",
+          "description": "Operation name. Must be 'getDatiOggetto'.",
+          "required": true
+        },
+        {
+          "name": "lon",
+          "type": "number",
+          "location": "query",
+          "description": "Longitude in WGS84 decimal degrees (EPSG:4326). Italy roughly spans 6.6 to 18.5.",
+          "required": true
+        },
+        {
+          "name": "lat",
+          "type": "number",
+          "location": "query",
+          "description": "Latitude in WGS84 decimal degrees (EPSG:4326). Italy roughly spans 35.5 to 47.1.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

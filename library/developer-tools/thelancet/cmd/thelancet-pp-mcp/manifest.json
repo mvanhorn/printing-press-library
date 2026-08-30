@@ -1,0 +1,11 @@
+{
+  "name": "thelancet-pp-mcp",
+  "description": "MCP server for The Lancet",
+  "version": "0.0.0-dev",
+  "author": "laci141",
+  "license": "Apache-2.0",
+  "type": "mcp",
+  "category": "developer-tools",
+  "repository": "https://github.com/mvanhorn/printing-press-library",
+  "entrypoint": "cmd/thelancet-pp-mcp/main.go"
+}

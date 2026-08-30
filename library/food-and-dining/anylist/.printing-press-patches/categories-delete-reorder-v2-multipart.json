@@ -1,0 +1,57 @@
+{
+  "schema_version": 2,
+  "id": "categories-delete-reorder-v2-multipart",
+  "applied_at": "2026-08-26",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.30.2",
+  "task_id": "anylist-category-delete-reorder-20260826",
+  "summary": "Add guarded custom-category deletion and complete reordering using AnyList's proven update-v2 multipart wire contract.",
+  "reason": "Live disposable-fixture probes proved that category-group operation class 4 persists on POST /data/shopping-lists/update-v2 when the operations protobuf is sent as an application/octet-stream multipart part. Deletion uses the full category record as the removal set; reordering uses identifier-only category records in the requested complete order. The CLI now exposes both operations with preview-first apply gates and fresh read-back verification.",
+  "live_evidence": {
+    "endpoint": "POST /data/shopping-lists/update-v2",
+    "transport": "multipart/form-data; operations part with application/octet-stream PBListOperationList",
+    "operation_class": "ListCategoryGroupOperation (4)",
+    "delete": {
+      "handler": "remove-category-ids",
+      "payload": "updatedCategoryGroup copied from the stored group; categories contains the full PBListCategory record(s) to remove",
+      "result": "persisted and verified by fresh stable-ID absence read-back"
+    },
+    "reorder": {
+      "handler": "set-sorted-category-ids",
+      "payload": "updatedCategoryGroup copied from the stored group; categories contains identifier-only PBListCategory records in the complete desired order",
+      "result": "persisted and verified by fresh stable-ID order read-back"
+    },
+    "cleanup": "All disposable probe lists and categories were removed and independently verified absent; no production data was changed."
+  },
+  "gate_state": "Custom category deletion and reordering are live-supported. Category-group create, rename, and delete remain unsupported.",
+  "verification": [
+    "go test -p 1 ./internal/anylist ./internal/cli ./internal/mcp -run 'Test(Category|Categories|CreateListCategory|RenameListCategory|DeleteListCategory|ReorderListCategories)'",
+    "go test -p 1 ./... (known sandbox socket-permission failures remain in unrelated httptest tests)",
+    "go build ./...",
+    "go vet ./...",
+    "git diff --check",
+    "CLI preview and JSON smoke checks for categories delete and categories reorder"
+  ],
+  "invariants_held": [
+    "Every live mutation requires explicit --apply and fresh read-back verification.",
+    "System categories are rejected by both the CLI and lower-level client before any request.",
+    "The old non-persistent v1 route and remove-category handler are never used.",
+    "Reorder rejects duplicate, missing, unknown, empty, or incomplete orders.",
+    "No secrets, tokens, personal identifiers, or production fixture names are recorded."
+  ],
+  "files": [
+    "internal/anylist/category_group_operations.go",
+    "internal/anylist/category_group_operations_test.go",
+    "internal/cli/categories_common.go",
+    "internal/cli/categories_delete.go",
+    "internal/cli/categories_delete_reorder_test.go",
+    "internal/cli/categories_reorder.go",
+    "internal/cli/promoted_categories.go",
+    "internal/mcp/code_orch_data.go",
+    "internal/mcp/code_orch_test.go",
+    "internal/mcp/tools.go",
+    "tools-manifest.json",
+    "README.md",
+    "SKILL.md"
+  ]
+}

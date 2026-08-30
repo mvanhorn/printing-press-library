@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "benzinga-per-product-tokens",
+  "applied_at": "2026-07-03",
+  "base_run_id": "20260627-034058-2c1f9c5c",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Route the request token by product so a news/fundamentals Pro token and a market/super-token coexist in one credentials file.",
+  "reason": "Benzinga entitlements are split: the Pro token covers news/WIIM/fundamentals/signals/delayed-quotes but 401s on market data; the market/super-token covers movers/bars/short-interest/logos/calendar but returns nothing for the WIIM channel. With a single credential slot users had to swap tokens between commands. Config now carries a distinct MarketApiKey (env BENZINGA_MARKET_API_KEY, `auth set-token --market`), and the client resolves the token per request path via Config.TokenForPath: market-data/calendar paths use MarketApiKey when set, everything else uses the default api_key. Any unset product token falls back to the default, so single-token setups are unchanged. This also fixes the duplicate `toml:\"api_key\"` tag that CalendarApiKey shared with BenzingaApiKey (silent credential loss / invalid TOML): CalendarApiKey now uses toml:\"calendar_api_key\". A regen must keep the credential fields on distinct toml keys and keep token resolution path-aware.",
+  "files": [
+    "internal/config/config.go",
+    "internal/cliutil/credentials.go",
+    "internal/client/client.go",
+    "internal/cli/auth.go"
+  ],
+  "validated_outcome": "With api_key=<Pro> and market_api_key=<Market> both stored (distinct TOML keys), `wiims` returns WIIM items (Pro) and `market` returns movers (Market) in the same session with no token swap. Existing api_key-only files read unchanged (CalendarApiKey was never independently persisted, so no migration needed). go build/vet/test pass."
+}

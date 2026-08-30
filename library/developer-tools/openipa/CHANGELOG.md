@@ -2,6 +2,14 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.8.2 - 2026-08-18
+
+- fix(openipa): add MCPB manifest so releases ship a .mcpb bundle (#1742).
+
+## 2026.8.1 - 2026-08-17
+
+- fix(catalog): align Go fallback docs with toolchain floor (#1735).
+
 ## 2026.7.2 - 2026-07-22
 
 - feat(openipa): add enti istat — bidirectional IPA/ISTAT lookup via CKAN (#1005).

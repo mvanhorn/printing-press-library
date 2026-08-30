@@ -1,0 +1,132 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-06T05:02:32.08758Z",
+  "printing_press_version": "4.30.1",
+  "api_name": "respondio",
+  "display_name": "Respond.io",
+  "cli_name": "respondio-pp-cli",
+  "creator": {
+    "handle": "bobeglz",
+    "name": "bobe"
+  },
+  "owner": "bobeglz",
+  "printer": "bobeglz",
+  "printer_name": "bobe",
+  "spec_path": "respondio-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:ed50160b9e000d60fd98fa66e964a4485243041cdc519707e5e312da7bcde70b",
+  "run_id": "20260805-222426-ffd268a6",
+  "category": "social-and-messaging",
+  "description": "Every Respond.io feature, plus an offline mirror and SQL that answers inbox questions no single API call can.",
+  "mcp_binary": "respondio-pp-mcp",
+  "mcp_tool_count": 28,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "endpoint_template_vars": [
+    "identifier"
+  ],
+  "novel_features": [
+    {
+      "name": "Inbox workload overview",
+      "command": "overview",
+      "description": "One-command summary of open conversations, unassigned contacts, per-agent distribution, and recent activity."
+    },
+    {
+      "name": "Channel mix report",
+      "command": "report channel-mix",
+      "description": "See which messaging channels (WhatsApp, Instagram, email...) your contacts actually use."
+    },
+    {
+      "name": "Workload by agent",
+      "command": "report workload",
+      "description": "Per-agent message and conversation handling volume from the synced workspace."
+    },
+    {
+      "name": "Tag cohort segments",
+      "command": "contact by-tag",
+      "description": "List every contact that carries a given tag (VIP, unpaid, in-trial)."
+    },
+    {
+      "name": "Custom-field gaps",
+      "command": "contact field-gaps",
+      "description": "Find contacts missing a custom field value (e.g. no orderId or region)."
+    },
+    {
+      "name": "Idle follow-up",
+      "command": "contact idle",
+      "description": "Find unassigned contacts with no recent activity worth working."
+    },
+    {
+      "name": "Offline contact search",
+      "command": "contact search",
+      "description": "Free-text search across synced contacts without hitting the API."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Inbox workload overview",
+      "command": "overview",
+      "description": "One-command summary of open conversations, unassigned contacts, per-agent distribution, and recent activity."
+    },
+    {
+      "name": "Channel mix report",
+      "command": "report channel-mix",
+      "description": "See which messaging channels (WhatsApp, Instagram, email...) your contacts actually use."
+    },
+    {
+      "name": "Workload by agent",
+      "command": "report workload",
+      "description": "Per-agent message and conversation handling volume from the synced workspace."
+    },
+    {
+      "name": "Tag cohort segments",
+      "command": "contact by-tag",
+      "description": "List every contact that carries a given tag (VIP, unpaid, in-trial)."
+    },
+    {
+      "name": "Custom-field gaps",
+      "command": "contact field-gaps",
+      "description": "Find contacts missing a custom field value (e.g. no orderId or region)."
+    },
+    {
+      "name": "Idle follow-up",
+      "command": "contact idle",
+      "description": "Find unassigned contacts with no recent activity worth working."
+    },
+    {
+      "name": "Offline contact search",
+      "command": "contact search",
+      "description": "Free-text search across synced contacts without hitting the API."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 55,
+    "total": 55,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 95,
+      "grade": "A (1 of 26 dimensions unverified: live_api_verification)",
+      "total": 95
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

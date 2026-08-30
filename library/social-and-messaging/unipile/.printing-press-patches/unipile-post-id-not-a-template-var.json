@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "unipile-post-id-not-a-template-var",
+  "applied_at": "2026-08-25",
+  "base_run_id": "20260824-212156-433d72f1",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Remove post_id from the BaseURL template-variable mechanism and from the manifest auth metadata.",
+  "reason": "The generator promoted {post_id} from /api/v1/posts/{post_id} into the tenant-placeholder mechanism meant for values like Shopify's {shop}, so the CLI advertised a UNIPILE_POST_ID credential that does not exist and verify counted the missing env var as a critical auth failure. Every posts command already substitutes post_id from its positional argument.",
+  "files": [
+    "internal/client/url.go",
+    "internal/config/config.go",
+    ".printing-press.json",
+    "README.md"
+  ],
+  "validated_outcome": "verify returned to 100% with 0 critical failures; posts get <id> still resolves from its positional."
+}

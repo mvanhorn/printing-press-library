@@ -1,0 +1,758 @@
+name: texas-roadhouse
+description: Waitlist CLI for Texas Roadhouse. Find a nearby store, read the quote, join and leave the list.
+version: 0.1.0
+base_url: https://www.texasroadhouse.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "limit" from query: search input'
+config:
+    format: toml
+    path: ~/.config/texas-roadhouse-pp-cli/config.toml
+resources:
+    mapbox:
+        description: Operations on mapbox.places
+        endpoints:
+            get_mapbox.places:
+                method: GET
+                path: /api/mapbox/geocoding/v5/mapbox.places/{id}
+                description: GET /api/mapbox/geocoding/v5/mapbox.places/{id}
+                params:
+                    - name: country
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                    - name: types
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: MapboxPlaceFeature
+                pagination: null
+                response_path: features
+    stores:
+        description: Operations on near
+        endpoints:
+            list_near:
+                method: GET
+                path: /api/stores/near
+                description: GET /api/stores/near
+                params:
+                    - name: lat
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: long
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: nomnom
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: nomnom_calendars_from
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: nomnom_calendars_to
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: nomnom_exclude_extref
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: radius
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: NearRestaurant
+                pagination: null
+                response_path: restaurants
+    texasroadhouse:
+        description: Operations on test
+        endpoints:
+            get_quote:
+                method: GET
+                path: /api/texasroadhouse/waitlist/{waitlist_id}/quote
+                description: GET /api/texasroadhouse/waitlist/{waitlist_id}/quote
+                params:
+                    - name: waitlist_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The waitlist_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Quote
+                pagination: null
+            get_settings:
+                method: GET
+                path: /api/texasroadhouse/waitlist/{waitlist_id}/settings
+                description: GET /api/texasroadhouse/waitlist/{waitlist_id}/settings
+                params:
+                    - name: waitlist_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The waitlist_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: SettingSpecialSeatingType
+                pagination: null
+                response_path: SpecialSeatingTypes
+            get_test:
+                method: GET
+                path: /api/texasroadhouse/waitlist/{waitlist_id}/test
+                description: GET /api/texasroadhouse/waitlist/{waitlist_id}/test
+                params:
+                    - name: waitlist_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The waitlist_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Test
+                pagination: null
+            get_status:
+                method: GET
+                path: /api/texasroadhouse/waitlist/{waitlist_id}/requests/{request_id}/status
+                description: GET waitlist request status. Query clientid=texasroadhouse.
+                params:
+                    - name: waitlist_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: "Store extref (not internal store id). Springfield MO is 218."
+                      fields: []
+                    - name: request_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: "Waitlist request id from a successful submit."
+                      fields: []
+                    - name: clientid
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: "Must be texasroadhouse"
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: WaitlistStatus
+                pagination: null
+            submit:
+                method: POST
+                path: /api/texasroadhouse/waitlist/{waitlist_id}/submit
+                description: Join a store waitlist. Always pass --dry-run unless the user named a store, party size, and said yes.
+                params:
+                    - name: waitlist_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: "Store extref (not internal store id). Springfield MO is 218."
+                      fields: []
+                body:
+                    - name: EmailAddress
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: "Guest email"
+                      fields: []
+                    - name: FirstName
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: "Guest first name"
+                      fields: []
+                    - name: LastName
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: "Guest last name"
+                      fields: []
+                    - name: IsSmoking
+                      type: bool
+                      required: false
+                      positional: false
+                      default: null
+                      description: "Always false in the web app"
+                      fields: []
+                    - name: PrimaryPhoneAreaCode
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: "3-digit area code"
+                      fields: []
+                    - name: PrimaryPhoneExtension
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: "Usually empty"
+                      fields: []
+                    - name: PrimaryPhoneNumber
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: "Local number as xxx-xxxx"
+                      fields: []
+                    - name: PrimaryPhoneType
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: "Web app sends 1"
+                      fields: []
+                    - name: PartySize
+                      type: number
+                      required: true
+                      positional: false
+                      default: null
+                      description: "Party size, max 6"
+                      fields: []
+                    - name: WaitMinutes
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: "From quote MinQuote for this party size"
+                      fields: []
+                    - name: Platform
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: "Web app sends web"
+                      fields: []
+                response:
+                    type: object
+                    item: WaitlistSubmitResult
+                pagination: null
+            checkin:
+                method: POST
+                path: /api/texasroadhouse/waitlist/{waitlist_id}/checkin
+                description: Check in once the party is at the host stand. Do not fire without a yes.
+                params:
+                    - name: waitlist_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: "Store extref (not internal store id). Springfield MO is 218."
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: WaitlistCheckinResult
+                pagination: null
+            cancel:
+                method: POST
+                path: /api/texasroadhouse/waitlist/cancel
+                description: Cancel a waitlist request. Do not fire without a yes.
+                params:
+                    - name: clientid
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: "Must be texasroadhouse"
+                      fields: []
+                body:
+                    - name: waitlistRequestId
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: "Numeric request id from submit (JSON number, not a string)"
+                      fields: []
+                    - name: siteId
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: "Store extref"
+                      fields: []
+                response:
+                    type: object
+                    item: WaitlistCancelResult
+                pagination: null
+
+types:
+    Calendars:
+        fields:
+            - name: calendar
+              type: array
+    Context:
+        fields:
+            - name: id
+              type: string
+            - name: mapbox_id
+              type: string
+            - name: text
+              type: string
+            - name: wikidata
+              type: string
+              omit_empty: true
+    Customfield:
+        fields:
+            - name: id
+              type: string
+            - name: label
+              type: string
+            - name: qualificationcriteria
+              type: string
+            - name: required
+              type: bool
+            - name: validationregex
+              type: string
+    Geometry:
+        fields:
+            - name: coordinates
+              type: array
+            - name: type
+              type: string
+    Label:
+        fields:
+            - name: key
+              type: string
+            - name: value
+              type: string
+    MapboxPlaceFeature:
+        fields:
+            - name: bbox
+              type: array
+              omit_empty: true
+            - name: center
+              type: array
+            - name: context
+              type: '[]ref:Context'
+            - name: geometry
+              type: ref:Geometry
+            - name: id
+              type: string
+            - name: matching_place_name
+              type: string
+              omit_empty: true
+            - name: matching_text
+              type: string
+              omit_empty: true
+            - name: place_name
+              type: string
+            - name: place_type
+              type: array
+            - name: properties
+              type: ref:Properties
+            - name: relevance
+              type: integer
+            - name: text
+              type: string
+            - name: type
+              type: string
+    NearRestaurant:
+        fields:
+            - name: acceptsordersbeforeopening
+              type: bool
+            - name: acceptsordersuntilclosing
+              type: bool
+            - name: advanceonly
+              type: bool
+            - name: advanceorderdays
+              type: integer
+            - name: allowhandoffchoiceatmanualfire
+              type: bool
+            - name: allowstaxexemption
+              type: bool
+            - name: attributes
+              type: array
+            - name: brand
+              type: string
+            - name: calendars
+              type: ref:Calendars
+            - name: candeliver
+              type: bool
+            - name: canpickup
+              type: bool
+            - name: city
+              type: string
+            - name: country
+              type: string
+            - name: created_at
+              type: integer
+            - name: crossstreet
+              type: string
+            - name: customerfacingmessage
+              type: string
+            - name: customfields
+              type: '[]ref:Customfield'
+            - name: deliveryarea
+              type: string
+            - name: deliverydelayalertenabled
+              type: bool
+            - name: deliveryfee
+              type: integer
+            - name: deliveryfeetiers
+              type: array
+            - name: distance
+              type: integer
+            - name: extref
+              type: string
+            - name: hasolopass
+              type: bool
+            - name: id
+              type: string
+            - name: isavailable
+              type: bool
+            - name: iscurrentlyopen
+              type: bool
+            - name: labels
+              type: '[]ref:Label'
+            - name: latitude
+              type: number
+            - name: longitude
+              type: number
+            - name: maximumpayinstoreorder
+              type: integer
+            - name: minimumdeliveryorder
+              type: integer
+            - name: minimumpickuporder
+              type: number
+            - name: mobileurl
+              type: string
+              format: url
+            - name: name
+              type: string
+            - name: nn_hash
+              type: string
+            - name: nomnom
+              type: ref:Nomnom
+            - name: productrecipientnamelabel
+              type: string
+            - name: requiresphonenumber
+              type: bool
+            - name: showcalories
+              type: bool
+            - name: slug
+              type: string
+            - name: specialinstructionsmaxlength
+              type: integer
+            - name: state
+              type: string
+            - name: storename
+              type: string
+            - name: streetaddress
+              type: string
+            - name: streetaddress2
+              type: string
+            - name: suggestedtippercentage
+              type: integer
+            - name: supportedarrivalmessagehandoffmodes
+              type: array
+            - name: supportedcardtypes
+              type: string
+            - name: supportedcountries
+              type: array
+            - name: supportedtimemodes
+              type: array
+            - name: supportsbaskettransfers
+              type: bool
+            - name: supportscoupons
+              type: bool
+            - name: supportscurbside
+              type: bool
+            - name: supportsdinein
+              type: bool
+            - name: supportsdispatch
+              type: bool
+            - name: supportsdrivethru
+              type: bool
+            - name: supportsfeedback
+              type: bool
+            - name: supportsforyou
+              type: bool
+            - name: supportsgrouporders
+              type: bool
+            - name: supportsguestordering
+              type: bool
+            - name: supportslocalfavorites
+              type: bool
+            - name: supportsloyalty
+              type: bool
+            - name: supportsmanualfire
+              type: bool
+            - name: supportsnationalmenu
+              type: bool
+            - name: supportsonlineordering
+              type: bool
+            - name: supportsproductrecipientnames
+              type: bool
+            - name: supportssmartcrosssell
+              type: bool
+            - name: supportsspecialinstructions
+              type: bool
+            - name: supportssplitpaygrouporders
+              type: bool
+            - name: supportssplitpayments
+              type: bool
+            - name: supportstip
+              type: bool
+            - name: telephone
+              type: string
+            - name: timezone
+              type: string
+            - name: updated_at
+              type: integer
+            - name: url
+              type: string
+              format: url
+            - name: utcoffset
+              type: integer
+            - name: zip
+              type: string
+    Nomnom:
+        fields:
+            - name: allow_ordering
+              type: bool
+            - name: catering
+              type: bool
+            - name: catering_url
+              type: string
+            - name: createdAt
+              type: integer
+            - name: displayV2PDP
+              type: bool
+            - name: displayWaitlistTimesInSearch
+              type: bool
+            - name: displaymenurecentsfavorites
+              type: bool
+            - name: enableBasketSizeValidation
+              type: bool
+            - name: enableBreadUpsell
+              type: bool
+            - name: enableFeaturedItems
+              type: bool
+            - name: enable_live_activity
+              type: bool
+            - name: enable_recent_order_verification
+              type: bool
+            - name: external_ordering_url
+              type: string
+            - name: external_sync_group_id
+              type: string
+            - name: external_waitlist_url
+              type: string
+            - name: facebookUrl
+              type: string
+              format: url
+            - name: hasBrunch
+              type: bool
+            - name: hasBurgerNight
+              type: bool
+            - name: hasLunch
+              type: bool
+            - name: hasMobileWaitlist
+              type: bool
+            - name: hasPizzaNight
+              type: bool
+            - name: hasWebWaitlist
+              type: bool
+            - name: hidePayInStore
+              type: bool
+            - name: hidePickup
+              type: bool
+            - name: inTexasRoadhouseApi
+              type: bool
+            - name: isOpened
+              type: bool
+            - name: isText2GoAppEnabled
+              type: bool
+            - name: is_closed
+              type: bool
+            - name: is_olo
+              type: bool
+            - name: locationMenuPageUrl
+              type: string
+              format: url
+            - name: maxBasketSize
+              type: string
+            - name: nn_hash
+              type: string
+            - name: primary_pci_provider
+              type: string
+            - name: redirect
+              type: string
+            - name: showWaitlistProgressBar
+              type: bool
+            - name: showcalories
+              type: bool
+            - name: updatedAt
+              type: integer
+            - name: useAgmV2
+              type: bool
+            - name: useNewOrderThrottling
+              type: bool
+            - name: waitlistIsOpen
+              type: bool
+    Properties:
+        fields:
+            - name: accuracy
+              type: string
+              omit_empty: true
+            - name: mapbox_id
+              type: string
+    Quote:
+        fields:
+            - name: "1"
+              type: ref:T1
+            - name: "2"
+              type: ref:T2
+            - name: "3"
+              type: ref:T3
+            - name: "4"
+              type: ref:T4
+            - name: "5"
+              type: ref:T5
+            - name: "6"
+              type: ref:T6
+    SettingSpecialSeatingType:
+        fields:
+            - name: Description
+              type: string
+            - name: SAType
+              type: integer
+            - name: Value
+              type: integer
+    T1:
+        fields:
+            - name: MaxQuote
+              type: integer
+            - name: MinQuote
+              type: integer
+            - name: Override
+              type: integer
+            - name: SiteOverride
+              type: integer
+    T2:
+        fields:
+            - name: MaxQuote
+              type: integer
+            - name: MinQuote
+              type: integer
+            - name: Override
+              type: integer
+            - name: SiteOverride
+              type: integer
+    T3:
+        fields:
+            - name: MaxQuote
+              type: integer
+            - name: MinQuote
+              type: integer
+            - name: Override
+              type: integer
+            - name: SiteOverride
+              type: integer
+    T4:
+        fields:
+            - name: MaxQuote
+              type: integer
+            - name: MinQuote
+              type: integer
+            - name: Override
+              type: integer
+            - name: SiteOverride
+              type: integer
+    T5:
+        fields:
+            - name: MaxQuote
+              type: integer
+            - name: MinQuote
+              type: integer
+            - name: Override
+              type: integer
+            - name: SiteOverride
+              type: integer
+    T6:
+        fields:
+            - name: MaxQuote
+              type: integer
+            - name: MinQuote
+              type: integer
+            - name: Override
+              type: integer
+            - name: SiteOverride
+              type: integer
+    Test:
+        fields:
+            - name: onlineStatus
+              type: bool

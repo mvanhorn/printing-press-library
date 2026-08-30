@@ -1,0 +1,51 @@
+version: 2
+project_name: ynab-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: ynab-pp-cli
+    main: ./cmd/ynab-pp-cli
+    binary: ynab-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/ynab/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: ynab-pp-mcp
+    main: ./cmd/ynab-pp-mcp
+    binary: ynab-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: ynab-pp-cli
+    repository:
+      owner: mikesnowbie
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every YNAB feature, plus a local mirror that makes reconciliation, payee trend analysis, and a ready-made ProjectionLab export instant instead of manual."
+    install: |
+      bin.install "ynab-pp-cli"
+      bin.install "ynab-pp-mcp"

@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "chat-completions-stream-default-false",
+  "applied_at": "2026-08-03",
+  "base_run_id": "20260803T075619Z-899a6d3a",
+  "base_printing_press_version": "4.30.1",
+  "summary": "11 of the 12 per-model chat-completions commands (all Gemini/Claude chat variants; grok_responses.go is the sole exception with proper SSE handling) must force the final request body to carry stream:false when the caller omits stream or supplies null, must reject live stream:true whether it came from a flag or stdin JSON, and must keep dry-run stream:true available as a preview-only escape hatch. A reprint that regenerates these files without the shared guard reintroduces default-invocation SSE breakage and lets stdin bodies bypass the non-SSE JSON decoder safety check.",
+  "reason": "Kie.ai's chat-completions endpoints for these models document stream:true as their own API default, and the spec faithfully carried that default into the generated CLI flag. But only grok_responses.go's generated body sends the Accept: text/event-stream + X-Printing-Press-Text-Response header pair and decodes the resulting text envelope; the other 11 commands POST through the plain JSON response path. The old flag-only guard fixed explicit --stream for generated flag bodies but missed two final-body cases: omitted/null stream still allowed provider-default streaming, and --stdin could send stream:true without touching the flag. All 11 non-SSE handlers now call guardNonSSEChatCompletionsStream after constructing or reading the final request map, so absent/null becomes stream:false, live stream:true is rejected before transport, dry-run stream:true remains visible in the preview, and non-boolean stream values fail clearly. Replicating grok_responses.go's SSE-envelope handling into these 11 more complex commands remains out of scope until live streamed output can be decoded and verified end to end.",
+  "files": [
+    "internal/cli/gemini-2-5-flash_chat-completions.go",
+    "internal/cli/gemini-2-5-pro_chat-completions.go",
+    "internal/cli/gemini_3-6-flash.go",
+    "internal/cli/gemini_3-flash-v1betamodels.go",
+    "internal/cli/gemini-3-pro_chat-completions.go",
+    "internal/cli/gemini_3-5-flash.go",
+    "internal/cli/promoted_claude.go",
+    "internal/cli/promoted_gemini-3-5-flash-openai.go",
+    "internal/cli/promoted_gemini-3-1-pro.go",
+    "internal/cli/promoted_gemini-3-6-flash-openai.go",
+    "internal/cli/promoted_gemini-3-flash.go",
+    "internal/cli/chat_stream_guard.go",
+    "internal/cli/chat_stream_guard_test.go"
+  ],
+  "validated_outcome": "Validated on 2026-08-27 with Go 1.26.6: targeted stream-guard regressions, go test ./..., go vet ./..., go build ./..., and govulncheck ./... all pass. Regression coverage in chat_stream_guard_test.go proves absent/null becomes stream:false, live true from --stream or stdin rejects before transport, dry-run true remains previewable, non-boolean values reject, and all 11 non-SSE handlers call the shared final-body guard exactly once. The credentialed quick Phase 5 dogfood matrix against api.kie.ai also passes 15/15 with zero failures, and the regenerated phase5-acceptance.json source fingerprint covers the repaired handlers and helper/tests.",
+  "upstream_issue": ""
+}

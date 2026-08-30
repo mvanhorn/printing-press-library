@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "openai-ads",
+  "cli_name": "openai-ads-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-26T09:36:09Z",
+  "source_commit": "06f620b4704d8e99ed3b90ba2f53adf17bfc6934",
+  "printing_press_version": "4.30.1",
+  "run_id": "20260807-171540-a9bb0a03",
+  "changes": [
+    {
+      "title": "fix(openai-ads): scope store by AuthHeader credential",
+      "pr": 1829,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1829",
+      "commit": "06f620b4704d8e99ed3b90ba2f53adf17bfc6934"
+    }
+  ]
+}

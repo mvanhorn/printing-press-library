@@ -24,7 +24,7 @@ const (
 )
 
 // version is the printed MCP server's version, overridable at build time via ldflags.
-var version = "2026.7.4"
+var version = "2026.8.2"
 
 func main() {
 	s := server.NewMCPServer(

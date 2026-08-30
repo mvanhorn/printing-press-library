@@ -1,0 +1,20 @@
+{
+  "status": "failures-extracted",
+  "pii_policy": "raw live output not persisted",
+  "failures": [
+    {
+      "command": "bikes get",
+      "kind": "happy_path",
+      "status": "fail",
+      "reason": "exit 3",
+      "exit_code": "3"
+    },
+    {
+      "command": "bikes get",
+      "kind": "json_fidelity",
+      "status": "fail",
+      "reason": "exit 3",
+      "exit_code": "3"
+    }
+  ]
+}

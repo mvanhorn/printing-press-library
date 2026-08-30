@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "jules-auth-set-token-stdin",
+  "applied_at": "2026-08-22",
+  "base_run_id": "20260820-141824-efdff954",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Removed the positional-argument form of 'auth set-token' entirely; the token is now only accepted via stdin.",
+  "reason": "Greptile's first-round publish review (mvanhorn/printing-press-library PR #1794) found that the generated 'auth set-token <token>' command required the credential as args[0], exposing it via the process argument list (ps) and shell history. An initial fix kept the positional form for backward compatibility alongside a new --stdin flag; the second review round judged that insufficient because the insecure path remained supported and was still advertised in auth.go's own hints, client.go's error-remediation text, README.md, and SKILL.md. All of those now point at the stdin form exclusively, and 'set-token' takes no positional argument at all. Likely a systemic gap in the generated auth.go template across CLIs with api_key auth; flagging via retro as well.",
+  "files": ["internal/cli/auth.go", "internal/client/client.go", "README.md", "SKILL.md"],
+  "validated_outcome": "go build succeeded; manually verified 'echo token | jules-pp-cli auth set-token' saves the credential, and that a positional argument is now rejected as an unknown command rather than accepted.",
+  "upstream_issue": null
+}

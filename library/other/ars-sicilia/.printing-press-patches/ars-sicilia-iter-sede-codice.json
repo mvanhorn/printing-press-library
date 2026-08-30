@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-iter-sede-codice",
+  "applied_at": "2026-08-29",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.30.3",
+  "summary": "Read the committee code out of the sitting suffix in `ddl iter` and resolve it to an ordinal when the portal omits the committee name.",
+  "reason": "On the recent rows of an iter the portal writes the code and drops the ordinal - `Seduta n. 255 0100 Commissione` on ddl 779 from 25.03.2026 onwards, against `Seduta n. 213 0100 Commissione PRIMA` on the older rows of the same bill. reSedeSuffisso skipped over the four-digit group to capture the trailing word, so `sede` came out as a bare `Commissione`, indistinguishable among the six and useless for grouping. The datum was not missing from the source, it was being discarded. The name still wins wherever it is present: the special committees all share code 1200 and have real names rather than ordinals, so resolving the code there would flatten them onto an ordinal they do not have.",
+  "files": [
+    "internal/cli/ddl_iter.go",
+    "internal/cli/ddl_iter_parse_test.go"
+  ],
+  "validated_outcome": "On `ddl iter 18 779` the four events from 25.03 to 12.05.2026 go from `sede: \"Commissione\"` to `sede: \"Commissione PRIMA\"`; the full JSON output of `ddl iter` on 18/6030, 17/733 and 17/66 is byte-identical before and after, 17/66 being the check that matters because it carries the special committees' real names under code 1200. New table cases in TestSedeDaSuffissoSeduta use the source's own text.",
+  "upstream_issue": null
+}

@@ -25,7 +25,7 @@ This skill drives the `foxnews-pp-cli` binary. **Verify the CLI is installed bef
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install foxnews --cli-only
+   npx -y @mvanhorn/printing-press-library install foxnews --cli-only
    ```
 2. Verify: `foxnews-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

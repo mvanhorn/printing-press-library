@@ -1,11 +1,18 @@
 {
-  "schema_version": 1,
-  "generated_at": "2026-05-29T12:36:06.482525487Z",
-  "printing_press_version": "4.18.0",
+  "schema_version": 2,
+  "generated_at": "2026-08-22T15:37:57.333762459Z",
+  "printing_press_version": "4.30.3",
   "api_name": "ars-sicilia",
   "cli_name": "ars-sicilia-pp-cli",
+  "creator": {
+    "handle": "aborruso",
+    "name": "aborruso"
+  },
+  "printer": "aborruso",
+  "printer_name": "aborruso",
   "spec_path": "ars-sicilia-spec.yaml",
   "run_id": "20260528-181840",
+  "category": "other",
   "novel_features": [
     {
       "name": "Iter completo di un DDL",
@@ -47,8 +54,5 @@
       "command": "legge cronologia",
       "description": "Partendo da una legge regionale promulgata (archivio 201), risale al DDL originario, agli emendamenti citati nei resoconti d'aula e ai pareri di commissione: l'inverso temporale di ddl iter."
     }
-  ],
-  "printer": "aborruso",
-  "printer_name": "aborruso",
-  "category": "other"
+  ]
 }

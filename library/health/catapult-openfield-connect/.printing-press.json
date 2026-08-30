@@ -1,0 +1,75 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-06T15:22:24.23503Z",
+  "printing_press_version": "4.30.1",
+  "api_name": "catapult-openfield-connect",
+  "display_name": "Catapult OpenField",
+  "cli_name": "catapult-openfield-connect-pp-cli",
+  "creator": {
+    "handle": "erash11",
+    "name": "Eric Rash"
+  },
+  "owner": "erash11",
+  "printer": "erash11",
+  "printer_name": "Eric Rash",
+  "spec_path": "catapult-openfield-connect-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:535fb8c8b67aceb33a832893b293cbef249c6d9cdfa6f613e0ae0f0a3ac05d8f",
+  "run_id": "20260805-211628-9cef41ba",
+  "category": "health",
+  "description": "Every Catapult GPS metric \u2014 ACWR, velocity benchmarks, load reports \u2014 from one command, with a local SQLite mirror for offline analysis.",
+  "mcp_binary": "catapult-openfield-connect-pp-mcp",
+  "mcp_tool_count": 22,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "ACWR dashboard",
+      "command": "acwr",
+      "description": "Instant acute:chronic workload ratios for any athlete or the full squad, color-coded into safe (0.8-1.3), caution, and danger (>1.5) zones."
+    },
+    {
+      "name": "Weekly load report",
+      "command": "report",
+      "description": "One-command weekly summary \u2014 total Player Load, session count, ACWR, max velocity vs PB, monotony, strain, and risk flags \u2014 exportable as markdown or CSV."
+    },
+    {
+      "name": "Personal bests",
+      "command": "pb",
+      "description": "Compares recent session values against each athlete's all-time or rolling personal best, with readiness % and 3-session trend arrows."
+    },
+    {
+      "name": "Session diff",
+      "command": "diff",
+      "description": "Side-by-side comparison of two sessions (by ID, date, or last/prev) showing absolute and percentage change per metric and per athlete."
+    },
+    {
+      "name": "Positional benchmark",
+      "command": "benchmark",
+      "description": "Ranks any athlete against positional peers for a metric: percentile rank, squad median, and position median with outlier flags."
+    },
+    {
+      "name": "Return-to-play tracker",
+      "command": "rtp",
+      "description": "Tracks an injured athlete's load progression session-by-session as a percentage of squad average or a pre-injury baseline window."
+    },
+    {
+      "name": "Period intensity heatmap",
+      "command": "heatmap",
+      "description": "Renders an athlete-by-period intensity matrix for a session \u2014 ANSI heatmap on a terminal, JSON matrix for agents \u2014 surfacing where fatigue compounded."
+    }
+  ],
+  "spec_source": "internal-yaml: authored from the official SBGSports/catapultr R client source (R/ofCloud.R) \u2014 Catapult OpenField Cloud API v6; endpoints verified against live tenant"
+}

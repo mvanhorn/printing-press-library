@@ -1,0 +1,323 @@
+{
+  "api_name": "cosmos",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "jpoindexter/cosmos-mcp",
+      "url": "https://github.com/jpoindexter/cosmos-mcp",
+      "language": "typescript",
+      "install_method": "npm",
+      "stars": 0,
+      "last_updated": "2026-06-03",
+      "command_count": 15,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "rclaycock/cosmos-scraper-mk-3",
+      "url": "https://github.com/rclaycock/cosmos-scraper-mk-3",
+      "language": "javascript",
+      "install_method": "npm",
+      "stars": 0,
+      "last_updated": "2026-07-08",
+      "command_count": 1,
+      "has_json_output": true,
+      "has_auth_support": false
+    },
+    {
+      "name": "rawpage/suggaplay",
+      "url": "https://github.com/rawpage/suggaplay",
+      "language": "javascript",
+      "install_method": "npm",
+      "stars": 0,
+      "last_updated": "2026-07-05",
+      "command_count": 1,
+      "has_json_output": true,
+      "has_auth_support": false
+    },
+    {
+      "name": "rslosh/promptbox",
+      "url": "https://github.com/rslosh/promptbox",
+      "language": "typescript",
+      "install_method": "npm",
+      "stars": 0,
+      "last_updated": "2026-08-01",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "likeahuman-ai/roxit-masterclass cosmos-inspo",
+      "url": "https://github.com/likeahuman-ai/roxit-masterclass",
+      "language": "shell",
+      "install_method": "binary",
+      "stars": 0,
+      "last_updated": "2026-05-19",
+      "command_count": 1,
+      "has_json_output": true,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "no alternative combines authenticated API actions with a local SQLite history",
+    "existing tools cannot compare or diff collections",
+    "existing exporters preserve files but do not audit attribution completeness",
+    "community tools expose one-hop search and similarity but not compound creative workflows",
+    "no alternative provides dry-run and confirmation semantics for Cosmos writes"
+  ],
+  "patterns": [
+    "GraphQL operation documents are reverse-engineered from browser traffic",
+    "public search and public collection reads work without authentication",
+    "authenticated actions use Authorization Bearer tokens",
+    "collection pagination uses opaque nextPageCursor values",
+    "export tools deduplicate stable Cosmos CDN media identifiers"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-02T04:10:03Z",
+  "competitor_insights": {
+    "analyses": [
+      {
+        "repo_url": "https://github.com/jpoindexter/cosmos-mcp",
+        "commands_found": [
+          "login",
+          "refresh",
+          "search elements",
+          "search clusters",
+          "search global",
+          "featured",
+          "get cluster",
+          "get profile",
+          "list collections",
+          "save URL",
+          "connect element",
+          "create collection",
+          "similar elements"
+        ],
+        "feature_requests": [],
+        "abandoned_prs": [],
+        "pain_points": [
+          "undocumented API may drift",
+          "tokens are copied manually or supplied through a password login"
+        ],
+        "command_count": 15
+      },
+      {
+        "repo_url": "https://github.com/rclaycock/cosmos-scraper-mk-3",
+        "commands_found": [
+          "scrape collection",
+          "paginate media",
+          "render JSON feed",
+          "render gallery"
+        ],
+        "feature_requests": [],
+        "abandoned_prs": [],
+        "pain_points": [
+          "public collections only",
+          "overwrites feed output rather than preserving history"
+        ],
+        "command_count": 4
+      }
+    ],
+    "command_target": 30,
+    "unmet_features": [
+      "offline cross-collection queries",
+      "historical diffs",
+      "provenance audit",
+      "safe write workflow",
+      "reproducible similarity graph"
+    ],
+    "pain_points_to_avoid": [
+      "opaque GraphQL variables as the only interface",
+      "archiving session credentials",
+      "browser sidecar runtime",
+      "silent mutation success",
+      "losing source attribution during export"
+    ]
+  },
+  "novel_features": [
+    {
+      "name": "Weekly library review",
+      "command": "review",
+      "description": "Turn recent saves, unfiled elements, duplicate connections, AI flags, and missing attribution into a deterministic maintenance queue.",
+      "rationale": "Cosmos is used continuously but offers no reproducible terminal review across local history and multiple collections.",
+      "example": "cosmos-pp-cli review --since 7d --json",
+      "why_it_matters": "Use it before a weekly curation session to see exactly what needs attention.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Collection overlap",
+      "command": "collection overlap",
+      "description": "Compare two collections and report shared elements, duplicate media, and references unique to each side.",
+      "rationale": "A SQLite join across collection connections answers a question no individual Cosmos request or existing tool can answer.",
+      "example": "cosmos-pp-cli collection overlap 101 202 --json",
+      "why_it_matters": "Use it to keep project moodboards distinct and avoid recycling the same references.",
+      "group": "Cross-collection intelligence"
+    },
+    {
+      "name": "Search coverage gap",
+      "command": "collection coverage",
+      "description": "Compare live Cosmos search results with live collection membership and return promising references that are not already saved.",
+      "rationale": "Combining the live discovery graph with local membership turns search into an actionable coverage check.",
+      "example": "cosmos-pp-cli collection coverage --collection 101 --query 'brutalist typography' --limit 20 --json",
+      "why_it_matters": "Use it when a board feels repetitive and you need genuinely new references.",
+      "group": "Cross-collection intelligence"
+    },
+    {
+      "name": "Provenance audit",
+      "command": "provenance audit",
+      "description": "Report missing source URLs or authors and show source concentration from live collection elements.",
+      "rationale": "Cosmos emphasizes attribution, but existing exporters preserve whatever metadata exists without auditing completeness.",
+      "example": "cosmos-pp-cli provenance audit --collection 101 --json",
+      "why_it_matters": "Use it before publishing or handing off a moodboard so references remain attributable.",
+      "group": "Trustworthy creative archives"
+    },
+    {
+      "name": "Similarity trail",
+      "command": "element trail",
+      "description": "Walk visual similarity results to a bounded depth and emit a deduplicated, source-aware graph.",
+      "rationale": "The API exposes one-hop similarity; bounded traversal makes a discovery path reproducible and agent-readable.",
+      "example": "cosmos-pp-cli element trail --id 2113061259 --depth 2 --limit 12 --json",
+      "why_it_matters": "Use it to explore a visual direction without losing the path back to the seed reference.",
+      "group": "Discovery that compounds"
+    },
+    {
+      "name": "Snapshot diff",
+      "command": "snapshot diff",
+      "description": "Compare historical collection membership and show added, removed, and moved elements.",
+      "rationale": "Existing scrapers overwrite results, while local snapshots can explain how a research library changed over time.",
+      "example": "cosmos-pp-cli snapshot diff --from 7d --to now --json",
+      "why_it_matters": "Use it to audit a team's curation changes or reproduce an earlier moodboard state.",
+      "group": "Trustworthy creative archives"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Weekly library review",
+      "command": "review",
+      "description": "Turn recent saves, unfiled elements, duplicate connections, AI flags, and missing attribution into a deterministic maintenance queue.",
+      "rationale": "Cosmos is used continuously but offers no reproducible terminal review across local history and multiple collections.",
+      "example": "cosmos-pp-cli review --since 7d --json",
+      "why_it_matters": "Use it before a weekly curation session to see exactly what needs attention.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Collection overlap",
+      "command": "collection overlap",
+      "description": "Compare two collections and report shared elements, duplicate media, and references unique to each side.",
+      "rationale": "A SQLite join across collection connections answers a question no individual Cosmos request or existing tool can answer.",
+      "example": "cosmos-pp-cli collection overlap 101 202 --json",
+      "why_it_matters": "Use it to keep project moodboards distinct and avoid recycling the same references.",
+      "group": "Cross-collection intelligence"
+    },
+    {
+      "name": "Search coverage gap",
+      "command": "collection coverage",
+      "description": "Compare live Cosmos search results with live collection membership and return promising references that are not already saved.",
+      "rationale": "Combining the live discovery graph with local membership turns search into an actionable coverage check.",
+      "example": "cosmos-pp-cli collection coverage --collection 101 --query 'brutalist typography' --limit 20 --json",
+      "why_it_matters": "Use it when a board feels repetitive and you need genuinely new references.",
+      "group": "Cross-collection intelligence"
+    },
+    {
+      "name": "Provenance audit",
+      "command": "provenance audit",
+      "description": "Report missing source URLs or authors and show source concentration from live collection elements.",
+      "rationale": "Cosmos emphasizes attribution, but existing exporters preserve whatever metadata exists without auditing completeness.",
+      "example": "cosmos-pp-cli provenance audit --collection 101 --json",
+      "why_it_matters": "Use it before publishing or handing off a moodboard so references remain attributable.",
+      "group": "Trustworthy creative archives"
+    },
+    {
+      "name": "Similarity trail",
+      "command": "element trail",
+      "description": "Walk visual similarity results to a bounded depth and emit a deduplicated, source-aware graph.",
+      "rationale": "The API exposes one-hop similarity; bounded traversal makes a discovery path reproducible and agent-readable.",
+      "example": "cosmos-pp-cli element trail --id 2113061259 --depth 2 --limit 12 --json",
+      "why_it_matters": "Use it to explore a visual direction without losing the path back to the seed reference.",
+      "group": "Discovery that compounds"
+    },
+    {
+      "name": "Snapshot diff",
+      "command": "snapshot diff",
+      "description": "Compare historical collection membership and show added, removed, and moved elements.",
+      "rationale": "Existing scrapers overwrite results, while local snapshots can explain how a research library changed over time.",
+      "example": "cosmos-pp-cli snapshot diff --from 7d --to now --json",
+      "why_it_matters": "Use it to audit a team's curation changes or reproduce an earlier moodboard state.",
+      "group": "Trustworthy creative archives"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "COSMOS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Cosmos",
+    "headline": "Search, organize, export, and audit your Cosmos inspiration library from the terminal.",
+    "value_prop": "cosmos-pp-cli mirrors the replayable Cosmos GraphQL surface, then adds confirmed writes, JSON and HTML exports, local membership snapshots, cross-collection analysis, and attribution-aware workflows. Browser automation was used only during development discovery; normal commands use ordinary HTTP and remain scriptable.",
+    "auth_narrative": "Public discovery commands work without a token. Personal collections and writes use a Cosmos bearer token supplied through `COSMOS_TOKEN`. Run `cosmos-pp-cli auth identify --json`, then create a tenant-gated client profile whose credential reference is `env:COSMOS_TOKEN`; credentials are never included in exported manifests or JSON output.",
+    "quickstart": [
+      {
+        "command": "cosmos-pp-cli discover elements 'brutalist typography' --limit 12 --json",
+        "comment": "Search public inspiration"
+      },
+      {
+        "command": "cosmos-pp-cli collection list --json",
+        "comment": "Inspect your collections after authenticating"
+      },
+      {
+        "command": "cosmos-pp-cli sync --resources collections,elements --full",
+        "comment": "Build a local history"
+      },
+      {
+        "command": "cosmos-pp-cli review --since 7d --json",
+        "comment": "Review the week's curation"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "A personal command returns 401",
+        "fix": "Set `COSMOS_TOKEN`, run `cosmos-pp-cli auth identify --json`, and validate the tenant-gated client profile. Replace an expired token in the environment rather than storing credentials in CLI configuration."
+      },
+      {
+        "symptom": "A GraphQL command reports an unknown field",
+        "fix": "The Cosmos web API is undocumented and may have drifted; rerun discovery or update the stored operation document."
+      },
+      {
+        "symptom": "Snapshot diff reports no data",
+        "fix": "Run `cosmos-pp-cli sync --resources collections,elements --full` at least twice before comparing history."
+      }
+    ],
+    "when_to_use": "Use cosmos-pp-cli when a task involves searching Cosmos, reading or organizing collections, exporting references, preserving attribution, or answering questions across a synced inspiration library. Prefer the compound review, coverage, overlap, provenance, trail, and diff commands when the request spans more than one API operation.",
+    "anti_triggers": [
+      "Do not use it as a general web image search unrelated to Cosmos.",
+      "Do not use it to generate or semantically classify images.",
+      "Do not use it for destructive bulk writes without explicit user confirmation."
+    ],
+    "recipes": [
+      {
+        "title": "Export an attributed project collection",
+        "command": "cosmos-pp-cli export collection 101 --output ./collection-101.json --json",
+        "explanation": "Exports normalized element, media, and source-attribution metadata as JSON."
+      },
+      {
+        "title": "Find gaps in a moodboard",
+        "command": "cosmos-pp-cli collection coverage --collection 101 --query 'warm modernist interiors' --limit 30 --json",
+        "explanation": "Returns live search candidates not already connected to the collection."
+      },
+      {
+        "title": "Audit attribution before handoff",
+        "command": "cosmos-pp-cli provenance audit --collection 101 --json",
+        "explanation": "Shows missing sources and concentration by source domain without crawling third-party sites."
+      }
+    ],
+    "trigger_phrases": [
+      "search Cosmos",
+      "find Cosmos inspiration",
+      "show my Cosmos collections",
+      "save this to Cosmos",
+      "export a Cosmos collection",
+      "compare Cosmos boards",
+      "audit Cosmos attribution",
+      "what changed in my Cosmos library"
+    ]
+  }
+}

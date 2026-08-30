@@ -1,0 +1,40 @@
+{
+  "manifest_version": "0.3",
+  "name": "openipa-pp-mcp",
+  "display_name": "IndicePA",
+  "version": "4.6.1",
+  "description": "Search Italy's IndicePA for public administrations, PEC addresses, IPA codes, billing codes, and compliance details.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/openipa-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/openipa-pp-mcp",
+      "args": [],
+      "env": {
+        "IPA_auth_id": "${user_config.ipa_auth_id}",
+        "IPA_AUTH_ID": "${user_config.ipa_auth_id}"
+      }
+    }
+  },
+  "user_config": {
+    "ipa_auth_id": {
+      "type": "string",
+      "title": "IPA_auth_id",
+      "description": "Sets IPA_auth_id for the IndicePA MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

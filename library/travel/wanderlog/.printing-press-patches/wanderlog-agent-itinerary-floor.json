@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "id": "wanderlog-agent-itinerary-floor",
+  "applied_at": "2026-08-23",
+  "base_run_id": "20260619-000132-cc275322",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Add plan outline/inspect, fat trips-get stub, honest edit-text --markdown, block rename, lodging --span-nights, identifier aliases, which ranking, and slim agent-context --for-edit.",
+  "reason": "Live agent sessions dumped 1MB trip JSON, cloned shared plans by default, flattened notes, and put lodging on check-in day only because named commands lied or were missing.",
+  "files": [
+    "internal/cli/plan_outline.go",
+    "internal/cli/plan_outline_test.go",
+    "internal/cli/trips_get.go",
+    "internal/cli/plan.go",
+    "internal/cli/plan_copy.go",
+    "internal/cli/plan_edit.go",
+    "internal/cli/plan_edit_more.go",
+    "internal/cli/plan_collab_ext.go",
+    "internal/cli/plan_reservation.go",
+    "internal/cli/which.go",
+    "internal/cli/which_test.go",
+    "internal/cli/auth.go",
+    "internal/cli/agent_context.go",
+    "internal/cli/helpers.go",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go test ./internal/cli passed; live trips get --agent stubs; which list my trips ranks trips home."
+}

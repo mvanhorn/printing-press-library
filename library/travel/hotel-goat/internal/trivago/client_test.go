@@ -145,3 +145,87 @@ func TestCallTool_NilLimiter_NoPanic(t *testing.T) {
 		t.Fatalf("callTool with nil Limiter returned error: %v", err)
 	}
 }
+
+func TestParseReviewCount(t *testing.T) {
+	cases := map[string]int{
+		"":          0,
+		"42":        42,
+		"25,429":    25429,
+		"1.563":     1563,
+		"8,000":     8000,
+		"0":         0,
+		"no digits": 0,
+		"1,234,567": 1234567,
+	}
+	for in, want := range cases {
+		if got := ParseReviewCount(in); got != want {
+			t.Errorf("ParseReviewCount(%q) = %d, want %d", in, got, want)
+		}
+	}
+}
+
+// TestReviewCount_UnmarshalStringAndNumber locks in the tolerant custom
+// unmarshaler: Trivago currently returns review_count as a localized
+// string ("25,429") but has returned a bare number in the past. Both must
+// decode without failing the whole accommodation list.
+func TestReviewCount_UnmarshalStringAndNumber(t *testing.T) {
+	var byString, byNumber ReviewCount
+	if err := json.Unmarshal([]byte(`"25,429"`), &byString); err != nil {
+		t.Fatalf("string review_count unmarshal: %v", err)
+	}
+	if string(byString) != "25,429" {
+		t.Fatalf("string got %q", string(byString))
+	}
+	if err := json.Unmarshal([]byte(`25429`), &byNumber); err != nil {
+		t.Fatalf("number review_count unmarshal: %v", err)
+	}
+	if string(byNumber) != "25429" {
+		t.Fatalf("number got %q", string(byNumber))
+	}
+}
+
+// TestReviewCount_UnmarshalNull treats JSON null as a missing count (empty
+// ReviewCount, ParseReviewCount 0). Erroring would fail the whole
+// accommodations list when any hotel omits reviews.
+func TestReviewCount_UnmarshalNull(t *testing.T) {
+	var r ReviewCount
+	if err := json.Unmarshal([]byte("null"), &r); err != nil {
+		t.Fatalf("null review_count unmarshal: %v", err)
+	}
+	if r != "" {
+		t.Fatalf("null got %q, want empty ReviewCount", r)
+	}
+	if got := ParseReviewCount(string(r)); got != 0 {
+		t.Fatalf("ParseReviewCount of null-decoded value = %d, want 0", got)
+	}
+}
+
+func TestReviewCount_UnmarshalUnsupportedType(t *testing.T) {
+	for _, raw := range []string{"true", "{}", "[]"} {
+		var r ReviewCount
+		if err := json.Unmarshal([]byte(raw), &r); err == nil {
+			t.Errorf("unmarshal %s: expected error, got nil (value %q)", raw, r)
+		}
+	}
+}
+
+// TestDecodeAccommodations_BookingURLFallback confirms that when the API
+// omits booking_url (as it does today — only accommodation_url is
+// returned), decode backfills BookingURL from URL so booking links keep
+// working downstream.
+func TestDecodeAccommodations_BookingURLFallback(t *testing.T) {
+	raw := json.RawMessage(`{"structuredContent":{"accommodations":[{"accommodation_id":"x1","accommodation_name":"A Hotel","accommodation_url":"https://trivago/u","review_count":"25,429"}]}}`)
+	accs, err := decodeAccommodations(raw)
+	if err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if len(accs) != 1 {
+		t.Fatalf("got %d accommodations", len(accs))
+	}
+	if accs[0].BookingURL != "https://trivago/u" {
+		t.Fatalf("BookingURL = %q, want accommodation_url fallback", accs[0].BookingURL)
+	}
+	if ParseReviewCount(string(accs[0].ReviewCount)) != 25429 {
+		t.Fatalf("review count = %v, want 25429", accs[0].ReviewCount)
+	}
+}

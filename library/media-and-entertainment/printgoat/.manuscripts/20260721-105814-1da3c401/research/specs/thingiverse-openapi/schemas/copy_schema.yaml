@@ -1,0 +1,80 @@
+type: object
+properties:
+  id:
+    type: integer
+    format: int
+    example: 491683
+  url:
+    type: string
+    example: https://api.thingiverse.com/copies/491683
+  public_url:
+    type: string
+    example: https://www.thingiverse.com/make:491683
+  added:
+    type: string
+    format: date-time
+    example: "2018-05-15T17:30:32+00:00"
+  like_count:
+    type: integer
+    format: int
+    example: 2
+  comment_count:
+    type: integer
+    format: int
+    example: 0
+  description:
+    type: string
+    example: First print on the SnapMaker straight out of the box. Came out beautifully
+  description_html:
+    type: string
+    example: <div><p>First print on the SnapMaker straight out of the box. Came out beautifully<\/p><\/div>\n
+  is_liked:
+    type: boolean
+    example: false
+  creator:
+    $ref: './user_summary_schema.yaml'
+  thing:
+    $ref: '../schemas/thing_schema.yaml'
+  thumbnail:
+    type: string
+    example: https://cdn.thingiverse.com/renders/e1/29/55/07/54/f85e5d82c3c10a936c72cc593ba47308_thumb_medium.JPG
+  preview_image:
+    type: string
+    example: https://cdn.thingiverse.com/renders/e1/29/55/07/54/f85e5d82c3c10a936c72cc593ba47308_preview_card.JPG
+  images_url:
+    type: string
+    example: https://api.thingiverse.com/copies/491683/images
+  name:
+    type: string
+    example: "#3DBenchy - The jolly 3D printing torture-test by CreativeTools.se"
+  needs_moderation:
+    type: boolean
+    example: false
+  type_name:
+    type: string
+    example: "Make"
+  view_count:
+    type: integer
+    format: int
+    example: 1
+  category_name:
+    type: string
+    example: "3D Printing Tests"
+  category_url:
+    type: string
+    example: /categories/3d-printing/3d-printing-tests
+  details_parts:
+    type: array
+  details:
+    type: string
+    example: '<h1 class=\"thing-component-header summary description\">Description</h1>\n<div><p>First print on the SnapMaker straight out of the box. Came out beautifully</p></div>\n<h1 class=\"thing-component-header settings print-settings\">Print Settings</h1>\n<p class=\"detail-setting printer\"><strong>Printer: </strong>\n                         <div><p>SnapMaker 3-in-1</p></div>\n</p>                                    \n                                                <p class=\"detail-setting rafts\"><strong>Rafts: </strong>\n                         <div><p>No</p></div>\n</p>                                    \n                                                <p class=\"detail-setting supports\"><strong>Supports: </strong>\n                         <div><p>No</p></div>\n</p>                                    \n                                                <p class=\"detail-setting resolution\"><strong>Resolution: </strong>\n                         <div><p>0.2 mm</p></div>\n</p>                                    \n                                                <p class=\"detail-setting infill\"><strong>Infill: </strong>\n                         <div><p>8%</p></div>\n</p>                                    \n                        <br>                        <p class=\"detail-setting notes\"><strong>Notes: </strong>\n                        </p><div><p>PLA</p></div>\n'
+  root_comment_count:
+    type: integer
+    format: int
+    example: 0
+  is_watched:
+    type: boolean
+    example: false
+  is_comments_disabled:
+    type: boolean
+    example: false

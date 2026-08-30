@@ -108,13 +108,13 @@ In local mode: searches locally synced data only.`,
 				return cmd.Help()
 			}
 			query := args[0]
-			// This API has a search endpoint: GET /v1/google/search
+			// This API has a search endpoint: GET /v1/reddit/search
 			if flags.dataSource != "local" {
 				c, err := flags.newClient()
 				if err != nil {
 					return err
 				}
-				data, getErr := c.Get(cmd.Context(), "/v1/google/search", map[string]string{
+				data, getErr := c.Get(cmd.Context(), "/v1/reddit/search", map[string]string{
 					"query": query,
 				})
 				if getErr == nil {
@@ -141,7 +141,6 @@ In local mode: searches locally synced data only.`,
 				return fmt.Errorf("opening local database: %w\nRun 'scrape-creators-pp-cli sync' first to populate the local database.", err)
 			}
 			defer db.Close()
-
 			maybeEmitSyncHints(cmd, db, resourceType, flags.maxAge)
 
 			var results []json.RawMessage

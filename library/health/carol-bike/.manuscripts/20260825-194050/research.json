@@ -1,0 +1,90 @@
+{
+  "api_name": "carol-bike",
+  "novelty_score": 5,
+  "alternatives": [],
+  "gaps": [
+    "Undocumented private dashboard API; endpoint compatibility may change without notice.",
+    "Bearer tokens must currently be obtained from the user's own authenticated dashboard session."
+  ],
+  "patterns": [
+    "All shipping API operations are GET-only.",
+    "Every resource is scoped by one riderId path template supplied through CAROL_BIKE_RIDER_ID."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-25T19:40:50Z",
+  "novel_features": [
+    {
+      "name": "Private ride mirror",
+      "command": "sync",
+      "description": "Mirror personal CAROL ride history into local SQLite for dependable offline search and analysis.",
+      "rationale": "The dashboard has no supported export and otherwise requires repeated authenticated requests.",
+      "example": "carol-bike-pp-cli sync --full --max-pages 1 --json",
+      "why_it_matters": "Agents can query a durable personal ride history without keeping a browser running.",
+      "group": "Local data"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Private ride mirror",
+      "command": "sync",
+      "description": "Mirror personal CAROL ride history into local SQLite for dependable offline search and analysis.",
+      "rationale": "The dashboard has no supported export and otherwise requires repeated authenticated requests.",
+      "example": "carol-bike-pp-cli sync --full --max-pages 1 --json",
+      "why_it_matters": "Agents can query a durable personal ride history without keeping a browser running.",
+      "group": "Local data"
+    }
+  ],
+  "narrative": {
+    "display_name": "CAROL Bike",
+    "headline": "Read and locally mirror personal CAROL Bike workout data.",
+    "value_prop": "An unofficial read-only CLI for a rider's own CAROL workout history, with typed commands and a local SQLite mirror.",
+    "auth_narrative": "Set CAROL_BIKE_TOKEN to a bearer token from your own authenticated dashboard session and CAROL_BIKE_RIDER_ID to your rider identifier. Never commit either value.",
+    "quickstart": [
+      {
+        "command": "carol-bike-pp-cli doctor --json",
+        "comment": "Check credential configuration and API reachability."
+      },
+      {
+        "command": "carol-bike-pp-cli ride get-latest --dry-run --json",
+        "comment": "Preview the latest-ride request without sending it."
+      },
+      {
+        "command": "carol-bike-pp-cli sync --full --max-pages 1 --dry-run --json",
+        "comment": "Preview a bounded full sync into the local store."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "CAROL returns 401 or 403",
+        "fix": "Obtain a current bearer token from your own authenticated CAROL dashboard session; this private API is unsupported and may change."
+      },
+      {
+        "symptom": "A command reports a missing riderId",
+        "fix": "Set CAROL_BIKE_RIDER_ID to the rider identifier from your own CAROL account."
+      }
+    ],
+    "when_to_use": "Use this CLI for read-only access to your own CAROL Bike workout statistics, ride history, trends, and local analysis. Do not use it to control a bike or modify an account.",
+    "recipes": [
+      {
+        "title": "Preview current weekly frequency",
+        "command": "carol-bike-pp-cli stats get-rides-per-week --dry-run --json",
+        "explanation": "Inspect the read-only request for weekly ride rate and target."
+      },
+      {
+        "title": "Preview the recent ride calendar",
+        "command": "carol-bike-pp-cli stats get-ride-calendar --dry-run --json",
+        "explanation": "Inspect the read-only calendar request before making a live call."
+      },
+      {
+        "title": "Preview a bounded local mirror",
+        "command": "carol-bike-pp-cli sync --full --max-pages 1 --dry-run --json",
+        "explanation": "Verify sync wiring without sending API requests."
+      }
+    ],
+    "trigger_phrases": [
+      "show my CAROL Bike stats",
+      "sync my CAROL rides",
+      "what was my latest CAROL workout"
+    ]
+  }
+}

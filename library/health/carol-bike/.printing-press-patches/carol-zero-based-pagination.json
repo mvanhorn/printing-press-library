@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "carol-zero-based-pagination",
+  "applied_at": "2026-08-25",
+  "base_run_id": "20260825-194050",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Preserve and advance CAROL's zero-based ride page parameter.",
+  "reason": "Generated page pagination stripped page=0 and began full sync at page 1, omitting the newest 40 rides.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/sync.go",
+    "internal/cli/carol_pagination_test.go"
+  ],
+  "validated_outcome": "Full live sync must store all 394 rides and page 0 must be present in the first request."
+}

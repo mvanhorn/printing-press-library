@@ -1,0 +1,129 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-26T14:41:25.919729Z",
+  "printing_press_version": "4.31.1",
+  "api_name": "keenable",
+  "display_name": "Keenable",
+  "cli_name": "keenable-pp-cli",
+  "creator": {
+    "handle": "SomSamantray",
+    "name": "Som Samantray"
+  },
+  "owner": "somsamantray",
+  "printer": "SomSamantray",
+  "printer_name": "Som Samantray",
+  "spec_path": "keenable-openapi.json",
+  "spec_format": "openapi3",
+  "spec_source": "official",
+  "spec_checksum": "sha256:94056409e8d604441e1fa0b94b39c636ea5997e44e0db963bed83691b7b4293e",
+  "run_id": "20260826-081431-1a97062b",
+  "category": "ai",
+  "description": "Keenable web search with reproducible research, citations, and a local evidence trail.",
+  "mcp_binary": "keenable-pp-mcp",
+  "mcp_tool_count": 4,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_preference": "apiKey",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Reproducible research snapshot",
+      "command": "research snapshot",
+      "description": "Save an exact search and fetch run as an immutable local evidence snapshot."
+    },
+    {
+      "name": "Snapshot replay",
+      "command": "research replay",
+      "description": "Rerun a saved research recipe and report how current evidence changed."
+    },
+    {
+      "name": "Citation bundle export",
+      "command": "research citations",
+      "description": "Export source-linked Markdown or JSON citations from a saved research run."
+    },
+    {
+      "name": "Bounded multi-page fetch",
+      "command": "research fetch-many",
+      "description": "Fetch a bounded URL list with concurrency limits and explicit partial failures."
+    },
+    {
+      "name": "Offline local FTS recall",
+      "command": "research local-search",
+      "description": "Search saved titles, snippets, URLs, and Markdown without spending an upstream request."
+    },
+    {
+      "name": "Result and content drift comparison",
+      "command": "research diff",
+      "description": "Compare saved runs for URL changes, rank movement, metadata edits, and content-hash drift."
+    },
+    {
+      "name": "Domain and source coverage report",
+      "command": "research coverage",
+      "description": "Measure domain diversity, rank share, timestamp coverage, and missing metadata in a saved run."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Reproducible research snapshot",
+      "command": "research snapshot",
+      "description": "Save an exact search and fetch run as an immutable local evidence snapshot."
+    },
+    {
+      "name": "Snapshot replay",
+      "command": "research replay",
+      "description": "Rerun a saved research recipe and report how current evidence changed."
+    },
+    {
+      "name": "Citation bundle export",
+      "command": "research citations",
+      "description": "Export source-linked Markdown or JSON citations from a saved research run."
+    },
+    {
+      "name": "Bounded multi-page fetch",
+      "command": "research fetch-many",
+      "description": "Fetch a bounded URL list with concurrency limits and explicit partial failures."
+    },
+    {
+      "name": "Offline local FTS recall",
+      "command": "research local-search",
+      "description": "Search saved titles, snippets, URLs, and Markdown without spending an upstream request."
+    },
+    {
+      "name": "Result and content drift comparison",
+      "command": "research diff",
+      "description": "Compare saved runs for URL changes, rank movement, metadata edits, and content-hash drift."
+    },
+    {
+      "name": "Domain and source coverage report",
+      "command": "research coverage",
+      "description": "Measure domain diversity, rank share, timestamp coverage, and missing metadata in a saved run."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 100,
+    "passed": 27,
+    "total": 27,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 89,
+      "grade": "A",
+      "total": 89
+    }
+  }
+}

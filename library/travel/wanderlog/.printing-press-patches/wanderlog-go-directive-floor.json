@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "wanderlog-go-directive-floor",
+  "applied_at": "2026-08-23",
+  "base_run_id": "20260619-000132-cc275322",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Keep the module go directive at 1.26.6 so published installs compile against the library stdlib floor.",
+  "reason": "The public-library supply-chain scan blocks library go.mod files below 1.26.6 even when toolchain is already 1.26.6.",
+  "files": ["go.mod"],
+  "validated_outcome": "CI Scan failed with go 1.26; bumped the go directive to 1.26.6."
+}

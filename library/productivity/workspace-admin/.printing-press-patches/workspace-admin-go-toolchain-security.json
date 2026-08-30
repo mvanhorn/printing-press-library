@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "workspace-admin-go-toolchain-security",
+  "applied_at": "2026-07-09",
+  "base_run_id": "20260706-073846-b99ffcfa",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Bump go.mod go directive to 1.26.5 to clear reachable stdlib CVE GO-2026-5856 (crypto/tls ECH privacy leak) and meet the library's repo-wide Go floor.",
+  "reason": "The generator emitted 'go 1.26.4', which govulncheck flags for GO-2026-5856 (reachable via the MCP HTTPS server and reachability probe) and which is below the public library's 1.26.5 supply-chain floor. Bumping the go directive fixes both.",
+  "files": [
+    "go.mod"
+  ],
+  "validated_outcome": "publish validate govulncheck: No vulnerabilities found.",
+  "upstream_issue": ""
+}

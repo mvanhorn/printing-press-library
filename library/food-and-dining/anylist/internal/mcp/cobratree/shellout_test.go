@@ -94,10 +94,9 @@ func TestCliArgsFromMCP_AllowsPerCommandFlags(t *testing.T) {
 func TestCliArgsFromMCP_PreservesExplicitBooleanFalse(t *testing.T) {
 	in := map[string]any{
 		"keep-unchecked": false,
-		"merge":          false,
 	}
 	got := cliArgsFromMCP(in)
-	want := []string{"--keep-unchecked=false", "--merge=false"}
+	want := []string{"--keep-unchecked=false"}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("cliArgsFromMCP boolean false passthrough: got %v, want %v", got, want)
 	}

@@ -1,0 +1,71 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-06-30T21:43:15.582117Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "bmw-cardata",
+  "display_name": "BMW CarData",
+  "cli_name": "bmw-cardata-pp-cli",
+  "creator": {
+    "handle": "jvm",
+    "name": "jvm"
+  },
+  "owner": "jvm",
+  "printer": "jvm",
+  "printer_name": "jvm",
+  "spec_path": "swagger-customer-api-v1.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:cbc3a63c078d492d8cc7256a7e85bcc75a2b41f444c212fb4a1effcda3b7607c",
+  "run_id": "20260630-212750-ea90da3f",
+  "category": "devices",
+  "description": "Your BMW's telemetry, on the command line — device-code login, live telematic snapshots, charging history, and a local SQLite store that turns raw VSS data into trends, cost, and fleet insight no other tool gives you.",
+  "mcp_binary": "bmw-cardata-pp-mcp",
+  "mcp_tool_count": 11,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "BMW_CARDATA_ACCESS_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "SoC/range trends",
+      "command": "soc-trends",
+      "description": "See your battery state-of-charge and derived range as a time series you can chart."
+    },
+    {
+      "name": "Charging cost \u0026 efficiency",
+      "command": "charging-cost",
+      "description": "Reconcile your charging sessions against your electricity tariff and see DC charge efficiency."
+    },
+    {
+      "name": "Quota tracker",
+      "command": "quota",
+      "description": "See how many of your ~50 daily API calls you have spent and when the budget resets (midnight UTC)."
+    },
+    {
+      "name": "Fleet status",
+      "command": "fleet status",
+      "description": "One table of current SoC, range, charging state and last location across every vehicle on your account."
+    },
+    {
+      "name": "Descriptor search",
+      "command": "descriptors search",
+      "description": "Search the VSS telematic descriptor catalogue (e.g. batteryManagement, charging, navigation) to build containers."
+    },
+    {
+      "name": "Battery health",
+      "command": "battery-health",
+      "description": "Track battery capacity degradation by comparing observed max energy against the nameplate capacity."
+    },
+    {
+      "name": "Snapshot diff",
+      "command": "vehicles diff",
+      "description": "Show exactly what changed between two telematic snapshots (windows, charging, locks, location)."
+    },
+    {
+      "name": "Trip reconstruction",
+      "command": "trips",
+      "description": "Reconstruct trips (start, end, elapsed, distance) from your vehicle's location breadcrumbs."
+    }
+  ]
+}

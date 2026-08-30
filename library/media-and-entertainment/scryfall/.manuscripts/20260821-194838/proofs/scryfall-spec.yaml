@@ -1,0 +1,1488 @@
+openapi: 3.0.0
+info:
+  version: '2019-07-15'
+  title: Scryfall API
+servers:
+- url: https://api.scryfall.com
+tags:
+- name: Set Objects
+  description: 'A Set object represents a group of related Magic cards. All Card objects on Scryfall belong to
+
+    exactly one set.
+
+
+    Due to Magic’s long and complicated history, Scryfall includes many un-official sets as a way
+
+    to group promotional or outlier cards together. Such sets will likely have a `code` that
+
+    begins with `p` or `t`, such as `pcel` or `tori`.
+
+
+    Official sets always have a three-letter set code, such as `zen`.
+
+    '
+- name: Card Objects
+  description: ''
+- name: Bulk Data Files
+  description: 'Scryfall provides daily exports of our card data in bulk files. Each of these files is
+
+    represented as a `bulk_data` object via the API. URLs for files only change their timestamp
+
+    each day, and can be fetched programmatically.
+
+
+    **Please note:** Card objects in bulk data do not contain prices and sales data, they will
+
+    omit the prices and purchase_uris properties.
+
+
+    Bulk data is only collected once every 24 hour period. You can use the card API methods to
+
+    retrieve fresh objects instead.
+
+    '
+paths:
+  /sets:
+    get:
+      summary: Returns a List object of all Sets on Scryfall
+      tags:
+      - Set Objects
+      operationId: getAllSets
+      parameters:
+      - $ref: '#/components/parameters/format'
+      - $ref: '#/components/parameters/pretty'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/set_list'
+        default:
+          $ref: '#/components/responses/error'
+  /sets/{code}:
+    get:
+      summary: Returns a Set with the given set code.
+      description: Returns a `Set` with the given set code. The code can be either the `code` or the `mtgo_code` for the set.
+      tags:
+      - Set Objects
+      operationId: getSetByCode
+      parameters:
+      - name: code
+        description: The three to five-letter set code.
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/format'
+      - $ref: '#/components/parameters/pretty'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/set'
+        default:
+          $ref: '#/components/responses/error'
+  /sets/tcgplayer/{id}:
+    get:
+      summary: Returns a Set with the given tcgplayer_id
+      description: Returns a `Set` with the given `tcgplayer_id`, also known as the `groupId` on [TCGplayer’s API](https://docs.tcgplayer.com/docs).
+      tags:
+      - Set Objects
+      operationId: getSetByTcgplayerId
+      parameters:
+      - name: id
+        description: The `tcgplayer_id` or `groupId`.
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/format'
+      - $ref: '#/components/parameters/pretty'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/set'
+        default:
+          $ref: '#/components/responses/error'
+  /sets/{id}:
+    get:
+      summary: Returns a Set with the given Scryfall id.
+      description: Returns a `Set` with the given Scryfall `id`.
+      tags:
+      - Set Objects
+      operationId: getSetById
+      parameters:
+      - name: id
+        description: The Scryfall ID
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/format'
+      - $ref: '#/components/parameters/pretty'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/set'
+        default:
+          $ref: '#/components/responses/error'
+  /cards:
+    get:
+      description: Returns a `List` object that contains all cards in Scryfall’s database. This method is paginated, returning
+        175 cards at a time. The cards are ordered roughly newest to oldest.
+      tags:
+      - Card Objects
+      operationId: getAllCards
+      parameters:
+      - name: page
+        description: The page number to return, default 1.
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          example: 1
+      - $ref: '#/components/parameters/format'
+      - $ref: '#/components/parameters/pretty'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/card_list'
+        default:
+          $ref: '#/components/responses/error'
+  /cards/search:
+    get:
+      description: Returns a List object containing Cards found using a fulltext search string. This string supports the same
+        [fulltext search system](https://scryfall.com/docs/syntax) that the main site uses.
+      tags:
+      - Card Objects
+      operationId: searchCards
+      parameters:
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: unique
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/uniqueness_strategy'
+      - name: order
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/sort_order'
+      - name: dir
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/sort_direction'
+      - name: include_extras
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/card_list'
+        default:
+          $ref: '#/components/responses/error'
+  /cards/named:
+    get:
+      tags:
+      - Card Objects
+      operationId: Cards_GetNamed
+      parameters:
+      - name: exact
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: fuzzy
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: set
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: format
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: face
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: version
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: pretty
+        in: query
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/card'
+        default:
+          $ref: '#/components/responses/error'
+  /cards/autocomplete:
+    get:
+      tags:
+      - Card Objects
+      operationId: Cards_Autocomplete
+      parameters:
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/catalog'
+        default:
+          $ref: '#/components/responses/error'
+  /cards/random:
+    get:
+      tags:
+      - Card Objects
+      operationId: Cards_GetRandom
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/card'
+        default:
+          $ref: '#/components/responses/error'
+  /cards/multiverse/{id}:
+    get:
+      tags:
+      - Card Objects
+      operationId: Cards_GetByMultiverseId
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/card'
+        default:
+          $ref: '#/components/responses/error'
+  /cards/mtgo/{id}:
+    get:
+      tags:
+      - Card Objects
+      operationId: Cards_GetByMtgoId
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/card'
+        default:
+          $ref: '#/components/responses/error'
+  /cards/arena/{id}:
+    get:
+      tags:
+      - Card Objects
+      operationId: Cards_GetByArenaId
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/card'
+        default:
+          $ref: '#/components/responses/error'
+  /cards/{code}/{number}:
+    get:
+      tags:
+      - Card Objects
+      operationId: Cards_GetByCodeByNumber
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: number
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/card'
+        default:
+          $ref: '#/components/responses/error'
+  /cards/{id}:
+    get:
+      tags:
+      - Card Objects
+      operationId: Cards_GetById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/card'
+        default:
+          $ref: '#/components/responses/error'
+  /cards/multiverse/{id}/rulings:
+    get:
+      tags:
+      - Ruling Objects
+      operationId: Rulings_GetByMultiverseId
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ruling_list'
+        default:
+          $ref: '#/components/responses/error'
+  /cards/mtgo/{id}/rulings:
+    get:
+      tags:
+      - Ruling Objects
+      operationId: Rulings_GetByMtgoId
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ruling_list'
+        default:
+          $ref: '#/components/responses/error'
+  /cards/{code}/{number}/rulings:
+    get:
+      tags:
+      - Ruling Objects
+      operationId: Rulings_GetByCodeByNumberId
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: number
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ruling_list'
+        default:
+          $ref: '#/components/responses/error'
+  /cards/{id}/rulings:
+    get:
+      tags:
+      - Ruling Objects
+      operationId: Rulings_GetById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ruling_list'
+        default:
+          $ref: '#/components/responses/error'
+  /symbology:
+    get:
+      tags:
+      - Card Symbol Objects
+      operationId: Symbology_GetAll
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/card_symbol_list'
+        default:
+          $ref: '#/components/responses/error'
+  /symbology/parse-mana:
+    get:
+      tags:
+      - Card Symbol Objects
+      operationId: Symbology_ParseMana
+      parameters:
+      - name: cost
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mana_cost'
+        default:
+          $ref: '#/components/responses/error'
+  /catalog/card-names:
+    get:
+      tags:
+      - Catalog Objects
+      operationId: Catalog_GetCardNames
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/catalog'
+        default:
+          $ref: '#/components/responses/error'
+  /catalog/word-bank:
+    get:
+      tags:
+      - Catalog Objects
+      operationId: Catalog_GetWordBank
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/catalog'
+        default:
+          $ref: '#/components/responses/error'
+  /catalog/creature-types:
+    get:
+      tags:
+      - Catalog Objects
+      operationId: Catalog_GetCreatureTypes
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/catalog'
+        default:
+          $ref: '#/components/responses/error'
+  /catalog/planeswalker-types:
+    get:
+      tags:
+      - Catalog Objects
+      operationId: Catalog_GetPlaneswalkerTypes
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/catalog'
+        default:
+          $ref: '#/components/responses/error'
+  /catalog/land-types:
+    get:
+      tags:
+      - Catalog Objects
+      operationId: Catalog_GetLandTypes
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/catalog'
+        default:
+          $ref: '#/components/responses/error'
+  /catalog/artifact-types:
+    get:
+      tags:
+      - Catalog Objects
+      operationId: Catalog_GetArtifactTypes
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/catalog'
+        default:
+          $ref: '#/components/responses/error'
+  /catalog/enchantment-types:
+    get:
+      tags:
+      - Catalog Objects
+      operationId: Catalog_GetEnchantmentTypes
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/catalog'
+        default:
+          $ref: '#/components/responses/error'
+  /catalog/spell-types:
+    get:
+      tags:
+      - Catalog Objects
+      operationId: Catalog_GetSpellTypes
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/catalog'
+        default:
+          $ref: '#/components/responses/error'
+  /catalog/powers:
+    get:
+      tags:
+      - Catalog Objects
+      operationId: Catalog_GetPowers
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/catalog'
+        default:
+          $ref: '#/components/responses/error'
+  /catalog/toughnesses:
+    get:
+      tags:
+      - Catalog Objects
+      operationId: Catalog_GetToughnesses
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/catalog'
+        default:
+          $ref: '#/components/responses/error'
+  /catalog/loyalties:
+    get:
+      tags:
+      - Catalog Objects
+      operationId: Catalog_GetLoyalties
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/catalog'
+        default:
+          $ref: '#/components/responses/error'
+  /catalog/watermarks:
+    get:
+      tags:
+      - Catalog Objects
+      operationId: Catalog_GetWatermarks
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/catalog'
+        default:
+          $ref: '#/components/responses/error'
+  /bulk-data:
+    get:
+      summary: Returns a List of all bulk data items on Scryfall.
+      tags:
+      - Bulk Data Files
+      operationId: BulkData_GetAll
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bulk_data_list'
+        default:
+          $ref: '#/components/responses/error'
+  /cards/collection:
+    post:
+      tags:
+      - Card Objects
+      operationId: postCardsCollection
+      summary: Fetch a list of up to 75 cards by identifier in one request
+      description: 'Accepts a JSON body with an identifiers array (max 75). Supported identifier keys: id, mtgo_id, arena_id,
+        multiverse_id, name, set + collector_number, collector_number.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/collection_request'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/card_list'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /cards/tcgplayer/{id}:
+    get:
+      tags:
+      - Card Objects
+      operationId: getCardByTcgplayerId
+      summary: Fetch a card by its TCGplayer ID
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: The marketplace ID
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/card'
+        '404': &id001
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /cards/cardmarket/{id}:
+    get:
+      tags:
+      - Card Objects
+      operationId: getCardByCardmarketId
+      summary: Fetch a card by its Cardmarket ID
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: The marketplace ID
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/card'
+        '404': *id001
+components:
+  schemas:
+    layout_type:
+      enum:
+      - normal
+      - split
+      - flip
+      - transform
+      - meld
+      - leveler
+      - saga
+      - planar
+      - scheme
+      - vanguard
+      - token
+      - double_faced_token
+      - emblem
+      - augment
+      - host
+      type: string
+    rarity:
+      enum:
+      - common
+      - uncommon
+      - rare
+      - mythic
+      type: string
+    uniqueness_strategy:
+      type: string
+      enum:
+      - cards
+      - art
+      - prints
+    sort_order:
+      type: string
+      enum:
+      - name
+      - set
+      - released
+      - rarity
+      - color
+      - usd
+      - tix
+      - eur
+      - cmc
+      - power
+      - toughness
+      - edhrec
+      - artist
+    sort_direction:
+      type: string
+      enum:
+      - auto
+      - asc
+      - desc
+    border_color:
+      enum:
+      - black
+      - borderless
+      - gold
+      - silver
+      - white
+      type: string
+    color:
+      enum:
+      - W
+      - U
+      - B
+      - R
+      - G
+      type: string
+    legality_format:
+      type: string
+      enum:
+      - standard
+      - future
+      - modern
+      - legacy
+      - pauper
+      - vintage
+      - penny
+      - commander
+      - duel
+    legal_status:
+      enum:
+      - legal
+      - not_legal
+      - restricted
+      - banned
+      type: string
+    set_type:
+      type: string
+      enum:
+      - core
+      - expansion
+      - masters
+      - masterpiece
+      - from_the_vault
+      - spellbook
+      - premium_deck
+      - duel_deck
+      - draft_innovation
+      - treasure_chest
+      - commander
+      - planechase
+      - archenemy
+      - vanguard
+      - funny
+      - starter
+      - box
+      - promo
+      - token
+      - memorabilia
+      description: 'A computer-readable classification for this set.
+
+
+        * core - A yearly Magic core set (Tenth Edition, etc)
+
+        * expansion - A rotational expansion set in a block (Zendikar, etc)
+
+        * masters - A reprint set that contains no new cards (Modern Masters, etc)
+
+        * masterpiece - Masterpiece Series premium foil cards
+
+        * from_the_vault - From the Vault gift sets
+
+        * spellbook - Spellbook series gift sets
+
+        * premium_deck - Premium Deck Series decks
+
+        * duel_deck - Duel Decks
+
+        * draft_innovation - Special draft sets, like Conspiracy and Battlebond
+
+        * treasure_chest - Magic Online treasure chest prize sets
+
+        * commander - Commander preconstructed decks
+
+        * planechase - Planechase sets
+
+        * archenemy - Archenemy sets
+
+        * vanguard - Vanguard card sets
+
+        * funny - A funny un-set or set with funny promos (Unglued, Happy Holidays, etc)
+
+        * starter - A starter/introductory set (Portal, etc)
+
+        * box - A gift box set
+
+        * promo - A set that contains purely promotional cards
+
+        * token - A set made up of tokens and emblems.
+
+        * memorabilia - A set made up of gold-bordered, oversize, or trophy cards that are not legal
+
+        '
+    image_uri_type:
+      type: string
+      enum:
+      - small
+      - normal
+      - large
+      - png
+      - art_crop
+      - border_crop
+    card:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/card_face'
+      - type: object
+        properties:
+          id:
+            format: uuid
+            type: string
+          oracle_id:
+            format: uuid
+            type: string
+          multiverse_ids:
+            type: array
+            items:
+              type: integer
+          mtgo_id:
+            type: integer
+          arena_id:
+            type: integer
+          mtgo_foil_id:
+            type: integer
+          uri:
+            format: uri
+            type: string
+          scryfall_uri:
+            format: uri
+            type: string
+          prints_search_uri:
+            format: uri
+            type: string
+          rulings_uri:
+            format: uri
+            type: string
+          layout:
+            $ref: '#/components/schemas/layout_type'
+          cmc:
+            format: double
+            type: number
+          life_modifier:
+            type: string
+          hand_modifier:
+            type: string
+          color_identity:
+            type: array
+            items:
+              $ref: '#/components/schemas/color'
+          all_parts:
+            type: array
+            items:
+              $ref: '#/components/schemas/related_cards'
+          card_faces:
+            type: array
+            items:
+              $ref: '#/components/schemas/card_face'
+          legalities:
+            type: object
+            x-dictionary-key:
+              $ref: '#/components/schemas/legality_format'
+            additionalProperties:
+              $ref: '#/components/schemas/legal_status'
+          reserved:
+            type: boolean
+          edhrec_rank:
+            format: int32
+            type: integer
+          set:
+            type: string
+          set_name:
+            type: string
+          collector_number:
+            type: string
+          set_search_uri:
+            type: string
+          scryfall_set_uri:
+            format: uri
+            type: string
+          highres_image:
+            type: boolean
+          reprint:
+            type: boolean
+          digital:
+            type: boolean
+          rarity:
+            $ref: '#/components/schemas/rarity'
+          artist:
+            type: string
+          frame:
+            type: string
+          full_art:
+            type: boolean
+          watermark:
+            type: string
+          border_color:
+            $ref: '#/components/schemas/border_color'
+          story_spotlight_number:
+            type: integer
+          story_spotlight_uri:
+            format: uri
+            type: string
+          timeshifted:
+            type: boolean
+          colorshifted:
+            type: boolean
+          futureshifted:
+            type: boolean
+          purchase_uris:
+            type: object
+            additionalProperties:
+              type: string
+              format: uri
+          related_uris:
+            type: object
+            additionalProperties:
+              type: string
+              format: uri
+    card_face:
+      type: object
+      properties:
+        name:
+          type: string
+        type_line:
+          type: string
+        oracle_text:
+          type: string
+        mana_cost:
+          type: string
+        colors:
+          type: array
+          items:
+            $ref: '#/components/schemas/color'
+        color_indicator:
+          type: array
+          items:
+            $ref: '#/components/schemas/color'
+        power:
+          type: string
+        toughness:
+          type: string
+        loyalty:
+          type: string
+        flavor_text:
+          type: string
+        illustration_id:
+          format: uuid
+          type: string
+        image_uris:
+          type: object
+          x-dictionary-key:
+            $ref: '#/components/schemas/image_uri_type'
+          additionalProperties:
+            type: string
+            format: uri
+    related_cards:
+      type: object
+      properties:
+        id:
+          format: uuid
+          type: string
+        name:
+          type: string
+        uri:
+          format: uri
+          type: string
+    catalog:
+      type: object
+      properties:
+        total_items:
+          format: int32
+          type: integer
+        data:
+          type: array
+          items:
+            type: string
+    set:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: A unique ID for this set on Scryfall that will not change.
+          example: a4a0db50-8826-4e73-833c-3fd934375f96
+        code:
+          type: string
+          description: The unique three to five-letter code for this set.
+          example: aer
+        mtgo_code:
+          nullable: true
+          type: string
+          description: The unique code for this set on MTGO, which may differ from the regular code.
+          example: aer
+        tcgplayer_id:
+          nullable: true
+          type: integer
+          description: This set’s ID on [TCGplayer’s API](https://docs.tcgplayer.com/docs), also known as the groupId.
+          example: 1857
+        name:
+          type: string
+          description: The English name of the set.
+          example: Aether Revolt
+        set_type:
+          $ref: '#/components/schemas/set_type'
+        released_at:
+          type: string
+          format: date
+          nullable: true
+          description: The date the set was released or the first card was printed in the set (in GMT-8 Pacific time).
+          example: '2017-01-20'
+        block_code:
+          type: string
+          nullable: true
+          description: The block code for this set, if any.
+          example: kld
+        block:
+          type: string
+          nullable: true
+          description: The block or group name code for this set, if any.
+          example: Kaladesh
+        parent_set_code:
+          type: string
+          nullable: true
+          description: The set code for the parent set, if any. `promo` and `token` sets often have a parent set.
+          example: kld
+        card_count:
+          type: integer
+          description: The number of cards in this set.
+          example: 194
+        digital:
+          type: boolean
+          description: True if this set was only released on Magic Online.
+          example: false
+        foil_only:
+          type: boolean
+          description: True if this set contains only foil cards.
+          example: false
+        icon_svg_uri:
+          format: uri
+          type: string
+          description: A URI to an SVG file for this set’s icon on Scryfall’s CDN. Hotlinking this image isn’t recommended,
+            because it may change slightly over time. You should download it and use it locally for your particular user interface
+            needs.
+          example: https://img.scryfall.com/sets/aer.svg?1562558400
+        search_uri:
+          format: uri
+          type: string
+          description: A Scryfall API URI that you can request to begin paginating over the cards in this set.
+          example: https://api.scryfall.com/cards/search?order=set&q=e%3Aaer&unique=prints
+    ruling_source:
+      type: string
+      description: A computer-readable string indicating which company produced this ruling.
+      enum:
+      - wotc
+      - scryfall
+      example: wotc
+    ruling:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/ruling_source'
+        published_at:
+          format: date
+          type: string
+          description: The date when the ruling or note was published.
+          example: '2013-10-17'
+        comment:
+          type: string
+          description: The text of the ruling.
+          example: You can activate Derevi’s last ability only when it is in the command zone.
+    card_symbol:
+      type: object
+      properties:
+        symbol:
+          type: string
+        loose_variant:
+          type: string
+        english:
+          type: string
+        transposable:
+          type: boolean
+        represents_mana:
+          type: boolean
+        cmc:
+          format: double
+          type: number
+        appears_in_mana_costs:
+          type: boolean
+        funny:
+          type: boolean
+        colors:
+          $ref: '#/components/schemas/color'
+    mana_cost:
+      type: object
+      properties:
+        cost:
+          type: string
+        cmc:
+          format: double
+          type: number
+        colors:
+          $ref: '#/components/schemas/color'
+        colorless:
+          type: boolean
+        monocolored:
+          type: boolean
+        multicolored:
+          type: boolean
+    card_list:
+      type: object
+      properties:
+        total_cards:
+          format: int32
+          type: integer
+        has_more:
+          type: boolean
+        next_page:
+          nullable: true
+          format: uri
+          type: string
+        warnings:
+          nullable: true
+          type: array
+          items:
+            type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/card'
+    set_list:
+      type: object
+      properties:
+        has_more:
+          type: boolean
+        next_page:
+          nullable: true
+          format: uri
+          type: string
+        warnings:
+          nullable: true
+          type: array
+          items:
+            type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/set'
+    ruling_list:
+      type: object
+      properties:
+        has_more:
+          type: boolean
+        next_page:
+          nullable: true
+          format: uri
+          type: string
+        warnings:
+          nullable: true
+          type: array
+          items:
+            type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ruling'
+    card_symbol_list:
+      type: object
+      properties:
+        has_more:
+          type: boolean
+        next_page:
+          nullable: true
+          format: uri
+          type: string
+        warnings:
+          nullable: true
+          type: array
+          items:
+            type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/card_symbol'
+    bulk_data:
+      type: object
+      properties:
+        id:
+          format: uuid
+          type: string
+          description: A unique ID for this bulk item.
+          example: 922288cb-4bef-45e1-bb30-0c2bd3d3534f
+        type:
+          type: string
+          description: A computer-readable string for the kind of bulk item.
+          example: all_cards
+        name:
+          type: string
+          description: A human-readable name for this file.
+          example: All Cards
+        description:
+          type: string
+          description: A human-readable description for this file.
+          example: A JSON file containing every card object on Scryfall in every language.
+        permalink_uri:
+          format: uri
+          type: string
+          description: The URL that hosts this bulk file.
+          example: https://archive.scryfall.com/json/scryfall-all-cards.json
+        updated_at:
+          format: date-time
+          type: string
+          description: The time when this file was last updated.
+          example: '2019-07-08T10:28:57.650+00:00'
+        compressed_size:
+          type: integer
+          description: The size of this file in integer bytes.
+          example: 72252952
+        content_type:
+          format: mime-type
+          type: string
+          description: The MIME type of this file.
+          example: application/json
+        content_encoding:
+          format: content-encoding
+          type: string
+          description: The Content-Encoding encoding that will be used to transmit this file when you download it.
+          example: gzip
+    bulk_data_list:
+      type: object
+      properties:
+        has_more:
+          type: boolean
+        next_page:
+          nullable: true
+          format: uri
+          type: string
+        warnings:
+          nullable: true
+          type: array
+          items:
+            type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/bulk_data'
+    error:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: An integer HTTP status code for this error.
+          example: 400
+        code:
+          type: string
+          description: A computer-friendly string representing the appropriate HTTP status code.
+          example: bad_request
+        details:
+          type: string
+          description: A human-readable string explaining the error.
+          example: All of your terms were ignored.
+        type:
+          type: string
+          description: A computer-friendly string that provides additional context for the main error. For example, an endpoint
+            many generate HTTP 404 errors for different kinds of input. This field will provide a label for the specific kind
+            of 404 failure, such as `ambiguous`.
+          example: ambiguous
+        warnings:
+          type: array
+          items:
+            type: string
+          description: If your input also generated non-failure warnings, they will be provided as human-readable strings
+            in this array.
+          example:
+          - Invalid expression "is:slick" was ignored. Checking if cards are "slick" is not supported
+          - Invalid expression "cmc>cmc" was ignored. The sides of your comparison must be different.
+    collection_identifier:
+      type: object
+      description: A card identifier; provide exactly one key per identifier object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Scryfall ID
+        mtgo_id:
+          type: integer
+        arena_id:
+          type: integer
+        multiverse_id:
+          type: integer
+        name:
+          type: string
+          description: Exact card name, e.g. "Lightning Bolt" or "Fateful Absence // Moonshaker Cavalry" for split cards
+        set:
+          type: string
+          description: Set code, used with collector_number
+        collector_number:
+          type: string
+    collection_request:
+      type: object
+      required:
+      - identifiers
+      properties:
+        identifiers:
+          type: array
+          maxItems: 75
+          items:
+            $ref: '#/components/schemas/collection_identifier'
+  parameters:
+    format:
+      name: format
+      description: The data format to return. This method only supports `json`.
+      in: query
+      required: false
+      schema:
+        type: string
+    pretty:
+      name: pretty
+      description: If true, the returned JSON will be prettified. Avoid using for production code.
+      in: query
+      required: false
+      schema:
+        type: boolean
+      example: false
+  responses:
+    error:
+      description: 'An Error object represents a failure to find information or
+
+        understand the input you provided to the API. Error objects
+
+        are always transmitted with the appropriate 4XX or 5XX HTTP
+
+        status code.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'

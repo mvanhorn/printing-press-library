@@ -62,6 +62,35 @@ func newReportCmd(flags *rootFlags) *cobra.Command {
 			}
 			url := args[0]
 
+			// is-agentic has a different shape from isitagentready (score over
+			// two tiers instead of a level over five categories), so it renders
+			// natively and --category maps to --tier (essential/recommended).
+			if flags.sourceOrDefault() == store.SourceIsAgentic {
+				tier := ""
+				if category != "" {
+					t, ok := validAgenticTiers[strings.ToLower(strings.TrimSpace(category))]
+					if !ok {
+						return usageErr(fmt.Errorf("--category %q is an isitagentready category; for --source is-agentic use a tier: essential or recommended", category))
+					}
+					tier = t
+				}
+				if profile != "" {
+					return usageErr(fmt.Errorf("--profile is an isitagentready site-type view; it does not apply to --source is-agentic"))
+				}
+				raw, err := resolveReport(cmd, flags, url)
+				if err != nil {
+					return err
+				}
+				filtered, err := filterAgenticReport(raw, tier, onlyFailing, checkID)
+				if err != nil {
+					return err
+				}
+				if !wantsHumanTable(cmd.OutOrStdout(), flags) {
+					return printOutputWithFlags(cmd.OutOrStdout(), filtered, flags)
+				}
+				return renderAgenticReport(cmd, filtered, tier)
+			}
+
 			// Resolve the category filter set (from --category and/or --profile).
 			cats, err := resolveCategoryFilter(category, profile)
 			if err != nil {

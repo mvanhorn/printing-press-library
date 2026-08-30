@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "fec-pp-mcp",
+  "display_name": "Openfec",
+  "version": "4.29.0",
+  "description": "This application programming interface (API)",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/fec-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/fec-pp-mcp",
+      "args": [],
+      "env": {
+        "FEC_API_KEY_QUERY_AUTH": "${user_config.fec_api_key_query_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "fec_api_key_query_auth": {
+      "type": "string",
+      "title": "FEC_API_KEY_QUERY_AUTH",
+      "description": "Sets FEC_API_KEY_QUERY_AUTH for the Openfec MCP server. Get a credential from https://www.fec.gov/data/advanced/?tab=bulk-data.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

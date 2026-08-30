@@ -1,0 +1,201 @@
+openapi: 3.0.3
+info:
+  title: CAROL Bike Rider API
+  version: 3.9.1
+  description: >-
+    Unofficial, read-only specification reconstructed from authenticated CAROL Bike
+    dashboard traffic. CAROL does not publish or support this API. Endpoints may change.
+  x-display-name: CAROL Bike
+  x-path-template-env-vars:
+    riderId:
+      env: CAROL_BIKE_RIDER_ID
+servers:
+  - url: https://i.carolbike.com/rider-api
+security:
+  - bearerAuth: []
+paths:
+  /rider/{riderId}/stats:
+    get:
+      operationId: getRiderStats
+      summary: Get aggregate rider statistics
+      tags: [Stats]
+      parameters:
+        - $ref: '#/components/parameters/RiderId'
+        - $ref: '#/components/parameters/Version'
+      responses:
+        '200':
+          description: Aggregate rider statistics
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/GenericObject'}
+  /rider/{riderId}/stats/ride-count:
+    get:
+      operationId: getRideCount
+      summary: Get total ride count
+      tags: [Stats]
+      parameters:
+        - $ref: '#/components/parameters/RiderId'
+        - $ref: '#/components/parameters/Version'
+      responses:
+        '200':
+          description: Ride count payload
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/GenericObject'}
+  /rider/{riderId}/stats/rides-per-week:
+    get:
+      operationId: getRidesPerWeek
+      summary: Get current weekly ride rate and target
+      tags: [Stats]
+      parameters:
+        - $ref: '#/components/parameters/RiderId'
+        - $ref: '#/components/parameters/Version'
+      responses:
+        '200':
+          description: Weekly frequency payload
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/GenericObject'}
+  /rider/{riderId}/ride/last:
+    get:
+      operationId: getLatestRide
+      summary: Get the latest ride
+      tags: [Rides]
+      parameters:
+        - $ref: '#/components/parameters/RiderId'
+        - $ref: '#/components/parameters/Version'
+      responses:
+        '200':
+          description: Latest ride
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Ride'}
+  /rider/{riderId}/stats/calendar/last:
+    get:
+      operationId: getRideCalendar
+      summary: Get recent ride-calendar data
+      tags: [Stats]
+      parameters:
+        - $ref: '#/components/parameters/RiderId'
+        - $ref: '#/components/parameters/Version'
+        - name: timezoneRegion
+          in: query
+          required: false
+          schema: {type: string, default: America/New_York}
+      responses:
+        '200':
+          description: Calendar data
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/GenericObject'}
+  /rider/{riderId}/ride/type/REHIT:
+    get:
+      operationId: listRehitRides
+      summary: List REHIT rides
+      tags: [Rides]
+      parameters:
+        - $ref: '#/components/parameters/RiderId'
+        - $ref: '#/components/parameters/Version'
+        - name: page
+          x-url-name: page
+          in: query
+          required: false
+          schema: {type: integer, minimum: 0, default: 0}
+        - name: size
+          x-url-name: size
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 200, default: 40}
+      responses:
+        '200':
+          description: Paginated REHIT ride list
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/RidePage'}
+  /rider/{riderId}/trends:
+    get:
+      operationId: getRiderTrends
+      summary: Get rider trend series
+      tags: [Trends]
+      parameters:
+        - $ref: '#/components/parameters/RiderId'
+        - $ref: '#/components/parameters/Version'
+        - name: type
+          in: query
+          required: false
+          schema: {type: string, default: REHIT}
+      responses:
+        '200':
+          description: Trend series
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/GenericObject'}
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      x-auth-vars:
+        - name: CAROL_BIKE_TOKEN
+          kind: per_call
+          required: true
+          sensitive: true
+          description: Bearer token from the authenticated rider dashboard session.
+      x-auth-instructions: Use a bearer token from your own authenticated CAROL Bike rider dashboard session.
+  parameters:
+    RiderId:
+      name: riderId
+      in: path
+      required: true
+      schema: {type: string}
+    Version:
+      name: apiVersion
+      x-url-name: v
+      in: query
+      required: false
+      description: CAROL Rider API version sent on the wire as v.
+      schema: {type: string, default: 3.9.1}
+  schemas:
+    GenericObject:
+      type: object
+      additionalProperties: true
+    Ride:
+      type: object
+      additionalProperties: true
+      properties:
+        id: {type: integer, format: int64}
+        type: {type: string}
+        start: {type: integer, format: int64, description: Unix epoch milliseconds}
+        duration: {type: integer}
+        distance: {type: number}
+        calories: {type: number}
+        caloriesInclEpoc: {type: number}
+        averagePower: {type: number}
+        averageSprintPower: {type: number}
+        peakPower: {type: number}
+        totalPower: {type: number}
+        heartRateAverage: {type: number}
+        heartRateMax: {type: number}
+        rpmAverage: {type: number}
+        rpmMax: {type: number}
+        speedAverage: {type: number}
+        speedMax: {type: number}
+        octaneScore: {type: number}
+        valid: {type: boolean}
+    RidePage:
+      type: object
+      additionalProperties: true
+      properties:
+        content:
+          type: array
+          items: {$ref: '#/components/schemas/Ride'}
+        number: {type: integer}
+        size: {type: integer}
+        totalElements: {type: integer}
+        totalPages: {type: integer}
+        last: {type: boolean}

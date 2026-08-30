@@ -1,0 +1,51 @@
+version: 2
+project_name: texas-roadhouse-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: texas-roadhouse-pp-cli
+    main: ./cmd/texas-roadhouse-pp-cli
+    binary: texas-roadhouse-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X texas-roadhouse-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: texas-roadhouse-pp-mcp
+    main: ./cmd/texas-roadhouse-pp-mcp
+    binary: texas-roadhouse-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: texas-roadhouse-pp-cli
+    repository:
+      owner: 
+      name: homebrew-tap
+    homepage: "https://github.com//texas-roadhouse-pp-cli"
+    description: "Discovered API spec for texasroadhouse"
+    install: |
+      bin.install "texas-roadhouse-pp-cli"
+      bin.install "texas-roadhouse-pp-mcp"

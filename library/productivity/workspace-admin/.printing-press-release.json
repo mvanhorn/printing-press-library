@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "workspace-admin",
+  "cli_name": "workspace-admin-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-26T09:21:43Z",
+  "source_commit": "e1eb87226c0c86f92e514b5d6a2a08f29589cb4b",
+  "printing_press_version": "4.27.1",
+  "run_id": "20260706-073846-b99ffcfa",
+  "changes": [
+    {
+      "title": "feat(workspace-admin): add workspace-admin",
+      "pr": 1404,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1404",
+      "commit": "e1eb87226c0c86f92e514b5d6a2a08f29589cb4b"
+    }
+  ]
+}

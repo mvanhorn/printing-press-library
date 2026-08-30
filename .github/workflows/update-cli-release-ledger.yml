@@ -32,11 +32,13 @@ jobs:
   update:
     name: Update and commit
     runs-on: ubuntu-latest
-    # Queue release-ledger runs, but do not share this group with sibling
-    # generated-artifact workflows. GitHub keeps only one pending run per
-    # concurrency group, so a shared group lets unrelated workflows evict a
-    # pending release-ledger run. Push races with sibling workflows are handled
-    # by the bounded retry below.
+    # Keep release-ledger runs serialized because push.sh rebases but cannot
+    # recover rebase conflicts or recompute CalVer versions. GitHub permits
+    # only one pending run per group: a newer push can evict a pending sibling,
+    # and this workflow's own ledger push can self-evict a pending run too.
+    # Each successful ledger commit records the logical commit processed
+    # through; a later surviving run starts from that low-water mark and
+    # replays every first-parent commit after it, so either eviction is recoverable.
     concurrency:
       group: update-cli-release-ledger-main
       cancel-in-progress: false
@@ -53,61 +55,112 @@ jobs:
         id: meta
         env:
           GH_TOKEN: ${{ github.token }}
+          EVENT_SHA: ${{ github.sha }}
+          MANUAL_CHANGED_FROM: ${{ inputs.changed_from }}
+          MANUAL_CHANGED_TO: ${{ inputs.changed_to }}
         run: |
           set -euo pipefail
 
-          changed_from="${{ inputs.changed_from || github.event.before }}"
-          changed_to="${{ inputs.changed_to || github.sha }}"
+          release_subject='chore(releases): update CLI release ledger [skip ci]'
+          low_water_mark=''
+          legacy_release_commit=''
+          while IFS=$'\t' read -r release_commit release_subject_candidate; do
+            if [ "$release_subject_candidate" != "$release_subject" ]; then
+              continue
+            fi
+            if [ -z "$legacy_release_commit" ]; then
+              legacy_release_commit="$release_commit"
+            fi
+            marker="$(git show -s --format=%B "$release_commit" | awk '/^Processed through: / { sub(/^Processed through: /, ""); print; exit }')"
+            if [[ "$marker" =~ ^[0-9a-fA-F]{40}$ ]] && git cat-file -e "$marker^{commit}" 2>/dev/null; then
+              low_water_mark="$marker"
+              break
+            fi
+          done < <(git log --first-parent --format='%H%x09%s')
+          if [ -z "$low_water_mark" ] && [ -n "$legacy_release_commit" ]; then
+            # Older bot commits predate the marker; their first parent is the
+            # closest available representation of the already-processed tip.
+            low_water_mark="$(git rev-parse "$legacy_release_commit^")"
+          fi
+
+          changed_from="$low_water_mark"
+          changed_to="$EVENT_SHA"
+          # Explicit workflow_dispatch inputs are independent escape hatches
+          # for repairing or replaying a deliberately chosen range.
+          if [ -n "$MANUAL_CHANGED_FROM" ]; then
+            changed_from="$MANUAL_CHANGED_FROM"
+          fi
+          if [ -n "$MANUAL_CHANGED_TO" ]; then
+            changed_to="$MANUAL_CHANGED_TO"
+          fi
           if [ -z "$changed_from" ] || [ "$changed_from" = "0000000000000000000000000000000000000000" ]; then
             changed_from="$(git rev-list --max-parents=0 HEAD | tail -n 1)"
           fi
           if [ -z "$changed_to" ]; then
             changed_to="$(git rev-parse HEAD)"
           fi
+          changed_from="$(git rev-parse "$changed_from^{commit}")"
+          changed_to="$(git rev-parse "$changed_to^{commit}")"
 
-          pr_number="$(gh api \
-            -H 'Accept: application/vnd.github+json' \
-            "repos/${GITHUB_REPOSITORY}/commits/${changed_to}/pulls" \
-            --jq '.[0].number // ""' 2>/dev/null || true)"
-          pr_title="$(gh api \
-            -H 'Accept: application/vnd.github+json' \
-            "repos/${GITHUB_REPOSITORY}/commits/${changed_to}/pulls" \
-            --jq '.[0].title // ""' 2>/dev/null || true)"
-          pr_url="$(gh api \
-            -H 'Accept: application/vnd.github+json' \
-            "repos/${GITHUB_REPOSITORY}/commits/${changed_to}/pulls" \
-            --jq '.[0].html_url // ""' 2>/dev/null || true)"
-          if [ -z "$pr_title" ]; then
-            pr_title="$(git log -1 --pretty=%s "$changed_to")"
-          fi
+          commits="$(go run ./tools/release-ledger/main.go \
+            --list-first-parent \
+            --changed-from "$changed_from" \
+            --changed-to "$changed_to")"
 
           {
             echo "changed_from=$changed_from"
             echo "changed_to=$changed_to"
             echo "released_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            echo "pr_number=$pr_number"
-            echo "pr_title<<EOF"
-            echo "$pr_title"
+            echo "commits<<EOF"
+            echo "$commits"
             echo "EOF"
-            echo "pr_url=$pr_url"
           } >> "$GITHUB_OUTPUT"
       - name: Run release-ledger
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_COMMITS: ${{ steps.meta.outputs.commits }}
+          RELEASED_AT: ${{ steps.meta.outputs.released_at }}
         run: |
           set -euo pipefail
-          args=(
-            --changed-from "${{ steps.meta.outputs.changed_from }}"
-            --changed-to "${{ steps.meta.outputs.changed_to }}"
-            --released-at "${{ steps.meta.outputs.released_at }}"
-            --source-commit "${{ steps.meta.outputs.changed_to }}"
-            --change-title "${{ steps.meta.outputs.pr_title }}"
-          )
-          if [ -n "${{ steps.meta.outputs.pr_number }}" ]; then
-            args+=(--change-pr "${{ steps.meta.outputs.pr_number }}")
+          if [ -z "$RELEASE_COMMITS" ]; then
+            echo "No first-parent commits to process."
+            exit 0
           fi
-          if [ -n "${{ steps.meta.outputs.pr_url }}" ]; then
-            args+=(--change-url "${{ steps.meta.outputs.pr_url }}")
-          fi
-          go run ./tools/release-ledger/main.go "${args[@]}"
+
+          while IFS= read -r changed_to; do
+            [ -z "$changed_to" ] && continue
+            changed_from="$(git rev-parse "$changed_to^")"
+            pr_number="$(gh api \
+              -H 'Accept: application/vnd.github+json' \
+              "repos/${GITHUB_REPOSITORY}/commits/${changed_to}/pulls" \
+              --jq '.[0].number // ""' 2>/dev/null || true)"
+            pr_title="$(gh api \
+              -H 'Accept: application/vnd.github+json' \
+              "repos/${GITHUB_REPOSITORY}/commits/${changed_to}/pulls" \
+              --jq '.[0].title // ""' 2>/dev/null || true)"
+            pr_url="$(gh api \
+              -H 'Accept: application/vnd.github+json' \
+              "repos/${GITHUB_REPOSITORY}/commits/${changed_to}/pulls" \
+              --jq '.[0].html_url // ""' 2>/dev/null || true)"
+            if [ -z "$pr_title" ]; then
+              pr_title="$(git log -1 --pretty=%s "$changed_to")"
+            fi
+
+            args=(
+              --changed-from "$changed_from"
+              --changed-to "$changed_to"
+              --released-at "$RELEASED_AT"
+              --source-commit "$changed_to"
+              --change-title "$pr_title"
+            )
+            if [ -n "$pr_number" ]; then
+              args+=(--change-pr "$pr_number")
+            fi
+            if [ -n "$pr_url" ]; then
+              args+=(--change-url "$pr_url")
+            fi
+            go run ./tools/release-ledger/main.go "${args[@]}"
+          done <<< "$RELEASE_COMMITS"
       - name: Commit if changed
         run: |
           set -euo pipefail
@@ -118,7 +171,9 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add library
-          git commit -m "chore(releases): update CLI release ledger [skip ci]"
+          git commit \
+            -m "chore(releases): update CLI release ledger [skip ci]" \
+            -m "Processed through: ${{ steps.meta.outputs.changed_to }}"
           # A sibling writer can land after a rebase but before the push.
           # Retry the complete fetch/rebase/push sequence.
           bash .github/scripts/push-generated-artifact/push.sh main

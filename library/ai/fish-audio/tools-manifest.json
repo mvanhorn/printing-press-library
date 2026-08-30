@@ -1,0 +1,688 @@
+{
+  "api_name": "fish-audio",
+  "base_url": "https://api.fish.audio",
+  "description": "Fish Audio API: text-to-speech, speech-to-text, voice design, voice models (clones), and account credit.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "FISH_AUDIO_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "FISH_AUDIO_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "asr_create",
+      "description": "Speech to Text. Required: audio. Optional: ignore_timestamps (default: true), language. Returns array of Asrsegment.",
+      "method": "POST",
+      "path": "/v1/asr",
+      "params": [
+        {
+          "name": "audio",
+          "type": "string",
+          "location": "body",
+          "description": "Audio file to be converted to text",
+          "required": true
+        },
+        {
+          "name": "ignore_timestamps",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to return precise timestamps in the text, this will increase the latency in audio shorter than 30 seconds"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "Optional hint. The language is auto-detected regardless; the detected language is returned as `language_code`."
+        }
+      ]
+    },
+    {
+      "name": "model_create",
+      "description": "Create Model for Users via API. Required: title, train_mode, type, voices. Optional: cover_image, description, enhance_audio_quality (default: true) (plus 5 more). Returns the new ModelCreateResponse.",
+      "method": "POST",
+      "path": "/model",
+      "params": [
+        {
+          "name": "cover_image",
+          "type": "string",
+          "location": "body",
+          "description": "Model cover image, this is required if the model is public"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Model description"
+        },
+        {
+          "name": "enhance_audio_quality",
+          "type": "bool",
+          "location": "body",
+          "description": "Enhance audio quality"
+        },
+        {
+          "name": "generate_sample",
+          "type": "bool",
+          "location": "body",
+          "description": "Generate default text"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "Model tags"
+        },
+        {
+          "name": "texts",
+          "type": "string",
+          "location": "body",
+          "description": "Texts corresponding to the voices, if unspecified, ASR will be performed on the voices"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Model title or name",
+          "required": true
+        },
+        {
+          "name": "train_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Model train mode, for TTS model, fast means model instantly available after creation",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Model type, tts is for text to speech",
+          "required": true
+        },
+        {
+          "name": "visibility",
+          "type": "string",
+          "location": "body",
+          "description": "Model visibility. Public requests are downgraded to private; use the web publish flow to publish publicly. Unlist allows anyone with the link to access, while private is visible only to the creator."
+        },
+        {
+          "name": "voice_design_signatures",
+          "type": "string",
+          "location": "body",
+          "description": "Signatures from /v1/voice-design candidates, one per voice in the same order. When every uploaded voice verifies, the model is stamped source=voice_design; an invalid signature rejects the request."
+        },
+        {
+          "name": "voices",
+          "type": "string",
+          "location": "body",
+          "description": "Upload voices files that will be used to tune the model",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "model_delete",
+      "description": "Delete Model. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/model/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "model_get",
+      "description": "Get Model. Required: id. Returns the ModelGetResponse.",
+      "method": "GET",
+      "path": "/model/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "model_list",
+      "description": "List Models. Optional: page_size (default: 10), page_number (default: 1), title (plus 7 more). Returns array of ModelEntity.",
+      "method": "GET",
+      "path": "/model",
+      "params": [
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        },
+        {
+          "name": "page_number",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "query",
+          "description": "Title to filter models"
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Tag to filter models"
+        },
+        {
+          "name": "self",
+          "type": "bool",
+          "location": "query",
+          "description": "If True, return models owned by the active workspace"
+        },
+        {
+          "name": "author_id",
+          "type": "string",
+          "location": "query",
+          "description": "Author ID to filter public models; ignored if self is True"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language to filter models"
+        },
+        {
+          "name": "title_language",
+          "type": "string",
+          "location": "query",
+          "description": "Title language to filter models"
+        },
+        {
+          "name": "licensed",
+          "type": "bool",
+          "location": "query",
+          "description": "If True, only voices licensed by Fish Audio (rights secured from the voice owner) are returned; ignored if self is True"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by"
+        }
+      ]
+    },
+    {
+      "name": "model_update",
+      "description": "Update Model. Required: id. Optional: cover_image, description, tags (plus 2 more). Partial update.",
+      "method": "PATCH",
+      "path": "/model/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "cover_image",
+          "type": "string",
+          "location": "body",
+          "description": "Cover image"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "Tags"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        },
+        {
+          "name": "visibility",
+          "type": "string",
+          "location": "body",
+          "description": "Visibility"
+        }
+      ]
+    },
+    {
+      "name": "tts_create",
+      "description": "Text to Speech. Required: text. Optional: model (default: s2.1-pro), chunk_length (default: 300), condition_on_previous_chunks (default: true) (plus 16 more).",
+      "method": "POST",
+      "path": "/v1/tts",
+      "params": [
+        {
+          "name": "model",
+          "type": "string",
+          "location": "query",
+          "description": "Specify which TTS model to use. Use `s2.1-pro-free` for the free developer tier. If omitted or set to an unrecognized value, the request falls back to `s2.1-pro`."
+        },
+        {
+          "name": "chunk_length",
+          "type": "int",
+          "location": "body",
+          "description": "Text segment size for processing."
+        },
+        {
+          "name": "condition_on_previous_chunks",
+          "type": "bool",
+          "location": "body",
+          "description": "Use previous audio as context for voice consistency."
+        },
+        {
+          "name": "early_stop_threshold",
+          "type": "float",
+          "location": "body",
+          "description": "Early stopping threshold for batch processing."
+        },
+        {
+          "name": "features",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Optional request-scoped TTS feature flags forwarded verbatim to the inference backend. Use ['quality-guard'] to enable the quality guard for this synthesis request. Feature availability is determined by the inference backend."
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "body",
+          "description": "Output audio format."
+        },
+        {
+          "name": "latency",
+          "type": "string",
+          "location": "body",
+          "description": "Latency-quality trade-off. normal: best quality, balanced: reduced latency, low: lowest latency."
+        },
+        {
+          "name": "max_new_tokens",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum audio tokens to generate per text chunk."
+        },
+        {
+          "name": "min_chunk_length",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum characters before splitting into a new chunk."
+        },
+        {
+          "name": "mp3_bitrate",
+          "type": "int",
+          "location": "body",
+          "description": "MP3 bitrate in kbps. Only applies when format is mp3."
+        },
+        {
+          "name": "normalize",
+          "type": "bool",
+          "location": "body",
+          "description": "Normalizes text for English and Chinese, improving stability for numbers."
+        },
+        {
+          "name": "opus_bitrate",
+          "type": "int",
+          "location": "body",
+          "description": "Opus bitrate in bps. -1000 for automatic. Only applies when format is opus."
+        },
+        {
+          "name": "prosody",
+          "type": "string",
+          "location": "body",
+          "description": "Speed and volume adjustments for the output."
+        },
+        {
+          "name": "reference_id",
+          "type": "string",
+          "location": "body",
+          "description": "Voice model ID(s) from Fish Audio library or your custom models. For single-speaker synthesis, provide a string. For multi-speaker synthesis (dialogue), provide an array of model IDs. **Multi-speaker is only available with the S2 family (`s2-pro`, `s2.1-pro`, `s2.1-pro-free`), not `s1`.** When using multiple speakers, use speaker tags in your text like `\u003c|speaker:0|\u003e` and `\u003c|speaker:1|\u003e` to indicate speaker changes. Example: `\u003c|speaker:0|\u003eHello!\u003c|speaker:1|\u003eHi there!\u003c|speaker:0|\u003eHow are you?` with `reference_id: ['speaker-a-id', 'speaker-b-id']`."
+        },
+        {
+          "name": "references",
+          "type": "string",
+          "location": "body",
+          "description": "Inline voice references for zero-shot cloning. Requires MessagePack (not JSON). For single speaker, provide an array of ReferenceAudio objects. For multiple speakers, provide an array of arrays where each inner array contains references for one speaker. **Multi-speaker is only available with the S2 family (`s2-pro`, `s2.1-pro`, `s2.1-pro-free`), not `s1`.** The speaker index corresponds to the index in reference_id array. Example for multi-speaker: [[{audio, text}], [{audio, text}, {audio, text}]] for 2 speakers where speaker 1 has 2 reference samples."
+        },
+        {
+          "name": "repetition_penalty",
+          "type": "float",
+          "location": "body",
+          "description": "Penalty for repeating audio patterns. Values above 1.0 reduce repetition."
+        },
+        {
+          "name": "sample_rate",
+          "type": "string",
+          "location": "body",
+          "description": "Audio sample rate in Hz. When null, uses the format's default (44100 Hz for most formats, 48000 Hz for opus)."
+        },
+        {
+          "name": "temperature",
+          "type": "float",
+          "location": "body",
+          "description": "Controls expressiveness. Higher is more varied, lower is more consistent."
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Text to convert to speech.",
+          "required": true
+        },
+        {
+          "name": "top_p",
+          "type": "float",
+          "location": "body",
+          "description": "Controls diversity via nucleus sampling."
+        }
+      ]
+    },
+    {
+      "name": "tts_create-stream",
+      "description": "Text to Speech Stream with Timestamps. Required: text. Optional: model (default: s2.1-pro), chunk_length (default: 300), condition_on_previous_chunks (default: true) (plus 16 more). Returns the new TtstimestampStreamEvent.",
+      "method": "POST",
+      "path": "/v1/tts/stream/with-timestamp",
+      "params": [
+        {
+          "name": "model",
+          "type": "string",
+          "location": "query",
+          "description": "Specify which TTS model to use. Use `s2.1-pro-free` for the free developer tier. If omitted or set to an unrecognized value, the request falls back to `s2.1-pro`."
+        },
+        {
+          "name": "chunk_length",
+          "type": "int",
+          "location": "body",
+          "description": "Text segment size for processing."
+        },
+        {
+          "name": "condition_on_previous_chunks",
+          "type": "bool",
+          "location": "body",
+          "description": "Use previous audio as context for voice consistency."
+        },
+        {
+          "name": "early_stop_threshold",
+          "type": "float",
+          "location": "body",
+          "description": "Early stopping threshold for batch processing."
+        },
+        {
+          "name": "features",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Optional request-scoped TTS feature flags forwarded verbatim to the inference backend. Use ['quality-guard'] to enable the quality guard for this synthesis request. Feature availability is determined by the inference backend."
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "body",
+          "description": "Output audio format."
+        },
+        {
+          "name": "latency",
+          "type": "string",
+          "location": "body",
+          "description": "Latency-quality trade-off. normal: best quality, balanced: reduced latency, low: lowest latency."
+        },
+        {
+          "name": "max_new_tokens",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum audio tokens to generate per text chunk."
+        },
+        {
+          "name": "min_chunk_length",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum characters before splitting into a new chunk."
+        },
+        {
+          "name": "mp3_bitrate",
+          "type": "int",
+          "location": "body",
+          "description": "MP3 bitrate in kbps. Only applies when format is mp3."
+        },
+        {
+          "name": "normalize",
+          "type": "bool",
+          "location": "body",
+          "description": "Normalizes text for English and Chinese, improving stability for numbers."
+        },
+        {
+          "name": "opus_bitrate",
+          "type": "int",
+          "location": "body",
+          "description": "Opus bitrate in bps. -1000 for automatic. Only applies when format is opus."
+        },
+        {
+          "name": "prosody",
+          "type": "string",
+          "location": "body",
+          "description": "Speed and volume adjustments for the output."
+        },
+        {
+          "name": "reference_id",
+          "type": "string",
+          "location": "body",
+          "description": "Voice model ID(s) from Fish Audio library or your custom models. For single-speaker synthesis, provide a string. For multi-speaker synthesis (dialogue), provide an array of model IDs. **Multi-speaker is only available with the S2 family (`s2-pro`, `s2.1-pro`, `s2.1-pro-free`), not `s1`.** When using multiple speakers, use speaker tags in your text like `\u003c|speaker:0|\u003e` and `\u003c|speaker:1|\u003e` to indicate speaker changes. Example: `\u003c|speaker:0|\u003eHello!\u003c|speaker:1|\u003eHi there!\u003c|speaker:0|\u003eHow are you?` with `reference_id: ['speaker-a-id', 'speaker-b-id']`."
+        },
+        {
+          "name": "references",
+          "type": "string",
+          "location": "body",
+          "description": "Inline voice references for zero-shot cloning. Requires MessagePack (not JSON). For single speaker, provide an array of ReferenceAudio objects. For multiple speakers, provide an array of arrays where each inner array contains references for one speaker. **Multi-speaker is only available with the S2 family (`s2-pro`, `s2.1-pro`, `s2.1-pro-free`), not `s1`.** The speaker index corresponds to the index in reference_id array. Example for multi-speaker: [[{audio, text}], [{audio, text}, {audio, text}]] for 2 speakers where speaker 1 has 2 reference samples."
+        },
+        {
+          "name": "repetition_penalty",
+          "type": "float",
+          "location": "body",
+          "description": "Penalty for repeating audio patterns. Values above 1.0 reduce repetition."
+        },
+        {
+          "name": "sample_rate",
+          "type": "string",
+          "location": "body",
+          "description": "Audio sample rate in Hz. When null, uses the format's default (44100 Hz for most formats, 48000 Hz for opus)."
+        },
+        {
+          "name": "temperature",
+          "type": "float",
+          "location": "body",
+          "description": "Controls expressiveness. Higher is more varied, lower is more consistent."
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Text to convert to speech.",
+          "required": true
+        },
+        {
+          "name": "top_p",
+          "type": "float",
+          "location": "body",
+          "description": "Controls diversity via nucleus sampling."
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "text/event-stream"
+        }
+      ]
+    },
+    {
+      "name": "voice-design_create",
+      "description": "Voice Design. Required: model (default: voice-design-1), instruction. Optional: guidance_scale (default: 2), instruct_guidance_scale (default: 0), language (plus 5 more). Returns array of VoiceDesignCandidate.",
+      "method": "POST",
+      "path": "/v1/voice-design",
+      "params": [
+        {
+          "name": "model",
+          "type": "string",
+          "location": "query",
+          "description": "Specify which voice-design model to use.",
+          "required": true
+        },
+        {
+          "name": "guidance_scale",
+          "type": "float",
+          "location": "body",
+          "description": "Classifier-free guidance scale. Higher values follow the prompt more strongly."
+        },
+        {
+          "name": "instruct_guidance_scale",
+          "type": "float",
+          "location": "body",
+          "description": "Instruction guidance scale for prompt conditioning."
+        },
+        {
+          "name": "instruction",
+          "type": "string",
+          "location": "body",
+          "description": "Voice design prompt. Must contain 1 to 2000 characters.",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "Optional BCP-47 language hint, such as `en`, `zh`, or `ja`."
+        },
+        {
+          "name": "n",
+          "type": "int",
+          "location": "body",
+          "description": "Number of voice candidates to generate."
+        },
+        {
+          "name": "num_step",
+          "type": "int",
+          "location": "body",
+          "description": "Number of diffusion steps used by the voice-design model."
+        },
+        {
+          "name": "reference_text",
+          "type": "string",
+          "location": "body",
+          "description": "Optional text used as reference content for the generated voice."
+        },
+        {
+          "name": "seed",
+          "type": "string",
+          "location": "body",
+          "description": "Optional deterministic seed for candidate generation."
+        },
+        {
+          "name": "speed",
+          "type": "float",
+          "location": "body",
+          "description": "Speaking speed multiplier for candidate generation."
+        }
+      ]
+    },
+    {
+      "name": "wallet_api-credit_get",
+      "description": "Get API Credit. Required: user_id (default: self). Optional: check_free_credit (default: false), team_id. Returns the ApiCreditGetResponse.",
+      "method": "GET",
+      "path": "/wallet/{user_id}/api-credit",
+      "params": [
+        {
+          "name": "check_free_credit",
+          "type": "bool",
+          "location": "query",
+          "description": "Check free credit"
+        },
+        {
+          "name": "team_id",
+          "type": "string",
+          "location": "query",
+          "description": "Team id"
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "User ID or 'self'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "wallet_package_get",
+      "description": "Get User Package. Required: user_id (default: self). Returns the PackageGetResponse.",
+      "method": "GET",
+      "path": "/wallet/{user_id}/package",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "User ID or 'self'",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Local render history",
+      "command": "render log",
+      "description": "See every past TTS render with its text, model, voice, byte count, and cost."
+    },
+    {
+      "name": "Grouped spend report",
+      "command": "render spend",
+      "description": "Total Fish Audio spend grouped by voice, model, or day for a side-by-side with your ElevenLabs invoice."
+    },
+    {
+      "name": "Skip identical re-renders",
+      "command": "tts render",
+      "description": "Hash the request and reuse a prior identical render instead of paying for it again."
+    },
+    {
+      "name": "Clone fidelity check",
+      "command": "voice verify",
+      "description": "Render a reference phrase with a cloned voice, transcribe it back, and report word-error-rate."
+    },
+    {
+      "name": "Pre-batch budget guard",
+      "command": "tts batch",
+      "description": "Estimate a batch's cost against your live API credit and refuse to start if it would overdraw."
+    },
+    {
+      "name": "Compare two renders",
+      "command": "render diff",
+      "description": "Show the cost, model, and byte deltas between two past renders."
+    }
+  ]
+}

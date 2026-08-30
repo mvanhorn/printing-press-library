@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "review-item-photo-attachment-draft",
+  "applied_at": "2026-08-16",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Add a locally gated AnyList item photo upload and attachment workflow.",
+  "reason": "The public AnyList client contract uses multipart POST /data/photos/upload with a photo part named photo, a separate filename form field, and a generated 32-character hex UUID.jpg filename, followed by the typed set-list-item-photo-id PBListOperation with updatedValue set to that UUID. Keep the CLI behind explicit --apply, validate local image type and the 10 MiB limit, verify the item through fresh user data, and do not add cache schema fields that would silently discard photo IDs.",
+  "files": [
+    "internal/anylist/client.go",
+    "internal/anylist/client_test.go",
+    "internal/cli/items.go",
+    "internal/cli/items_photo.go",
+    "internal/cli/items_photo_test.go",
+    "README.md",
+    "SKILL.md",
+    "tools-manifest.json",
+    "internal/mcp/code_orch_data.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "Added multipart upload and typed attach helpers, an items photo attach command with an explicit --apply gate, local dry-run/type/size validation for JPEG, PNG, GIF, BMP, TIFF, AVIF, and WebP, and fresh read-after-write verification. User-facing README, SKILL, tools manifest, and MCP descriptions now distinguish the gated photo path from unsupported recipe photos and metadata writes. Focused client and CLI tests passed; no live AnyList writes or browser/account access were performed. Photo IDs are not persisted in the current local schema, so successful attachment reports cache_updated=false until schema support is independently approved."
+}

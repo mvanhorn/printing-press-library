@@ -7,6 +7,7 @@ package cli
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -27,17 +28,18 @@ func newNovelDeputatoProfiloCmd(flags *rootFlags) *cobra.Command {
 		Example: "  ars-sicilia-pp-cli deputato profilo \"Rossi Mario\" --legisl 18 --data 2024-01-01:2024-12-31 --json",
 		Annotations: map[string]string{
 			"mcp:read-only": "true",
+			"pp:happy-args": "nome=Abbate Ignazio;--legisl=18",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			if dryRunOK(flags) {
-				return nil
-			}
 			name := strings.TrimSpace(strings.Join(args, " "))
 			if name == "" {
 				return fmt.Errorf("nome del deputato richiesto (es. \"Rossi Mario\")")
+			}
+			if dryRunOK(flags) {
+				return emitDeputatoProfiloDryRun(cmd, name, flagLegisl, flagData)
 			}
 			return runDeputatoProfilo(cmd, flags, name, flagLegisl, flagData, flagLimit)
 		},
@@ -51,11 +53,13 @@ func newNovelDeputatoProfiloCmd(flags *rootFlags) *cobra.Command {
 type profileItem struct {
 	Tipo     string `json:"tipo"`
 	Archivio string `json:"archivio"`
-	DocID    int    `json:"doc_id"`
-	Numero   string `json:"numero,omitempty"`
-	Data     string `json:"data,omitempty"`
-	Titolo   string `json:"titolo"`
-	URL      string `json:"url,omitempty"`
+	// omitempty perché i record del backend /bd/ (resoconti) non hanno un
+	// DocID Icaro: meglio assente che un fuorviante doc_id: 0 (vedi emitRecords).
+	DocID  int    `json:"doc_id,omitempty"`
+	Numero string `json:"numero,omitempty"`
+	Data   string `json:"data,omitempty"`
+	Titolo string `json:"titolo"`
+	URL    string `json:"url,omitempty"`
 }
 
 type profileReport struct {
@@ -66,8 +70,72 @@ type profileReport struct {
 	// Troncato lists the archive slugs where Conteggio is a --limit cap, not
 	// the true total: the portal had more matching records than were
 	// fetched. Re-run with a higher --limit to see the rest.
-	Troncato []string      `json:"troncato,omitempty"`
-	Atti     []profileItem `json:"atti"`
+	Troncato []string `json:"troncato,omitempty"`
+	// NonRaggiunti elenca gli archivi che non hanno risposto. Senza, il profilo
+	// si presentava completo con dei pezzi mancanti: su un periodo lungo il
+	// portale rifiutava le ricerche su ddl e interrogazioni, quelle due sezioni
+	// sparivano, e il report mostrava le altre cinque come se fossero tutto.
+	// Un conteggio che tace ciò che non ha potuto contare è peggio di un errore.
+	NonRaggiunti []string      `json:"non_raggiunti,omitempty"`
+	Atti         []profileItem `json:"atti"`
+}
+
+// profiloSearchParams sono i parametri di una delle ricerche del profilo, in un
+// posto solo: il nome viaggia come `firmatario` sugli archivi degli atti e come
+// `testo` sui resoconti, dove l'oratore non e' un campo filtrabile. Anteprima e
+// ricerca vera devono partire dagli stessi, o la prima smette di descrivere la
+// seconda — e con sette archivi la deriva sarebbe anche difficile da vedere.
+func profiloSearchParams(campo, name string, legisl int, data string) map[string]string {
+	p := map[string]string{campo: name}
+	if legisl > 0 {
+		p["legisl"] = itoa(legisl)
+	}
+	if data != "" {
+		p["data"] = data
+	}
+	return p
+}
+
+// profiloFirmaArchives sono gli archivi in cui il deputato compare come
+// firmatario (campo FIRMAT). Condiviso con l'anteprima --dry-run, che deve
+// elencare le stesse richieste che il comando poi fa.
+var profiloFirmaArchives = []string{"ddl", "interrogazioni", "interpellanze", "mozioni", "odg", "risoluzioni"}
+
+// emitDeputatoProfiloDryRun elenca le richieste del profilo invece di uscire in
+// silenzio con exit 0. Il comando ne fa una per archivio, e l'anteprima serve
+// proprio a vedere che il nome viaggia in due modi diversi: come firmatario
+// (campo FIRMAT) sui sei archivi degli atti, e come testo libero sui resoconti,
+// dove l'oratore non è un campo. È la differenza che spiega perché lo stesso
+// nome renda su un archivio e non sull'altro.
+func emitDeputatoProfiloDryRun(cmd *cobra.Command, name string, legisl int, data string) error {
+	// runDeputatoProfilo passa da normalizeParams su ogni archivio: l'anteprima
+	// fa lo stesso, altrimenti annuncia una --data in formato diverso da quello
+	// che poi viaggia.
+	target := func(slug string, p map[string]string) (map[string]any, error) {
+		arc := icaro.BySlug(slug)
+		if arc == nil {
+			return nil, nil
+		}
+		return dryRunTargetBySlug(slug, normalizeParams(*arc, p))
+	}
+	requests := []map[string]any{}
+	for _, slug := range profiloFirmaArchives {
+		t, err := target(slug, profiloSearchParams("firmatario", name, legisl, data))
+		if err != nil {
+			return err
+		}
+		if t != nil {
+			requests = append(requests, t)
+		}
+	}
+	t, err := target("resoconti", profiloSearchParams("testo", name, legisl, data))
+	if err != nil {
+		return err
+	}
+	if t != nil {
+		requests = append(requests, t)
+	}
+	return emitDryRunRequests(cmd, requests, "una richiesta per archivio: il nome va come firmatario (FIRMAT) sugli archivi degli atti e come testo libero sui resoconti, dove l'oratore non è un campo filtrabile.")
 }
 
 func runDeputatoProfilo(cmd *cobra.Command, flags *rootFlags, name string, legisl int, data string, perArchive int) error {
@@ -90,8 +158,7 @@ func runDeputatoProfilo(cmd *cobra.Command, flags *rootFlags, name string, legis
 	archivesContacted := 0
 
 	// Archivi con FIRMAT.
-	firmaArchives := []string{"ddl", "interrogazioni", "interpellanze", "mozioni", "odg", "risoluzioni"}
-	for _, slug := range firmaArchives {
+	for _, slug := range profiloFirmaArchives {
 		arc := icaro.BySlug(slug)
 		if arc == nil {
 			continue
@@ -100,13 +167,7 @@ func runDeputatoProfilo(cmd *cobra.Command, flags *rootFlags, name string, legis
 		if err != nil {
 			continue
 		}
-		params := map[string]string{"firmatario": name}
-		if legisl > 0 {
-			params["legisl"] = itoa(legisl)
-		}
-		if data != "" {
-			params["data"] = data
-		}
+		params := profiloSearchParams("firmatario", name, legisl, data)
 		var truncated bool
 		recs, err := c.Search(ctx, *arc, icaro.SearchOptions{
 			Params:    normalizeParams(*arc, params),
@@ -115,6 +176,14 @@ func runDeputatoProfilo(cmd *cobra.Command, flags *rootFlags, name string, legis
 			Truncated: &truncated,
 		})
 		if err != nil {
+			// Un archivio che non risponde non deve far cadere il report, ma un
+			// valore che l'utente ha scritto male non e' un archivio giu': se lo
+			// si scarta come gli altri, il report finisce in «nessun atto trovato
+			// … verifica il nome», che accusa la cosa sbagliata.
+			if invalido := new(icaro.InvalidParamError); errors.As(err, &invalido) {
+				return usageErr(err)
+			}
+			report.NonRaggiunti = append(report.NonRaggiunti, slug)
 			continue
 		}
 		archivesContacted++
@@ -140,13 +209,7 @@ func runDeputatoProfilo(cmd *cobra.Command, flags *rootFlags, name string, legis
 		// Un errore di init non deve azzerare gli atti già raccolti sopra:
 		// si salta solo questo archivio.
 		if c, err := icaro.New(nil); err == nil {
-			params := map[string]string{"testo": name}
-			if legisl > 0 {
-				params["legisl"] = itoa(legisl)
-			}
-			if data != "" {
-				params["data"] = data
-			}
+			params := profiloSearchParams("testo", name, legisl, data)
 			var truncated bool
 			recs, err := c.Search(ctx, *arc, icaro.SearchOptions{
 				Params:    normalizeParams(*arc, params),
@@ -154,6 +217,12 @@ func runDeputatoProfilo(cmd *cobra.Command, flags *rootFlags, name string, legis
 				MaxPages:  maxInt(1, (perArchive+9)/10),
 				Truncated: &truncated,
 			})
+			if invalido := new(icaro.InvalidParamError); errors.As(err, &invalido) {
+				return usageErr(err)
+			}
+			if err != nil {
+				report.NonRaggiunti = append(report.NonRaggiunti, "resoconti")
+			}
 			if err == nil {
 				archivesContacted++
 				for _, r := range recs {
@@ -185,9 +254,13 @@ func runDeputatoProfilo(cmd *cobra.Command, flags *rootFlags, name string, legis
 		return notFoundErr(fmt.Errorf("nessun atto trovato per il deputato %q (verifica il nome e l'eventuale --legisl)", name))
 	}
 
-	// Sort by date (reverse chronological).
+	// Sort by date (reverse chronological). La chiave passa da chiaveData, non
+	// dalla stringa grezza: gli atti dei tre archivi serviti dal backend /bd/
+	// scrivono la data come `05/08/2026` e nel confronto lessicografico
+	// battevano le date già normalizzate ("28" > "20"), finendo in testa a atti
+	// più recenti.
 	sort.SliceStable(report.Atti, func(i, j int) bool {
-		return parseICaroDate(report.Atti[i].Data) > parseICaroDate(report.Atti[j].Data)
+		return chiaveData(report.Atti[i].Data) > chiaveData(report.Atti[j].Data)
 	})
 
 	out := cmd.OutOrStdout()
@@ -212,6 +285,12 @@ func runDeputatoProfilo(cmd *cobra.Command, flags *rootFlags, name string, legis
 			suffix = " (troncato, aumenta --limit)"
 		}
 		fmt.Fprintf(out, "  %-15s %d%s\n", k, v, suffix)
+	}
+	// Un archivio che non ha risposto non compare fra i conteggi: senza questa
+	// riga la sua assenza si legge come «quel deputato non ha atti di quel tipo».
+	if len(report.NonRaggiunti) > 0 {
+		fmt.Fprintf(out, "\nArchivi che non hanno risposto: %s\n", strings.Join(report.NonRaggiunti, ", "))
+		fmt.Fprintf(out, "  I conteggi qui sopra NON li comprendono. Restringi il periodo e riprova.\n")
 	}
 	fmt.Fprintf(out, "\nAtti (%d totali):\n", len(report.Atti))
 	for _, a := range report.Atti {

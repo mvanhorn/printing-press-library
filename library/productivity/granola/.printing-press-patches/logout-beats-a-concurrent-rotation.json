@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "logout-beats-a-concurrent-rotation",
+  "applied_at": "2026-08-04",
+  "base_run_id": "granola-20260607-01",
+  "base_printing_press_version": "0.61.0",
+  "summary": "Every CLI invocation is its own process, so an in-process mutex cannot order logout against a token rotation. Deletion and publication must be ordered by durable on-disk state, not by a check performed before the write.",
+  "reason": "A logout landing between the rotation's existence check and its atomic rename let the rename recreate the credential after logout had already reported success. Ordering it lock-free requires the revocation be recorded before the session is removed, and re-read after the replacement is published, so either the rotation deletes what it wrote or the logout deletes the rotated file.",
+  "validated_outcome": "Mutation-verified: disabling the post-publish epoch check makes the raced-logout test report success with the session resurrected. The unraced and earlier-logout cases assert the check does not delete healthy rotations.",
+  "files": [
+    "internal/granola/clisession.go",
+    "internal/granola/workos.go"
+  ]
+}

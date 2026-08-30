@@ -12,9 +12,9 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/giustizia-amministrativa/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/productivity/giustizia-amministrativa/internal/config"
-	"github.com/spf13/cobra"
 )
 
 type rootFlags struct {
@@ -239,7 +239,10 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newProfileCmd(flags))
 	rootCmd.AddCommand(newFeedbackCmd(flags))
 	rootCmd.AddCommand(newWhichCmd(flags))
-	rootCmd.AddCommand(newImportCmd(flags))
+	// `import` non e' registrato: POSTava su /<resource>, ma spec.yaml dichiara
+	// due soli endpoint GET e `auth: none`. Il portale non ha una superficie di
+	// scrittura da raggiungere, quindi ogni chiamata sarebbe 404/405. Vedi
+	// .printing-press-patches/giustizia-amministrativa-drop-import.json
 	rootCmd.AddCommand(newSyncCmd(flags))
 	rootCmd.AddCommand(newWorkflowCmd(flags))
 	rootCmd.AddCommand(newNovelAppealChainCmd(flags))

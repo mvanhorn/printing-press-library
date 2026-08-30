@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "id": "dndbeyond-local-character-snapshot",
+  "applied_at": "2026-08-01",
+  "base_run_id": "local-dndbeyond-cli",
+  "base_printing_press_version": "4.30.0",
+  "summary": "feat(dndbeyond): add local read-only character snapshot and PDF inspection",
+  "reason": "The printed rules-only surface could not share user-authorized character-sheet information without implying an unsupported private API. This narrow local command accepts a user-supplied Beyond20/D&D Beyond JSON snapshot or exported PDF, including D&D Beyond page-level widget exports without an AcroForm field tree, omits identity/narrative/secrets, and never makes remote requests.",
+  "files": [
+    "internal/cli/characters.go",
+    "internal/cli/characters_test.go",
+    "internal/cli/agent_context.go",
+    "go.mod",
+    "go.sum",
+    "README.md",
+    "SKILL.md",
+    "verification-home/character-sample.pdf"
+  ],
+  "validated_outcome": "focused normalizer tests pass; synthetic AcroForm and user-provided D&D Beyond widget PDF extraction pass; CLI and MCP binaries build; live D&D Beyond requests are unchanged",
+  "findings_addressed": ["character-sheet-read-only-sharing", "official-pdf-export-input", "dndbeyond-widget-pdf-export"],
+  "deferred_to_upstream": [
+    {
+      "feature": "Browser/session-backed character-sheet discovery or replay",
+      "reason": "Beyond20 reads the live browser sheet and forwards messages; D&D Beyond does not publish a supported character-data API. Any future browser discovery must be separately user-consented and must pass replayability and terms review."
+    }
+  ]
+}

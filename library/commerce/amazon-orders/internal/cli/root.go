@@ -15,10 +15,11 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/parser"
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.7.2"
+var version = "2026.8.2"
 
 type rootFlags struct {
 	asJSON        bool
@@ -226,10 +227,63 @@ func ExitCode(err error) int {
 	return 1
 }
 
+// marketplaceCurrencies maps every Amazon marketplace domain in
+// amazonMarketplaceDomains to the ISO currency it transacts in. This must stay
+// complete: currencyForMoneyToken deliberately returns "" for the ambiguous "$"
+// (and symbols like S$/R$ that parse as "$"), so any marketplace missing here
+// silently falls back to USD and mis-tags real amounts.
+var marketplaceCurrencies = map[string]string{
+	"amazon.ae":     "AED",
+	"amazon.ca":     "CAD",
+	"amazon.cn":     "CNY",
+	"amazon.co.jp":  "JPY",
+	"amazon.co.uk":  "GBP",
+	"amazon.com":    "USD",
+	"amazon.com.au": "AUD",
+	"amazon.com.be": "EUR",
+	"amazon.com.br": "BRL",
+	"amazon.com.mx": "MXN",
+	"amazon.com.tr": "TRY",
+	"amazon.de":     "EUR",
+	"amazon.eg":     "EGP",
+	"amazon.es":     "EUR",
+	"amazon.fr":     "EUR",
+	"amazon.in":     "INR",
+	"amazon.it":     "EUR",
+	"amazon.nl":     "EUR",
+	"amazon.pl":     "PLN",
+	"amazon.sa":     "SAR",
+	"amazon.se":     "SEK",
+	"amazon.sg":     "SGD",
+}
+
+// marketplaceCurrency maps an Amazon marketplace base URL to the ISO currency
+// it transacts in, used as the fallback when an order card has no
+// currency-marked amount to parse. It resolves the registrable marketplace
+// domain first (rather than substring-matching the raw URL), because domains
+// nest — "amazon.com.au" and "amazon.com.mx" both contain "amazon.com".
+func marketplaceCurrency(baseURL string) string {
+	domain, err := cookieDomainFromBaseURL(baseURL)
+	if err != nil {
+		return "USD"
+	}
+	if cur, ok := marketplaceCurrencies[strings.TrimPrefix(domain, ".")]; ok {
+		return cur
+	}
+	return "USD"
+}
+
 func (f *rootFlags) newClient() (*client.Client, error) {
 	cfg, err := config.Load(f.configPath)
 	if err != nil {
 		return nil, configErr(err)
+	}
+	// Point the HTML parsers at the configured marketplace so relative links
+	// absolutize to the right origin and orders without a currency-marked total
+	// fall back to the marketplace's currency (e.g. amazon.in -> INR).
+	if cfg.BaseURL != "" {
+		parser.MarketplaceBaseURL = cfg.BaseURL
+		parser.MarketplaceCurrency = marketplaceCurrency(cfg.BaseURL)
 	}
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun

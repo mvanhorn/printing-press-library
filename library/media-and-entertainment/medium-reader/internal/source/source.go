@@ -13,6 +13,12 @@ import (
 // search, and author-archive results. It is intentionally a small, source-
 // agnostic projection: RSS, the article page, and GraphQL each populate the
 // subset of fields they can, and the CLI/store layers consume the union.
+//
+// The engagement fields (Tags, Claps, Voters, Responses, ReadingTime,
+// WordCount) are populated only by the GraphQL author-archive surface — the one
+// place that carries them keylessly (anonymously, even for member-locked posts).
+// RSS and search leave them zero/empty. They feed author-compare's per-author
+// rollups (claps/voters/responses/reading-time averages and topic mix).
 type PostSummary struct {
 	ID          string    `json:"id"`
 	Title       string    `json:"title"`
@@ -23,6 +29,11 @@ type PostSummary struct {
 	PublishedAt time.Time `json:"published_at"`
 	Subtitle    string    `json:"subtitle"`
 	Tags        []string  `json:"tags"`
+	Claps       int       `json:"claps"`        // Post.clapCount
+	Voters      int       `json:"voters"`       // Post.voterCount (distinct clappers)
+	Responses   int       `json:"responses"`    // Post.postResponses.count
+	ReadingTime float64   `json:"reading_time"` // Post.readingTime (minutes)
+	WordCount   int       `json:"word_count"`   // Post.wordCount (Medium-authoritative)
 }
 
 // Article is the normalized full-read shape produced by the read path. Markdown

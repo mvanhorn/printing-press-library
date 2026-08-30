@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-isis-refused-range",
+  "applied_at": "2026-08-29",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.30.3",
+  "summary": "Recognise the portal error page that ISIS returns for an over-wide date range, and re-run the search over sub-periods instead of reporting an empty result.",
+  "reason": "Past a certain document count the engine refuses the query and answers with an error page (message ko / QR997) carrying no result-count block. Search discarded the bootstrap body, so the refusal was parsed as zero rows and presented as a fact about the archive - a wide range answered with fewer acts than a narrow one inside it.",
+  "files": [
+    "internal/icaroclient/parse.go",
+    "internal/icaroclient/client.go",
+    "internal/icaroclient/split.go",
+    "internal/cli/icaro_helpers.go",
+    "internal/cli/deputato_profilo.go"
+  ],
+  "validated_outcome": "ddl cerca --frase \"enti di area vasta\" --data 2023-01-01:2024-02-29 goes from [] to 6 rows; deputato profilo on the legislature range goes from 5 to 7 sub-archives; live dogfood 198 tests, 0 fail."
+}

@@ -7,6 +7,7 @@ ticketmaster-pp-cli is the first single-binary CLI for the Ticketmaster Discover
 Learn more at [Ticketmaster](http://developer.ticketmaster.com/support/contact-us/).
 
 Created by [@omarshahine](https://github.com/omarshahine) (Omar Shahine).
+Contributors: [@Avanderheyde](https://github.com/Avanderheyde) (Alderik).
 
 ## Install
 
@@ -37,7 +38,7 @@ npx -y @mvanhorn/printing-press-library install ticketmaster --agent claude-code
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/ticketmaster/cmd/ticketmaster-pp-cli@latest
@@ -201,6 +202,17 @@ These capabilities aren't available in any other tool for this API.
 
   ```bash
   ticketmaster-pp-cli events on-sale-soon --window 7 --classification rock --json
+  ```
+- **`events presales`** — Query Ticketmaster's real `sales.presales[]` windows and classify each as upcoming, open, or ended. Filter by artist, city, venue, classification, and hours until opening.
+
+  ```bash
+  ticketmaster-pp-cli events presales --keyword "The National" --status upcoming --opens-within 48 --json
+  ```
+- **`events checkout`** — Print the best official checkout URL for an event, preferring an open or named presale. Add `--launch` to open it; the command never reserves inventory or buys unattended.
+
+  ```bash
+  ticketmaster-pp-cli events checkout G5diZ9YpV7fJb --presale "Artist Presale"
+  ticketmaster-pp-cli events checkout G5diZ9YpV7fJb --presale "Artist Presale" --launch
   ```
 
 ### Agent-native plumbing

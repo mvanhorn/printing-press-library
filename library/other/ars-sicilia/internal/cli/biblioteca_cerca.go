@@ -16,6 +16,7 @@ func newBibliotecaCercaCmd(flags *rootFlags) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:         "cerca",
+		Args:        rejectPositionalArgs,
 		Short:       "Cerca nel Catalogo Bibliografico (archivio 205).",
 		Example:     "  ars-sicilia-pp-cli biblioteca cerca --autore \"Sciascia\" --json",
 		Annotations: map[string]string{"pp:endpoint": "biblioteca.cerca", "mcp:read-only": "true"},

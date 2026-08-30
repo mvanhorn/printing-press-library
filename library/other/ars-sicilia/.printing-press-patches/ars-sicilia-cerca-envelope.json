@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-cerca-envelope",
+  "applied_at": "2026-08-02",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "--envelope avvolge i risultati dei comandi */cerca in {risultati, troncato, hint}, così il segnale di troncamento arriva a chi consuma JSON invece di restare su stderr. Opt-in: senza il flag l'output resta l'array di sempre. --select filtra dentro risultati, le chiavi della busta restano.",
+  "reason": "L'avviso di troncamento introdotto da ars-sicilia-cerca-truncated-hint esiste ed è scritto bene, ma nasce su stderr: in --agent il payload è un array puro, quindi un consumatore JSON non lo vede mai. Il difetto si è manifestato su un caso reale: `resoconti cerca --legisl 17 --data 2019-10-01:2019-12-31 --limit 10` ordina per data decrescente, si ferma al 27/11 e l'hint dice esattamente 'prima di concludere che non esiste' — l'agente ha letto solo l'array, ha concluso che il resoconto del 06/11/2019 non fosse indicizzato e ha attribuito il buco a un limite della fonte. Il resoconto era in archivio (scheda 17/150). Un'informazione emessa su un canale che il consumatore non legge equivale a non emetterla.",
+  "files": ["internal/cli/root.go", "internal/cli/icaro_helpers.go", "internal/cli/icaro_helpers_test.go"],
+  "validated_outcome": "`resoconti cerca --legisl 17 --data 2019-10-01:2019-12-31 --agent --envelope --select data --limit 10` -> {troncato: true, hint: 'risultati troncati...', risultati: 10 righe con il solo campo data}: --select filtra dentro la busta e non ne cancella le chiavi. Senza --envelope lo stesso comando restituisce l'array di prima (type == array). `leggi cerca --anno 2026 --limit 3 --agent --envelope` copre il ramo AggregaLeggi, che ha un hint proprio e ritorna prima di warnTruncated: {troncato: true, hint: 'lette 30 righe-articolo...'}. Con --csv la busta è ignorata e l'output resta tabellare. Gli avvisi continuano a uscire anche su stderr, per chi usa la CLI a mano."
+}

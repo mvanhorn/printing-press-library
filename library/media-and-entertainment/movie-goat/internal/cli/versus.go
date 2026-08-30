@@ -3,7 +3,6 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -52,7 +51,7 @@ func newVersusCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Compare two titles head-to-head: ratings, runtime, cast overlap",
 		Long: `Resolve two ids or titles, fetch detail with credits, external_ids, and
 watch/providers appended, overlay OMDb (IMDb / Rotten Tomatoes / Metacritic)
-when OMDB_API_KEY is set, and emit the side-by-side comparison plus the
+when an OMDb key is configured, and emit the side-by-side comparison plus the
 top-billed cast overlap (people credited as cast on both titles).`,
 		Example: `  movie-goat-pp-cli versus 550 27205
   movie-goat-pp-cli versus "The Dark Knight" "Inception"
@@ -80,7 +79,8 @@ top-billed cast overlap (people credited as cast on both titles).`,
 			if region == "" {
 				region = "US"
 			}
-			omdbKey := strings.TrimSpace(os.Getenv("OMDB_API_KEY"))
+			// PATCH(omdb-key-in-config-like-tmdb)
+			omdbKey := flags.omdbAPIKey()
 
 			loadOne := func(arg string) (versusTitle, *tmdbCredits, error) {
 				vt := versusTitle{Kind: kind}

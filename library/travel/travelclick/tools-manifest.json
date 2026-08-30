@@ -1,0 +1,263 @@
+{
+  "api_name": "travelclick",
+  "base_url": "https://api.travelclick.com",
+  "description": "Search any TravelClick-powered hotel's own rates directly -- room types, rate plans, fee-inclusive pricing, and the cheapest night to book -- without opening a browser tab per property.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {TRAVELCLICK_TOKEN}",
+    "env_vars": [
+      "TRAVELCLICK_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "TRAVELCLICK_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "codes_validate_corporate",
+      "description": "Check whether a corporate / rate-access code is valid for this hotel. Returns 200 when valid; returns a structured error (surfaced by the CLI) when the code is unrecognized. Required: hotel_id, code.",
+      "method": "GET",
+      "path": "/ibe-codes/v1/hotel/{hotel_id}/specialcodes/corporate/{code}",
+      "params": [
+        {
+          "name": "hotel_id",
+          "type": "string",
+          "location": "path",
+          "description": "TravelClick numeric hotel ID.",
+          "required": true
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "path",
+          "description": "Corporate / rate-access code to validate.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "codes_validate_group",
+      "description": "Check whether a group-attendee code is valid for this hotel. Returns 200 when valid; returns a structured error (surfaced by the CLI) when the code is unrecognized. Required: hotel_id, code.",
+      "method": "GET",
+      "path": "/ibe-codes/v1/hotel/{hotel_id}/specialcodes/group/attendee/{code}",
+      "params": [
+        {
+          "name": "hotel_id",
+          "type": "string",
+          "location": "path",
+          "description": "TravelClick numeric hotel ID.",
+          "required": true
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "path",
+          "description": "Group-attendee code to validate.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hotel_info",
+      "description": "Fetch a hotel's public profile: name, address, geolocation, check-in/out times, accepted cards, and textual policies (cancellation, pets, parking, resort/curation fees). Required: hotel_id. Optional: lang (default: EN_US). Returns the HotelInfo.",
+      "method": "GET",
+      "path": "/ibe-entity/v1/hotel/{hotel_id}/info",
+      "params": [
+        {
+          "name": "hotel_id",
+          "type": "string",
+          "location": "path",
+          "description": "TravelClick numeric hotel ID.",
+          "required": true
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Locale code for description/policy text."
+        }
+      ]
+    },
+    {
+      "name": "rates_calendar",
+      "description": "Scan a date range (up to ~60 days) for the lowest available rate per night -- use this to find the cheapest night to check in before running a full search. Required: hotel_id, hotelCode, from, to, multiRoomOccupancy. Optional: lang (default: EN_US), currency (default: USD), bookerIdentifier (plus 1 more). Returns array of MultiRoomDate.",
+      "method": "POST",
+      "path": "/ibe-shop/v1/hotel/{hotel_id}/basicavail/multi-room",
+      "params": [
+        {
+          "name": "hotel_id",
+          "type": "string",
+          "location": "path",
+          "description": "TravelClick numeric hotel ID.",
+          "required": true
+        },
+        {
+          "name": "hotelCode",
+          "type": "int",
+          "location": "body",
+          "description": "Same numeric ID as hotel_id -- the API expects it in both the path and the body.",
+          "required": true
+        },
+        {
+          "name": "from",
+          "wire_name": "dateIn",
+          "type": "string",
+          "location": "body",
+          "description": "Start of the scan window, YYYY-MM-DD.",
+          "required": true
+        },
+        {
+          "name": "to",
+          "wire_name": "dateOut",
+          "type": "string",
+          "location": "body",
+          "description": "End of the scan window, YYYY-MM-DD. Windows longer than ~60 days may be truncated by the API.",
+          "required": true
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "body",
+          "description": "Locale code."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "ISO currency code for displayed rates."
+        },
+        {
+          "name": "bookerIdentifier",
+          "type": "string",
+          "location": "body",
+          "description": "Optional OTA/travel-agent booker attribution ID."
+        },
+        {
+          "name": "channel",
+          "wire_name": "partnerIdentifier",
+          "type": "string",
+          "location": "body",
+          "description": "Booking-engine channel identifier."
+        },
+        {
+          "name": "multiRoomOccupancy",
+          "type": "array",
+          "location": "body",
+          "description": "Occupancy per room being scanned. The widget always sends exactly one entry for a single-room calendar scan.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rates_search",
+      "description": "Search available rooms and rate plans for a hotel between check-in and check-out. Required: hotel_id, check-in, check-out. Optional: adults (default: 2), infants (default: 0), rooms (default: 1) (plus 4 more). Returns array of AvailRoomStay.",
+      "method": "GET",
+      "path": "/ibe-shop/v1/hotel/{hotel_id}/avail",
+      "params": [
+        {
+          "name": "hotel_id",
+          "type": "string",
+          "location": "path",
+          "description": "TravelClick numeric hotel ID (e.g. 102306 for Made Hotel NYC). Found in the hotel's booking URL: bookings.travelclick.com/{hotel_id}.",
+          "required": true
+        },
+        {
+          "name": "check-in",
+          "wire_name": "dateIn",
+          "type": "string",
+          "location": "query",
+          "description": "Check-in date, YYYY-MM-DD.",
+          "required": true
+        },
+        {
+          "name": "check-out",
+          "wire_name": "dateOut",
+          "type": "string",
+          "location": "query",
+          "description": "Check-out date, YYYY-MM-DD.",
+          "required": true
+        },
+        {
+          "name": "adults",
+          "type": "int",
+          "location": "query",
+          "description": "Number of adults for the room."
+        },
+        {
+          "name": "infants",
+          "type": "int",
+          "location": "query",
+          "description": "Number of infants (does not count against occupancy)."
+        },
+        {
+          "name": "rooms",
+          "type": "int",
+          "location": "query",
+          "description": "Number of rooms to search."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "ISO currency code for displayed rates."
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Locale code for room/amenity text."
+        },
+        {
+          "name": "channel",
+          "wire_name": "partnerIdentifier",
+          "type": "string",
+          "location": "query",
+          "description": "Booking-engine channel identifier the widget itself sends. Leave at the default unless you know why you'd change it."
+        },
+        {
+          "name": "bookerIdentifier",
+          "type": "string",
+          "location": "query",
+          "description": "Optional OTA/travel-agent booker attribution ID. Leave blank for a direct search."
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Multi-hotel rate compare",
+      "command": "rates compare",
+      "description": "Check several boutique hotels for the same dates in one call, ranked by lowest fee-inclusive total."
+    },
+    {
+      "name": "Cheapest night across saved hotels",
+      "command": "rates cheapest-night",
+      "description": "Scan several hotels' calendars at once and return the single best hotel+date combination."
+    },
+    {
+      "name": "Saved hotel aliases",
+      "command": "hotels alias list",
+      "description": "Give a memorable name to a TravelClick hotel ID instead of memorizing a 6-digit number."
+    },
+    {
+      "name": "Rate-snapshot price-drift history",
+      "command": "analytics price-drift",
+      "description": "Track how a hotel's rates move over time from your own saved search history."
+    },
+    {
+      "name": "Rate-code check across saved hotels",
+      "command": "codes check-all",
+      "description": "Test one corporate or group code against every saved hotel at once."
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/mcpmarket-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260827-211137-37906ad0",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

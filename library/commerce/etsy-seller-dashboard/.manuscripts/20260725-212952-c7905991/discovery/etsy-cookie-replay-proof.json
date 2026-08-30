@@ -1,0 +1,22 @@
+{
+  "version": "1",
+  "tested_at": "2026-07-26T03:33:00Z",
+  "target_url": "https://www.etsy.com/your/shops/me/marketplace-insights",
+  "transport": "standard_http_with_chrome_user_agent",
+  "auth_source": "authenticated_local_chrome_profile",
+  "cookie_count": 66,
+  "cookie_values_recorded": false,
+  "status": 200,
+  "final_host": "www.etsy.com",
+  "final_path": "/your/shops/me/marketplace-insights",
+  "content_type": "text/html; charset=UTF-8",
+  "body_bytes": 285760,
+  "useful_content_marker": "Marketplace Insights",
+  "login_page_detected": false,
+  "conclusion": "browser_clearance_http",
+  "notes": [
+    "Unauthenticated stdlib and Surf probes returned DataDome 403 responses.",
+    "The same target replayed successfully without a live page context when the authenticated Chrome cookie set was supplied.",
+    "No cookie names or values are included in this artifact."
+  ]
+}

@@ -1,0 +1,51 @@
+version: 2
+project_name: irail-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: irail-pp-cli
+    main: ./cmd/irail-pp-cli
+    binary: irail-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/irail/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: irail-pp-mcp
+    main: ./cmd/irail-pp-mcp
+    binary: irail-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: irail-pp-cli
+    repository:
+      owner: olli757
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Belgian rail lookup the existing tools offer, plus transfer-risk, delay history and accessibility data that none of them have."
+    install: |
+      bin.install "irail-pp-cli"
+      bin.install "irail-pp-mcp"

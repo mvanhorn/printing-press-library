@@ -1,0 +1,190 @@
+name: flighty
+description: "Flighty Airports — live airport delays, weather, performance, and flight boards from flighty.com/airports"
+version: "0.1.0"
+base_url: "https://flighty.com"
+health_check_path: "/airports"
+category: travel
+http_transport: standard
+
+config:
+  format: toml
+  path: "~/.config/flighty-pp-cli/config.toml"
+
+learn:
+  ticker_patterns:
+    - "^[A-Z]{3}$"
+  entity_lookup_seeds:
+    airport:
+      - canonical: Denver
+        aliases: [den, kden, denver intl, denver international]
+      - canonical: London Gatwick
+        aliases: [lgw, gatwick, kgatwick]
+      - canonical: LaGuardia
+        aliases: [lga, laguardia, klga]
+      - canonical: Chicago O'Hare
+        aliases: [ord, ohare, kord]
+      - canonical: John F Kennedy
+        aliases: [jfk, kennedy, kjfk]
+
+resources:
+  airports:
+    description: "Airport status, delays, weather, and flight boards"
+    endpoints:
+      list:
+        method: GET
+        path: "/airports"
+        description: "List the tracked airports with live delay status (meltdown map catalog)"
+        example: "  flighty-pp-cli airports list --region Europe --json"
+        response:
+          type: array
+          item: AirportSummary
+        response_format: html
+        html_extract:
+          mode: embedded-json
+          script_selector: "script"
+      tv:
+        method: GET
+        path: "/airports/tv"
+        description: "List disrupted airports from the TV dashboard (same catalog, status-sorted)"
+        example: "  flighty-pp-cli airports tv --status MAJOR_ISSUES --json"
+        response:
+          type: array
+          item: AirportSummary
+        response_format: html
+        html_extract:
+          mode: embedded-json
+          script_selector: "script"
+      show:
+        method: GET
+        path: "/airports/{airport}"
+        description: "Show live status, weather, and performance for one airport"
+        example: "  flighty-pp-cli airports show den --json"
+        params:
+          - name: airport
+            flag_name: airport
+            type: string
+            required: true
+            positional: true
+            description: "Airport IATA code, ICAO code, slug, or name (e.g. DEN, KDEN, denver-intl-den, Denver)"
+        response:
+          type: object
+          item: AirportDetail
+        response_format: html
+        html_extract:
+          mode: embedded-json
+          script_selector: "script"
+      arrivals:
+        method: GET
+        path: "/airports/{airport}/arrivals"
+        description: "Show the live arrivals board for an airport"
+        example: "  flighty-pp-cli airports arrivals den --json"
+        params:
+          - name: airport
+            flag_name: airport
+            type: string
+            required: true
+            positional: true
+            description: "Airport IATA code, ICAO code, slug, or name"
+        response:
+          type: array
+          item: FlightBoardEntry
+        response_format: html
+        html_extract:
+          mode: embedded-json
+          script_selector: "script"
+      departures:
+        method: GET
+        path: "/airports/{airport}/departures"
+        description: "Show the live departures board for an airport"
+        example: "  flighty-pp-cli airports departures den --json"
+        params:
+          - name: airport
+            flag_name: airport
+            type: string
+            required: true
+            positional: true
+            description: "Airport IATA code, ICAO code, slug, or name"
+        response:
+          type: array
+          item: FlightBoardEntry
+        response_format: html
+        html_extract:
+          mode: embedded-json
+          script_selector: "script"
+
+types:
+  AirportSummary:
+    fields:
+      - name: id
+        type: string
+      - name: slug
+        type: string
+      - name: name
+        type: string
+      - name: iata
+        type: string
+      - name: city
+        type: string
+      - name: status
+        type: string
+        description: "NORMAL_OPERATIONS, MINOR_ISSUES, or MAJOR_ISSUES"
+      - name: location
+        type: object
+      - name: arrival
+        type: object
+      - name: departure
+        type: object
+      - name: warnings
+        type: array
+      - name: cumulativeDelay
+        type: int
+        description: "Cumulative delay minutes for the day"
+
+  AirportDetail:
+    fields:
+      - name: iata
+        type: string
+      - name: name
+        type: string
+      - name: city
+        type: string
+      - name: country
+        type: string
+      - name: countryCode
+        type: string
+      - name: timezone
+        type: string
+      - name: slug
+        type: string
+      - name: airportId
+        type: string
+      - name: shareLink
+        type: string
+      - name: airportWeather
+        type: object
+      - name: today
+        type: object
+        description: "Departure and arrival performance for today"
+
+  FlightBoardEntry:
+    fields:
+      - name: id
+        type: string
+      - name: city
+        type: string
+      - name: status
+        type: array
+      - name: originalTime
+        type: object
+      - name: newTime
+        type: object
+      - name: secondaryCorner
+        type: string
+      - name: airline
+        type: object
+      - name: flightNumber
+        type: string
+      - name: departure
+        type: object
+      - name: arrival
+        type: object

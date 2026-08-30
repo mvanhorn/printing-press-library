@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "square-inventory-drift-registration",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260804-231253-e3946f62",
+  "base_printing_press_version": "4.30.0",
+  "summary": "Register inventory drift through Cobra's direct AddCommand path so static skill verification recognizes its flags and positionals.",
+  "reason": "The runtime-safe addNovelCommandIfAbsent helper works when executing the CLI, but the public library's source verifier cannot infer that inventory drift is a child command and rejects documented --since recipes.",
+  "files": [
+    "internal/cli/inventory.go"
+  ],
+  "validated_outcome": "The public library's exact verify_skill.py passed all flag, positional, quoting, and command checks; focused internal/cli tests also passed."
+}

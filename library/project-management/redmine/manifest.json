@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "redmine-pp-mcp",
+  "display_name": "Redmine",
+  "version": "6.1.3-r1",
+  "description": "Every Redmine feature, plus a local mirror that finally answers the cross-project questions the Roadmap page never could.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/redmine-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/redmine-pp-mcp",
+      "args": [],
+      "env": {
+        "PRINTING_PRESS_CLIENT_PROFILE": "${user_config.printing_press_client_profile}"
+      }
+    }
+  },
+  "user_config": {
+    "printing_press_client_profile": {
+      "type": "string",
+      "title": "Client profile",
+      "description": "Binds the MCP server to an existing tenant-gated Printing Press client profile.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "mcpmarket",
+  "cli_name": "mcpmarket-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-28T09:19:31Z",
+  "source_commit": "bf5c70997e60a6d267fe2df559da2d6d725b4993",
+  "printing_press_version": "4.31.1",
+  "run_id": "20260827-211137-37906ad0",
+  "changes": [
+    {
+      "title": "feat(mcpmarket): add mcpmarket",
+      "pr": 1843,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1843",
+      "commit": "bf5c70997e60a6d267fe2df559da2d6d725b4993"
+    }
+  ]
+}

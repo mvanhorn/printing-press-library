@@ -4,29 +4,35 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"os"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/youtube/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/youtube/internal/store"
 	"github.com/spf13/cobra"
 )
 
 func newWorkflowCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "workflow",
-		Short: "Compound workflows that combine multiple API operations",
+		Use:         "workflow",
+		Short:       "Compound workflows that combine multiple API operations",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:parent-group": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
-
 	cmd.AddCommand(newWorkflowArchiveCmd(flags))
 	cmd.AddCommand(newWorkflowStatusCmd(flags))
 
 	return cmd
 }
-
 func newWorkflowArchiveCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	var full bool
+	var maxPages int
+	var timeout time.Duration
 
 	cmd := &cobra.Command{
 		Use:   "archive",
@@ -38,8 +44,34 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
   youtube-pp-cli workflow archive
 
   # Full re-archive (ignore previous sync state)
-  youtube-pp-cli workflow archive --full`,
+  youtube-pp-cli workflow archive --full
+
+  # Archive without a wall-clock timeout
+  youtube-pp-cli workflow archive --timeout 0`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if maxPages < 0 {
+				return fmt.Errorf("--max-pages must be greater than or equal to 0 (0 = unlimited)")
+			}
+			if timeout < 0 {
+				return fmt.Errorf("--timeout must be greater than or equal to 0 (0 = no timeout)")
+			}
+			archiveTimeout := timeout
+			archiveMaxPages := maxPages
+			if cliutil.IsDogfoodEnv() {
+				if !cmd.Flags().Changed("max-pages") {
+					archiveMaxPages = 1
+				}
+				if !cmd.Flags().Changed("timeout") {
+					archiveTimeout = 10 * time.Second
+				}
+			}
+			archiveCtx := cmd.Context()
+			var cancel context.CancelFunc
+			if archiveTimeout > 0 {
+				archiveCtx, cancel = context.WithTimeout(archiveCtx, archiveTimeout)
+				defer cancel()
+			}
+
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -49,98 +81,87 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			if dbPath == "" {
 				dbPath = defaultDBPath("youtube-pp-cli")
 			}
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := store.OpenWithContext(archiveCtx, dbPath)
 			if err != nil {
-				return fmt.Errorf("opening store: %w", err)
+				return workflowArchiveTimeoutError(archiveTimeout, fmt.Errorf("opening store: %w", err))
 			}
 			defer s.Close()
 
-			resources := []string{"youtube", "youtube-v3-channels", "youtube-v3-playlist-items", "youtube-v3-playlists", "youtube-v3-videos"}
+			resources := []string{}
+			if cliutil.IsDogfoodEnv() {
+				if len(resources) > 3 {
+					resources = resources[:3]
+				}
+			}
 			totalSynced := 0
+			syncEventWriter := cmd.OutOrStdout()
+			if flags.asJSON {
+				syncEventWriter = cmd.ErrOrStderr()
+			}
 
+			// --full clears the cursor here because syncResource reads
+			// existingCursor unconditionally; its full param only gates the
+			// since filter, not cursor reset. Mirrors newSyncCmd's pattern.
+			if full {
+				for _, resource := range resources {
+					if err := s.SaveSyncState(resource, "", 0); err != nil {
+						return fmt.Errorf("clearing sync state for %s: %w", resource, err)
+					}
+				}
+			}
+
+			resourcesSynced := 0
 			for _, resource := range resources {
-				cursor := ""
-				if !full {
-					existing, _, _, err := s.GetSyncState(resource)
-					if err == nil && existing != "" {
-						cursor = existing
+				res := syncResource(archiveCtx, c, s, resource, "", full, archiveMaxPages, false, false, nil, syncEventWriter)
+				if res.Err != nil {
+					res.Err = workflowArchiveTimeoutError(archiveTimeout, res.Err)
+					if res.IntegrityFailure || isSyncStatePersistenceError(res.Err) {
+						return fmt.Errorf("archiving %s: %w", resource, res.Err)
 					}
+					if errors.Is(res.Err, context.DeadlineExceeded) {
+						return fmt.Errorf("archiving %s: %w", resource, res.Err)
+					}
+					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: error: %v\n", resource, res.Err)
+					continue
 				}
-
-				fmt.Fprintf(cmd.ErrOrStderr(), "Syncing %s...\n", resource)
-
-				params := map[string]string{"limit": "100"}
-				if cursor != "" {
-					params["after"] = cursor
+				if res.Warn != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: warning: %v\n", resource, res.Warn)
+					continue
 				}
-
-				count := 0
-				for {
-					data, fetchErr := c.Get("/"+resource, params)
-					if fetchErr != nil {
-						fmt.Fprintf(cmd.ErrOrStderr(), "  warning: %s: %v\n", resource, fetchErr)
-						break
-					}
-					var items []json.RawMessage
-					if err := json.Unmarshal(data, &items); err != nil {
-						// Might be a single object, not array
-						if err := s.Upsert(resource, resource+"-singleton", data); err != nil {
-							fmt.Fprintf(cmd.ErrOrStderr(), "  warning: store %s: %v\n", resource, err)
-						}
-						count++
-						break
-					}
-					if len(items) == 0 {
-						break
-					}
-					for _, item := range items {
-						var obj struct {
-							ID string `json:"id"`
-						}
-						json.Unmarshal(item, &obj)
-						id := obj.ID
-						if id == "" {
-							id = fmt.Sprintf("%s-%d", resource, count)
-						}
-						if err := s.Upsert(resource, id, item); err != nil {
-							fmt.Fprintf(cmd.ErrOrStderr(), "  warning: store %s/%s: %v\n", resource, id, err)
-						}
-						cursor = id
-						count++
-					}
-					if len(items) < 100 {
-						break
-					}
-					params["after"] = cursor
-				}
-
-				if count > 0 {
-					s.SaveSyncState(resource, cursor, count)
-				}
-				totalSynced += count
-				fmt.Fprintf(cmd.ErrOrStderr(), "  %s: %d items\n", resource, count)
+				totalSynced += res.Count
+				resourcesSynced++
+				fmt.Fprintf(cmd.ErrOrStderr(), "  %s: %d synced\n", resource, res.Count)
 			}
 
 			if flags.asJSON {
 				enc := json.NewEncoder(cmd.OutOrStdout())
 				enc.SetIndent("", "  ")
 				return enc.Encode(map[string]any{
-					"resources_synced": len(resources),
+					"resources_synced": resourcesSynced,
 					"total_items":      totalSynced,
 					"store_path":       dbPath,
 					"timestamp":        time.Now().UTC().Format(time.RFC3339),
 				})
 			}
 
-			fmt.Fprintf(cmd.OutOrStdout(), "Archived %d items across %d resources to %s\n", totalSynced, len(resources), dbPath)
+			fmt.Fprintf(cmd.OutOrStdout(), "Archived %d items across %d resources to %s\n", totalSynced, resourcesSynced, dbPath)
 			return nil
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/youtube-pp-cli/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	cmd.Flags().BoolVar(&full, "full", false, "Full re-archive (ignore previous sync state)")
+	cmd.Flags().IntVar(&maxPages, "max-pages", 0, "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)")
+	cmd.Flags().DurationVar(&timeout, "timeout", 30*time.Minute, "Maximum time to spend archiving (0 = no timeout)")
 
 	return cmd
+}
+
+func workflowArchiveTimeoutError(timeout time.Duration, err error) error {
+	if timeout <= 0 || !errors.Is(err, context.DeadlineExceeded) {
+		return err
+	}
+	return fmt.Errorf("workflow archive timed out after %s; rerun with --timeout 0 or a larger value to continue: %w", timeout, err)
 }
 
 func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
@@ -159,15 +180,34 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 			if dbPath == "" {
 				dbPath = defaultDBPath("youtube-pp-cli")
 			}
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
-			if err != nil {
-				return fmt.Errorf("opening store: %w", err)
-			}
-			defer s.Close()
 
-			status, err := s.Status()
-			if err != nil {
-				return err
+			status := map[string]int{}
+			if _, err := os.Stat(dbPath); err == nil {
+				s, err := store.OpenReadOnlyContext(cmd.Context(), dbPath)
+				if err != nil {
+					return fmt.Errorf("opening store read-only: %w", err)
+				}
+				defer s.Close()
+
+				schemaVersion, err := s.SchemaVersion()
+				if err != nil {
+					return fmt.Errorf("checking store schema read-only: %w", err)
+				}
+				if schemaVersion < store.StoreSchemaVersion {
+
+					return fmt.Errorf("local store schema version %d requires migration to %d; run 'workflow archive' to migrate it", schemaVersion, store.StoreSchemaVersion)
+
+				}
+				if schemaVersion > store.StoreSchemaVersion {
+					return fmt.Errorf("local store schema version %d is newer than supported version %d; upgrade the CLI binary", schemaVersion, store.StoreSchemaVersion)
+				}
+
+				status, err = s.Status()
+				if err != nil {
+					return err
+				}
+			} else if !os.IsNotExist(err) {
+				return fmt.Errorf("checking store path: %w", err)
 			}
 
 			if flags.asJSON {
@@ -193,7 +233,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 
 	return cmd
 }

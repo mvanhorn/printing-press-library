@@ -36,6 +36,35 @@ type CacheSyncResult struct {
 	StateWriteErr    error
 	Duration         time.Duration
 
+	// PATCH(api-sync-survives-unreadable-cache): Degraded reports that the
+	// desktop cache could not be decrypted and only API-derived documents were
+	// synced; DecryptErr carries why. Cache-derived surfaces (transcripts,
+	// folders, recipes, panels, chat threads) are all zero on such a run, so
+	// reporting it as a clean sync would read as "you have no transcripts"
+	// rather than "transcripts were not synced".
+	Degraded   bool
+	DecryptErr error
+
+	// PATCH(api-transcript-hydrate): what the transcript backfill did this run.
+	// TranscriptsRemaining is the operator-facing number: a bounded run that
+	// leaves work behind must say so, or the user cannot tell "that is all of
+	// them" from "run it again".
+	TranscriptsFetched   int
+	TranscriptSegments   int
+	TranscriptsRemaining int
+	TranscriptErr        error
+
+	// PATCH(api-catalog-refresh): what the catalog refresh staged this run and
+	// why it did not. CatalogErr is non-fatal for the same reason HydrateErr
+	// is: recipes, panel templates and folders are three independent
+	// endpoints, and one of them rejecting the credential must not cost the
+	// user the meetings and transcripts the rest of the run synced.
+	CatalogRecipes        int
+	CatalogPanelTemplates int
+	CatalogFolders        int
+	CatalogMemberships    int
+	CatalogErr            error
+
 	// PATCH(api-detail-hydrate): transcript timestamps the store layer could
 	// not parse. Non-fatal like HydrateErr, but it must reach the operator:
 	// an unparseable timestamp is stored as 0 and reads back blank, so without
@@ -65,6 +94,11 @@ func (r CacheSyncResult) TotalRows() int {
 // emit one ndjson summary line so downstream agents and existing sync
 // callers see a consistent shape.
 func newSyncCacheCmd(flags *rootFlags) *cobra.Command {
+	// PATCH(api-transcript-hydrate): bounds the per-run transcript backfill.
+	// There is no bulk transcript endpoint, so a full first backfill is one
+	// rate-limited call per meeting; a default cap keeps `sync` a command
+	// rather than an errand, and the summary reports what is left.
+	transcriptBudget := granola.DefaultTranscriptBudget
 	cmd := &cobra.Command{
 		Use:   "sync",
 		Short: "Sync Granola's local cache file into the SQLite store",
@@ -84,7 +118,7 @@ The hydration is idempotent: re-running replaces every row.`,
 			if dryRunOK(flags) {
 				return nil
 			}
-			res, err := runCacheSync(cmd.Context())
+			res, err := runCacheSync(cmd.Context(), transcriptBudget)
 			if err != nil {
 				return err
 			}
@@ -106,6 +140,21 @@ The hydration is idempotent: re-running replaces every row.`,
 			}
 			if res.HydrateErr != nil {
 				summary["documents_fetch_error"] = res.HydrateErr.Error()
+			}
+			if res.Degraded {
+				// Never let a degraded run read as a clean one.
+				summary["degraded"] = true
+				summary["degraded_reason"] = "desktop cache unreadable; synced over the API"
+			}
+			if res.TranscriptsFetched > 0 || res.TranscriptsRemaining > 0 {
+				summary["transcripts_fetched"] = res.TranscriptsFetched
+				summary["transcripts_remaining"] = res.TranscriptsRemaining
+			}
+			if res.TranscriptErr != nil {
+				summary["transcript_fetch_error"] = res.TranscriptErr.Error()
+			}
+			if res.CatalogErr != nil {
+				summary["catalog_refresh_error"] = res.CatalogErr.Error()
 			}
 			if res.UnparsedTimestamps > 0 {
 				summary["unparsed_timestamps"] = res.UnparsedTimestamps
@@ -131,9 +180,27 @@ The hydration is idempotent: re-running replaces every row.`,
 			if res.PreservationWarning != "" {
 				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %s\n", res.PreservationWarning)
 			}
+			if res.TranscriptErr != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: transcript backfill stopped early: %v\n", res.TranscriptErr)
+			}
+			if res.CatalogErr != nil {
+				// Non-fatal: the surfaces that did answer are already synced,
+				// and the counts above say which. Naming the failure keeps a
+				// stale recipe list from reading as an empty one.
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: catalog refresh incomplete: %v\n", res.CatalogErr)
+			}
+			if res.TranscriptsRemaining > 0 {
+				// The whole point of reporting this: a bounded run that stops
+				// with work left must not look like it finished.
+				fmt.Fprintf(cmd.ErrOrStderr(),
+					"%d transcripts still to fetch; re-run `granola-pp-cli sync` to continue (or --transcript-budget -1 for all)\n",
+					res.TranscriptsRemaining)
+			}
 			return nil
 		},
 	}
+	cmd.Flags().IntVar(&transcriptBudget, "transcript-budget", granola.DefaultTranscriptBudget,
+		"Max transcripts to backfill this run (0 disables the backfill, -1 fetches all remaining)")
 	return cmd
 }
 
@@ -148,26 +215,86 @@ The hydration is idempotent: re-running replaces every row.`,
 // the SyncState record doctor reads. It is best-effort with respect to document
 // hydration (returned in result.HydrateErr) but returns an error when the cache
 // itself cannot be opened — the caller decides whether that is fatal.
-func runCacheSync(ctx context.Context) (CacheSyncResult, error) {
+func runCacheSync(ctx context.Context, transcriptBudget int) (CacheSyncResult, error) {
 	started := time.Now()
+	degraded := false
+	var decryptErr error
 	c, err := openGranolaCache()
 	if err != nil {
 		// PATCH(encrypted-cache): record the decrypt failure so doctor
 		// can report it without itself prompting the Keychain.
 		recordSyncDecryptStatus(err)
-		return CacheSyncResult{Duration: time.Since(started)}, err
+
+		// PATCH(api-sync-survives-unreadable-cache): a migrated install can
+		// never decrypt again, so failing here strands the one path that still
+		// works — /v2/get-documents, which needs no cache content at all.
+		// Degrade instead of aborting, and carry the decrypt error so the run
+		// is never reported as clean.
+		//
+		// Only a classified migration degrades. A plain ErrKeyUnavailable on a
+		// non-migrated install still has a working remedy (sign into Granola
+		// desktop); degrading it would hide that remedy behind a silently
+		// thinner sync.
+		if !errors.Is(err, safestorage.ErrSchemeMigrated) {
+			return CacheSyncResult{Duration: time.Since(started)}, err
+		}
+		degraded = true
+		decryptErr = err
+		c = &granola.Cache{Documents: map[string]granola.Document{}}
 	}
 	// PATCH(encrypted-cache): Granola desktop moved documents
 	// out of cache-v6.json into the API around May 2026. Hydrate
 	// from /v2/get-documents so SyncFromCache's meeting upsert
 	// loop has something to iterate.
 	docsFetched, hydrateErr := granola.HydrateDocumentsFromAPI(c, nil)
+	// On a degraded run the hydrate is the whole run: there is no cache
+	// content to fall back on, so a hydrate failure means nothing was synced.
+	if degraded && hydrateErr != nil {
+		return CacheSyncResult{Degraded: true, DecryptErr: decryptErr, Duration: time.Since(started)},
+			fmt.Errorf("cache unreadable and API hydrate failed: %w", hydrateErr)
+	}
 	s, err := openGranolaStore(ctx)
 	if err != nil {
 		return CacheSyncResult{Duration: time.Since(started)}, err
 	}
 	defer s.Close()
-	sres, err := granola.SyncFromCache(ctx, s.DB(), c)
+
+	// PATCH(api-transcript-hydrate): on a degraded run the cache carries no
+	// transcripts, so pull them over the API before the upsert. Without this
+	// the run syncs titles and attendees and leaves every transcript-dependent
+	// command returning empty, which reads as "no transcripts" rather than
+	// "not synced". Bounded and resumable: see HydrateTranscriptsFromAPI.
+	var tres granola.TranscriptHydrateResult
+	var transcriptErr error
+	if degraded && transcriptBudget != 0 {
+		tres, transcriptErr = granola.HydrateTranscriptsFromAPI(ctx, s.DB(), c, nil, transcriptBudget)
+	}
+
+	// PATCH(api-catalog-refresh): the same argument one surface over. Without
+	// this the degraded run leaves recipes, panel templates and folders frozen
+	// at the last successful decrypt while still answering as though they were
+	// current, so a folder or recipe created since then is invisible with no
+	// symptom the user can see. Each surface is a single call for the whole
+	// set, so unlike transcripts there is nothing to budget or resume.
+	var cres granola.CatalogHydrateResult
+	var catalogErr error
+	if degraded {
+		cres, catalogErr = granola.HydrateCatalogFromAPI(c, nil)
+	}
+
+	syncOpts := granola.SyncOptions{Degraded: degraded}
+	if degraded {
+		// Transcripts on this path came from the API, not the cache. Label them
+		// accordingly so provenance stays honest and the cross-source retention
+		// check compares real counts.
+		syncOpts.TranscriptOwner = granola.RowSourceAPI
+		// Same for the catalog rows this run creates. Ownership decides which
+		// path is allowed to retire a row later, so a folder or recipe the API
+		// created must not be filed under the cache path that can no longer
+		// read anything.
+		syncOpts.CatalogOwner = granola.RowSourceAPI
+	}
+	sres, err := granola.SyncFromCacheWithOptions(ctx, s.DB(), c, syncOpts)
 	if err != nil {
 		return CacheSyncResult{Duration: time.Since(started)}, err
 	}
@@ -185,7 +312,20 @@ func runCacheSync(ctx context.Context) (CacheSyncResult, error) {
 		ChatMessages:     sres.ChatMessages,
 		DocumentsFetched: docsFetched,
 		HydrateErr:       hydrateErr,
+		Degraded:         degraded,
+		DecryptErr:       decryptErr,
 		Duration:         time.Since(started),
+
+		TranscriptsFetched:   tres.WithSegments,
+		TranscriptSegments:   tres.Segments,
+		TranscriptsRemaining: tres.Remaining,
+		TranscriptErr:        transcriptErr,
+
+		CatalogRecipes:        cres.Recipes,
+		CatalogPanelTemplates: cres.PanelTemplates,
+		CatalogFolders:        cres.Folders,
+		CatalogMemberships:    cres.Memberships,
+		CatalogErr:            catalogErr,
 
 		UnparsedTimestamps: sres.UnparsedTimestamps,
 		TimestampWarning:   sres.TimestampWarning,
@@ -196,10 +336,30 @@ func runCacheSync(ctx context.Context) (CacheSyncResult, error) {
 	// PATCH(encrypted-cache): record success so doctor can report
 	// "ok (last decrypted: <time>)" without itself decrypting.
 	state := granola.SyncState{
-		LastSyncAt:           time.Now().UTC(),
+		LastSyncAt: time.Now().UTC(),
+		// PATCH(read-path-store-first-for-recipes-and-chats): stamp the cache
+		// sync time only on a genuine decrypt, so store-served reads can date
+		// cache-derived rows by when they were actually captured rather than by
+		// this run's API-only refresh.
+		LastCacheSyncAt: cacheSyncedAt(degraded),
+		// PATCH(api-catalog-refresh): stamped only when the catalog refresh
+		// actually succeeded, so store-served recipe reads date themselves by
+		// when they were refreshed rather than by a cache sync that never ran.
+		LastCatalogSyncAt:    catalogSyncedAt(catalogErr, degraded),
 		LastDecryptStatus:    granola.DecryptStatusOK,
 		LastTokenSource:      tokenSourceLabel(granola.CurrentTokenSource()),
 		LastDocumentsFetched: docsFetched,
+	}
+	// PATCH(api-sync-survives-unreadable-cache): a degraded run did sync
+	// documents, but it never decrypted anything. Claiming DecryptStatusOK
+	// here would overwrite the failure recordSyncDecryptStatus just stored and
+	// make doctor report a healthy encrypted store on a migrated install.
+	if degraded {
+		state.LastDecryptStatus = granola.DecryptStatusFailed
+		state.LastDecryptErrorClass = decryptErrorClass(decryptErr)
+		if decryptErr != nil {
+			state.LastDecryptErrorMsg = decryptErr.Error()
+		}
 	}
 	if hydrateErr != nil {
 		state.LastHydrateErrorMsg = hydrateErr.Error()
@@ -223,17 +383,52 @@ func recordSyncDecryptStatus(err error) {
 		LastDecryptStatus:   granola.DecryptStatusFailed,
 		LastDecryptErrorMsg: err.Error(),
 	}
-	switch {
-	case errors.Is(err, safestorage.ErrKeyUnavailable):
-		state.LastDecryptErrorClass = "key_unavailable"
-	case errors.Is(err, safestorage.ErrDecryptFailed):
-		state.LastDecryptErrorClass = "decrypt_failed"
-	case errors.Is(err, safestorage.ErrUnsupportedPlatform):
-		state.LastDecryptErrorClass = "unsupported_platform"
-	default:
-		state.LastDecryptErrorClass = "other"
-	}
+	state.LastDecryptErrorClass = decryptErrorClass(err)
 	_ = granola.WriteSyncState(state)
+}
+
+// catalogSyncedAt returns now only when this run refreshed the catalog
+// surfaces cleanly. A healthy-cache run never calls the API catalog, and a
+// failed refresh must not advance the date rows are stamped with.
+func catalogSyncedAt(catalogErr error, degraded bool) time.Time {
+	if !degraded || catalogErr != nil {
+		return time.Time{}
+	}
+	return time.Now().UTC()
+}
+
+// cacheSyncedAt returns now for a genuine cache decrypt and the zero time for a
+// degraded run, so a run that never read the cache cannot advance the date the
+// cache-derived rows are stamped with.
+func cacheSyncedAt(degraded bool) time.Time {
+	if degraded {
+		return time.Time{}
+	}
+	return time.Now().UTC()
+}
+
+// decryptErrorClass maps a cache-load error onto the stable class string
+// doctor reads out of the sync state.
+//
+// PATCH(api-sync-survives-unreadable-cache): ErrSchemeMigrated must be tested
+// first. migratedSchemeError.Is deliberately matches ErrKeyUnavailable too, so
+// a plain key_unavailable arm ahead of it swallows every migrated install --
+// which is how doctor came to print the unreachable "approve the Keychain
+// prompt" remedy for a state where no prompt can ever appear.
+func decryptErrorClass(err error) string {
+	switch {
+	case err == nil:
+		return ""
+	case errors.Is(err, safestorage.ErrSchemeMigrated):
+		return "scheme_migrated"
+	case errors.Is(err, safestorage.ErrKeyUnavailable):
+		return "key_unavailable"
+	case errors.Is(err, safestorage.ErrDecryptFailed):
+		return "decrypt_failed"
+	case errors.Is(err, safestorage.ErrUnsupportedPlatform):
+		return "unsupported_platform"
+	}
+	return "other"
 }
 
 // tokenSourceLabel returns a human-readable + JSON-stable label for the
@@ -248,6 +443,10 @@ func tokenSourceLabel(s granola.TokenSource) string {
 		return "encrypted_supabase"
 	case granola.TokenSourceStoredAccounts:
 		return "stored_accounts"
+	case granola.TokenSourcePlaintextSupabaseDesktopFallback:
+		return "plaintext_supabase_desktop_fallback"
+	case granola.TokenSourceCLISession:
+		return "cli_session"
 	}
 	return "unknown"
 }

@@ -49,23 +49,6 @@ func performScan(ctx context.Context, flags *rootFlags, url string) (json.RawMes
 	return data, nil
 }
 
-// persistScan parses a raw report and appends it to the local scan store. A
-// store write failure is a warning, not fatal: the scan is still useful.
-func persistScan(raw json.RawMessage) {
-	rep, err := store.ParseReport(raw)
-	if err != nil {
-		return
-	}
-	path, err := store.DefaultPath()
-	if err != nil {
-		return
-	}
-	rec := store.ScanRecord{URL: rep.URL, ScannedAt: rep.ScannedAt, Level: rep.Level, LevelName: rep.LevelName, Raw: raw}
-	if err := store.Append(path, rec); err != nil {
-		fmt.Fprintf(os.Stderr, "warning: could not save scan to local history: %v\n", err)
-	}
-}
-
 // mustJSON marshals v, falling back to an empty array on error so callers can
 // pass the result straight to printOutputWithFlags.
 func mustJSON(v any) json.RawMessage {
@@ -85,6 +68,109 @@ func loadStore() ([]store.ScanRecord, error) {
 	return store.Load(path)
 }
 
+// sourceOrDefault returns the active scanner, defaulting to isitagentready.
+// newRootCmd's StringVar registration normally fills flags.source in, but a
+// rootFlags built directly (tests, or any future caller that bypasses the
+// Cobra wiring) would leave it empty — and an empty source silently filters
+// the whole scan store to nothing. Default here rather than fail open.
+func (f *rootFlags) sourceOrDefault() string {
+	if f.source == "" {
+		return store.SourceIsItAgentReady
+	}
+	return f.source
+}
+
+// performScanFor fetches a report from the source selected by --source.
+func performScanFor(ctx context.Context, flags *rootFlags, url string) (json.RawMessage, error) {
+	return performScanForSource(ctx, flags, flags.sourceOrDefault(), url)
+}
+
+// performScanForSource fetches a report from an explicit source, decoupled from
+// --source. crossref uses it to fetch BOTH scanners for one URL.
+func performScanForSource(ctx context.Context, flags *rootFlags, source, url string) (json.RawMessage, error) {
+	switch source {
+	case store.SourceIsAgentic:
+		return fetchAgenticReport(ctx, flags, url)
+	default: // isitagentready
+		return performScan(ctx, flags, url)
+	}
+}
+
+// persistScanFor appends a scan to the local store with its provenance, parsing
+// per source so each scanner's headline lands in the right field.
+func persistScanFor(flags *rootFlags, raw json.RawMessage) {
+	persistScanForSource(flags, flags.sourceOrDefault(), raw)
+}
+
+func persistScanForSource(flags *rootFlags, source string, raw json.RawMessage) {
+	path, err := store.DefaultPath()
+	if err != nil {
+		return
+	}
+	switch source {
+	case store.SourceIsAgentic:
+		rep, err := store.ParseAgenticReport(raw)
+		if err != nil {
+			return
+		}
+		score := rep.Score // local so the pointer is stable
+		rec := store.ScanRecord{
+			URL:        rep.Target,
+			Source:     store.SourceIsAgentic,
+			ScannedAt:  rep.ScannedAt,
+			Score:      &score,
+			ScoreLabel: rep.ScoreLabel,
+			Raw:        raw,
+		}
+		if err := store.Append(path, rec); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: could not save scan to local history: %v\n", err)
+		}
+	default: // isitagentready — mirrors persistScan but labels the source
+		rep, err := store.ParseReport(raw)
+		if err != nil {
+			return
+		}
+		rec := store.ScanRecord{URL: rep.URL, Source: store.SourceIsItAgentReady, ScannedAt: rep.ScannedAt, Level: rep.Level, LevelName: rep.LevelName, Raw: raw}
+		if err := store.Append(path, rec); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: could not save scan to local history: %v\n", err)
+		}
+	}
+}
+
+// loadStoreFor reads the local store filtered to the active --source, so no
+// command can compare two scanners' incompatible numbers.
+func loadStoreFor(flags *rootFlags) ([]store.ScanRecord, error) {
+	return loadStoreForSource(flags, flags.sourceOrDefault())
+}
+
+func loadStoreForSource(flags *rootFlags, source string) ([]store.ScanRecord, error) {
+	recs, err := loadStore()
+	if err != nil {
+		return nil, err
+	}
+	return store.FilterSource(recs, source), nil
+}
+
+// buildScanRecord parses a raw report into a persisted ScanRecord with the
+// correct headline for its source: level fields for isitagentready, score
+// fields for is-agentic. Used by batch to build its fan-out rows carrying the
+// right provenance.
+func buildScanRecord(flags *rootFlags, raw json.RawMessage) (store.ScanRecord, error) {
+	if flags.sourceOrDefault() == store.SourceIsAgentic {
+		rep, err := store.ParseAgenticReport(raw)
+		if err != nil {
+			return store.ScanRecord{}, err
+		}
+		score := rep.Score
+		return store.ScanRecord{URL: rep.Target, Source: store.SourceIsAgentic, ScannedAt: rep.ScannedAt, Score: &score, ScoreLabel: rep.ScoreLabel, Raw: raw}, nil
+	}
+	rep, err := store.ParseReport(raw)
+	if err != nil {
+		return store.ScanRecord{}, err
+	}
+	return store.ScanRecord{URL: rep.URL, Source: store.SourceIsItAgentReady, ScannedAt: rep.ScannedAt, Level: rep.Level, LevelName: rep.LevelName, Raw: raw}, nil
+}
+
 // resolveReport returns a raw report for url according to the --data-source
 // flag, bounding the work with the root --timeout. Used by view commands
 // (report, advice) so they do not re-scan on every call.
@@ -94,6 +180,45 @@ func resolveReport(cmd *cobra.Command, flags *rootFlags, url string) (json.RawMe
 	return resolveReportCtx(ctx, flags, url)
 }
 
+// resolveReportCtxForSource is resolveReportCtx with an explicit source instead
+// of flags.source. crossref uses it to resolve BOTH scanners for one URL the
+// same way the single-source commands resolve one (live / local / auto).
+func resolveReportCtxForSource(ctx context.Context, flags *rootFlags, source, url string) (json.RawMessage, error) {
+	switch flags.dataSource {
+	case "live":
+		raw, err := performScanForSource(ctx, flags, source, url)
+		if err != nil {
+			return nil, err
+		}
+		persistScanForSource(flags, source, raw)
+		return raw, nil
+	case "local":
+		recs, err := loadStoreForSource(flags, source)
+		if err != nil {
+			return nil, err
+		}
+		rec, ok := store.Latest(recs, url)
+		if !ok {
+			return nil, notFoundErr(fmt.Errorf("no stored %s scan for %s; run 'isitagentready-pp-cli check %s --source %s' first", source, url, url, source))
+		}
+		return rec.Raw, nil
+	default: // auto
+		recs, err := loadStoreForSource(flags, source)
+		if err != nil {
+			return nil, err
+		}
+		if rec, ok := store.Latest(recs, url); ok {
+			return rec.Raw, nil
+		}
+		raw, err := performScanForSource(ctx, flags, source, url)
+		if err != nil {
+			return nil, err
+		}
+		persistScanForSource(flags, source, raw)
+		return raw, nil
+	}
+}
+
 // resolveReportCtx is resolveReport with an explicit context so callers that
 // fan out (compare) can share one bounded context: live forces a fresh scan,
 // local reads the latest stored scan (and errors if none), auto reads the
@@ -101,35 +226,35 @@ func resolveReport(cmd *cobra.Command, flags *rootFlags, url string) (json.RawMe
 func resolveReportCtx(ctx context.Context, flags *rootFlags, url string) (json.RawMessage, error) {
 	switch flags.dataSource {
 	case "live":
-		raw, err := performScan(ctx, flags, url)
+		raw, err := performScanFor(ctx, flags, url)
 		if err != nil {
 			return nil, err
 		}
-		persistScan(raw)
+		persistScanFor(flags, raw)
 		return raw, nil
 	case "local":
-		recs, err := loadStore()
+		recs, err := loadStoreFor(flags)
 		if err != nil {
 			return nil, err
 		}
 		rec, ok := store.Latest(recs, url)
 		if !ok {
-			return nil, notFoundErr(fmt.Errorf("no stored scan for %s; run 'isitagentready-pp-cli check %s' first", url, url))
+			return nil, notFoundErr(fmt.Errorf("no stored %s scan for %s; run 'isitagentready-pp-cli check %s --source %s' first", flags.sourceOrDefault(), url, url, flags.sourceOrDefault()))
 		}
 		return rec.Raw, nil
 	default: // auto
-		recs, err := loadStore()
+		recs, err := loadStoreFor(flags)
 		if err != nil {
 			return nil, err
 		}
 		if rec, ok := store.Latest(recs, url); ok {
 			return rec.Raw, nil
 		}
-		raw, err := performScan(ctx, flags, url)
+		raw, err := performScanFor(ctx, flags, url)
 		if err != nil {
 			return nil, err
 		}
-		persistScan(raw)
+		persistScanFor(flags, raw)
 		return raw, nil
 	}
 }
@@ -137,9 +262,34 @@ func resolveReportCtx(ctx context.Context, flags *rootFlags, url string) (json.R
 // renderScan prints a scan report: raw JSON (with --select/--compact) for
 // machine output, or a human summary for a terminal.
 func renderScan(cmd *cobra.Command, flags *rootFlags, raw json.RawMessage) error {
-	if !wantsHumanTable(cmd.OutOrStdout(), flags) {
+	return renderScanFor(cmd, flags, raw, wantsHumanTable(cmd.OutOrStdout(), flags))
+}
+
+// renderScanFor is renderScan with the human/machine decision passed in, and
+// with the human renderer chosen by --source.
+//
+// An is-agentic report shares no fields with an isitagentready one, and
+// store.ParseReport unmarshals it WITHOUT error into an all-zero Report — so
+// routing it through the level renderer printed an empty URL, "Level 0" and
+// zero checks instead of the real score and issues. Dispatch on the source
+// before rendering, the same way report/crossref already do.
+//
+// human is a parameter rather than a recomputed wantsHumanTable call so tests
+// can exercise the terminal path: wantsHumanTable gates it behind isTerminal,
+// which is false for the buffer a test renders into.
+func renderScanFor(cmd *cobra.Command, flags *rootFlags, raw json.RawMessage, human bool) error {
+	if !human {
 		return printOutputWithFlags(cmd.OutOrStdout(), raw, flags)
 	}
+	if flags.sourceOrDefault() == store.SourceIsAgentic {
+		// tier "" — check has no --category/--tier filter, so show both tiers.
+		return renderAgenticReport(cmd, raw, "")
+	}
+	return renderScanLevels(cmd, flags, raw)
+}
+
+// renderScanLevels prints the isitagentready level-based human summary.
+func renderScanLevels(cmd *cobra.Command, flags *rootFlags, raw json.RawMessage) error {
 	rep, err := store.ParseReport(raw)
 	if err != nil {
 		return printOutputWithFlags(cmd.OutOrStdout(), raw, flags)

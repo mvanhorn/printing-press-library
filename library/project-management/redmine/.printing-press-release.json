@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "redmine",
+  "cli_name": "redmine-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-27T09:14:23Z",
+  "source_commit": "ce031f152a17c612f2fbe93770289020626f1e32",
+  "printing_press_version": "4.31.1",
+  "run_id": "20260826-150701-249752e9",
+  "changes": [
+    {
+      "title": "feat(redmine): add redmine",
+      "pr": 1840,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1840",
+      "commit": "ce031f152a17c612f2fbe93770289020626f1e32"
+    }
+  ]
+}

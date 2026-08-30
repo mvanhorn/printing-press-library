@@ -1,0 +1,113 @@
+{
+  "dir": "<cli-dir>",
+  "spec_path": "<cli-dir>/spec.json",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 4,
+    "valid": 4,
+    "valid_pct": 100
+  },
+  "auth_check": {
+    "spec_scheme": "api key header \"x-api-key\"",
+    "generated_format": "x-api-key",
+    "match": true,
+    "detail": "spec and generated client both use api key header \"x-api-key\""
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 26,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 87,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 4,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 4 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 273,
+      "registered": 273
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 14,
+    "found": 14,
+    "depth_mismatches": [
+      {
+        "command": "transcripts search",
+        "advertised": "transcripts search",
+        "actual": "search"
+      },
+      {
+        "command": "comments search",
+        "advertised": "comments search",
+        "actual": "search"
+      }
+    ]
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 14,
+    "exempted_via_store": 8,
+    "exempted_via_annotation": 1
+  },
+  "description_drift_check": {
+    "expected": "Every Scrape Creators endpoint across 28 platforms, with credit-aware comment mining and a local corpus no other Scrape Creators tool has."
+  },
+  "source_client_check": {
+    "checked": 7
+  },
+  "print_json_filtered_check": {
+    "checked": 249
+  },
+  "test_presence": {
+    "checked": 2
+  },
+  "naming_check": {
+    "checked": 249
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "2 novel feature command-depth mismatches: transcripts search advertised as transcripts search but registered as search; comments search advertised as comments search but registered as search"
+  ]
+}

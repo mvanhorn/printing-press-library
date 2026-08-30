@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "review-item-metadata-writes-fail-closed",
+  "applied_at": "2026-08-16",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Fail closed for unverified item category and price writes; keep categories, stores, and filters read-only.",
+  "reason": "The protobuf schema carries item category assignments, store IDs, and PBItemPrice values, but the current verified client surface has no read-after-write-verified handlers for per-item price or store assignment. Item category updates were already rejected after an acknowledged operation failed to round-trip. A fresh disposable re-probe could not be run because the stored AnyList credential returned HTTP 401 before a marker list was created; no live data was changed. Do not let items add report success for category or price metadata that may be silently ignored.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "tools-manifest.json",
+    "internal/mcp/code_orch_data.go",
+    "internal/cli/items_add.go",
+    "internal/cli/items_add_test.go"
+  ],
+  "validated_outcome": "Non-dry-run items add now returns an explicit unsupported error before any request when category or price metadata is supplied, while dry-run remains offline. Categories and stores/filters remain read-only. Focused unit tests cover category, price, price-store, price-details, and dry-run paths. No disposable marker list or item was created because the re-probe was rejected at authentication.",
+  "findings_addressed": [
+    "item-category-write-fail-closed",
+    "item-price-write-fail-closed",
+    "item-store-assignment-unsupported",
+    "custom-category-store-filter-read-only",
+    "metadata-dry-run-preserved"
+  ]
+}

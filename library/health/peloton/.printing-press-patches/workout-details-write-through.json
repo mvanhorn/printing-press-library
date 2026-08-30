@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "workout-details-write-through",
+  "applied_at": "2026-08-13",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "offline workout, offline intervals, and offline strength all read a \"workout_details\" family (see internal/cli/offline.go). GET /api/workout/{workout_id} is the shared source for it -- workouts_show.go and promoted_strength.go both hit that exact endpoint (same payload, different displayed fields) but each writes its own generic write-through under its own resourceType (\"workouts\", \"strength\"), never \"workout_details\". Any future regen must keep cacheWorkoutDetail (data_source.go) wired into both call sites' live-fetch success path -- dropping either one silently breaks the corresponding offline command for every workout, not just some.",
+  "reason": "Discovered while writing SKILL.md/README.md documentation for the offline command family (this session): all three of offline workout/intervals/strength returned \"stored workout_details fact ... not found\" for every workout unconditionally, because nothing anywhere had ever written to that family under that exact name -- confirmed by grep before this patch. Since the docs were about to actively advertise these commands as working, shipping them permanently broken was worse than not documenting them at all.",
+  "files": [
+    "internal/cli/data_source.go",
+    "internal/cli/workouts_show.go",
+    "internal/cli/promoted_strength.go",
+    "internal/cli/offline.go",
+    "internal/cli/workouts_detail_cache_test.go",
+    "internal/cli/workouts_performance_test.go"
+  ],
+  "validated_outcome": "Verified live against a real account: `workouts show <id>` followed by `offline workout <id>`, `offline intervals <id>`, and `strength <id>` followed by `offline strength <id>` all now return real data instead of a not-found error (intervals/strength correctly report a caveat rather than an error for workout types that genuinely lack a class identifier or movement-tracker data). offline.go's newOfflineWorkoutCmd/newOfflineIntervalsCmd were also changed to build their cobra.Command directly (Use as a literal) instead of routing through the shared offlineIDCmd factory -- unrelated to this fix's runtime behavior (confirmed identical via full test suite), but required for verify-skill's static Use: scan to resolve the SKILL.md/README.md references this session added; the factory pattern hid the Use string as a function argument, invisible to a checker that only reads literal `Use: \"...\"` text. TestWorkoutsShowLiveFetchPopulatesWorkoutDetails and TestStrengthLiveFetchPopulatesWorkoutDetails added. Full go build/vet/test suite, govulncheck, and verify_skill.py all pass."
+}

@@ -1,0 +1,338 @@
+{
+  "api_name": "youtube",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "youtube-data-cli",
+      "url": "https://github.com/Bin-Huang/youtube-data-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 50,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "youtube-mcp-server",
+      "url": "https://github.com/pauling-ai/youtube-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "youtube-data-mcp-server",
+      "url": "https://github.com/icraft2170/youtube-data-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "youtube-data-api",
+      "url": "https://github.com/SMAPPNYU/youtube-data-api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-19T02:25:00Z",
+  "novel_features": [
+    {
+      "name": "Competitor watchlist",
+      "command": "watch list",
+      "description": "Register the competitor channels your monitoring machine tracks, in a typed watchlist table you own.",
+      "rationale": "The watchlist lives in the local databank and drives monitor, velocity, and packaging - no external service holds your competitor set.",
+      "example": "youtube-pp-cli watch list --json",
+      "why_it_matters": "Defines the tracked market once; every later monitoring command runs against it without re-specifying channels.",
+      "group": "Competitor monitoring machine"
+    },
+    {
+      "name": "Watchlist monitor",
+      "command": "monitor",
+      "description": "Refresh every watched channel in one run: stats snapshot, new uploads, re-snapshot of recent video statistics.",
+      "rationale": "Repeated dated snapshots build the time series the YouTube API never exposes; ~20-40 quota units per run for 15 channels makes hourly cron trivial.",
+      "example": "youtube-pp-cli monitor --json",
+      "why_it_matters": "One command keeps the databank current, so market answers are hours old instead of weeks old.",
+      "group": "Competitor monitoring machine"
+    },
+    {
+      "name": "Video velocity",
+      "command": "velocity",
+      "description": "See which tracked videos are gaining views fastest right now, computed from real between-snapshot deltas.",
+      "rationale": "Views-per-day requires a local time series of your own snapshots - the API only returns lifetime totals, and curated indexes lag weeks behind.",
+      "example": "youtube-pp-cli velocity --json",
+      "why_it_matters": "Current market movement - what is taking off today, not what took off two weeks ago.",
+      "group": "Competitor monitoring machine"
+    },
+    {
+      "name": "Growth between snapshots",
+      "command": "growth",
+      "description": "Channel-level subscriber, view, and upload-count deltas between dated local snapshots.",
+      "rationale": "The YouTube API exposes no historical statistics at all - growth only exists because monitor and backfill snapshot locally.",
+      "example": "youtube-pp-cli growth @mkbhd --json",
+      "why_it_matters": "Tells an agent whether a competitor is accelerating without any external history service.",
+      "group": "Competitor monitoring machine"
+    },
+    {
+      "name": "Breakout finder",
+      "command": "breakouts",
+      "description": "Chain search filters into a matrix (terms x upload window x duration x region), join results to channel size, and rank fresh high-momentum videos.",
+      "rationale": "Combines the rationed search bucket with local dedupe, batched statistics, and a databank join on channel size - views-per-subscriber ranking no single API call or curated index delivers fresh.",
+      "example": "youtube-pp-cli breakouts \"berlin history\" --days 14 --json",
+      "why_it_matters": "Finds niche breakouts days after upload, weeks before they reach lagging analytics platforms.",
+      "group": "Fresh market discovery"
+    },
+    {
+      "name": "Comment intelligence",
+      "command": "comments-mine",
+      "description": "Sync comments into a typed full-text-searchable table and report top-liked comments, keyword frequencies, and audience questions.",
+      "rationale": "Aggregate comment analysis needs comments stored and indexed locally - the API only pages raw threads in arbitrary order.",
+      "example": "youtube-pp-cli comments-mine @mkbhd --json",
+      "why_it_matters": "Fast audience signal from data you own - what viewers praise, ask, and complain about across a channel.",
+      "group": "Fresh market discovery"
+    },
+    {
+      "name": "Channel history backfill",
+      "command": "backfill",
+      "description": "Pull a channel's complete upload history with statistics into the local databank in one command.",
+      "rationale": "Walks the uploads playlist and batches videos.list 50 ids at a time (~2 quota units per 100 videos), seeding every new watchlist entry with full history.",
+      "example": "youtube-pp-cli backfill @mkbhd --json",
+      "why_it_matters": "Run once per competitor; every later question about that channel is answered offline for free.",
+      "group": "Competitor monitoring machine"
+    },
+    {
+      "name": "Packaging collector",
+      "command": "packaging",
+      "description": "Collect titles, thumbnails (downloaded as local image files), and hook text from transcript openings into a packaging table.",
+      "rationale": "Packaging analysis needs the assets side by side - thumbnail file, title, hook, stats - which only a local collector can assemble; the agent driving this CLI then judges them directly.",
+      "example": "youtube-pp-cli packaging @mkbhd --json",
+      "why_it_matters": "Hands a multimodal agent everything it needs for thumbnail and hook analysis without any scraping or manual collection.",
+      "group": "Fresh market discovery"
+    },
+    {
+      "name": "Workspaces",
+      "command": "workspace list",
+      "description": "Named databanks: keep the competitor machine in one database and explore a new niche in another, switching instantly.",
+      "rationale": "Maps workspace names to separate SQLite files on top of the existing --db plumbing, so exploration can never corrupt the monitored competitor data.",
+      "example": "youtube-pp-cli workspace list --json",
+      "why_it_matters": "Lets an agent spin up a clean research sandbox per niche without risking the production watchlist databank.",
+      "group": "Competitor monitoring machine"
+    },
+    {
+      "name": "API key ring",
+      "command": "keys list",
+      "description": "Store multiple named YouTube API keys, switch between them instantly, and optionally fail over automatically via --rotate when one runs out of quota.",
+      "rationale": "Quota is per key; a locally stored key ring with rotation keeps long backfills and breakout sweeps running where a single-key CLI would stall.",
+      "example": "youtube-pp-cli keys list --json",
+      "why_it_matters": "An agent can finish large collection jobs without human intervention when the first key's daily quota is spent.",
+      "group": "Competitor monitoring machine"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Competitor watchlist",
+      "command": "watch list",
+      "description": "Register the competitor channels your monitoring machine tracks, in a typed watchlist table you own.",
+      "rationale": "The watchlist lives in the local databank and drives monitor, velocity, and packaging - no external service holds your competitor set.",
+      "example": "youtube-pp-cli watch list --json",
+      "why_it_matters": "Defines the tracked market once; every later monitoring command runs against it without re-specifying channels.",
+      "group": "Competitor monitoring machine"
+    },
+    {
+      "name": "Watchlist monitor",
+      "command": "monitor",
+      "description": "Refresh every watched channel in one run: stats snapshot, new uploads, re-snapshot of recent video statistics.",
+      "rationale": "Repeated dated snapshots build the time series the YouTube API never exposes; ~20-40 quota units per run for 15 channels makes hourly cron trivial.",
+      "example": "youtube-pp-cli monitor --json",
+      "why_it_matters": "One command keeps the databank current, so market answers are hours old instead of weeks old.",
+      "group": "Competitor monitoring machine"
+    },
+    {
+      "name": "Video velocity",
+      "command": "velocity",
+      "description": "See which tracked videos are gaining views fastest right now, computed from real between-snapshot deltas.",
+      "rationale": "Views-per-day requires a local time series of your own snapshots - the API only returns lifetime totals, and curated indexes lag weeks behind.",
+      "example": "youtube-pp-cli velocity --json",
+      "why_it_matters": "Current market movement - what is taking off today, not what took off two weeks ago.",
+      "group": "Competitor monitoring machine"
+    },
+    {
+      "name": "Growth between snapshots",
+      "command": "growth",
+      "description": "Channel-level subscriber, view, and upload-count deltas between dated local snapshots.",
+      "rationale": "The YouTube API exposes no historical statistics at all - growth only exists because monitor and backfill snapshot locally.",
+      "example": "youtube-pp-cli growth @mkbhd --json",
+      "why_it_matters": "Tells an agent whether a competitor is accelerating without any external history service.",
+      "group": "Competitor monitoring machine"
+    },
+    {
+      "name": "Breakout finder",
+      "command": "breakouts",
+      "description": "Chain search filters into a matrix (terms x upload window x duration x region), join results to channel size, and rank fresh high-momentum videos.",
+      "rationale": "Combines the rationed search bucket with local dedupe, batched statistics, and a databank join on channel size - views-per-subscriber ranking no single API call or curated index delivers fresh.",
+      "example": "youtube-pp-cli breakouts \"berlin history\" --days 14 --json",
+      "why_it_matters": "Finds niche breakouts days after upload, weeks before they reach lagging analytics platforms.",
+      "group": "Fresh market discovery"
+    },
+    {
+      "name": "Comment intelligence",
+      "command": "comments-mine",
+      "description": "Sync comments into a typed full-text-searchable table and report top-liked comments, keyword frequencies, and audience questions.",
+      "rationale": "Aggregate comment analysis needs comments stored and indexed locally - the API only pages raw threads in arbitrary order.",
+      "example": "youtube-pp-cli comments-mine @mkbhd --json",
+      "why_it_matters": "Fast audience signal from data you own - what viewers praise, ask, and complain about across a channel.",
+      "group": "Fresh market discovery"
+    },
+    {
+      "name": "Channel history backfill",
+      "command": "backfill",
+      "description": "Pull a channel's complete upload history with statistics into the local databank in one command.",
+      "rationale": "Walks the uploads playlist and batches videos.list 50 ids at a time (~2 quota units per 100 videos), seeding every new watchlist entry with full history.",
+      "example": "youtube-pp-cli backfill @mkbhd --json",
+      "why_it_matters": "Run once per competitor; every later question about that channel is answered offline for free.",
+      "group": "Competitor monitoring machine"
+    },
+    {
+      "name": "Packaging collector",
+      "command": "packaging",
+      "description": "Collect titles, thumbnails (downloaded as local image files), and hook text from transcript openings into a packaging table.",
+      "rationale": "Packaging analysis needs the assets side by side - thumbnail file, title, hook, stats - which only a local collector can assemble; the agent driving this CLI then judges them directly.",
+      "example": "youtube-pp-cli packaging @mkbhd --json",
+      "why_it_matters": "Hands a multimodal agent everything it needs for thumbnail and hook analysis without any scraping or manual collection.",
+      "group": "Fresh market discovery"
+    },
+    {
+      "name": "Workspaces",
+      "command": "workspace list",
+      "description": "Named databanks: keep the competitor machine in one database and explore a new niche in another, switching instantly.",
+      "rationale": "Maps workspace names to separate SQLite files on top of the existing --db plumbing, so exploration can never corrupt the monitored competitor data.",
+      "example": "youtube-pp-cli workspace list --json",
+      "why_it_matters": "Lets an agent spin up a clean research sandbox per niche without risking the production watchlist databank.",
+      "group": "Competitor monitoring machine"
+    },
+    {
+      "name": "API key ring",
+      "command": "keys list",
+      "description": "Store multiple named YouTube API keys, switch between them instantly, and optionally fail over automatically via --rotate when one runs out of quota.",
+      "rationale": "Quota is per key; a locally stored key ring with rotation keeps long backfills and breakout sweeps running where a single-key CLI would stall.",
+      "example": "youtube-pp-cli keys list --json",
+      "why_it_matters": "An agent can finish large collection jobs without human intervention when the first key's daily quota is spent.",
+      "group": "Competitor monitoring machine"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "YOUTUBE_API_KEY"
+  },
+  "narrative": {
+    "display_name": "YouTube",
+    "headline": "A self-maintained competitor-monitoring machine for YouTube: the read surfaces that matter for market and competitor research plus a local databank of channel histories, snapshots, comments, and packaging assets - market data hours old, not weeks.",
+    "value_prop": "The YouTube Data API v3 read surfaces that matter for market and competitor research with complete parameter wiring, feeding a local SQLite databank designed for competitor monitoring: `watch` your ~15 competitors, `monitor` refreshes them for ~20-40 quota units per run, and `velocity`, `growth`, `breakouts`, `comments-mine`, and `packaging` turn the accumulated snapshots into current market intelligence that lagging analytics platforms deliver one to two weeks late.",
+    "auth_narrative": "Set YOUTUBE_API_KEY to a YouTube Data API v3 key (create one at console.cloud.google.com under APIs & Services > Credentials), or store it once with `auth set-token`. A key in the environment overrides the stored one - if `doctor` shows auth_source env and calls fail with HTTP 400 'API key not valid', the environment copy is stale: unset it or update it. Read-only public-data operations only; no OAuth anywhere.",
+    "quickstart": [
+      {
+        "command": "youtube-pp-cli doctor --dry-run",
+        "comment": "Health check: key present, API reachable, cache status - works before any credential is set"
+      },
+      {
+        "command": "youtube-pp-cli youtube channels-list --part statistics,snippet --for-handle @mkbhd",
+        "comment": "Resolve a competitor channel and see its lifetime totals"
+      },
+      {
+        "command": "youtube-pp-cli watch add @mkbhd --dry-run",
+        "comment": "Put the channel on the watchlist (drop --dry-run to save); backfill seeds its full history"
+      },
+      {
+        "command": "youtube-pp-cli monitor --dry-run",
+        "comment": "Preview the refresh of every watched channel; run it on a schedule to keep the databank current"
+      },
+      {
+        "command": "youtube-pp-cli velocity --json",
+        "comment": "Which tracked videos are gaining views fastest right now"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 400 'API key not valid' although auth set-token succeeded",
+        "fix": "An environment YOUTUBE_API_KEY is overriding the stored key - run doctor to check auth_source, then unset or update the env var"
+      },
+      {
+        "symptom": "velocity or growth report 'need at least 2 snapshots'",
+        "fix": "They compare dated snapshots - run `youtube-pp-cli monitor` again later (or schedule it); deltas appear from the second run onward"
+      },
+      {
+        "symptom": "search or breakouts stop working while other commands still do",
+        "fix": "search.list has its own 100-calls-per-day bucket (each page and each matrix cell costs one call) - narrow the filter matrix or wait for the daily reset"
+      },
+      {
+        "symptom": "packaging rows missing thumbnails or hook text",
+        "fix": "Thumbnail download needs network access and hook text needs an available transcript - rerun `packaging` for those videos; rows record which asset failed"
+      },
+      {
+        "symptom": "quota exhausted mid-backfill or mid-sweep",
+        "fix": "Add a second key with `auth keys add <name> <key>` and switch with `auth keys use <name>` (or pass --rotate on the long-running command) - quota is per key"
+      }
+    ],
+    "when_to_use": "Reach for this CLI whenever the task is YouTube market or competitor research: tracking a fixed set of competitor channels over time, measuring what is gaining views right now, discovering fresh breakout videos in a niche, mining comments for audience signal, or collecting titles, thumbnails, and hooks for packaging analysis. It is the right tool when the answer should come from a locally owned, regularly refreshed databank instead of a lagging external analytics platform.",
+    "anti_triggers": [
+      "Do not use this CLI for your own channel's private analytics (revenue, retention, demographics, traffic sources) - that is the OAuth-only YouTube Analytics API, which this CLI deliberately excludes",
+      "Do not use it to upload, edit, rate, or delete videos or manage a channel - all write operations are out of scope",
+      "Do not use it to download video or audio media - use yt-dlp for media files",
+      "Do not use it for wide-market computed judgments like cross-niche outlier scores or monetization estimates - curated analytics databases own that; this CLI owns fresh data on the channels you track"
+    ],
+    "recipes": [
+      {
+        "title": "Stand up the monitoring machine",
+        "command": "youtube-pp-cli watch add @mkbhd --json",
+        "explanation": "Add each competitor once; backfill seeds history and every monitor run keeps them current"
+      },
+      {
+        "title": "What moved today",
+        "command": "youtube-pp-cli velocity --agent --select items.title,items.views_per_day",
+        "explanation": "Between-snapshot view velocity for tracked videos, narrowed to the fields an agent needs"
+      },
+      {
+        "title": "Fresh breakouts in a niche",
+        "command": "youtube-pp-cli breakouts \"berlin history\" --days 14 --json",
+        "explanation": "Chained filter matrix joined to channel size - high views-per-subscriber uploads from the last two weeks"
+      },
+      {
+        "title": "Packaging dossier for the agent",
+        "command": "youtube-pp-cli packaging @mkbhd --json",
+        "explanation": "Titles, local thumbnail files, and hook text side by side, ready for multimodal packaging analysis"
+      },
+      {
+        "title": "What the audience keeps asking",
+        "command": "youtube-pp-cli comments-mine @mkbhd --json",
+        "explanation": "Top-liked comments, keyword frequencies, and extracted questions from the synced comment table"
+      }
+    ],
+    "trigger_phrases": [
+      "monitor my youtube competitors",
+      "which competitor videos are gaining views right now",
+      "find fresh breakout videos in a niche",
+      "youtube packaging and thumbnail analysis data",
+      "mine youtube comments for audience signal",
+      "new niche research workspace",
+      "switch youtube api key",
+      "backfill youtube channel history",
+      "get the transcript of this youtube video",
+      "use youtube",
+      "run youtube"
+    ]
+  }
+}

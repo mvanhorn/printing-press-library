@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "review-favorites-starters-photo-readonly",
+  "applied_at": "2026-08-16",
+  "status": "historical_static_snapshot",
+  "superseded_by": "review-favorites-starters-live-probe",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Keep favorites and starters read-only until their typed CRUD operations and photo paths are live-verified.",
+  "reason": "The protobuf schema defines PBStarterListOperation, PBFavoriteProductOperation, and PBSavedRecipeOperation messages, but the current client exposes no senders or read-after-write verification for favorite/starter CRUD. The CLI only reads favorites/starters from the synchronized cache. ListItem.photoIds and PBRecipe.photoIds/photoUrls are present as read-only data fields, but no verified upload, attach, or remove operation exists for item or recipe media. The current AnyList credential returned HTTP 401 during the preceding disposable metadata probe, so this slice performs no live writes and does not guess handler IDs.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "tools-manifest.json",
+    "internal/mcp/code_orch_data.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "Favorites and starters are explicitly documented and registered as read-only. Registry descriptions call out unsupported favorite/starter CRUD, price, and photo mutation. Existing item and recipe command descriptions continue to call out unsupported photo attach/upload/removal. No live AnyList mutation was attempted; no production or disposable data changed.",
+  "findings_addressed": [
+    "favorite-crud-unverified",
+    "starter-crud-unverified",
+    "item-photo-attach-remove-unverified",
+    "recipe-photo-attach-remove-unverified",
+    "read-only-surface-explicit"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "gfonts",
+  "cli_name": "gfonts-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-22T09:29:16Z",
+  "source_commit": "e33580be02b5f0a3a47c4145397ce553c6f2bf64",
+  "printing_press_version": "4.29.0",
+  "run_id": "20260719-182127",
+  "changes": [
+    {
+      "title": "feat(gfonts): add gfonts",
+      "pr": 1548,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1548",
+      "commit": "e33580be02b5f0a3a47c4145397ce553c6f2bf64"
+    }
+  ]
+}

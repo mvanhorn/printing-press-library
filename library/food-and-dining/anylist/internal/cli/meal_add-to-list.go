@@ -6,7 +6,6 @@ package cli
 import (
 	"fmt"
 
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -21,7 +20,7 @@ func newMealAddToListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "add-to-list",
-		Short:       "Add all recipe ingredients from the meal plan to a shopping list",
+		Short:       "Preview meal-plan ingredients; bulk writes are disabled",
 		Example:     "  anylist-pp-cli meal add-to-list --list example-resource",
 		Annotations: map[string]string{"pp:endpoint": "meal.add-to-list", "pp:method": "POST", "pp:path": "/data/shopping-lists/update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -47,16 +46,13 @@ func newMealAddToListCmd(flags *rootFlags) *cobra.Command {
 			if bodyListName == "" && !cmd.Flags().Changed("list") && !dryRun {
 				return fmt.Errorf("required flag \"list\" not set")
 			}
+			if !dryRun {
+				return fmt.Errorf("bulk meal-plan shopping-list writes are disabled; use the meal-planning AI with 'recipes ingredients' and explicit item operations")
+			}
 
-			ctx := cmd.Context()
-			var cfg *config.Config
 			var st *store.Store
 			var err error
-			if dryRun {
-				cfg, st, err = openLocalStore(flags)
-			} else {
-				cfg, st, err = openAuthedLocalStore(flags)
-			}
+			_, st, err = openLocalStore(flags)
 			if err != nil {
 				return err
 			}
@@ -92,17 +88,14 @@ func newMealAddToListCmd(flags *rootFlags) *cobra.Command {
 				}
 				added := 0
 				wouldAdd := 0
-				if !dryRun {
-					added, err = addRecipeRowIngredientsToList(ctx, cfg, st, recipe, bodyListName, factor, true)
-					if err != nil {
-						return err
-					}
-				} else {
+				if dryRun {
 					// PATCH: Keep dry-run JSON useful for agents without performing writes.
 					wouldAdd, err = countRecipeIngredients(st, recipe)
 					if err != nil {
 						return err
 					}
+				} else {
+					return bulkRecipeToListDisabledError()
 				}
 				total += added
 				// PATCH: In dry-run JSON, mark recipe rows as writes that would occur.

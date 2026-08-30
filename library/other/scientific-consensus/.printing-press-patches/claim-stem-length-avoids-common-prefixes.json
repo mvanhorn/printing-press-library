@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "claim-stem-length-avoids-common-prefixes",
+  "applied_at": "2026-08-29",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "claimStemLen is 6, not 5. Content tokens from a claim are truncated so inflected forms still match, but the truncation must be long enough that a claim's own word does not collapse onto a prefix the literature uses for something else.",
+  "reason": "At five characters 'intermittent' becomes 'inter' and 'alertness' becomes 'alert' — strings that carry no subject of their own, so any work using intervention, interaction, interval, or a safety alert satisfies that side of the claim. Six is the shortest value that separates both pairs while leaving the inflection groups the engine relies on intact: improves/improved/improvement still share a stem, as do caffeine/caffeinated and attention/attentive. Longer than six begins splitting those groups without separating anything further. The constant is shared with the stance classifier's cue matching, so it must not be changed on the strength of the corpus suite alone: that suite passed at claimStemLen 3, and a live replay against OpenAlex is what a future change needs.",
+  "files": [
+    "internal/scengine/stance.go",
+    "internal/scengine/corpus_regression_test.go",
+    "internal/scengine/testdata/corpora/fasting.json",
+    "internal/scengine/testdata/corpora/vitaminc.json"
+  ],
+  "validated_outcome": "testdata/corpora/fasting.json is the case: its claim stems to a common prefix, so a change to this constant moves its leakage figure and the suite reports it. testdata/corpora/vitaminc.json is the control: its intervention side is a glued phrase that picoSideTokens never truncates, so it holds under any value. TestTokenLeakage fails on drift rather than logging it, which is what makes either corpus load-bearing. No verdict or stance changes on any corpus at six."
+}

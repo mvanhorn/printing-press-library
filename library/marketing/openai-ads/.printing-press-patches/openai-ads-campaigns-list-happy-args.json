@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "openai-ads-campaigns-list-happy-args",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-171540-a9bb0a03",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Add a pp:happy-args annotation to the generated campaigns list-method command.",
+  "reason": "The generated Example uses the alias form (campaigns list) while live dogfood probes the canonical path (campaigns list-method), so the matrix reported 'missing runnable example' and failed the happy path.",
+  "files": ["internal/cli/campaigns_list-method.go"],
+  "validated_outcome": "Full live dogfood went from 216/217 to 218/218."
+}

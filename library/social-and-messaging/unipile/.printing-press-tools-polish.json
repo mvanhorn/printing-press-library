@@ -1,0 +1,8 @@
+{
+  "timestamp": "2026-08-25T09:09:12.789117Z",
+  "cli_dir": "\u003ccli-dir\u003e/unipile-pp-cli",
+  "findings": null,
+  "progress": {
+    "last_processed_finding_id": "thin-short:teach.go:691"
+  }
+}

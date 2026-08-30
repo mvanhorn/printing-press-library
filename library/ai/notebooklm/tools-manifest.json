@@ -1,0 +1,13 @@
+{
+  "api_name": "notebooklm",
+  "base_url": "https://notebooklm.google.com",
+  "description": "Unofficial Go CLI for Gemini Notebook — notebooks, sources, chat, Studio artifacts, SQLite cache, and MCP via batchexecute RPC with Chrome session auth.",
+  "mcp_ready": "yes",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": ".google.com"
+  },
+  "required_headers": [],
+  "tools": []
+}

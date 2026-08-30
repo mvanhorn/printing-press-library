@@ -1,0 +1,51 @@
+version: 2
+project_name: logitech-docs-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: logitech-docs-pp-cli
+    main: ./cmd/logitech-docs-pp-cli
+    binary: logitech-docs-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/devices/logitech-docs/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: logitech-docs-pp-mcp
+    main: ./cmd/logitech-docs-pp-mcp
+    binary: logitech-docs-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: logitech-docs-pp-cli
+    repository:
+      owner: drummerms
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Logitech manual, spec sheet, and install guide — searchable offline, agent-native, no browser."
+    install: |
+      bin.install "logitech-docs-pp-cli"
+      bin.install "logitech-docs-pp-mcp"

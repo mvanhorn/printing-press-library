@@ -1,0 +1,248 @@
+{
+  "export": {
+    "app": "Corpova",
+    "analysis": "Consensus analysis",
+    "query": "red meat causes colon cancer",
+    "filters": [],
+    "rows_exported": 1,
+    "rows_total": 1,
+    "source": "OpenAlex (CC0)",
+    "exported_at": "2026-07-24T09:19:15.032Z"
+  },
+  "rows": [
+    {
+      "claim": "red meat causes colon cancer",
+      "verdict": "evidence-supports",
+      "consensus_score": 0.65,
+      "confidence": 0.34,
+      "evidence_strength": "high",
+      "apex_design": "meta-analysis",
+      "studies_analyzed": 11,
+      "supporting": 5,
+      "refuting": 4,
+      "mixed": 0,
+      "inconclusive": 2,
+      "method": "heuristic",
+      "ai_stance": "supports",
+      "ai_confidence": 0.85,
+      "ai_model": "openrouter/free"
+    }
+  ],
+  "response": {
+    "stance_source": "llm:openrouter",
+    "llm_synthesis": {
+      "stance": "supports",
+      "confidence": 0.85,
+      "reasoning": "Multiple meta-analyses of prospective cohort studies establish a significant association between red and processed meat consumption and increased risk of colorectal cancer. High-quality evidence indicates that for every 100g/day increase in red meat intake, the risk of colorectal cancer increases by approximately 14-17%. While some studies show variations in risk based on meat type or subsite, the overall trend across large-scale epidemiological data supports a causal link.",
+      "key_evidence": [
+        "Meta-analysis of prospective studies shows a summary relative risk (RR) of 1.22 (95% CI 1.11-1.34) for the highest vs. lowest red/processed meat intake.",
+        "Every 100g/day increase in red meat is associated with a 17% increased risk of colorectal cancer.",
+        "The European Prospective Investigation into Cancer and Nutrition found an HR of 1.35 for high red meat intake (comparing >160g/day to <20g/day).",
+        "Processed meat consumption is consistently associated with elevated colorectal cancer risk (RR 1.20 in meta-analysis)."
+      ],
+      "excluded_studies": [
+        {
+          "title": "A red meat-derived glycan promotes inflammation and cancer progression",
+          "reason": "mechanistic/animal model only: focuses on Neu5Gc in mice"
+        }
+      ],
+      "model": "openrouter/free"
+    },
+    "divergence": false,
+    "result": {
+      "claim": "red meat causes colon cancer",
+      "verdict": "evidence-supports",
+      "consensus_score": 0.65,
+      "confidence": 0.34,
+      "evidence_strength": "high",
+      "apex_design": "meta-analysis",
+      "study_count": 11,
+      "supporting": 5,
+      "refuting": 4,
+      "mixed": 0,
+      "inconclusive": 2,
+      "total_citations": 10025,
+      "stance_method": "heuristic",
+      "relevant_count": 11,
+      "near_unanimous": false,
+      "evidence_guarded": false,
+      "top_supporting": [
+        {
+          "title": "Red and Processed Meat and Colorectal Cancer Incidence: Meta-Analysis of Prospective Studies",
+          "year": 2011,
+          "doi": "10.1371/journal.pone.0020456",
+          "cited_by_count": 892,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.7785714285714286,
+          "abstract": "BACKGROUND: The evidence that red and processed meat influences colorectal carcinogenesis was judged convincing in the 2007 World Cancer Research Fund/American Institute of Cancer Research report. Since then, ten prospective studies have published new results. Here we update the evidence from prospective studies and explore whether there is a non-linear association of red and processed meats with colorectal cancer risk. METHODS AND FINDINGS: Relevant prospective studies were identified in PubMed until March 2011. For each study, relative risks and 95% confidence intervals (CI) were extracted and pooled with a random-effects model, weighting for the inverse of the variance, in highest versus lowest intake comparison, and dose-response meta-analyses. Red and processed meats intake was associated with increased colorectal cancer risk. The summary relative risk (RR) of colorectal cancer for the highest versus the lowest intake was 1.22 (95% CI = 1.11-1.34) and the RR for every 100 g/day increase was 1.14 (95% CI = 1.04-1.24). Non-linear dose-response meta-analyses revealed that colorectal cancer risk increases approximately linearly with increasing intake of red and processed meats up to approximately 140 g/day, where the curve approaches its plateau. The associations were similar for colon and rectal cancer risk. When analyzed separately, colorectal cancer risk was related to intake of fresh red meat (RR(for 100 g/day increase) = 1.17, 95% CI = 1.05-1.31) and processed meat (RR "
+        },
+        {
+          "title": "Meat consumption and risk of colorectal cancer: A meta‐analysis of prospective studies",
+          "year": 2006,
+          "doi": "10.1002/ijc.22170",
+          "cited_by_count": 643,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Accumulating epidemiologic evidence indicates that high consumption of red meat and of processed meat may increase the risk of colorectal cancer. We quantitatively assessed the association between red meat and processed meat consumption and the risk of colorectal cancer in a meta-analysis of prospective studies published through March 2006. Random-effects models were used to pool study results and to assess dose-response relationships. We identified 15 prospective studies on red meat (involving 7,367 cases) and 14 prospective studies on processed meat consumption (7,903 cases). The summary relative risks (RRs) of colorectal cancer for the highest vs. the lowest intake categories were 1.28 (95% confidence interval (CI) = 1.15-1.42) for red meat and 1.20 (95% CI = 1.11-1.31) for processed meat. The estimated summary RRs were 1.28 (95% CI = 1.18-1.39) for an increase of 120 g/day of red meat and 1.09 (95% CI = 1.05-1.13) for an increase of 30 g/day of processed meat. Consumption of red meat and processed meat was positively associated with risk of both colon and rectal cancer, although the association with red meat appeared to be stronger for rectal cancer. In 3 studies that reported results for subsites in the colon, high consumption of processed meat was associated with an increased risk of distal colon cancer but not of proximal colon cancer. The results of this meta-analysis of prospective studies support the hypothesis that high consumption of red meat and of processed meat"
+        },
+        {
+          "title": "Potential health hazards of eating red meat",
+          "year": 2016,
+          "doi": "10.1111/joim.12543",
+          "cited_by_count": 517,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.7,
+          "abstract": "Abstract Red meat (beef, veal, pork, lamb and mutton) consumption contributes several important nutrients to the diet, for example essential amino acids, vitamins (including B12) and minerals (including iron and zinc). Processed red meat (ham, sausages, bacon, frankfurters, salami, etc.) undergoes treatment (curing, smoking, salting or the use of chemical preservatives and additives) to improve its shelf life and/or taste. During recent decades, consumption of red meat has been increasing globally, especially in developing countries. At the same time, there has been growing evidence that high consumption of red meat, especially of processed meat, may be associated with an increased risk of several major chronic diseases. Here, a comprehensive summary is provided of the accumulated evidence based on prospective cohort studies regarding the potential adverse health effects of red meat consumption on major chronic diseases, such as diabetes, coronary heart disease, heart failure, stroke and cancer at several sites, and mortality. Risk estimates from pooled analyses and meta‐analyses are presented together with recently published findings. Based on at least six cohorts, summary results for the consumption of unprocessed red meat of 100 g day −1 varied from nonsignificant to statistically significantly increased risk (11% for stroke and for breast cancer, 15% for cardiovascular mortality, 17% for colorectal and 19% for advanced prostate cancer); for the consumption of 50 g day −1 "
+        }
+      ],
+      "top_refuting": [
+        {
+          "title": "Cancer is a Preventable Disease that Requires Major Lifestyle Changes",
+          "year": 2008,
+          "doi": "10.1007/s11095-008-9661-9",
+          "cited_by_count": 2612,
+          "design": "narrative-review",
+          "stance": "refuting",
+          "stance_confidence": 0.95,
+          "abstract": "This year, more than 1 million Americans and more than 10 million people worldwide are expected to be diagnosed with cancer, a disease commonly believed to be preventable. Only 5-10% of all cancer cases can be attributed to genetic defects, whereas the remaining 90-95% have their roots in the environment and lifestyle. The lifestyle factors include cigarette smoking, diet (fried foods, red meat), alcohol, sun exposure, environmental pollutants, infections, stress, obesity, and physical inactivity. The evidence indicates that of all cancer-related deaths, almost 25-30% are due to tobacco, as many as 30-35% are linked to diet, about 15-20% are due to infections, and the remaining percentage are due to other factors like radiation, stress, physical activity, environmental pollutants etc. Therefore, cancer prevention requires smoking cessation, increased ingestion of fruits and vegetables, moderate use of alcohol, caloric restriction, exercise, avoidance of direct exposure to sunlight, minimal meat consumption, use of whole grains, use of vaccinations, and regular check-ups. In this review, we present evidence that inflammation is the link between the agents/factors that cause cancer and the agents that prevent it. In addition, we provide evidence that cancer is a preventable disease that requires major lifestyle changes."
+        },
+        {
+          "title": "Epidemiology of colorectal cancer: incidence, mortality, survival, and risk factors",
+          "year": 2019,
+          "doi": "10.5114/pg.2018.81072",
+          "cited_by_count": 2351,
+          "design": "narrative-review",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "According to GLOBOCAN 2018 data, colorectal cancer (CRC) is the third most deadly and fourth most commonly diagnosed cancer in the world. Nearly 2 million new cases and about 1 million deaths are expected in 2018. CRC incidence has been steadily rising worldwide, especially in developing countries that are adopting the \"western\" way of life. Obesity, sedentary lifestyle, red meat consumption, alcohol, and tobacco are considered the driving factors behind the growth of CRC. However, recent advances in early detection screenings and treatment options have reduced CRC mortality in developed nations, even in the face of growing incidence. Genetic testing and better family history documentation can enable those with a hereditary predisposition for the neoplasm to take preventive measures. Meanwhile, the general population can reduce their risk by lowering their red meat, alcohol, and tobacco consumption and raising their consumption of fibre, wholesome foods, and certain vitamins and minerals."
+        },
+        {
+          "title": "Dietary Factors and Risk of Colon Cancer",
+          "year": 1994,
+          "doi": "10.3109/07853899409148367",
+          "cited_by_count": 330,
+          "design": "narrative-review",
+          "stance": "refuting",
+          "stance_confidence": 0.8500000000000001,
+          "abstract": "The incidence rates of colon cancer are high in North America and northern Europe, lower in southern Europe, and much lower in Asia and Africa. It is widely believed that environmental factors, particularly dietary patterns, account for most of this marked variation in rates. Over the past decade, a large number of case-control and cohort studies have added a substantial body of evidence regarding our understanding of the causes of colon cancer. Although the data are not entirely consistent, several important risk factors have emerged. The epidemiological evidence that physical inactivity or excess energy intake relative to requirements increases risk of this malignancy is quite strong. Intake of red meat appears to increase risk, but protein-rich sources other than red meat probably do not elevate risk and may even reduce the occurrence of colon cancer. Dietary fat, at least that from sources other than red meat, does not appear to increase risk appreciably. High consumption of vegetables and fruits and the avoidance of highly refined sugar containing foods are likely to reduce risk of colon cancer, although the responsible constituents remain unclear. Alcohol intake may enhance risk of cancers of the distal colorectum, although the evidence is not entirely consistent. The influence of alcohol may be particularly strong when combined with a diet low in methionine and folate, suggesting that the effect of alcohol may be through antagonism of methyl-group metabolism. The combi"
+        }
+      ],
+      "all_studies": [
+        {
+          "title": "Red and Processed Meat and Colorectal Cancer Incidence: Meta-Analysis of Prospective Studies",
+          "year": 2011,
+          "doi": "10.1371/journal.pone.0020456",
+          "cited_by_count": 892,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.7785714285714286,
+          "abstract": "BACKGROUND: The evidence that red and processed meat influences colorectal carcinogenesis was judged convincing in the 2007 World Cancer Research Fund/American Institute of Cancer Research report. Since then, ten prospective studies have published new results. Here we update the evidence from prospective studies and explore whether there is a non-linear association of red and processed meats with colorectal cancer risk. METHODS AND FINDINGS: Relevant prospective studies were identified in PubMed until March 2011. For each study, relative risks and 95% confidence intervals (CI) were extracted and pooled with a random-effects model, weighting for the inverse of the variance, in highest versus lowest intake comparison, and dose-response meta-analyses. Red and processed meats intake was associated with increased colorectal cancer risk. The summary relative risk (RR) of colorectal cancer for the highest versus the lowest intake was 1.22 (95% CI = 1.11-1.34) and the RR for every 100 g/day increase was 1.14 (95% CI = 1.04-1.24). Non-linear dose-response meta-analyses revealed that colorectal cancer risk increases approximately linearly with increasing intake of red and processed meats up to approximately 140 g/day, where the curve approaches its plateau. The associations were similar for colon and rectal cancer risk. When analyzed separately, colorectal cancer risk was related to intake of fresh red meat (RR(for 100 g/day increase) = 1.17, 95% CI = 1.05-1.31) and processed meat (RR "
+        },
+        {
+          "title": "Heme Iron from Meat and Risk of Colorectal Cancer: A Meta-analysis and a Review of the Mechanisms Involved",
+          "year": 2011,
+          "doi": "10.1158/1940-6207.capr-10-0113",
+          "cited_by_count": 386,
+          "design": "meta-analysis",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "Red meat and processed meat intake is associated with a risk of colorectal cancer, a major cause of death in affluent countries. Epidemiological and experimental evidence supports the hypothesis that heme iron present in meat promotes colorectal cancer. This meta-analysis of prospective cohort studies of colon cancer reporting heme intake included 566,607 individuals and 4,734 cases of colon cancer. The relative risk of colon cancer was 1.18 (95% CI: 1.06-1.32) for subjects in the highest category of heme iron intake compared with those in the lowest category. Epidemiological data thus show a suggestive association between dietary heme and risk of colon cancer. The analysis of experimental studies in rats with chemically-induced colon cancer showed that dietary hemoglobin and red meat consistently promote aberrant crypt foci, a putative precancer lesion. The mechanism is not known, but heme iron has a catalytic effect on (i) the endogenous formation of carcinogenic N-nitroso compounds and (ii) the formation of cytotoxic and genotoxic aldehydes by lipoperoxidation. A review of evidence supporting these hypotheses suggests that both pathways are involved in heme iron toxicity."
+        },
+        {
+          "title": "Dietary Factors and Risk of Colon Cancer",
+          "year": 1994,
+          "doi": "10.3109/07853899409148367",
+          "cited_by_count": 330,
+          "design": "narrative-review",
+          "stance": "refuting",
+          "stance_confidence": 0.8500000000000001,
+          "abstract": "The incidence rates of colon cancer are high in North America and northern Europe, lower in southern Europe, and much lower in Asia and Africa. It is widely believed that environmental factors, particularly dietary patterns, account for most of this marked variation in rates. Over the past decade, a large number of case-control and cohort studies have added a substantial body of evidence regarding our understanding of the causes of colon cancer. Although the data are not entirely consistent, several important risk factors have emerged. The epidemiological evidence that physical inactivity or excess energy intake relative to requirements increases risk of this malignancy is quite strong. Intake of red meat appears to increase risk, but protein-rich sources other than red meat probably do not elevate risk and may even reduce the occurrence of colon cancer. Dietary fat, at least that from sources other than red meat, does not appear to increase risk appreciably. High consumption of vegetables and fruits and the avoidance of highly refined sugar containing foods are likely to reduce risk of colon cancer, although the responsible constituents remain unclear. Alcohol intake may enhance risk of cancers of the distal colorectum, although the evidence is not entirely consistent. The influence of alcohol may be particularly strong when combined with a diet low in methionine and folate, suggesting that the effect of alcohol may be through antagonism of methyl-group metabolism. The combi"
+        },
+        {
+          "title": "Cancer is a Preventable Disease that Requires Major Lifestyle Changes",
+          "year": 2008,
+          "doi": "10.1007/s11095-008-9661-9",
+          "cited_by_count": 2612,
+          "design": "narrative-review",
+          "stance": "refuting",
+          "stance_confidence": 0.95,
+          "abstract": "This year, more than 1 million Americans and more than 10 million people worldwide are expected to be diagnosed with cancer, a disease commonly believed to be preventable. Only 5-10% of all cancer cases can be attributed to genetic defects, whereas the remaining 90-95% have their roots in the environment and lifestyle. The lifestyle factors include cigarette smoking, diet (fried foods, red meat), alcohol, sun exposure, environmental pollutants, infections, stress, obesity, and physical inactivity. The evidence indicates that of all cancer-related deaths, almost 25-30% are due to tobacco, as many as 30-35% are linked to diet, about 15-20% are due to infections, and the remaining percentage are due to other factors like radiation, stress, physical activity, environmental pollutants etc. Therefore, cancer prevention requires smoking cessation, increased ingestion of fruits and vegetables, moderate use of alcohol, caloric restriction, exercise, avoidance of direct exposure to sunlight, minimal meat consumption, use of whole grains, use of vaccinations, and regular check-ups. In this review, we present evidence that inflammation is the link between the agents/factors that cause cancer and the agents that prevent it. In addition, we provide evidence that cancer is a preventable disease that requires major lifestyle changes."
+        },
+        {
+          "title": "Meat, Fish, and Colorectal Cancer Risk: The European Prospective Investigation into Cancer and Nutrition",
+          "year": 2005,
+          "doi": "10.1093/jnci/dji164",
+          "cited_by_count": 865,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.7,
+          "abstract": "BACKGROUND: Current evidence suggests that high red meat intake is associated with increased colorectal cancer risk. High fish intake may be associated with a decreased risk, but the existing evidence is less convincing. METHODS: We prospectively followed 478 040 men and women from 10 European countries who were free of cancer at enrollment between 1992 and 1998. Information on diet and lifestyle was collected at baseline. After a mean follow-up of 4.8 years, 1329 incident colorectal cancers were documented. We examined the relationship between intakes of red and processed meat, poultry, and fish and colorectal cancer risk using a proportional hazards model adjusted for age, sex, energy (nonfat and fat sources), height, weight, work-related physical activity, smoking status, dietary fiber and folate, and alcohol consumption, stratified by center. A calibration substudy based on 36 994 subjects was used to correct hazard ratios (HRs) and 95% confidence intervals (CIs) for diet measurement errors. All statistical tests were two-sided. RESULTS: Colorectal cancer risk was positively associated with intake of red and processed meat (highest [>160 g/day] versus lowest [<20 g/day] intake, HR = 1.35, 95% CI = 0.96 to 1.88; Ptrend = .03) and inversely associated with intake of fish (>80 g/day versus <10 g/day, HR = 0.69, 95 % CI = 0.54 to 0.88; Ptrend<.001), but was not related to poultry intake. Correcting for measurement error strengthened the associations between colorectal cancer "
+        },
+        {
+          "title": "Epidemiology of colorectal cancer: incidence, mortality, survival, and risk factors",
+          "year": 2019,
+          "doi": "10.5114/pg.2018.81072",
+          "cited_by_count": 2351,
+          "design": "narrative-review",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "According to GLOBOCAN 2018 data, colorectal cancer (CRC) is the third most deadly and fourth most commonly diagnosed cancer in the world. Nearly 2 million new cases and about 1 million deaths are expected in 2018. CRC incidence has been steadily rising worldwide, especially in developing countries that are adopting the \"western\" way of life. Obesity, sedentary lifestyle, red meat consumption, alcohol, and tobacco are considered the driving factors behind the growth of CRC. However, recent advances in early detection screenings and treatment options have reduced CRC mortality in developed nations, even in the face of growing incidence. Genetic testing and better family history documentation can enable those with a hereditary predisposition for the neoplasm to take preventive measures. Meanwhile, the general population can reduce their risk by lowering their red meat, alcohol, and tobacco consumption and raising their consumption of fibre, wholesome foods, and certain vitamins and minerals."
+        },
+        {
+          "title": "Meat consumption and risk of colorectal cancer: A meta‐analysis of prospective studies",
+          "year": 2006,
+          "doi": "10.1002/ijc.22170",
+          "cited_by_count": 643,
+          "design": "meta-analysis",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Accumulating epidemiologic evidence indicates that high consumption of red meat and of processed meat may increase the risk of colorectal cancer. We quantitatively assessed the association between red meat and processed meat consumption and the risk of colorectal cancer in a meta-analysis of prospective studies published through March 2006. Random-effects models were used to pool study results and to assess dose-response relationships. We identified 15 prospective studies on red meat (involving 7,367 cases) and 14 prospective studies on processed meat consumption (7,903 cases). The summary relative risks (RRs) of colorectal cancer for the highest vs. the lowest intake categories were 1.28 (95% confidence interval (CI) = 1.15-1.42) for red meat and 1.20 (95% CI = 1.11-1.31) for processed meat. The estimated summary RRs were 1.28 (95% CI = 1.18-1.39) for an increase of 120 g/day of red meat and 1.09 (95% CI = 1.05-1.13) for an increase of 30 g/day of processed meat. Consumption of red meat and processed meat was positively associated with risk of both colon and rectal cancer, although the association with red meat appeared to be stronger for rectal cancer. In 3 studies that reported results for subsites in the colon, high consumption of processed meat was associated with an increased risk of distal colon cancer but not of proximal colon cancer. The results of this meta-analysis of prospective studies support the hypothesis that high consumption of red meat and of processed meat"
+        },
+        {
+          "title": "A Prospective Study of Red and Processed Meat Intake in Relation to Cancer Risk",
+          "year": 2007,
+          "doi": "10.1371/journal.pmed.0040325",
+          "cited_by_count": 474,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "BACKGROUND: Red meat and processed meat have been associated with carcinogenesis at several anatomic sites, but no prospective study has examined meat intake in relation to a range of malignancies. We investigated whether red or processed meat intake increases cancer risk at a variety of sites. METHODS AND FINDINGS: The National Institutes of Health (NIH)-AARP (formerly the American Association for Retired Persons) Diet and Health Study is a cohort of approximately 500,000 people aged 50-71 y at baseline (1995-1996). Meat intake was estimated from a food frequency questionnaire administered at baseline. Cox proportional hazards regression was used to estimate hazard ratios and 95% confidence intervals within quintiles of red and processed meat intake. During up to 8.2 y of follow-up, 53,396 incident cancers were ascertained. Statistically significant elevated risks (ranging from 20% to 60%) were evident for esophageal, colorectal, liver, and lung cancer, comparing individuals in the highest with those in the lowest quintile of red meat intake. Furthermore, individuals in the highest quintile of processed meat intake had a 20% elevated risk for colorectal and a 16% elevated risk for lung cancer. CONCLUSIONS: Both red and processed meat intakes were positively associated with cancers of the colorectum and lung; furthermore, red meat intake was associated with an elevated risk for cancers of the esophagus and liver."
+        },
+        {
+          "title": "Comparison of risk factors for colon and rectal cancer",
+          "year": 2003,
+          "doi": "10.1002/ijc.11540",
+          "cited_by_count": 557,
+          "design": "cohort-study",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": "Predictors of colorectal cancer have been extensively studied with some evidence suggesting that risk factors vary by subsite. Using data from 2 prospective cohort studies, we examined established risk factors to determine whether they were differentially associated with colon and rectal cancer. Our study population included 87,733 women from the Nurses' Health Study (NHS) and 46,632 men from the Health Professionals Follow Up Study (HPFS). Exposure information was collected via biennial questionnaires (dietary variables were collected every 4 years). During the follow-up period (NHS: 1980 to May 31, 2000; HPFS: 1986 to January 31, 2000), we identified 1,139 cases of colon cancer and 339 cases of rectal cancer. We used pooled logistic regression to estimate multivariate relative risks for the 2 outcomes separately and then used polytomous logistic regression to compare these estimates. In the combined cohort, age, gender, family history of colon or rectal cancer, height, body mass index, physical activity, folate, intake of beef, pork or lamb as a main dish, intake of processed meat and alcohol were significantly associated with colon cancer risk. However, only age and sex were associated with rectal cancer. In a stepwise polytomous logistic regression procedure, family history and physical activity were associated with statistically significant different relative risks of colon and rectal cancer. Our findings support previous suggestions that family history and physical acti"
+        },
+        {
+          "title": "Potential health hazards of eating red meat",
+          "year": 2016,
+          "doi": "10.1111/joim.12543",
+          "cited_by_count": 517,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.7,
+          "abstract": "Abstract Red meat (beef, veal, pork, lamb and mutton) consumption contributes several important nutrients to the diet, for example essential amino acids, vitamins (including B12) and minerals (including iron and zinc). Processed red meat (ham, sausages, bacon, frankfurters, salami, etc.) undergoes treatment (curing, smoking, salting or the use of chemical preservatives and additives) to improve its shelf life and/or taste. During recent decades, consumption of red meat has been increasing globally, especially in developing countries. At the same time, there has been growing evidence that high consumption of red meat, especially of processed meat, may be associated with an increased risk of several major chronic diseases. Here, a comprehensive summary is provided of the accumulated evidence based on prospective cohort studies regarding the potential adverse health effects of red meat consumption on major chronic diseases, such as diabetes, coronary heart disease, heart failure, stroke and cancer at several sites, and mortality. Risk estimates from pooled analyses and meta‐analyses are presented together with recently published findings. Based on at least six cohorts, summary results for the consumption of unprocessed red meat of 100 g day −1 varied from nonsignificant to statistically significantly increased risk (11% for stroke and for breast cancer, 15% for cardiovascular mortality, 17% for colorectal and 19% for advanced prostate cancer); for the consumption of 50 g day −1 "
+        },
+        {
+          "title": "A red meat-derived glycan promotes inflammation and cancer progression",
+          "year": 2014,
+          "doi": "10.1073/pnas.1417508112",
+          "cited_by_count": 398,
+          "design": "unclassified",
+          "stance": "refuting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "A well known, epidemiologically reproducible risk factor for human carcinomas is the long-term consumption of \"red meat\" of mammalian origin. Although multiple theories have attempted to explain this human-specific association, none have been conclusively proven. We used an improved method to survey common foods for free and glycosidically bound forms of the nonhuman sialic acid N-glycolylneuraminic acid (Neu5Gc), showing that it is highly and selectively enriched in red meat. The bound form of Neu5Gc is bioavailable, undergoing metabolic incorporation into human tissues, despite being a foreign antigen. Interactions of this antigen with circulating anti-Neu5Gc antibodies could potentially incite inflammation. Indeed, when human-like Neu5Gc-deficient mice were fed bioavailable Neu5Gc and challenged with anti-Neu5Gc antibodies, they developed evidence of systemic inflammation. Such mice are already prone to develop occasional tumors of the liver, an organ that can incorporate dietary Neu5Gc. Neu5Gc-deficient mice immunized against Neu5Gc and fed bioavailable Neu5Gc developed a much higher incidence of hepatocellular carcinomas, with evidence of Neu5Gc accumulation. Taken together, our data provide an unusual mechanistic explanation for the epidemiological association between red meat consumption and carcinoma risk. This mechanism might also contribute to other chronic inflammatory processes epidemiologically associated with red meat consumption."
+        }
+      ],
+      "note": "15 work(s) excluded by PICO gate (missing intervention [meat] or outcome [colon cance] in abstract/title)"
+    }
+  }
+}

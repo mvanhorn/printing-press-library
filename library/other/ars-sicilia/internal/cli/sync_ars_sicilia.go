@@ -155,10 +155,16 @@ func runSyncAll(cmd *cobra.Command, flags *rootFlags, dbPath string, maxPages in
 // flattenRecord produce la mappa flat (stessa forma di emitRecords) e l'ID stabile.
 func flattenRecord(arc icaro.Archive, r icaro.Record) (id string, flat map[string]any) {
 	flat = map[string]any{
-		"doc_id":  r.DocID,
 		"title":   r.Title,
 		"excerpt": r.Excerpt,
 		"url":     r.URL,
+	}
+	// Gli archivi migrati al backend /bd/ non hanno un DocID Icaro: memorizzare
+	// lo zero lo farebbe riemergere in `search` e nelle query SQL sullo store
+	// come se fosse un identificativo vero (vedi emitRecords). deriveSyncID non
+	// usa doc_id per nessun archivio, quindi la chiave del record non cambia.
+	if r.DocID > 0 {
+		flat["doc_id"] = r.DocID
 	}
 	for k, v := range r.Fields {
 		flat[strings.ToLower(strings.TrimSuffix(k, "."))] = v

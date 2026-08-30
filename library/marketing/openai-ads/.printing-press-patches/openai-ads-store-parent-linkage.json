@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "openai-ads-store-parent-linkage",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-171540-a9bb0a03",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Add parent-id columns to ad_groups and ads plus an append-only entity_snapshots history table.",
+  "reason": "The hierarchy commands (tree, orphans, bid-check) need a local join key that the API does not return on the child objects, and drift and review-watch need snapshot history because the Ads API exposes no change-history endpoint.",
+  "files": ["internal/store/store.go"],
+  "validated_outcome": "tree renders campaign > ad group > ad from the local store; drift and review-watch read entity_snapshots."
+}

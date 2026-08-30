@@ -1,0 +1,3 @@
+{"id":"req_1","custom_id":"req-1","response":{"status_code":200,"body":{"choices":[{"message":{"content":"ok"}}]}}}
+{"id":"req_2","custom_id":"req-2","response":{"status_code":429,"body":{"error":{"message":"rate limited","type":"rate_limit_error"}}}}
+{"id":"req_3","custom_id":"req-3","response":null,"error":{"type":"server_error","message":"upstream failed"}}

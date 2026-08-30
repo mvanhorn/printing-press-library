@@ -1,0 +1,4 @@
+path=/var/folders/4c/4s9qrz4s335f5whj7y427ns00000gn/T//printing-press-fetch-docs/is-agentic.com-methodology-1e41dbf5ed1ff0d3.html
+status=200
+content_type=text/html; charset=utf-8
+effective_url=https://is-agentic.com/methodology

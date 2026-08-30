@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-mcp-typed-via-cli",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "I due tool MCP tipizzati (provvedimenti_cerca, provvedimenti_get) passano dalla CLI via il nuovo makeCLIHandler (cobratree.SiblingCLIPath + cobratree.RunCLICommand) invece di makeAPIHandler, che faceva una GET diretta sulla pagina. Rimossi makeAPIHandler e newMCPClient, ora morti (assieme a internal/client, internal/config e time, ora inutilizzati in questo file). provvedimenti_cerca applica ancora il budget di byte/item (e' una lista); provvedimenti_get lo salta apposta (e' il testo integrale di una sentenza, e troncarlo a 60KB e' un errore peggiore dell'HTML rotto che sostituisce). Aggiunto anche un check in cobratree/walker.go: un comando con sotto-comandi (provvedimenti, corpus, watch, workflow) non viene piu' registrato come tool a se stante, solo i suoi figli lo sono.",
+  "reason": "makeAPIHandler e' generato assumendo una vera API REST: fa una GET diretta sull'endpoint (/web/guest/dcsnprr, /visualizzah2/). Il portale Giustizia Amministrativa e' invece un portale Liferay a sessione: senza l'handshake p_auth+cookie che internal/gaclient fa correttamente, quelle URL rispondono con la pagina HTML normale (~148KB), non con risultati. I due tool tipizzati restituivano quindi markup al posto di dati -- e sono le operazioni piu' comuni (cerca e get) per l'utente meno tecnico, quello che usa il tool da Claude Desktop via MCP e non tocca mai la CLI. In piu' l'HTML superava il budget byte del tool (60KB), producendo un errore di troncamento che sembrava un secondo bug indipendente. Riprodotto e confermato in locale con lo stesso identico binario/query di un utente Windows via Claude Desktop (log mcp-server-Giustizia Amministrativa.log). Il secondo difetto, trovato dallo stesso utente: i tool 'provvedimenti'/'corpus'/'watch'/'workflow' (nodi gruppo senza sotto-comando) comparivano nella tool list e rispondevano 'subcommand required' se chiamati -- un vicolo cieco per un agente che li prova prima dei figli.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/cobratree/walker.go"
+  ],
+  "validated_outcome": "provvedimenti_cerca testo='accesso civico generalizzato' tipo=sentenza sede=roma limit=5: prima HTML grezzo (149055 byte, troncato dal budget), ora {\"count\":5,\"items\":[...]} con gli stessi risultati della CLI (search/provvedimenti cerca dirette). provvedimenti_get id=ECLI:IT:TARLAZ:2026:13525SENT: prima HTML grezzo, ora oggetto JSON con full_text della sentenza (24529 byte, non troncato). tools/list: 17 -> 13 (rimossi provvedimenti, corpus, watch, workflow; restano i loro figli funzionanti). go build/vet/test verdi."
+}

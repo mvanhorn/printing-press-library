@@ -54,6 +54,16 @@ Thumbs.db
 # Conductor workspace state
 .conductor/
 
+# Verbose manuscript proof logs — structured proofs (.json/.md/.txt) are the
+# canonical archive; raw .log files are local-only generation/dogfood output.
+library/**/.manuscripts/**/proofs/*.log
+
+# Raw live-dogfood transcript — samples real live-API response bodies
+# (account data, private repo/org names, source diffs). Never canonical
+# evidence; phase5-acceptance.json (metadata-only) is the safe artifact.
+# See #4319.
+library/**/.manuscripts/**/proofs/publish-live-gate.json
+
 # Local Git worktrees
 .worktrees/
 
@@ -61,15 +71,23 @@ Thumbs.db
 CLAUDE.local.md
 AGENTS.override.md
 .claude/settings.local.json
+.compound-engineering/*.local.yaml
 
 # Local project-scoped agent skill installs. These let private or
 # experimental skills live next to this checkout without being published from
 # this public repo. Already-tracked files remain tracked unless intentionally
 # removed from git later.
-.claude/skills/
-.skills/
-.agents/skills/
-.codex/skills/
-.cursor/skills/
-.gemini/skills/
+#
+# Deliberately no trailing slashes: a trailing slash matches directories only,
+# and git classifies a symlink as a file. Sharing one skill install across git
+# worktrees by symlinking these paths is common, and a slash-suffixed pattern
+# leaves that symlink untracked-but-not-ignored -- exactly what these rules
+# exist to prevent. Keep them slashless so both the real directory and a
+# symlink to it are ignored.
+.claude/skills
+.skills
+.agents/skills
+.codex/skills
+.cursor/skills
+.gemini/skills
 /skills-lock.json

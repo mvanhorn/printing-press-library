@@ -30,7 +30,11 @@ This skill drives the `giustizia-amministrativa-pp-cli` binary. **You must verif
 2. Verify: `giustizia-amministrativa-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/productivity/giustizia-amministrativa/cmd/giustizia-amministrativa-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
@@ -55,7 +59,18 @@ These capabilities aren't available in any other tool for this API.
 
   ```bash
   giustizia-amministrativa-pp-cli get --sede tar_rm --nrg 202600422 --file 202611307_01.html --format md
+
+  # --meta aggiunge i metadati di registro letti dalla forma XML del documento: oggetto,
+  # presidente, estensore, flag omissis e urn NIR (che il portale lascia con numero e data
+  # azzerati, quindi identifica la sezione e non il singolo provvedimento). Costa una
+  # seconda richiesta al portale; estensore e urn ci sono sempre, oggetto e presidente no
+  giustizia-amministrativa-pp-cli get IT:TARLAZ:2026:11307SENT --meta
   ```
+
+  Come si scrive `--sede`: citta' (`roma`, `milano`), regione (`lazio`, `tar-sicilia`),
+  sede staccata (`sicilia-catania`, `lombardia-brescia`) o il codice che compare
+  nell'ECLI (`TARLAZ`, `TARMI`, `CDS`). Il nome della regione risolve alla sede
+  principale e, se la regione ne ha due, la ricerca lo dichiara in un avviso.
 
 ### Stato locale che si accumula
 - **`watch run`** — Salva una ricerca e a ogni esecuzione mostra solo i provvedimenti nuovi dall'ultima volta.

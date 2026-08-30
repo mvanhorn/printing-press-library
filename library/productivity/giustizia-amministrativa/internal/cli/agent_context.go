@@ -89,6 +89,10 @@ func newAgentContextCmd(rootCmd *cobra.Command) *cobra.Command {
 		Long: `Outputs a machine-readable description of commands, flags, and auth so
 agents can introspect this CLI at runtime without parsing --help or
 reading source. Schema is versioned via schema_version.`,
+		// pp:examples-section: la matrice live del collaudo boccia con
+		// "missing Examples section" ogni comando che non ne dichiara una.
+		Example: `  giustizia-amministrativa-pp-cli agent-context
+  giustizia-amministrativa-pp-cli agent-context --pretty`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := buildAgentContext(rootCmd)
 			enc := json.NewEncoder(os.Stdout)

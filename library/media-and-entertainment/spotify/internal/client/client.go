@@ -104,12 +104,25 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 		cacheDir = filepath.Join(dir, "http")
 	}
 	httpClient := newHTTPClient(timeout, nil)
+	limiter := cliutil.NewAdaptiveLimiter(rateLimit)
+	// PATCH(amend-2026-08-08: scope quota state to the client ID) — Spotify
+	// enforces quota per app, so persisted blocks and the learned limiter
+	// ceiling must not leak across developer apps sharing one cache dir.
+	if cfg != nil {
+		cliutil.SetQuotaIdentity(cfg.ClientID)
+	}
+	// PATCH(amend-2026-08-08: persist limiter ceiling) — seed the adaptive
+	// limiter with the rate ceiling learned in prior sessions so a fresh
+	// process starts below it instead of re-triggering 429s to find it.
+	if cliutil.QuotaGuardEnabled() {
+		limiter.SeedCeiling(cliutil.PersistedLimiterCeiling())
+	}
 	c := &Client{
 		BaseURL:    strings.TrimRight(cfg.BaseURL, "/"),
 		Config:     cfg,
 		HTTPClient: httpClient,
 		cacheDir:   cacheDir,
-		limiter:    cliutil.NewAdaptiveLimiter(rateLimit),
+		limiter:    limiter,
 	}
 	// CheckRedirect re-derives auth on each hop. Go's default replays the
 	// original Authorization header verbatim, which breaks nonce-bound
@@ -259,9 +272,19 @@ func (c *Client) cacheKey(path string, params map[string]string) string {
 	key += "|base_url=" + c.BaseURL
 	if c.Config != nil {
 		key += "|auth_source=" + c.Config.AuthSource
-		if authHeader := c.Config.AuthHeader(); authHeader != "" {
-			authHash := sha256.Sum256([]byte(authHeader))
-			key += "|auth=" + hex.EncodeToString(authHash[:8])
+		// PATCH(amend-2026-08-08: stable cache identity) — key on the
+		// refresh token when present, not the auth header: Spotify access
+		// tokens rotate hourly, and hashing the rotating header silently
+		// orphaned the entire cache each rotation. The refresh token is the
+		// stable per-account identity; header hashing remains the fallback
+		// for accounts without one.
+		identity := c.Config.RefreshToken
+		if identity == "" {
+			identity = c.Config.AuthHeader()
+		}
+		if identity != "" {
+			identityHash := sha256.Sum256([]byte(identity))
+			key += "|identity=" + hex.EncodeToString(identityHash[:8])
 		}
 		if c.Config.Path != "" {
 			key += "|config_path=" + c.Config.Path
@@ -305,10 +328,17 @@ func pathWithQueryValues(path string, params url.Values) string {
 	return path + separator + encoded
 }
 
+// PATCH(amend-2026-08-08: tiered cache TTLs) — read/write honor per-class
+// TTLs (catalog 24h / library 20min / player never) instead of a flat 5min;
+// see cachepolicy.go for the class taxonomy and rationale.
 func (c *Client) readCache(path string, params map[string]string) (json.RawMessage, bool) {
-	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
+	ttl := cacheTTLForPath(path)
+	if ttl <= 0 {
+		return nil, false
+	}
+	cacheFile := filepath.Join(c.cacheDir, c.cacheFileName(path, params))
 	info, err := os.Stat(cacheFile)
-	if err != nil || time.Since(info.ModTime()) > 5*time.Minute {
+	if err != nil || time.Since(info.ModTime()) > ttl {
 		return nil, false
 	}
 	data, err := os.ReadFile(cacheFile)
@@ -319,19 +349,12 @@ func (c *Client) readCache(path string, params map[string]string) (json.RawMessa
 }
 
 func (c *Client) writeCache(path string, params map[string]string, data json.RawMessage) {
-	os.MkdirAll(c.cacheDir, 0o700)
-	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
-	os.WriteFile(cacheFile, []byte(data), 0o600)
-}
-
-// invalidateCache wholesale-removes the cache directory so the next read
-// after a mutation cannot return a stale snapshot. Selective per-resource
-// invalidation rejected: cache keys are opaque sha256 hashes.
-func (c *Client) invalidateCache() {
-	if c.cacheDir == "" {
+	if cacheTTLForPath(path) <= 0 {
 		return
 	}
-	_ = os.RemoveAll(c.cacheDir)
+	os.MkdirAll(c.cacheDir, 0o700)
+	cacheFile := filepath.Join(c.cacheDir, c.cacheFileName(path, params))
+	os.WriteFile(cacheFile, []byte(data), 0o600)
 }
 
 func (c *Client) Post(ctx context.Context, path string, body any) (json.RawMessage, int, error) {
@@ -552,6 +575,23 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		return c.dryRun(method, targetURL, path, params, bodyBytes, headerOverrides, authHeader)
 	}
 
+	// PATCH(amend-2026-08-08: quota circuit breaker) — fail fast against a
+	// persisted endpoint-class quota block instead of dialing out and
+	// burning the retry budget on a guaranteed 429. Blocks are recorded in
+	// the 429 branch below when Retry-After exceeds QuotaBlockThreshold and
+	// are endpoint-class-scoped (/me can be healthy while /search is
+	// blocked). Cache reads still serve above this point.
+	quotaClass := cliutil.QuotaClassForPath(path)
+	if cliutil.QuotaGuardEnabled() {
+		if until, blocked := cliutil.QuotaBlockedUntil(quotaClass); blocked {
+			return nil, http.StatusTooManyRequests, &cliutil.QuotaBlockError{
+				URL:          c.displayURL(path, authHeader),
+				Class:        quotaClass,
+				BlockedUntil: until,
+			}
+		}
+	}
+
 	maxRetries := clientMaxRetries()
 	var lastErr error
 	refreshedAfterUnauthorized := false
@@ -639,7 +679,9 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		if resp.StatusCode < 400 {
 			c.limiter.OnSuccess()
 			if method != http.MethodGet && !c.DryRun {
-				c.invalidateCache()
+				// PATCH(amend-2026-08-08: scoped invalidation) — invalidate
+				// only the mutated path's cache class; see cachepolicy.go.
+				c.invalidateCacheForPath(path)
 			}
 			// Non-textual bodies (PDF, zip, image, octet-stream) must not be
 			// run through the JSON sanitizer or returned as raw json.RawMessage
@@ -684,15 +726,34 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		}
 
 		// Rate limited - adjust adaptive limiter and retry
-		if resp.StatusCode == 429 && attempt < maxRetries {
+		if resp.StatusCode == 429 {
 			c.limiter.OnRateLimit()
-			wait := cliutil.RetryAfter(resp)
-			fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
-			if err := sleepContext(ctx, wait); err != nil {
-				return nil, 0, err
+			if cliutil.QuotaGuardEnabled() {
+				cliutil.RecordLimiterCeiling(c.limiter.Ceiling())
+				// PATCH(amend-2026-08-08: quota circuit breaker) — a
+				// Retry-After beyond QuotaBlockThreshold is a quota block,
+				// not a rate limit: the clamped 60s retries are
+				// guaranteed-futile, so persist the block and surface the
+				// real wall-clock reset immediately (zero retries).
+				if uncapped := cliutil.RetryAfterUncapped(resp); uncapped > cliutil.QuotaBlockThreshold {
+					blockedUntil := time.Now().Add(uncapped)
+					cliutil.RecordQuotaBlock(quotaClass, blockedUntil)
+					return nil, resp.StatusCode, &cliutil.QuotaBlockError{
+						URL:          c.displayURL(path, authHeader),
+						Class:        quotaClass,
+						BlockedUntil: blockedUntil,
+					}
+				}
 			}
-			lastErr = apiErr
-			continue
+			if attempt < maxRetries {
+				wait := cliutil.RetryAfter(resp)
+				fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
+				if err := sleepContext(ctx, wait); err != nil {
+					return nil, 0, err
+				}
+				lastErr = apiErr
+				continue
+			}
 		}
 
 		// Server error - retry with backoff

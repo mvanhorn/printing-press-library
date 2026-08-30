@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "get-trasparenza-validate-azienda",
+  "applied_at": "2026-08-29",
+  "base_run_id": "20260617-160648",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Validate the <azienda> argument of atti get-trasparenza against the 13 known organisations, accepting either the orgs key or the API name, and resolve the key to the name the API expects.",
+  "reason": "The endpoint answers HTTP 200 with an empty listaTrasparenza when the azienda does not exist, so a typo was indistinguishable from an organisation that publishes no transparency sections, and the command exited 0. Every other positional command in this CLI surfaces bad input as an error: get-atto, download-allegato, list-proponenti and list-proponenti-attivi all exit 5 on `__printing_press_invalid__`, get-trasparenza was the only one exiting 0. The live matrix of press 4.30.3 sonda exactly that (`error_path` on `atti get-trasparenza __printing_press_invalid__`) and failed it; the previous marker was printed by press 4.24.0, whose matrix had 8 tests and never probed this path. The authoritative list already shipped in orgs.go, so validation reuses it rather than introducing a second source of truth. Accepting the key as well as the API name matters because the key is the first column of `orgs` and the value users copy: passing it unresolved would have reached the API verbatim and produced the same silent empty list. Under --dry-run the validation falls back to help, an exit-0 non-mute path, because the live matrix probes dry-run with placeholder arguments and a guard that reads them would turn that probe into a failure.",
+  "files": [
+    "internal/cli/atti_get-trasparenza.go",
+    "internal/cli/orgs.go"
+  ],
+  "validated_outcome": "`atti get-trasparenza __printing_press_invalid__` goes from exit 0 with an empty list to exit 1 with `invalid value ... run 'aol-puglia-pp-cli orgs'`; `atti get-trasparenza mock-value --dry-run` stays at exit 0, matching the pre-change binary; `ASL Bari`, `aslbari` and `asl bari` all return the same 11 transparency sections. `go build ./...`, `go vet ./...` and `go test ./...` pass.",
+  "upstream_issue": null
+}

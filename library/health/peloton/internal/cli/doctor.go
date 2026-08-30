@@ -101,17 +101,40 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				collectCredentialsLocationReport(report, cfg)
 			}
 
-			// Check auth
+			// Check auth. cfg.AuthHeader() alone can't see Peloton's real
+			// credential state: this CLI's managed auth persists to a
+			// separate oauth-token.json bundle (bearer token and/or session
+			// cookie), never to the config file/env-derived fields
+			// config.Load() populates onto cfg. Without also checking that
+			// bundle, a user with a valid persisted token but no bootstrap
+			// env vars set sees "not configured" even though every live
+			// command already authenticates successfully.
 			authConfigured := false
+			bootstrapEnvSet := os.Getenv("PELOTON_OAUTH_USERNAME") != "" && os.Getenv("PELOTON_OAUTH_PASSWORD") != ""
+			bundleUsable, bundlePath, bundleErr := pelotonPersistedBundleStatus()
 			if cfg != nil {
 				header := cfg.AuthHeader()
-				if header == "" {
-					report["auth"] = "not configured"
-					report["auth_hint"] = "Run peloton-pp-cli auth status; the private OAuth wrapper supplies bootstrap credentials on the first live request."
-				} else {
+				switch {
+				case header != "":
 					authConfigured = true
 					report["auth"] = "configured"
 					report["auth_source"] = cfg.AuthSource
+				case bundleUsable:
+					authConfigured = true
+					report["auth"] = "configured (persisted token; no bootstrap env vars set)"
+					report["auth_source"] = "persisted bundle"
+				case bootstrapEnvSet:
+					// Fresh install: env vars are set but no live command has
+					// run yet, so oauth-token.json doesn't exist. Without this
+					// case, "auth" reported not-configured right next to
+					// "env_vars: OK" (below), a first-run instance of the same
+					// contradiction this whole check exists to eliminate.
+					authConfigured = true
+					report["auth"] = "configured (bootstrap env vars set; not yet used to log in)"
+					report["auth_source"] = "env:PELOTON_OAUTH_USERNAME"
+				default:
+					report["auth"] = "not configured"
+					report["auth_hint"] = "Set PELOTON_OAUTH_USERNAME and PELOTON_OAUTH_PASSWORD to your Peloton login email/username and password, then run any command — peloton-pp-cli logs in automatically and persists the result to " + bundlePath + "."
 				}
 			}
 
@@ -122,16 +145,21 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			authEnvOptionalNames := []string{}
 			// Validation rejects multi-OR-group specs upstream, so the single optional-satisfied state is sufficient at runtime.
 			authEnvOptionalSatisfied := false
-			if os.Getenv("PELOTON_OAUTH_USERNAME") != "" && os.Getenv("PELOTON_OAUTH_PASSWORD") != "" {
-				authEnvSet = append(authEnvSet, "managed OAuth bootstrap credentials")
-			} else if authConfigured {
+			switch {
+			case bootstrapEnvSet:
+				authEnvSet = append(authEnvSet, "PELOTON_OAUTH_USERNAME/PELOTON_OAUTH_PASSWORD bootstrap credentials")
+			case bundleUsable:
+				authEnvInfo = append(authEnvInfo, "bootstrap env vars not set; reusing persisted credentials from "+bundlePath)
+			case authConfigured:
 				authSource, _ := report["auth_source"].(string)
 				if authSource == "" {
 					authSource = "config"
 				}
 				authEnvInfo = append(authEnvInfo, "credentials available from "+authSource)
-			} else {
-				authEnvRequiredMissing = append(authEnvRequiredMissing, "managed OAuth bundle or bootstrap credentials")
+			case bundleErr != nil:
+				authEnvRequiredMissing = append(authEnvRequiredMissing, fmt.Sprintf("PELOTON_OAUTH_USERNAME/PELOTON_OAUTH_PASSWORD (checking persisted bundle failed: %s)", bundleErr))
+			default:
+				authEnvRequiredMissing = append(authEnvRequiredMissing, "PELOTON_OAUTH_USERNAME/PELOTON_OAUTH_PASSWORD (or a previously persisted token bundle)")
 			}
 			switch {
 			case len(authEnvRequiredMissing) > 0:
@@ -197,8 +225,12 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					}
 
 					// Step 2: Validate credentials with an authenticated probe.
-					authHeader := cfg.AuthHeader()
-					if authHeader == "" {
+					// Gate on authConfigured (cfg.AuthHeader() OR a usable
+					// persisted bundle), not cfg.AuthHeader() alone — the
+					// latter is always empty for Peloton's managed auth,
+					// which only mints its bearer/session material inside
+					// the clientHook the c above already ran through.
+					if !authConfigured {
 						// No auth configured — skip credential validation
 					} else if reachErr != nil && !errors.As(reachErr, &reachAPIErr) {
 						report["credentials"] = "skipped (API unreachable)"
@@ -432,10 +464,33 @@ func collectCredentialsLocationReport(report map[string]any, cfg *config.Config)
 	if cfg == nil {
 		return
 	}
-	if cfg.CredentialSource != "" {
+	switch {
+	case cfg.CredentialSource != "":
 		report["credentials_location"] = cfg.CredentialSource
-	} else {
-		report["credentials_location"] = "none"
+	default:
+		// cfg.CredentialSource only reflects config-file/env-derived
+		// credentials; it never sees the separate oauth-token.json bundle
+		// this CLI's managed auth actually persists to. Check that too
+		// before reporting "none" — a user with a valid persisted token and
+		// no other credential source should see where it lives, not a
+		// blanket "no credentials anywhere".
+		switch bundleUsable, bundlePath, err := pelotonPersistedBundleStatus(); {
+		case err != nil:
+			// Distinct from "genuinely no bundle" (below): a transient
+			// or permission error checking the bundle must not
+			// collapse into the same "none" a real no-credentials
+			// state reports, or a valid bundle that merely failed its
+			// status check this run reads as "no credentials anywhere"
+			// instead of "couldn't check". The auth-check block earlier
+			// in this file (see bundleErr around line 159) already
+			// surfaces this same error; this report must stay
+			// consistent with it.
+			report["credentials_location"] = fmt.Sprintf("unknown (checking persisted bundle failed: %s)", err)
+		case bundleUsable:
+			report["credentials_location"] = bundlePath
+		default:
+			report["credentials_location"] = "none"
+		}
 	}
 	if cfg.AgentcookieManagedByExternalStore() {
 		return
@@ -461,9 +516,9 @@ func collectCredentialsLocationReport(report map[string]any, cfg *config.Config)
 	}
 	if credsPresent && len(locations) > 1 {
 		if legacySecretsElsewhere != "" {
-			report["credentials_location_warning"] = "WARN credentials stored in more than one location; legacy secrets remain at " + legacySecretsElsewhere + "; run auth logout to clear the managed OAuth bundle before removing legacy secrets"
+			report["credentials_location_warning"] = "WARN credentials stored in more than one location; legacy secrets remain at " + legacySecretsElsewhere + "; run auth logout to clear the persisted Peloton credentials before removing legacy secrets"
 		} else {
-			report["credentials_location_warning"] = "WARN credentials stored in more than one location; current reads use credentials file; run auth logout to clear the managed OAuth bundle before consolidating"
+			report["credentials_location_warning"] = "WARN credentials stored in more than one location; current reads use credentials file; run auth logout to clear the persisted Peloton credentials before consolidating"
 		}
 	}
 }

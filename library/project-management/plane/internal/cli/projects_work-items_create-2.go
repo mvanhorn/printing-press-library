@@ -48,26 +48,52 @@ func newProjectsWorkItemsCreate2Cmd(flags *rootFlags) *cobra.Command {
 			// Bare invocation of a command with required input prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only read commands fall through so a bare call still executes.
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <project_id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <project_id>"))
 			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("name") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "name")
 				}
 			}
+			path := "/projects/{project_id}/work-items/"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("project_id is required\nUsage: %s <%s>", cmd.CommandPath(), "project_id"))
+			}
+			path = replacePathParam(path, "project_id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/projects/{project_id}/work-items/"
-			path = replacePathParam(path, "project_id", args[0])
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -79,72 +105,81 @@ func newProjectsWorkItemsCreate2Cmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				if bodyArchivedAt != "" {
-					body["archived_at"] = bodyArchivedAt
+					bodyMap["archived_at"] = bodyArchivedAt
 				}
-				if bodyAssignees != "" {
-					body["assignees"] = cliutil.SplitCSV(bodyAssignees)
+				if cmd.Flags().Changed("assignees") {
+					parsedAssignees, parseErr := cliutil.ParseStringList(bodyAssignees)
+					if parseErr != nil {
+						return fmt.Errorf("parsing --assignees list: %w", parseErr)
+					}
+					bodyMap["assignees"] = parsedAssignees
 				}
 				if bodyCompletedAt != "" {
-					body["completed_at"] = bodyCompletedAt
+					bodyMap["completed_at"] = bodyCompletedAt
 				}
 				if bodyCreatedBy != "" {
-					body["created_by"] = bodyCreatedBy
+					bodyMap["created_by"] = bodyCreatedBy
 				}
 				if bodyDeletedAt != "" {
-					body["deleted_at"] = bodyDeletedAt
+					bodyMap["deleted_at"] = bodyDeletedAt
 				}
 				if bodyDescriptionHtml != "" {
-					body["description_html"] = bodyDescriptionHtml
+					bodyMap["description_html"] = bodyDescriptionHtml
 				}
 				if bodyEstimatePoint != "" {
-					body["estimate_point"] = bodyEstimatePoint
+					bodyMap["estimate_point"] = bodyEstimatePoint
 				}
 				if bodyExternalId != "" {
-					body["external_id"] = bodyExternalId
+					bodyMap["external_id"] = bodyExternalId
 				}
 				if bodyExternalSource != "" {
-					body["external_source"] = bodyExternalSource
+					bodyMap["external_source"] = bodyExternalSource
 				}
 				if cmd.Flags().Changed("is-draft") {
-					body["is_draft"] = bodyIsDraft
+					bodyMap["is_draft"] = bodyIsDraft
 				}
-				if bodyLabels != "" {
-					body["labels"] = cliutil.SplitCSV(bodyLabels)
+				if cmd.Flags().Changed("labels") {
+					parsedLabels, parseErr := cliutil.ParseStringList(bodyLabels)
+					if parseErr != nil {
+						return fmt.Errorf("parsing --labels list: %w", parseErr)
+					}
+					bodyMap["labels"] = parsedLabels
 				}
 				if bodyName != "" {
-					body["name"] = bodyName
+					bodyMap["name"] = bodyName
 				}
 				if bodyParent != "" {
-					body["parent"] = bodyParent
+					bodyMap["parent"] = bodyParent
 				}
 				if bodyPoint != 0 {
-					body["point"] = bodyPoint
+					bodyMap["point"] = bodyPoint
 				}
 				if bodyPriority != "" {
-					body["priority"] = bodyPriority
+					bodyMap["priority"] = bodyPriority
 				}
 				if bodySequenceId != "" {
-					body["sequence_id"] = bodySequenceId
+					bodyMap["sequence_id"] = bodySequenceId
 				}
 				if bodySortOrder != 0.0 {
-					body["sort_order"] = bodySortOrder
+					bodyMap["sort_order"] = bodySortOrder
 				}
 				if bodyStartDate != "" {
-					body["start_date"] = bodyStartDate
+					bodyMap["start_date"] = bodyStartDate
 				}
 				if bodyState != "" {
-					body["state"] = bodyState
+					bodyMap["state"] = bodyState
 				}
 				if bodyTargetDate != "" {
-					body["target_date"] = bodyTargetDate
+					bodyMap["target_date"] = bodyTargetDate
 				}
 				if bodyType != "" {
-					body["type"] = bodyType
+					bodyMap["type"] = bodyType
 				}
 				if bodyTypeId != "" {
-					body["type_id"] = bodyTypeId
+					bodyMap["type_id"] = bodyTypeId
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
@@ -214,6 +249,9 @@ func newProjectsWorkItemsCreate2Cmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -252,7 +290,11 @@ func newProjectsWorkItemsCreate2Cmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

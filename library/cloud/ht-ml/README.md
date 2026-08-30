@@ -33,7 +33,7 @@ npx -y @mvanhorn/printing-press-library install ht-ml --agent claude-code --agen
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/cloud/ht-ml/cmd/ht-ml-pp-cli@latest

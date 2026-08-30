@@ -14,7 +14,9 @@ func newProvvedimentiCercaCmd(flags *rootFlags) *cobra.Command {
 		Use:         "cerca [testo]",
 		Short:       "Cerca provvedimenti per testo, tipo, sede, anno, numero o NRG.",
 		Example:     "  giustizia-amministrativa-pp-cli provvedimenti cerca \"appalto\" --tipo sentenza --sede roma",
-		Annotations: map[string]string{"pp:endpoint": "provvedimenti.cerca", "pp:method": "GET", "pp:path": "/web/guest/dcsnprr", "mcp:read-only": "true"},
+		// pp:no-error-path-probe: vedi search.go — il posizionale e' una
+		// ricerca full-text libera, quindi nessuna stringa e' invalida.
+		Annotations: map[string]string{"pp:endpoint": "provvedimenti.cerca", "pp:method": "GET", "pp:path": "/web/guest/dcsnprr", "mcp:read-only": "true", "pp:no-error-path-probe": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			pos := ""
 			if len(args) > 0 {

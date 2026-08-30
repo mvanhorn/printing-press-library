@@ -27,9 +27,35 @@ func toolOptionsForFlags(cmd *cobra.Command) []mcplib.ToolOption {
 		seen[flag.Name] = true
 		opts = append(opts, toolOptionForFlag(flag))
 	}
-	cmd.InheritedFlags().VisitAll(addFlag)
+	cmd.InheritedFlags().VisitAll(func(flag *pflag.Flag) {
+		if flag != nil && !agentUsefulRootFlags[flag.Name] {
+			return
+		}
+		addFlag(flag)
+	})
 	cmd.NonInheritedFlags().VisitAll(addFlag)
 	return opts
+}
+
+// agentUsefulRootFlags is the allowlist of root persistent flags worth showing
+// to an MCP client. Every command inherits ~22 of them, and declaring them all
+// is what makes a tools/list run to tens of KB: the caller pays that context on
+// every conversation, and reads a schema where two thirds of the parameters
+// (--no-color, --quiet, --plain, --human-friendly, --yes, --dry-run,
+// --rate-limit, --timeout, --profile, --deliver, …) mean nothing in a protocol
+// with no terminal, no prompts and no shell.
+//
+// The survivors are the ones that change *which data* comes back rather than
+// how it is painted: where to read from, how stale it may be, and how much of
+// each record to return — that last pair being a real lever on context cost.
+// Anything left out still reaches the CLI if a caller sends it (cliArgsFromMCP
+// forwards unknown arguments); it is simply not advertised.
+var agentUsefulRootFlags = map[string]bool{
+	"data-source": true,
+	"max-age":     true,
+	"no-cache":    true,
+	"select":      true,
+	"compact":     true,
 }
 
 func toolOptionForFlag(flag *pflag.Flag) mcplib.ToolOption {

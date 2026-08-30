@@ -1,0 +1,254 @@
+{
+  "api_name": "agentmail",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "AgentMail CLI",
+      "url": "https://github.com/agentmail-to/agentmail-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "AgentMail MCP",
+      "url": "https://github.com/agentmail-to/agentmail-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 22,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "AgentMail Python",
+      "url": "https://github.com/agentmail-to/agentmail-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "AgentMail Node",
+      "url": "https://github.com/agentmail-to/agentmail-node",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-26T14:44:37Z",
+  "novel_features": [
+    {
+      "name": "Triage queue",
+      "command": "triage queue",
+      "description": "Rank unresolved inbound conversations across inboxes with age, direction, labels, and pending drafts.",
+      "rationale": "Requires joining synchronized messages, threads, inboxes, labels, and drafts; no single AgentMail endpoint exposes the action queue.",
+      "example": "agentmail-pp-cli triage queue --db /tmp/agentmail.db --since 7d --json --agent",
+      "why_it_matters": "Choose this when an agent needs an actionable unresolved-mail queue instead of raw paginated messages.",
+      "group": "Local operational memory"
+    },
+    {
+      "name": "Send check",
+      "command": "send check",
+      "description": "Review a draft for deterministic recipient, attachment, schedule, duplicate, and idempotency risks before sending.",
+      "rationale": "Combines draft and attachment records with local send history and idempotency evidence before an irreversible mutation.",
+      "example": "agentmail-pp-cli send check draft_demo --db /tmp/agentmail.db --json --agent",
+      "why_it_matters": "Choose this before releasing a draft when a safe, auditable send decision matters more than simply calling send.",
+      "group": "Safe automation"
+    },
+    {
+      "name": "Thread rollup",
+      "command": "thread rollup",
+      "description": "Render compact conversation handoff context with participants, counts, latest direction, age, labels, and extracted reply content.",
+      "rationale": "Computes a stable local handoff object by joining thread, message, draft, label, and extracted-content records.",
+      "example": "agentmail-pp-cli thread rollup thread_demo --db /tmp/agentmail.db --json --agent --select thread_id,latest_direction,message_count,pending_draft",
+      "why_it_matters": "Choose this when an agent or human needs conversation context without repeated thread and message fetches.",
+      "group": "Local operational memory"
+    },
+    {
+      "name": "Fleet health",
+      "command": "fleet health",
+      "description": "Report inbox, domain, webhook, list, metrics, API-key, pod, and organization readiness findings.",
+      "rationale": "Requires local joins across fleet resource families that AgentMail exposes through separate endpoints.",
+      "example": "agentmail-pp-cli fleet health --db /tmp/agentmail.db --json --agent",
+      "why_it_matters": "Choose this for a preflight fleet review before agents depend on multiple inboxes or tenants.",
+      "group": "Fleet operations"
+    },
+    {
+      "name": "Schedule audit",
+      "command": "schedule audit",
+      "description": "Find scheduled drafts that are overdue, orphaned, duplicated, or missing review state.",
+      "rationale": "Joins scheduled draft timestamps with inbox, thread, and local send state to expose issues absent from draft list calls.",
+      "example": "agentmail-pp-cli schedule audit --db /tmp/agentmail.db --due-within 24h --json --agent",
+      "why_it_matters": "Choose this before a scheduled send window when stale or duplicate drafts need deterministic review.",
+      "group": "Safe automation"
+    },
+    {
+      "name": "Delivery reconcile",
+      "command": "delivery reconcile",
+      "description": "Reconcile outbound messages with status, thread placement, timestamps, and later inbound activity.",
+      "rationale": "Correlates outbound and inbound message history over time using the local synchronized mirror.",
+      "example": "agentmail-pp-cli delivery reconcile --db /tmp/agentmail.db --since 7d --json --agent",
+      "why_it_matters": "Choose this after a send batch when an agent must identify stale, failed, or unthreaded outcomes.",
+      "group": "Safe automation"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Triage queue",
+      "command": "triage queue",
+      "description": "Rank unresolved inbound conversations across inboxes with age, direction, labels, and pending drafts.",
+      "rationale": "Requires joining synchronized messages, threads, inboxes, labels, and drafts; no single AgentMail endpoint exposes the action queue.",
+      "example": "agentmail-pp-cli triage queue --db /tmp/agentmail.db --since 7d --json --agent",
+      "why_it_matters": "Choose this when an agent needs an actionable unresolved-mail queue instead of raw paginated messages.",
+      "group": "Local operational memory"
+    },
+    {
+      "name": "Send check",
+      "command": "send check",
+      "description": "Review a draft for deterministic recipient, attachment, schedule, duplicate, and idempotency risks before sending.",
+      "rationale": "Combines draft and attachment records with local send history and idempotency evidence before an irreversible mutation.",
+      "example": "agentmail-pp-cli send check draft_demo --db /tmp/agentmail.db --json --agent",
+      "why_it_matters": "Choose this before releasing a draft when a safe, auditable send decision matters more than simply calling send.",
+      "group": "Safe automation"
+    },
+    {
+      "name": "Thread rollup",
+      "command": "thread rollup",
+      "description": "Render compact conversation handoff context with participants, counts, latest direction, age, labels, and extracted reply content.",
+      "rationale": "Computes a stable local handoff object by joining thread, message, draft, label, and extracted-content records.",
+      "example": "agentmail-pp-cli thread rollup thread_demo --db /tmp/agentmail.db --json --agent --select thread_id,latest_direction,message_count,pending_draft",
+      "why_it_matters": "Choose this when an agent or human needs conversation context without repeated thread and message fetches.",
+      "group": "Local operational memory"
+    },
+    {
+      "name": "Fleet health",
+      "command": "fleet health",
+      "description": "Report inbox, domain, webhook, list, metrics, API-key, pod, and organization readiness findings.",
+      "rationale": "Requires local joins across fleet resource families that AgentMail exposes through separate endpoints.",
+      "example": "agentmail-pp-cli fleet health --db /tmp/agentmail.db --json --agent",
+      "why_it_matters": "Choose this for a preflight fleet review before agents depend on multiple inboxes or tenants.",
+      "group": "Fleet operations"
+    },
+    {
+      "name": "Schedule audit",
+      "command": "schedule audit",
+      "description": "Find scheduled drafts that are overdue, orphaned, duplicated, or missing review state.",
+      "rationale": "Joins scheduled draft timestamps with inbox, thread, and local send state to expose issues absent from draft list calls.",
+      "example": "agentmail-pp-cli schedule audit --db /tmp/agentmail.db --due-within 24h --json --agent",
+      "why_it_matters": "Choose this before a scheduled send window when stale or duplicate drafts need deterministic review.",
+      "group": "Safe automation"
+    },
+    {
+      "name": "Delivery reconcile",
+      "command": "delivery reconcile",
+      "description": "Reconcile outbound messages with status, thread placement, timestamps, and later inbound activity.",
+      "rationale": "Correlates outbound and inbound message history over time using the local synchronized mirror.",
+      "example": "agentmail-pp-cli delivery reconcile --db /tmp/agentmail.db --since 7d --json --agent",
+      "why_it_matters": "Choose this after a send batch when an agent must identify stale, failed, or unthreaded outcomes.",
+      "group": "Safe automation"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "AGENTMAIL_API_KEY"
+  },
+  "narrative": {
+    "display_name": "AgentMail",
+    "headline": "AgentMail operations with local memory, safe sends, and fleet-wide insight.",
+    "value_prop": "The CLI covers AgentMail's inbox, message, thread, draft, webhook, domain, list, metric, key, pod, and organization surfaces. It adds local triage queues, pre-send risk checks, conversation rollups, schedule audits, delivery reconciliation, and fleet health so agents can reason across time and resources instead of replaying isolated API calls.",
+    "auth_narrative": "Set AGENTMAIL_API_KEY to a bearer token from AgentMail. Configured credentials are never printed; newly created API-key and signup secrets are returned only by the upstream create response and are not persisted in the local mirror. Use drafts, --dry-run, and Idempotency-Key for controlled writes; verify the human OTP during first-time agent signup.",
+    "quickstart": [
+      {
+        "command": "agentmail-pp-cli doctor --dry-run",
+        "comment": "Check CLI wiring and auth configuration without contacting the API."
+      },
+      {
+        "command": "agentmail-pp-cli inboxes list --limit 10 --json",
+        "comment": "List the agent's inboxes before choosing a sending or receiving scope."
+      },
+      {
+        "command": "agentmail-pp-cli inboxes messages search inb_demo --query \"invoice overdue\" --json",
+        "comment": "Find relevant inbound mail with API-ranked full-text search."
+      },
+      {
+        "command": "agentmail-pp-cli inboxes drafts create inb_demo --to review@example.com --subject \"[REVIEW] Agent response\" --text \"Please review before sending.\" --dry-run",
+        "comment": "Preview a human-reviewed draft mutation without creating it."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 401 or missing credential",
+        "fix": "Export AGENTMAIL_API_KEY and rerun agentmail-pp-cli doctor --json."
+      },
+      {
+        "symptom": "HTTP 429 Too Many Requests",
+        "fix": "Honor Retry-After, reduce --limit or --max-pages, and retry with bounded backoff."
+      },
+      {
+        "symptom": "Duplicate inbox or message risk",
+        "fix": "Use --client-id for creates and a stable --idempotency-key for sends, replies, and forwards."
+      },
+      {
+        "symptom": "Local triage returns no rows",
+        "fix": "Run agentmail-pp-cli sync --resources inboxes,messages,threads,drafts --db /tmp/agentmail.db before raising the local scan window."
+      }
+    ],
+    "when_to_use": "Use AgentMail when an agent needs to provision inboxes, read or send email, manage conversations, prepare reviewed or scheduled drafts, or operate multiple tenants. Prefer the local operational commands when the decision depends on history across messages, threads, drafts, and fleet resources. Use the hosted AgentMail MCP or SDK directly when you need a resident event stream or application-embedded async control.",
+    "anti_triggers": [
+      "Do not use this CLI as a general-purpose human email client or interactive inbox UI.",
+      "Do not use it to send real mail without an explicit recipient review and idempotency key.",
+      "Do not use local reports before syncing the relevant resources or treat an empty mirror as proof that the remote API has no data.",
+      "Do not use this CLI when a long-lived WebSocket event consumer must remain embedded inside another process; use the AgentMail SDK or hosted MCP integration."
+    ],
+    "recipes": [
+      {
+        "title": "Find overdue inbound work",
+        "command": "agentmail-pp-cli triage queue --db /tmp/agentmail.db --since 7d --json --agent",
+        "explanation": "Produce an action-ranked queue from synchronized inbox, thread, message, label, and draft state."
+      },
+      {
+        "title": "Narrow a large search result",
+        "command": "agentmail-pp-cli inboxes messages search inb_demo --query \"invoice overdue\" --agent --select messages.message_id,messages.subject,messages.from",
+        "explanation": "Keep only high-value fields when a relevance-ranked message response is large."
+      },
+      {
+        "title": "Review a draft before sending",
+        "command": "agentmail-pp-cli send check draft_demo --db /tmp/agentmail.db --json --agent",
+        "explanation": "Expose deterministic recipient, schedule, duplicate, and idempotency risks before an irreversible send."
+      },
+      {
+        "title": "Audit scheduled sends",
+        "command": "agentmail-pp-cli schedule audit --db /tmp/agentmail.db --due-within 24h --json",
+        "explanation": "Find overdue, orphaned, duplicated, or unreviewed scheduled drafts."
+      },
+      {
+        "title": "Reconcile recent delivery",
+        "command": "agentmail-pp-cli delivery reconcile --db /tmp/agentmail.db --since 7d --json --agent",
+        "explanation": "Correlate outbound outcomes with later inbound activity and thread placement."
+      }
+    ],
+    "trigger_phrases": [
+      "check my AgentMail inboxes",
+      "search AgentMail messages",
+      "review a draft before sending",
+      "find unresolved AgentMail follow-ups",
+      "audit scheduled AgentMail sends",
+      "use AgentMail",
+      "run AgentMail"
+    ]
+  }
+}

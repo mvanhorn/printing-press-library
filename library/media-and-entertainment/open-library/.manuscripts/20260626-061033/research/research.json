@@ -1,0 +1,79 @@
+{
+  "api_name": "open-library",
+  "issue": "https://github.com/mvanhorn/printing-press-library/issues/1191",
+  "sources": [
+    {
+      "name": "Open Library API index",
+      "url": "https://openlibrary.org/developers/api",
+      "auth": "none",
+      "notes": [
+        "Open Library provides JSON, YAML, and RDF/XML APIs for public-good book discovery and lookup services.",
+        "Usage guidance says the APIs are for low-volume, high-value real-time discovery, not a bulk data backend.",
+        "Default non-identified requests are documented at 1 request per second; identified requests with User-Agent and email are documented at 3 requests per second."
+      ]
+    },
+    {
+      "name": "Open Library Search API",
+      "url": "https://openlibrary.org/dev/docs/api/search",
+      "auth": "none",
+      "notes": [
+        "The documented endpoint is https://openlibrary.org/search.json.",
+        "The endpoint supports q, fields, sort, lang, offset, page, and limit.",
+        "Pagination is available through page/limit or offset/limit."
+      ]
+    },
+    {
+      "name": "Open Library Books API",
+      "url": "https://openlibrary.org/dev/docs/api/books",
+      "auth": "none",
+      "notes": [
+        "The docs describe Book Search as the preferred general book lookup API.",
+        "Works and editions can be fetched as JSON by adding .json to /works/<id> and /books/<id>.",
+        "ISBNs can be resolved through /isbn/<isbn>.json."
+      ]
+    },
+    {
+      "name": "Open Library Authors API",
+      "url": "https://openlibrary.org/dev/docs/api/authors",
+      "auth": "none",
+      "notes": [
+        "Authors can be searched through /search/authors.json?q=<query>.",
+        "Individual authors can be fetched through /authors/<id>.json.",
+        "Author works are available through /authors/<id>/works.json with limit and offset."
+      ]
+    },
+    {
+      "name": "Open Library Subjects API",
+      "url": "https://openlibrary.org/dev/docs/api/subjects",
+      "auth": "none",
+      "notes": [
+        "Subjects can be fetched through /subjects/<subject>.json.",
+        "details=true returns additional related subjects, authors, publishers, and publishing history.",
+        "The page documents the Subjects API as experimental."
+      ]
+    }
+  ],
+  "selected_commands": [
+    "book",
+    "isbn",
+    "author",
+    "work",
+    "editions",
+    "subjects",
+    "sources",
+    "doctor"
+  ],
+  "auth_env_vars": [
+    "OPEN_LIBRARY_USER_AGENT",
+    "OPEN_LIBRARY_CONTACT_EMAIL"
+  ],
+  "non_goals": [
+    "borrowing or waitlist actions",
+    "patron or account actions",
+    "write-side catalog edits",
+    "list mutation",
+    "HTML scraping",
+    "bulk harvesting or local mirror sync",
+    "raw endpoint dump"
+  ]
+}

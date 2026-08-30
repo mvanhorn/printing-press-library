@@ -1,0 +1,52 @@
+{
+  "passed": true,
+  "cli_name": "axs-pp-cli",
+  "api_name": "axs",
+  "help_output": "Axs CLI — Manage your SRAM AXS account from the terminal: bikes, components, registrations, models, and ride activities, plus a local SQLite mirror for offline search and cross-bike views.\n\nHighlights (cross-bike views the web app doesn't offer):\n  • garage   A tree of every bike with its components and serials in one shot.\n  • since    New ride activities and notifications since your last sync.\n  • shifts   Per-ride front/rear shift counts from synced summaries.\n\nHighlights (not in the official API docs):\n  • firmware-check   Show the latest synced firmware version per AXS device type.\n  • battery   Latest synced battery status per AXS device type, including voltage when available.\n  • wear   Rank components by synced shift counts, distance, and actuations from component summaries.\n  • shifts   Show per-ride front/rear shift counts, chainrings, and cogs from synced component summaries.\n  • garage   A tree of every bike with its components and serials in one shot.\n  • since   Show new ride activities and notifications since your last sync.\n\nAgent mode: add --agent to any command for JSON output + non-interactive mode.\nHealth check: run 'axs-pp-cli doctor' to verify auth and connectivity.\nSee README.md or the bundled SKILL.md for recipes.\n\nUsage:\n  axs-pp-cli [command]\n\nAvailable Commands:\n  agent-context  Emit structured JSON describing this CLI for agents\n  analytics      Run analytics queries on locally synced data\n  api            Browse all API endpoints by interface name\n  auth           Manage authentication for Axs\n  battery        Show latest AXS battery status from synced component summaries.\n  completion     Generate the autocompletion script for the specified shell\n  devicetypes    List all AXS device types\n  doctor         Check CLI health\n  feedback       Record feedback about this CLI (local by default; upstream opt-in)\n  firmware-check Show latest AXS firmware version from synced component summaries.\n  garage         A tree of every bike with its components and serials in one shot.\n  help           Help about any command\n  import         Import data from JSONL file via API create/upsert calls\n  models         List the SRAM component model catalog (codes, names, firmware part numbers)\n  notifications  List your notifications\n  products       Get product detail by product ID\n  profile        Named sets of flags saved for reuse\n  registrations  Register a component to your account by serial number\n  search         Full-text search across synced data or live API\n  shifts         Show per-ride AXS shift counts from synced summaries.\n  since          Show new ride activities and notifications since your last sync.\n  stats          Get your aggregate riding stats\n  sync           Sync API data to local SQLite for offline search and analysis\n  tail           Stream live changes by polling the API at regular intervals\n  units          List advanced measurement units\n  version        Print version\n  wear           Rank component usage from AXS component summaries.\n  which          Find the command that implements a capability\n  workflow       Compound workflows that combine multiple API operations\n\nFlags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n  -h, --help                    help for axs-pp-cli\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'axs-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n  -v, --version                 version for axs-pp-cli\n      --yes                     Skip confirmation prompts (for agents and scripts)\n\nUse \"axs-pp-cli [command] --help\" for more information about a command.\n",
+  "checks": [
+    {
+      "name": "manifest",
+      "passed": true
+    },
+    {
+      "name": "transcendence",
+      "passed": true
+    },
+    {
+      "name": "phase5",
+      "passed": true
+    },
+    {
+      "name": "go mod tidy",
+      "passed": true
+    },
+    {
+      "name": "govulncheck",
+      "passed": true
+    },
+    {
+      "name": "go vet",
+      "passed": true
+    },
+    {
+      "name": "go build",
+      "passed": true
+    },
+    {
+      "name": "--help",
+      "passed": true
+    },
+    {
+      "name": "--version",
+      "passed": true
+    },
+    {
+      "name": "verify-skill",
+      "passed": true
+    },
+    {
+      "name": "manuscripts",
+      "passed": true
+    }
+  ]
+}

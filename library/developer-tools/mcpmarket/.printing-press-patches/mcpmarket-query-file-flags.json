@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "mcpmarket-query-file-flags",
+  "applied_at": "2026-08-27",
+  "base_run_id": "20260827-211137-37906ad0",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Added --query-file (teach, teach-playbook, playbook amend, recall) and --add-note-file (playbook amend) flags, read via os.ReadFile mirroring the existing --playbook-file/--notes-file pattern, and rewrote SKILL.md's Steps 1 and 4-6 recipes to write free-form user text to a scratch file and pass its path instead of constructing any shell heredoc or positional shell argument.",
+  "reason": "Three consecutive rounds of PR review (Greptile) rejected doc-only fixes to SKILL.md's heredoc-based safe-quoting recipes (literal EOF delimiter, then a randomized-example delimiter, then a non-resolvable placeholder) as structurally unfixable: any heredoc pattern documented in a file is, to a static security reviewer, an executable-shell-code example containing a fixed literal a user's text could match on a standalone line to escape it. Eliminating the heredoc entirely -- by giving the CLI a file-based input path so the shell command never contains user-controlled text at all -- removes the vulnerability class instead of re-wording its description. An independent adversarial review pass on this fix additionally found `recall` -- the highest-frequency call site, invoked on every user question before discovery -- still took its query as a positional shell argument (`recall \"<question>\"`, vulnerable to `$()`/backtick substitution even inside double quotes) and had been missed by the initial fix; --query-file was added there too. The same review also caught an inconsistency where the new query-file reader trimmed trailing newlines while the sibling notes-file reader did not, contradicting the 'verbatim' contract; trimming was removed to match the existing pattern.",
+  "files": [
+    "internal/cli/teach.go",
+    "internal/cli/teach_playbook.go",
+    "internal/cli/teach_test.go",
+    "internal/cli/teach_playbook_test.go",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go build ./..., go vet ./..., and go test -count=1 ./... pass, including new file-flag happy-path, mutual-exclusivity, and missing-file test scenarios for teach/teach-playbook/playbook-amend/recall; no heredoc construct (`<<'...'`/`cat <<`) remains anywhere in SKILL.md; the repo's own `.github/scripts/verify-skill/verify_skill.py` static checker returns 0 errors against the changed CLI."
+}

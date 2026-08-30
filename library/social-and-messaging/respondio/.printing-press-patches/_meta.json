@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "deferred_to_upstream": [
+    {
+      "summary": "Carry required-but-defaultable body members (Respond.io's search/filter/timezone trio) into syncResourceStaticBody and the generated list command's default body",
+      "reason": "A POST-list endpoint with required body members fails 100% of syncs out of the box while the spec still looks complete."
+    },
+    {
+      "summary": "Distinguish query params from body params on POST list endpoints in the profiler",
+      "reason": "Misclassified pagination params are silently ignored by the API, capping every page at the server default and breaking --all/sync page advancement."
+    },
+    {
+      "summary": "Teach extractPaginationFromEnvelope to parse URL-valued next fields inside pagination wrapper objects before the name-based cursorKeys scan",
+      "reason": "Because \"next\" is itself a cursor key, the name-based scan wins and hands the whole URL back as the cursor, so cursor sync silently stops after page one."
+    },
+    {
+      "summary": "Give the generated --all pager the sticky-cursor detector and explicit page size that the sync pager already has",
+      "reason": "Without them an --all loop inherits the API's small default page size and, on a non-advancing cursor, burns its whole page cap on duplicate requests while reporting a truncation."
+    }
+  ]
+}

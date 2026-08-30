@@ -1,0 +1,20 @@
+{
+  "descriptions": {
+    "communities_list_search": "Search Layers Digital communities by alias or name. Optional: community query, result limit, and skip offset. Returns matching community records for resolving the school context used by other commands.",
+    "context_list_context": "Fetch the authenticated Layers portal context. Optional: client platform and version. Returns the active community, user, and installed-app context needed to understand subsequent school API calls.",
+    "home_list_discover": "Fetch the Layers Digital home discovery feed. Optional: API version. Returns the dashboard cards and available school applications for the authenticated account.",
+    "home_list_layers_agenda": "Fetch the Layers Agenda summary shown on the school dashboard. Optional: API version. Returns upcoming agenda information without loading the full event timeline.",
+    "home_list_layers_atendimentos": "Fetch the Help Desk summary shown on the school dashboard. Optional: API version. Returns the current service-desk card data for the authenticated school account.",
+    "home_list_layers_comunicados": "Fetch the Announcements summary shown on the school dashboard. Optional: API version. Returns recent announcement card data; use post-delivery_create_paginate for the detailed inbox.",
+    "me_list_me": "List agenda identities available to the authenticated account. Optional: community alias and userId. Returns agenda profile records used to scope event synchronization.",
+    "media_list_icon": "Fetch metadata for the Layers Announcements application icon. Returns the icon resource object; use this only when an integration needs the app artwork.",
+    "media_list_icon_2": "Fetch metadata for the Layers Agenda application icon. Returns the icon resource object; use this only when an integration needs the app artwork.",
+    "media_list_icon_3": "Fetch metadata for the Layers Help Desk application icon. Returns the icon resource object; use this only when an integration needs the app artwork.",
+    "notification-badge_list_notification_badge": "Fetch notification badge totals for the authenticated Layers account. Returns per-application unread or pending counts suitable for compact status checks.",
+    "post-delivery_create_paginate": "Read a page of delivered school announcements from the embedded Announcements app. Required: batchSize and filters. Optional: community, userId, and next cursor. Returns announcement delivery hits; despite using POST, this operation is read-only.",
+    "preferences_list_preferences": "Fetch portal preferences for the authenticated Layers account. Returns the current user preference object, including application-launcher settings.",
+    "preferences_update_preferences": "Update portal preferences for the authenticated Layers account. Required: user preference object. Returns the updated preferences; preview with --dry-run before allowing this mutation.",
+    "sso_list_me": "Fetch the authenticated Layers Digital account profile. Returns identity and school-account metadata used to verify that the token belongs to the intended user and community.",
+    "view_create_sync": "Read agenda events changed since a timestamp from the embedded Agenda app. Required: months and since. Optional: community and userId. Returns event synchronization hits; despite using POST, this operation is read-only."
+  }
+}

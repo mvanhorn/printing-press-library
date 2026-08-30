@@ -36,6 +36,59 @@ func TestNextVersion(t *testing.T) {
 	}
 }
 
+func TestFirstParentCommitsExcludesSideBranchCommits(t *testing.T) {
+	repo := t.TempDir()
+	runGit(t, repo, "init")
+	runGit(t, repo, "config", "user.name", "Test")
+	runGit(t, repo, "config", "user.email", "test@example.com")
+
+	writeFile(t, repo, "README.md", "base\n")
+	runGit(t, repo, "add", ".")
+	runGit(t, repo, "commit", "-m", "base")
+	base := gitOutputIn(t, repo, "rev-parse", "HEAD")
+
+	writeFile(t, repo, "main.txt", "main\n")
+	runGit(t, repo, "add", ".")
+	runGit(t, repo, "commit", "-m", "main-line")
+	mainLine := gitOutputIn(t, repo, "rev-parse", "HEAD")
+
+	runGit(t, repo, "checkout", "-b", "side", base)
+	writeFile(t, repo, "side.txt", "side\n")
+	runGit(t, repo, "add", ".")
+	runGit(t, repo, "commit", "-m", "side-line")
+	sideLine := gitOutputIn(t, repo, "rev-parse", "HEAD")
+
+	runGit(t, repo, "checkout", "-B", "main", mainLine)
+	runGit(t, repo, "merge", "--no-ff", sideLine, "-m", "merge-side")
+	merge := gitOutputIn(t, repo, "rev-parse", "HEAD")
+	writeFile(t, repo, "after.txt", "after\n")
+	runGit(t, repo, "add", ".")
+	runGit(t, repo, "commit", "-m", "after-merge")
+	afterMerge := gitOutputIn(t, repo, "rev-parse", "HEAD")
+
+	oldWD, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chdir(repo); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if err := os.Chdir(oldWD); err != nil {
+			t.Fatalf("restore wd: %v", err)
+		}
+	})
+
+	got, err := firstParentCommits(base, afterMerge)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []string{mainLine, merge, afterMerge}
+	if strings.Join(got, "\n") != strings.Join(want, "\n") {
+		t.Fatalf("firstParentCommits() = %v, want %v", got, want)
+	}
+}
+
 func TestNextReleaseVersionIsIdempotentForSameSourceCommit(t *testing.T) {
 	releasedAt := time.Date(2026, 6, 8, 12, 0, 0, 0, time.UTC)
 	got, err := nextReleaseVersion(releaseManifest{

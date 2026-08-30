@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/benzinga-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260627-034058-2c1f9c5c",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

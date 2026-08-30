@@ -1,0 +1,199 @@
+openapi: 3.0.3
+info:
+  title: Ashby
+  version: "1.0"
+  description: |
+    Unauthenticated, read-only access to currently published postings on a
+    named Ashby job board. This specification intentionally excludes Ashby's
+    authenticated recruiting API.
+servers:
+  - url: https://api.ashbyhq.com
+paths:
+  /posting-api/job-board/{jobBoardName}:
+    get:
+      operationId: listJobPostings
+      summary: List published job postings for an Ashby job board
+      description: |
+        Returns currently published postings. Consumers displaying a normal
+        board listing must exclude jobs where isListed is false.
+      tags: [Postings]
+      parameters:
+        - name: jobBoardName
+          in: path
+          required: true
+          description: Final path segment of jobs.ashbyhq.com/{jobBoardName}.
+          schema:
+            type: string
+            minLength: 1
+        - name: includeCompensation
+          in: query
+          required: false
+          description: Include public compensation information when available.
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Published job postings for the board.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobBoardResponse"
+        "404":
+          description: Job board not found.
+components:
+  schemas:
+    JobBoardResponse:
+      type: object
+      required: [apiVersion, jobs]
+      properties:
+        apiVersion:
+          type: string
+          example: "1"
+        jobs:
+          type: array
+          items:
+            $ref: "#/components/schemas/JobPosting"
+    JobPosting:
+      type: object
+      required: [id, title, jobUrl, applyUrl, isListed]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        location:
+          type: string
+          nullable: true
+        secondaryLocations:
+          type: array
+          items:
+            $ref: "#/components/schemas/SecondaryLocation"
+        department:
+          type: string
+          nullable: true
+        team:
+          type: string
+          nullable: true
+        isListed:
+          type: boolean
+        isRemote:
+          type: boolean
+        workplaceType:
+          type: string
+          nullable: true
+          enum: [OnSite, Remote, Hybrid]
+        descriptionHtml:
+          type: string
+          nullable: true
+        descriptionPlain:
+          type: string
+          nullable: true
+        publishedAt:
+          type: string
+          format: date-time
+          nullable: true
+        employmentType:
+          type: string
+          nullable: true
+          enum: [FullTime, PartTime, Intern, Contract, Temporary]
+        address:
+          $ref: "#/components/schemas/AddressContainer"
+        jobUrl:
+          type: string
+          format: uri
+        applyUrl:
+          type: string
+          format: uri
+        shouldDisplayCompensationOnJobPostings:
+          type: boolean
+          nullable: true
+        compensation:
+          allOf:
+            - $ref: "#/components/schemas/Compensation"
+          nullable: true
+    SecondaryLocation:
+      type: object
+      properties:
+        location:
+          type: string
+        address:
+          $ref: "#/components/schemas/PostalAddress"
+    AddressContainer:
+      type: object
+      nullable: true
+      properties:
+        postalAddress:
+          $ref: "#/components/schemas/PostalAddress"
+    PostalAddress:
+      type: object
+      nullable: true
+      properties:
+        addressLocality:
+          type: string
+          nullable: true
+        addressRegion:
+          type: string
+          nullable: true
+        addressCountry:
+          type: string
+          nullable: true
+    Compensation:
+      type: object
+      properties:
+        compensationTierSummary:
+          type: string
+          nullable: true
+        scrapeableCompensationSalarySummary:
+          type: string
+          nullable: true
+        compensationTiers:
+          type: array
+          items:
+            $ref: "#/components/schemas/CompensationTier"
+        summaryComponents:
+          type: array
+          items:
+            $ref: "#/components/schemas/CompensationComponent"
+    CompensationTier:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+          nullable: true
+        tierSummary:
+          type: string
+          nullable: true
+        additionalInformation:
+          type: string
+          nullable: true
+        components:
+          type: array
+          items:
+            $ref: "#/components/schemas/CompensationComponent"
+    CompensationComponent:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        summary:
+          type: string
+          nullable: true
+        compensationType:
+          type: string
+        interval:
+          type: string
+          nullable: true
+        currencyCode:
+          type: string
+          nullable: true
+        minValue:
+          type: number
+          nullable: true
+        maxValue:
+          type: number
+          nullable: true

@@ -1,0 +1,17 @@
+{
+  "id": "review-list-settings-handlers",
+  "source": "live-disposable-probe",
+  "summary": "Probe a general list-settings handler without leaving test data behind.",
+  "evidence": {
+    "endpoint": "POST /data/list-settings/update",
+    "handler": "set-list-item-sort-order",
+    "payload_field": "PBListSettings.listItemSortOrder",
+    "observed_change": "A disposable Kitchen Notes list read back ALListItemSortOrderAlphabetical after the handler was applied.",
+    "cleanup": "The disposable list was deleted and verified absent."
+  },
+  "limitations": [
+    "The probe's attempt to restore an empty original sort-order value did not read back, so the handler's clear/default encoding remains unknown.",
+    "This is evidence for one field only; other settings handlers still need independent live round trips."
+  ],
+  "validated_outcome": "The CLI remains fail-closed for general settings writes until a safe update/restore contract is implemented."
+}

@@ -1,0 +1,28 @@
+{
+  "manifest_version": "0.3",
+  "name": "mcpmarket-pp-mcp",
+  "display_name": "MCP Market",
+  "version": "0.1.0",
+  "description": "Every MCP Market search, leaderboard, and category browse — plus trending deltas, snapshot diffs, and author portfolios no other tool tracks.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/mcpmarket-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/mcpmarket-pp-mcp",
+      "args": [],
+      "env": {}
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

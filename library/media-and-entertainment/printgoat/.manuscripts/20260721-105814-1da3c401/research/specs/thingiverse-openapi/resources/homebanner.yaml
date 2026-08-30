@@ -1,0 +1,19 @@
+Root:
+  get:
+    tags:
+      - HomeBanner
+    summary: Get the banner on the home page
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/homebanner_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"

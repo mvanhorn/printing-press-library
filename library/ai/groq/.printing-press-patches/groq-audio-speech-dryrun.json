@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "groq-audio-speech-dryrun",
+  "applied_at": "2026-08-29",
+  "base_run_id": "20260829-110906-2137b57d",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Guard the audio speech binary-render rejection under --dry-run so structured dry-run probes return the JSON envelope instead of erroring.",
+  "reason": "Generated binary endpoints reject --json even in --dry-run, which failed the dogfood json_fidelity probe.",
+  "files": ["internal/cli/audio_speech.go"],
+  "validated_outcome": "audio speech --dry-run --json exits 0 with {\"dry_run\":true}"
+}

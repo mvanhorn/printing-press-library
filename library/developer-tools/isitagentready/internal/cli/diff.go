@@ -46,7 +46,7 @@ func newNovelDiffCmd(flags *rootFlags) *cobra.Command {
 			}
 			url := args[0]
 
-			recs, err := loadStore()
+			recs, err := loadStoreFor(flags)
 			if err != nil {
 				return err
 			}
@@ -63,6 +63,39 @@ func newNovelDiffCmd(flags *rootFlags) *cobra.Command {
 			}
 			fromRec := hist[len(hist)-2]
 			toRec := hist[len(hist)-1]
+
+			if flags.sourceOrDefault() == store.SourceIsAgentic {
+				from, err := store.ParseAgenticReport(fromRec.Raw)
+				if err != nil {
+					return err
+				}
+				to, err := store.ParseAgenticReport(toRec.Raw)
+				if err != nil {
+					return err
+				}
+				transitions := store.DiffAgenticIssues(from, to)
+				shown := transitions
+				if !showAll {
+					shown = shown[:0:0]
+					for _, t := range transitions {
+						if t.Change != "unchanged" {
+							shown = append(shown, t)
+						}
+					}
+				}
+				result := map[string]any{
+					"url":        url,
+					"from":       map[string]any{"scannedAt": fromRec.ScannedAt, "score": from.Score, "scoreLabel": from.ScoreLabel},
+					"to":         map[string]any{"scannedAt": toRec.ScannedAt, "score": to.Score, "scoreLabel": to.ScoreLabel},
+					"scoreDelta": to.Score - from.Score,
+					"changes":    shown,
+				}
+				if !wantsHumanTable(cmd.OutOrStdout(), flags) {
+					return printJSONFiltered(cmd.OutOrStdout(), result, flags)
+				}
+				return renderAgenticDiff(cmd, url, from, to, shown, len(transitions))
+			}
+
 			from, err := store.ParseReport(fromRec.Raw)
 			if err != nil {
 				return err
@@ -122,6 +155,36 @@ func renderDiff(cmd *cobra.Command, url string, from, to *store.Report, shown []
 		case "regressed", "removed":
 			mark = red(t.Change)
 		case "improved", "added":
+			mark = green(t.Change)
+		}
+		fmt.Fprintf(out, "  %-10s %s (%s → %s)\n", mark, t.Check, t.From, t.To)
+	}
+	return nil
+}
+
+// renderAgenticDiff prints an is-agentic diff: a score delta line plus the
+// issue transitions (using AgenticStatus pass/partial/fail values).
+func renderAgenticDiff(cmd *cobra.Command, url string, from, to *store.AgenticReport, shown []store.CheckTransition, total int) error {
+	out := cmd.OutOrStdout()
+	delta := to.Score - from.Score
+	arrow := "="
+	if delta > 0 {
+		arrow = green(fmt.Sprintf("+%d", delta))
+	} else if delta < 0 {
+		arrow = red(fmt.Sprintf("%d", delta))
+	}
+	fmt.Fprintf(out, "%s\n", bold(url))
+	fmt.Fprintf(out, "  score %d → %d (%s)\n", from.Score, to.Score, arrow)
+	if len(shown) == 0 {
+		fmt.Fprintf(out, "  no issue changes across %d checks\n", total)
+		return nil
+	}
+	for _, t := range shown {
+		mark := yellow(t.Change)
+		switch t.Change {
+		case "regressed":
+			mark = red(t.Change)
+		case "improved":
 			mark = green(t.Change)
 		}
 		fmt.Fprintf(out, "  %-10s %s (%s → %s)\n", mark, t.Check, t.From, t.To)

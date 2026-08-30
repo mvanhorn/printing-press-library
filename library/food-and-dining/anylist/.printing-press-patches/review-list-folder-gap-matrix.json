@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "review-list-folder-gap-matrix",
+  "applied_at": "2026-08-16",
+  "status": "historical_static_snapshot",
+  "superseded_by": ["review-list-sharing-live-probe", "review-folder-ordering-live-probe", "review-folder-rename-handler"],
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Document the unverified list and folder write gaps instead of advertising schema-only operations.",
+  "reason": "The AnyList protobuf schema contains list sharing, notification-location, store-order, and folder-parent fields, but the current client has no verified senders for list rename, sharing/invites, notification changes, list settings writes, folder rename, reorder, parent membership, or nesting. Folder create/delete are already fail-closed after disposable typed writes acknowledged HTTP success without persistence. List create/delete use verified protobuf operations, list reset uses the existing item-removal path, and lists settings is a cached read only. No new live mutation was attempted in this documentation slice.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "tools-manifest.json",
+    "internal/mcp/code_orch_data.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "README, SKILL, MCP resources, endpoint summaries, and the generated tools manifest now identify the supported list operations and explicitly mark list rename, sharing/invites, notification locations, settings writes, folder rename, reorder, parent membership, and nesting as unavailable or unverified. No command was added for a schema-only operation and no live data changed.",
+  "findings_addressed": [
+    "list-rename-unverified",
+    "list-sharing-invites-unavailable",
+    "list-notification-settings-unverified",
+    "folder-rename-reorder-parent-unavailable",
+    "schema-only-write-not-advertised"
+  ]
+}

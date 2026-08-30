@@ -1,0 +1,305 @@
+{
+  "api_name": "workspace-admin",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "GAM",
+      "url": "https://github.com/GAM-team/GAM",
+      "language": "Python",
+      "install_method": "",
+      "stars": 4200,
+      "last_updated": "",
+      "command_count": 160,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "GAMADV-XTD3",
+      "url": "https://github.com/taers232c/GAMADV-XTD3",
+      "language": "Python",
+      "install_method": "",
+      "stars": 800,
+      "last_updated": "",
+      "command_count": 200,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gws (official Google Workspace CLI)",
+      "url": "https://github.com/googleworkspace/cli",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 28500,
+      "last_updated": "",
+      "command_count": 100,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "google_workspace_mcp",
+      "url": "https://github.com/taylorwilsdon/google_workspace_mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 2700,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "orvice/google-workspace-mcp",
+      "url": "https://github.com/orvice/google-workspace-mcp",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-06T13:20:00Z",
+  "novel_features": [
+    {
+      "name": "Offboard workflow",
+      "command": "workflow offboard",
+      "description": "Run a departing user's entire lifecycle in one command — suspend, reset password, sign out, revoke OAuth tokens, transfer Drive ownership, set Gmail delegation and forwarding, wipe devices, remove from groups, and move to a suspended OU.",
+      "rationale": "Sequences calls across Directory, Drive, Data Transfer, and Gmail with per-step error isolation and a completion ledger — no single Google endpoint does this, and GAM requires a hand-maintained multi-command checklist.",
+      "example": "workspace-admin-pp-cli workflow offboard departing@example.com --manager manager@example.com --dry-run",
+      "why_it_matters": "Reach for this instead of running eight separate endpoint commands when a user leaves; it guarantees no step is skipped and records what completed.",
+      "group": "Lifecycle workflows that compound"
+    },
+    {
+      "name": "User 360 audit",
+      "command": "audit user360",
+      "description": "One per-user posture report joining the user's Drive footprint and quota, security (2SV, suspended), connected OAuth apps, devices, Gmail settings, group memberships, and recent activity.",
+      "rationale": "Requires a local SQLite join across Directory, Drive, Gmail, Reports, and Tokens that no single API call returns; GAT exposes this only in its paid GUI.",
+      "example": "workspace-admin-pp-cli audit user360 user@example.com --agent --select security,apps,devices",
+      "why_it_matters": "Pick this to answer 'what is going on with this account' in one call instead of stitching five APIs together.",
+      "group": "Cross-API audits only the local store enables"
+    },
+    {
+      "name": "External sharing audit",
+      "command": "audit external-shares",
+      "description": "Find every Drive file shared 'anyone with link' or with an external domain, joined to its owner and the owner's org unit.",
+      "rationale": "A local join over synced drive_files and drive_permissions; the Drive API can list permissions per file but cannot answer the domain-wide exposure question without the store.",
+      "example": "workspace-admin-pp-cli audit external-shares --domain gmail.com --agent --select files.name,files.owner,files.permissions.emailAddress",
+      "why_it_matters": "Use this for the domain-wide external Drive exposure sweep; for one user's Drive footprint use audit user360.",
+      "group": "Cross-API audits only the local store enables"
+    },
+    {
+      "name": "OAuth app risk audit",
+      "command": "audit app-risk",
+      "description": "Roll up every third-party OAuth app authorized in the domain by a curated scope-to-risk tier (Low/Moderate/High), flag apps with Full Drive access, and count users-per-app with the member list.",
+      "rationale": "Combines a local rollup over synced tokens with a curated static scope-risk reference table; the Directory API returns raw scope strings with no tiering or per-app user counts.",
+      "example": "workspace-admin-pp-cli audit app-risk --min-risk high --agent",
+      "why_it_matters": "Reach for this during third-party app review to rank risk and find which users authorized a dangerous app.",
+      "group": "Security posture"
+    },
+    {
+      "name": "Login and geo-failure audit",
+      "command": "audit logins",
+      "description": "Surface failed-login bursts, new-country logins, and dormant accounts (no login since N days) from synced login activity joined to users.",
+      "rationale": "Joins Reports login activities to Directory users in the local store for dormancy; the Reports API alone cannot express 'users with no login since N days'.",
+      "example": "workspace-admin-pp-cli audit logins --failures --geo --since 7d --agent",
+      "why_it_matters": "Use this for the weekly login-anomaly and dormant-account review; for a single user's forensic timeline use audit reconstruct.",
+      "group": "Security posture"
+    },
+    {
+      "name": "Incident reconstruction",
+      "command": "audit reconstruct",
+      "description": "Merge one user's login, admin, Drive, and token activity into a single ordered timeline for post-compromise review.",
+      "rationale": "Interleaves multiple Reports activity streams from the local store into one chronological view that no single API call produces.",
+      "example": "workspace-admin-pp-cli audit reconstruct user@example.com --since 7d --agent",
+      "why_it_matters": "Pick this after a suspected compromise to see everything an account did in order; for domain-wide anomalies use audit logins.",
+      "group": "Cross-API audits only the local store enables"
+    },
+    {
+      "name": "Email exposure sweep",
+      "command": "audit email-exposure",
+      "description": "Sweep every user's Gmail forwarding, sendAs, delegates, and filters for external forwarding, external send-as, delegates, and forward/delete rules — the standard business-email-compromise indicators.",
+      "rationale": "Domain-wide Gmail-settings review is one impersonated API call per user with nowhere to persist answers; the local store makes it a single cross-user sweep.",
+      "example": "workspace-admin-pp-cli audit email-exposure --agent --select findings.user,findings.type,findings.detail",
+      "why_it_matters": "Use this for the domain-wide BEC sweep of forwarding rules, delegates, and suspicious filters; for one user's full email settings use audit user360.",
+      "group": "Cross-API audits only the local store enables"
+    },
+    {
+      "name": "Nested group expansion",
+      "command": "groups expand",
+      "description": "Recursively flatten nested groups into their effective direct-user membership, cycle-safe.",
+      "rationale": "The Directory members.list endpoint returns nested groups un-expanded; a recursive query over the local group_members table resolves effective membership no single API call provides.",
+      "example": "workspace-admin-pp-cli groups expand all-staff@example.com --agent --select members.email,members.viaGroup",
+      "why_it_matters": "Use this to answer 'who is effectively in this group' before an access decision; to list one user's group memberships use audit user360.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Offboard workflow",
+      "command": "workflow offboard",
+      "description": "Run a departing user's entire lifecycle in one command — suspend, reset password, sign out, revoke OAuth tokens, transfer Drive ownership, set Gmail delegation and forwarding, wipe devices, remove from groups, and move to a suspended OU.",
+      "rationale": "Sequences calls across Directory, Drive, Data Transfer, and Gmail with per-step error isolation and a completion ledger — no single Google endpoint does this, and GAM requires a hand-maintained multi-command checklist.",
+      "example": "workspace-admin-pp-cli workflow offboard departing@example.com --manager manager@example.com --dry-run",
+      "why_it_matters": "Reach for this instead of running eight separate endpoint commands when a user leaves; it guarantees no step is skipped and records what completed.",
+      "group": "Lifecycle workflows that compound"
+    },
+    {
+      "name": "User 360 audit",
+      "command": "audit user360",
+      "description": "One per-user posture report joining the user's Drive footprint and quota, security (2SV, suspended), connected OAuth apps, devices, Gmail settings, group memberships, and recent activity.",
+      "rationale": "Requires a local SQLite join across Directory, Drive, Gmail, Reports, and Tokens that no single API call returns; GAT exposes this only in its paid GUI.",
+      "example": "workspace-admin-pp-cli audit user360 user@example.com --agent --select security,apps,devices",
+      "why_it_matters": "Pick this to answer 'what is going on with this account' in one call instead of stitching five APIs together.",
+      "group": "Cross-API audits only the local store enables"
+    },
+    {
+      "name": "External sharing audit",
+      "command": "audit external-shares",
+      "description": "Find every Drive file shared 'anyone with link' or with an external domain, joined to its owner and the owner's org unit.",
+      "rationale": "A local join over synced drive_files and drive_permissions; the Drive API can list permissions per file but cannot answer the domain-wide exposure question without the store.",
+      "example": "workspace-admin-pp-cli audit external-shares --domain gmail.com --agent --select files.name,files.owner,files.permissions.emailAddress",
+      "why_it_matters": "Use this for the domain-wide external Drive exposure sweep; for one user's Drive footprint use audit user360.",
+      "group": "Cross-API audits only the local store enables"
+    },
+    {
+      "name": "OAuth app risk audit",
+      "command": "audit app-risk",
+      "description": "Roll up every third-party OAuth app authorized in the domain by a curated scope-to-risk tier (Low/Moderate/High), flag apps with Full Drive access, and count users-per-app with the member list.",
+      "rationale": "Combines a local rollup over synced tokens with a curated static scope-risk reference table; the Directory API returns raw scope strings with no tiering or per-app user counts.",
+      "example": "workspace-admin-pp-cli audit app-risk --min-risk high --agent",
+      "why_it_matters": "Reach for this during third-party app review to rank risk and find which users authorized a dangerous app.",
+      "group": "Security posture"
+    },
+    {
+      "name": "Login and geo-failure audit",
+      "command": "audit logins",
+      "description": "Surface failed-login bursts, new-country logins, and dormant accounts (no login since N days) from synced login activity joined to users.",
+      "rationale": "Joins Reports login activities to Directory users in the local store for dormancy; the Reports API alone cannot express 'users with no login since N days'.",
+      "example": "workspace-admin-pp-cli audit logins --failures --geo --since 7d --agent",
+      "why_it_matters": "Use this for the weekly login-anomaly and dormant-account review; for a single user's forensic timeline use audit reconstruct.",
+      "group": "Security posture"
+    },
+    {
+      "name": "Incident reconstruction",
+      "command": "audit reconstruct",
+      "description": "Merge one user's login, admin, Drive, and token activity into a single ordered timeline for post-compromise review.",
+      "rationale": "Interleaves multiple Reports activity streams from the local store into one chronological view that no single API call produces.",
+      "example": "workspace-admin-pp-cli audit reconstruct user@example.com --since 7d --agent",
+      "why_it_matters": "Pick this after a suspected compromise to see everything an account did in order; for domain-wide anomalies use audit logins.",
+      "group": "Cross-API audits only the local store enables"
+    },
+    {
+      "name": "Email exposure sweep",
+      "command": "audit email-exposure",
+      "description": "Sweep every user's Gmail forwarding, sendAs, delegates, and filters for external forwarding, external send-as, delegates, and forward/delete rules — the standard business-email-compromise indicators.",
+      "rationale": "Domain-wide Gmail-settings review is one impersonated API call per user with nowhere to persist answers; the local store makes it a single cross-user sweep.",
+      "example": "workspace-admin-pp-cli audit email-exposure --agent --select findings.user,findings.type,findings.detail",
+      "why_it_matters": "Use this for the domain-wide BEC sweep of forwarding rules, delegates, and suspicious filters; for one user's full email settings use audit user360.",
+      "group": "Cross-API audits only the local store enables"
+    },
+    {
+      "name": "Nested group expansion",
+      "command": "groups expand",
+      "description": "Recursively flatten nested groups into their effective direct-user membership, cycle-safe.",
+      "rationale": "The Directory members.list endpoint returns nested groups un-expanded; a recursive query over the local group_members table resolves effective membership no single API call provides.",
+      "example": "workspace-admin-pp-cli groups expand all-staff@example.com --agent --select members.email,members.viaGroup",
+      "why_it_matters": "Use this to answer 'who is effectively in this group' before an access decision; to list one user's group memberships use audit user360.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "GOOGLE_WORKSPACE_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Google Workspace Admin",
+    "headline": "GAT-style Google Workspace auditing as an agent-native CLI: sync Directory, Drive, Gmail, Reports, and Alert Center into a local store, then run offline cross-API audits, offboarding, and OAuth-app risk checks that GAM and the official gws CLI cannot persist.",
+    "value_prop": "A curated Google Workspace admin and audit tool built on the Admin SDK (Directory, Reports, Alert Center), Drive, and Gmail. Unlike stateless tools, it syncs Workspace metadata into a local SQLite store so audits like audit external-shares, audit app-risk, and audit user360 run offline and join data across APIs. workflow offboard executes a departing user's full lifecycle in one command, and every command is agent-native with --json, --select, --dry-run, and typed exit codes.",
+    "auth_narrative": "Google Workspace admin APIs use OAuth2. This CLI accepts any Google access token as a bearer token via GOOGLE_WORKSPACE_TOKEN (for example from `gcloud auth print-access-token`). The first-class admin path is a service account with domain-wide delegation: `workspace-admin-pp-cli auth service-account --key sa.json --impersonate admin@example.com` mints and caches an access token by impersonating a super admin (required for Directory, Reports, and Alert Center). For Drive and Gmail data belonging to a specific user, impersonate that user with `--impersonate user@example.com`. Authorize the service account's scopes once in Admin Console \u003e Security \u003e API Controls \u003e Domain-wide Delegation; run `doctor` to verify each scope.",
+    "quickstart": [
+      {
+        "command": "workspace-admin-pp-cli doctor --dry-run",
+        "comment": "Verify auth, impersonation, and per-scope access before anything else — the #1 setup pain point for Workspace tooling."
+      },
+      {
+        "command": "workspace-admin-pp-cli audit user360 user@example.com --agent",
+        "comment": "One-call posture for a single user once the store is synced (run sync first)."
+      },
+      {
+        "command": "workspace-admin-pp-cli audit external-shares --agent",
+        "comment": "The weekly external-exposure sweep over synced Drive metadata."
+      },
+      {
+        "command": "workspace-admin-pp-cli workflow offboard departing@example.com --manager manager@example.com --dry-run",
+        "comment": "Preview every step of a full offboard before running it for real."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "403 insufficient permission / scope not authorized",
+        "fix": "Authorize the service account's scopes in Admin Console \u003e Security \u003e API Controls \u003e Domain-wide Delegation, then run `workspace-admin-pp-cli doctor` to confirm each scope passes."
+      },
+      {
+        "symptom": "401 unauthorized on Directory/Reports/Alert Center",
+        "fix": "Impersonate a super admin: `auth service-account --key sa.json --impersonate admin@example.com`; admin APIs reject non-admin subjects."
+      },
+      {
+        "symptom": "Empty results from an audit command",
+        "fix": "Run `sync --resources users,drive_files,drive_permissions,tokens,activities` first; audit commands read the local store, not the live API."
+      },
+      {
+        "symptom": "429 rate limit / quota exceeded on bulk sync",
+        "fix": "Re-run sync; it is resumable and rate-limit aware. Narrow scope with `--resources` or `--since` to reduce calls."
+      },
+      {
+        "symptom": "Cannot read another user's Drive or Gmail",
+        "fix": "Per-user data requires domain-wide delegation; impersonate that user with `--impersonate user@example.com`."
+      }
+    ],
+    "when_to_use": "Use this CLI for GAT-style Google Workspace auditing and lifecycle automation: offboarding departing users, auditing external Drive sharing, scoring third-party OAuth app risk, reviewing login anomalies and dormant accounts, reconstructing a compromised account's activity, and producing offline cross-API reports over Directory, Drive, Gmail, Reports, and Alert Center. It is the right choice when you want joinable, persisted audit data that stateless tools like GAM and the official gws CLI do not keep.",
+    "anti_triggers": [
+      "Do not use this CLI for real-time browser DLP, keyword interception, screenshots, or on-screen blocking — those require GAT Shield's Chrome endpoint extension and have no Google API equivalent.",
+      "Do not use this CLI as a mail-flow gateway to block phishing before delivery; it performs post-hoc metadata audit and remediation, not pre-inbox filtering.",
+      "Do not use this CLI to read another user's file or email contents without a service account configured for domain-wide delegation and impersonation.",
+      "Do not use this CLI for Google Cloud / IAM resource management — use gcloud; this tool manages Google Workspace, not GCP."
+    ],
+    "recipes": [
+      {
+        "title": "Preview a full offboard",
+        "command": "workspace-admin-pp-cli workflow offboard departing@example.com --manager manager@example.com --dry-run",
+        "explanation": "Shows every step (suspend, token revoke, Drive transfer, delegation, device wipe, group removal, OU move) without changing anything; drop --dry-run to execute."
+      },
+      {
+        "title": "External exposure for one domain, narrowed output",
+        "command": "workspace-admin-pp-cli audit external-shares --domain gmail.com --agent --select files.name,files.owner,files.permissions.emailAddress",
+        "explanation": "Uses dotted --select paths to return only the fields that matter from a deeply nested Drive permissions response, keeping agent context small."
+      },
+      {
+        "title": "High-risk OAuth apps",
+        "command": "workspace-admin-pp-cli audit app-risk --min-risk high --agent",
+        "explanation": "Lists third-party apps tiered High risk (including Full Drive access) with their authorizing users, for third-party app review."
+      },
+      {
+        "title": "Reconstruct a compromised account",
+        "command": "workspace-admin-pp-cli audit reconstruct user@example.com --since 7d --agent",
+        "explanation": "Produces one ordered timeline of the user's login, admin, Drive, and token activity over the last 7 days."
+      },
+      {
+        "title": "Search the local audit store",
+        "command": "workspace-admin-pp-cli search \"external\" --type drive_files --json",
+        "explanation": "Full-text search over synced Drive metadata after a sync, returning structured JSON."
+      }
+    ],
+    "trigger_phrases": [
+      "offboard a user",
+      "audit external Drive sharing",
+      "which OAuth apps have Full Drive access",
+      "show me this user's security posture",
+      "reconstruct this account's activity",
+      "use workspace-admin",
+      "run workspace-admin"
+    ]
+  }
+}

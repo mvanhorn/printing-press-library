@@ -5,10 +5,16 @@ package mcp
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"math"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -18,65 +24,181 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/youtube/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/youtube/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/youtube/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/youtube/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/youtube/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/youtube/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/youtube/internal/platform"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/youtube/internal/store"
+)
+
+const (
+	// MCP hosts can fan out tool calls faster than a human CLI session.
+	// Keep them on the same polite-client limiter path instead of disabling
+	// pacing with rate=0; users can still tune human CLI calls with --rate-limit.
+	defaultMCPRateLimit = 2
 )
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
+	installFreshTenantGate(s)
 	s.AddTool(
-		mcplib.NewTool("youtube_channels-list",
-			mcplib.WithDescription("Retrieves a list of resources, possibly filtered. Optional: categoryId, forUsername, hl (plus 4 more). Returns the ChannelListResponse."),
-			mcplib.WithString("categoryId", mcplib.Description("Return the channels within the specified guide category ID.")),
-			mcplib.WithString("forUsername", mcplib.Description("Return the channel associated with a YouTube username.")),
-			mcplib.WithString("hl", mcplib.Description("Stands for 'host language'. Specifies the localization language of the metadata to be filled into snippet.localized....")),
-			mcplib.WithString("id", mcplib.Description("Return the channels with the specified IDs.")),
-			mcplib.WithString("managedByMe", mcplib.Description("Return the channels managed by the authenticated user.")),
-			mcplib.WithString("mine", mcplib.Description("Return the ids of channels owned by the authenticated user.")),
-			mcplib.WithString("mySubscribers", mcplib.Description("Return the channels subscribed to the authenticated user")),
+		mcplib.NewTool("youtube_activities-list",
+			mcplib.WithDescription("Retrieves a list of resources, possibly filtered. Required: part. Optional: channelId, home, maxResults (plus 5 more). Returns array of Activity."),
+			mcplib.WithArray("part", mcplib.Required(), mcplib.Description("The *part* parameter specifies a comma-separated list of one or more activity resource properties that the API response")),
+			mcplib.WithString("channelId", mcplib.Description("Channel id")),
+			mcplib.WithBoolean("home", mcplib.Description("Home")),
+			mcplib.WithNumber("maxResults", mcplib.Description("The *maxResults* parameter specifies the maximum number of items that should be returned in...")),
+			mcplib.WithBoolean("mine", mcplib.Description("Mine")),
+			mcplib.WithString("publishedAfter", mcplib.Description("Published after")),
+			mcplib.WithString("publishedBefore", mcplib.Description("Published before")),
+			mcplib.WithString("regionCode", mcplib.Description("Region code")),
+			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/youtube/v3/channels", []mcpParamBinding{{PublicName: "categoryId", WireName: "categoryId", Location: "query"}, {PublicName: "forUsername", WireName: "forUsername", Location: "query"}, {PublicName: "hl", WireName: "hl", Location: "query"}, {PublicName: "id", WireName: "id", Location: "query"}, {PublicName: "managedByMe", WireName: "managedByMe", Location: "query"}, {PublicName: "mine", WireName: "mine", Location: "query"}, {PublicName: "mySubscribers", WireName: "mySubscribers", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/youtube/v3/activities", true, false, nil, mcpPageConfig{CursorParam: "pageToken", NextCursorPath: "nextPageToken"}, []mcpParamBinding{{PublicName: "part", WireName: "part", Location: "query", QueryArray: true, QueryStyle: "form", QueryExplode: true}, {PublicName: "channelId", WireName: "channelId", Location: "query"}, {PublicName: "home", WireName: "home", Location: "query"}, {PublicName: "maxResults", WireName: "maxResults", Location: "query"}, {PublicName: "mine", WireName: "mine", Location: "query"}, {PublicName: "publishedAfter", WireName: "publishedAfter", Location: "query"}, {PublicName: "publishedBefore", WireName: "publishedBefore", Location: "query"}, {PublicName: "regionCode", WireName: "regionCode", Location: "query"}}, []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("youtube_captions-list",
+			mcplib.WithDescription("Retrieves a list of resources, possibly filtered. Required: part, videoId. Optional: id, onBehalfOf, onBehalfOfContentOwner. Returns array of Caption."),
+			mcplib.WithArray("part", mcplib.Required(), mcplib.Description("The *part* parameter specifies a comma-separated list of one or more caption resource parts that the API response will")),
+			mcplib.WithString("videoId", mcplib.Required(), mcplib.Description("Returns the captions for the specified video.")),
+			mcplib.WithArray("id", mcplib.Description("Returns the captions with the given IDs for Stubby or Apiary.")),
+			mcplib.WithString("onBehalfOf", mcplib.Description("ID of the Google+ Page for the channel that the request is on behalf of.")),
+			mcplib.WithString("onBehalfOfContentOwner", mcplib.Description("*Note:* This parameter is intended exclusively for YouTube content partners.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/youtube/v3/captions", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "part", WireName: "part", Location: "query", QueryArray: true, QueryStyle: "form", QueryExplode: true}, {PublicName: "videoId", WireName: "videoId", Location: "query"}, {PublicName: "id", WireName: "id", Location: "query", QueryArray: true, QueryStyle: "form", QueryExplode: true}, {PublicName: "onBehalfOf", WireName: "onBehalfOf", Location: "query"}, {PublicName: "onBehalfOfContentOwner", WireName: "onBehalfOfContentOwner", Location: "query"}}, []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("youtube_channel-sections-list",
+			mcplib.WithDescription("Retrieves a list of resources, possibly filtered. Required: part. Optional: channelId, hl, id (plus 2 more). Returns array of ChannelSection."),
+			mcplib.WithArray("part", mcplib.Required(), mcplib.Description("The *part* parameter specifies a comma-separated list of one or more channelSection resource properties that the API")),
+			mcplib.WithString("channelId", mcplib.Description("Return the ChannelSections owned by the specified channel ID.")),
+			mcplib.WithString("hl", mcplib.Description("Return content in specified language")),
+			mcplib.WithArray("id", mcplib.Description("Return the ChannelSections with the given IDs for Stubby or Apiary.")),
+			mcplib.WithBoolean("mine", mcplib.Description("Return the ChannelSections owned by the authenticated user.")),
+			mcplib.WithString("onBehalfOfContentOwner", mcplib.Description("*Note:* This parameter is intended exclusively for YouTube content partners.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/youtube/v3/channelSections", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "part", WireName: "part", Location: "query", QueryArray: true, QueryStyle: "form", QueryExplode: true}, {PublicName: "channelId", WireName: "channelId", Location: "query"}, {PublicName: "hl", WireName: "hl", Location: "query"}, {PublicName: "id", WireName: "id", Location: "query", QueryArray: true, QueryStyle: "form", QueryExplode: true}, {PublicName: "mine", WireName: "mine", Location: "query"}, {PublicName: "onBehalfOfContentOwner", WireName: "onBehalfOfContentOwner", Location: "query"}}, []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("youtube_channels-list",
+			mcplib.WithDescription("Retrieves a list of resources, possibly filtered. Required: part. Optional: categoryId, forUsername, hl (plus 8 more). Returns array of Channel."),
+			mcplib.WithArray("part", mcplib.Required(), mcplib.Description("The *part* parameter specifies a comma-separated list of one or more channel resource properties that the API response")),
+			mcplib.WithString("categoryId", mcplib.Description("Return the channels within the specified guide category ID.")),
+			mcplib.WithString("forUsername", mcplib.Description("Return the channel associated with a YouTube username.")),
+			mcplib.WithString("hl", mcplib.Description("Stands for 'host language'. Specifies the localization language of the metadata to be filled into snippet.localized.")),
+			mcplib.WithArray("id", mcplib.Description("Return the channels with the specified IDs.")),
+			mcplib.WithBoolean("managedByMe", mcplib.Description("Return the channels managed by the authenticated user.")),
+			mcplib.WithNumber("maxResults", mcplib.Description("The *maxResults* parameter specifies the maximum number of items that should be returned in...")),
+			mcplib.WithBoolean("mine", mcplib.Description("Return the ids of channels owned by the authenticated user.")),
+			mcplib.WithBoolean("mySubscribers", mcplib.Description("Return the channels subscribed to the authenticated user")),
+			mcplib.WithString("onBehalfOfContentOwner", mcplib.Description("*Note:* This parameter is intended exclusively for YouTube content partners.")),
+			mcplib.WithString("forHandle", mcplib.Description("Return the channel associated with a YouTube handle.")),
+			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/youtube/v3/channels", true, false, nil, mcpPageConfig{CursorParam: "pageToken", NextCursorPath: "nextPageToken"}, []mcpParamBinding{{PublicName: "part", WireName: "part", Location: "query", QueryArray: true, QueryStyle: "form", QueryExplode: true}, {PublicName: "categoryId", WireName: "categoryId", Location: "query"}, {PublicName: "forUsername", WireName: "forUsername", Location: "query"}, {PublicName: "hl", WireName: "hl", Location: "query"}, {PublicName: "id", WireName: "id", Location: "query", QueryArray: true, QueryStyle: "form", QueryExplode: true}, {PublicName: "managedByMe", WireName: "managedByMe", Location: "query"}, {PublicName: "maxResults", WireName: "maxResults", Location: "query"}, {PublicName: "mine", WireName: "mine", Location: "query"}, {PublicName: "mySubscribers", WireName: "mySubscribers", Location: "query"}, {PublicName: "onBehalfOfContentOwner", WireName: "onBehalfOfContentOwner", Location: "query"}, {PublicName: "forHandle", WireName: "forHandle", Location: "query"}}, []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("youtube_comment-threads-list",
+			mcplib.WithDescription("Retrieves a list of top-level comment threads, filterable by video, channel, or thread id. Public read-only when filtered by videoId, channelId, or id; moderationStatus filtering is OAuth-only and not exposed here. Required: part. Optional: videoId, channelId, id (plus 7 more). Returns array of CommentThread."),
+			mcplib.WithArray("part", mcplib.Required(), mcplib.Description("Comma-separated list of commentThread resource properties to include in the response (e.g. snippet, replies, id).")),
+			mcplib.WithString("videoId", mcplib.Description("Return comment threads on the specified video.")),
+			mcplib.WithString("channelId", mcplib.Description("Return comment threads on the specified channel (top-level channel comments only, not video comments).")),
+			mcplib.WithString("id", mcplib.Description("Comma-separated list of comment thread IDs to fetch directly.")),
+			mcplib.WithNumber("maxResults", mcplib.Description("Maximum number of items to return per page (1-100).")),
+			mcplib.WithString("order", mcplib.Description("Sort order for the returned threads.")),
+			mcplib.WithString("searchTerms", mcplib.Description("Limit threads to those whose top-level comment matches the search terms.")),
+			mcplib.WithString("textFormat", mcplib.Description("Format in which comment text is returned.")),
+			mcplib.WithString("postId", mcplib.Description("Returns the comment threads of the specified post.")),
+			mcplib.WithString("allThreadsRelatedToChannelId", mcplib.Description("Returns the comment threads of all videos of the channel and the channel comments as well.")),
+			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/youtube/v3/commentThreads", true, false, nil, mcpPageConfig{CursorParam: "pageToken", NextCursorPath: "nextPageToken"}, []mcpParamBinding{{PublicName: "part", WireName: "part", Location: "query", QueryArray: true, QueryStyle: "form", QueryExplode: true}, {PublicName: "videoId", WireName: "videoId", Location: "query"}, {PublicName: "channelId", WireName: "channelId", Location: "query"}, {PublicName: "id", WireName: "id", Location: "query"}, {PublicName: "maxResults", WireName: "maxResults", Location: "query"}, {PublicName: "order", WireName: "order", Location: "query"}, {PublicName: "searchTerms", WireName: "searchTerms", Location: "query"}, {PublicName: "textFormat", WireName: "textFormat", Location: "query"}, {PublicName: "postId", WireName: "postId", Location: "query"}, {PublicName: "allThreadsRelatedToChannelId", WireName: "allThreadsRelatedToChannelId", Location: "query"}}, []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("youtube_i18n-languages-list",
+			mcplib.WithDescription("Retrieves a list of resources, possibly filtered. Required: part. Optional: hl. Returns array of I18nLanguage."),
+			mcplib.WithArray("part", mcplib.Required(), mcplib.Description("The *part* parameter specifies the i18nLanguage resource properties that the API response will include.")),
+			mcplib.WithString("hl", mcplib.Description("Hl")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/youtube/v3/i18nLanguages", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "part", WireName: "part", Location: "query", QueryArray: true, QueryStyle: "form", QueryExplode: true}, {PublicName: "hl", WireName: "hl", Location: "query"}}, []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("youtube_i18n-regions-list",
+			mcplib.WithDescription("Retrieves a list of resources, possibly filtered. Required: part. Optional: hl. Returns array of I18nRegion."),
+			mcplib.WithArray("part", mcplib.Required(), mcplib.Description("The *part* parameter specifies the i18nRegion resource properties that the API response will include.")),
+			mcplib.WithString("hl", mcplib.Description("Hl")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/youtube/v3/i18nRegions", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "part", WireName: "part", Location: "query", QueryArray: true, QueryStyle: "form", QueryExplode: true}, {PublicName: "hl", WireName: "hl", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_playlist-items-list",
-			mcplib.WithDescription("Retrieves a list of resources, possibly filtered. Optional: id, playlistId, videoId. Returns the PlaylistItemListResponse."),
-			mcplib.WithString("id", mcplib.Description("Id")),
+			mcplib.WithDescription("Retrieves a list of resources, possibly filtered. Required: part. Optional: id, maxResults, onBehalfOfContentOwner (plus 3 more). Returns array of PlaylistItem."),
+			mcplib.WithArray("part", mcplib.Required(), mcplib.Description("The *part* parameter specifies a comma-separated list of one or more playlistItem resource properties that the API")),
+			mcplib.WithArray("id", mcplib.Description("Id")),
+			mcplib.WithNumber("maxResults", mcplib.Description("The *maxResults* parameter specifies the maximum number of items that should be returned in...")),
+			mcplib.WithString("onBehalfOfContentOwner", mcplib.Description("*Note:* This parameter is intended exclusively for YouTube content partners.")),
 			mcplib.WithString("playlistId", mcplib.Description("Return the playlist items within the given playlist.")),
 			mcplib.WithString("videoId", mcplib.Description("Return the playlist items associated with the given video ID.")),
+			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/youtube/v3/playlistItems", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}, {PublicName: "playlistId", WireName: "playlistId", Location: "query"}, {PublicName: "videoId", WireName: "videoId", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/youtube/v3/playlistItems", true, false, nil, mcpPageConfig{CursorParam: "pageToken", NextCursorPath: "nextPageToken"}, []mcpParamBinding{{PublicName: "part", WireName: "part", Location: "query", QueryArray: true, QueryStyle: "form", QueryExplode: true}, {PublicName: "id", WireName: "id", Location: "query", QueryArray: true, QueryStyle: "form", QueryExplode: true}, {PublicName: "maxResults", WireName: "maxResults", Location: "query"}, {PublicName: "onBehalfOfContentOwner", WireName: "onBehalfOfContentOwner", Location: "query"}, {PublicName: "playlistId", WireName: "playlistId", Location: "query"}, {PublicName: "videoId", WireName: "videoId", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_playlists-list",
-			mcplib.WithDescription("Retrieves a list of resources, possibly filtered. Optional: channelId, hl, id (plus 2 more). Returns the PlaylistListResponse."),
+			mcplib.WithDescription("Retrieves a list of resources, possibly filtered. Required: part. Optional: channelId, hl, id (plus 5 more). Returns array of Playlist."),
+			mcplib.WithArray("part", mcplib.Required(), mcplib.Description("The *part* parameter specifies a comma-separated list of one or more playlist resource properties that the API response")),
 			mcplib.WithString("channelId", mcplib.Description("Return the playlists owned by the specified channel ID.")),
 			mcplib.WithString("hl", mcplib.Description("Return content in specified language")),
-			mcplib.WithString("id", mcplib.Description("Return the playlists with the given IDs for Stubby or Apiary.")),
-			mcplib.WithString("mine", mcplib.Description("Return the playlists owned by the authenticated user.")),
-			mcplib.WithString("onBehalfOfContentOwnerChannel", mcplib.Description("This parameter can only be used in a properly authorized request. *Note:* This parameter is intended exclusively for...")),
+			mcplib.WithArray("id", mcplib.Description("Return the playlists with the given IDs for Stubby or Apiary.")),
+			mcplib.WithNumber("maxResults", mcplib.Description("The *maxResults* parameter specifies the maximum number of items that should be returned in...")),
+			mcplib.WithBoolean("mine", mcplib.Description("Return the playlists owned by the authenticated user.")),
+			mcplib.WithString("onBehalfOfContentOwner", mcplib.Description("*Note:* This parameter is intended exclusively for YouTube content partners.")),
+			mcplib.WithString("onBehalfOfContentOwnerChannel", mcplib.Description("This parameter can only be used in a properly authorized request.")),
+			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/youtube/v3/playlists", []mcpParamBinding{{PublicName: "channelId", WireName: "channelId", Location: "query"}, {PublicName: "hl", WireName: "hl", Location: "query"}, {PublicName: "id", WireName: "id", Location: "query"}, {PublicName: "mine", WireName: "mine", Location: "query"}, {PublicName: "onBehalfOfContentOwnerChannel", WireName: "onBehalfOfContentOwnerChannel", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/youtube/v3/playlists", true, false, nil, mcpPageConfig{CursorParam: "pageToken", NextCursorPath: "nextPageToken"}, []mcpParamBinding{{PublicName: "part", WireName: "part", Location: "query", QueryArray: true, QueryStyle: "form", QueryExplode: true}, {PublicName: "channelId", WireName: "channelId", Location: "query"}, {PublicName: "hl", WireName: "hl", Location: "query"}, {PublicName: "id", WireName: "id", Location: "query", QueryArray: true, QueryStyle: "form", QueryExplode: true}, {PublicName: "maxResults", WireName: "maxResults", Location: "query"}, {PublicName: "mine", WireName: "mine", Location: "query"}, {PublicName: "onBehalfOfContentOwner", WireName: "onBehalfOfContentOwner", Location: "query"}, {PublicName: "onBehalfOfContentOwnerChannel", WireName: "onBehalfOfContentOwnerChannel", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_search-list",
-			mcplib.WithDescription("Retrieves a list of search resources. Optional: channelId, channelType, eventType (plus 24 more). Returns the SearchListResponse."),
+			mcplib.WithDescription("Retrieves a list of search resources. Required: part. Optional: channelId, channelType, eventType (plus 28 more). Returns array of SearchResult."),
+			mcplib.WithArray("part", mcplib.Required(), mcplib.Description("The *part* parameter specifies a comma-separated list of one or more search resource properties that the API response")),
 			mcplib.WithString("channelId", mcplib.Description("Filter on resources belonging to this channelId.")),
 			mcplib.WithString("channelType", mcplib.Description("Add a filter on the channel search.")),
 			mcplib.WithString("eventType", mcplib.Description("Filter on the livestream status of the videos.")),
-			mcplib.WithString("forContentOwner", mcplib.Description("Search owned by a content owner.")),
-			mcplib.WithString("forDeveloper", mcplib.Description("Restrict the search to only retrieve videos uploaded using the project id of the authenticated user.")),
-			mcplib.WithString("forMine", mcplib.Description("Search for the private videos of the authenticated user.")),
+			mcplib.WithBoolean("forContentOwner", mcplib.Description("Search owned by a content owner.")),
+			mcplib.WithBoolean("forDeveloper", mcplib.Description("Restrict the search to only retrieve videos uploaded using the project id of the authenticated user.")),
+			mcplib.WithBoolean("forMine", mcplib.Description("Search for the private videos of the authenticated user.")),
 			mcplib.WithString("location", mcplib.Description("Filter on location of the video")),
 			mcplib.WithString("locationRadius", mcplib.Description("Filter on distance from the location (specified above).")),
+			mcplib.WithNumber("maxResults", mcplib.Description("The *maxResults* parameter specifies the maximum number of items that should be returned in...")),
+			mcplib.WithString("onBehalfOfContentOwner", mcplib.Description("*Note:* This parameter is intended exclusively for YouTube content partners.")),
 			mcplib.WithString("order", mcplib.Description("Sort order of the results.")),
 			mcplib.WithString("publishedAfter", mcplib.Description("Filter on resources published after this date.")),
 			mcplib.WithString("publishedBefore", mcplib.Description("Filter on resources published before this date.")),
@@ -86,7 +208,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("relevanceLanguage", mcplib.Description("Return results relevant to this language.")),
 			mcplib.WithString("safeSearch", mcplib.Description("Indicates whether the search results should include restricted content as well as standard content.")),
 			mcplib.WithString("topicId", mcplib.Description("Restrict results to a particular topic.")),
-			mcplib.WithString("type", mcplib.Description("Restrict results to a particular set of resource types from One Platform.")),
+			mcplib.WithArray("type", mcplib.Description("Restrict results to a particular set of resource types from One Platform.")),
 			mcplib.WithString("videoCaption", mcplib.Description("Filter on the presence of captions on the videos.")),
 			mcplib.WithString("videoCategoryId", mcplib.Description("Filter on videos in a specific category.")),
 			mcplib.WithString("videoDefinition", mcplib.Description("Filter on the definition of the videos.")),
@@ -96,35 +218,67 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("videoLicense", mcplib.Description("Filter on the license of the videos.")),
 			mcplib.WithString("videoSyndicated", mcplib.Description("Filter on syndicated videos.")),
 			mcplib.WithString("videoType", mcplib.Description("Filter on videos of a specific type.")),
+			mcplib.WithString("videoPaidProductPlacement", mcplib.Description("Video paid product placement")),
+			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/youtube/v3/search", []mcpParamBinding{{PublicName: "channelId", WireName: "channelId", Location: "query"}, {PublicName: "channelType", WireName: "channelType", Location: "query"}, {PublicName: "eventType", WireName: "eventType", Location: "query"}, {PublicName: "forContentOwner", WireName: "forContentOwner", Location: "query"}, {PublicName: "forDeveloper", WireName: "forDeveloper", Location: "query"}, {PublicName: "forMine", WireName: "forMine", Location: "query"}, {PublicName: "location", WireName: "location", Location: "query"}, {PublicName: "locationRadius", WireName: "locationRadius", Location: "query"}, {PublicName: "order", WireName: "order", Location: "query"}, {PublicName: "publishedAfter", WireName: "publishedAfter", Location: "query"}, {PublicName: "publishedBefore", WireName: "publishedBefore", Location: "query"}, {PublicName: "q", WireName: "q", Location: "query"}, {PublicName: "regionCode", WireName: "regionCode", Location: "query"}, {PublicName: "relatedToVideoId", WireName: "relatedToVideoId", Location: "query"}, {PublicName: "relevanceLanguage", WireName: "relevanceLanguage", Location: "query"}, {PublicName: "safeSearch", WireName: "safeSearch", Location: "query"}, {PublicName: "topicId", WireName: "topicId", Location: "query"}, {PublicName: "type", WireName: "type", Location: "query"}, {PublicName: "videoCaption", WireName: "videoCaption", Location: "query"}, {PublicName: "videoCategoryId", WireName: "videoCategoryId", Location: "query"}, {PublicName: "videoDefinition", WireName: "videoDefinition", Location: "query"}, {PublicName: "videoDimension", WireName: "videoDimension", Location: "query"}, {PublicName: "videoDuration", WireName: "videoDuration", Location: "query"}, {PublicName: "videoEmbeddable", WireName: "videoEmbeddable", Location: "query"}, {PublicName: "videoLicense", WireName: "videoLicense", Location: "query"}, {PublicName: "videoSyndicated", WireName: "videoSyndicated", Location: "query"}, {PublicName: "videoType", WireName: "videoType", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/youtube/v3/search", true, false, nil, mcpPageConfig{CursorParam: "pageToken", NextCursorPath: "nextPageToken"}, []mcpParamBinding{{PublicName: "part", WireName: "part", Location: "query", QueryArray: true, QueryStyle: "form", QueryExplode: true}, {PublicName: "channelId", WireName: "channelId", Location: "query"}, {PublicName: "channelType", WireName: "channelType", Location: "query"}, {PublicName: "eventType", WireName: "eventType", Location: "query"}, {PublicName: "forContentOwner", WireName: "forContentOwner", Location: "query"}, {PublicName: "forDeveloper", WireName: "forDeveloper", Location: "query"}, {PublicName: "forMine", WireName: "forMine", Location: "query"}, {PublicName: "location", WireName: "location", Location: "query"}, {PublicName: "locationRadius", WireName: "locationRadius", Location: "query"}, {PublicName: "maxResults", WireName: "maxResults", Location: "query"}, {PublicName: "onBehalfOfContentOwner", WireName: "onBehalfOfContentOwner", Location: "query"}, {PublicName: "order", WireName: "order", Location: "query"}, {PublicName: "publishedAfter", WireName: "publishedAfter", Location: "query"}, {PublicName: "publishedBefore", WireName: "publishedBefore", Location: "query"}, {PublicName: "q", WireName: "q", Location: "query"}, {PublicName: "regionCode", WireName: "regionCode", Location: "query"}, {PublicName: "relatedToVideoId", WireName: "relatedToVideoId", Location: "query"}, {PublicName: "relevanceLanguage", WireName: "relevanceLanguage", Location: "query"}, {PublicName: "safeSearch", WireName: "safeSearch", Location: "query"}, {PublicName: "topicId", WireName: "topicId", Location: "query"}, {PublicName: "type", WireName: "type", Location: "query", QueryArray: true, QueryStyle: "form", QueryExplode: true}, {PublicName: "videoCaption", WireName: "videoCaption", Location: "query"}, {PublicName: "videoCategoryId", WireName: "videoCategoryId", Location: "query"}, {PublicName: "videoDefinition", WireName: "videoDefinition", Location: "query"}, {PublicName: "videoDimension", WireName: "videoDimension", Location: "query"}, {PublicName: "videoDuration", WireName: "videoDuration", Location: "query"}, {PublicName: "videoEmbeddable", WireName: "videoEmbeddable", Location: "query"}, {PublicName: "videoLicense", WireName: "videoLicense", Location: "query"}, {PublicName: "videoSyndicated", WireName: "videoSyndicated", Location: "query"}, {PublicName: "videoType", WireName: "videoType", Location: "query"}, {PublicName: "videoPaidProductPlacement", WireName: "videoPaidProductPlacement", Location: "query"}}, []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("youtube_video-categories-list",
+			mcplib.WithDescription("Retrieves a list of resources, possibly filtered. Required: part. Optional: hl, id, regionCode. Returns array of VideoCategory."),
+			mcplib.WithArray("part", mcplib.Required(), mcplib.Description("The *part* parameter specifies the videoCategory resource properties that the API response will include.")),
+			mcplib.WithString("hl", mcplib.Description("Hl")),
+			mcplib.WithArray("id", mcplib.Description("Returns the video categories with the given IDs for Stubby or Apiary.")),
+			mcplib.WithString("regionCode", mcplib.Description("Region code")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/youtube/v3/videoCategories", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "part", WireName: "part", Location: "query", QueryArray: true, QueryStyle: "form", QueryExplode: true}, {PublicName: "hl", WireName: "hl", Location: "query"}, {PublicName: "id", WireName: "id", Location: "query", QueryArray: true, QueryStyle: "form", QueryExplode: true}, {PublicName: "regionCode", WireName: "regionCode", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_videos-list",
-			mcplib.WithDescription("Retrieves a list of resources, possibly filtered. Optional: chart, hl, id (plus 6 more). Returns the VideoListResponse."),
+			mcplib.WithDescription("Retrieves a list of resources, possibly filtered. Required: part. Optional: chart, hl, id (plus 9 more). Returns array of Video."),
+			mcplib.WithArray("part", mcplib.Required(), mcplib.Description("The *part* parameter specifies a comma-separated list of one or more video resource properties that the API response")),
 			mcplib.WithString("chart", mcplib.Description("Return the videos that are in the specified chart.")),
-			mcplib.WithString("hl", mcplib.Description("Stands for 'host language'. Specifies the localization language of the metadata to be filled into snippet.localized....")),
-			mcplib.WithString("id", mcplib.Description("Return videos with the given ids.")),
+			mcplib.WithString("hl", mcplib.Description("Stands for 'host language'. Specifies the localization language of the metadata to be filled into snippet.localized.")),
+			mcplib.WithArray("id", mcplib.Description("Return videos with the given ids.")),
 			mcplib.WithString("locale", mcplib.Description("Locale")),
-			mcplib.WithString("maxHeight", mcplib.Description("Max height")),
-			mcplib.WithString("maxWidth", mcplib.Description("Return the player with maximum height specified in")),
+			mcplib.WithNumber("maxHeight", mcplib.Description("Max height")),
+			mcplib.WithNumber("maxResults", mcplib.Description("The *maxResults* parameter specifies the maximum number of items that should be returned in the result set.")),
+			mcplib.WithNumber("maxWidth", mcplib.Description("Return the player with maximum height specified in")),
 			mcplib.WithString("myRating", mcplib.Description("Return videos liked/disliked by the authenticated user. Does not support RateType.RATED_TYPE_NONE.")),
+			mcplib.WithString("onBehalfOfContentOwner", mcplib.Description("*Note:* This parameter is intended exclusively for YouTube content partners.")),
 			mcplib.WithString("regionCode", mcplib.Description("Use a chart that is specific to the specified region")),
 			mcplib.WithString("videoCategoryId", mcplib.Description("Use chart that is specific to the specified video category")),
+			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/youtube/v3/videos", []mcpParamBinding{{PublicName: "chart", WireName: "chart", Location: "query"}, {PublicName: "hl", WireName: "hl", Location: "query"}, {PublicName: "id", WireName: "id", Location: "query"}, {PublicName: "locale", WireName: "locale", Location: "query"}, {PublicName: "maxHeight", WireName: "maxHeight", Location: "query"}, {PublicName: "maxWidth", WireName: "maxWidth", Location: "query"}, {PublicName: "myRating", WireName: "myRating", Location: "query"}, {PublicName: "regionCode", WireName: "regionCode", Location: "query"}, {PublicName: "videoCategoryId", WireName: "videoCategoryId", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/youtube/v3/videos", true, false, nil, mcpPageConfig{CursorParam: "pageToken", NextCursorPath: "nextPageToken"}, []mcpParamBinding{{PublicName: "part", WireName: "part", Location: "query", QueryArray: true, QueryStyle: "form", QueryExplode: true}, {PublicName: "chart", WireName: "chart", Location: "query"}, {PublicName: "hl", WireName: "hl", Location: "query"}, {PublicName: "id", WireName: "id", Location: "query", QueryArray: true, QueryStyle: "form", QueryExplode: true}, {PublicName: "locale", WireName: "locale", Location: "query"}, {PublicName: "maxHeight", WireName: "maxHeight", Location: "query"}, {PublicName: "maxResults", WireName: "maxResults", Location: "query"}, {PublicName: "maxWidth", WireName: "maxWidth", Location: "query"}, {PublicName: "myRating", WireName: "myRating", Location: "query"}, {PublicName: "onBehalfOfContentOwner", WireName: "onBehalfOfContentOwner", Location: "query"}, {PublicName: "regionCode", WireName: "regionCode", Location: "query"}, {PublicName: "videoCategoryId", WireName: "videoCategoryId", Location: "query"}}, []string{}),
+	)
+	// Intent tools — higher-level compositions declared in the spec or lifted from recipes.
+	RegisterIntents(s)
+	// Search tool — faster than iterating list endpoints for finding specific items
+	s.AddTool(
+		mcplib.NewTool("search",
+			mcplib.WithDescription("Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)")),
+			mcplib.WithNumber("limit", mcplib.Description("Max results (default 25)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+		),
+		handleSearch,
 	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
 			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Tables match resource names.")),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='youtube'.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
@@ -148,23 +302,131 @@ func RegisterTools(s *server.MCPServer) {
 }
 
 type mcpParamBinding struct {
-	PublicName string
-	WireName   string
-	Location   string
+	PublicName   string
+	WireName     string
+	Location     string
+	Format       string
+	QueryArray   bool
+	QueryStyle   string
+	QueryExplode bool
+}
+
+type mcpPageConfig struct {
+	CursorParam    string
+	NextCursorPath string
+}
+
+func formatMCPParamValue(v any) string {
+	switch tv := v.(type) {
+	case string:
+		return tv
+	case bool:
+		return strconv.FormatBool(tv)
+	case float64:
+		if math.IsNaN(tv) || math.IsInf(tv, 0) {
+			return strconv.FormatFloat(tv, 'f', -1, 64)
+		}
+		if math.Trunc(tv) == tv && math.Abs(tv) < 1e15 {
+			return strconv.FormatInt(int64(tv), 10)
+		}
+		return strconv.FormatFloat(tv, 'f', -1, 64)
+	case float32:
+		f := float64(tv)
+		if math.IsNaN(f) || math.IsInf(f, 0) {
+			return strconv.FormatFloat(f, 'f', -1, 32)
+		}
+		if math.Trunc(f) == f && math.Abs(f) < 1e15 {
+			return strconv.FormatInt(int64(f), 10)
+		}
+		return strconv.FormatFloat(f, 'f', -1, 32)
+	default:
+		// Composite values (a native []any / map[string]any from an array or
+		// object param) reach this path when bound to a query or path slot;
+		// JSON-encode them so the wire value is valid JSON rather than Go's
+		// "[a b c]" / "map[...]" rendering. Body params never come through
+		// here — they are stored natively in bodyArgs and marshalled there.
+		if b, err := json.Marshal(v); err == nil {
+			return string(b)
+		}
+		return fmt.Sprintf("%v", v)
+	}
+}
+
+func mcpPathValue(v any) string {
+	return cliutil.EscapePathParam(formatMCPParamValue(v))
+}
+func appendMCPArrayQueryParam(path, name string, value any, style string, explode bool) string {
+	var values []string
+	switch typed := value.(type) {
+	case []any:
+		values = make([]string, 0, len(typed))
+		for _, item := range typed {
+			values = append(values, formatMCPParamValue(item))
+		}
+	case []string:
+		values = typed
+	default:
+		raw := formatMCPParamValue(value)
+		var decoded []any
+		if json.Unmarshal([]byte(raw), &decoded) == nil {
+			for _, item := range decoded {
+				values = append(values, formatMCPParamValue(item))
+			}
+		} else {
+			for _, item := range strings.Split(raw, ",") {
+				if item = strings.TrimSpace(item); item != "" {
+					values = append(values, item)
+				}
+			}
+		}
+	}
+	if len(values) == 0 {
+		return path
+	}
+
+	query := url.Values{}
+	switch style {
+	case "spaceDelimited":
+		query.Set(name, strings.Join(values, " "))
+	case "pipeDelimited":
+		query.Set(name, strings.Join(values, "|"))
+	case "form":
+		if explode {
+			for _, item := range values {
+				query.Add(name, item)
+			}
+		} else {
+			query.Set(name, strings.Join(values, ","))
+		}
+	default:
+		query.Set(name, formatMCPParamValue(value))
+	}
+
+	separator := "?"
+	if strings.Contains(path, "?") {
+		separator = "&"
+	}
+	return path + separator + query.Encode()
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
+func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, pageConfig mcpPageConfig, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		c, err := newMCPClient()
+		c, platformSession, err := newMCPClient(ctx)
 		if err != nil {
-			return mcplib.NewToolResultError(err.Error()), nil
+			return mcpToolError(err.Error()), nil
+		}
+		if platformSession != nil {
+			defer platformSession.ZeroCredentials()
 		}
 
 		// mcp-go v0.47+ made CallToolParams.Arguments an `any` to support
 		// non-map payloads; GetArguments() returns the map[string]any shape
 		// we rely on here (or an empty map when the payload is something else).
 		args := req.GetArguments()
+		if err := cli.AdoptMCPOutputSemantics(platformSession, args); err != nil {
+			return mcpToolError(err.Error()), nil
+		}
 
 		// positionalParams mixes real URL path params with CLI positional
 		// args that map to query params (e.g. `search <query>` -> ?query=);
@@ -174,6 +436,37 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 		pathParams := make(map[string]bool, len(positionalParams))
 		params := make(map[string]string)
 		bodyArgs := make(map[string]any)
+		mcpCursor := ""
+		if pageConfig.CursorParam != "" {
+			knownArgs["cursor"] = true
+			if v, ok := args["cursor"]; ok {
+				s, ok := v.(string)
+				if !ok {
+					return mcpToolError("cursor must be an opaque string returned by a previous MCP response"), nil
+				}
+				mcpCursor = s
+				upstreamCursor, err := bound.UpstreamCursor(s)
+				if err != nil {
+					return mcpToolError(err.Error()), nil
+				}
+				if upstreamCursor != "" {
+					params[pageConfig.CursorParam] = upstreamCursor
+				}
+			}
+		}
+		var headers map[string]string
+		if len(headerOverrides) > 0 {
+			headers = make(map[string]string, len(headerOverrides)+1)
+			for k, v := range headerOverrides {
+				headers[k] = v
+			}
+		}
+		if binaryResponse {
+			if headers == nil {
+				headers = map[string]string{}
+			}
+			headers[client.BinaryResponseHeader] = "true"
+		}
 		for _, binding := range bindings {
 			knownArgs[binding.PublicName] = true
 			v, ok := args[binding.PublicName]
@@ -184,11 +477,20 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 			case "path":
 				placeholder := "{" + binding.WireName + "}"
 				pathParams[binding.PublicName] = true
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
+				path = strings.Replace(path, placeholder, mcpPathValue(v), 1)
+			case "header":
+				if headers == nil {
+					headers = map[string]string{}
+				}
+				headers[binding.WireName] = formatMCPParamValue(v)
 			case "body":
 				bodyArgs[binding.WireName] = v
 			default:
-				params[binding.WireName] = fmt.Sprintf("%v", v)
+				if binding.QueryArray {
+					path = appendMCPArrayQueryParam(path, binding.WireName, v, binding.QueryStyle, binding.QueryExplode)
+				} else {
+					params[binding.WireName] = formatMCPParamValue(v)
+				}
 			}
 		}
 		for _, p := range positionalParams {
@@ -198,7 +500,7 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 			}
 			pathParams[p] = true
 			if v, ok := args[p]; ok {
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
+				path = strings.Replace(path, placeholder, mcpPathValue(v), 1)
 			}
 		}
 
@@ -210,126 +512,360 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 			case "POST", "PUT", "PATCH":
 				bodyArgs[k] = v
 			default:
-				params[k] = fmt.Sprintf("%v", v)
+				params[k] = formatMCPParamValue(v)
 			}
 		}
 
 		var data json.RawMessage
 		switch method {
 		case "GET":
-			data, err = c.Get(path, params)
+			if len(headers) > 0 {
+				if readOnly {
+					data, err = c.GetWithHeaders(ctx, path, params, headers)
+				} else {
+					data, err = c.GetMutatingWithHeaders(ctx, path, params, headers)
+				}
+				break
+			}
+			if readOnly {
+				data, err = c.Get(ctx, path, params)
+			} else {
+				data, err = c.GetMutating(ctx, path, params)
+			}
 		case "POST":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Post(path, body)
+			if len(headers) > 0 {
+				if readOnly {
+					data, _, err = c.PostQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PostWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
+				break
+			}
+			if readOnly {
+				data, _, err = c.PostQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PostWithParams(ctx, path, params, bodyArgs)
+			}
 		case "PUT":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Put(path, body)
+			if len(headers) > 0 {
+				if readOnly {
+					data, _, err = c.PutQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
+				break
+			}
+			if readOnly {
+				data, _, err = c.PutQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PutWithParams(ctx, path, params, bodyArgs)
+			}
 		case "PATCH":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Patch(path, body)
+			if len(headers) > 0 {
+				if readOnly {
+					data, _, err = c.PatchQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
+				break
+			}
+			if readOnly {
+				data, _, err = c.PatchQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PatchWithParams(ctx, path, params, bodyArgs)
+			}
 		case "DELETE":
-			data, _, err = c.Delete(path)
+			if len(headers) > 0 {
+				data, _, err = c.DeleteWithParamsAndHeaders(ctx, path, params, headers)
+				break
+			}
+			data, _, err = c.DeleteWithParams(ctx, path, params)
 		default:
-			return mcplib.NewToolResultError("unsupported method: " + method), nil
+			return mcpToolError("unsupported method: " + method), nil
 		}
 
 		if err != nil {
 			msg := err.Error()
 			switch {
 			case strings.Contains(msg, "HTTP 409"):
-				return mcplib.NewToolResultText("already exists (no-op)"), nil
+				return mcpToolTextWithPlatform("already exists (no-op)", platformSession), nil
 			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
-				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
+				return mcpToolError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
-					"\n      Set your API key: export YOUTUBE_API_KEY=<your-key>" +
+					"\n      Set your API key with: export YOUTUBE_API_KEY=\"your-token-here\"" +
+					"\n      Get a key at: https://console.cloud.google.com" +
 					"\n      Run 'youtube-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
-				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
+				return mcpToolError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your API key." +
-					"\n      Set it with: export YOUTUBE_API_KEY=<your-key>" +
+					"\n      Set your API key with: export YOUTUBE_API_KEY=\"your-token-here\"" +
+					"\n      Get a key at: https://console.cloud.google.com" +
 					"\n      Run 'youtube-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
-				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
-					"\nhint: your credentials are valid but lack access to this resource." +
-					"\n      Set it with: export YOUTUBE_API_KEY=<your-key>" +
+				return mcpToolError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
+					"\nhint: your credentials are valid but lack access to this resource. Check that they have the required permissions and match the API's expected auth scheme." +
+					"\n      Set your API key with: export YOUTUBE_API_KEY=\"your-token-here\"" +
+					"\n      Get a key at: https://console.cloud.google.com" +
 					"\n      Run 'youtube-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
-					return mcplib.NewToolResultText("already deleted (no-op)"), nil
+					return mcpToolTextWithPlatform("already deleted (no-op)", platformSession), nil
 				}
-				return mcplib.NewToolResultError("not found: " + msg), nil
+				return mcpToolError("not found: " + msg), nil
 			case strings.Contains(msg, "HTTP 429"):
-				return mcplib.NewToolResultError("rate limited: " + msg), nil
+				return mcpToolError("rate limited: " + msg), nil
 			default:
-				return mcplib.NewToolResultError(msg), nil
+				return mcpToolError(msg), nil
 			}
 		}
 
-		// For GET responses, wrap bare arrays with count metadata
-		if method == "GET" {
-			trimmed := strings.TrimSpace(string(data))
-			if len(trimmed) > 0 && trimmed[0] == '[' {
-				var items []json.RawMessage
-				if json.Unmarshal(data, &items) == nil {
-					wrapped := map[string]any{
-						"count": len(items),
-						"items": items,
-					}
-					out, _ := json.Marshal(wrapped)
-					return mcplib.NewToolResultText(string(out)), nil
-				}
+		if binaryResponse {
+			encoded := base64.StdEncoding.EncodeToString(data)
+			out, err := json.Marshal(map[string]any{
+				"content_encoding": "base64",
+				"data_base64":      encoded,
+				"byte_count":       len(data),
+			})
+			if err != nil {
+				return mcpToolError(fmt.Sprintf("encoding binary result: %v", err)), nil
 			}
+			if len(out) > bound.MaxBytes {
+				return mcpToolError(fmt.Sprintf("binary response is too large for MCP text output: %d response bytes encode to %d base64 bytes and %d MCP result bytes, exceeding the %d byte budget. Use the companion CLI command with --output <file> to save the payload locally.", len(data), len(encoded), len(out), bound.MaxBytes)), nil
+			}
+			result := string(out)
+			if platformSession != nil {
+				result = bound.WithMetadata(result, platformSession.OutputMetadata())
+			}
+			return mcplib.NewToolResultText(result), nil
 		}
-		return mcplib.NewToolResultText(string(data)), nil
+		if pageConfig.CursorParam != "" {
+			return mcpToolPageResultTextWithPlatform(method, data, pageConfig, mcpCursor, platformSession), nil
+		}
+		return mcpToolResultTextWithPlatform(method, data, platformSession), nil
 	}
 }
 
-func newMCPClient() (*client.Client, error) {
-	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "youtube-pp-cli", "config.toml")
-	cfg, err := config.Load(cfgPath)
+func mcpToolResultText(method string, data json.RawMessage) *mcplib.CallToolResult {
+	return mcpToolResultTextWithPlatform(method, data, nil)
+}
+
+func mcpToolTextWithPlatform(result string, platformSession *platform.Session) *mcplib.CallToolResult {
+	if platformSession != nil {
+		result = bound.WithMetadata(result, platformSession.OutputMetadata())
+	}
+	return mcplib.NewToolResultText(result)
+}
+
+func mcpToolResultTextWithPlatform(method string, data json.RawMessage, platformSession *platform.Session) *mcplib.CallToolResult {
+	result := bound.EndpointResponse(method, data)
+	return mcpToolTextWithPlatform(result, platformSession)
+}
+
+// mcpToolError keeps provider-controlled typed endpoint errors within the MCP
+// text-result budget just like successful endpoint results.
+func mcpToolError(message string) *mcplib.CallToolResult {
+	return mcplib.NewToolResultError(bound.Text(message))
+}
+
+func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string) *mcplib.CallToolResult {
+	return mcpToolPageResultTextWithPlatform(method, data, pageConfig, cursor, nil)
+}
+
+func mcpToolPageResultTextWithPlatform(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string, platformSession *platform.Session) *mcplib.CallToolResult {
+	result := bound.EndpointPageResponse(method, data, bound.PageOptions{
+		Cursor:         cursor,
+		CursorParam:    pageConfig.CursorParam,
+		NextCursorPath: pageConfig.NextCursorPath,
+	})
+	if platformSession != nil {
+		result = bound.WithMetadata(result, platformSession.OutputMetadata())
+	}
+	return mcplib.NewToolResultText(result)
+}
+
+func newMCPClient(ctx context.Context) (*client.Client, *platform.Session, error) {
+	cfg, err := newMCPConfig()
+	if err != nil {
+		return nil, nil, err
+	}
+	c := newMCPClientFromConfig(cfg)
+	session, err := cli.BindMCPClient(ctx, c)
+	if err != nil {
+		return nil, nil, err
+	}
+	return c, session, nil
+}
+
+func newMCPConfig() (*config.Config, error) {
+	cfg, err := config.Load("")
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
-	c := client.New(cfg, 30*time.Second, 0)
+	return cfg, nil
+}
+
+func newMCPClientFromConfig(cfg *config.Config) *client.Client {
+	c := client.New(cfg, 60*time.Second, defaultMCPRateLimit)
 	// Agents calling through MCP need fresh data every call. The on-disk
 	// response cache survives across MCP server invocations, so a
 	// DELETE/PATCH followed by a GET would otherwise return the
 	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
 	// constructs its own client and is unaffected.
 	c.NoCache = true
-	return c, nil
+	return c
 }
 
-func dbPath() string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".local", "share", "youtube-pp-cli", "data.db")
+func mcpDBPath() (string, error) {
+	dir, err := cliutil.DataDir()
+	if err != nil {
+		return "", err
+	}
+	// PATCH(amend-2026-08-19: F4 CLI/MCP databank split) — the CLI scopes the
+	// default store filename by a hash of the active credential (data-<hash>.db,
+	// internal/cli/helpers.go defaultDBPathInDir). This resolver previously
+	// hardcoded data.db, so on a fresh home the CLI wrote one file while MCP
+	// sql/search read an empty other one. Mirror the CLI's exact precedence:
+	// scoped-if-exists, else unscoped-if-exists, else scoped.
+	unscoped := filepath.Join(dir, "data.db")
+	cfg, cfgErr := config.Load("")
+	if cfgErr != nil {
+		return unscoped, nil
+	}
+	credential := strings.TrimSpace(cfg.StoreScopeCredential())
+	if credential == "" {
+		return unscoped, nil
+	}
+	sum := sha256.Sum256([]byte(credential))
+	scoped := filepath.Join(dir, "data-"+hex.EncodeToString(sum[:])[:12]+".db")
+	if _, err := os.Stat(scoped); err == nil {
+		return scoped, nil
+	}
+	if _, err := os.Stat(unscoped); err == nil || !os.IsNotExist(err) {
+		return unscoped, nil
+	}
+	return scoped, nil
 }
 
-// Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
-// The CLI's defaultDBPath() in the cli package uses the same canonical path.
+type mcpStoreStatusKind string
+
+const (
+	mcpStoreStatusEmpty mcpStoreStatusKind = "empty"
+	mcpStoreStatusReady mcpStoreStatusKind = "ready"
+)
+
+func openMCPReadOnlyStore(path string) (*store.Store, *mcplib.CallToolResult) {
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			return nil, mcplib.NewToolResultError(mcpMissingStoreMessage(path))
+		}
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("checking local data store %s: %v", path, err))
+	}
+	db, err := store.OpenReadOnly(path)
+	if err != nil {
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("opening local data store %s: %v. Run youtube-pp-cli sync to refresh the store, or use live endpoint MCP tools for unsynced data.", path, err))
+	}
+	return db, nil
+}
+
+func mcpMissingStoreMessage(path string) string {
+	return fmt.Sprintf("No local data store found at %s. Run youtube-pp-cli sync before using MCP search/sql, or use live endpoint MCP tools for unsynced data.", path)
+}
+
+func mcpStoreStatus(db *store.Store) (mcpStoreStatusKind, error) {
+	status, err := db.Status()
+	if err != nil {
+		return "", err
+	}
+	if len(status) == 0 {
+		return mcpStoreStatusEmpty, nil
+	}
+	return mcpStoreStatusReady, nil
+}
+
+func mcpEmptyStoreNextStep() string {
+	return "Run youtube-pp-cli sync to populate the local SQLite store before using MCP search/sql."
+}
+
+func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	args := req.GetArguments()
+	query, ok := args["query"].(string)
+	if !ok || query == "" {
+		return mcplib.NewToolResultError("query is required"), nil
+	}
+
+	limit := 25
+	if v, ok := args["limit"].(float64); ok && v > 0 {
+		limit = int(v)
+	}
+
+	path, err := mcpDBPath()
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
+	}
+	db, toolErr := openMCPReadOnlyStore(path)
+	if toolErr != nil {
+		return toolErr, nil
+	}
+	defer db.Close()
+
+	results, err := db.SearchYoutube(query, limit)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("search failed: %v", err)), nil
+	}
+	storeStatus, err := mcpStoreStatus(db)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
+	}
+
+	return toolResultJSON(mcpSearchEnvelope(results, storeStatus))
+}
+
+func mcpSearchEnvelope(results []json.RawMessage, storeStatus mcpStoreStatusKind) map[string]any {
+	if results == nil {
+		results = []json.RawMessage{}
+	}
+	out := map[string]any{
+		"count":        len(results),
+		"results":      results,
+		"store_status": storeStatus,
+		"resumable":    false,
+	}
+	if len(results) == 0 {
+		if storeStatus == mcpStoreStatusEmpty {
+			out["next_step"] = mcpEmptyStoreNextStep()
+		} else {
+			out["next_step"] = "No local search matches. Try a broader query, a lower-specificity FTS expression, or sync again if data may be stale."
+		}
+	}
+	return out
+}
 
 // validateReadOnlyQuery gates the MCP sql tool. The agent contract advertised
 // to the host is ReadOnlyHintAnnotation(true); a false annotation on a
 // mutating tool lets MCP hosts auto-approve writes and is treated as a real
 // bug per the project's agent-native security model.
 //
-// The gate is an allowlist (SELECT or WITH only) applied AFTER stripping the
-// leading whitespace, line comments, block comments, and semicolons that
-// SQLite itself ignores before parsing. A naive HasPrefix check on a
-// keyword blocklist is bypassable by prefixing the dangerous statement with
-// "/* x */" or "-- x\n" — TrimSpace strips outer whitespace but does not
-// understand SQL comment syntax. Combined with the empirical fact that
-// modernc.org/sqlite's mode=ro does NOT block VACUUM INTO (writes a snapshot
-// to a new file) or ATTACH DATABASE (opens a separate writable handle),
-// such a bypass produces silent exfiltration to an attacker-chosen path.
+// The gate rejects multi-statement input, then applies an allowlist (SELECT or
+// WITH only) AFTER stripping the leading whitespace, line comments, block
+// comments, and semicolons that SQLite itself ignores before parsing. A naive
+// HasPrefix check on a keyword blocklist is bypassable by prefixing the
+// dangerous statement with "/* x */" or "-- x\n"; a naive leading-keyword
+// allowlist is bypassable by appending "; ATTACH DATABASE ...". Combined with
+// the empirical fact that modernc.org/sqlite's mode=ro does NOT block VACUUM
+// INTO (writes a snapshot to a new file) or ATTACH DATABASE (opens a separate
+// writable handle), either bypass produces silent exfiltration to an
+// attacker-chosen path.
 //
 // SELECT and WITH are the only allowed leading keywords. WITH supports
 // SELECT-form CTEs; CTE-wrapped writes ("WITH x AS (...) INSERT ...") are
 // caught by OpenReadOnly's mode=ro one layer down. PRAGMA, ATTACH, VACUUM,
 // and every other DDL/DML keyword fail at this gate before reaching SQLite.
 func validateReadOnlyQuery(query string) error {
-	upper := strings.ToUpper(stripLeadingSQLNoise(query))
+	stripped := stripLeadingSQLNoise(query)
+	if hasTrailingSQLStatement(stripped) {
+		return fmt.Errorf("only a single SELECT or WITH statement is allowed")
+	}
+	upper := strings.ToUpper(stripped)
 	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") {
 		return fmt.Errorf("only SELECT queries are allowed")
 	}
@@ -363,6 +899,97 @@ func stripLeadingSQLNoise(query string) string {
 	}
 }
 
+// hasTrailingSQLStatement reports whether query contains a statement
+// terminator followed by more executable SQL. A trailing semicolon is allowed;
+// a second statement is not. Semicolons inside string literals, quoted
+// identifiers, bracket identifiers, and comments are ignored to match SQLite's
+// parser shape closely enough for this security gate.
+func hasTrailingSQLStatement(query string) bool {
+	inSingle := false
+	inDouble := false
+	inBacktick := false
+	inBracket := false
+	inLineComment := false
+	inBlockComment := false
+
+	for i := 0; i < len(query); i++ {
+		ch := query[i]
+		next := byte(0)
+		if i+1 < len(query) {
+			next = query[i+1]
+		}
+
+		switch {
+		case inLineComment:
+			if ch == '\n' {
+				inLineComment = false
+			}
+			continue
+		case inBlockComment:
+			if ch == '*' && next == '/' {
+				inBlockComment = false
+				i++
+			}
+			continue
+		case inSingle:
+			if ch == '\'' {
+				if next == '\'' {
+					i++
+					continue
+				}
+				inSingle = false
+			}
+			continue
+		case inDouble:
+			if ch == '"' {
+				if next == '"' {
+					i++
+					continue
+				}
+				inDouble = false
+			}
+			continue
+		case inBacktick:
+			if ch == '`' {
+				if next == '`' {
+					i++
+					continue
+				}
+				inBacktick = false
+			}
+			continue
+		case inBracket:
+			if ch == ']' {
+				inBracket = false
+			}
+			continue
+		}
+
+		switch {
+		case ch == '-' && next == '-':
+			inLineComment = true
+			i++
+		case ch == '/' && next == '*':
+			inBlockComment = true
+			i++
+		case ch == '\'':
+			inSingle = true
+		case ch == '"':
+			inDouble = true
+		case ch == '`':
+			inBacktick = true
+		case ch == '[':
+			inBracket = true
+		case ch == ';':
+			if stripLeadingSQLNoise(query[i+1:]) != "" {
+				return true
+			}
+			return false
+		}
+	}
+	return false
+}
+
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
 	query, ok := args["query"].(string)
@@ -374,19 +1001,26 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
 
-	db, err := store.OpenReadOnly(dbPath())
+	path, err := mcpDBPath()
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
+	}
+	db, toolErr := openMCPReadOnlyStore(path)
+	if toolErr != nil {
+		return toolErr, nil
 	}
 	defer db.Close()
 
-	rows, err := db.Query(query)
+	rows, err := db.DB().QueryContext(ctx, query)
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("query failed: %v", err)), nil
+		return mcplib.NewToolResultError(mcpSQLQueryError(err)), nil
 	}
 	defer rows.Close()
 
-	cols, _ := rows.Columns()
+	cols, err := rows.Columns()
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading columns: %v", err)), nil
+	}
 	var results []map[string]any
 	for rows.Next() {
 		values := make([]any, len(cols))
@@ -394,26 +1028,94 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		for i := range values {
 			ptrs[i] = &values[i]
 		}
-		rows.Scan(ptrs...)
+		if err := rows.Scan(ptrs...); err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("scanning row: %v", err)), nil
+		}
 		row := make(map[string]any)
 		for i, col := range cols {
 			row[col] = values[i]
 		}
 		results = append(results, row)
 	}
+	// rows.Next() stops on a mid-iteration error without failing the loop, so
+	// skipping rows.Err() would return a truncated result set as success.
+	if err := rows.Err(); err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading rows: %v", err)), nil
+	}
+	storeStatus, err := mcpStoreStatus(db)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
+	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(mcpSQLEnvelope(results, cols, storeStatus))
+}
+
+func mcpSQLEnvelope(rows []map[string]any, columns []string, storeStatus mcpStoreStatusKind) map[string]any {
+	if rows == nil {
+		rows = []map[string]any{}
+	}
+	out := map[string]any{
+		"count":        len(rows),
+		"columns":      columns,
+		"rows":         rows,
+		"store_status": storeStatus,
+		"resumable":    false,
+	}
+	if len(rows) == 0 {
+		if storeStatus == mcpStoreStatusEmpty {
+			out["next_step"] = mcpEmptyStoreNextStep()
+		} else {
+			out["next_step"] = "The read-only SQL query returned no rows. Check resource_type filters, json_extract paths, or run sync again if data may be stale."
+		}
+	}
+	return out
+}
+
+func mcpSQLQueryError(err error) string {
+	msg := err.Error()
+	if strings.Contains(strings.ToLower(msg), "no such table") {
+		return fmt.Sprintf("query failed: %v. Synced records live in resources(resource_type, id, data), not one SQL table per resource. Filter by resource_type, for example resource_type='youtube', and read JSON fields with json_extract(data,'$.field').", err)
+	}
+	return fmt.Sprintf("query failed: %v", err)
+}
+
+// toolResultJSON renders v as the indented JSON body of an MCP text result,
+// surfacing a marshal failure as a tool error instead of empty content.
+func toolResultJSON(v any) (*mcplib.CallToolResult, error) {
+	text, err := bound.JSON(v)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("encoding result: %v", err)), nil
+	}
+	return mcplib.NewToolResultText(text), nil
 }
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	paths := map[string]string{}
+	if dir, err := cliutil.ConfigDir(); err == nil {
+		paths["config_dir"] = dir
+	}
+	if dir, err := cliutil.DataDir(); err == nil {
+		paths["data_dir"] = dir
+	}
+	if dir, err := cliutil.StateDir(); err == nil {
+		paths["state_dir"] = dir
+	}
+	if dir, err := cliutil.CacheDir(); err == nil {
+		paths["cache_dir"] = dir
+	}
 	ctx := map[string]any{
 		"api":         "youtube",
-		"description": "YouTube Data API v3 (trimmed read-only subset: search, videos, channels, playlists, playlistItems) for blog-research...",
+		"description": "A self-maintained competitor-monitoring machine for YouTube: the read surfaces that matter for market and competitor research plus a local databank of channel histories, snapshots, comments, and packaging assets - market data hours old, not weeks.",
 		"archetype":   "generic",
-		"tool_count":  5,
+		"tool_count":  12,
+		"paths":       paths,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion youtube-pp-cli binary.",
+		// learn_protocol is generated from the single shared source of
+		// truth (the exported constant internal/learn.RecallFirstProtocol)
+		// also consumed by the CLI agent-context command, so the MCP and
+		// CLI agent surfaces cannot drift.
+		"learn_protocol": learn.RecallFirstProtocol,
 		"auth": map[string]any{
 			"type": "api_key",
 			"env_vars": []map[string]any{
@@ -425,19 +1127,20 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 					"description": "Set to your API credential.",
 				},
 			},
+			"key_url": "https://console.cloud.google.com",
 		},
 		"resources": []map[string]any{
 			{
 				"name":        "youtube",
 				"description": "Manage youtube",
-				"endpoints":   []string{"channels-list", "playlist-items-list", "playlists-list", "search-list", "videos-list"},
+				"endpoints":   []string{"activities-list", "captions-list", "channel-sections-list", "channels-list", "comment-threads-list", "i18n-languages-list", "i18n-regions-list", "playlist-items-list", "playlists-list", "search-list", "video-categories-list", "videos-list"},
 				"syncable":    true,
 				"searchable":  true,
 			},
 		},
 		"query_tips": []string{
-			"Pagination uses cursor-based paging. Pass pagetoken parameter for subsequent pages.",
-			"Control page size with the maxresults parameter (default 100).",
+			"Pagination uses cursor-based paging. Pass pageToken parameter for subsequent pages.",
+			"Control page size with the maxResults parameter (default 100).",
 			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
@@ -445,20 +1148,31 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Bulk search from stdin", "command": "youtube search-bulk", "description": "Take a list of search terms from stdin or args, return top-N YouTube videos per term in one JSON document with...", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Transcript fetcher", "command": "youtube videos-transcript", "description": "Fetch the spoken-content transcript of a YouTube video using the timedtext endpoint. Works for auto-generated and...", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Embed snippet generator", "command": "youtube videos-embed", "description": "Print embed HTML, iframe, or markdown-style embed for a video ID. Direct copy-paste into a blog draft.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Topic-similarity related videos", "command": "youtube videos-related", "description": "Find videos related to a target video using topicDetails + same-channel + tag overlap from the local store....", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Competitor watchlist", "command": "watch", "description": "Register the competitor channels your monitoring machine tracks, in a typed watchlist table you own.", "rationale": "The watchlist lives in the local databank and drives monitor, velocity, and packaging - no external service holds your competitor set.", "via": "mcp-command-mirror"},
+			{"name": "Watchlist monitor", "command": "monitor", "description": "Refresh every watched channel in one run: stats snapshot, new uploads, re-snapshot of recent video statistics.", "rationale": "Repeated dated snapshots build the time series the YouTube API never exposes; ~20-40 quota units per run for 15 channels makes hourly cron trivial.", "via": "mcp-command-mirror"},
+			{"name": "Video velocity", "command": "velocity", "description": "See which tracked videos are gaining views fastest right now, computed from real between-snapshot deltas.", "rationale": "Views-per-day requires a local time series of your own snapshots - the API only returns lifetime totals, and curated indexes lag weeks behind.", "via": "mcp-command-mirror"},
+			{"name": "Growth between snapshots", "command": "growth", "description": "Channel-level subscriber, view, and upload-count deltas between dated local snapshots.", "rationale": "The YouTube API exposes no historical statistics at all - growth only exists because monitor and backfill snapshot locally.", "via": "mcp-command-mirror"},
+			{"name": "Breakout finder", "command": "breakouts", "description": "Chain search filters into a matrix (terms x upload window x duration x region), join results to channel size, and rank fresh high-momentum videos.", "rationale": "Combines the rationed search bucket with local dedupe, batched statistics, and a databank join on channel size - views-per-subscriber ranking no single API call or curated index delivers fresh.", "via": "mcp-command-mirror"},
+			{"name": "Comment intelligence", "command": "comments-mine", "description": "Sync comments into a typed full-text-searchable table and report top-liked comments, keyword frequencies, and audience questions.", "rationale": "Aggregate comment analysis needs comments stored and indexed locally - the API only pages raw threads in arbitrary order.", "via": "mcp-command-mirror"},
+			{"name": "Channel history backfill", "command": "backfill", "description": "Pull a channel's complete upload history with statistics into the local databank in one command.", "rationale": "Walks the uploads playlist and batches videos.list 50 ids at a time (~2 quota units per 100 videos), seeding every new watchlist entry with full history.", "via": "mcp-command-mirror"},
+			{"name": "Packaging collector", "command": "packaging", "description": "Collect titles, thumbnails (downloaded as local image files), and hook text from transcript openings into a packaging table.", "rationale": "Packaging analysis needs the assets side by side - thumbnail file, title, hook, stats - which only a local collector can assemble; the agent driving this CLI then judges them directly.", "via": "mcp-command-mirror"},
+			{"name": "Workspaces", "command": "workspace", "description": "Named databanks: keep the competitor machine in one database and explore a new niche in another, switching instantly.", "rationale": "Maps workspace names to separate SQLite files on top of the existing --db plumbing, so exploration can never corrupt the monitored competitor data.", "via": "mcp-command-mirror"},
+			{"name": "API key ring", "command": "auth keys", "description": "Store multiple named YouTube API keys, switch between them instantly, and optionally fail over automatically via --rotate when one runs out of quota.", "rationale": "Quota is per key; a locally stored key ring with rotation keeps long backfills and breakout sweeps running where a single-key CLI would stall.", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Bulk search from stdin", "insight": ""},
-			{"topic": "Transcript fetcher", "insight": ""},
-			{"topic": "Embed snippet generator", "insight": ""},
-			{"topic": "Topic-similarity related videos", "insight": ""},
+			{"topic": "Competitor watchlist", "insight": "The watchlist lives in the local databank and drives monitor, velocity, and packaging - no external service holds your competitor set."},
+			{"topic": "Watchlist monitor", "insight": "Repeated dated snapshots build the time series the YouTube API never exposes; ~20-40 quota units per run for 15 channels makes hourly cron trivial."},
+			{"topic": "Video velocity", "insight": "Views-per-day requires a local time series of your own snapshots - the API only returns lifetime totals, and curated indexes lag weeks behind."},
+			{"topic": "Growth between snapshots", "insight": "The YouTube API exposes no historical statistics at all - growth only exists because monitor and backfill snapshot locally."},
+			{"topic": "Breakout finder", "insight": "Combines the rationed search bucket with local dedupe, batched statistics, and a databank join on channel size - views-per-subscriber ranking no single API call or curated index delivers fresh."},
+			{"topic": "Comment intelligence", "insight": "Aggregate comment analysis needs comments stored and indexed locally - the API only pages raw threads in arbitrary order."},
+			{"topic": "Channel history backfill", "insight": "Walks the uploads playlist and batches videos.list 50 ids at a time (~2 quota units per 100 videos), seeding every new watchlist entry with full history."},
+			{"topic": "Packaging collector", "insight": "Packaging analysis needs the assets side by side - thumbnail file, title, hook, stats - which only a local collector can assemble; the agent driving this CLI then judges them directly."},
+			{"topic": "Workspaces", "insight": "Maps workspace names to separate SQLite files on top of the existing --db plumbing, so exploration can never corrupt the monitored competitor data."},
+			{"topic": "API key ring", "insight": "Quota is per key; a locally stored key ring with rotation keeps long backfills and breakout sweeps running where a single-key CLI would stall."},
 		},
 	}
-	data, _ := json.MarshalIndent(ctx, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(ctx)
 }
 
 // RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP

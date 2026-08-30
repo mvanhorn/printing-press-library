@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "openrouter-image",
+  "cli_name": "openrouter-image-pp-cli",
+  "version": "2026.8.10",
+  "released_at": "2026-08-21T08:29:25Z",
+  "source_commit": "35f6cabd68c76fd1eceb6aa37126126ef7d4d7a6",
+  "printing_press_version": "4.29.0",
+  "run_id": "20260803-205427-851f4b39",
+  "changes": [
+    {
+      "title": "feat(openrouter-image): add openrouter-image",
+      "pr": 1654,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1654",
+      "commit": "35f6cabd68c76fd1eceb6aa37126126ef7d4d7a6"
+    }
+  ]
+}

@@ -59,6 +59,8 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var concurrency int
 	var dbPath string
 	var maxPages int
+	var maxParents int
+	var staleBeforeFlag string
 	var latestOnly bool
 	var strict bool
 	var paramFlags []string
@@ -96,7 +98,46 @@ Resource scoping:
   by hand). There is no flag today to suppress the cascade for a named
   parent. To run a dependent without re-syncing its parent, list only
   the dependent by name; the parent table must already be populated
-  from a prior sync.`,
+  from a prior sync.
+
+Parent-keyed dependents (performance, workout_details, classes_detail) have
+no bulk list endpoint -- one HTTP request per already-synced parent. A
+large account can exceed a single call's practical time budget, so each
+invocation bounds and resumes this fan-out automatically. classes_detail is
+keyed on "classes" but its actual fan-out is over the distinct classes a
+workout references (workouts.ride_id), not the full catalog -- the bulk
+classes list endpoint never returns segments/target_metrics_data, only the
+per-class detail endpoint does, so this dependent backfills those fields
+onto classes the account holder actually took (what offline classes
+structure / offline intervals read), typically hundreds of ids even on an
+account with tens of thousands of catalog classes synced.
+  - By default, only parents that don't yet have a dependent record are
+    fetched, so repeated sync calls drain a large backlog incrementally
+    at no extra cost (an id with existing data is simply skipped).
+    classes_detail's "existing data" check is content-based (does the
+    record already carry segments), not presence-based, since every taken
+    class already has a "classes" record from the flat catalog sync.
+  - --full ignores existing records (e.g. to backfill a fix retroactively)
+    and resumes across repeated --full calls via a persisted offset,
+    wrapping back to a fresh pass once one full pass completes.
+  - --stale-before <timestamp|duration> is a targeted alternative to --full
+    for backfills: it treats a record as pending -- refetch it -- if it
+    was last fetched before the given time, without needing --full's
+    "redo literally everything" cost. Once refetched, its fetched_at moves
+    forward and it naturally drops out of the pending set, so repeated
+    calls stay resumable the same way the default mode already is.
+  - --max-parents bounds how many dependent fetches happen per call; a
+    cap hit emits a sync_warning event and the run still exits 0 -- just
+    re-run sync to continue.
+  - --latest-only additionally scopes performance/workout_details' fan-out
+    to only the workouts THIS run's flat phase actually touched, not the
+    whole local store, so "refresh the top" stays bounded end to end.
+    classes_detail is the one exception: its own candidate set is already
+    small (bounded by workouts.ride_id, not the full catalog) and content-
+    based (bounded by which taken classes still lack segments), so
+    --latest-only leaves it unscoped rather than mapping newly-touched
+    workout ids to their ride ids -- --max-parents still bounds any single
+    call regardless.`,
 		Example: `  # Sync all resources
   peloton-pp-cli sync
 
@@ -113,7 +154,15 @@ Resource scoping:
   peloton-pp-cli sync --concurrency 8
 
   # Latest-only: refresh head of each resource, no historical backfill
-  peloton-pp-cli sync --latest-only`,
+  peloton-pp-cli sync --latest-only
+
+  # Backfill a fix (e.g. performance resolution) across an existing store
+  # in bounded batches -- re-run to continue until nothing remains pending
+  peloton-pp-cli sync --resources performance --full --max-parents 500
+
+  # Targeted backfill: only refetch records older than a known cutoff
+  # (e.g. before a fix was deployed), skipping already-correct records
+  peloton-pp-cli sync --resources performance --stale-before 2026-08-14T09:00:00Z --max-parents 500`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			userParams, err := parseSyncUserParams(paramFlags, resourceParamFlags, globalParamFlags)
 			if err != nil {
@@ -187,6 +236,43 @@ Resource scoping:
 				}
 			}
 
+			// Resolve --resources aliases (e.g. "strength" -> "workout_details")
+			// before any scoping/cascade/validation logic runs. Report the
+			// substitution explicitly -- silently collapsing a caller-named
+			// resource into a different name (or deduping "workout_details,
+			// strength" down to one entry) without any note left a caller
+			// unable to tell why sync's own resources count/events named a
+			// resource they never asked for.
+			if slices.Contains(resources, "strength") {
+				if humanFriendly {
+					fmt.Fprintln(os.Stderr, `note: --resources "strength" is an alias for "workout_details"; sync results below are reported under "workout_details"`)
+				} else {
+					fmt.Fprintln(syncEventWriter, `{"event":"sync_note","reason":"resource_alias_substituted","from":"strength","to":"workout_details"}`)
+				}
+			}
+			resources = normalizeSyncResourceAliases(resources)
+
+			// Cascade: naming the parent ("workouts") also runs its
+			// parent-keyed dependents ("performance", "workout_details"), per
+			// the Long help's documented scoping contract. Naming a dependent
+			// alone (no "workouts") is left as-is — it runs against whatever
+			// workouts are already in the local store from a prior sync.
+			resources = expandSyncResourcesWithDependents(resources)
+
+			// performance/workout_details are parent-keyed dependents of
+			// workouts (one fetch per already-synced workout id), not flat
+			// paginated list endpoints — split them out of the flat worker
+			// pool below and run them once the flat phase (which populates
+			// the workouts they depend on) has completed.
+			var flatResources, dependentResources []string
+			for _, resource := range resources {
+				if resource == "performance" || resource == "workout_details" || resource == "classes_detail" {
+					dependentResources = append(dependentResources, resource)
+					continue
+				}
+				flatResources = append(flatResources, resource)
+			}
+
 			// Reject --resource-param keys that don't match a known resource.
 			// Validates against the full top-level + dependent set, not the
 			// user-filtered `resources` slice, so legitimate cases like
@@ -251,6 +337,15 @@ Resource scoping:
 				sinceTS = ts.Format(time.RFC3339)
 			}
 
+			var staleBefore *time.Time
+			if staleBeforeFlag != "" {
+				ts, err := parseStaleBefore(staleBeforeFlag)
+				if err != nil {
+					return usageErr(fmt.Errorf("invalid --stale-before value %q: %w", staleBeforeFlag, err))
+				}
+				staleBefore = &ts
+			}
+
 			// Worker pool: produce resources, N workers consume
 			if concurrency < 1 {
 				concurrency = 4
@@ -264,13 +359,18 @@ Resource scoping:
 			}
 
 			started := time.Now()
+			// runStarted anchors dependentScopeSince below (planDependentSync's
+			// --latest-only run-scoping rule): captured before the flat phase
+			// starts so ParentIDsTouchedSince can find every workout this
+			// specific invocation's flat phase writes, not just some of them.
+			runStarted := time.Now().UTC()
 			// prune gates deletion reconciliation: a full sync prunes local rows
 			// the API no longer returns within a fully-enumerated partition, unless
 			// --no-prune disables it. Flat tenant-scoped reconcile (per resource)
 			// and dependent per-parent reconcile share this gate.
 			prune := full && !noPrune
-			work := make(chan string, len(resources))
-			results := make(chan syncResult, len(resources))
+			work := make(chan string, len(flatResources))
+			results := make(chan syncResult, len(flatResources))
 
 			var wg sync.WaitGroup
 			for i := 0; i < concurrency; i++ {
@@ -284,8 +384,9 @@ Resource scoping:
 				}()
 			}
 
-			// Enqueue all resources
-			for _, resource := range resources {
+			// Enqueue flat resources only — dependents run after this phase
+			// completes, once their parent table is populated.
+			for _, resource := range flatResources {
 				work <- resource
 			}
 			close(work)
@@ -305,7 +406,7 @@ Resource scoping:
 			var criticalFailedResources []string
 			var firstErr error
 			var firstPlaceholderErr error
-			for res := range results {
+			accumulate := func(res syncResult) {
 				if res.Err != nil {
 					if humanFriendly {
 						fmt.Fprintf(os.Stderr, "  %s: error: %v\n", res.Resource, res.Err)
@@ -333,6 +434,42 @@ Resource scoping:
 					}
 					totalSynced += res.Count
 					successCount++
+				}
+			}
+			for res := range results {
+				accumulate(res)
+			}
+
+			// Dependent phase: runs after the flat phase so dependents read
+			// a workouts table the flat phase just finished populating (or
+			// a prior sync populated, when only a dependent was named).
+			dependentScopeSince := dependentScopeSinceFor(effectiveLatestOnly, flatResources, runStarted)
+			for _, resource := range dependentResources {
+				if resource == "classes_detail" {
+					plan, planErr := planClassDetailSync(db, full, dependentScopeSince, staleBefore, maxParents)
+					if planErr != nil {
+						if !humanFriendly {
+							fmt.Fprintln(syncEventWriter, syncErrorJSON(resource, "", planErr))
+						}
+						accumulate(syncResult{Resource: resource, Err: fmt.Errorf("planning %s dependent sync: %w", resource, planErr)})
+						continue
+					}
+					accumulate(syncClassDetailDependent(cmd.Context(), c, db, plan, concurrency, syncEventWriter))
+					continue
+				}
+				plan, planErr := planDependentSync(db, "workouts", resource, full, dependentScopeSince, staleBefore, maxParents, c.DryRun)
+				if planErr != nil {
+					if !humanFriendly {
+						fmt.Fprintln(syncEventWriter, syncErrorJSON(resource, "", planErr))
+					}
+					accumulate(syncResult{Resource: resource, Err: fmt.Errorf("planning %s dependent sync: %w", resource, planErr)})
+					continue
+				}
+				switch resource {
+				case "performance":
+					accumulate(syncPerformanceDependent(cmd.Context(), c, db, plan, concurrency, userParams, syncEventWriter))
+				case "workout_details":
+					accumulate(syncWorkoutDetailsDependent(cmd.Context(), c, db, plan, concurrency, userParams, syncEventWriter))
 				}
 			}
 
@@ -390,13 +527,15 @@ Resource scoping:
 		},
 	}
 
-	cmd.Flags().StringSliceVar(&resources, "resources", nil, "Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).")
-	cmd.Flags().BoolVar(&full, "full", false, "Full resync (ignore previous checkpoint)")
+	cmd.Flags().StringSliceVar(&resources, "resources", nil, "Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping). \"strength\" is accepted as an alias for \"workout_details\".")
+	cmd.Flags().BoolVar(&full, "full", false, "Full resync (ignore previous checkpoint). For parent-keyed dependents (performance, workout_details), the sweep runs in fixed id order from offset 0, so a large fraction of a pass's HTTP budget goes to re-fetching records already present -- this is correct for --full's contract (a genuine rebuild), but if you only need to backfill a fix across already-synced records, --stale-before is cheaper and targeted; --full is for when every record genuinely needs re-fetching.")
 	cmd.Flags().BoolVar(&noPrune, "no-prune", false, "Disable deletion reconciliation on --full (by default a full sync prunes local rows the API no longer returns for a fully-enumerated parent partition)")
 	cmd.Flags().StringVar(&since, "since", "", "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)")
 	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Number of parallel sync workers")
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	cmd.Flags().IntVar(&maxPages, "max-pages", 0, "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)")
+	cmd.Flags().IntVar(&maxParents, "max-parents", 0, "Maximum parent-keyed dependent fetches (performance, workout_details) per invocation (0 = unlimited). By default only parents without an existing record are fetched, so repeated calls drain a large backlog incrementally; --full redoes everything and resumes across calls via a persisted offset. Cap-hit emits a sync_warning event.")
+	cmd.Flags().StringVar(&staleBeforeFlag, "stale-before", "", "Treat a parent-keyed dependent (performance, workout_details) record as pending -- refetch it -- if it was last fetched before this time, even without --full. Accepts an RFC3339 timestamp (2026-08-14T09:00:00Z) or a relative duration like --since (7d, 24h, 1w, 30m). Use this to backfill a fix (e.g. a resolution or shape change) across an already-synced store without --full's cost of redoing every record. Ignored when --full is set (which already redoes everything).")
 	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).")
 	cmd.Flags().BoolVar(&strict, "strict", false, "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).")
 	cmd.Flags().StringArrayVar(&paramFlags, "param", nil, "Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=<id> does not double up on /parents/<id>/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.")
@@ -552,6 +691,16 @@ func syncResource(ctx context.Context, c interface {
 		// Set since filter
 		if effectiveSince != "" {
 			params[sinceParam] = effectiveSince
+		}
+		// workouts list defaults to joins=ride on the single-fetch command
+		// (see workouts_list.go's --joins flag); the flat sync loop below
+		// doesn't go through that cobra flag machinery at all, so without
+		// this the API omits the nested "ride" object entirely and every
+		// synced workout's title/ride association lands null. Set as a
+		// default (not a hardcoded override) so --param/--resource-param
+		// can still replace it below.
+		if resource == "workouts" {
+			params["joins"] = "ride"
 		}
 		// Apply user-supplied --param / --resource-param overrides last so they
 		// win over spec-derived defaults (e.g. forcing mine=true on a list
@@ -1603,7 +1752,7 @@ var discriminatorDispatchers = map[string]discriminatorDispatch{}
 
 func upsertResourceBatch(db *store.Store, resource string, items []json.RawMessage) (int, int, error) {
 	if _, ok := discriminatorDispatchers[resource]; !ok {
-		return db.UpsertBatch(resource, items)
+		return db.UpsertBatchWithFacts(resource, items)
 	}
 
 	grouped := map[string][]json.RawMessage{}
@@ -1621,7 +1770,7 @@ func upsertResourceBatch(db *store.Store, resource string, items []json.RawMessa
 
 	var stored, extractFailures int
 	for _, target := range order {
-		targetStored, targetExtractFailures, err := db.UpsertBatch(target, grouped[target])
+		targetStored, targetExtractFailures, err := db.UpsertBatchWithFacts(target, grouped[target])
 		if err != nil {
 			return stored, extractFailures + targetExtractFailures, err
 		}
@@ -1651,7 +1800,7 @@ func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) 
 	obj, err := store.DecodeJSONObject(data)
 	if err != nil {
 		// Not a JSON object either - store raw under resource name
-		return db.Upsert(resource, resource, data)
+		return db.UpsertWithFacts(resource, resource, data)
 	}
 
 	resource = resolveDiscriminatedResource(resource, obj)
@@ -1663,11 +1812,11 @@ func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) 
 
 	switch resource {
 	case "classes":
-		return db.UpsertClasses(data)
+		return db.UpsertClassesWithFacts(data)
 	case "workouts":
-		return db.UpsertWorkouts(data)
+		return db.UpsertWorkoutsWithFacts(data)
 	default:
-		return db.Upsert(resource, id, data)
+		return db.UpsertWithFacts(resource, id, data)
 	}
 }
 
@@ -1700,19 +1849,963 @@ func parseSinceDuration(s string) (time.Time, error) {
 	}
 }
 
+// parseStaleBefore parses --stale-before's value as either an RFC3339
+// absolute timestamp (the natural form for "before this fix was deployed")
+// or a --since-style relative duration (7d, 24h, 1w, 30m -- the natural
+// form for "anything older than a week"). Tried in that order since a
+// relative duration string will never parse as RFC3339.
+func parseStaleBefore(s string) (time.Time, error) {
+	if ts, err := time.Parse(time.RFC3339, strings.TrimSpace(s)); err == nil {
+		return ts, nil
+	}
+	ts, err := parseSinceDuration(s)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("expected an RFC3339 timestamp (2026-08-14T09:00:00Z) or a duration like 7d, 24h, 1w, 30m")
+	}
+	return ts, nil
+}
+
+// defaultSyncResources returns the resources a bare `sync` (no --resources)
+// runs. Both are flat, paginated, list-endpoint resources; "performance" and
+// "workout_details" are parent-keyed dependents of "workouts" and are never
+// default targets on their own — they cascade in via
+// expandSyncResourcesWithDependents whenever "workouts" is selected (by
+// default or explicitly), so a bare `sync` already populates everything
+// `offline workout`/`intervals`/`repeat`/`strength`/`performance` read.
 func defaultSyncResources() []string {
-	return []string{}
+	return []string{"workouts", "classes"}
 }
 
 // knownSyncResourceNames returns every resource name sync will accept —
 // flat resources plus any parent-child dependents. Used by --resource-param
 // validation to reject misspellings before they become silent no-ops.
+// "strength" is deliberately absent: it's a --resources selection alias for
+// "workout_details" (resolved by normalizeSyncResourceAliases before this
+// list is consulted), not a separate family — --resource-param targets must
+// use the canonical "workout_details" name.
 func knownSyncResourceNames() []string {
 	names := []string{
 		"classes",
 		"workouts",
+		"performance",
+		"workout_details",
+		"classes_detail",
 	}
 	return names
+}
+
+// normalizeSyncResourceAliases rewrites user-facing --resources aliases onto
+// their canonical dependent name before scoping/cascade logic runs.
+// "strength" is the command name users naturally think in terms of
+// (`workouts strength`, `offline strength`), but it reads the same
+// "workout_details" family that `offline workout`/`offline intervals` also
+// read — there's no separate strength-only payload to sync. Deduplicates so
+// e.g. --resources strength,workout_details doesn't run the dependent twice.
+func normalizeSyncResourceAliases(resources []string) []string {
+	normalized := make([]string, 0, len(resources))
+	seen := make(map[string]bool, len(resources))
+	for _, resource := range resources {
+		if resource == "strength" {
+			resource = "workout_details"
+		}
+		if seen[resource] {
+			continue
+		}
+		seen[resource] = true
+		normalized = append(normalized, resource)
+	}
+	return normalized
+}
+
+// expandSyncResourcesWithDependents applies the cascade rule documented in
+// the sync command's Long help: naming a parent also runs its parent-keyed
+// dependents. "performance" (per-workout performance_graph samples) and
+// "workout_details" (per-workout detail payload, backing `offline
+// workout`/`intervals`/`repeat`/`strength`) are keyed on "workouts".
+// "classes_detail" (per-class segments/target_metrics_data, backing
+// `offline classes structure`/`offline intervals`) is keyed on "classes" --
+// its parent ids are workouts.ride_id, but the resource that must be named
+// to trigger it is "classes" (the resource it enriches), matching how a
+// user thinks about "sync my classes" rather than requiring them to name an
+// otherwise-invisible fan-out step explicitly. Naming a dependent without
+// its parent is left alone — it runs against whatever the parent's local
+// store already has, per the documented "run a dependent without re-syncing
+// its parent" scoping.
+func expandSyncResourcesWithDependents(resources []string) []string {
+	hasWorkouts := false
+	hasClasses := false
+	hasPerformance := false
+	hasWorkoutDetails := false
+	hasClassDetail := false
+	for _, resource := range resources {
+		switch resource {
+		case "workouts":
+			hasWorkouts = true
+		case "classes":
+			hasClasses = true
+		case "performance":
+			hasPerformance = true
+		case "workout_details":
+			hasWorkoutDetails = true
+		case "classes_detail":
+			hasClassDetail = true
+		}
+	}
+	if hasWorkouts && !hasPerformance {
+		resources = append(resources, "performance")
+	}
+	if hasWorkouts && !hasWorkoutDetails {
+		resources = append(resources, "workout_details")
+	}
+	if hasClasses && !hasClassDetail {
+		resources = append(resources, "classes_detail")
+	}
+	return resources
+}
+
+// dependentParentIDs returns the distinct primary keys currently stored for
+// a resource, for dependent sync loops that fan out one request per parent
+// row (e.g. "performance" enumerating synced "workouts"). Reuses the same
+// DecodeJSONObject/ExtractResourceID pair UpsertBatch uses so a dependent's
+// view of "what IDs exist" never drifts from what's actually stored.
+func dependentParentIDs(db *store.Store, parentResource string) ([]string, error) {
+	return db.ListIDs(parentResource)
+}
+
+// dependentSyncPlan is the resolved set of parent ids a dependent sync
+// invocation should process this call, plus enough context to report
+// accurately whether the run is a genuine no-op, already fully caught up,
+// or was truncated by --max-parents with a backlog still pending.
+type dependentSyncPlan struct {
+	ids              []string // ids to process this invocation, already capped
+	totalPending     int      // ids pending before --max-parents capped them (0 = fully caught up)
+	capped           bool     // true if --max-parents truncated the pending set
+	parentTableEmpty bool     // true if the parent resource has zero rows at all
+
+	// The fields below implement --full's two-tier resumability: a sweep
+	// cursor that ALWAYS advances (guaranteeing no id, however
+	// persistently it fails, can ever block ids behind it) plus a
+	// separately persisted backlog of failed ids that get retry priority
+	// on every subsequent call (guaranteeing a failure isn't stranded
+	// until the whole pass wraps around). Earlier versions of this fix
+	// tried to make the sweep cursor itself failure-aware (skip a failed
+	// id, or require the whole batch to succeed before advancing) and
+	// each variant traded one bug for another -- a live PR review caught
+	// three rounds of this before landing on separating "never blocks
+	// progress" (the cursor) from "never loses a failure" (the backlog)
+	// as two independent, independently-simple guarantees instead of one
+	// mechanism trying to satisfy both. All fields are zero/empty
+	// whenever --full's tracking doesn't apply (not a --full run, or
+	// --latest-only run-scoping is active).
+	//
+	// fullSweepCount is deliberately a count of RAW POSITIONS consumed
+	// from the sweep window this call, not a count of ids actually
+	// selected as sweep work -- a position whose id is already in the
+	// backlog is still "passed" by the sweep even though it isn't
+	// separately fetched here, and the cursor must advance past it or it
+	// silently re-examines the same positions forever after a wrap (an
+	// independent review round found this: counting selected ids instead
+	// of positions made the cursor systematically under-advance whenever
+	// a backlog id sat inside the current window).
+	fullOffsetKey  string   // sync_state key for the sweep cursor ("" = not --full-tracked)
+	fullOffsetBase int      // sweep cursor's value BEFORE this batch
+	fullSweepCount int      // raw positions of the sweep window consumed this call -- the cursor advances by exactly this many, unconditionally
+	fullFailedKey  string   // sync_state key for the failed-id backlog
+	fullBacklogAll []string // the full validated backlog before --max-parents capped plan.ids, needed to know which backlog ids this call didn't even attempt
+	// fullTurnKey/fullTurnNext implement alternation between the backlog
+	// and sweep tiers specifically at --max-parents 1, the one cap value
+	// where "reserve at least half for the sweep, rounding up" leaves
+	// the backlog with zero slots on every call -- an independent review
+	// found this stranded a chronically-failing id at cap 1 forever,
+	// and in the degenerate case where the backlog also covers the
+	// entire current sweep window (common right after a wrap), left
+	// plan.ids completely empty despite real pending work, which
+	// runDependentFanOut then silently reported as "already up to
+	// date". A persisted bit flips every call: the tier that gave way
+	// this call gets priority next call, so over any two consecutive
+	// calls both tiers get a turn whenever both have pending work. At
+	// --max-parents >= 2 the ceiling split alone already guarantees
+	// both tiers a slot, so the turn bit is written every call (kept
+	// simple and unconditional) but only ever changes behavior at cap 1.
+	fullTurnKey  string // sync_state key for the turn bit ("" = not --full-tracked)
+	fullTurnNext int    // the value to persist after this call (0 or 1)
+}
+
+// planDependentSync resolves which parent ids a dependent sync call should
+// process this invocation. It exists to bound a parent-keyed fan-out
+// (performance, workout_details -- no bulk list endpoint, one HTTP request
+// per parent) so a single sync call can complete within an MCP client's
+// timeout, and to make repeated calls drain a large backlog incrementally
+// instead of restarting from scratch or fanning out over the entire local
+// store regardless of what --latest-only/--max-pages actually bounded.
+//
+// Three rules apply, in order:
+//
+//  1. Resumability. By default (full=false), parents that already have a
+//     dependentResource record are skipped -- an id with existing data
+//     doesn't need reprocessing, and a call cut off partway simply leaves
+//     whatever it didn't reach as pending for the next call. No separate
+//     cursor is needed: presence in provider_payloads IS the durable
+//     "done" signal, and it's correct regardless of how parent ids sort or
+//     when new parents get added. Pending candidates in this mode are
+//     ordered oldest-fetched-first (missing records sort first of all),
+//     not by id, so a --max-parents cap always makes progress on the
+//     most-overdue records regardless of where their ids happen to fall
+//     in the id space -- with plain presence-checking (no staleBefore)
+//     every pending id has the same zero fetchedAt, so this is a no-op
+//     ordering-wise; it only matters once staleBefore makes "pending" a
+//     scattered subset. Under full=true ("--full", matching its
+//     "ignore previous checkpoint, redo everything" contract everywhere
+//     else in sync), every parent id is a candidate regardless of existing
+//     data -- skip-if-present doesn't apply when the whole point is to
+//     redo already-present data (e.g. backfilling a fix like every_n=1
+//     across historical performance records). Since parent ids aren't
+//     sequential/time-ordered, "redo everything, but resumably across
+//     several bounded calls" instead uses a persisted offset into a
+//     freshly sorted candidate list, keyed distinctly
+//     (dependentResource+":full_progress") from the flat resource's own
+//     sync_state row so the existing per-invocation --full cursor-reset
+//     loop (which clears entries for names in the caller's --resources
+//     list) never clobbers it. The offset wraps back to 0 once a pass
+//     finishes, so a --full call issued after a prior backfill completed
+//     starts a fresh pass rather than becoming a permanent no-op --
+//     matching --full's meaning as "redo," including on repeat use.
+//  2. Run-scoping. When scopeSince is non-nil (the parent "workouts"
+//     resource was actually flat-synced THIS invocation under
+//     --latest-only), candidates are further restricted to only the
+//     parents this run's flat phase touched, not the whole local store.
+//     --latest-only promises a bounded "refresh the top" operation; a
+//     dependent silently fanning out over the entire backlog broke that
+//     promise even though the flat phase itself stayed bounded.
+//  3. --max-parents caps how many ids a single invocation processes.  When
+//     the cap truncates the candidate set, callers must surface that a
+//     re-invocation is needed to finish the backlog (dependentSyncPlan.capped).
+//  4. staleBefore (--stale-before) extends rule 1's default-mode presence
+//     check into a freshness check, without requiring --full: a parent
+//     counts as pending if it has no record at all (unchanged) OR its
+//     existing record's fetched_at predates staleBefore. This is what
+//     makes an existing-but-wrong-shaped record reachable (e.g.
+//     backfilling the every_n=1 fix across records synced before that fix
+//     landed) without --full's expensive "redo literally everything"
+//     semantics -- once a record is refetched its fetched_at moves to
+//     "now" and naturally falls out of the pending set on the next call,
+//     so this stays resumable via the exact same presence-based mechanism
+//     as rule 1, no separate cursor needed. Ignored when full=true, since
+//     --full already treats every parent as pending regardless of
+//     freshness.
+//
+// dependentScopeSinceFor decides whether a dependent sync invocation's
+// parent-id candidates should be scoped to only the parents touched by
+// THIS run's flat phase (planDependentSync's scopeSince rule), instead of
+// the whole local store. This only applies when --latest-only is in effect
+// AND "workouts" was actually flat-synced this run (present in
+// flatResources) -- naming a dependent alone, with no "workouts" in this
+// invocation's flat phase, must keep scanning the whole store, per the
+// documented "run a dependent without re-syncing its parent" contract.
+// Extracted as a pure function so the --latest-only run-scoping decision
+// (NEW ISSUE B from a live post-fix verification sweep) is unit-testable
+// without a full HTTP-backed sync command run.
+func dependentScopeSinceFor(effectiveLatestOnly bool, flatResources []string, runStarted time.Time) *time.Time {
+	if effectiveLatestOnly && slices.Contains(flatResources, "workouts") {
+		return &runStarted
+	}
+	return nil
+}
+
+// dryRun skips persisting the --full resume offset, matching --full's own
+// "a preview must not mutate sync-state" convention elsewhere in this file.
+func planDependentSync(db *store.Store, parentResource, dependentResource string, full bool, scopeSince, staleBefore *time.Time, maxParents int, dryRun bool) (dependentSyncPlan, error) {
+	parentIDs, err := dependentParentIDs(db, parentResource)
+	if err != nil {
+		return dependentSyncPlan{}, err
+	}
+	if len(parentIDs) == 0 {
+		return dependentSyncPlan{parentTableEmpty: true}, nil
+	}
+	sort.Strings(parentIDs)
+
+	var candidates []string
+	progressKey := dependentResource + ":full_progress"
+	failedKey := dependentResource + ":full_failed"
+	turnKey := dependentResource + ":full_turn"
+	fullOffset := 0
+	turn := 0
+	var fullBacklog []string // validated, deduped backlog ids -- see below
+	var swept []string       // this call's sweep window, parentIDs[fullOffset:] -- positional, NOT deduped
+	var seen map[string]bool // backlog membership, keyed by id -- also used to dedup swept at capping time
+	switch {
+	case full && scopeSince == nil:
+		_, _, fullOffset, _ = db.GetSyncState(progressKey)
+		if fullOffset < 0 || fullOffset >= len(parentIDs) {
+			fullOffset = 0 // prior pass completed (or state is stale/out of range): start a fresh pass
+		}
+		swept = parentIDs[fullOffset:]
+		_, _, turn, _ = db.GetSyncState(turnKey) // defaults to 0 (int zero value) when absent
+
+		// The sweep cursor above always advances unconditionally after a
+		// batch is attempted (see runDependentFanOut) -- that guarantees
+		// no single id, however persistently it fails, can ever pin the
+		// sweep and block ids behind it. But that means a failed id isn't
+		// naturally revisited by the sweep again until the whole pass
+		// wraps around. The backlog is what closes that gap: failed ids
+		// (from any position, any call) are remembered here and given
+		// retry priority on every subsequent call, independent of where
+		// the sweep cursor currently is, until they succeed.
+		backlogCursor, _, _, _ := db.GetSyncState(failedKey)
+		parentIDSet := make(map[string]bool, len(parentIDs))
+		for _, id := range parentIDs {
+			parentIDSet[id] = true
+		}
+		seen = make(map[string]bool)
+		if backlogCursor != "" {
+			for _, id := range strings.Split(backlogCursor, ",") {
+				// A backlogged id must still be a real candidate (it
+				// could have vanished from parentIDs between calls) and
+				// deduped defensively against a corrupt/duplicated cursor.
+				if id != "" && parentIDSet[id] && !seen[id] {
+					fullBacklog = append(fullBacklog, id)
+					seen[id] = true
+				}
+			}
+		}
+		candidates = append([]string{}, fullBacklog...)
+		for _, id := range swept {
+			// Normally a backlog id can never reappear in swept (the
+			// sweep cursor only ever moves past ids it has already
+			// attempted, and every backlog id was attempted at some
+			// point) -- except right after a pass wraps, when the
+			// cursor resets to 0 and swept becomes the full id list
+			// again. Dedup defensively so a wrapped pass never queues
+			// the same id twice in one batch. (This is for the
+			// candidates/totalPending listing only; capping below
+			// re-walks the real, undeduped swept positionally.)
+			if !seen[id] {
+				candidates = append(candidates, id)
+			}
+		}
+	case full:
+		// --full combined with --latest-only run-scoping: an unusual
+		// combination (force-redo, but only for this run's touched
+		// parents). No backlog-offset semantics apply since scopeSince
+		// already bounds the set to a small, run-specific batch.
+		candidates = parentIDs
+	default:
+		existing, existErr := db.ExistingProviderFactFetchedAt(dependentResource)
+		if existErr != nil {
+			return dependentSyncPlan{}, existErr
+		}
+		// Order pending candidates oldest-first (missing records sort as
+		// the Go zero time.Time, i.e. before any real timestamp, so they
+		// come first too) rather than leaving them in parentIDs' id-sort
+		// order. With --stale-before, "pending" can be a small subset
+		// scattered across the id space; a --max-parents cap over
+		// id-ordered candidates can exhaust itself entirely on whichever
+		// ids happen to sort first, even when those are only barely stale
+		// (e.g. records fetched moments before the cutoff by an unrelated
+		// earlier run) while genuinely old records elsewhere in the id
+		// space never get reached. Oldest-first guarantees a capped call
+		// always makes progress on the most-overdue records, regardless
+		// of where their ids happen to fall.
+		type pendingID struct {
+			id        string
+			fetchedAt time.Time
+		}
+		pending := make([]pendingID, 0, len(parentIDs))
+		for _, id := range parentIDs {
+			fetchedAt, hasRecord := existing[id]
+			if !hasRecord || (staleBefore != nil && fetchedAt.Before(*staleBefore)) {
+				pending = append(pending, pendingID{id: id, fetchedAt: fetchedAt})
+			}
+		}
+		sort.Slice(pending, func(i, j int) bool {
+			if !pending[i].fetchedAt.Equal(pending[j].fetchedAt) {
+				return pending[i].fetchedAt.Before(pending[j].fetchedAt)
+			}
+			return pending[i].id < pending[j].id // deterministic tiebreak
+		})
+		candidates = make([]string, len(pending))
+		for i, p := range pending {
+			candidates[i] = p.id
+		}
+	}
+
+	if scopeSince != nil {
+		touched, touchErr := db.ParentIDsTouchedSince(parentResource, *scopeSince)
+		if touchErr != nil {
+			return dependentSyncPlan{}, touchErr
+		}
+		touchedSet := make(map[string]bool, len(touched))
+		for _, id := range touched {
+			touchedSet[id] = true
+		}
+		scoped := make([]string, 0, len(candidates))
+		for _, id := range candidates {
+			if touchedSet[id] {
+				scoped = append(scoped, id)
+			}
+		}
+		candidates = scoped
+	}
+
+	plan := dependentSyncPlan{totalPending: len(candidates)}
+	isFullSweep := full && scopeSince == nil
+	nextTurn := 1 - turn // flipped unconditionally every call; see fullTurnNext's doc comment
+	switch {
+	case maxParents > 0 && len(candidates) > maxParents && isFullSweep:
+		plan.capped = true
+		// A plain candidates[:maxParents] slice here would put the
+		// backlog first (see the case above) and take it in full before
+		// touching the sweep at all -- fine while the backlog is small,
+		// but a backlog at or above maxParents in size would then
+		// consume the ENTIRE cap every single call, permanently leaving
+		// the sweep with zero budget and wedging it exactly the way
+		// this whole two-tier design exists to prevent (just moved from
+		// "one bad id" to "a big enough backlog"). Reserve at least
+		// half the cap (rounding up) for the sweep unconditionally.
+		sweepBudget := (maxParents + 1) / 2
+		backlogBudget := maxParents - sweepBudget
+
+		// At maxParents==1 the reservation above gives the sweep the
+		// only slot and the backlog zero, on EVERY call -- a
+		// chronically-failing backlog id would then never run again.
+		// Alternate exclusive priority by the persisted turn bit
+		// instead, so over any two consecutive calls both tiers get a
+		// turn whenever both have pending work. At maxParents>=2 the
+		// reservation above already guarantees both tiers a slot, so
+		// this never fires there.
+		if maxParents == 1 && len(fullBacklog) > 0 && turn == 0 {
+			backlogBudget = 1
+			sweepBudget = 0
+		}
+
+		// Hand unused backlog budget to the sweep when the backlog is
+		// smaller than its reservation (or empty).
+		if backlogBudget > len(fullBacklog) {
+			sweepBudget += backlogBudget - len(fullBacklog)
+			backlogBudget = len(fullBacklog)
+		}
+
+		// Walk the sweep window POSITIONALLY (not by selecting from a
+		// pre-deduped list) so positionsConsumed -- what the cursor
+		// advances by -- always equals the number of raw parentIDs
+		// slots actually passed, INCLUDING positions skipped because
+		// their id is already in the backlog. A count of ids selected
+		// undercounts whenever a backlog id sits inside the current
+		// window (always true right after a pass wraps), which
+		// previously made the cursor advance by fewer positions than it
+		// consumed and re-examine the same tail of the id space
+		// repeatedly.
+		var sweptSelection []string
+		positionsConsumed := 0
+		for _, id := range swept {
+			if len(sweptSelection) >= sweepBudget {
+				break
+			}
+			positionsConsumed++
+			if seen[id] {
+				continue // backlog dup: position consumed, not separately selected
+			}
+			sweptSelection = append(sweptSelection, id)
+		}
+
+		// Symmetrically, hand unused SWEEP budget back to the backlog:
+		// if the sweep ran out of fresh ids before filling its
+		// reservation (e.g. every remaining position is a backlog dup,
+		// or the window is simply short), let the backlog use the
+		// leftover cap instead of wasting it -- this is also what
+		// guarantees plan.ids is never empty while candidates is not,
+		// even in the degenerate case where the whole sweep window is
+		// backlog-shadowed.
+		if len(sweptSelection) < sweepBudget {
+			extra := sweepBudget - len(sweptSelection)
+			if backlogBudget+extra > len(fullBacklog) {
+				extra = len(fullBacklog) - backlogBudget
+			}
+			if extra > 0 {
+				backlogBudget += extra
+			}
+		}
+
+		plan.ids = append(append([]string{}, fullBacklog[:backlogBudget]...), sweptSelection...)
+		plan.fullSweepCount = positionsConsumed
+	case maxParents > 0 && len(candidates) > maxParents:
+		plan.capped = true
+		plan.ids = candidates[:maxParents]
+	default:
+		plan.ids = candidates
+		if isFullSweep {
+			plan.fullSweepCount = len(swept) // uncapped: every position of the window is consumed
+		}
+	}
+
+	// Record the sweep/backlog/turn bookkeeping runDependentFanOut needs
+	// to persist AFTER plan.ids has actually been fetched -- see
+	// dependentSyncPlan's field docs for the two-tier design this feeds.
+	if isFullSweep && !dryRun {
+		plan.fullOffsetKey = progressKey
+		plan.fullOffsetBase = fullOffset
+		plan.fullFailedKey = failedKey
+		plan.fullBacklogAll = fullBacklog
+		plan.fullTurnKey = turnKey
+		plan.fullTurnNext = nextTurn
+	}
+	return plan, nil
+}
+
+// classDetailFamily/classDetailField name where classes_detail's fan-out
+// checks for "already has the richer detail content" -- see
+// planClassDetailSync.
+const (
+	classDetailFamily = "classes"
+	classDetailField  = "segments"
+)
+
+// planClassDetailSync resolves which ride ids the classes_detail dependent
+// should fetch this call. It deliberately does not reuse planDependentSync:
+// that function's parent ids come from dependentParentIDs (a resource's own
+// stored primary keys, e.g. every synced "workouts" row), but classes_detail's
+// parent ids are workouts.ride_id -- a non-PK field on a DIFFERENT resource,
+// scoping the fan-out to the ~hundreds of classes an account holder actually
+// took, not the tens of thousands in the full catalog "classes" already
+// flat-syncs. Its pending check is also different in kind: planDependentSync
+// treats "has any record" as done, but a class synced via the flat catalog
+// list endpoint already has a "classes" provider_payloads row (title,
+// duration, instructor_id, ...) that a presence-only check would see as
+// already-fetched forever, even though it never carries segments/
+// target_metrics_data (round-11 verification NEW 1) -- those fields exist
+// only in the per-class detail response this dependent fetches. Presence of
+// classDetailField, not presence of any record, is therefore "done" here.
+// That also makes this naturally resumable / self-correcting with no
+// separate progress cursor: a class that gets detail-fetched sets
+// classDetailField, which is exactly what removes it from "pending" on the
+// next call.
+func planClassDetailSync(db *store.Store, full bool, scopeSince, staleBefore *time.Time, maxParents int) (dependentSyncPlan, error) {
+	// DistinctWorkoutRideIDs, not db.ListField("workouts", "ride_id"): the
+	// typed ride_id column is only populated by enrichWorkoutRideMetadata
+	// at write time, and round-12 verification NEW B found a real account
+	// where the column covered barely more than half of the workouts that
+	// actually carried a ride association in their raw JSON (511 of 843).
+	// Reading ListField alone silently caps this dependent's fan-out to
+	// whatever subset of taken classes happened to get the typed column
+	// populated, not the account's real distinct-class count.
+	rideIDs, err := db.DistinctWorkoutRideIDs()
+	if err != nil {
+		return dependentSyncPlan{}, err
+	}
+	// pelotonNoClassRideID (offline.go) is Peloton's sentinel for
+	// freestyle/non-class workouts (Just Run, Outdoor Running, Just Ride),
+	// not a real class id -- there is no detail endpoint for it and never
+	// will be. Without this exclusion it fetches, fails (a 4xx from GET
+	// /api/ride/<sentinel>/details), and gets logged as a
+	// per_parent_fetch_failed anomaly on every single invocation forever,
+	// and -- since this dependent's pending check is content-based (does
+	// the record carry segments) rather than presence-based -- it can
+	// never be satisfied, so it never drains from the pending set either.
+	// offline_repeat/offline_intervals (workoutDetailRideID) already
+	// exclude this same sentinel for the analogous reason.
+	rideIDs = slices.DeleteFunc(rideIDs, func(id string) bool { return id == pelotonNoClassRideID })
+	if len(rideIDs) == 0 {
+		return dependentSyncPlan{parentTableEmpty: true}, nil
+	}
+	sort.Strings(rideIDs)
+
+	fetchedAt, err := db.ExistingProviderFactFetchedAt(classDetailFamily)
+	if err != nil {
+		return dependentSyncPlan{}, err
+	}
+	haveDetail, err := db.ProviderFactIDsWithField(classDetailFamily, classDetailField)
+	if err != nil {
+		return dependentSyncPlan{}, err
+	}
+
+	type pendingID struct {
+		id        string
+		fetchedAt time.Time
+	}
+	pending := make([]pendingID, 0, len(rideIDs))
+	for _, id := range rideIDs {
+		at := fetchedAt[id] // zero time.Time when absent -- sorts first, same as planDependentSync
+		switch {
+		case full:
+			pending = append(pending, pendingID{id, at})
+		case !haveDetail[id]:
+			pending = append(pending, pendingID{id, at})
+		case staleBefore != nil && at.Before(*staleBefore):
+			pending = append(pending, pendingID{id, at})
+		}
+	}
+	sort.Slice(pending, func(i, j int) bool {
+		if !pending[i].fetchedAt.Equal(pending[j].fetchedAt) {
+			return pending[i].fetchedAt.Before(pending[j].fetchedAt)
+		}
+		return pending[i].id < pending[j].id
+	})
+	candidates := make([]string, len(pending))
+	for i, p := range pending {
+		candidates[i] = p.id
+	}
+
+	// scopeSince (--latest-only) scoping is intentionally not applied here:
+	// unlike performance/workout_details, classes_detail's candidate set is
+	// already bounded by classDetailField presence (not by the full id
+	// space), so it stays small and cheap to recompute even under
+	// --latest-only. Always recomputing the full pending set is simpler
+	// than mapping --latest-only's newly-touched workout ids to their
+	// ride_ids, and --max-parents below still bounds any single call.
+	_ = scopeSince
+
+	plan := dependentSyncPlan{totalPending: len(candidates)}
+	if maxParents > 0 && len(candidates) > maxParents {
+		plan.ids = candidates[:maxParents]
+		plan.capped = true
+	} else {
+		plan.ids = candidates
+	}
+	return plan, nil
+}
+
+// runDependentFanOut is the shared per-parent fan-out engine for
+// parent-keyed dependents (performance, workout_details, classes_detail):
+// each fetches one item per parent id via a GET with no bulk list endpoint,
+// concurrently, differing only in the request path/params (buildRequest)
+// and how a fetched item gets stored (write). Factored out of two
+// near-identical copies when both dependents needed the same
+// bounded/resumable planning logic (dependentSyncPlan) layered on top of
+// the existing fan-out mechanics.
+//
+// plan.ids is already fully resolved by the caller's own planning function
+// (resumability + --latest-only run-scoping + --max-parents cap applied);
+// this function's only remaining job is the actual fetch/store loop and
+// reporting. resource names the phase for event/error reporting only --
+// write decides what family a fetched item actually lands under, which
+// classes_detail deliberately decouples from resource (it reports under
+// "classes_detail" but writes into the "classes" family so a detail fetch
+// enriches the same record the flat classes list sync already populated).
+// write defaults to db.UpsertWithFacts(resource, id, data) when nil.
+func runDependentFanOut(ctx context.Context, c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
+	RateLimit() float64
+}, db *store.Store, resource string, plan dependentSyncPlan, concurrency int, buildRequest func(workoutID string) (path string, params map[string]string), syncEvents io.Writer, write func(id string, data json.RawMessage) error) syncResult {
+	if write == nil {
+		write = func(id string, data json.RawMessage) error {
+			return db.UpsertWithFacts(resource, id, data)
+		}
+	}
+	started := time.Now()
+	if syncEvents == nil {
+		syncEvents = io.Discard
+	}
+	if !humanFriendly {
+		fmt.Fprintf(syncEvents, `{"event":"sync_start","resource":"%s"}`+"\n", resource)
+	}
+
+	if plan.parentTableEmpty {
+		return syncResult{
+			Resource: resource,
+			Warn:     fmt.Errorf("skipped %s: no synced workouts to derive parent ids from; sync workouts first", resource),
+			Duration: time.Since(started),
+		}
+	}
+	// Nothing pending is a legitimate success (already fully caught up),
+	// not a warning -- distinct from plan.parentTableEmpty above, which
+	// means there was never anything to sync against in the first place.
+	if len(plan.ids) == 0 {
+		if !humanFriendly {
+			fmt.Fprintf(syncEvents, `{"event":"sync_complete","resource":"%s","total":0,"duration_ms":%d,"reason":"already_up_to_date"}`+"\n", resource, time.Since(started).Milliseconds())
+		}
+		return syncResult{Resource: resource, Count: 0, Duration: time.Since(started)}
+	}
+
+	// Per-parent fan-out over potentially thousands of workouts: one HTTP
+	// round trip per id with no bulk endpoint to batch them. Sequential
+	// fetching made an otherwise-successful sync of ~3.5k workouts take
+	// over 25 minutes; mirror the flat phase's own worker pool so this
+	// dependent isn't the one resource stuck at concurrency=1.
+	if concurrency < 1 {
+		concurrency = 4
+	}
+	if cliutil.IsVerifyEnv() {
+		concurrency = 1
+	}
+	work := make(chan string, len(plan.ids))
+	for _, id := range plan.ids {
+		work <- id
+	}
+	close(work)
+
+	var mu sync.Mutex
+	var totalCount, failures int
+	var firstErr error
+	var sawDryRun bool
+	// failedIDs records exactly which ids failed, not just how many --
+	// the --full backlog persistence below (see dependentSyncPlan's field
+	// docs) needs to know WHICH specific ids failed, not just a count, to
+	// correctly recompute which ids still need a retry.
+	failedIDs := make(map[string]bool)
+	var wg sync.WaitGroup
+	for i := 0; i < concurrency; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for workoutID := range work {
+				path, params := buildRequest(workoutID)
+				data, err := c.Get(ctx, path, params)
+				if err != nil {
+					mu.Lock()
+					failures++
+					failedIDs[workoutID] = true
+					if firstErr == nil {
+						firstErr = err
+					}
+					mu.Unlock()
+					continue
+				}
+				// Dry-run sentinel: client.dryRun() returns the same
+				// {"dry_run": true} envelope for every request when
+				// --dry-run is set (short-circuited client-side, before any
+				// network call), so this fires for every item — mirrors
+				// syncResource's dry-run handling. Without this check, a
+				// --dry-run sync would write the sentinel into
+				// provider_payloads as if it were real data, once per
+				// synced workout.
+				if isDryRunResponse(data) {
+					mu.Lock()
+					sawDryRun = true
+					mu.Unlock()
+					continue
+				}
+				if err := write(workoutID, data); err != nil {
+					mu.Lock()
+					failures++
+					failedIDs[workoutID] = true
+					if firstErr == nil {
+						firstErr = err
+					}
+					mu.Unlock()
+					continue
+				}
+				mu.Lock()
+				totalCount++
+				mu.Unlock()
+			}
+		}()
+	}
+	wg.Wait()
+
+	if sawDryRun {
+		if !humanFriendly {
+			fmt.Fprintf(syncEvents, `{"event":"sync_dryrun","resource":"%s"}`+"\n", resource)
+		}
+		return syncResult{Resource: resource, Count: 0, Duration: time.Since(started)}
+	}
+
+	// A credential-placeholder condition affects every request identically
+	// (it's a local config problem, not a per-workout API response), so
+	// treat it as a hard failure here too — same as the flat resource loop
+	// does — rather than letting failures++ silently downgrade it to a
+	// warning. Any other per-item failure (a workout genuinely has no
+	// recorded data, a transient blip) stays a soft anomaly: escalating
+	// those to a hard error would turn an expected, benign per-item gap
+	// into a whole-sync failure.
+	if firstErr != nil && errors.Is(firstErr, client.ErrPlaceholderCredential) {
+		return syncResult{Resource: resource, Err: firstErr, Duration: time.Since(started)}
+	}
+
+	if failures > 0 && !humanFriendly {
+		// sample_error surfaces the first failure's own message so a
+		// consistent-but-unexplained per_parent_fetch_failed count (round-12
+		// verification NEW D: roughly one failure per classes_detail batch,
+		// with no way to tell from the event alone whether it's a specific
+		// class type, a transient blip, or something systematic) is at
+		// least diagnosable from the sync output itself, without needing a
+		// second debugging pass. Only the first error is sampled (not one
+		// per failure) to keep the event a single bounded line even when
+		// every failure shares the same cause.
+		sampleError := ""
+		if firstErr != nil {
+			sampleError = strings.ReplaceAll(truncate(firstErr.Error(), 200), `"`, `\"`)
+		}
+		fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":%d,"failed":%d,"reason":"per_parent_fetch_failed","sample_error":"%s"}`+"\n", resource, len(plan.ids), totalCount, failures, sampleError)
+	}
+	// Persist --full's two-tier resumability state now that plan.ids has
+	// actually been fetched (never before -- see dependentSyncPlan's
+	// field docs for why eager persistence was the original bug).
+	//
+	// 1. The sweep cursor ALWAYS advances by fullSweepCount -- the number
+	//    of plan.ids that came from the fresh sweep window, not the
+	//    backlog -- regardless of whether any of them failed. This is
+	//    unconditional on purpose: it is what guarantees no id, however
+	//    persistently it fails, can ever block the ids behind it. Earlier
+	//    versions of this fix made the cursor's advancement depend on
+	//    success/failure and each variant re-introduced a wedge in some
+	//    position (first id in the window, or the whole window if any id
+	//    failed); decoupling "the sweep always moves forward" from
+	//    "failures are remembered" (step 2) is what closes every version
+	//    of that bug at once.
+	// 2. The failed-id backlog is recomputed as: whatever was in the old
+	//    backlog but wasn't attempted this call (still owed a retry),
+	//    plus every id that failed this call (whether it came from the
+	//    backlog or the sweep). Backlog ids get retry priority on
+	//    subsequent calls (see planDependentSync) independent of where
+	//    the sweep cursor currently is, so a failure is never stranded
+	//    until the whole pass wraps around. At --max-parents >= 2 that
+	//    priority applies every call; at exactly --max-parents 1 it
+	//    alternates with the sweep via the turn bit (step 3) instead of
+	//    running every call, since only one slot exists to give either
+	//    tier -- still bounded (at most every other call), never
+	//    stranded indefinitely.
+	// 3. The turn bit flips unconditionally every call. It only ever
+	//    changes behavior at --max-parents 1, where it decides which
+	//    tier gets that call's single slot; at any other cap the
+	//    reservation in step 1 already guarantees both tiers a slot, so
+	//    the flip is inert there.
+	if plan.fullOffsetKey != "" {
+		attempted := make(map[string]bool, len(plan.ids))
+		for _, id := range plan.ids {
+			attempted[id] = true
+		}
+		newBacklog := make([]string, 0, len(plan.fullBacklogAll)+failures)
+		for _, id := range plan.fullBacklogAll {
+			if !attempted[id] {
+				newBacklog = append(newBacklog, id)
+			}
+		}
+		for _, id := range plan.ids {
+			if failedIDs[id] {
+				newBacklog = append(newBacklog, id)
+			}
+		}
+		// One transaction, not three independent SaveSyncState calls: a
+		// crash between separate writes (or any one alone failing)
+		// could leave the sweep cursor, backlog, and turn bit out of
+		// sync with each other -- an offset committed without its
+		// backlog silently drops a failure until the pass wraps around;
+		// a backlog committed without its offset just repeats the same
+		// sweep window next call. See SaveSyncStates's doc comment.
+		//
+		// A failed transaction leaves the continuation state stale. Do
+		// not emit sync_complete or a cap-hit progress warning after
+		// that: the next call will repeat this window, so reporting
+		// durable progress would be a lie.
+		if err := db.SaveSyncStates(
+			store.SyncStateWrite{ResourceType: plan.fullOffsetKey, Cursor: "", Count: plan.fullOffsetBase + plan.fullSweepCount},
+			store.SyncStateWrite{ResourceType: plan.fullFailedKey, Cursor: strings.Join(newBacklog, ","), Count: len(newBacklog)},
+			store.SyncStateWrite{ResourceType: plan.fullTurnKey, Cursor: "", Count: plan.fullTurnNext},
+		); err != nil {
+			checkpointErr := fmt.Errorf("saving %s continuation checkpoint: %w", resource, err)
+			if !humanFriendly {
+				fmt.Fprintln(syncEvents, syncErrorJSON(resource, "", checkpointErr))
+			}
+			return syncResult{
+				Resource: resource,
+				Count:    totalCount,
+				Err:      checkpointErr,
+				Duration: time.Since(started),
+			}
+		}
+	}
+	// --max-parents truncated the pending set: this call is still a
+	// success (it processed real work), but the caller needs an explicit
+	// signal that a backlog remains, mirroring the flat resource loop's
+	// own max_pages_cap_hit event.
+	if plan.capped && !humanFriendly {
+		remaining := plan.totalPending - len(plan.ids)
+		fmt.Fprintf(syncEvents, `{"event":"sync_warning","resource":"%s","reason":"max_parents_cap_hit","message":"processed %d of %d pending parents this call; %d remain. Re-run sync to continue."}`+"\n", resource, len(plan.ids), plan.totalPending, remaining)
+	}
+	if !humanFriendly {
+		fmt.Fprintf(syncEvents, `{"event":"sync_complete","resource":"%s","total":%d,"duration_ms":%d}`+"\n", resource, totalCount, time.Since(started).Milliseconds())
+	}
+
+	if totalCount == 0 {
+		return syncResult{
+			Resource: resource,
+			Warn:     fmt.Errorf("%s: fetched 0/%d pending records", resource, len(plan.ids)),
+			Duration: time.Since(started),
+		}
+	}
+	return syncResult{Resource: resource, Count: totalCount, Duration: time.Since(started)}
+}
+
+// syncPerformanceDependent syncs "performance" (per-workout performance_graph
+// samples), a parent-keyed dependent of "workouts": Peloton exposes this data
+// only per-workout (GET /api/workout/{workout_id}/performance_graph), never
+// as a bulk list, so it cannot go through the flat paginated syncResource
+// loop. plan (see planDependentSync) resolves which workout ids to fetch
+// this call.
+func syncPerformanceDependent(ctx context.Context, c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
+	RateLimit() float64
+}, db *store.Store, plan dependentSyncPlan, concurrency int, userParams *syncUserParams, syncEvents io.Writer) syncResult {
+	return runDependentFanOut(ctx, c, db, "performance", plan, concurrency, func(workoutID string) (string, map[string]string) {
+		path := replacePathParam("/api/workout/{workout_id}/performance_graph", "workout_id", workoutID)
+		// The single-fetch command (workouts_performance.go) defaults
+		// --every-n=1 (full-resolution samples); the Peloton API's own
+		// default when every_n is omitted downsamples ~50x. Sync never
+		// went through that cobra flag machinery, so every synced
+		// performance_graph was silently downsampled. Set the same
+		// default here, before user overrides, so sync matches the
+		// single-fetch command's resolution by default.
+		//
+		// --global-param's help text promises injection into every
+		// sync request "including dependent path-scoped calls";
+		// isDependent=true skips --param (flat-list only) but still
+		// applies --global-param and --resource-param
+		// performance:key=value.
+		params := map[string]string{"every_n": "1"}
+		userParams.applyTo("performance", params, true)
+		return path, params
+	}, syncEvents, nil)
+}
+
+// syncWorkoutDetailsDependent syncs "workout_details" (the full per-workout
+// detail payload from GET /api/workout/{workout_id}), a second parent-keyed
+// dependent of "workouts" alongside "performance". Peloton exposes this
+// data only per-workout, never as a bulk list, so — like performance — it
+// cannot go through the flat paginated syncResource loop. `offline workout`,
+// `offline intervals`, `offline repeat`, and `offline strength` all read
+// this same "workout_details" family (see cacheWorkoutDetail's doc comment
+// in data_source.go), so syncing it once here satisfies all four instead of
+// requiring four separate dependent loops. plan (see planDependentSync)
+// resolves which workout ids to fetch this call.
+func syncWorkoutDetailsDependent(ctx context.Context, c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
+	RateLimit() float64
+}, db *store.Store, plan dependentSyncPlan, concurrency int, userParams *syncUserParams, syncEvents io.Writer) syncResult {
+	return runDependentFanOut(ctx, c, db, "workout_details", plan, concurrency, func(workoutID string) (string, map[string]string) {
+		path := replacePathParam("/api/workout/{workout_id}", "workout_id", workoutID)
+		params := map[string]string{}
+		userParams.applyTo("workout_details", params, true)
+		return path, params
+	}, syncEvents, nil)
+}
+
+// syncClassDetailDependent syncs "classes_detail" (per-class segments and
+// target_metrics_data from GET /api/ride/{ride_id}/details), a third
+// parent-keyed dependent alongside performance/workout_details -- but
+// unlike those two, it is NOT keyed on "workouts" ids and does NOT write
+// into a family named after itself. Its parent ids are the distinct
+// ride_id values workouts.ride_id already carries (see
+// planClassDetailSync), scoping the fan-out to classes the account holder
+// actually took rather than the full catalog (tens of thousands of untaken
+// classes on a long-lived account never need per-class detail). Its writes
+// go into the "classes" family via UpsertBatchWithFacts, the same
+// write-through path a live `classes show`/`classes structure` call
+// already uses (including that path's nested-ride-id id resolution): a
+// detail fetch enriches the same record the flat "classes" list sync
+// populated, rather than creating a second copy under a new family name,
+// so offline_classes_structure/offline_intervals need no changes to start
+// seeing segments once a class has been detail-fetched.
+func syncClassDetailDependent(ctx context.Context, c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
+	RateLimit() float64
+}, db *store.Store, plan dependentSyncPlan, concurrency int, syncEvents io.Writer) syncResult {
+	return runDependentFanOut(ctx, c, db, "classes_detail", plan, concurrency, func(rideID string) (string, map[string]string) {
+		path := replacePathParam("/api/ride/{ride_id}/details", "ride_id", rideID)
+		return path, map[string]string{}
+	}, syncEvents, func(id string, data json.RawMessage) error {
+		_, _, err := db.UpsertBatchWithFacts("classes", []json.RawMessage{data})
+		return err
+	})
 }
 
 func describeFailedResources(count int, resources []string) string {

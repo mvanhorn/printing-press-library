@@ -124,6 +124,95 @@ func TestMCPRegisterToolsPreservesTypedSpecialTools(t *testing.T) {
 	}
 }
 
+// TestHandleContextDescribesPelotonNotCRM guards against handleContext
+// regressing to the generator's generic CRM template scaffolding (SIGNIFICANT
+// #4 from a live post-fix verification sweep): the context tool is
+// front-loaded domain knowledge agents read first, and it previously
+// reported "archetype": "crm", a stale tool_count of 10 (actual is higher
+// once framework/command-mirror tools are counted), a "resources" list
+// missing "performance"/"workout_details" with no mention of sync/offline/
+// doctor, and CRM-specific playbook entries ("Contact lookup", "CRM APIs
+// often throttle activity-log endpoints heavily") that make no sense for a
+// fitness API.
+func TestHandleContextDescribesPelotonNotCRM(t *testing.T) {
+	result, err := handleContext(context.Background(), mcplib.CallToolRequest{})
+	if err != nil {
+		t.Fatalf("handleContext returned transport error: %v", err)
+	}
+	if result == nil || result.IsError {
+		t.Fatalf("handleContext IsError = %v, want false", result != nil && result.IsError)
+	}
+	text := mcpTextContent(t, result)
+
+	var ctx map[string]any
+	if err := json.Unmarshal([]byte(text), &ctx); err != nil {
+		t.Fatalf("handleContext result is not valid JSON: %v\n%s", err, text)
+	}
+
+	if archetype, _ := ctx["archetype"].(string); archetype == "crm" {
+		t.Fatalf("archetype = %q, want a peloton-accurate value, not the generic CRM template default", archetype)
+	}
+
+	toolCount, ok := ctx["tool_count"].(float64)
+	if !ok || toolCount < 20 {
+		t.Fatalf("tool_count = %v, want an accurate count reflecting all registered tools (endpoint + framework + command-mirror), not the stale template value of 10", ctx["tool_count"])
+	}
+
+	resources, ok := ctx["resources"].([]any)
+	if !ok {
+		t.Fatalf("resources = %#v, want an array", ctx["resources"])
+	}
+	names := map[string]bool{}
+	for _, r := range resources {
+		obj, ok := r.(map[string]any)
+		if !ok {
+			continue
+		}
+		if name, ok := obj["name"].(string); ok {
+			names[name] = true
+		}
+	}
+	for _, want := range []string{"performance", "workout_details"} {
+		if !names[want] {
+			t.Fatalf("resources missing %q entry: %#v", want, names)
+		}
+	}
+
+	for _, forbidden := range []string{"crm", "CRM", "Contact lookup", "deal activity", "oauth2_refresh"} {
+		if strings.Contains(text, forbidden) {
+			t.Fatalf("handleContext result still contains stale CRM-template or OAuth-flavored text %q:\n%s", forbidden, text)
+		}
+	}
+
+	for _, want := range []string{"sync", "offline", "doctor"} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("handleContext result does not mention %q anywhere; agents reading this first won't discover it", want)
+		}
+	}
+}
+
+// TestHandleContextDocumentsUnvalidatedArgumentPassthrough guards SIGNIFICANT
+// #3/#5's resolution: makeAPIHandler forwards any typed-tool argument it
+// doesn't recognize straight onto the live API as a raw param, unvalidated —
+// a deliberate design decision (kept as-is, per user direction, since it's
+// the only escape hatch for real Peloton filters the hand-written internal
+// spec doesn't declare) but one that must be documented so a misspelled
+// argument's silent no-op isn't a total surprise, and so agents know
+// --select/--compact/--csv/--quiet don't do anything on typed endpoint
+// tools (only on command-mirror tools).
+func TestHandleContextDocumentsUnvalidatedArgumentPassthrough(t *testing.T) {
+	result, err := handleContext(context.Background(), mcplib.CallToolRequest{})
+	if err != nil {
+		t.Fatalf("handleContext returned transport error: %v", err)
+	}
+	text := mcpTextContent(t, result)
+	for _, want := range []string{"unvalidated", "silently no-op"} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("handleContext result does not document unvalidated argument passthrough (missing %q):\n%s", want, text)
+		}
+	}
+}
+
 func TestMCPSearchMissingStoreIsActionable(t *testing.T) {
 	resetMCPPathEnv(t)
 
@@ -192,6 +281,62 @@ func TestMCPSearchEmptyStoreReturnsActionableEnvelope(t *testing.T) {
 	}
 	if !strings.Contains(envelope.NextStep, "sync") {
 		t.Fatalf("empty-store next_step should mention sync: %s", text)
+	}
+}
+
+// TestMCPSearchSelectProjectsTheResultsArray guards round-11 verification
+// NEW 2: the "search" MCP tool builds its own count/results/store_status/
+// resumable envelope by hand (unlike every other tool, which routes through
+// this CLI's printOffline/printOutput* pipeline where --select already
+// worked), and its tool schema never declared a "select" parameter at all
+// -- so passing one was a silent no-op, not an error, returning every field
+// including large nested objects the caller never asked for.
+func TestMCPSearchSelectProjectsTheResultsArray(t *testing.T) {
+	resetMCPPathEnv(t)
+	path, err := mcpDBPath()
+	if err != nil {
+		t.Fatalf("mcpDBPath() error = %v", err)
+	}
+	db, err := store.Open(path)
+	if err != nil {
+		t.Fatalf("creating store: %v", err)
+	}
+	if err := db.Upsert("classes", "ride-a", []byte(`{"id":"ride-a","title":"Power Zone Endurance","resource_type":"classes","stream_url":"https://example.invalid/big-blob","ride":{"id":"ride-a","instructor":{"name":"Ada"}}}`)); err != nil {
+		t.Fatalf("seeding class: %v", err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatalf("closing store: %v", err)
+	}
+
+	result, err := handleSearch(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+		Arguments: map[string]any{"query": "Power Zone Endurance", "select": "results.id,results.title"},
+	}})
+	if err != nil {
+		t.Fatalf("handleSearch returned transport error: %v", err)
+	}
+	if result == nil || result.IsError {
+		t.Fatalf("handleSearch IsError = %v, want false", result != nil && result.IsError)
+	}
+	text := mcpTextContent(t, result)
+
+	var envelope struct {
+		Results []map[string]any `json:"results"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("result must be valid JSON: %v\n%s", err, text)
+	}
+	if len(envelope.Results) != 1 {
+		t.Fatalf("results = %v, want exactly 1 match", envelope.Results)
+	}
+	row := envelope.Results[0]
+	if row["title"] != "Power Zone Endurance" {
+		t.Fatalf("row missing requested field title: %#v", row)
+	}
+	if _, ok := row["stream_url"]; ok {
+		t.Fatalf("--select silently returned an unrequested field: %#v", row)
+	}
+	if _, ok := row["ride"]; ok {
+		t.Fatalf("--select silently returned an unrequested nested field: %#v", row)
 	}
 }
 
@@ -530,6 +675,129 @@ func TestMCPToolResultTextBoundsSingleArrayEnvelope(t *testing.T) {
 	}
 }
 
+// classesArchivedFixture builds a payload shaped like the real
+// /api/v2/ride/archived response (classes_catalog, classes_search):
+// results in "data" alongside static ride_types/class_types catalog
+// vocabulary arrays that carry no query-specific information.
+func classesArchivedFixture(t *testing.T, itemCount int) json.RawMessage {
+	t.Helper()
+	items := make([]map[string]string, 0, itemCount)
+	for i := 0; i < itemCount; i++ {
+		items = append(items, map[string]string{
+			"id":    strings.Repeat("d", 8),
+			"title": strings.Repeat("verbose class title ", 90),
+		})
+	}
+	vocab := make([]map[string]string, 0, 234)
+	for i := 0; i < 234; i++ {
+		vocab = append(vocab, map[string]string{"id": strings.Repeat("v", 8), "name": strings.Repeat("vocab entry ", 10)})
+	}
+	data, err := json.Marshal(map[string]any{
+		"data":        items,
+		"ride_types":  vocab,
+		"class_types": vocab,
+	})
+	if err != nil {
+		t.Fatalf("marshal fixture: %v", err)
+	}
+	return data
+}
+
+// TestMCPToolResultTextMultiArrayEnvelopeFallsBackToRawPreview reproduces
+// SIGNIFICANT #6 from a live post-fix verification sweep: bound.go's
+// single-array-field trimmer (boundedSingleArrayObject) can only identify
+// "the" list field when exactly one array field is present. A real
+// classes_catalog/classes_search response big enough to need trimming has
+// three array fields (data, ride_types, class_types), so the trimmer bails
+// to an unbounded raw preview instead of returning a proper bounded item
+// list — this test guards that the *underlying* multi-array limitation
+// still exists in bound.go itself (the fix lives one layer up, in
+// makeAPIHandlerStripFields stripping the redundant fields before the data
+// ever reaches this code path — see the next test).
+func TestMCPToolResultTextMultiArrayEnvelopeFallsBackToRawPreview(t *testing.T) {
+	data := classesArchivedFixture(t, bound.MaxItems+25)
+
+	text := mcpTextContent(t, mcpToolResultText("GET", data))
+	if len(text) > bound.MaxBytes {
+		t.Fatalf("preview result length = %d, want <= %d", len(text), bound.MaxBytes)
+	}
+
+	var envelope struct {
+		Truncated bool   `json:"truncated"`
+		Preview   string `json:"preview"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("result must remain valid JSON: %v\n%s", err, text)
+	}
+	if !envelope.Truncated || envelope.Preview == "" {
+		t.Fatalf("expected a raw preview fallback (multi-array object defeats the single-array trimmer): %s", text)
+	}
+}
+
+// TestStripTopLevelFieldsRemovesRedundantCatalogVocabulary guards the actual
+// SIGNIFICANT #6 fix: stripping ride_types/class_types before the response
+// reaches bound.go leaves exactly one array field ("data"), so the same
+// oversized response that fell back to a raw preview above now gets a
+// proper bounded item list with real count/truncation metadata instead.
+// ride_types/class_types remain fully available via classes_filters (its
+// class_type_id/ride_type_id filter entries carry the same id/name
+// vocabulary), so stripping them here loses no data.
+func TestStripTopLevelFieldsRemovesRedundantCatalogVocabulary(t *testing.T) {
+	data := classesArchivedFixture(t, bound.MaxItems+25)
+	stripped := stripTopLevelFields(data, rideArchivedRedundantFields)
+
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(stripped, &obj); err != nil {
+		t.Fatalf("stripped payload must remain valid JSON: %v", err)
+	}
+	if _, ok := obj["ride_types"]; ok {
+		t.Fatal("ride_types was not stripped")
+	}
+	if _, ok := obj["class_types"]; ok {
+		t.Fatal("class_types was not stripped")
+	}
+	if _, ok := obj["data"]; !ok {
+		t.Fatal("stripping removed the real data field too")
+	}
+
+	text := mcpTextContent(t, mcpToolResultText("GET", stripped))
+	var envelope struct {
+		Data          []json.RawMessage `json:"data"`
+		Truncated     bool              `json:"_pp_truncated"`
+		TotalCount    int               `json:"_pp_total_count"`
+		ReturnedCount int               `json:"_pp_returned_count"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("bounded result must remain valid JSON: %v\n%s", err, text)
+	}
+	if !envelope.Truncated {
+		t.Fatalf("expected the now-single-array response to use the bounded envelope, not a raw preview: %s", text)
+	}
+	if envelope.TotalCount != bound.MaxItems+25 {
+		t.Fatalf("total_count = %d, want %d", envelope.TotalCount, bound.MaxItems+25)
+	}
+	if envelope.ReturnedCount != len(envelope.Data) {
+		t.Fatalf("returned_count = %d, want data count %d", envelope.ReturnedCount, len(envelope.Data))
+	}
+}
+
+// TestStripTopLevelFieldsIsNoOpWhenFieldsAbsentOrNotAnObject guards the
+// helper's safety contract: it must never alter a payload with none of the
+// named fields, and must never panic or corrupt a payload that isn't a JSON
+// object (e.g. a bare array GET response), since makeAPIHandlerStripFields
+// calls it unconditionally whenever stripFields is non-empty.
+func TestStripTopLevelFieldsIsNoOpWhenFieldsAbsentOrNotAnObject(t *testing.T) {
+	unaffected := json.RawMessage(`{"data":[1,2,3],"cursor":"x"}`)
+	if got := stripTopLevelFields(unaffected, []string{"ride_types", "class_types"}); string(got) != string(unaffected) {
+		t.Fatalf("stripTopLevelFields altered a payload with none of the named fields: got %s, want unchanged %s", got, unaffected)
+	}
+
+	arrayPayload := json.RawMessage(`[1,2,3]`)
+	if got := stripTopLevelFields(arrayPayload, []string{"ride_types"}); string(got) != string(arrayPayload) {
+		t.Fatalf("stripTopLevelFields must no-op on a non-object payload: got %s, want unchanged %s", got, arrayPayload)
+	}
+}
+
 func TestMCPToolResultTextFallsBackToOversizedPreview(t *testing.T) {
 	data, err := json.Marshal(map[string]string{
 		"blob": strings.Repeat("z", bound.MaxBytes+10000),
@@ -638,4 +906,36 @@ func mcpTextContent(t *testing.T, result *mcplib.CallToolResult) string {
 		t.Fatalf("result content type = %T, want mcp.TextContent", result.Content[0])
 	}
 	return content.Text
+}
+
+// TestNewMCPClientAppliesManagedAuth guards against MCP tool calls silently
+// authenticating with no credential at all. newMCPClientFromConfig builds
+// its client directly via client.New (for MCP-specific NoCache/timeout
+// settings) rather than through rootFlags.newClient(), so it never ran the
+// cli package's clientHooks registry that installs Peloton's managed auth
+// -- every MCP tool call reached the live API with neither a bearer token
+// nor a session cookie. With no credentials available anywhere (no env
+// vars, no persisted bundle), cli.InstallManagedPelotonBearer fails fast
+// with an actionable "bootstrap credentials are unavailable" error and no
+// network call; asserting that error surfaces here is a black-box way to
+// confirm the hook actually runs, since this package cannot reach into
+// package cli's private OAuth test state to assert the success path
+// directly.
+func TestNewMCPClientAppliesManagedAuth(t *testing.T) {
+	t.Setenv("PELOTON_OAUTH_USERNAME", "")
+	t.Setenv("PELOTON_OAUTH_PASSWORD", "")
+	home := t.TempDir()
+	restore, err := cliutil.SetHomeOverride(home)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer restore()
+
+	_, err = newMCPClient()
+	if err == nil {
+		t.Fatal("newMCPClient succeeded with no credentials available anywhere; InstallManagedPelotonBearer does not appear to be wired in")
+	}
+	if !strings.Contains(err.Error(), "bootstrap credentials are unavailable") {
+		t.Fatalf("newMCPClient error = %q, want it to come from the managed-auth bootstrap check specifically", err.Error())
+	}
 }

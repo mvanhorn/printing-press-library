@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "kie",
+  "cli_name": "kie-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-27T09:16:49Z",
+  "source_commit": "8bc459ef6a47876dd6745fa928ba73d79b0845b3",
+  "printing_press_version": "4.30.1",
+  "run_id": "20260803T075619Z-899a6d3a",
+  "changes": [
+    {
+      "title": "feat(kie): add kie",
+      "pr": 1649,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1649",
+      "commit": "8bc459ef6a47876dd6745fa928ba73d79b0845b3"
+    }
+  ]
+}

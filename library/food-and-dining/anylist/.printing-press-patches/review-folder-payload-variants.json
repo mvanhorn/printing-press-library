@@ -1,0 +1,25 @@
+{
+  "id": "review-folder-payload-variants",
+  "source": "direct-input",
+  "summary": "Probe folder membership payload variants without enabling unverified writes.",
+  "reason": "Alternative handler names did not persist a folder. This probe tested whether save-list-folder needs folderItems, a root-folder membership update, or both operations atomically.",
+  "evidence": {
+    "endpoint": "POST /data/list-folders/update",
+    "handler": "save-list-folder",
+    "variants": [
+      "new folder with folderItems containing the new folder",
+      "root folder payload with the new folder membership",
+      "new folder and root membership in one operation list"
+    ],
+    "result": "All three candidates returned HTTP 200 but none appeared in a fresh GetUserData response.",
+    "cleanup": "No marker folder remained; cleanup was available for any candidate that read back successfully.",
+    "verification_command": "ANYLIST_FOLDER_PAYLOAD_PROBE=1 go test -run '^TestProbeFolderPayloadVariants$' -count=1 -v ./internal/anylist"
+  },
+  "validated_outcome": "The known protobuf payload variants are not sufficient evidence to enable folder writes. Folder gates remain disabled pending authenticated browser traffic or an exact working wire contract.",
+  "tags": [
+    "folder-payload-discovery",
+    "fresh-readback",
+    "fail-closed",
+    "disposable-test-data"
+  ]
+}

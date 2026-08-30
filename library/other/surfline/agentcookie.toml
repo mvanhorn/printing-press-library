@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "surfline-pp-cli"
+display_name = "Surfline"
+description = "Every Surfline forecast, scriptable from your terminal — plus multi-spot ranking, a local forecast journal, and cron-able alerts no Surfline tool has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/surfline-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+SURFLINE_ACCESS_TOKEN = true

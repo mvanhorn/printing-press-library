@@ -1,0 +1,156 @@
+name: amazon-jobs
+description: "Amazon Jobs CLI — search, filter, and track Amazon/AWS job listings from the amazon.jobs backing API"
+version: "0.1.0"
+base_url: "https://www.amazon.jobs"
+health_check_path: "/en/search.json?base_query=&result_limit=1"
+category: productivity
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+  - name: Accept
+    value: "application/json"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/amazon-jobs-pp-cli/config.toml"
+
+learn:
+  ticker_patterns:
+    - "^[0-9]{6,9}$"
+  synonyms:
+    "newest": "recent"
+    "most recent": "recent"
+    "best match": "relevant"
+  entity_lookup_seeds:
+    country:
+      - canonical: USA
+        aliases: [us, usa, united states, america]
+      - canonical: GBR
+        aliases: [uk, united kingdom, britain, england]
+      - canonical: IND
+        aliases: [india]
+      - canonical: DEU
+        aliases: [germany]
+      - canonical: JPN
+        aliases: [japan]
+      - canonical: CAN
+        aliases: [canada]
+    job_category:
+      - canonical: "Software Development"
+        aliases: [sde, swe, software engineer, software dev]
+      - canonical: "Solutions Architect"
+        aliases: [sa, solutions architect]
+      - canonical: "Operations, IT, & Support Engineering"
+        aliases: [support engineer, ops, sysops, it support]
+      - canonical: "Applied Science"
+        aliases: [applied scientist, ml, machine learning]
+      - canonical: "Hardware Development"
+        aliases: [hardware, asic, silicon]
+    business_category:
+      - canonical: aws
+        aliases: [amazon web services, cloud]
+      - canonical: alexa-and-amazon-devices
+        aliases: [alexa, devices, echo]
+
+resources:
+  postings:
+    description: "Search Amazon job listings"
+    endpoints:
+      search:
+        method: GET
+        path: "/en/search.json"
+        description: "Search Amazon job listings by keyword, location, and sort order"
+        example: "  amazon-jobs-pp-cli jobs search --base-query \"software engineer\" --country USA --limit 20"
+        happy_args: "--base-query=engineer;--limit=5"
+        params:
+          - name: base_query
+            flag_name: base-query
+            type: string
+            description: "Keyword query over title/description/team (also matches an exact numeric job id)"
+          - name: "normalized_country_code[]"
+            flag_name: country
+            type: string
+            description: "Filter by ISO alpha-3 country code (USA, GBR, IND, DEU, JPN, CAN, ...)"
+          - name: "normalized_state_name[]"
+            flag_name: state
+            type: string
+            description: "Filter by full state/region name (Washington, California, Texas, ...)"
+          - name: "normalized_city_name[]"
+            flag_name: city
+            type: string
+            description: "Filter by city name (Seattle, Austin, Arlington, ...)"
+          - name: offset
+            type: int
+            default: 0
+            description: "Pagination offset"
+          - name: result_limit
+            flag_name: limit
+            type: int
+            default: 20
+            description: "Results per page (must be >= 1; the API returns 0 hits when this is 0 with filters)"
+          - name: sort
+            type: string
+            default: recent
+            enum: [recent, relevant]
+            description: "Sort order: recent (newest first) or relevant (best match)"
+        response:
+          type: array
+          item: Job
+        response_path: jobs
+        pagination:
+          type: offset
+
+types:
+  Job:
+    fields:
+      - name: id_icims
+        type: string
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: job_path
+        type: string
+      - name: description
+        type: string
+      - name: description_short
+        type: string
+      - name: basic_qualifications
+        type: string
+      - name: preferred_qualifications
+        type: string
+      - name: job_category
+        type: string
+      - name: business_category
+        type: string
+      - name: job_family
+        type: string
+      - name: location
+        type: string
+      - name: city
+        type: string
+      - name: state
+        type: string
+      - name: country_code
+        type: string
+      - name: normalized_location
+        type: string
+      - name: company_name
+        type: string
+      - name: job_schedule_type
+        type: string
+      - name: is_intern
+        type: bool
+      - name: is_manager
+        type: bool
+      - name: university_job
+        type: bool
+      - name: posted_date
+        type: string
+      - name: updated_time
+        type: string
+      - name: primary_search_label
+        type: string

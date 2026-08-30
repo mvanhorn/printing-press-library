@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "openai-ads-novel-bare-invocation",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-171540-a9bb0a03",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Remove the bare-invocation help probe from the eight novel commands so they render results instead of help.",
+  "reason": "The novel-command scaffold returns cmd.Help() when there are no args and no flags. None of these eight commands takes required input, so a bare invocation printed help while the same command with --json returned real data. --dry-run still short-circuits and exits 0, so verify probes are unaffected.",
+  "files": [
+    "internal/cli/tree.go",
+    "internal/cli/bid_check.go",
+    "internal/cli/orphans.go",
+    "internal/cli/pace.go",
+    "internal/cli/fatigue.go",
+    "internal/cli/review_watch.go",
+    "internal/cli/drift.go",
+    "internal/cli/geo_resolve.go"
+  ],
+  "validated_outcome": "Bare 'tree' and 'bid-check' now emit results; all eight still exit 0 under --dry-run and --help."
+}

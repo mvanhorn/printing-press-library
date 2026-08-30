@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "posted-date-is-day-granular-and-irregularly-spaced",
+  "applied_at": "2026-07-25",
+  "base_run_id": "20260725-041142-9944f727",
+  "base_printing_press_version": "4.29.0",
+  "summary": "`posted_date` is a day-granular English date string whose day field is space-padded, so any parse must collapse whitespace first and any recency window must be inclusive by whole date rather than by clock.",
+  "reason": "amazon.jobs renders single-digit days with a second space (\"May  9, 2026\"), which the natural \"January 2, 2006\" layout rejects; that shape is roughly 19% of live rows, so a naive parse silently drops every req posted on the 1st through the 9th of a month. The field also carries no time component, so a clock-anchored cutoff would drop reqs posted earlier in the day at the far edge of the window and imply a precision the API does not provide.",
+  "files": [
+    "internal/cli/amazonjobs_dates.go",
+    "internal/cli/amazonjobs_common.go"
+  ],
+  "validated_outcome": "`find --posted-within 7d --dry-run` reports the resolved inclusive floor; unit tests pin the double-space form and the cutoff-day-is-inside boundary."
+}

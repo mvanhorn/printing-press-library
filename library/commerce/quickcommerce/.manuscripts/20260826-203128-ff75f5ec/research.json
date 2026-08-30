@@ -1,0 +1,247 @@
+{
+  "api_name": "quickcommerce",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-26T15:24:25Z",
+  "novel_features": [
+    {
+      "name": "Price and availability history",
+      "command": "history prices",
+      "description": "Query local observations to see price, stock, rating, and availability movement over time.",
+      "rationale": "Repeated API responses become a local time series that the hosted MCP and REST API do not retain.",
+      "example": "quickcommerce-pp-cli history prices --item 501346 --since 30d --agent",
+      "why_it_matters": "Choose this when an agent needs to explain what changed instead of fetching only the current value.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Observation diff",
+      "command": "history diff",
+      "description": "Show the field-level changes between the latest saved observations.",
+      "rationale": "A local snapshot diff answers change questions without spending another paid API credit.",
+      "example": "quickcommerce-pp-cli history diff --item 501346 --latest 2 --agent",
+      "why_it_matters": "Choose this after ingestion when an agent needs a precise price, stock, or ETA delta.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Fastest available delivery",
+      "command": "delivery fastest",
+      "description": "Rank currently available delivery options while preserving closed or unparseable platforms.",
+      "rationale": "The CLI normalizes ETA values and combines availability semantics across live or local observations.",
+      "example": "quickcommerce-pp-cli delivery fastest --location 12.9021,77.6639 --agent",
+      "why_it_matters": "Choose this when an agent must recommend a viable fastest platform rather than list raw ETA rows.",
+      "group": "Decision-ready comparisons"
+    },
+    {
+      "name": "Credit-aware request planner",
+      "command": "requests plan",
+      "description": "Calculate fan-out credit cost and affordability before making paid platform requests.",
+      "rationale": "Free credit balance data plus per-platform pricing rules can prevent avoidable 402 failures.",
+      "example": "quickcommerce-pp-cli requests plan --platforms blinkit,zepto --operation search --agent",
+      "why_it_matters": "Choose this before an agent launches a multi-platform search or ETA fan-out.",
+      "group": "Agent-native safety"
+    },
+    {
+      "name": "Manual mirror ingestion",
+      "command": "mirror ingest",
+      "description": "Persist real QuickCommerce command responses and metadata into the local SQLite mirror.",
+      "rationale": "A durable local mirror makes ephemeral REST and hosted MCP results searchable and comparable later.",
+      "example": "quickcommerce-pp-cli mirror ingest --stdin --agent",
+      "why_it_matters": "Choose this when an agent wants future history, offline search, or a reproducible observation record.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale-observation report",
+      "command": "mirror stale",
+      "description": "Find saved product and ETA observations that are older than a chosen trust window.",
+      "rationale": "Manual refresh semantics and fetched timestamps let the CLI expose stale data before it is used.",
+      "example": "quickcommerce-pp-cli mirror stale --max-age 24h --agent",
+      "why_it_matters": "Choose this before making decisions from local data whose location-sensitive freshness matters.",
+      "group": "Agent-native safety"
+    },
+    {
+      "name": "Local platform/location coverage",
+      "command": "mirror coverage",
+      "description": "Report observed, missing, and stale platform coverage for a location.",
+      "rationale": "Joining capability metadata with local observations reveals gaps that supported-platforms alone cannot show.",
+      "example": "quickcommerce-pp-cli mirror coverage --location 12.9021,77.6639 --agent",
+      "why_it_matters": "Choose this when an agent needs to know whether a location has usable evidence across platforms.",
+      "group": "Decision-ready comparisons"
+    },
+    {
+      "name": "Price-per-unit value view",
+      "command": "prices value",
+      "description": "Compare price per unit from explicit pack quantities without guessing missing units.",
+      "rationale": "Local product observations retain pack-size text that can be normalized deterministically for value comparisons.",
+      "example": "quickcommerce-pp-cli prices value --query milk --location 12.9021,77.6639 --agent",
+      "why_it_matters": "Choose this when the cheapest sticker price may not be the cheapest comparable quantity.",
+      "group": "Decision-ready comparisons"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Price and availability history",
+      "command": "history prices",
+      "description": "Query local observations to see price, stock, rating, and availability movement over time.",
+      "rationale": "Repeated API responses become a local time series that the hosted MCP and REST API do not retain.",
+      "example": "quickcommerce-pp-cli history prices --item 501346 --since 30d --agent",
+      "why_it_matters": "Choose this when an agent needs to explain what changed instead of fetching only the current value.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Observation diff",
+      "command": "history diff",
+      "description": "Show the field-level changes between the latest saved observations.",
+      "rationale": "A local snapshot diff answers change questions without spending another paid API credit.",
+      "example": "quickcommerce-pp-cli history diff --item 501346 --latest 2 --agent",
+      "why_it_matters": "Choose this after ingestion when an agent needs a precise price, stock, or ETA delta.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Fastest available delivery",
+      "command": "delivery fastest",
+      "description": "Rank currently available delivery options while preserving closed or unparseable platforms.",
+      "rationale": "The CLI normalizes ETA values and combines availability semantics across live or local observations.",
+      "example": "quickcommerce-pp-cli delivery fastest --location 12.9021,77.6639 --agent",
+      "why_it_matters": "Choose this when an agent must recommend a viable fastest platform rather than list raw ETA rows.",
+      "group": "Decision-ready comparisons"
+    },
+    {
+      "name": "Credit-aware request planner",
+      "command": "requests plan",
+      "description": "Calculate fan-out credit cost and affordability before making paid platform requests.",
+      "rationale": "Free credit balance data plus per-platform pricing rules can prevent avoidable 402 failures.",
+      "example": "quickcommerce-pp-cli requests plan --platforms blinkit,zepto --operation search --agent",
+      "why_it_matters": "Choose this before an agent launches a multi-platform search or ETA fan-out.",
+      "group": "Agent-native safety"
+    },
+    {
+      "name": "Manual mirror ingestion",
+      "command": "mirror ingest",
+      "description": "Persist real QuickCommerce command responses and metadata into the local SQLite mirror.",
+      "rationale": "A durable local mirror makes ephemeral REST and hosted MCP results searchable and comparable later.",
+      "example": "quickcommerce-pp-cli mirror ingest --stdin --agent",
+      "why_it_matters": "Choose this when an agent wants future history, offline search, or a reproducible observation record.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale-observation report",
+      "command": "mirror stale",
+      "description": "Find saved product and ETA observations that are older than a chosen trust window.",
+      "rationale": "Manual refresh semantics and fetched timestamps let the CLI expose stale data before it is used.",
+      "example": "quickcommerce-pp-cli mirror stale --max-age 24h --agent",
+      "why_it_matters": "Choose this before making decisions from local data whose location-sensitive freshness matters.",
+      "group": "Agent-native safety"
+    },
+    {
+      "name": "Local platform/location coverage",
+      "command": "mirror coverage",
+      "description": "Report observed, missing, and stale platform coverage for a location.",
+      "rationale": "Joining capability metadata with local observations reveals gaps that supported-platforms alone cannot show.",
+      "example": "quickcommerce-pp-cli mirror coverage --location 12.9021,77.6639 --agent",
+      "why_it_matters": "Choose this when an agent needs to know whether a location has usable evidence across platforms.",
+      "group": "Decision-ready comparisons"
+    },
+    {
+      "name": "Price-per-unit value view",
+      "command": "prices value",
+      "description": "Compare price per unit from explicit pack quantities without guessing missing units.",
+      "rationale": "Local product observations retain pack-size text that can be normalized deterministically for value comparisons.",
+      "example": "quickcommerce-pp-cli prices value --query milk --location 12.9021,77.6639 --agent",
+      "why_it_matters": "Choose this when the cheapest sticker price may not be the cheapest comparable quantity.",
+      "group": "Decision-ready comparisons"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "QUICKCOMMERCE_API_KEY"
+  },
+  "narrative": {
+    "display_name": "QuickCommerce API",
+    "headline": "Compare live Indian product prices, stock, and delivery ETAs from the terminal, then keep the history locally.",
+    "value_prop": "QuickCommerce CLI covers the provider's REST and hosted-MCP surface while adding a local mirror for repeatable analysis. Use history, fastest delivery, credit planning, stale-data checks, and unit-price views to turn location-sensitive responses into decisions.",
+    "auth_narrative": "Set QUICKCOMMERCE_API_KEY to the API key from the QuickCommerce dashboard. The CLI sends it as X-API-Key and keeps paid calls explicit; platform discovery is available without a key.",
+    "quickstart": [
+      {
+        "command": "quickcommerce-pp-cli doctor --dry-run",
+        "comment": "Confirm the CLI configuration path without making a paid request."
+      },
+      {
+        "command": "quickcommerce-pp-cli platforms --json",
+        "comment": "See which platforms support search, item lookup, and ETA."
+      },
+      {
+        "command": "quickcommerce-pp-cli products --query milk --latitude 12.9021 --longitude 77.6639 --platform BlinkIt --dry-run",
+        "comment": "Preview a location-aware product search request."
+      },
+      {
+        "command": "quickcommerce-pp-cli comparison --query milk --platforms BlinkIt,Zepto --latitude 12.9021 --longitude 77.6639 --dry-run",
+        "comment": "Preview a cross-platform comparison before spending credits."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 invalid or missing API key",
+        "fix": "Export QUICKCOMMERCE_API_KEY and rerun quickcommerce-pp-cli doctor --json."
+      },
+      {
+        "symptom": "402 no credits remaining",
+        "fix": "Run quickcommerce-pp-cli account --json, then reduce the platform list or add credits."
+      },
+      {
+        "symptom": "422 invalid platform or location parameters",
+        "fix": "Run quickcommerce-pp-cli platforms --json and use a supported platform with decimal latitude/longitude."
+      },
+      {
+        "symptom": "DMart, JioMart, or Minutes returns location errors",
+        "fix": "Add --pincode with the six-digit delivery pincode."
+      },
+      {
+        "symptom": "Local results may be stale",
+        "fix": "Run quickcommerce-pp-cli mirror stale --max-age 24h --json before relying on the mirror."
+      }
+    ],
+    "when_to_use": "Use this CLI for location-aware product search, price and stock comparisons, delivery ETA decisions, and repeatable local analysis across Indian commerce platforms. It is especially useful when an agent needs bounded JSON, credit-aware fan-out, and historical context instead of one ephemeral API response.",
+    "anti_triggers": [
+      "Do not use this CLI to place orders, manage carts, or perform checkout; the API exposes read-only product and delivery data.",
+      "Do not use the local mirror as proof of current availability without checking its age; refresh paid observations deliberately.",
+      "Do not use this CLI for platforms or locations outside the documented QuickCommerce API coverage."
+    ],
+    "recipes": [
+      {
+        "title": "Compare milk prices",
+        "command": "quickcommerce-pp-cli comparison --query milk --platforms BlinkIt,Zepto,Swiggy --latitude 12.9021 --longitude 77.6639 --agent --select results",
+        "explanation": "Ask for only the cross-platform result map instead of the full response envelope."
+      },
+      {
+        "title": "Plan a paid fan-out",
+        "command": "quickcommerce-pp-cli requests plan --platforms blinkit,zepto,swiggy --operation search --json",
+        "explanation": "Check the expected credit cost before making a multi-platform search."
+      },
+      {
+        "title": "Rank delivery speed",
+        "command": "quickcommerce-pp-cli delivery fastest --location 12.9021,77.6639 --agent",
+        "explanation": "Rank viable open platforms while retaining unavailable rows for explanation."
+      },
+      {
+        "title": "Find stale observations",
+        "command": "quickcommerce-pp-cli mirror stale --max-age 24h --json",
+        "explanation": "Detect local data that needs a deliberate refresh."
+      },
+      {
+        "title": "Inspect an item trend",
+        "command": "quickcommerce-pp-cli history prices --item 501346 --since 30d --agent",
+        "explanation": "Review saved price, inventory, and availability movement for one item. "
+      }
+    ],
+    "trigger_phrases": [
+      "compare milk prices across BlinkIt and Zepto",
+      "find the fastest delivery near Bangalore",
+      "check QuickCommerce API credits",
+      "show price history for item 501346",
+      "use QuickCommerce API",
+      "run QuickCommerce CLI"
+    ]
+  }
+}

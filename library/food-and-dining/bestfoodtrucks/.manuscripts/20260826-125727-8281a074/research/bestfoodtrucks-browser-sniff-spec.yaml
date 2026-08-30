@@ -1,0 +1,239 @@
+name: bestfoodtrucks
+description: Discovered API spec for bestfoodtrucks
+version: 0.1.0
+base_url: https://api.bestfoodtrucks.com
+spec_source: sniffed
+http_transport: browser-chrome-h3
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "query" from body: search input'
+config:
+    format: toml
+    path: ~/.config/bestfoodtrucks-pp-cli/config.toml
+resources:
+    checkouts:
+        description: GraphQL BFF operations for checkouts
+        endpoints:
+            cart:
+                method: POST
+                path: /graphql
+                description: Fetch checkouts cart
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: CheckoutCartQuery
+                      description: GraphQL operation name
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default: {}
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        persistedQuery:
+                            sha256Hash: 719a1e3e0f6a41dac83c387ee9b69602e52448a520c8b68cf5823aa76bef248a
+                            version: 1
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: object
+                    item: checkout_cart_query
+                pagination: null
+            get:
+                method: POST
+                path: /graphql
+                description: Fetch checkouts
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: CheckoutMobileQuery
+                      description: GraphQL operation name
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default: {}
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        persistedQuery:
+                            sha256Hash: 91da53aaa1a7824954478c4db67d1f7c7b189dc8f70b2f982ea914a37755e12f
+                            version: 1
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: object
+                    item: checkout_mobile_query
+                pagination: null
+    currents:
+        description: GraphQL BFF operations for currents
+        endpoints:
+            cart:
+                method: POST
+                path: /graphql
+                description: Fetch currents cart
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: CurrentCartQuery
+                      description: GraphQL operation name
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default: {}
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        persistedQuery:
+                            sha256Hash: 3c6da4215a5ee8c02fccea7fc0b51e363c52122c4aedf3636b57fedeeb2d878d
+                            version: 1
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: object
+                    item: current_cart_query
+                pagination: null
+            customer:
+                method: POST
+                path: /graphql
+                description: Fetch currents customer
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: CurrentCustomerQuery
+                      description: GraphQL operation name
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default: {}
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        persistedQuery:
+                            sha256Hash: f00608e57fb93e2cb72e0f630d1820ef3ddf35ccc2d7d074a3b29eec97119937
+                            version: 1
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: object
+                    item: current_customer_query
+                pagination: null
+    graphql:
+        description: Operations on graphql
+        endpoints:
+            options_graphql:
+                method: OPTIONS
+                path: /graphql
+                description: OPTIONS /graphql
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: graphql
+                pagination: null
+    lots:
+        description: GraphQL BFF operations for lots
+        endpoints:
+            action:
+                method: POST
+                path: /graphql
+                description: Fetch lots action
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: LotActionSubscription
+                      description: GraphQL operation name
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        lotId: 4702
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        persistedQuery:
+                            sha256Hash: 24ed0972e24cc1e2d0631172812cd962da1b652576649f923f24395d7aacb3fb
+                            version: 1
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: object
+                    item: lot_action_subscription
+                pagination: null
+    track-referrer.json:
+        description: Operations on track-referrer.json
+        endpoints:
+            create_track_referrer.json:
+                method: POST
+                path: /track-referrer.json
+                description: POST /track-referrer.json
+                params: []
+                body:
+                    - name: web_tracking
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: navigation
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: track_referrer.json
+                pagination: null
+types: {}

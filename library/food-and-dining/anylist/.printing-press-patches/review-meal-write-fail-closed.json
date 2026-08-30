@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "review-meal-write-fail-closed",
+  "applied_at": "2026-08-16",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Fail closed for meal-calendar writes that acknowledge HTTP success without read-back persistence.",
+  "reason": "A disposable marker probe sent the typed candidate new-event operation to /data/meal-planning-calendar/update and received HTTP 200, but a fresh user-data read omitted the event. The cleanup delete-event operation also returned HTTP 200 and the marker remained absent. Until a complete create/update/delete round-trip is verified, meal add and delete must not perform live mutations or report success; dry-run previews remain available.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "tools-manifest.json",
+    "internal/mcp/code_orch_data.go",
+    "internal/cli/meal_add.go",
+    "internal/cli/meal_delete.go",
+    "internal/cli/meal_write_safety_test.go"
+  ],
+  "validated_outcome": "Non-dry-run meal add/delete now return explicit unsupported read-after-write-verification errors before any request. Focused tests cover both fail-closed paths and preserve JSON dry-run previews for both commands. The disposable marker event was absent on fresh read-back after the acknowledged create and after cleanup; no production meal data was changed.",
+  "findings_addressed": [
+    "meal-write-http-200-without-persistence",
+    "meal-add-fail-closed",
+    "meal-delete-fail-closed",
+    "meal-dry-run-preserved"
+  ]
+}

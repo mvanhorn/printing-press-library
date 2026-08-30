@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "catapult-openfield-connect-import-readonly",
+  "applied_at": "2026-08-06",
+  "base_run_id": "20260805-211628-9cef41ba",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Emptied resourceWritePaths so 'import stats' fails honestly instead of POSTing records at the /stats QUERY endpoint and reporting phantom imports.",
+  "reason": "Greptile P1 on publish PR #1667: the generator classified the spec's only POST endpoint (a query engine) as a writable import target. The whole API is read-only. Generator retro candidate: POST-with-response-array query endpoints should not enter resourceWritePaths.",
+  "files": ["internal/cli/resource_paths.go"],
+  "validated_outcome": "import stats --input x.jsonl now exits 2 with 'unknown writable resource'; go build and tests pass.",
+  "upstream_issue": null
+}

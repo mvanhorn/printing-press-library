@@ -1,0 +1,51 @@
+version: 2
+project_name: scryfall-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: scryfall-pp-cli
+    main: ./cmd/scryfall-pp-cli
+    binary: scryfall-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: scryfall-pp-mcp
+    main: ./cmd/scryfall-pp-mcp
+    binary: scryfall-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: scryfall-pp-cli
+    repository:
+      owner: mvanhorn
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/scryfall-pp-cli"
+    description: "Printing Press CLI for Scryfall."
+    install: |
+      bin.install "scryfall-pp-cli"
+      bin.install "scryfall-pp-mcp"

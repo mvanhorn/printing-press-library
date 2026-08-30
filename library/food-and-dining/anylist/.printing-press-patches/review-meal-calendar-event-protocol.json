@@ -1,0 +1,34 @@
+{
+  "schema_version": 2,
+  "id": "review-meal-calendar-event-protocol",
+  "applied_at": "2026-08-16",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Add typed meal-calendar event CRUD with explicit apply gating and read-after-write verification.",
+  "reason": "The captured AnyList browser client identifies /data/meal-planning-calendar/update, a multipart PBCalendarOperationList in the plural operations form field, and new-event, update-event, and delete-event handlers. The protobuf carries updatedEvent for all three operations. The CLI previews by default and requires --apply; live paths resolve the calendar ID and recipe/label names from fresh user data, verify event content or deletion, and sync the local cache only after verification.",
+  "files": [
+    "internal/anylist/client.go",
+    "internal/anylist/calendar_test.go",
+    "internal/cli/meal.go",
+    "internal/cli/meal_add.go",
+    "internal/cli/meal_delete.go",
+    "internal/cli/meal_calendar.go",
+    "internal/cli/meal_calendar_preview.go",
+    "internal/cli/meal_update.go",
+    "internal/cli/meal_calendar_test.go",
+    "internal/cli/meal_write_safety_test.go",
+    "README.md",
+    "SKILL.md",
+    "tools-manifest.json",
+    "internal/mcp/code_orch_data.go"
+  ],
+  "validated_outcome": "Typed client helpers serialize create, update, and delete calendar events with the verified handler IDs, calendar ID, updatedEvent, optional originalEvent, and multipart operations form field. The CLI previews by default, requires --apply for writes, resolves IDs from fresh data, verifies create/update content or delete absence, and syncs cache only after verification. Focused AnyList and CLI tests passed. No live AnyList writes were performed.",
+  "findings_addressed": [
+    "calendar-typed-operation-shape",
+    "calendar-event-create-helper",
+    "calendar-event-update-helper",
+    "calendar-event-delete-helper",
+    "calendar-update-preview",
+    "calendar-write-fail-closed"
+  ]
+}

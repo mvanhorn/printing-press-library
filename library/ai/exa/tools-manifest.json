@@ -1,0 +1,2095 @@
+{
+  "api_name": "exa",
+  "base_url": "https://api.exa.ai",
+  "description": "Every Exa search API feature, plus local history, spend tracking, and diffing no other Exa tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "EXA_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "EXA_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "agent_cancel-run",
+      "description": "Cancel a queued or running Agent run. If the run has already reached a terminal status, the API returns the existing run. Required: id.",
+      "method": "POST",
+      "path": "/agent/runs/{id}/cancel",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Agent run ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agent_create-run",
+      "description": "Create an asynchronous Agent run. By default, the API returns the run object immediately. Set `Accept: text/event-stream` to stream run lifecycle events until the run reaches a terminal status. Required: query. Optional: Accept, Exa-Beta, budget (plus 7 more).",
+      "method": "POST",
+      "path": "/agent/runs",
+      "params": [
+        {
+          "name": "Accept",
+          "type": "string",
+          "location": "query",
+          "description": "Set to `text/event-stream` to receive server-sent events."
+        },
+        {
+          "name": "Exa-Beta",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated beta feature tokens for opting into experimental features."
+        },
+        {
+          "name": "budget-max-cost-dollars",
+          "wire_name": "budget.maxCostDollars",
+          "type": "float",
+          "location": "body",
+          "description": "Maximum amount this run can spend in US dollars. Accepts $1–$100 and applies only to `auto` and `max`; when omitted, the default cap is $5 for `auto` and $20 for `max`."
+        },
+        {
+          "name": "dataSources",
+          "type": "array",
+          "location": "body",
+          "description": "Exa Connect data providers to enable for the run. Each entry enables all of that provider's tools."
+        },
+        {
+          "name": "effort",
+          "type": "string",
+          "location": "body",
+          "description": "Cost and reasoning effort preference for the run. `auto` lets Exa choose the appropriate effort. `max` is the highest-effort public beta tier for work where completeness and thoroughness matter more than latency or cost, including large list building, deep multi-source research, and criteria that are hard to verify."
+        },
+        {
+          "name": "input-data",
+          "wire_name": "input.data",
+          "type": "array",
+          "location": "body",
+          "description": "Records the agent should process or enrich."
+        },
+        {
+          "name": "input-exclusion",
+          "wire_name": "input.exclusion",
+          "type": "array",
+          "location": "body",
+          "description": "Records or entities the agent should avoid returning."
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Caller-provided metadata stored with the run."
+        },
+        {
+          "name": "outputSchema",
+          "type": "string",
+          "location": "body",
+          "description": "Output schema"
+        },
+        {
+          "name": "previousRunId",
+          "type": "string",
+          "location": "body",
+          "description": "Completed run ID to continue from. Must belong to the same team."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Natural-language question or instructions for the request.",
+          "required": true
+        },
+        {
+          "name": "systemPrompt",
+          "type": "string",
+          "location": "body",
+          "description": "Additional instructions that guide generated output or agent behavior. Use this for source preferences, novelty constraints, duplication constraints, or other behavior guidance."
+        }
+      ]
+    },
+    {
+      "name": "agent_delete-run",
+      "description": "Delete a stored Agent run. Required: id. Returns the DeleteAgentRunResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/agent/runs/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Agent run ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agent_get-run",
+      "description": "Retrieve a single Agent run by ID. Required: id. Returns the AgentRun.",
+      "method": "GET",
+      "path": "/agent/runs/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Agent run ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agent_list-run-events",
+      "description": "List stored events for an Agent run. Set `Accept: text/event-stream` to replay stored events as server-sent events. Use `cursor` for JSON pagination or `Last-Event-ID` for SSE replay. Required: id. Optional: limit (default: 20), cursor, Accept (plus 1 more). Returns array of AgentRunEvent.",
+      "method": "GET",
+      "path": "/agent/runs/{id}/events",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Agent run ID.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        },
+        {
+          "name": "Accept",
+          "type": "string",
+          "location": "query",
+          "description": "Set to `text/event-stream` to receive server-sent events."
+        },
+        {
+          "name": "Last-Event-ID",
+          "type": "string",
+          "location": "query",
+          "description": "For SSE replay, return only events after this event ID."
+        }
+      ]
+    },
+    {
+      "name": "agent_list-runs",
+      "description": "List Agent runs for your team, ordered from newest to oldest. Optional: limit (default: 20), cursor. Returns array of AgentRun.",
+      "method": "GET",
+      "path": "/agent/runs",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        }
+      ]
+    },
+    {
+      "name": "answer_answer",
+      "description": "Performs a search based on the query and generates either a direct answer or a detailed summary with citations, depending on the query type. Required: query. Optional: outputSchema, stream (default: false), text (default: false). Returns array of AnswerAnswerItem.",
+      "method": "POST",
+      "path": "/answer",
+      "params": [
+        {
+          "name": "output-schema-additional-properties",
+          "wire_name": "outputSchema.additionalProperties",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to allow properties not listed in `properties`."
+        },
+        {
+          "name": "output-schema-description",
+          "wire_name": "outputSchema.description",
+          "type": "string",
+          "location": "body",
+          "description": "A description of the schema."
+        },
+        {
+          "name": "output-schema-properties",
+          "wire_name": "outputSchema.properties",
+          "type": "object",
+          "location": "body",
+          "description": "An object where each key is a property name and each value is a JSON Schema describing that property (with `type`, `description`, etc)."
+        },
+        {
+          "name": "output-schema-required",
+          "wire_name": "outputSchema.required",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "List of required property names."
+        },
+        {
+          "name": "output-schema-type",
+          "wire_name": "outputSchema.type",
+          "type": "string",
+          "location": "body",
+          "description": "The root schema type (typically 'object')."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Natural-language question or instructions for the request.",
+          "required": true
+        },
+        {
+          "name": "stream",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, the response is returned as a server-sent events (SSE) stream."
+        },
+        {
+          "name": "text",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, returns full page text with default settings. If false, disables text return."
+        }
+      ]
+    },
+    {
+      "name": "contents_get",
+      "description": "Contents. Returns the new ContentsResponse.",
+      "method": "POST",
+      "path": "/contents",
+      "params": []
+    },
+    {
+      "name": "events_get",
+      "description": "Get a single Event by id. You can subscribe to Events by creating a Webhook. Required: id.",
+      "method": "GET",
+      "path": "/v0/events/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the event",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_list",
+      "description": "List all events that have occurred in the system. You can paginate through the results using the `cursor` parameter. Optional: cursor, limit (default: 25), types (plus 2 more). Returns array of Event.",
+      "method": "GET",
+      "path": "/v0/events",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The cursor to paginate through the results"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results to return"
+        },
+        {
+          "name": "types",
+          "type": "array",
+          "location": "query",
+          "description": "The types of events to filter by"
+        },
+        {
+          "name": "createdBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events created before or at this timestamp (inclusive). Must be a valid ISO 8601 datetime string. All times are in UTC."
+        },
+        {
+          "name": "createdAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events created after or at this timestamp (inclusive). Must be a valid ISO 8601 datetime string. All times are in UTC."
+        }
+      ]
+    },
+    {
+      "name": "find-similar_find_similar",
+      "description": "Find links similar to the provided URL and optionally retrieve their contents. Deprecated: prefer `/search` with a query describing the source. Required: url. Optional: category, contents, endCrawlDate (plus 7 more). Returns array of SearchResultOutput.",
+      "method": "POST",
+      "path": "/findSimilar",
+      "params": [
+        {
+          "name": "category",
+          "type": "string",
+          "location": "body",
+          "description": "Category"
+        },
+        {
+          "name": "contents",
+          "type": "string",
+          "location": "body",
+          "description": "Contents"
+        },
+        {
+          "name": "endCrawlDate",
+          "type": "string",
+          "location": "body",
+          "description": "End crawl date"
+        },
+        {
+          "name": "endPublishedDate",
+          "type": "string",
+          "location": "body",
+          "description": "End published date"
+        },
+        {
+          "name": "excludeDomains",
+          "type": "string",
+          "location": "body",
+          "description": "Exclude domains"
+        },
+        {
+          "name": "excludeSourceDomain",
+          "type": "string",
+          "location": "body",
+          "description": "Exclude source domain"
+        },
+        {
+          "name": "includeDomains",
+          "type": "string",
+          "location": "body",
+          "description": "Include domains"
+        },
+        {
+          "name": "numResults",
+          "type": "string",
+          "location": "body",
+          "description": "Num results"
+        },
+        {
+          "name": "startCrawlDate",
+          "type": "string",
+          "location": "body",
+          "description": "Start crawl date"
+        },
+        {
+          "name": "startPublishedDate",
+          "type": "string",
+          "location": "body",
+          "description": "Start published date"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The url for which you would like to find similar links.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "imports_create",
+      "description": "Creates a new import to upload your data into Websets. Imports can be used to: - **Enrich**: Enhance your data with additional information using our AI-powered enrichment engine - **Search**: Query your data using Websets' agentic search with natural language filters - **Exclude**: Prevent duplicate or already known results from appearing in your searches Once the import is created, you can upload your data to the returned `uploadUrl` until `uploadValidUntil` (by default 1 hour). Returns the new CreateImportResponse.",
+      "method": "POST",
+      "path": "/v0/imports",
+      "params": []
+    },
+    {
+      "name": "imports_delete",
+      "description": "Deletes a import. Required: id. Returns the Import. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/imports/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the Import",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "imports_get",
+      "description": "Gets a specific import. Required: id. Returns the Import.",
+      "method": "GET",
+      "path": "/v0/imports/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the Import",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "imports_list",
+      "description": "Lists all imports for the Webset. Optional: cursor, limit (default: 25). Returns array of Import.",
+      "method": "GET",
+      "path": "/v0/imports",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The cursor to paginate through the results"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results to return"
+        }
+      ]
+    },
+    {
+      "name": "imports_update",
+      "description": "Updates a import configuration. Required: id. Optional: metadata, title. Returns the updated Import.",
+      "method": "PATCH",
+      "path": "/v0/imports/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the Import",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Metadata"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "monitors_batch",
+      "description": "Perform a batch action on monitors matching the provided filters. Supported actions: - **delete**: Permanently remove matching monitors - **pause**: Pause matching monitors - **unpause**: Unpause matching monitors Use `dry_run: true` (the default) to preview which monitors would be affected before performing the action. Results are paginated via the `limit` parameter; loop until `has_more` is `false` to process all matching monitors. Required: action, filter. Optional: dry_run (default: true), limit (default: 50). Returns array of string.",
+      "method": "POST",
+      "path": "/monitors/batch",
+      "params": [
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "The action to perform on matching monitors. `delete` permanently removes them, `pause` sets their status to paused, and `unpause` sets their status to active.",
+          "required": true
+        },
+        {
+          "name": "dry_run",
+          "type": "bool",
+          "location": "body",
+          "description": "When `true`, returns the monitors that would be affected without performing the action. Defaults to `true`."
+        },
+        {
+          "name": "filter-metadata",
+          "wire_name": "filter.metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Filter by metadata key-value pairs (exact match, AND semantics)"
+        },
+        {
+          "name": "filter-name",
+          "wire_name": "filter.name",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by name (case-insensitive substring match)"
+        },
+        {
+          "name": "filter-status",
+          "wire_name": "filter.status",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by monitor status"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of monitors to process in a single request. Defaults to 50, maximum 500."
+        }
+      ]
+    },
+    {
+      "name": "monitors_create",
+      "description": "Creates a new Monitor to run recurring Exa searches on a schedule. Monitors automatically execute your search query on a recurring schedule and deliver results to your webhook endpoint with automatic deduplication: - **Date-based filtering** only fetches content since the last run - **Semantic deduplication** tracks previous outputs to surface only new developments The response includes a `webhookSecret` that is only returned once at creation time. Store it securely for webhook signature verification. Required: search, webhook. Optional: metadata, name, outputSchema (plus 1 more). Returns the new CreateSearchMonitorResponse.",
+      "method": "POST",
+      "path": "/monitors",
+      "params": [
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Optional key-value metadata. Echoed back in webhook deliveries so you can route updates to systems like Slack."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "An optional name for the monitor"
+        },
+        {
+          "name": "outputSchema",
+          "type": "string",
+          "location": "body",
+          "description": "Controls the format of the run output. Defaults to `{ 'type': 'text' }` if not specified. When `type` is `'text'`, the output is a plain text summary. When `type` is `'object'`, the output is structured JSON. If no `properties` are specified with `'object'` type, a schema is inferred automatically; otherwise the output adheres to the provided schema."
+        },
+        {
+          "name": "search-contents-context",
+          "wire_name": "search.contents.context",
+          "type": "string",
+          "location": "body",
+          "description": "Deprecated: Use highlights or text instead. Returns page contents as a combined context string."
+        },
+        {
+          "name": "search-contents-filter-empty-results",
+          "wire_name": "search.contents.filterEmptyResults",
+          "type": "bool",
+          "location": "body",
+          "description": "Filter out results with no content"
+        },
+        {
+          "name": "search-contents-highlights",
+          "wire_name": "search.contents.highlights",
+          "type": "string",
+          "location": "body",
+          "description": "Text snippets the LLM identifies as most relevant from each page."
+        },
+        {
+          "name": "search-contents-livecrawl",
+          "wire_name": "search.contents.livecrawl",
+          "type": "string",
+          "location": "body",
+          "description": "Crawl strategy for fetching page content"
+        },
+        {
+          "name": "search-contents-livecrawl-timeout",
+          "wire_name": "search.contents.livecrawlTimeout",
+          "type": "int",
+          "location": "body",
+          "description": "The timeout for livecrawling in milliseconds."
+        },
+        {
+          "name": "search-contents-max-age-hours",
+          "wire_name": "search.contents.maxAgeHours",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum age of cached content in hours. Positive values use cached content if it is less than this many hours old; 0 fetches fresh content and is the supported way to apply text rendering options to newly fetched pages; -1 always uses cache; omitted uses fallback fetching when cached content is unavailable. Maximum supported value is 720 hours."
+        },
+        {
+          "name": "search-contents-subpage-target",
+          "wire_name": "search.contents.subpageTarget",
+          "type": "string",
+          "location": "body",
+          "description": "Term to find specific subpages of search results. Can be a single string or an array of strings."
+        },
+        {
+          "name": "search-contents-subpages",
+          "wire_name": "search.contents.subpages",
+          "type": "int",
+          "location": "body",
+          "description": "The number of subpages to crawl. The actual number crawled may be limited by system constraints."
+        },
+        {
+          "name": "search-contents-summary",
+          "wire_name": "search.contents.summary",
+          "type": "string",
+          "location": "body",
+          "description": "Return an LLM-generated summary. Pass `true` for defaults, or an object with `query` and `maxTokens`."
+        },
+        {
+          "name": "search-contents-text",
+          "wire_name": "search.contents.text",
+          "type": "string",
+          "location": "body",
+          "description": "Text extraction options for each result."
+        },
+        {
+          "name": "search-num-results",
+          "wire_name": "search.numResults",
+          "type": "int",
+          "location": "body",
+          "description": "Number of results to return. Limits vary by search type. The maximum public limit is 100 results. Contact sales (hello@exa.ai) to discuss higher limits."
+        },
+        {
+          "name": "search-query",
+          "wire_name": "search.query",
+          "type": "string",
+          "location": "body",
+          "description": "The query string for the search.",
+          "required": true
+        },
+        {
+          "name": "trigger-period",
+          "wire_name": "trigger.period",
+          "type": "string",
+          "location": "body",
+          "description": "A duration string specifying how often the monitor runs (e.g., '1h', '6h', '1d', '7d'). Single-unit only. Minimum interval is 1 hour. The schedule is anchored to the monitor's creation time (e.g., a daily monitor created at 2:30 PM runs daily around 2:30 PM).",
+          "required": true
+        },
+        {
+          "name": "trigger-type",
+          "wire_name": "trigger.type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of trigger. Currently only `interval` is supported.",
+          "required": true
+        },
+        {
+          "name": "webhook-events",
+          "wire_name": "webhook.events",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Which events to subscribe to. Defaults to all events if not specified."
+        },
+        {
+          "name": "webhook-url",
+          "wire_name": "webhook.url",
+          "type": "string",
+          "location": "body",
+          "description": "The HTTPS URL to receive webhook events. Must not point to localhost or private IP ranges.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "monitors_create-endpoint",
+      "description": "Creates a new `Monitor` to continuously keep your Websets updated with fresh data. Monitors automatically run on your defined schedule to ensure your Websets stay current without manual intervention: - **Find new content**: Execute `search` operations to discover fresh items matching your criteria - **Update existing content**: Run `refresh` operations to update items contents and enrichments - **Automated scheduling**: Configure `cron` expressions and `timezone` for precise scheduling control. Required: behavior, cadence, websetId. Optional: metadata. Returns the new Monitor.",
+      "method": "POST",
+      "path": "/v0/monitors",
+      "params": [
+        {
+          "name": "behavior-config-behavior",
+          "wire_name": "behavior.config.behavior",
+          "type": "string",
+          "location": "body",
+          "description": "The behaviour of the Search when it is added to a Webset."
+        },
+        {
+          "name": "behavior-config-count",
+          "wire_name": "behavior.config.count",
+          "type": "float",
+          "location": "body",
+          "description": "The maximum number of results to find",
+          "required": true
+        },
+        {
+          "name": "behavior-config-criteria",
+          "wire_name": "behavior.config.criteria",
+          "type": "array",
+          "location": "body",
+          "description": "The criteria to search for. By default, the criteria from the last search is used."
+        },
+        {
+          "name": "behavior-config-entity",
+          "wire_name": "behavior.config.entity",
+          "type": "string",
+          "location": "body",
+          "description": "The entity to search for. By default, the entity from the last search/import is used."
+        },
+        {
+          "name": "behavior-config-query",
+          "wire_name": "behavior.config.query",
+          "type": "string",
+          "location": "body",
+          "description": "The query to search for. By default, the query from the last search is used."
+        },
+        {
+          "name": "behavior-type",
+          "wire_name": "behavior.type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "cadence-cron",
+          "wire_name": "cadence.cron",
+          "type": "string",
+          "location": "body",
+          "description": "Cron expression for monitor cadence (must be a valid Unix cron with 5 fields). The schedule must trigger at most once per day.",
+          "required": true
+        },
+        {
+          "name": "cadence-timezone",
+          "wire_name": "cadence.timezone",
+          "type": "string",
+          "location": "body",
+          "description": "IANA timezone (e.g., 'America/New_York')"
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Metadata"
+        },
+        {
+          "name": "websetId",
+          "type": "string",
+          "location": "body",
+          "description": "The id of the Webset",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "monitors_delete",
+      "description": "Deletes a monitor. This cannot be undone. Required: id. Returns the SearchMonitor. Destructive.",
+      "method": "DELETE",
+      "path": "/monitors/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The monitor ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "monitors_delete-id",
+      "description": "Deletes a monitor. Required: id. Returns the Monitor. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/monitors/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the Monitor",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "monitors_get",
+      "description": "Retrieves a single monitor by its ID. Required: id. Returns the SearchMonitor.",
+      "method": "GET",
+      "path": "/monitors/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The monitor ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "monitors_get-id",
+      "description": "Gets a specific monitor. Required: id. Returns the Monitor.",
+      "method": "GET",
+      "path": "/v0/monitors/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the Monitor",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "monitors_list",
+      "description": "Lists all monitors for the authenticated team. Supports filtering by status and cursor-based pagination. Optional: status, cursor, limit (default: 50) (plus 2 more). Returns array of SearchMonitor.",
+      "method": "GET",
+      "path": "/monitors",
+      "params": [
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Name"
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "query",
+          "description": "Filter monitors by metadata key-value pairs (exact match, AND semantics). Use bracket notation: `metadata[key]=value`."
+        }
+      ]
+    },
+    {
+      "name": "monitors_list-endpoint",
+      "description": "Lists all monitors for the Webset. Optional: cursor, limit (default: 25), websetId. Returns array of Monitor.",
+      "method": "GET",
+      "path": "/v0/monitors",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The cursor to paginate through the results"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results to return"
+        },
+        {
+          "name": "websetId",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the Webset to list monitors for"
+        }
+      ]
+    },
+    {
+      "name": "monitors_update",
+      "description": "Updates an existing monitor. All fields are optional. For `search`, you can send a partial object containing only the fields you want to change. Set `trigger` to `null` to remove the schedule. Required: id. Optional: metadata, name, outputSchema (plus 4 more). Returns the updated SearchMonitor.",
+      "method": "PATCH",
+      "path": "/monitors/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The monitor ID",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "type": "string",
+          "location": "body",
+          "description": "Update metadata. Set to null to remove. Echoed back in webhook deliveries so you can route updates to systems like Slack."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Update the monitor name"
+        },
+        {
+          "name": "outputSchema",
+          "type": "string",
+          "location": "body",
+          "description": "Controls the format of the run output. Defaults to `{ 'type': 'text' }` if not specified. When `type` is `'text'`, the output is a plain text summary. When `type` is `'object'`, the output is structured JSON. If no `properties` are specified with `'object'` type, a schema is inferred automatically; otherwise the output adheres to the provided schema."
+        },
+        {
+          "name": "search-contents-context",
+          "wire_name": "search.contents.context",
+          "type": "string",
+          "location": "body",
+          "description": "Deprecated: Use highlights or text instead. Returns page contents as a combined context string."
+        },
+        {
+          "name": "search-contents-filter-empty-results",
+          "wire_name": "search.contents.filterEmptyResults",
+          "type": "bool",
+          "location": "body",
+          "description": "Filter out results with no content"
+        },
+        {
+          "name": "search-contents-highlights",
+          "wire_name": "search.contents.highlights",
+          "type": "string",
+          "location": "body",
+          "description": "Text snippets the LLM identifies as most relevant from each page."
+        },
+        {
+          "name": "search-contents-livecrawl",
+          "wire_name": "search.contents.livecrawl",
+          "type": "string",
+          "location": "body",
+          "description": "Crawl strategy for fetching page content"
+        },
+        {
+          "name": "search-contents-livecrawl-timeout",
+          "wire_name": "search.contents.livecrawlTimeout",
+          "type": "int",
+          "location": "body",
+          "description": "The timeout for livecrawling in milliseconds."
+        },
+        {
+          "name": "search-contents-max-age-hours",
+          "wire_name": "search.contents.maxAgeHours",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum age of cached content in hours. Positive values use cached content if it is less than this many hours old; 0 fetches fresh content and is the supported way to apply text rendering options to newly fetched pages; -1 always uses cache; omitted uses fallback fetching when cached content is unavailable. Maximum supported value is 720 hours."
+        },
+        {
+          "name": "search-contents-subpage-target",
+          "wire_name": "search.contents.subpageTarget",
+          "type": "string",
+          "location": "body",
+          "description": "Term to find specific subpages of search results. Can be a single string or an array of strings."
+        },
+        {
+          "name": "search-contents-subpages",
+          "wire_name": "search.contents.subpages",
+          "type": "int",
+          "location": "body",
+          "description": "The number of subpages to crawl. The actual number crawled may be limited by system constraints."
+        },
+        {
+          "name": "search-contents-summary",
+          "wire_name": "search.contents.summary",
+          "type": "string",
+          "location": "body",
+          "description": "Return an LLM-generated summary. Pass `true` for defaults, or an object with `query` and `maxTokens`."
+        },
+        {
+          "name": "search-contents-text",
+          "wire_name": "search.contents.text",
+          "type": "string",
+          "location": "body",
+          "description": "Text extraction options for each result."
+        },
+        {
+          "name": "search-num-results",
+          "wire_name": "search.numResults",
+          "type": "int",
+          "location": "body",
+          "description": "Number of results to return. Limits vary by search type. The maximum public limit is 100 results. Contact sales (hello@exa.ai) to discuss higher limits."
+        },
+        {
+          "name": "search-query",
+          "wire_name": "search.query",
+          "type": "string",
+          "location": "body",
+          "description": "The query string for the search."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Update the monitor status (can only set to `active` or `paused`)"
+        },
+        {
+          "name": "trigger",
+          "type": "string",
+          "location": "body",
+          "description": "Update the schedule. Set to null to remove the schedule."
+        },
+        {
+          "name": "webhook-events",
+          "wire_name": "webhook.events",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Which events to subscribe to. Defaults to all events if not specified."
+        },
+        {
+          "name": "webhook-url",
+          "wire_name": "webhook.url",
+          "type": "string",
+          "location": "body",
+          "description": "The HTTPS URL to receive webhook events. Must not point to localhost or private IP ranges."
+        }
+      ]
+    },
+    {
+      "name": "monitors_update-id",
+      "description": "Updates a monitor configuration. Required: id. Optional: behavior, cadence, metadata (plus 1 more). Returns the updated Monitor.",
+      "method": "PATCH",
+      "path": "/v0/monitors/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the Monitor",
+          "required": true
+        },
+        {
+          "name": "behavior-config-behavior",
+          "wire_name": "behavior.config.behavior",
+          "type": "string",
+          "location": "body",
+          "description": "The behaviour of the Search when it is added to a Webset."
+        },
+        {
+          "name": "behavior-config-count",
+          "wire_name": "behavior.config.count",
+          "type": "float",
+          "location": "body",
+          "description": "The maximum number of results to find",
+          "required": true
+        },
+        {
+          "name": "behavior-config-criteria",
+          "wire_name": "behavior.config.criteria",
+          "type": "array",
+          "location": "body",
+          "description": "The criteria to search for. By default, the criteria from the last search is used."
+        },
+        {
+          "name": "behavior-config-entity",
+          "wire_name": "behavior.config.entity",
+          "type": "string",
+          "location": "body",
+          "description": "The entity to search for. By default, the entity from the last search/import is used."
+        },
+        {
+          "name": "behavior-config-query",
+          "wire_name": "behavior.config.query",
+          "type": "string",
+          "location": "body",
+          "description": "The query to search for. By default, the query from the last search is used."
+        },
+        {
+          "name": "behavior-type",
+          "wire_name": "behavior.type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "cadence-cron",
+          "wire_name": "cadence.cron",
+          "type": "string",
+          "location": "body",
+          "description": "Cron expression for monitor cadence (must be a valid Unix cron with 5 fields). The schedule must trigger at most once per day.",
+          "required": true
+        },
+        {
+          "name": "cadence-timezone",
+          "wire_name": "cadence.timezone",
+          "type": "string",
+          "location": "body",
+          "description": "IANA timezone (e.g., 'America/New_York')"
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Metadata"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "The status of the monitor."
+        }
+      ]
+    },
+    {
+      "name": "monitors_runs_get",
+      "description": "Retrieves a single run by its ID, including the full output if the run is completed. Required: id, runId. Returns the SearchMonitorRun.",
+      "method": "GET",
+      "path": "/monitors/{id}/runs/{runId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The monitor ID",
+          "required": true
+        },
+        {
+          "name": "runId",
+          "type": "string",
+          "location": "path",
+          "description": "The run ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "monitors_runs_list",
+      "description": "Lists all runs for a monitor with cursor-based pagination. Runs are returned in reverse chronological order. Required: id. Optional: cursor, limit (default: 50). Returns array of SearchMonitorRun.",
+      "method": "GET",
+      "path": "/monitors/{id}/runs",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The monitor ID",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "monitors_runs_monitors-get",
+      "description": "Gets a specific monitor run. Required: monitor, id. Returns the MonitorRun.",
+      "method": "GET",
+      "path": "/v0/monitors/{monitor}/runs/{id}",
+      "params": [
+        {
+          "name": "monitor",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the Monitor to get the run for",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "monitors_runs_monitors-list",
+      "description": "Lists all runs for the Monitor. Required: monitor. Returns array of MonitorRun.",
+      "method": "GET",
+      "path": "/v0/monitors/{monitor}/runs",
+      "params": [
+        {
+          "name": "monitor",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the Monitor to list runs for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "monitors_trigger_monitor",
+      "description": "Triggers a run immediately, regardless of the schedule. Works for monitors with status `active` or `paused`. Required: id. Returns the new TriggerSearchMonitorResponse.",
+      "method": "POST",
+      "path": "/monitors/{id}/trigger",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The monitor ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "teams_me-get",
+      "description": "Returns information about the authenticated team, including current concurrency usage and limits.",
+      "method": "GET",
+      "path": "/v0/teams/me",
+      "params": []
+    },
+    {
+      "name": "webhooks_create",
+      "description": "Create a Webhook. Required: events, url. Optional: metadata. Returns array of EventType.",
+      "method": "POST",
+      "path": "/v0/webhooks",
+      "params": [
+        {
+          "name": "events",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The events to trigger the webhook",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Set of key-value pairs you want to associate with this object."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The URL to send the webhook to",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_delete",
+      "description": "Delete a Webhook. Required: id. Returns array of EventType. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/webhooks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the webhook",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_get",
+      "description": "Get a Webhook. Required: id. Returns array of EventType.",
+      "method": "GET",
+      "path": "/v0/webhooks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the webhook",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_list",
+      "description": "List webhooks. Optional: cursor, limit (default: 25). Returns array of Webhook.",
+      "method": "GET",
+      "path": "/v0/webhooks",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The cursor to paginate through the results"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results to return"
+        }
+      ]
+    },
+    {
+      "name": "webhooks_update",
+      "description": "Update a Webhook. Required: id. Optional: events, metadata, url. Returns array of EventType.",
+      "method": "PATCH",
+      "path": "/v0/webhooks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the webhook",
+          "required": true
+        },
+        {
+          "name": "events",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The events to trigger the webhook"
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Set of key-value pairs you want to associate with this object."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The URL to send the webhook to"
+        }
+      ]
+    },
+    {
+      "name": "webhooks_attempts_webhooks-list",
+      "description": "List all attempts made by a Webhook ordered in descending order. Required: id. Optional: cursor, limit (default: 25), eventType (plus 1 more). Returns array of WebhookAttempt.",
+      "method": "GET",
+      "path": "/v0/webhooks/{id}/attempts",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the webhook",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The cursor to paginate through the results"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results to return"
+        },
+        {
+          "name": "eventType",
+          "type": "string",
+          "location": "query",
+          "description": "The type of event to filter by"
+        },
+        {
+          "name": "successful",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter attempts by their success status"
+        }
+      ]
+    },
+    {
+      "name": "websearch_search",
+      "description": "Perform a search with an Exa prompt-engineered query and retrieve a list of relevant results. Optionally get contents. Required: query. Optional: additionalQueries, category, compliance (plus 15 more).",
+      "method": "POST",
+      "path": "/search",
+      "params": [
+        {
+          "name": "additionalQueries",
+          "type": "string",
+          "location": "body",
+          "description": "Additional queries"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "body",
+          "description": "Category"
+        },
+        {
+          "name": "compliance",
+          "type": "string",
+          "location": "body",
+          "description": "Compliance"
+        },
+        {
+          "name": "contents",
+          "type": "string",
+          "location": "body",
+          "description": "Contents"
+        },
+        {
+          "name": "context",
+          "type": "string",
+          "location": "body",
+          "description": "Context"
+        },
+        {
+          "name": "endCrawlDate",
+          "type": "string",
+          "location": "body",
+          "description": "End crawl date"
+        },
+        {
+          "name": "endPublishedDate",
+          "type": "string",
+          "location": "body",
+          "description": "End published date"
+        },
+        {
+          "name": "excludeDomains",
+          "type": "string",
+          "location": "body",
+          "description": "Exclude domains"
+        },
+        {
+          "name": "includeDomains",
+          "type": "string",
+          "location": "body",
+          "description": "Include domains"
+        },
+        {
+          "name": "moderation",
+          "type": "string",
+          "location": "body",
+          "description": "Moderation"
+        },
+        {
+          "name": "numResults",
+          "type": "string",
+          "location": "body",
+          "description": "Num results"
+        },
+        {
+          "name": "outputSchema",
+          "type": "string",
+          "location": "body",
+          "description": "Output schema"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "The query string for the search.",
+          "required": true
+        },
+        {
+          "name": "startCrawlDate",
+          "type": "string",
+          "location": "body",
+          "description": "Start crawl date"
+        },
+        {
+          "name": "startPublishedDate",
+          "type": "string",
+          "location": "body",
+          "description": "Start published date"
+        },
+        {
+          "name": "stream",
+          "type": "string",
+          "location": "body",
+          "description": "Stream"
+        },
+        {
+          "name": "systemPrompt",
+          "type": "string",
+          "location": "body",
+          "description": "System prompt"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        },
+        {
+          "name": "userLocation",
+          "type": "string",
+          "location": "body",
+          "description": "User location"
+        }
+      ]
+    },
+    {
+      "name": "websets_create",
+      "description": "Creates a new Webset with optional search, import, and enrichment configurations. The Webset will automatically begin processing once created. You can specify an `externalId` to reference the Webset with your own identifiers for easier integration. Optional: enrichments, exclude, externalId (plus 4 more). Returns the new Webset.",
+      "method": "POST",
+      "path": "/v0/websets",
+      "params": [
+        {
+          "name": "enrichments",
+          "type": "array",
+          "location": "body",
+          "description": "Add enrichments to extract additional data from found items. Enrichments automatically search for and extract specific information (like contact details, funding data, employee counts, etc.) from each item added to your Webset."
+        },
+        {
+          "name": "exclude",
+          "type": "array",
+          "location": "body",
+          "description": "Global exclusion sources (existing imports or websets) that apply to all operations within this Webset. Any results found within these sources will be omitted across all search and import operations."
+        },
+        {
+          "name": "externalId",
+          "type": "string",
+          "location": "body",
+          "description": "The external identifier for the webset. You can use this to reference the Webset by your own internal identifiers."
+        },
+        {
+          "name": "import",
+          "type": "array",
+          "location": "body",
+          "description": "Import data from existing Websets and Imports into this Webset."
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Set of key-value pairs you want to associate with this object."
+        },
+        {
+          "name": "search-count",
+          "wire_name": "search.count",
+          "type": "float",
+          "location": "body",
+          "description": "Number of Items the Webset will attempt to find. The actual number of Items found may be less than this number depending on the search complexity."
+        },
+        {
+          "name": "search-criteria",
+          "wire_name": "search.criteria",
+          "type": "array",
+          "location": "body",
+          "description": "Criteria every item is evaluated against. It's not required to provide your own criteria, we automatically detect the criteria from all the information provided in the query. Only use this when you need more fine control."
+        },
+        {
+          "name": "search-entity",
+          "wire_name": "search.entity",
+          "type": "string",
+          "location": "body",
+          "description": "Entity the Webset will return results for. It is not required to provide it, we automatically detect the entity from all the information provided in the query. Only use this when you need more fine control."
+        },
+        {
+          "name": "search-exclude",
+          "wire_name": "search.exclude",
+          "type": "array",
+          "location": "body",
+          "description": "Sources (existing imports or websets) to exclude from search results. Any results found within these sources will be omitted to prevent finding them during search."
+        },
+        {
+          "name": "search-max-people-per-company",
+          "wire_name": "search.maxPeoplePerCompany",
+          "type": "int",
+          "location": "body",
+          "description": "Optional soft cap for people searches. When set, the search will try to include at most this many matching people from the same current employer company."
+        },
+        {
+          "name": "search-query",
+          "wire_name": "search.query",
+          "type": "string",
+          "location": "body",
+          "description": "Natural language search query describing what you are looking for. Be specific and descriptive about your requirements, characteristics, and any constraints that help narrow down the results. Any URLs provided will be crawled and used as additional context for the search.",
+          "required": true
+        },
+        {
+          "name": "search-recall",
+          "wire_name": "search.recall",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to provide an estimate of how many total relevant results could exist for this search. Result of the analysis will be available in the `recall` field within the search request."
+        },
+        {
+          "name": "search-scope",
+          "wire_name": "search.scope",
+          "type": "array",
+          "location": "body",
+          "description": "Limit the search to specific sources (existing imports or websets). Any results found within these sources matching the search criteria will be included in the Webset."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Optional name that appears anywhere the Webset is displayed. Leave empty to have Exa generate one automatically."
+        }
+      ]
+    },
+    {
+      "name": "websets_delete",
+      "description": "Deletes a Webset. Once deleted, the Webset and all its Items will no longer be available. Required: id. Returns the Webset. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/websets/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id or externalId of the Webset",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "websets_get",
+      "description": "Get a Webset. Required: id. Optional: expand. Returns the GetWebsetResponse.",
+      "method": "GET",
+      "path": "/v0/websets/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id or externalId of the Webset.",
+          "required": true
+        },
+        {
+          "name": "expand",
+          "type": "array",
+          "location": "query",
+          "description": "Expand the response with the specified resources"
+        }
+      ]
+    },
+    {
+      "name": "websets_list",
+      "description": "Returns a list of Websets. You can paginate through the results using the `cursor` parameter. You can filter results using the `search` parameter to find Websets by ID, external ID, or title. Optional: cursor, limit (default: 25), search.",
+      "method": "GET",
+      "path": "/v0/websets",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The cursor to paginate through the results"
+        },
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "The number of Websets to return"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search term to filter Websets by ID, external ID, or title"
+        }
+      ]
+    },
+    {
+      "name": "websets_preview",
+      "description": "Preview how a search query will be decomposed before creating a webset. This endpoint performs the same query analysis that happens during webset creation, allowing you to see the detected entity type, generated search criteria, and available enrichment columns in advance. Use this to help users understand how their search will be interpreted before committing to a full webset creation. Required: search, search. Returns the new PreviewWebsetResponse.",
+      "method": "POST",
+      "path": "/v0/websets/preview",
+      "params": [
+        {
+          "name": "search",
+          "type": "bool",
+          "location": "path",
+          "description": "Weather you want to search for a preview list of items or not",
+          "required": true
+        },
+        {
+          "name": "search-count",
+          "wire_name": "search.count",
+          "type": "float",
+          "location": "body",
+          "description": "When query parameter search=true, the number of preview items to return."
+        },
+        {
+          "name": "search-entity",
+          "wire_name": "search.entity",
+          "type": "string",
+          "location": "body",
+          "description": "Entity used to inform the decomposition. It is not required to provide it, we automatically detect the entity from all the information provided in the query. Only use this when you need more fine control."
+        },
+        {
+          "name": "search-query",
+          "wire_name": "search.query",
+          "type": "string",
+          "location": "body",
+          "description": "Natural language search query describing what you are looking for. Be specific and descriptive about your requirements, characteristics, and any constraints that help narrow down the results.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "websets_update",
+      "description": "Update a Webset. Required: id. Optional: metadata, title. Returns the new Webset.",
+      "method": "POST",
+      "path": "/v0/websets/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id or externalId of the Webset",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Set of key-value pairs you want to associate with this object."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Optional name that appears anywhere the Webset is displayed."
+        }
+      ]
+    },
+    {
+      "name": "websets_cancel_websets",
+      "description": "Cancels all operations being performed on a Webset. Any enrichment or search will be stopped and the Webset will be marked as `idle`. Required: id. Returns the new Webset.",
+      "method": "POST",
+      "path": "/v0/websets/{id}/cancel",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id or externalId of the Webset",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "websets_enrichments_websets-cancel",
+      "description": "All running enrichments will be canceled. You can not resume an Enrichment after it has been canceled. Required: webset, id. Returns array of EnrichmentsWebsetsCancelItem.",
+      "method": "POST",
+      "path": "/v0/websets/{webset}/enrichments/{id}/cancel",
+      "params": [
+        {
+          "name": "webset",
+          "type": "string",
+          "location": "path",
+          "description": "The id or externalId of the Webset",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the Enrichment",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "websets_enrichments_websets-create",
+      "description": "Create an Enrichment for a Webset. Required: webset, description. Optional: format, metadata, options. Returns array of EnrichmentsWebsetsCreateItem.",
+      "method": "POST",
+      "path": "/v0/websets/{webset}/enrichments",
+      "params": [
+        {
+          "name": "webset",
+          "type": "string",
+          "location": "path",
+          "description": "The id or externalId of the Webset",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Provide a description of the enrichment task you want to perform to each Webset Item.",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "body",
+          "description": "Format of the enrichment response. We automatically select the best format based on the description. If you want to explicitly specify the format, you can do so here."
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Set of key-value pairs you want to associate with this object."
+        },
+        {
+          "name": "options",
+          "type": "array",
+          "location": "body",
+          "description": "When the format is options, the different options for the enrichment agent to choose from."
+        }
+      ]
+    },
+    {
+      "name": "websets_enrichments_websets-delete",
+      "description": "When deleting an Enrichment, any running enrichments will be canceled and all existing `enrichment_result` generated by this Enrichment will no longer be available. Required: webset, id. Returns array of EnrichmentsWebsetsDeleteItem. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/websets/{webset}/enrichments/{id}",
+      "params": [
+        {
+          "name": "webset",
+          "type": "string",
+          "location": "path",
+          "description": "The id or externalId of the Webset",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the Enrichment",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "websets_enrichments_websets-get",
+      "description": "Get an Enrichment. Required: webset, id. Returns array of EnrichmentsWebsetsGetItem.",
+      "method": "GET",
+      "path": "/v0/websets/{webset}/enrichments/{id}",
+      "params": [
+        {
+          "name": "webset",
+          "type": "string",
+          "location": "path",
+          "description": "The id or externalId of the Webset",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the Enrichment",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "websets_enrichments_websets-update",
+      "description": "Update an Enrichment configuration for a Webset. Required: webset, id. Optional: description, format, metadata (plus 1 more). Partial update.",
+      "method": "PATCH",
+      "path": "/v0/websets/{webset}/enrichments/{id}",
+      "params": [
+        {
+          "name": "webset",
+          "type": "string",
+          "location": "path",
+          "description": "Webset",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Provide a description of the enrichment task you want to perform to each Webset Item."
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "body",
+          "description": "Format of the enrichment response. We automatically select the best format based on the description. If you want to explicitly specify the format, you can do so here."
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Set of key-value pairs you want to associate with this object."
+        },
+        {
+          "name": "options",
+          "type": "array",
+          "location": "body",
+          "description": "When the format is options, the different options for the enrichment agent to choose from."
+        }
+      ]
+    },
+    {
+      "name": "websets_items_websets-delete",
+      "description": "Deletes an Item from the Webset. This will cancel any enrichment process for it. Required: webset, id. Returns the WebsetItem. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/websets/{webset}/items/{id}",
+      "params": [
+        {
+          "name": "webset",
+          "type": "string",
+          "location": "path",
+          "description": "The id or externalId of the Webset",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the Webset item",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "websets_items_websets-get",
+      "description": "Returns a Webset Item. Required: webset, id.",
+      "method": "GET",
+      "path": "/v0/websets/{webset}/items/{id}",
+      "params": [
+        {
+          "name": "webset",
+          "type": "string",
+          "location": "path",
+          "description": "The id or externalId of the Webset",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the Webset item",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "websets_items_websets-list",
+      "description": "Returns a list of Webset Items. You can paginate through the Items using the `cursor` parameter. Required: webset. Optional: cursor, limit (default: 20), sourceId.",
+      "method": "GET",
+      "path": "/v0/websets/{webset}/items",
+      "params": [
+        {
+          "name": "webset",
+          "type": "string",
+          "location": "path",
+          "description": "The id or externalId of the Webset",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The cursor to paginate through the results"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results to return"
+        },
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the source"
+        }
+      ]
+    },
+    {
+      "name": "websets_searches_websets-cancel",
+      "description": "Cancels a currently running Search. You can cancel all searches at once by using the `websets/:webset/cancel` endpoint. Required: webset, id. Returns the new WebsetSearch.",
+      "method": "POST",
+      "path": "/v0/websets/{webset}/searches/{id}/cancel",
+      "params": [
+        {
+          "name": "webset",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the Webset",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the Search",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "websets_searches_websets-create",
+      "description": "Creates a new Search for the Webset. The default behavior is to reuse the previous Search results and evaluate them against the new criteria. Required: webset, count, query. Optional: behavior (default: override), criteria, entity (plus 5 more). Returns the new WebsetSearch.",
+      "method": "POST",
+      "path": "/v0/websets/{webset}/searches",
+      "params": [
+        {
+          "name": "webset",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the Webset",
+          "required": true
+        },
+        {
+          "name": "behavior",
+          "type": "string",
+          "location": "body",
+          "description": "How this search interacts with existing items in the Webset: - **override**: Replace existing items and evaluate all items against new criteria - **append**: Add new items to existing ones, keeping items that match the new criteria"
+        },
+        {
+          "name": "count",
+          "type": "float",
+          "location": "body",
+          "description": "Number of Items the Search will attempt to find. The actual number of Items found may be less than this number depending on the query complexity.",
+          "required": true
+        },
+        {
+          "name": "criteria",
+          "type": "array",
+          "location": "body",
+          "description": "Criteria every item is evaluated against. It's not required to provide your own criteria, we automatically detect the criteria from all the information provided in the query. Only use this when you need more fine control."
+        },
+        {
+          "name": "entity",
+          "type": "string",
+          "location": "body",
+          "description": "Entity the search will return results for. It is not required to provide it, we automatically detect the entity from all the information provided in the query. Only use this when you need more fine control."
+        },
+        {
+          "name": "exclude",
+          "type": "array",
+          "location": "body",
+          "description": "Sources (existing imports or websets) to exclude from search results. Any results found within these sources will be omitted to prevent finding them during search."
+        },
+        {
+          "name": "maxPeoplePerCompany",
+          "type": "int",
+          "location": "body",
+          "description": "Optional soft cap for people searches. When set, the search will try to include at most this many matching people from the same current employer company."
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Set of key-value pairs you want to associate with this object."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Natural language search query describing what you are looking for. Be specific and descriptive about your requirements, characteristics, and any constraints that help narrow down the results. Any URLs provided will be crawled and used as additional context for the search.",
+          "required": true
+        },
+        {
+          "name": "recall",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to provide an estimate of how many total relevant results could exist for this search. Result of the analysis will be available in the `recall` field within the search request."
+        },
+        {
+          "name": "scope",
+          "type": "array",
+          "location": "body",
+          "description": "Limit the search to specific sources (existing imports). Any results found within these sources matching the search criteria will be included in the Webset."
+        }
+      ]
+    },
+    {
+      "name": "websets_searches_websets-get",
+      "description": "Gets a Search by id. Required: webset, id. Returns the WebsetSearch.",
+      "method": "GET",
+      "path": "/v0/websets/{webset}/searches/{id}",
+      "params": [
+        {
+          "name": "webset",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the Webset",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the Search",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

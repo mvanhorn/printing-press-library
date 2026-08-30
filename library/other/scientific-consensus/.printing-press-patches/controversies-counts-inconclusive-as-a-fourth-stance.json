@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "controversies-counts-inconclusive-as-a-fourth-stance",
+  "applied_at": "2026-08-30",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "The controversies command must report all four stances the engine can return, so supporting + refuting + mixed + inconclusive always equals the study_count printed beside them. Inconclusive gets its own counter rather than being folded into mixed: the two are distinct engine outcomes — mixed means conflicting directional signals, inconclusive means no directional signal at all — and collapsing them would report an absence of evidence as a conflict of evidence. The controversy score keeps its denominator of supporting + refuting only, so inconclusive works are reported but never scored and no previous score or contested verdict moves. consensus.go is the shape being matched, field order and rendered wording included.",
+  "reason": "study_count was len(works) while the tally switch handled only three of the four stance values, so every inconclusive work vanished from the counters and from the JSON entirely — a large fraction of a real corpus, present in no field and unexplained by the numbers shown.",
+  "files": [
+    "internal/cli/controversies.go",
+    "internal/cli/controversies_test.go"
+  ],
+  "validated_outcome": "Over a fixture carrying all four stances (5/3/2/4): the four JSON counts sum to study_count, and controversy_score is pinned literally at 0.75 with contested true — the values the pre-change code produced for the same fixture. Mutation-checked: dropping the new case or zeroing the counter fails the sum assertion; adding Inconclusive to the score's directional denominator fails the pinned score at 0.5."
+}

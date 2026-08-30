@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "dndbeyond-greptile-security-fixes",
+  "applied_at": "2026-08-02",
+  "base_run_id": "20260802T050505Z-f9535648",
+  "base_printing_press_version": "4.30.0",
+  "summary": "fix(dndbeyond): omit narrative descriptions and cap response bodies",
+  "reason": "Greptile review identified privacy leakage through generic JSON/PDF descriptions, PDF identity fields, and unbounded response buffering.",
+  "files": [
+    "internal/cli/characters.go",
+    "internal/cli/characters_test.go",
+    "internal/client/client.go",
+    "internal/client/client_test.go"
+  ],
+  "validated_outcome": "focused JSON/PDF privacy and client response-limit tests pass; direct CLI privacy check passed; publish validation passed",
+  "findings_addressed": ["F1", "F2", "F3", "F4"]
+}

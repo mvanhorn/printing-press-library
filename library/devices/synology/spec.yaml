@@ -1,0 +1,719 @@
+name: synology
+description: Query and operate Synology DSM NAS units - system health, storage, SMART, shares, users, logs and File Station - from one agent-friendly CLI.
+base_url: https://nas.example.com:5001
+
+# DSM is namespaced RPC over HTTP, not REST. Every call targets /webapi/entry.cgi
+# and selects its handler through the api, method and version query parameters,
+# which is why each endpoint below carries those three constants in its path and
+# exposes only real parameters as flags.
+#
+# Errors arrive as HTTP 200 with {"success":false,"error":{"code":N}}.
+# Code 119 means the session id expired and requires a transparent relogin plus
+# one retry; code 105 means the account lacks permission for that call.
+auth:
+  type: session_handshake
+  token_param_name: _sid
+  session_token_url: https://nas.example.com:5001/webapi/entry.cgi?api=SYNO.API.Auth&method=login&version=7
+  session_validation_method: GET
+  session_validation_path: /webapi/entry.cgi?api=SYNO.Core.System.SystemHealth&method=get&version=1
+  session_ttl_hours: 1
+
+resources:
+  session:
+    description: DSM session handshake
+    endpoints:
+      login:
+        description: Log in to DSM and obtain a session id plus a SynoToken
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.API.Auth&method=login&version=7&format=sid&enable_syno_token=yes
+        no_auth: true
+        params:
+          - name: account
+            type: string
+            in: query
+            required: true
+            description: DSM account name
+          - name: passwd
+            type: string
+            in: query
+            required: true
+            description: DSM account password
+          - name: otp_code
+            type: string
+            in: query
+            description: Six-digit one-time password, required on the first login of a two-factor account
+          - name: device_id
+            type: string
+            in: query
+            description: Trusted-device token issued by a previous two-factor login, used instead of otp_code
+          - name: device_name
+            type: string
+            in: query
+            description: Label DSM records for the trusted device
+      logout:
+        description: Invalidate the current session id
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.API.Auth&method=logout&version=6
+        params: []
+      apis:
+        description: Enumerate every API namespace the NAS exposes, with its version range and CGI path
+        method: GET
+        path: /webapi/query.cgi?api=SYNO.API.Info&method=query&version=1&query=all
+        no_auth: true
+        params: []
+
+  system:
+    description: DSM system identity, health and load
+    endpoints:
+      info:
+        description: Show model, serial number, firmware version, uptime and temperature
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Core.System&method=info&version=3
+        params:
+          - name: type
+            type: string
+            in: query
+            description: Restrict the report to one section, for example storage
+      health:
+        description: Show the aggregate system health verdict DSM shows on its dashboard
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Core.System.SystemHealth&method=get&version=1
+        params: []
+      utilization:
+        description: Show current CPU, memory, disk and network utilization
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Core.System.Utilization&method=get&version=1
+        params: []
+      network:
+        description: Show hostname, DNS, gateway and every network interface
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Core.Network&method=get&version=2
+        params: []
+      services:
+        description: List DSM services and whether each one is enabled
+        method: GET
+        # Verified against DSM 7.1.1. SYNO.Core.Service implements get at
+        # version 3; method=list answers error 103. The rows are nested under
+        # the service key of the payload.
+        path: /webapi/entry.cgi?api=SYNO.Core.Service&method=get&version=3
+        response_path: service
+        params:
+          - name: offset
+            type: integer
+            in: query
+            description: Index of the first service to return
+          - name: limit
+            type: integer
+            in: query
+            description: Maximum number of services to return
+      dsm:
+        description: Show DSM product identity as the web UI reports it
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.DSM.Info&method=getinfo&version=2
+        params: []
+      ups:
+        description: Show the state of an attached uninterruptible power supply
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Core.ExternalDevice.UPS&method=get&version=1
+        params: []
+
+  storage:
+    description: Volumes, pools, disks and SMART data
+    endpoints:
+      overview:
+        description: Show the complete storage picture DSM Storage Manager renders, covering disks, pools and volumes in one call
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Storage.CGI.Storage&method=load_info&version=1
+        params: []
+      volumes:
+        description: List volumes with size, used space and status
+        method: GET
+        # Verified against DSM 7.1.1. SYNO.Core.Storage.Volume answers error
+        # 101; the Storage Manager load_info call carries volumes, pools and
+        # disks in one payload, so each of the three commands reads its own key
+        # out of it.
+        path: /webapi/entry.cgi?api=SYNO.Storage.CGI.Storage&method=load_info&version=1
+        response_path: volumes
+        params:
+          - name: limit
+            type: integer
+            in: query
+            description: Maximum number of volumes to return
+          - name: offset
+            type: integer
+            in: query
+            description: Index of the first volume to return
+      pools:
+        description: List storage pools with their RAID level and member disks
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Storage.CGI.Storage&method=load_info&version=1
+        response_path: storagePools
+        params:
+          - name: limit
+            type: integer
+            in: query
+            description: Maximum number of pools to return
+          - name: offset
+            type: integer
+            in: query
+            description: Index of the first pool to return
+      disks:
+        description: List physical disks with model, serial number, temperature and health status
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Storage.CGI.Storage&method=load_info&version=1
+        response_path: disks
+        params:
+          - name: limit
+            type: integer
+            in: query
+            description: Maximum number of disks to return
+          - name: offset
+            type: integer
+            in: query
+            description: Index of the first disk to return
+      smart:
+        description: Show the full SMART attribute table for one disk
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Storage.CGI.Smart&method=get_smart_info&version=1
+        # The attribute table is nested under smartInfo, and DSM answers error
+        # 117 for a bare disk id, so the parameter is the device path that
+        # storage disks reports.
+        response_path: smartInfo
+        example: "  synology-pp-cli storage smart --device /dev/sda"
+        params:
+          - name: device
+            type: string
+            in: query
+            required: true
+            description: Disk device path as reported by storage disks, for example /dev/sda
+      smart_schedule:
+        description: List scheduled SMART tests
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Storage.CGI.Smart.Scheduler&method=list&version=1
+        params: []
+      luns:
+        description: List iSCSI LUNs
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Core.ISCSI.LUN&method=list&version=1
+        params: []
+      usb:
+        description: List attached USB storage devices
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Core.ExternalDevice.Storage.USB&method=list&version=1
+        params:
+          - name: additional
+            type: string
+            in: query
+            description: JSON array of extra fields to include, for example ["dev_type","status"]
+      esata:
+        description: List attached eSATA storage devices
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Core.ExternalDevice.Storage.eSATA&method=list&version=1
+        params:
+          - name: additional
+            type: string
+            in: query
+            description: JSON array of extra fields to include
+
+  folder:
+    description: Shared folders and their permissions
+    endpoints:
+      list:
+        description: List shared folders
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Core.Share&method=list&version=1
+        params:
+          - name: additional
+            type: string
+            in: query
+            description: JSON array of extra fields to include, for example ["nfs_privilege","encryption"]
+          - name: limit
+            type: integer
+            in: query
+            description: Maximum number of shares to return
+          - name: offset
+            type: integer
+            in: query
+            description: Index of the first share to return
+      get:
+        description: Show one shared folder in detail
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Core.Share&method=get&version=1
+        example: "  synology-pp-cli folder get --name docker"
+        params:
+          - name: name
+            type: string
+            in: query
+            required: true
+            description: Share name
+          - name: additional
+            type: string
+            in: query
+            description: JSON array of extra fields to include
+      permissions:
+        description: List the accounts and groups that hold permissions on one shared folder
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Core.Share.Permission&method=list&version=1
+        # DSM answers error 403 when user_group_type is absent, so the flag
+        # carries a default instead of making every caller discover the
+        # requirement from an opaque error. The rows sit under items.
+        response_path: items
+        example: "  synology-pp-cli folder permissions --name docker --user-group-type local_user"
+        params:
+          - name: name
+            type: string
+            in: query
+            required: true
+            description: Share name
+          - name: user_group_type
+            type: string
+            in: query
+            default: local_user
+            description: Which principal set to report, local_user or local_group
+          - name: limit
+            type: integer
+            in: query
+            description: Maximum number of entries to return
+          - name: offset
+            type: integer
+            in: query
+            description: Index of the first entry to return
+
+  user:
+    description: Local user accounts
+    endpoints:
+      list:
+        description: List local user accounts
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Core.User&method=list&version=1
+        params:
+          - name: type
+            type: string
+            in: query
+            description: Account source, for example local
+          - name: additional
+            type: string
+            in: query
+            description: JSON array of extra fields to include, for example ["email","expired","description"]
+          - name: limit
+            type: integer
+            in: query
+            description: Maximum number of accounts to return
+          - name: offset
+            type: integer
+            in: query
+            description: Index of the first account to return
+      get:
+        description: Show one local user account in detail
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Core.User&method=get&version=1
+        example: "  synology-pp-cli user get --name smoochy"
+        params:
+          - name: name
+            type: string
+            in: query
+            required: true
+            description: Account name
+          - name: additional
+            type: string
+            in: query
+            description: JSON array of extra fields to include
+      # No account-to-groups endpoint. SYNO.Core.User.Group implements only
+      # join on DSM 7.1.1 and answers list with error 103, so the reverse
+      # lookup is group list plus group members instead.
+
+  group:
+    description: Local groups
+    endpoints:
+      list:
+        description: List local groups
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Core.Group&method=list&version=1
+        params:
+          - name: additional
+            type: string
+            in: query
+            description: JSON array of extra fields to include
+          - name: limit
+            type: integer
+            in: query
+            description: Maximum number of groups to return
+          - name: offset
+            type: integer
+            in: query
+            description: Index of the first group to return
+      members:
+        description: List the accounts that belong to one group
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Core.Group.Member&method=list&version=1
+        example: "  synology-pp-cli group members --group administrators"
+        params:
+          - name: group
+            type: string
+            in: query
+            required: true
+            description: Group name
+          - name: limit
+            type: integer
+            in: query
+            description: Maximum number of members to return
+          - name: offset
+            type: integer
+            in: query
+            description: Index of the first member to return
+
+  nfs:
+    description: NFS service state
+    endpoints:
+      status:
+        description: Show whether the NFS service is enabled and which protocol versions it offers
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Core.FileServ.NFS&method=get&version=2
+        params: []
+
+  package:
+    description: Installed DSM packages
+    endpoints:
+      list:
+        description: List installed packages with their version and running state
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Core.Package&method=list&version=2
+        params:
+          - name: additional
+            type: string
+            in: query
+            description: JSON array of extra fields to include, for example ["status","version"]
+
+  log:
+    description: DSM system log
+    endpoints:
+      list:
+        description: Read the DSM system log with filtering by level, date range and keyword
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.Core.SyslogClient.Log&method=list&version=1
+        params:
+          - name: logtype
+            type: string
+            in: query
+            description: Log category to read, for example system or connection
+          - name: level
+            type: string
+            in: query
+            description: Minimum severity to include, for example err, warn or info
+          - name: keyword
+            type: string
+            in: query
+            description: Substring the log message must contain
+          - name: date_from
+            type: integer
+            in: query
+            description: Unix timestamp of the earliest entry to include
+          - name: date_to
+            type: integer
+            in: query
+            description: Unix timestamp of the latest entry to include
+          - name: target
+            type: string
+            in: query
+            description: Which log store to read
+          - name: dir
+            type: string
+            in: query
+            description: Sort direction, ASC or DESC
+          - name: start
+            type: integer
+            in: query
+            description: Index of the first entry to return
+          - name: limit
+            type: integer
+            in: query
+            description: Maximum number of entries to return
+
+  files:
+    description: File Station browsing, search and file operations
+    endpoints:
+      shares:
+        description: List the shared folders File Station can browse
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.FileStation.List&method=list_share&version=2
+        params:
+          - name: additional
+            type: string
+            in: query
+            description: JSON array of extra fields to include, for example ["real_path","size","time","owner"]
+          - name: sort_by
+            type: string
+            in: query
+            description: Field to sort by, for example name or size
+          - name: sort_direction
+            type: string
+            in: query
+            description: Sort direction, asc or desc
+          - name: offset
+            type: integer
+            in: query
+            description: Index of the first share to return
+          - name: limit
+            type: integer
+            in: query
+            description: Maximum number of shares to return
+      list:
+        description: List the contents of one folder
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.FileStation.List&method=list&version=2
+        example: "  synology-pp-cli files list --folder-path /docker"
+        params:
+          - name: folder_path
+            type: string
+            in: query
+            required: true
+            description: Absolute folder path, for example /volume1/media
+          - name: additional
+            type: string
+            in: query
+            description: JSON array of extra fields to include, for example ["real_path","size","time","type"]
+          - name: filetype
+            type: string
+            in: query
+            description: Restrict the listing to file, dir or all
+          - name: pattern
+            type: string
+            in: query
+            description: Glob the entry name must match
+          - name: sort_by
+            type: string
+            in: query
+            description: Field to sort by
+          - name: sort_direction
+            type: string
+            in: query
+            description: Sort direction, asc or desc
+          - name: offset
+            type: integer
+            in: query
+            description: Index of the first entry to return
+          - name: limit
+            type: integer
+            in: query
+            description: Maximum number of entries to return
+      stat:
+        description: Show metadata for one file or folder
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.FileStation.List&method=getinfo&version=2
+        example: "  synology-pp-cli files stat --path '[\"/volume1/media/movie\"]'"
+        params:
+          - name: path
+            type: string
+            in: query
+            required: true
+            description: JSON array of absolute paths, for example ["/volume1/media/movie.mkv"]
+          - name: additional
+            type: string
+            in: query
+            description: JSON array of extra fields to include
+      info:
+        description: Show File Station capabilities and limits
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.FileStation.Info&method=get&version=1
+        params: []
+      search_start:
+        description: Start a background search and return its task id
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.FileStation.Search&method=start&version=2
+        params:
+          - name: folder_path
+            type: string
+            in: query
+            required: true
+            description: Absolute folder path to search under
+          - name: pattern
+            type: string
+            in: query
+            description: Glob the file name must match
+          - name: extension
+            type: string
+            in: query
+            description: File extension filter, for example mkv
+          - name: recursive
+            type: boolean
+            in: query
+            description: Descend into subfolders
+          - name: filetype
+            type: string
+            in: query
+            description: Restrict results to file, dir or all
+      search_results:
+        description: Read the results of a running or finished search
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.FileStation.Search&method=list&version=2
+        params:
+          - name: taskid
+            type: string
+            in: query
+            required: true
+            description: Task id returned by search_start
+          - name: additional
+            type: string
+            in: query
+            description: JSON array of extra fields to include
+          - name: offset
+            type: integer
+            in: query
+            description: Index of the first result to return
+          - name: limit
+            type: integer
+            in: query
+            description: Maximum number of results to return
+      search_stop:
+        description: Stop a running search and release its task
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.FileStation.Search&method=stop&version=2
+        params:
+          - name: taskid
+            type: string
+            in: query
+            required: true
+            description: Task id returned by search_start
+      download:
+        description: Download a file or folder
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.FileStation.Download&method=download&version=2
+        # This endpoint streams the file itself rather than JSON, so it is
+        # declared binary; the transport then wraps the body in the
+        # self-describing base64 envelope instead of failing the JSON parse and
+        # reporting an expired session. The example path must exist, since a
+        # missing file is not reported as a not-found code here.
+        #
+        # Note for a future regeneration: response_format binary makes the
+        # generated command reject --json, --csv, --compact, --plain and
+        # --select outright, while the shipped build hands the envelope
+        # through. The acceptance matrix currently exercises the --json form,
+        # so a regeneration has to update that case rather than treat the new
+        # error as a regression.
+        response_format: binary
+        example: "  synology-pp-cli files download --path '[\"/web/web_images/icon.png\"]'"
+        params:
+          - name: path
+            type: string
+            in: query
+            required: true
+            description: JSON array of absolute paths to download
+          - name: mode
+            type: string
+            in: query
+            description: Transfer mode, open to stream inline or download to attach
+      mkdir:
+        description: Create a folder
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.FileStation.CreateFolder&method=create&version=2
+        example: "  synology-pp-cli files mkdir --folder-path '[\"/docker\"]' --name '[\"example-folder\"]' --dry-run"
+        params:
+          - name: folder_path
+            type: string
+            in: query
+            required: true
+            description: JSON array of parent folder paths
+          - name: name
+            type: string
+            in: query
+            required: true
+            description: JSON array of folder names to create
+          - name: force_parent
+            type: boolean
+            in: query
+            description: Create missing parent folders instead of failing
+      rename:
+        description: Rename a file or folder
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.FileStation.Rename&method=rename&version=2
+        example: "  synology-pp-cli files rename --path '[\"/docker/example-folder\"]' --name '[\"renamed-folder\"]' --dry-run"
+        params:
+          - name: path
+            type: string
+            in: query
+            required: true
+            description: JSON array of absolute paths to rename
+          - name: name
+            type: string
+            in: query
+            required: true
+            description: JSON array of new names
+      copy_start:
+        description: Start a background copy or move and return its task id
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.FileStation.CopyMove&method=start&version=3
+        example: "  synology-pp-cli files copy-start --path '[\"/docker/example-folder\"]' --dest-folder-path /Austausch --dry-run"
+        params:
+          - name: path
+            type: string
+            in: query
+            required: true
+            description: JSON array of absolute source paths
+          - name: dest_folder_path
+            type: string
+            in: query
+            required: true
+            description: Absolute destination folder path
+          - name: overwrite
+            type: boolean
+            in: query
+            description: Overwrite an existing destination entry
+          - name: remove_src
+            type: boolean
+            in: query
+            description: Remove the source after a successful copy, turning the copy into a move
+      copy_status:
+        description: Report the progress of a running copy or move
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.FileStation.CopyMove&method=status&version=3
+        params:
+          - name: taskid
+            type: string
+            in: query
+            required: true
+            description: Task id returned by copy_start
+      copy_stop:
+        description: Stop a running copy or move
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.FileStation.CopyMove&method=stop&version=3
+        params:
+          - name: taskid
+            type: string
+            in: query
+            required: true
+            description: Task id returned by copy_start
+      delete_start:
+        description: Start a background delete and return its task id
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.FileStation.Delete&method=start&version=2
+        example: "  synology-pp-cli files delete-start --path '[\"/docker/example-folder\"]' --dry-run"
+        params:
+          - name: path
+            type: string
+            in: query
+            required: true
+            description: JSON array of absolute paths to delete
+          - name: recursive
+            type: boolean
+            in: query
+            description: Delete folder contents as well as the folder itself
+      delete_status:
+        description: Report the progress of a running delete
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.FileStation.Delete&method=status&version=2
+        params:
+          - name: taskid
+            type: string
+            in: query
+            required: true
+            description: Task id returned by delete_start
+      delete_stop:
+        description: Stop a running delete
+        method: GET
+        path: /webapi/entry.cgi?api=SYNO.FileStation.Delete&method=stop&version=2
+        params:
+          - name: taskid
+            type: string
+            in: query
+            required: true
+            description: Task id returned by delete_start

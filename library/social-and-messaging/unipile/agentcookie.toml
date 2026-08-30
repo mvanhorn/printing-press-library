@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "unipile-pp-cli"
+display_name = "Unipile"
+description = "Every Unipile endpoint as a typed command, plus a local mirror that makes cross-provider search possible and an invitation ledger that shows how much LinkedIn headroom you have left."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/unipile-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+UNIPILE_API_KEY = true

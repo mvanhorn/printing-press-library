@@ -1,0 +1,1513 @@
+openapi: 3.0.0
+info:
+  contact: {}
+  description: This REST API provides endpoints to search for fundamentals and get
+    fundamental details.
+  termsOfService: http://swagger.io/terms/
+  title: Data API Proxy
+  version: 2.0.0
+paths:
+  /api/v1/market/movers:
+    get:
+      description: Retrieves market movers data based on specified filters. Returns
+        stocks that have moved significantly during the specified session and time
+        range. Supports custom screener and movers queries for advanced filtering.
+      operationId: get-movers
+      parameters:
+        - description: Maximum number of results to return. Controls the size of the
+            response.
+          in: query
+          name: maxResults
+          schema:
+            type: integer
+        - description: 'Start date/time for the movers data. Format: YYYY-MM-DD or
+            YYYY-MM-DDTHH:MM:SS'
+          in: query
+          name: from
+          schema:
+            type: string
+        - description: 'End date/time for the movers data. Format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS'
+          in: query
+          name: to
+          schema:
+            type: string
+        - description: 'Trading session to filter movers. Examples: PRE_MARKET, REGULAR,
+            AFTER_MARKET'
+          in: query
+          name: session
+          schema:
+            type: string
+        - description: Custom screener query string for filtering securities based
+            on specific criteria
+          in: query
+          name: screenerQuery
+          schema:
+            type: string
+        - description: Custom movers query string for defining specific movement patterns
+            or thresholds
+          in: query
+          name: moversQuery
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Market movers data
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Bad request - invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - ApiKeyAuth: []
+      summary: Market Movers
+      tags:
+        - Market Data
+  /api/v1/quoteDelayed:
+    get:
+      description: Get delayed quotes for a list of symbols, ISINs, or CIKs
+      operationId: get-quote-delayed-v1
+      parameters:
+        - description: Comma-separated list of stock ticker symbols. At least one
+            of symbols, isin, or cik is required.
+          in: query
+          name: symbols
+          schema:
+            type: string
+        - description: Comma-separated list of ISIN identifiers. Maximum 50. At least
+            one of symbols, isin, or cik is required.
+          in: query
+          name: isin
+          schema:
+            type: string
+        - description: Comma-separated list of CIK identifiers. At least one of symbols,
+            isin, or cik is required.
+          in: query
+          name: cik
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns a JSON object with delayed quotes
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: string
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: string
+      security:
+        - ApiKeyAuth: []
+      summary: Get delayted quotes V1
+      tags:
+        - QuoteDelayed
+  /api/v1/shortinterest:
+    get:
+      description: Retrieves short interest data for specified securities. Includes
+        information about shares sold short, days to cover, and short interest ratios.
+        Supports optional FINRA report data and date range filtering.
+      operationId: get-short-interest
+      parameters:
+        - description: Comma-separated list of stock ticker symbols (e.g., AAPL,MSFT,TSLA).
+            Required.
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: 'Include FINRA short interest report data. Default: false'
+          in: query
+          name: finraReport
+          schema:
+            type: boolean
+        - description: Page number for pagination. Used with pageSize parameter.
+          in: query
+          name: page
+          schema:
+            type: integer
+        - description: Number of results per page. Default varies by endpoint configuration.
+          in: query
+          name: pageSize
+          schema:
+            type: integer
+        - description: 'Start date for short interest data. Format: YYYY-MM-DD'
+          in: query
+          name: from
+          schema:
+            type: string
+        - description: 'End date for short interest data. Format: YYYY-MM-DD'
+          in: query
+          name: to
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Short interest data for requested symbols
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Bad request - missing or invalid symbols parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - ApiKeyAuth: []
+      summary: Short Interest Data
+      tags:
+        - Market Data
+  /api/v2.1/fundamentals:
+    get:
+      description: Retrieves enhanced financial fundamentals data for specified securities.
+        This is an improved version of the V2 endpoint with additional data fields
+        and better performance. Returns comprehensive financial metrics, ratios, and
+        company information from updated data sources.
+      operationId: get-fundamentals-v21
+      parameters:
+        - description: Comma-separated list of stock ticker symbols (e.g., AAPL,MSFT,GOOGL).
+            Required.
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: 'Filter results for dates on or after this date. Format: YYYY-MM-DD
+            (e.g., 2024-01-01)'
+          in: query
+          name: asOf
+          schema:
+            type: string
+        - description: 'Time period filter for financial reporting periods. Supported
+            values: Q1 (first quarter), Q2 (second quarter), Q3 (third quarter), Q4
+            (fourth quarter), FY (fiscal year), TTM (trailing twelve months)'
+          in: query
+          name: period
+          schema:
+            type: string
+        - description: 'Type of financial report to retrieve. Supported values: TTM
+            (trailing twelve months), A (as originally reported), R (restated values),
+            P (preliminary announcements)'
+          in: query
+          name: reportType
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Enhanced fundamentals data with additional metrics and ratios
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Bad request - missing or invalid symbols parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Company Fundamentals V2.1
+      tags:
+        - Fundamentals
+  /api/v2.1/fundamentals/alphaBeta:
+    get:
+      description: Retrieve Alpha and Beta metrics for specified symbols. These metrics
+        indicate volatility and performance relative to the market.
+      operationId: get-alpha-beta-v21
+      parameters:
+        - description: Comma separated list of symbols (e.g., AAPL, MSFT)
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: Return results for dates greater than or equal date specified
+            in this parameter (YYYY-MM-DD)
+          in: query
+          name: asOf
+          schema:
+            type: string
+        - description: Specifies the time period of the returned results (e.g., Q1,
+            2023)
+          in: query
+          name: period
+          schema:
+            type: string
+        - description: 'Report type: TTM (Trailing Twelve Months), A (As originally
+            reported), R (Restated), P (Preliminary)'
+          in: query
+          name: reportType
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Alpha Beta data
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Get Alpha Beta V2.1
+      tags:
+        - Fundamentals
+  /api/v2.1/fundamentals/assetClassification:
+    get:
+      description: Retrieve asset classification details for specified symbols, including
+        sector, industry, and other classification metadata. Useful for portfolio
+        categorization and analysis.
+      operationId: get-asset-classification-v21
+      parameters:
+        - description: Comma separated list of symbols (e.g., AAPL, MSFT)
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: Return results for dates greater than or equal date specified
+            in this parameter (YYYY-MM-DD)
+          in: query
+          name: asOf
+          schema:
+            type: string
+        - description: Specifies the time period of the returned results (e.g., Q1,
+            2023)
+          in: query
+          name: period
+          schema:
+            type: string
+        - description: 'Report type: TTM (Trailing Twelve Months), A (As originally
+            reported), R (Restated), P (Preliminary)'
+          in: query
+          name: reportType
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Asset classification data
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Get Asset Classification V2.1
+      tags:
+        - Fundamentals
+  /api/v2.1/fundamentals/company:
+    get:
+      description: Retrieves detailed company-specific financial data including key
+        metrics, operational statistics, and historical financial performance. Provides
+        a comprehensive view of company financials beyond basic fundamentals.
+      operationId: get-company-v21
+      parameters:
+        - description: Comma-separated list of stock ticker symbols (e.g., AAPL,MSFT,GOOGL).
+            Required.
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: 'Filter results for dates on or after this date. Format: YYYY-MM-DD
+            (e.g., 2024-01-01)'
+          in: query
+          name: asOf
+          schema:
+            type: string
+        - description: 'Time period filter for financial reporting periods. Supported
+            values: Q1, Q2, Q3, Q4 (quarters), FY (fiscal year), TTM (trailing twelve
+            months)'
+          in: query
+          name: period
+          schema:
+            type: string
+        - description: 'Type of financial report. Supported values: TTM (trailing
+            twelve months), A (as originally reported), R (restated values), P (preliminary
+            announcements)'
+          in: query
+          name: reportType
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Company financial data
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Bad request - missing or invalid symbols parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Company Financial Data V2.1
+      tags:
+        - Fundamentals
+  /api/v2.1/fundamentals/companyProfile:
+    get:
+      description: Retrieves comprehensive company profile information including business
+        description, industry classification, sector details, headquarters location,
+        key executives, and other corporate metadata. Essential for understanding
+        company background and organizational structure.
+      operationId: get-company-profile-v21
+      parameters:
+        - description: Comma-separated list of stock ticker symbols (e.g., AAPL,MSFT,GOOGL).
+            Required.
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: 'Filter results for dates on or after this date. Format: YYYY-MM-DD
+            (e.g., 2024-01-01)'
+          in: query
+          name: asOf
+          schema:
+            type: string
+        - description: 'Time period filter for financial reporting periods. Supported
+            values: Q1, Q2, Q3, Q4 (quarters), FY (fiscal year), TTM (trailing twelve
+            months)'
+          in: query
+          name: period
+          schema:
+            type: string
+        - description: 'Type of financial report. Supported values: TTM (trailing
+            twelve months), A (as originally reported), R (restated values), P (preliminary
+            announcements)'
+          in: query
+          name: reportType
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Company profile data
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Bad request - missing or invalid symbols parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Company Profile Information V2.1
+      tags:
+        - Fundamentals
+  /api/v2.1/fundamentals/earningRatios:
+    get:
+      description: Retrieve earning ratios for a list of symbols. Includes metrics
+        like P/E ratio, EPS, and other earnings-related ratios.
+      operationId: get-earning-ratios-v21
+      parameters:
+        - description: Comma separated list of symbols (e.g., AAPL, MSFT)
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: Return results for dates greater than or equal date specified
+            in this parameter (YYYY-MM-DD)
+          in: query
+          name: asOf
+          schema:
+            type: string
+        - description: Specifies the time period of the returned results (e.g., Q1,
+            2023)
+          in: query
+          name: period
+          schema:
+            type: string
+        - description: 'Report type: TTM (Trailing Twelve Months), A (As originally
+            reported), R (Restated), P (Preliminary)'
+          in: query
+          name: reportType
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Earning ratios data
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Get Earning Ratios V2.1
+      tags:
+        - Fundamentals
+  /api/v2.1/fundamentals/earningReports:
+    get:
+      description: Retrieves detailed earnings reports for specified securities including
+        revenue, earnings per share (EPS), EBITDA, net income, and other key financial
+        results from quarterly and annual reports. Essential for analyzing company
+        financial performance and earnings trends over time.
+      operationId: get-earnings-reports-v21
+      parameters:
+        - description: Comma-separated list of stock ticker symbols (e.g., AAPL,MSFT,GOOGL).
+            Required.
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: 'Filter results for dates on or after this date. Format: YYYY-MM-DD
+            (e.g., 2024-01-01)'
+          in: query
+          name: asOf
+          schema:
+            type: string
+        - description: 'Time period filter for financial reporting periods. Supported
+            values: Q1, Q2, Q3, Q4 (quarters), FY (fiscal year), TTM (trailing twelve
+            months)'
+          in: query
+          name: period
+          schema:
+            type: string
+        - description: 'Type of financial report. Supported values: TTM (trailing
+            twelve months), A (as originally reported), R (restated values), P (preliminary
+            announcements)'
+          in: query
+          name: reportType
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Earnings report data
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Bad request - missing or invalid symbols parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Quarterly and Annual Earnings Reports V2.1
+      tags:
+        - Fundamentals
+  /api/v2.1/fundamentals/financials:
+    get:
+      description: Retrieve financial statements for specified symbols. Includes data
+        from balance sheets, income statements, and cash flow statements.
+      parameters:
+        - description: Comma separated list of symbols (e.g., AAPL, MSFT)
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: Return results for dates greater than or equal date specified
+            in this parameter (YYYY-MM-DD)
+          in: query
+          name: asOf
+          schema:
+            type: string
+        - description: Specifies the time period of the returned results (e.g., Q1,
+            2023)
+          in: query
+          name: period
+          schema:
+            type: string
+        - description: 'Report type: TTM (Trailing Twelve Months), A (As originally
+            reported), R (Restated), P (Preliminary)'
+          in: query
+          name: reportType
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Financial statements data
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Get Financials V2.1
+      tags:
+        - Fundamentals
+  /api/v2.1/fundamentals/operationRatios:
+    get:
+      description: Retrieve operation ratios for a list of symbols. Includes metrics
+        like operating margin, profit margin, ROA, ROE, and others.
+      operationId: get-operation-ratios-v21
+      parameters:
+        - description: Comma separated list of symbols (e.g., AAPL, MSFT)
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: Return results for dates greater than or equal date specified
+            in this parameter (YYYY-MM-DD)
+          in: query
+          name: asOf
+          schema:
+            type: string
+        - description: Specifies the time period of the returned results (e.g., Q1,
+            2023)
+          in: query
+          name: period
+          schema:
+            type: string
+        - description: 'Report type: TTM (Trailing Twelve Months), A (As originally
+            reported), R (Restated), P (Preliminary)'
+          in: query
+          name: reportType
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Operation ratios data
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Get Operation Ratios V2.1
+      tags:
+        - Fundamentals
+  /api/v2.1/fundamentals/shareClass:
+    get:
+      description: Retrieve share class information for specific symbols. Returns
+        detailed share structure data including share class IDs, currency, and other
+        related metadata.
+      parameters:
+        - description: Comma separated list of symbols (e.g., AAPL, MSFT)
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: Return results for dates greater than or equal date specified
+            in this parameter (YYYY-MM-DD)
+          in: query
+          name: asOf
+          schema:
+            type: string
+        - description: Specifies the time period of the returned results (e.g., Q1,
+            2023)
+          in: query
+          name: period
+          schema:
+            type: string
+        - description: 'Report type: TTM (Trailing Twelve Months), A (As originally
+            reported), R (Restated), P (Preliminary)'
+          in: query
+          name: reportType
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Share class data
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Get Share Class V2.1
+      tags:
+        - Fundamentals
+  /api/v2.1/fundamentals/shareClassProfile:
+    get:
+      description: Retrieve profile information for share classes, providing details
+        about the share class characteristics and associated metadata.
+      parameters:
+        - description: Comma separated list of symbols (e.g., AAPL, MSFT)
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: Return results for dates greater than or equal date specified
+            in this parameter (YYYY-MM-DD)
+          in: query
+          name: asOf
+          schema:
+            type: string
+        - description: Specifies the time period of the returned results (e.g., Q1,
+            2023)
+          in: query
+          name: period
+          schema:
+            type: string
+        - description: 'Report type: TTM (Trailing Twelve Months), A (As originally
+            reported), R (Restated), P (Preliminary)'
+          in: query
+          name: reportType
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Share class profile data
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Get Share Class Profile V2.1
+      tags:
+        - Fundamentals
+  /api/v2.1/fundamentals/valuationRatios:
+    get:
+      description: Retrieve valuation ratios for a list of symbols. Includes metrics
+        like P/E, P/B, P/S, and other valuation metrics essential for investment analysis.
+      operationId: get-valuation-ratios-v21
+      parameters:
+        - description: Comma separated list of symbols (e.g., AAPL, MSFT)
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: Return results for dates greater than or equal date specified
+            in this parameter (YYYY-MM-DD)
+          in: query
+          name: asOf
+          schema:
+            type: string
+        - description: Specifies the time period of the returned results (e.g., Q1,
+            2023)
+          in: query
+          name: period
+          schema:
+            type: string
+        - description: 'Report type: TTM (Trailing Twelve Months), A (As originally
+            reported), R (Restated), P (Preliminary)'
+          in: query
+          name: reportType
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Valuation ratios data
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Get Valuation Ratios V2.1
+      tags:
+        - Fundamentals
+  /api/v2/bars:
+    get:
+      description: Retrieves historical OHLCV (Open, High, Low, Close, Volume) price
+        bar data for specified securities. Returns aggregated price data based on
+        the specified interval. Supports multiple ticker symbols and various time
+        ranges including relative dates.
+      operationId: get-bars-v2
+      parameters:
+        - description: Comma-separated list of stock ticker symbols (e.g., AAPL,MSFT,TSLA).
+            Required.
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: 'Start date/time for bars. Formats: YYYY-MM-DD, YYYY-MM-DDTHH:MM:SS,
+            YTD (year-to-date), or relative values like 1MONTH/1m/1M, 1WEEK/1w/1W,
+            1DAY/1d/1D. Required.'
+          in: query
+          name: from
+          required: true
+          schema:
+            type: string
+        - description: 'End date/time for bars. Format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS.
+            Defaults to current date/time if not specified.'
+          in: query
+          name: to
+          schema:
+            type: string
+        - description: 'Time bucket interval for aggregating price bars. Supported
+            values: 1m (1 minute), 5m (5 minutes), 15m (15 minutes), 30m (30 minutes),
+            1h (1 hour), 1d (1 day), 1w (1 week), 1M (1 month). Default: 1d'
+          in: query
+          name: interval
+          schema:
+            type: string
+        - description: 'Trading session filter. Supported values: ANY (all sessions),
+            PRE_MARKET (pre-market trading), REGULAR (regular trading hours), AFTER_MARKET
+            (after-hours trading). Default: ANY'
+          in: query
+          name: session
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Array of chart data with OHLCV bars for each symbol
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/api_httpapi.Chart'
+                type: array
+        '400':
+          description: Bad request - missing or invalid required parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Historical Price Bars
+      tags:
+        - Market Data
+  /api/v2/fundamentals:
+    get:
+      description: Retrieves comprehensive financial fundamentals data for specified
+        securities. Returns key financial metrics, ratios, and company information
+        from MorningStar data sources. Use this endpoint to access income statement,
+        balance sheet, and cash flow statement data.
+      operationId: get-fundamentals-v2
+      parameters:
+        - description: Comma-separated list of stock ticker symbols (e.g., AAPL,MSFT,GOOGL).
+            Required.
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: 'Filter results for dates on or after this date. Format: YYYY-MM-DD
+            (e.g., 2024-01-01)'
+          in: query
+          name: asOf
+          schema:
+            type: string
+        - description: 'Time period filter for financial reporting periods. Supported
+            values: Q1 (first quarter), Q2 (second quarter), Q3 (third quarter), Q4
+            (fourth quarter), FY (fiscal year), TTM (trailing twelve months)'
+          in: query
+          name: period
+          schema:
+            type: string
+        - description: 'Type of financial report to retrieve. Supported values: TTM
+            (trailing twelve months), A (as originally reported), R (restated values),
+            P (preliminary announcements)'
+          in: query
+          name: reportType
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Fundamentals data including financial statements and metrics
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Bad request - missing or invalid symbols parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Company Fundamentals V2
+      tags:
+        - Fundamentals
+  /api/v2/fundamentals/operationRatios:
+    get:
+      description: Retrieves operational efficiency ratios and metrics for specified
+        securities. Includes key performance indicators such as asset turnover, inventory
+        turnover, receivables turnover, payables period, and other operational metrics
+        that measure how effectively a company utilizes its assets and manages operations.
+      operationId: get-operation-ratios-v2
+      parameters:
+        - description: Comma-separated list of stock ticker symbols (e.g., AAPL,MSFT,GOOGL).
+            Required.
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: 'Filter results for dates on or after this date. Format: YYYY-MM-DD
+            (e.g., 2024-01-01)'
+          in: query
+          name: asOf
+          schema:
+            type: string
+        - description: 'Time period filter for financial reporting periods. Supported
+            values: Q1, Q2, Q3, Q4 (quarters), FY (fiscal year), TTM (trailing twelve
+            months)'
+          in: query
+          name: period
+          schema:
+            type: string
+        - description: 'Type of financial report. Supported values: TTM (trailing
+            twelve months), A (as originally reported), R (restated values), P (preliminary
+            announcements)'
+          in: query
+          name: reportType
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Operational efficiency ratios and metrics
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Bad request - missing or invalid symbols parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Operational Efficiency Ratios V2
+      tags:
+        - Fundamentals
+  /api/v2/quoteDelayed:
+    get:
+      description: Get delayed quotes for a list of symbols
+      operationId: get-quote-delayed-v2
+      parameters:
+        - description: Comma-separated list of stock ticker symbols. At least one
+            of symbols, isin, or cik is required.
+          in: query
+          name: symbols
+          schema:
+            type: string
+        - description: Comma-separated list of ISIN identifiers. Maximum 50. At least
+            one of symbols, isin, or cik is required.
+          in: query
+          name: isin
+          schema:
+            type: string
+        - description: Comma-separated list of CIK identifiers. At least one of symbols,
+            isin, or cik is required.
+          in: query
+          name: cik
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns a JSON object with delayed quotes
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: string
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: string
+      security:
+        - ApiKeyAuth: []
+      summary: Get delayed quotes V2
+      tags:
+        - QuoteDelayed
+  /api/v3/fundamentals:
+    get:
+      description: Retrieves the latest generation of financial fundamentals data
+        powered by Benzinga's enhanced data pipeline. Provides comprehensive financial
+        statements, metrics, and ratios with improved data quality and coverage. Supports
+        flexible date range queries and relative date specifications.
+      operationId: get-fundamentals-v3
+      parameters:
+        - description: Comma-separated list of stock ticker symbols (e.g., AAPL,MSFT,GOOGL).
+            Required.
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: 'Start date for query. Supports multiple formats: YYYY-MM-DD
+            (e.g., 2024-01-01), YTD (year-to-date from Jan 1), or relative dates like
+            1MONTH/1m/1M (1 month ago), 1WEEK/1w/1W (1 week ago), 1DAY/1d/1D (1 day
+            ago)'
+          in: query
+          name: from
+          schema:
+            type: string
+        - description: 'End date for query. Format: YYYY-MM-DD (e.g., 2024-12-31).
+            Returns data up to and including this date. Defaults to current date if
+            not specified.'
+          in: query
+          name: to
+          schema:
+            type: string
+        - description: 'Report type filter for financial statements. Supported values:
+            TTM (trailing twelve months), A (as originally reported), R (restated
+            values), P (preliminary announcements)'
+          in: query
+          name: date
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Latest fundamentals data with enhanced coverage and quality
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Bad request - missing or invalid symbols parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Company Fundamentals V3
+      tags:
+        - Fundamentals
+  /api/v3/fundamentals/balance-sheet:
+    get:
+      description: Retrieve balance sheet data for specified symbols. Includes assets,
+        liabilities, and equity details.
+      operationId: get-balance-sheet-v3
+      parameters:
+        - description: Comma-separated list of stock ticker symbols (e.g., AAPL, MSFT)
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: 'Start date for query in YYYY-MM-DD format. Supports: YYYY-MM-DD,
+            YTD (year-to-date), 1MONTH/1m/1M (1 month ago)'
+          in: query
+          name: from
+          schema:
+            type: string
+        - description: End date for query in YYYY-MM-DD format. Returns data up to
+            and including this date.
+          in: query
+          name: to
+          schema:
+            type: string
+        - description: 'Report type filter. Values: TTM (trailing twelve months),
+            A (as reported), R (restated), P (preliminary)'
+          in: query
+          name: date
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Balance sheet data
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Get Balance Sheet V3
+      tags:
+        - Fundamentals
+  /api/v3/fundamentals/cash-flow:
+    get:
+      description: Retrieve detailed cash flow statement data for specified symbols.
+        Includes operating, investing, and financing cash flows.
+      parameters:
+        - description: Comma separated list of symbols (e.g., AAPL, MSFT)
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: 'Start date for query in YYYY-MM-DD format. Supports: YYYY-MM-DD,
+            YTD (year-to-date), 1MONTH/1m/1M (1 month ago)'
+          in: query
+          name: from
+          schema:
+            type: string
+        - description: End date for query in YYYY-MM-DD format. Returns data up to
+            and including this date.
+          in: query
+          name: to
+          schema:
+            type: string
+        - description: 'Report type filter. Values: TTM (trailing twelve months),
+            A (as reported), R (restated), P (preliminary)'
+          in: query
+          name: date
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cash flow statement data
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      summary: Get Cash Flow V3
+      tags:
+        - Fundamentals
+  /api/v3/fundamentals/derived:
+    get:
+      description: Retrieve derived financial figures and ratios for a list of symbols.
+        Includes calculated metrics essential for financial analysis.
+      operationId: get-derived-figures-and-ratios-v3
+      parameters:
+        - description: Comma separated list of symbols (e.g., AAPL, MSFT)
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: 'Start date for query in YYYY-MM-DD format. Supports: YYYY-MM-DD,
+            YTD (year-to-date), 1MONTH/1m/1M (1 month ago)'
+          in: query
+          name: from
+          schema:
+            type: string
+        - description: End date for query in YYYY-MM-DD format. Returns data up to
+            and including this date.
+          in: query
+          name: to
+          schema:
+            type: string
+        - description: 'Report type filter. Values: TTM (trailing twelve months),
+            A (as reported), R (restated), P (preliminary)'
+          in: query
+          name: date
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Derived figures and ratios data
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Get Derived Figures and Ratios V3
+      tags:
+        - Fundamentals
+  /api/v3/fundamentals/income-statement:
+    get:
+      description: Retrieves comprehensive income statement data for specified securities.
+        Includes revenue, cost of goods sold, operating expenses, operating income,
+        interest expense, taxes, net income, and earnings per share. Essential for
+        analyzing company profitability and operational performance over time.
+      operationId: get-income-statement-v3
+      parameters:
+        - description: Comma-separated list of stock ticker symbols (e.g., AAPL,MSFT,GOOGL).
+            Required.
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: 'Start date for query. Supports multiple formats: YYYY-MM-DD
+            (e.g., 2024-01-01), YTD (year-to-date from Jan 1), or relative dates like
+            1MONTH/1m/1M (1 month ago)'
+          in: query
+          name: from
+          schema:
+            type: string
+        - description: 'End date for query. Format: YYYY-MM-DD (e.g., 2024-12-31).
+            Returns data up to and including this date.'
+          in: query
+          name: to
+          schema:
+            type: string
+        - description: 'Report type filter for financial statements. Supported values:
+            TTM (trailing twelve months), A (as originally reported), R (restated
+            values), P (preliminary announcements)'
+          in: query
+          name: date
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Income statement data
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Bad request - missing or invalid symbols parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Income Statement Data V3
+      tags:
+        - Fundamentals
+  /api/v3/fundamentals/share-price-ratios:
+    get:
+      description: Retrieve share price ratios for specified symbols. Includes metrics
+        like price-to-earnings, price-to-sales, and other price-based ratios.
+      operationId: get-share-price-ratios-v3
+      parameters:
+        - description: Comma-separated list of stock ticker symbols (e.g., AAPL, MSFT)
+          in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+        - description: 'Start date for query in YYYY-MM-DD format. Supports: YYYY-MM-DD,
+            YTD (year-to-date), 1MONTH/1m/1M (1 month ago)'
+          in: query
+          name: from
+          schema:
+            type: string
+        - description: End date for query in YYYY-MM-DD format. Returns data up to
+            and including this date.
+          in: query
+          name: to
+          schema:
+            type: string
+        - description: 'Report type filter. Values: TTM (trailing twelve months),
+            A (as reported), R (restated), P (preliminary)'
+          in: query
+          name: date
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Share price ratios data
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bzhttp.Resp'
+      security:
+        - ApiKeyAuth: []
+      summary: Get Share Price Ratios V3
+      tags:
+        - Fundamentals
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      in: query
+      name: token
+      type: apiKey
+  schemas:
+    api_httpapi.Chart:
+      properties:
+        candles:
+          items:
+            properties:
+              close:
+                type: number
+              dateTime:
+                type: string
+              high:
+                type: number
+              low:
+                type: number
+              open:
+                type: number
+              time:
+                type: string
+              volume:
+                type: string
+            type: object
+          type: array
+        interval:
+          type: integer
+        symbol:
+          type: string
+      type: object
+    bzhttp.Error:
+      properties:
+        code:
+          $ref: '#/components/schemas/bzhttp.ErrorCode'
+        id:
+          type: string
+        value:
+          type: string
+      type: object
+    bzhttp.ErrorCode:
+      enum:
+        - unsupported_message_type
+        - database_query_error
+        - json_unmarshaling_error
+        - no_data_found
+        - no_matching_endpoint
+        - bad_request
+        - db_error
+        - internal_server_error
+        - auth_failed
+        - forbidden
+        - failed_dependency
+        - service_unavailable
+        - upstream_api_error
+      type: string
+      x-enum-varnames:
+        - ErrorUnsupportedMessageType
+        - ErrorDBQueryError
+        - ErrorJSONUnmarshaling
+        - ErrorNoDataFound
+        - ErrorNoMatchingEndpoint
+        - ErrorBadRequest
+        - ErrorDBError
+        - ErrorInternalServerError
+        - ErrorAuthFailed
+        - ErrorForbidden
+        - ErrorFailedDependency
+        - ErrorServiceUnavailable
+        - ErrorUpstreamAPIError
+    bzhttp.Resp:
+      properties:
+        data:
+          additionalProperties: true
+          type: object
+        errors:
+          items:
+            $ref: '#/components/schemas/bzhttp.Error'
+          type: array
+        ok:
+          type: boolean
+      type: object
+servers:
+  - url: https://api.benzinga.com
+    description: PROD

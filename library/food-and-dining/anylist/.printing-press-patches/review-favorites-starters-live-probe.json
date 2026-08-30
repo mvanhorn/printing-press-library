@@ -1,0 +1,45 @@
+{
+  "schema_version": 2,
+  "id": "review-favorites-starters-live-probe",
+  "applied_at": "2026-08-24",
+  "task_id": "anylist-starter-list-live-roundtrip-20260824",
+  "summary": "Authenticated browser capture and disposable live round-trips proved favorite and user-starter item add/remove writes.",
+  "live_capture": {
+    "route": "POST /data/starter-lists/update",
+    "content_type": "multipart/form-data",
+    "multipart_field": {
+      "name": "operations",
+      "shape": "binary protobuf part with Content-Type application/octet-stream"
+    },
+    "request_payload_layout": {
+      "outer_message": "PBStarterListOperationList with one operation in field 1",
+      "operation_metadata": "PBOperationMetadata field 1; handlers bulk-add-list-items and bulk-remove-list-items",
+      "operation_list_id": "starter-list identifier in field 2",
+      "operation_list": "partial StarterList in field 7 containing the identifier and one complete ListItem",
+      "item_category_fallback": "browser sends categoryMatchId=other when the visible item has no category"
+    }
+  },
+  "fresh_read_round_trips": [
+    {
+      "kind": "favorites",
+      "add": "passed",
+      "remove": "passed"
+    },
+    {
+      "kind": "starters",
+      "add": "passed",
+      "remove": "passed"
+    }
+  ],
+  "cleanup": {
+    "fixture": "disposable shopping list and temporary favorite item",
+    "fixture_removal": "shopping list deleted through the verified list-delete route; favorite and starter test items removed and confirmed absent by fresh reads"
+  },
+  "gate_state": "Favorite and starter add/remove mutations are enabled only with --apply and fresh read-after-write verification. Photo, price, and list-level starter mutations remain separate capabilities.",
+  "invariants_held": [
+    "No raw IDs, email addresses, cookies, tokens, or captured request bodies are stored",
+    "Transport HTTP 200 alone is never reported as success",
+    "The caller's item is not mutated while building the request",
+    "Disposable data was removed before the probe ended"
+  ]
+}

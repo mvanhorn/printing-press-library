@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "analytics-price-drift-select-longest-series",
+  "applied_at": "2026-08-21",
+  "base_run_id": "20260820-153504-d88b22af",
+  "base_printing_press_version": "4.30.3",
+  "summary": "Price-drift stays on one product+dates+currency series: among series present at the latest capture, pick the longest history, then cheapest latest rate, then lexicographic room, plan, check-in, check-out, and currency. Snapshot reads order by captured_at, id.",
+  "reason": "A saved search writes every room/plan with the same timestamp. Picking the last tied row reports drift for an arbitrary product and same-batch ORDER BY captured_at is not deterministic.",
+  "files": [
+    "internal/cli/analytics_price_drift.go",
+    "internal/store/extras.go"
+  ],
+  "validated_outcome": "internal/cli and internal/store tests cover longest-history selection, shuffled insert order, and captured_at+id ordering."
+}

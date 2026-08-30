@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "giustizia-amministrativa",
   "cli_name": "giustizia-amministrativa-pp-cli",
-  "version": "2026.7.2",
-  "released_at": "2026-07-23T07:01:06Z",
-  "source_commit": "14a3685ce9929e28fe44aabd980d8bda8f53088b",
-  "printing_press_version": "4.24.0",
+  "version": "2026.8.4",
+  "released_at": "2026-08-23T09:18:30Z",
+  "source_commit": "58c7a2be155fbae6166fe8c3ca659883bffbcbe7",
+  "printing_press_version": "4.30.1",
   "run_id": "20260621-094103",
   "changes": [
     {
-      "title": "feat(giustizia-amministrativa): archive workflow — get --front-matter, corpus build --skip-existing/--plan, search --anno-from/--anno-to",
-      "pr": 1372,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1372",
-      "commit": "14a3685ce9929e28fe44aabd980d8bda8f53088b"
+      "title": "feat(giustizia-amministrativa): reject the portal's error page, read the portlet from the page, accept every spelling of a sede, expose registry metadata",
+      "pr": 1791,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1791",
+      "commit": "58c7a2be155fbae6166fe8c3ca659883bffbcbe7"
     }
   ]
 }

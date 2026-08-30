@@ -11,13 +11,14 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/youtube/internal/cliutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
 
 // Profile is a named set of flag values saved for reuse across invocations.
-// HeyGen's "Beacon" pattern: one named context that a scheduled agent reuses
-// day after day with the same voice/format but different input each run.
+// Use a named profile when a scheduled or recurring workflow reuses the same
+// saved flags while providing different input each run.
 type Profile struct {
 	Name        string            `json:"name"`
 	Description string            `json:"description,omitempty"`
@@ -29,14 +30,22 @@ type profileStore struct {
 }
 
 func profileStorePath() (string, error) {
+	dir, err := cliutil.ConfigDir()
+	if err != nil {
+		return "", err
+	}
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return "", fmt.Errorf("creating profile config dir: %w", err)
+	}
+	return filepath.Join(dir, "profiles.json"), nil
+}
+
+func legacyProfileStorePath() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", fmt.Errorf("resolving home dir: %w", err)
 	}
 	dir := filepath.Join(home, ".youtube-pp-cli")
-	if err := os.MkdirAll(dir, 0o700); err != nil {
-		return "", fmt.Errorf("creating state dir: %w", err)
-	}
 	return filepath.Join(dir, "profiles.json"), nil
 }
 
@@ -45,9 +54,13 @@ func loadProfileStore() (*profileStore, error) {
 	if err != nil {
 		return nil, err
 	}
-	data, err := os.ReadFile(p)
+	legacy, legacyErr := legacyProfileStorePath()
+	if legacyErr != nil || legacy == p {
+		legacy = ""
+	}
+	data, sourcePath, err := cliutil.ReadFileWithLegacyFallback(p, legacy)
 	if err != nil {
-		if os.IsNotExist(err) {
+		if os.IsNotExist(err) || sourcePath == legacy {
 			return &profileStore{Profiles: map[string]Profile{}}, nil
 		}
 		return nil, fmt.Errorf("reading profiles: %w", err)
@@ -98,12 +111,14 @@ func ApplyProfileToFlags(cmd *cobra.Command, profile *Profile) error {
 		return nil
 	}
 	// Reserved flags that never come from a profile - they control profile
-	// resolution itself or are dangerous to overlay.
+	// resolution itself or are dangerous to overlay. profile save's skip
+	// map must remain a superset of this set so saved profiles never carry
+	// values that apply would silently refuse.
 	reserved := map[string]bool{
-		"profile": true, "config": true, "help": true,
+		"profile": true, "client-profile": true, "config": true, "home": true, "help": true,
 	}
 	for name, value := range profile.Values {
-		if reserved[name] {
+		if reserved[name] || credentialLikeRunProfileFlag(name) {
 			continue
 		}
 		flag := cmd.Flags().Lookup(name)
@@ -121,6 +136,16 @@ func ApplyProfileToFlags(cmd *cobra.Command, profile *Profile) error {
 		}
 	}
 	return nil
+}
+
+func credentialLikeRunProfileFlag(name string) bool {
+	name = strings.ToLower(strings.ReplaceAll(strings.TrimSpace(name), "_", "-"))
+	for _, marker := range []string{"token", "secret", "password", "credential", "api-key", "apikey", "authorization", "cookie", "private-key", "client-secret"} {
+		if strings.Contains(name, marker) {
+			return true
+		}
+	}
+	return false
 }
 
 // ListProfileNames returns profile names sorted alphabetically. Used by the
@@ -143,16 +168,9 @@ func newProfileCmd(flags *rootFlags) *cobra.Command {
 		Use:   "profile",
 		Short: "Named sets of flags saved for reuse",
 		Long: `Profiles capture a set of flag values under a name so a scheduled
-agent can invoke the same command with the same configuration each run.
-
-  profile save <name>         captures the current invocation's set flags
-  profile use <name>          prints the values (for inspection)
-  profile list                lists all saved profiles
-  profile show <name>         shows the values of one profile
-  profile delete <name>       removes a profile
-
-Use --profile <name> on any command to apply that profile's values.
-Explicit flags override profile values.`,
+agent can invoke the same command with the same configuration each run.`,
+		Annotations: map[string]string{"pp:parent-group": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 	cmd.AddCommand(newProfileSaveCmd(flags))
 	cmd.AddCommand(newProfileUseCmd(flags))
@@ -169,10 +187,7 @@ func newProfileSaveCmd(flags *rootFlags) *cobra.Command {
 		Short: "Save the current invocation's non-default flags as a named profile",
 		Long: `Captures every flag explicitly set on the invocation and stores
 them under <name>. To update an existing profile, run save again; the
-entry is replaced.
-
-To avoid creating empty profiles, at least one non-default flag must be
-present (other than --profile and --config).`,
+entry is replaced.`,
 		Example: `  youtube-pp-cli profile save my-defaults --json --compact
   youtube-pp-cli profile save tonight-defaults --region US`,
 		Args: cobra.ExactArgs(1),
@@ -183,14 +198,26 @@ present (other than --profile and --config).`,
 			}
 			values := map[string]string{}
 			// Walk inherited + local flags, capture only those the user set.
-			skip := map[string]bool{"profile": true, "config": true, "help": true, "description": true}
+			// Must stay a superset of ApplyProfileToFlags' reserved map for
+			// root flags: capturing a flag that apply refuses to overlay
+			// would store values that never take effect.
+			skip := map[string]bool{"profile": true, "client-profile": true, "config": true, "home": true, "help": true, "description": true}
+			credentialFlags := []string{}
 			visit := func(fl *pflag.Flag) {
+				if fl.Changed && credentialLikeRunProfileFlag(fl.Name) {
+					credentialFlags = append(credentialFlags, fl.Name)
+					return
+				}
 				if fl.Changed && !skip[fl.Name] {
 					values[fl.Name] = fl.Value.String()
 				}
 			}
 			cmd.InheritedFlags().VisitAll(visit)
 			cmd.Flags().VisitAll(visit)
+			if len(credentialFlags) > 0 {
+				sort.Strings(credentialFlags)
+				return fmt.Errorf("run profiles may not store credential-like flags: %s; use --client-profile with exact external references", strings.Join(credentialFlags, ", "))
+			}
 			if len(values) == 0 {
 				return fmt.Errorf("no non-default flags set - pass at least one flag to save into %q", name)
 			}
@@ -252,6 +279,9 @@ func newProfileListCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "list",
 		Short: "List saved profiles",
+		Annotations: map[string]string{
+			"mcp:read-only": "true",
+		},
 		Example: `  youtube-pp-cli profile list
   youtube-pp-cli profile list --json`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
@@ -291,6 +321,9 @@ func newProfileShowCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "show <name>",
 		Short: "Show a profile's values as JSON",
+		Annotations: map[string]string{
+			"mcp:read-only": "true",
+		},
 		Example: `  youtube-pp-cli profile show my-defaults
   youtube-pp-cli profile show tonight-defaults --json`,
 		Args: cobra.ExactArgs(1),

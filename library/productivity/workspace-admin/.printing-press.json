@@ -1,0 +1,74 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-06T18:27:25.878942Z",
+  "printing_press_version": "4.27.1",
+  "api_name": "workspace-admin",
+  "display_name": "Google Workspace Admin",
+  "cli_name": "workspace-admin-pp-cli",
+  "creator": {
+    "handle": "RyanGravetteIDLA",
+    "name": "RyanGravetteIDLA"
+  },
+  "owner": "ryangravetteidla",
+  "printer": "RyanGravetteIDLA",
+  "printer_name": "RyanGravetteIDLA",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:b07c32368833af1c306d77a15b65292c59fa72d8ec0bd6a7d5b9ab1923060d6f",
+  "run_id": "20260706-073846-b99ffcfa",
+  "category": "productivity",
+  "description": "GAT-style Google Workspace auditing as an agent-native CLI: sync Directory, Drive, Gmail, Reports, and Alert Center into a local store, then run offline cross-API audits, offboarding, and OAuth-app risk checks that GAM and the official gws CLI cannot persist.",
+  "mcp_binary": "workspace-admin-pp-mcp",
+  "mcp_tool_count": 266,
+  "mcp_ready": "full",
+  "api_version": "directory_v1",
+  "auth_type": "bearer_token",
+  "auth_preference": "Oauth2",
+  "auth_env_vars": [
+    "GOOGLE_WORKSPACE_TOKEN"
+  ],
+  "endpoint_template_vars": [
+    "userId"
+  ],
+  "novel_features": [
+    {
+      "name": "Offboard workflow",
+      "command": "workflow offboard",
+      "description": "Run a departing user's entire lifecycle in one command — suspend, sign out, revoke OAuth tokens, transfer Drive ownership, set Gmail delegation, remove from groups, and move to a suspended OU."
+    },
+    {
+      "name": "User 360 audit",
+      "command": "audit user360",
+      "description": "One per-user posture report joining the user's Drive footprint and quota, security (2SV, suspended), connected OAuth apps, devices, Gmail settings, group memberships, and recent activity."
+    },
+    {
+      "name": "External sharing audit",
+      "command": "audit external-shares",
+      "description": "Find every Drive file shared 'anyone with link' or with an external domain, joined to its owner and the owner's org unit."
+    },
+    {
+      "name": "OAuth app risk audit",
+      "command": "audit app-risk",
+      "description": "Roll up every third-party OAuth app authorized in the domain by a curated scope-to-risk tier (Low/Moderate/High), flag apps with Full Drive access, and count users-per-app with the member list."
+    },
+    {
+      "name": "Login and geo-failure audit",
+      "command": "audit logins",
+      "description": "Surface failed-login bursts, new-country logins, and dormant accounts (no login since N days) from synced login activity joined to users."
+    },
+    {
+      "name": "Incident reconstruction",
+      "command": "audit reconstruct",
+      "description": "Merge one user's login, admin, Drive, and token activity into a single ordered timeline for post-compromise review."
+    },
+    {
+      "name": "Email exposure sweep",
+      "command": "audit email-exposure",
+      "description": "Sweep every user's Gmail forwarding, sendAs, delegates, and filters for external forwarding, external send-as, delegates, and forward/delete rules — the standard business-email-compromise indicators."
+    },
+    {
+      "name": "Nested group expansion",
+      "command": "groups expand",
+      "description": "Recursively flatten nested groups into their effective direct-user membership, cycle-safe."
+    }
+  ]
+}

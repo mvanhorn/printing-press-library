@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "compare-exclude-fee-exclusive-hotels-from-inter-hotel-ranking",
+  "applied_at": "2026-08-21",
+  "base_run_id": "20260820-153504-d88b22af",
+  "base_printing_press_version": "4.30.3",
+  "summary": "When any compared hotel has a fee-inclusive nightly total, do not rank fallback-only hotels in the same LowestTotal sort; only rank fallback hotels against each other when every hotel is fallback-only.",
+  "reason": "RatePlanRate has no fee fields. A room-only average*nights hotel would otherwise sort ahead of a cheaper fee-inclusive hotel.",
+  "files": ["internal/cli/rates_compare.go"],
+  "validated_outcome": "internal/cli tests cover mixed inclusive-vs-fallback inter-hotel ranking and fallback-only apples-to-apples ranking."
+}

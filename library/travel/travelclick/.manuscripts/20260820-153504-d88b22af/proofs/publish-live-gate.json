@@ -1,0 +1,1856 @@
+{
+  "dir": "/Users/alew/printing-press/library/travelclick",
+  "binary": "/Users/alew/printing-press/library/travelclick/travelclick-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 105,
+  "passed": 105,
+  "failed": 0,
+  "skipped": 73,
+  "unverified": 73,
+  "pass_rate": 100,
+  "commands": [
+    "analytics",
+    "analytics price-drift",
+    "api",
+    "codes check-all",
+    "codes validate-corporate",
+    "codes validate-group",
+    "doctor",
+    "feedback",
+    "feedback list",
+    "hotel",
+    "hotels",
+    "hotels alias",
+    "hotels alias add",
+    "hotels alias list",
+    "hotels alias remove",
+    "learnings candidates",
+    "learnings confirm",
+    "learnings forget",
+    "learnings list",
+    "learnings purge",
+    "learnings reject",
+    "learnings stats",
+    "playbook amend",
+    "playbook list",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "rates calendar",
+    "rates cheapest-night",
+    "rates compare",
+    "rates search",
+    "recall",
+    "teach",
+    "teach-lookup",
+    "teach-pattern",
+    "teach-playbook",
+    "which",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Local state that compounds\n\nUsage:\n  travelclick-pp-cli analytics [flags]\n  travelclick-pp-cli analytics [command]\n\nExamples:\n  travelclick-pp-cli analytics price-drift --hotel 102306\n\nAvailable Commands:\n  price-drift Track how a hotel's rates move over time from your own saved search history.\n\nFlags:\n  -h, --help   help for analytics\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n\nUse \"travelclick-pp-cli analytics [command] --help\" for more information about a command.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "price-drift",
+        "--hotel",
+        "102306"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"hotel_id\": \"102306\",\n  \"earliest_rate\": 0,\n  \"latest_rate\": 0,\n  \"drift\": 0,\n  \"currency\": \"\",\n  \"timeline\": []\n}\nhint: no rate snapshots yet for hotel 102306 -- run rates search 102306 ... --save first\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "price-drift",
+        "--hotel",
+        "102306",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"hotel_id\": \"102306\",\n  \"earliest_rate\": 0,\n  \"latest_rate\": 0,\n  \"drift\": 0,\n  \"currency\": \"\",\n  \"timeline\": []\n}\nhint: no rate snapshots yet for hotel 102306 -- run rates search 102306 ... --save first\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "analytics price-drift",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "price-drift",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Track how a hotel's rates move over time from your own saved search history.\n\nUsage:\n  travelclick-pp-cli analytics price-drift [flags]\n\nExamples:\n  travelclick-pp-cli analytics price-drift --hotel 102306\n\nFlags:\n  -h, --help           help for price-drift\n      --hotel string   Hotel ID or alias to analyze\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "analytics price-drift",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "price-drift",
+        "--hotel",
+        "102306"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"hotel_id\": \"102306\",\n  \"earliest_rate\": 0,\n  \"latest_rate\": 0,\n  \"drift\": 0,\n  \"currency\": \"\",\n  \"timeline\": []\n}\nhint: no rate snapshots yet for hotel 102306 -- run rates search 102306 ... --save first\n"
+    },
+    {
+      "command": "analytics price-drift",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "price-drift",
+        "--hotel",
+        "102306",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"hotel_id\": \"102306\",\n  \"earliest_rate\": 0,\n  \"latest_rate\": 0,\n  \"drift\": 0,\n  \"currency\": \"\",\n  \"timeline\": []\n}\nhint: no rate snapshots yet for hotel 102306 -- run rates search 102306 ... --save first\n"
+    },
+    {
+      "command": "analytics price-drift",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  travelclick-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  travelclick-pp-cli api\n\n  # Show methods for a specific interface\n  travelclick-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"interface\" at depth 0"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"interface\" at depth 0"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'travelclick-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "codes check-all",
+      "kind": "help",
+      "args": [
+        "codes",
+        "check-all",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Test one corporate or group code against every saved hotel at once.\n\nUsage:\n  travelclick-pp-cli codes check-all \u003ccode\u003e [flags]\n\nExamples:\n  travelclick-pp-cli codes check-all ACME2026 --type corporate --hotels 'made-nyc,102306'\n\nFlags:\n  -h, --help            help for check-all\n      --hotels string   Comma-separated list of hotel IDs or aliases to test\n      --type string     Type of code to check ('corporate' or 'group')\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "codes check-all",
+      "kind": "happy_path",
+      "args": [
+        "codes",
+        "check-all",
+        "ACME2026",
+        "--type",
+        "corporate",
+        "--hotels",
+        "102306"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"results\": [\n    {\n      \"hotel_id\": \"102306\",\n      \"code\": \"ACME2026\",\n      \"code_type\": \"corporate\",\n      \"valid\": false,\n      \"error_code\": \"INVALID_CORP_ID\",\n      \"error_message\": \"Corporate ID ACME2026 is not valid\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "codes check-all",
+      "kind": "json_fidelity",
+      "args": [
+        "codes",
+        "check-all",
+        "ACME2026",
+        "--type",
+        "corporate",
+        "--hotels",
+        "102306",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"results\": [\n    {\n      \"hotel_id\": \"102306\",\n      \"code\": \"ACME2026\",\n      \"code_type\": \"corporate\",\n      \"valid\": false,\n      \"error_code\": \"INVALID_CORP_ID\",\n      \"error_message\": \"Corporate ID ACME2026 is not valid\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "codes check-all",
+      "kind": "error_path",
+      "args": [
+        "codes",
+        "check-all",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Usage:\n  travelclick-pp-cli codes check-all \u003ccode\u003e [flags]\n\nExamples:\n  travelclick-pp-cli codes check-all ACME2026 --type corporate --hotels 'made-nyc,102306'\n\nFlags:\n  -h, --help            help for check-all\n      --hotels string   Comma-separated list of hotel IDs or aliases to test\n      --type string     Type of code to check ('corporate' or 'group')\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\nError: --type must be either 'corporate' or 'group'\n"
+    },
+    {
+      "command": "codes validate-corporate",
+      "kind": "help",
+      "args": [
+        "codes",
+        "validate-corporate",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check whether a corporate / rate-access code is valid for this hotel.\n\nUsage:\n  travelclick-pp-cli codes validate-corporate \u003chotel_id\u003e \u003ccode\u003e [flags]\n\nExamples:\n  travelclick-pp-cli codes validate-corporate 102306 ACME2026\n\nFlags:\n  -h, --help   help for validate-corporate\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "codes validate-corporate",
+      "kind": "happy_path",
+      "args": [
+        "codes",
+        "validate-corporate",
+        "102306",
+        "ACME2026"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"hotel_id\": \"102306\",\n  \"code\": \"ACME2026\",\n  \"valid\": false,\n  \"error_code\": \"INVALID_CORP_ID\",\n  \"error_message\": \"Corporate ID ACME2026 is not valid\"\n}\n"
+    },
+    {
+      "command": "codes validate-corporate",
+      "kind": "json_fidelity",
+      "args": [
+        "codes",
+        "validate-corporate",
+        "102306",
+        "ACME2026",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"hotel_id\": \"102306\",\n  \"code\": \"ACME2026\",\n  \"valid\": false,\n  \"error_code\": \"INVALID_CORP_ID\",\n  \"error_message\": \"Corporate ID ACME2026 is not valid\"\n}\n"
+    },
+    {
+      "command": "codes validate-corporate",
+      "kind": "error_path",
+      "args": [
+        "codes",
+        "validate-corporate",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: code is required\nUsage: travelclick-pp-cli codes validate-corporate \u003ccode\u003e\n"
+    },
+    {
+      "command": "codes validate-group",
+      "kind": "help",
+      "args": [
+        "codes",
+        "validate-group",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check whether a group-attendee code is valid for this hotel.\n\nUsage:\n  travelclick-pp-cli codes validate-group \u003chotel_id\u003e \u003ccode\u003e [flags]\n\nExamples:\n  travelclick-pp-cli codes validate-group 102306 CONF2026\n\nFlags:\n  -h, --help   help for validate-group\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "codes validate-group",
+      "kind": "happy_path",
+      "args": [
+        "codes",
+        "validate-group",
+        "102306",
+        "CONF2026"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"hotel_id\": \"102306\",\n  \"code\": \"CONF2026\",\n  \"valid\": false,\n  \"error_code\": \"INVALID_GROUP_CODE\",\n  \"error_message\": \"Group code CONF2026 is not valid\"\n}\n"
+    },
+    {
+      "command": "codes validate-group",
+      "kind": "json_fidelity",
+      "args": [
+        "codes",
+        "validate-group",
+        "102306",
+        "CONF2026",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"hotel_id\": \"102306\",\n  \"code\": \"CONF2026\",\n  \"valid\": false,\n  \"error_code\": \"INVALID_GROUP_CODE\",\n  \"error_message\": \"Group code CONF2026 is not valid\"\n}\n"
+    },
+    {
+      "command": "codes validate-group",
+      "kind": "error_path",
+      "args": [
+        "codes",
+        "validate-group",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: code is required\nUsage: travelclick-pp-cli codes validate-group \u003ccode\u003e\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  travelclick-pp-cli doctor [flags]\n\nExamples:\n  travelclick-pp-cli doctor\n  travelclick-pp-cli doctor --json\n  travelclick-pp-cli doctor --fail-on warn\n  travelclick-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK 1/1 available\n  OK Verify Mode: normal operation\n  OK API: reachable\n  INFO Credentials: present, not verified. Run any read command to confirm the token works end-to-end.\n  config_path: /var/folders/z9/483b06nj2rxggkp02w95jg4m0000gr/T/printing-press-subprocess-1972670231/.config/travelclick-pp-cli/config.toml\n  base_url: https://api.travelclick.com\n  auth_source: env:TRAVELCLICK_TOKEN\n  credentials_location: env:TRAVELCLICK_TOKEN\n  version: 0.0.0-dev\n  Paths:\n    config: /var/folders/z9/483b06nj2rxggkp02w95jg4m0000gr/T/printing-press-subprocess-1972670231/.config/travelclick-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/z9/483b06nj2rxggkp02w95jg4m0000gr/T/printing-press-subprocess-1972670231/.local/share/travelclick-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/z9/483b06nj2rxggkp02w95jg4m0000gr/T/printing-press-subprocess-1972670231/.local/state/travelclick-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/z9/483b06nj2rxggkp02w95jg4m0000gr/T/printing-press-subprocess-1972670231/.cache/travelclick-pp-cli (XDG_CACHE_HOME)\nGET https://api.travelclick.com/\n  Authorization: ****\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"agentcookie\": \"not detected (optional)\",\n  \"api\": \"reachable\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"env:TRAVELCLICK_TOKEN\",\n  \"base_url\": \"https://api.travelclick.com\",\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/z9/483b06nj2rxggkp02w95jg4m0000gr/T/printing-press-subprocess-1972670231/.config/travelclick-pp-cli/config.toml\",\n  \"credentials\": \"present, not verified. Run any read command to confirm the token works end-to-end.\",\n  \"credentials_location\": \"env:TRAVELCLICK_TOKEN\",\n  \"env_vars\": \"OK 1/1 available\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/z9/483b06nj2rxggkp02w95jg4m0000gr/T/printing-press-subprocess-1972670231/.cache/travelclick-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/z9/483b06nj2rxggkp02w95jg4m0000gr/T/printing-press-subprocess-1972670231/.config/travelclick-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/z9/483b06nj2rxggkp02w95jg4m0000gr/T/printing-press-subprocess-1972670231/.local/share/travelclick-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/z9/483b06nj2rxggkp02w95jg4m0000gr/T/printing-press-subprocess-1972670231/.local/state/travelclick-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"0.0.0-dev\"\n}\nGET https://api.travelclick.com/\n  Authorization: ****\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "feedback",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Feedback is captured locally first in the CLI data directory's feedback.jsonl.\nWhen `TRAVELCLICK_FEEDBACK_ENDPOINT` is set and either --send is\npassed or `TRAVELCLICK_FEEDBACK_AUTO_SEND=true`, the entry is\nPOSTed as JSON after the local write.\n\nWrite what surprised you or tripped you up, not a bug report. The\nloop is: agent notices friction -\u003e one invocation -\u003e captured -\u003e the\nmaintainer sees it.\n\nUsage:\n  travelclick-pp-cli feedback [text] [flags]\n  travelclick-pp-cli feedback [command]\n\nExamples:\n  travelclick-pp-cli feedback \"the --check-in flag name wasn't obvious from --help alone\"\n\nAvailable Commands:\n  list        List recent feedback entries\n\nFlags:\n  -h, --help    help for feedback\n      --send    POST to the configured feedback endpoint in addition to local write\n      --stdin   Read feedback body from stdin rather than arguments\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n\nUse \"travelclick-pp-cli feedback [command] --help\" for more information about a command.\n"
+    },
+    {
+      "command": "feedback",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"text\" at depth 0"
+    },
+    {
+      "command": "feedback",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"text\" at depth 0"
+    },
+    {
+      "command": "feedback",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "feedback",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"text\" at depth 0"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  travelclick-pp-cli feedback list [flags]\n\nExamples:\n  travelclick-pp-cli feedback list\n  travelclick-pp-cli feedback list --limit 5\n  travelclick-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "hotel",
+      "kind": "help",
+      "args": [
+        "hotel",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch a hotel's public profile: name, address, geolocation, check-in/out times, accepted cards\n\nUsage:\n  travelclick-pp-cli hotel \u003chotel_id\u003e [flags]\n\nExamples:\n  travelclick-pp-cli hotel 102306\n\nFlags:\n  -h, --help          help for hotel\n      --lang string   Locale code for description/policy text. (default \"EN_US\")\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "hotel",
+      "kind": "happy_path",
+      "args": [
+        "hotel",
+        "102306"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"address\":\"\u003credacted\u003e\",\"analyticsTracking\":{\"gaAccounts\":[{\"uaAccount\":\"UA-31057928-1\"}]},\"bid\":697586,\"brandBarEnabled\":false,\"chainInfo\":[\"CSO\"],\"chainSettings\":null,\"consents\":[{\"category\":\"Email_Marketing\",\"id\":1,\"isPreChecked\":false,\"text\":\"Notify me about special offers.\"},{\"category\":\"Private_Offers\",\"id\":2,\"isPreChecked\":false,\"text\":\"I consent to receiving special offers \u0026 promotional messages from the property via email.\"},{\"category\":\"Abandonment_Email\",\"id\":3,\"isPreChecked\":false,\"text\":\"I consent to receiving special offers \u0026 promotional messages from the property via email.\"},{\"category\":\"Extended_Hold\",\"id\":4,\"isPreChecked\":false,\"text\":\"I consent to receiving special offers \u0026 promotional messages from the property via email.\"},{\"category\":\"Pricing_Consent\",\"id\":5,\"isPreChecked\":false,\"text\":\"Would you like to unlock exclusive rates by %PROPERTY_NAME% based on your currency and location?\"}],\"cookieConsent\":null,\"creditCardMode\":\"Disabled\",\"currentCurrency\":{\"currencyCode\":\"USD\",\"currencyDisplayFormat\":{\"decimalSeparator\":\".\",\"format\":\"##,###,###.##\",\"precision\":2,\"scale\":3,\"unitSeparator\":\",\"},\"currencySymbol\":\"$\",\"displayRightEnabled\":false,\"exchangeRate\":1,\"isDefaultCurrency\":true,\"isMerchandisedCurrency\":false,\"leadRateDisplayEnabled\":true},\"currentLanguage\":{\"description\":\"English (US)\",\"isDefaultLanguage\":true,\"languageCode\":\"EN_US\"},\"disableBE4TrafficForProperty\":false,\"enable3DSv1PaymentProcessing\":false,\"enableAudienceEvaluator\":false,\"enableBookingEngineInsurance\":false,\"enableEarnPoints\":true,\"enableEmailHashing\":false,\"enableFirstPartyCookie\":false,\"enableFlexibleTaxes\":true,\"enableGMSClickstream\":false,\"enableGdprCookieConsent\":true,\"enableGuarantee3DS\":false,\"enableImageMigration\":false,\"enableMediaManagerAsBESource\":true,\"enableMemberRateMerchandising\":true,\"enableMultiRoomTypeBookings\":true,\"enableOgoneIngenicoMigration\":null,\"enableRedeemPoints\":true,\"enableSchedPkgInclusions\":false,\"enabledForBE4\":true,\"enabledForVanityURL\":false,\"generalInformation\":{\"additional\":[{\"text\":\"\",\"type\":\"Driving Directions\"},{\"text\":\"No\",\"type\":\"Transportation\"},{\"text\":\"Manhattan’s most innovative and culturally reverent hotel concept, MADE is an 18 story, 108 room boutique hotel in the NoMad District. MADE is New York City’s cultural and creative hub for consciously moving influencers inspired by the world’s variety of human expression.\",\"type\":\"Hotel Description\"},{\"text\":\"MADE is located in the NoMad District on 29th Street between Broadway and 6th Avenue. Just north of Madison Square Park.\",\"type\":\"Location Information\"},{\"text\":\"Manhattan’s most innovative and culturally reverent hotel concept, MADE is an 18 story, 108 room boutique hotel in the NoMad District. MADE is New York City’s cultural and creative hub for consciously moving influencers inspired by the world’s variety of human expression.\",\"type\":\"shortDescription\"}],\"airportDirections\":[{\"airportName\":\"New York, New York (Kennedy)\",\"direction\":\"West\",\"distance\":\"15.0\",\"distanceUnit\":\"Mile\"},{\"airportName\":\"New York, New York (La Guardia)\",\"direction\":\"SW\",\"distance\":\"9.0\",\"distanceUnit\":\"Mile\"},{\"airportName\":\"Newark, New Jersey\",\"direction\":\"NE\",\"distance\":\"15.0\",\"distanceUnit\":\"Mile\"}]},\"geoCurrencies\":[{\"countryCode\":\"PR\",\"currencyCode\":\"USD\"},{\"countryCode\":\"PS\",\"currencyCode\":\"ILS\"},{\"countryCode\":\"PT\",\"currencyCode\":\"EUR\"},{\"countryCode\":\"PW\",\"currencyCode\":\"USD\"},{\"countryCode\":\"QA\",\"currencyCode\":\"QAR\"},{\"countryCode\":\"AD\",\"currencyCode\":\"EUR\"},{\"countryCode\":\"AE\",\"currencyCode\":\"AED\"},{\"countryCode\":\"AF\",\"currencyCode\":\"AFN\"},{\"countryCode\":\"AM\",\"currencyCode\":\"AMD\"},{\"countryCode\":\"AR\",\"currencyCode\":\"ARS\"},{\"countryCode\":\"AS\",\"currencyCode\":\"USD\"},{\"countryCode\":\"AT\",\"currencyCode\":\"EUR\"},{\"countryCode\":\"RE\",\"currencyCode\":\"EUR\"},{\"countryCode\":\"AU\",\"currencyCode\":\"AUD\"},{\"countryCode\":\"AZ\",\"currencyCode\":\"AZN\"},{\"countryCode\":\"RO\",\"currencyCode\":\"RON\"},{\"countryCode\":\"BE\",\"currencyCode\":\"EUR\"},{\"countryCode\":\"RU\",\"currencyCode\":\"RUB\"},{\"countryCode\":\"BH\",\"currencyCode\":\"BHD\"},{\"country…[truncated]"
+    },
+    {
+      "command": "hotel",
+      "kind": "json_fidelity",
+      "args": [
+        "hotel",
+        "102306",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"address\":\"\u003credacted\u003e\",\"analyticsTracking\":{\"gaAccounts\":[{\"uaAccount\":\"UA-31057928-1\"}]},\"bid\":697586,\"brandBarEnabled\":false,\"chainInfo\":[\"CSO\"],\"chainSettings\":null,\"consents\":[{\"category\":\"Email_Marketing\",\"id\":1,\"isPreChecked\":false,\"text\":\"Notify me about special offers.\"},{\"category\":\"Private_Offers\",\"id\":2,\"isPreChecked\":false,\"text\":\"I consent to receiving special offers \u0026 promotional messages from the property via email.\"},{\"category\":\"Abandonment_Email\",\"id\":3,\"isPreChecked\":false,\"text\":\"I consent to receiving special offers \u0026 promotional messages from the property via email.\"},{\"category\":\"Extended_Hold\",\"id\":4,\"isPreChecked\":false,\"text\":\"I consent to receiving special offers \u0026 promotional messages from the property via email.\"},{\"category\":\"Pricing_Consent\",\"id\":5,\"isPreChecked\":false,\"text\":\"Would you like to unlock exclusive rates by %PROPERTY_NAME% based on your currency and location?\"}],\"cookieConsent\":null,\"creditCardMode\":\"Disabled\",\"currentCurrency\":{\"currencyCode\":\"USD\",\"currencyDisplayFormat\":{\"decimalSeparator\":\".\",\"format\":\"##,###,###.##\",\"precision\":2,\"scale\":3,\"unitSeparator\":\",\"},\"currencySymbol\":\"$\",\"displayRightEnabled\":false,\"exchangeRate\":1,\"isDefaultCurrency\":true,\"isMerchandisedCurrency\":false,\"leadRateDisplayEnabled\":true},\"currentLanguage\":{\"description\":\"English (US)\",\"isDefaultLanguage\":true,\"languageCode\":\"EN_US\"},\"disableBE4TrafficForProperty\":false,\"enable3DSv1PaymentProcessing\":false,\"enableAudienceEvaluator\":false,\"enableBookingEngineInsurance\":false,\"enableEarnPoints\":true,\"enableEmailHashing\":false,\"enableFirstPartyCookie\":false,\"enableFlexibleTaxes\":true,\"enableGMSClickstream\":false,\"enableGdprCookieConsent\":true,\"enableGuarantee3DS\":false,\"enableImageMigration\":false,\"enableMediaManagerAsBESource\":true,\"enableMemberRateMerchandising\":true,\"enableMultiRoomTypeBookings\":true,\"enableOgoneIngenicoMigration\":null,\"enableRedeemPoints\":true,\"enableSchedPkgInclusions\":false,\"enabledForBE4\":true,\"enabledForVanityURL\":false,\"generalInformation\":{\"additional\":[{\"text\":\"\",\"type\":\"Driving Directions\"},{\"text\":\"No\",\"type\":\"Transportation\"},{\"text\":\"Manhattan’s most innovative and culturally reverent hotel concept, MADE is an 18 story, 108 room boutique hotel in the NoMad District. MADE is New York City’s cultural and creative hub for consciously moving influencers inspired by the world’s variety of human expression.\",\"type\":\"Hotel Description\"},{\"text\":\"MADE is located in the NoMad District on 29th Street between Broadway and 6th Avenue. Just north of Madison Square Park.\",\"type\":\"Location Information\"},{\"text\":\"Manhattan’s most innovative and culturally reverent hotel concept, MADE is an 18 story, 108 room boutique hotel in the NoMad District. MADE is New York City’s cultural and creative hub for consciously moving influencers inspired by the world’s variety of human expression.\",\"type\":\"shortDescription\"}],\"airportDirections\":[{\"airportName\":\"New York, New York (Kennedy)\",\"direction\":\"West\",\"distance\":\"15.0\",\"distanceUnit\":\"Mile\"},{\"airportName\":\"New York, New York (La Guardia)\",\"direction\":\"SW\",\"distance\":\"9.0\",\"distanceUnit\":\"Mile\"},{\"airportName\":\"Newark, New Jersey\",\"direction\":\"NE\",\"distance\":\"15.0\",\"distanceUnit\":\"Mile\"}]},\"geoCurrencies\":[{\"countryCode\":\"PR\",\"currencyCode\":\"USD\"},{\"countryCode\":\"PS\",\"currencyCode\":\"ILS\"},{\"countryCode\":\"PT\",\"currencyCode\":\"EUR\"},{\"countryCode\":\"PW\",\"currencyCode\":\"USD\"},{\"countryCode\":\"QA\",\"currencyCode\":\"QAR\"},{\"countryCode\":\"AD\",\"currencyCode\":\"EUR\"},{\"countryCode\":\"AE\",\"currencyCode\":\"AED\"},{\"countryCode\":\"AF\",\"currencyCode\":\"AFN\"},{\"countryCode\":\"AM\",\"currencyCode\":\"AMD\"},{\"countryCode\":\"AR\",\"currencyCode\":\"ARS\"},{\"countryCode\":\"AS\",\"currencyCode\":\"USD\"},{\"countryCode\":\"AT\",\"currencyCode\":\"EUR\"},{\"countryCode\":\"RE\",\"currencyCode\":\"EUR\"},{\"countryCode\":\"AU\",\"currencyCode\":\"AUD\"},{\"countryCode\":\"AZ\",\"currencyCode\":\"AZN\"},{\"countryCode\":\"RO\",\"currencyCode\":\"RON\"},{\"countryCode\":\"BE\",\"currencyCode\":\"EUR\"},{\"countryCode\":\"RU\",\"currencyCode\":\"RUB\"},{\"countryCode\":\"BH\",\"currencyCode\":\"BHD\"},{\"country…[truncated]"
+    },
+    {
+      "command": "hotel",
+      "kind": "error_path",
+      "args": [
+        "hotel",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /ibe-entity/v1/hotel/__printing_press_invalid__/info returned HTTP 500: {\"errors\":[{\"errorCode\":\"INTERNAL_SERVER_ERROR\",\"errorMessage\":\"An unknown error has occurred.\"}], \"errorId\":\"6bbd8f5b-e704-4b63-a84d-7339a3a48006-U\"}\n"
+    },
+    {
+      "command": "hotels",
+      "kind": "help",
+      "args": [
+        "hotels",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Local state that compounds\n\nUsage:\n  travelclick-pp-cli hotels [flags]\n  travelclick-pp-cli hotels [command]\n\nExamples:\n  travelclick-pp-cli hotels alias add made-nyc 102306\n\nAvailable Commands:\n  alias       Give a memorable name to a TravelClick hotel ID instead of memorizing a 6-digit number.\n\nFlags:\n  -h, --help   help for hotels\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n\nUse \"travelclick-pp-cli hotels [command] --help\" for more information about a command.\n"
+    },
+    {
+      "command": "hotels",
+      "kind": "happy_path",
+      "args": [
+        "hotels",
+        "alias",
+        "add",
+        "made-nyc",
+        "102306"
+      ],
+      "status": "pass",
+      "output_sample": "Successfully added alias \"made-nyc\" for hotel 102306\n"
+    },
+    {
+      "command": "hotels",
+      "kind": "json_fidelity",
+      "args": [
+        "hotels",
+        "alias",
+        "add",
+        "made-nyc",
+        "102306",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"alias\": \"made-nyc\",\n  \"hotel_id\": \"102306\",\n  \"status\": \"success\"\n}\n"
+    },
+    {
+      "command": "hotels",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "hotels alias",
+      "kind": "help",
+      "args": [
+        "hotels",
+        "alias",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Give a memorable name to a TravelClick hotel ID instead of memorizing a 6-digit number.\n\nUsage:\n  travelclick-pp-cli hotels alias [flags]\n  travelclick-pp-cli hotels alias [command]\n\nExamples:\n  travelclick-pp-cli hotels alias add made-nyc 102306\n\nAvailable Commands:\n  add         Add a new hotel alias\n  list        List all hotel aliases\n  remove      Remove a hotel alias\n\nFlags:\n  -h, --help   help for alias\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n\nUse \"travelclick-pp-cli hotels alias [command] --help\" for more information about a command.\n"
+    },
+    {
+      "command": "hotels alias",
+      "kind": "happy_path",
+      "args": [
+        "hotels",
+        "alias",
+        "add",
+        "made-nyc",
+        "102306",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "dry-run: would run hotels alias add; no changes made\n"
+    },
+    {
+      "command": "hotels alias",
+      "kind": "json_fidelity",
+      "args": [
+        "hotels",
+        "alias",
+        "add",
+        "made-nyc",
+        "102306",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"hotels alias add\",\"would\":\"run hotels alias add; no changes made\"}\n"
+    },
+    {
+      "command": "hotels alias",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "hotels alias",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "hotels alias add",
+      "kind": "help",
+      "args": [
+        "hotels",
+        "alias",
+        "add",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Add a new hotel alias\n\nUsage:\n  travelclick-pp-cli hotels alias add \u003calias\u003e \u003chotel_id\u003e [flags]\n\nExamples:\n  travelclick-pp-cli hotels alias add made-nyc 102306\n\nFlags:\n  -h, --help   help for add\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "hotels alias add",
+      "kind": "happy_path",
+      "args": [
+        "hotels",
+        "alias",
+        "add",
+        "made-nyc",
+        "102306",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "dry-run: would run hotels alias add; no changes made\n"
+    },
+    {
+      "command": "hotels alias add",
+      "kind": "json_fidelity",
+      "args": [
+        "hotels",
+        "alias",
+        "add",
+        "made-nyc",
+        "102306",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"hotels alias add\",\"would\":\"run hotels alias add; no changes made\"}\n"
+    },
+    {
+      "command": "hotels alias add",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "hotels alias add",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "hotels alias list",
+      "kind": "help",
+      "args": [
+        "hotels",
+        "alias",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List all hotel aliases\n\nUsage:\n  travelclick-pp-cli hotels alias list [flags]\n\nExamples:\n  travelclick-pp-cli hotels alias list\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "hotels alias list",
+      "kind": "happy_path",
+      "args": [
+        "hotels",
+        "alias",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"alias\": \"made-nyc\",\n    \"hotel_id\": \"102306\",\n    \"created_at\": \"2026-08-21T04:44:40Z\"\n  }\n]\n"
+    },
+    {
+      "command": "hotels alias list",
+      "kind": "json_fidelity",
+      "args": [
+        "hotels",
+        "alias",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"alias\": \"made-nyc\",\n    \"hotel_id\": \"102306\",\n    \"created_at\": \"2026-08-21T04:44:40Z\"\n  }\n]\n"
+    },
+    {
+      "command": "hotels alias list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "hotels alias remove",
+      "kind": "help",
+      "args": [
+        "hotels",
+        "alias",
+        "remove",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a hotel alias\n\nUsage:\n  travelclick-pp-cli hotels alias remove \u003calias\u003e [flags]\n\nExamples:\n  travelclick-pp-cli hotels alias remove made-nyc\n\nFlags:\n  -h, --help   help for remove\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "hotels alias remove",
+      "kind": "happy_path",
+      "args": [
+        "hotels",
+        "alias",
+        "remove",
+        "made-nyc",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "dry-run: would run hotels alias remove; no changes made\n"
+    },
+    {
+      "command": "hotels alias remove",
+      "kind": "json_fidelity",
+      "args": [
+        "hotels",
+        "alias",
+        "remove",
+        "made-nyc",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"hotels alias remove\",\"would\":\"run hotels alias remove; no changes made\"}\n"
+    },
+    {
+      "command": "hotels alias remove",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "hotels alias remove",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "candidates",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Lists rows from the learn_candidates table: corrections and playbook\nshapes the CLI derived from observed usage. Candidates are quarantined\nuntil an explicit 'learnings confirm \u003cid\u003e' materializes them; they never\nalter command behavior or recall's verified results on their own.\n\nUsage:\n  travelclick-pp-cli learnings candidates [flags]\n\nExamples:\n  travelclick-pp-cli learnings candidates\n  travelclick-pp-cli learnings candidates --class flag_alias\n  travelclick-pp-cli learnings candidates --status rejected\n\nFlags:\n      --class string    Filter by class (flag_alias | playbook_candidate)\n      --db string       SQLite database file path (default: resolved data directory data.db)\n  -h, --help            help for candidates\n      --limit int       Maximum rows to return (default: capped)\n      --status string   Filter by status (open | confirmed | rejected | expired; empty for all) (default \"open\")\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "candidates"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "candidates",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "confirm",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Promotes one open candidate into the verified knowledge tables.\n\nThe full candidate payload is printed before anything is written, so\nthe caller always sees exactly what is being blessed. Materialization\nis per class:\n\n  playbook_candidate  upserts a playbook row for the candidate's query\n                      family (confidence 2, the same floor as a teach)\n  flag_alias          appends a timestamped [amend ...] correction note\n                      to the query family's playbook notes\n\nUsage errors (unknown id, non-open status) exit 2.\n\nUsage:\n  travelclick-pp-cli learnings confirm \u003cid\u003e [flags]\n\nExamples:\n  travelclick-pp-cli learnings confirm 3\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for confirm\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "forget",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Removes rows from the search_learnings table so a bad teach can be\nundone without dropping the whole DB.\n\nRequires at least one of --resource, --action, or --all.\n\nUsage:\n  travelclick-pp-cli learnings forget \u003cquery\u003e [flags]\n\nExamples:\n  travelclick-pp-cli learnings forget \"\u003cquestion\u003e\" --resource \u003cid\u003e\n  travelclick-pp-cli learnings forget \"\u003cquestion\u003e\" --all\n\nFlags:\n      --action string     Delete only rules with this action (boost | hide | alias_of)\n      --all               Delete every rule for the supplied query\n      --db string         SQLite database file path (default: resolved data directory data.db)\n  -h, --help              help for forget\n      --resource string   Delete only the rule for this resource_id\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "learnings list",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recorded learnings\n\nUsage:\n  travelclick-pp-cli learnings list [flags]\n\nExamples:\n  travelclick-pp-cli learnings list --agent\n  travelclick-pp-cli learnings list --query \"\u003csubstring\u003e\"\n  travelclick-pp-cli learnings list --warnings --agent\n\nFlags:\n      --action string        Filter by action (boost | hide | alias_of)\n      --db string            SQLite database file path (default: resolved data directory data.db)\n  -h, --help                 help for list\n      --limit int            Maximum rows to return (default 200)\n      --min-confidence int   Filter by minimum confidence\n      --query string         Filter by normalized query substring\n      --resource string      Filter by resource_id\n      --source string        Filter by source (taught | manual-forget)\n      --warnings             Return teach-time warnings from teach.log instead of stored learning rows\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "purge",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Deletes expired and confirmed candidate rows. Materialized artifacts\n(playbook rows, correction notes) are untouched. Rejected rows are kept\nby default because they tombstone their derivation signatures; pass\n--tombstones to remove them too, which re-allows derivation of those\nsignatures. Open rows are never purged.\n\nOpen rows past the unseen TTL are swept to expired first, so a single\npurge also clears stale candidates nobody judged.\n\nUsage:\n  travelclick-pp-cli learnings purge [flags]\n\nExamples:\n  travelclick-pp-cli learnings purge\n  travelclick-pp-cli learnings purge --tombstones\n\nFlags:\n      --db string    SQLite database file path (default: resolved data directory data.db)\n  -h, --help         help for purge\n      --tombstones   Also delete rejected rows (re-allows derivation of their signatures)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "purge",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "dry-run: would run learnings purge; no changes made\n"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "purge",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"learnings purge\",\"would\":\"run learnings purge; no changes made\"}\n"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "reject",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Marks a candidate rejected. The rejected row stays as a tombstone on\nits derivation signature: the identical observation never re-derives a\ncandidate, and recall never resurfaces it.\n\nRejecting a CONFIRMED playbook_candidate tombstones the candidate but\nleaves the playbook row in place; repair the guidance with\n'playbook amend' if needed. A confirmed flag_alias cannot be rejected:\nits correction note already lives in the family playbook, so repair the\nguidance with 'playbook amend' instead.\n\nUsage errors (unknown id, no-reject-path candidates) exit 2.\n\nUsage:\n  travelclick-pp-cli learnings reject \u003cid\u003e [flags]\n\nExamples:\n  travelclick-pp-cli learnings reject 3\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for reject\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"id\""
+    },
+    {
+      "command": "learnings reject",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"id\""
+    },
+    {
+      "command": "learnings reject",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"id\""
+    },
+    {
+      "command": "learnings stats",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "stats",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Aggregates the local learn_events table into the loop's headline\nmetrics:\n\n  recall_hit_rate           recall hits / (hits + misses)\n  teach_to_reuse            fraction of taught learnings later seen in a\n                            recall hit (joined by learning row id, with a\n                            query-family fallback for older rows)\n  playbook_resolution_rate  playbook hits not followed by an amend on the\n                            same query family\n  candidates_confirmed/rejected  judgment counts on auto-captured candidates\n\nRates are null until their denominator is non-zero. Everything is\nlocal-only: events never leave this machine.\n\nUsage:\n  travelclick-pp-cli learnings stats [flags]\n\nExamples:\n  travelclick-pp-cli learnings stats\n  travelclick-pp-cli learnings stats --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for stats\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "stats"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"recall_hit_rate\": null,\n  \"recall_hits\": 0,\n  \"recall_misses\": 0,\n  \"teach_to_reuse\": null,\n  \"taught_rows\": 0,\n  \"reused_rows\": 0,\n  \"playbook_resolution_rate\": null,\n  \"playbook_hits\": 0,\n  \"playbook_hits_amended\": 0,\n  \"candidates_confirmed\": 0,\n  \"candidates_rejected\": 0,\n  \"event_counts\": {},\n  \"events_pruned\": 0\n}\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "stats",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"recall_hit_rate\": null,\n  \"recall_hits\": 0,\n  \"recall_misses\": 0,\n  \"teach_to_reuse\": null,\n  \"taught_rows\": 0,\n  \"reused_rows\": 0,\n  \"playbook_resolution_rate\": null,\n  \"playbook_hits\": 0,\n  \"playbook_hits_amended\": 0,\n  \"candidates_confirmed\": 0,\n  \"candidates_rejected\": 0,\n  \"event_counts\": {},\n  \"events_pruned\": 0\n}\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "help",
+      "args": [
+        "playbook",
+        "amend",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Appends a timestamped note to the matching family's playbook notes_text.\nIf no playbook exists for the family yet, creates a notes-only one.\n\nDesigned for agents to fire when their debug-protocol response\nidentifies a concrete correction worth persisting (a workaround, an\nundocumented endpoint shape, a stale field name, observed schema\ndrift). Same fire-and-forget posture as teach: silent on success,\nerrors to teach.log, safe to background with \u0026.\n\nDisabling: pass --no-learn or set TRAVELCLICK_NO_LEARN=true.\n\nUsage:\n  travelclick-pp-cli playbook amend [flags]\n\nExamples:\n  travelclick-pp-cli playbook amend --query \"\u003cexact recall query\u003e\" --add-note \"summary endpoint envelope: data lives at .results.header, not .header\"\n\nFlags:\n      --add-note string   The note text to append to the family's playbook (required)\n      --db string         Database path (default: standard cache location)\n  -h, --help              help for amend\n      --query string      The exact recall query whose family should be amended (required)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "happy_path",
+      "args": [
+        "playbook",
+        "amend",
+        "--query",
+        "\u003cexact recall query\u003e",
+        "--add-note",
+        "summary endpoint envelope: data lives at .results.header, not .header",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "dry-run: would run playbook amend; no changes made\n"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "json_fidelity",
+      "args": [
+        "playbook",
+        "amend",
+        "--query",
+        "\u003cexact recall query\u003e",
+        "--add-note",
+        "summary endpoint envelope: data lives at .results.header, not .header",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"playbook amend\",\"would\":\"run playbook amend; no changes made\"}\n"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "playbook list",
+      "kind": "help",
+      "args": [
+        "playbook",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List stored playbooks (query_family, content presence, last observed)\n\nUsage:\n  travelclick-pp-cli playbook list [flags]\n\nExamples:\n  travelclick-pp-cli playbook list --agent\n\nFlags:\n      --db string   Database path (default: standard cache location)\n  -h, --help        help for list\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "playbook list",
+      "kind": "happy_path",
+      "args": [
+        "playbook",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "playbook list",
+      "kind": "json_fidelity",
+      "args": [
+        "playbook",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "playbook list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  travelclick-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  travelclick-pp-cli profile delete my-defaults --yes\n  travelclick-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  travelclick-pp-cli profile list [flags]\n\nExamples:\n  travelclick-pp-cli profile list\n  travelclick-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile, --config, and --home, which are never\ncaptured: they control profile/config resolution and would never apply).\n\nUsage:\n  travelclick-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  travelclick-pp-cli profile save my-defaults --json --compact\n  travelclick-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  travelclick-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  travelclick-pp-cli profile show my-defaults\n  travelclick-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  travelclick-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  travelclick-pp-cli profile use my-defaults\n  travelclick-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "rates calendar",
+      "kind": "help",
+      "args": [
+        "rates",
+        "calendar",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Scan a date range (up to ~60 days)\n\nUsage:\n  travelclick-pp-cli rates calendar \u003chotel_id\u003e [flags]\n\nExamples:\n  travelclick-pp-cli rates calendar 102306 --from 2026-09-01 --to 2026-10-31\n\nFlags:\n      --booker-identifier string      Optional OTA/travel-agent booker attribution ID.\n      --channel string                Booking-engine channel identifier. (default \"Web4_Desktop\")\n      --currency string               ISO currency code for displayed rates. (default \"USD\")\n      --from string                   Start of the scan window, YYYY-MM-DD.\n  -h, --help                          help for calendar\n      --hotel-code int                Same numeric ID as hotel_id -- the API expects it in both the path and the body.\n      --lang string                   Locale code. (default \"EN_US\")\n      --multi-room-occupancy string   Occupancy per room being scanned. The widget always sends exactly one entry for a single-room calendar scan.\n      --stdin                         Read request body as JSON from stdin\n      --to string                     End of the scan window, YYYY-MM-DD. Windows longer than ~60 days may be truncated by the API.\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "rates calendar",
+      "kind": "happy_path",
+      "args": [
+        "rates",
+        "calendar",
+        "102306",
+        "--from",
+        "2026-09-01",
+        "--to",
+        "2026-09-30",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/ibe-shop/v1/hotel/102306/basicavail/multi-room\",\n  \"resource\": \"rates\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.travelclick.com/ibe-shop/v1/hotel/102306/basicavail/multi-room\n  Body:\n{\n    \"currency\": \"USD\",\n    \"dateIn\": \"2026-09-01\",\n    \"dateOut\": \"2026-09-30\",\n    \"lang\": \"EN_US\",\n    \"partnerIdentifier\": \"Web4_Desktop\"\n  }\n  Authorization: ****\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "rates calendar",
+      "kind": "json_fidelity",
+      "args": [
+        "rates",
+        "calendar",
+        "102306",
+        "--from",
+        "2026-09-01",
+        "--to",
+        "2026-09-30",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/ibe-shop/v1/hotel/102306/basicavail/multi-room\",\n  \"resource\": \"rates\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.travelclick.com/ibe-shop/v1/hotel/102306/basicavail/multi-room\n  Body:\n{\n    \"currency\": \"USD\",\n    \"dateIn\": \"2026-09-01\",\n    \"dateOut\": \"2026-09-30\",\n    \"lang\": \"EN_US\",\n    \"partnerIdentifier\": \"Web4_Desktop\"\n  }\n  Authorization: ****\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "rates calendar",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "rates calendar",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "rates cheapest-night",
+      "kind": "help",
+      "args": [
+        "rates",
+        "cheapest-night",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Scan several hotels' calendars at once and return the single best hotel+date combination.\n\nUsage:\n  travelclick-pp-cli rates cheapest-night [flags]\n\nExamples:\n  travelclick-pp-cli rates cheapest-night --hotels 'made-nyc,102306' --from 2026-09-01 --to 2026-10-31\n\nFlags:\n      --from string     Start date of the scan window (YYYY-MM-DD)\n  -h, --help            help for cheapest-night\n      --hotels string   Comma-separated list of hotel IDs or aliases to scan\n      --to string       End date of the scan window (YYYY-MM-DD)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "rates cheapest-night",
+      "kind": "happy_path",
+      "args": [
+        "rates",
+        "cheapest-night",
+        "--hotels",
+        "102306",
+        "--from",
+        "2026-09-01",
+        "--to",
+        "2026-09-30"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"best\": {\n    \"hotel_id\": \"102306\",\n    \"date\": \"2026-09-27\",\n    \"rate\": 407.49,\n    \"currency\": \"USD\"\n  },\n  \"cheapest_by_hotel\": [\n    {\n      \"hotel_id\": \"102306\",\n      \"date\": \"2026-09-27\",\n      \"rate\": 407.49,\n      \"currency\": \"USD\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "rates cheapest-night",
+      "kind": "json_fidelity",
+      "args": [
+        "rates",
+        "cheapest-night",
+        "--hotels",
+        "102306",
+        "--from",
+        "2026-09-01",
+        "--to",
+        "2026-09-30",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"best\": {\n    \"hotel_id\": \"102306\",\n    \"date\": \"2026-09-27\",\n    \"rate\": 407.49,\n    \"currency\": \"USD\"\n  },\n  \"cheapest_by_hotel\": [\n    {\n      \"hotel_id\": \"102306\",\n      \"date\": \"2026-09-27\",\n      \"rate\": 407.49,\n      \"currency\": \"USD\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "rates cheapest-night",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "rates compare",
+      "kind": "help",
+      "args": [
+        "rates",
+        "compare",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check several boutique hotels for the same dates in one call, ranked by lowest fee-inclusive total.\n\nUsage:\n  travelclick-pp-cli rates compare [flags]\n\nExamples:\n  travelclick-pp-cli rates compare --hotels '102306,made-nyc' --check-in 2026-09-15 --check-out 2026-09-18\n\nFlags:\n      --check-in string    Check-in date (YYYY-MM-DD)\n      --check-out string   Check-out date (YYYY-MM-DD)\n  -h, --help               help for compare\n      --hotels string      Comma-separated list of hotel IDs or aliases to compare\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "rates compare",
+      "kind": "happy_path",
+      "args": [
+        "rates",
+        "compare",
+        "--hotels",
+        "102306",
+        "--check-in",
+        "2026-09-15",
+        "--check-out",
+        "2026-09-18"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"results\": [\n    {\n      \"hotel_id\": \"102306\",\n      \"lowest_total\": 2014.9499999999998,\n      \"currency\": \"USD\",\n      \"room_type_name\": \"Standard\",\n      \"rate_plan_code\": \"4117220\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "rates compare",
+      "kind": "json_fidelity",
+      "args": [
+        "rates",
+        "compare",
+        "--hotels",
+        "102306",
+        "--check-in",
+        "2026-09-15",
+        "--check-out",
+        "2026-09-18",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"results\": [\n    {\n      \"hotel_id\": \"102306\",\n      \"lowest_total\": 2014.9499999999998,\n      \"currency\": \"USD\",\n      \"room_type_name\": \"Standard\",\n      \"rate_plan_code\": \"4117220\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "rates compare",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "rates search",
+      "kind": "help",
+      "args": [
+        "rates",
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search available rooms and rate plans for a hotel between check-in and check-out.\n\nUsage:\n  travelclick-pp-cli rates search \u003chotel_id\u003e [flags]\n\nExamples:\n  travelclick-pp-cli rates search 102306 --check-in 2026-09-15 --check-out 2026-09-18\n\nFlags:\n      --adults int                 Number of adults for the room. (default 2)\n      --booker-identifier string   Optional OTA/travel-agent booker attribution ID. Leave blank for a direct search.\n      --channel string             Booking-engine channel identifier the widget itself sends. Leave at the default unless you know why you'd change it. (default \"Web4_Desktop\")\n      --check-in string            Check-in date, YYYY-MM-DD.\n      --check-out string           Check-out date, YYYY-MM-DD.\n      --currency string            ISO currency code for displayed rates. (default \"USD\")\n  -h, --help                       help for search\n      --infants int                Number of infants (does not count against occupancy).\n      --lang string                Locale code for room/amenity text. (default \"EN_US\")\n      --rooms int                  Number of rooms to search. (default 1)\n      --save                       Persist this search's rates into the local price-drift history (see 'analytics price-drift').\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "rates search",
+      "kind": "happy_path",
+      "args": [
+        "rates",
+        "search",
+        "102306",
+        "--check-in",
+        "2026-09-15",
+        "--check-out",
+        "2026-09-18"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"timeSpan\": {\n        \"start\": \"2026-09-15\",\n        \"end\": \"2026-09-18\",\n        \"duration\": 3\n      },\n      \"roomTypes\": [\n        {\n          \"roomTypeCode\": \"431992\",\n          \"roomTypeName\": \"Standard\",\n          \"description\": \"Located on floors two through seven. City views, oversized floor to ceiling windows, king bed, Samsung flat-screen television, Sapira mattress by Leesa, Revo SuperConnect multi-format deluxe table radio, laptop safe, air conditioning, heating, open closet concept, private bathroom with walk-in shower, toilet, hairdryer, bathrobes, bathroom amenities by MALIN+GOETZ, Frette towels and linens, complimentary WiFi is available in all rooms. Daily housekeeping service, shoe shine, dry cleaning, and laundry. Non-smoking rooms, room service and pet friendly.\",\n          \"sortOrder\": 1,\n          \"averageRates\": [\n            {\n              \"roomTypeCode\": \"431992\",\n              \"ratePlanCode\": \"4117220\",\n              \"ratePlanType\": \"Regular\",\n              \"rate\": 636.65,\n              \"discount\": 0.0,\n              \"discountTotal\": 0.0,\n              \"showPromotionBanner\": false,\n              \"geoPricingPromotion\": false,\n              \"displayUrgencyMessage\": false,\n              \"merchandisedPromoData\": {\n                \"promotionId\": \"6050766\",\n                \"labelText\": \"Book in advance and save more\",\n                \"saleText\": \"Lock It In\",\n                \"valueAddedText\": \"Non Refundable\",\n                \"merchandisingTerms\": \"Discount requires 4 day advance booking. Full payment due at time of booking. This promotion is non-refundable.\"\n              },\n              \"rateExternalCode\": \"thks15\",\n              \"pmsRateExternalCode\": \"thanks15\",\n              \"ratePlanCategory\": \"Promotional\",\n              \"isAbstract\": false,\n              \"strikeThroughEnabled\": false,\n              \"available\": true,\n              \"allowWebRoomUpgrade\": true,\n              \"xnightsDiscount\": null,\n              \"xnightsDiscountType\": null\n            },\n            {\n              \"roomTypeCode\": \"431992\",\n              \"ratePlanCode\": \"2512860\",\n              \"ratePlanType\": \"Regular\",\n              \"rate\": 659.12,\n              \"discount\": 0.0,\n              \"discountTotal\": 0.0,\n              \"showPromotionBanner\": true,\n              \"geoPricingPromotion\": false,\n              \"displayUrgencyMessage\": false,\n              \"merchandisedPromoData\": {\n                \"promotionId\": \"27207602\",\n                \"saleText\": \"Sale\"\n              },\n              \"rateExternalCode\": \"3LOS\",\n              \"pmsRateExternalCode\": \"3LOS\",\n              \"ratePlanCategory\": \"Promotional\",\n              \"isAbstract\": false,\n              \"strikeThroughEnabled\": false,\n              \"available\": true,\n              \"allowWebRoomUpgrade\": true,\n              \"xnightsDiscount\": null,\n              \"xnightsDiscountType\": null\n            },\n            {\n              \"roomTypeCode\": \"431992\",\n              \"ratePlanCode\": \"2312740\",\n              \"ratePlanType\": \"Regular\",\n              \"rate\": 749.0,\n              \"discount\": 0.0,\n              \"discountTotal\": 0.0,\n              \"showPromotionBanner\": false,\n              \"geoPricingPromotion\": false,\n              \"displayUrgencyMessage\": false,\n              \"merchandisedPromoData\": {},\n              \"rateExternalCode\": \"BAR\",\n              \"pmsRateExternalCode\": \"BAR\",\n              \"ratePlanCategory\": \"Rack\",\n              \"isAbstract\": false,\n              \"strikeThroughEnabled\": false,\n              \"available\": true,\n              \"allowWebRoomUpgrade\": true,\n              \"xnightsDiscount\": null,\n              \"xnightsDiscountType\": null\n            },\n            {\n              \"roomTypeCode\": \"431992\",\n              \"ratePlanCode\": \"11069191\",\n              \"ratePlanType\": \"Regular\",\n              \"rate\": 789.0,\n              \"discount\": 0.0,\n              \"discountTotal\": 0.0,\n              \"showPromotionBanner\": false,\n              \"geoPricingPromotion\": false,\n            …[truncated]"
+    },
+    {
+      "command": "rates search",
+      "kind": "json_fidelity",
+      "args": [
+        "rates",
+        "search",
+        "102306",
+        "--check-in",
+        "2026-09-15",
+        "--check-out",
+        "2026-09-18",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"timeSpan\": {\n        \"start\": \"2026-09-15\",\n        \"end\": \"2026-09-18\",\n        \"duration\": 3\n      },\n      \"roomTypes\": [\n        {\n          \"roomTypeCode\": \"431992\",\n          \"roomTypeName\": \"Standard\",\n          \"description\": \"Located on floors two through seven. City views, oversized floor to ceiling windows, king bed, Samsung flat-screen television, Sapira mattress by Leesa, Revo SuperConnect multi-format deluxe table radio, laptop safe, air conditioning, heating, open closet concept, private bathroom with walk-in shower, toilet, hairdryer, bathrobes, bathroom amenities by MALIN+GOETZ, Frette towels and linens, complimentary WiFi is available in all rooms. Daily housekeeping service, shoe shine, dry cleaning, and laundry. Non-smoking rooms, room service and pet friendly.\",\n          \"sortOrder\": 1,\n          \"averageRates\": [\n            {\n              \"roomTypeCode\": \"431992\",\n              \"ratePlanCode\": \"4117220\",\n              \"ratePlanType\": \"Regular\",\n              \"rate\": 636.65,\n              \"discount\": 0.0,\n              \"discountTotal\": 0.0,\n              \"showPromotionBanner\": false,\n              \"geoPricingPromotion\": false,\n              \"displayUrgencyMessage\": false,\n              \"merchandisedPromoData\": {\n                \"promotionId\": \"6050766\",\n                \"labelText\": \"Book in advance and save more\",\n                \"saleText\": \"Lock It In\",\n                \"valueAddedText\": \"Non Refundable\",\n                \"merchandisingTerms\": \"Discount requires 4 day advance booking. Full payment due at time of booking. This promotion is non-refundable.\"\n              },\n              \"rateExternalCode\": \"thks15\",\n              \"pmsRateExternalCode\": \"thanks15\",\n              \"ratePlanCategory\": \"Promotional\",\n              \"isAbstract\": false,\n              \"strikeThroughEnabled\": false,\n              \"available\": true,\n              \"allowWebRoomUpgrade\": true,\n              \"xnightsDiscount\": null,\n              \"xnightsDiscountType\": null\n            },\n            {\n              \"roomTypeCode\": \"431992\",\n              \"ratePlanCode\": \"2512860\",\n              \"ratePlanType\": \"Regular\",\n              \"rate\": 659.12,\n              \"discount\": 0.0,\n              \"discountTotal\": 0.0,\n              \"showPromotionBanner\": true,\n              \"geoPricingPromotion\": false,\n              \"displayUrgencyMessage\": false,\n              \"merchandisedPromoData\": {\n                \"promotionId\": \"27207602\",\n                \"saleText\": \"Sale\"\n              },\n              \"rateExternalCode\": \"3LOS\",\n              \"pmsRateExternalCode\": \"3LOS\",\n              \"ratePlanCategory\": \"Promotional\",\n              \"isAbstract\": false,\n              \"strikeThroughEnabled\": false,\n              \"available\": true,\n              \"allowWebRoomUpgrade\": true,\n              \"xnightsDiscount\": null,\n              \"xnightsDiscountType\": null\n            },\n            {\n              \"roomTypeCode\": \"431992\",\n              \"ratePlanCode\": \"2312740\",\n              \"ratePlanType\": \"Regular\",\n              \"rate\": 749.0,\n              \"discount\": 0.0,\n              \"discountTotal\": 0.0,\n              \"showPromotionBanner\": false,\n              \"geoPricingPromotion\": false,\n              \"displayUrgencyMessage\": false,\n              \"merchandisedPromoData\": {},\n              \"rateExternalCode\": \"BAR\",\n              \"pmsRateExternalCode\": \"BAR\",\n              \"ratePlanCategory\": \"Rack\",\n              \"isAbstract\": false,\n              \"strikeThroughEnabled\": false,\n              \"available\": true,\n              \"allowWebRoomUpgrade\": true,\n              \"xnightsDiscount\": null,\n              \"xnightsDiscountType\": null\n            },\n            {\n              \"roomTypeCode\": \"431992\",\n              \"ratePlanCode\": \"11069191\",\n              \"ratePlanType\": \"Regular\",\n              \"rate\": 789.0,\n              \"discount\": 0.0,\n              \"discountTotal\": 0.0,\n              \"showPromotionBanner\": false,\n              \"geoPricingPromotion\": false,\n            …[truncated]"
+    },
+    {
+      "command": "rates search",
+      "kind": "error_path",
+      "args": [
+        "rates",
+        "search",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag \"check-in\" not set\n"
+    },
+    {
+      "command": "recall",
+      "kind": "help",
+      "args": [
+        "recall",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Returns prior learnings matching the supplied query by token-set\noverlap (Jaccard \u003e= 0.6) plus entity-aware validation. The LLM should\ncall this FIRST when starting work on a new user question; if\nfound=true AND results[0].entity_match == \"exact\" AND confidence \u003e= 2,\nthe LLM can skip discovery and go straight to live fetch for the\nreturned resource IDs.\n\nEmpty match returns {\"found\": false, \"results\": []} with exit 0 — this\nis an information query, not a not-found error.\n\nDisabling: TRAVELCLICK_NO_LEARN=true returns the empty shape even\nwhen learnings exist.\n\nUsage:\n  travelclick-pp-cli recall \u003cquery\u003e [flags]\n\nExamples:\n  travelclick-pp-cli recall \"\u003cquestion\u003e\" --agent\n  travelclick-pp-cli recall \"\u003cquestion\u003e\" --agent --min-confidence 2\n\nFlags:\n      --db string            SQLite database file path (default: resolved data directory data.db)\n      --debug-mismatches     Include cross-entity mismatches in the envelope under mismatches[]\n  -h, --help                 help for recall\n      --limit int            Maximum number of learnings to return (default 10)\n      --min-confidence int   Minimum confidence to include in results (default 1)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "recall",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "recall",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "recall",
+      "kind": "error_path",
+      "args": [
+        "recall",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"found\": false,\n  \"query\": \"__printing_press_invalid__\",\n  \"normalized\": \"__printing_press_invalid__\",\n  \"query_entities\": [],\n  \"results\": [],\n  \"warnings\": [\n    \"no_learnings_for_query_family\"\n  ]\n}\n"
+    },
+    {
+      "command": "teach",
+      "kind": "help",
+      "args": [
+        "teach",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Record one or more \"this query -\u003e this resource\" mappings so the next\nquery that matches surfaces the right resources without re-running discovery.\n\nThis command is designed to be backgrounded by an LLM right before it\nemits the user-facing response: silent on success, errors only to\nthe CLI state directory's teach.log, safe to fire-and-forget.\n\nDisabling: pass --no-learn or set TRAVELCLICK_NO_LEARN=true.\n\nUsage:\n  travelclick-pp-cli teach [flags]\n\nExamples:\n  travelclick-pp-cli teach --query \"\u003cquestion\u003e\" --resource-type \u003ctype\u003e --resource \u003cid\u003e --resource \u003cid\u003e \u0026\n\nFlags:\n      --db string                    SQLite database file path (default: resolved data directory data.db)\n  -h, --help                         help for teach\n      --no-validate                  Suppress teach-time resource-shape validation (warnings to teach.log)\n      --notes string                 Optional free-form note recorded in the audit log\n      --playbook-file string         Optional path to a JSON playbook recording the CLI choreography for this query family\n      --playbook-json string         Optional inline JSON playbook (mutually exclusive with --playbook-file; for agents without filesystem access)\n      --playbook-notes string        Optional inline gotchas/workarounds for this query family (stored alongside the playbook)\n      --playbook-notes-file string   Optional path to a markdown file with playbook notes\n      --query string                 User's original natural-language question (required)\n      --quiet                        Silent on success (default true — designed for background invocation) (default true)\n      --resource strings             Resource ID — repeat for multiple (required)\n      --resource-type string         Resource type (required; e.g. matches a row in the local resources table)\n      --venue string                 Optional venue scope tag stored with the learning\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in ou…[truncated]"
+    },
+    {
+      "command": "teach",
+      "kind": "happy_path",
+      "args": [
+        "teach",
+        "--query",
+        "\u003cquestion\u003e",
+        "--resource-type",
+        "\u003ctype\u003e",
+        "--resource",
+        "\u003cid\u003e",
+        "--resource",
+        "\u003cid\u003e",
+        "\u0026",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "dry-run: would run teach; no changes made\n"
+    },
+    {
+      "command": "teach",
+      "kind": "json_fidelity",
+      "args": [
+        "teach",
+        "--query",
+        "\u003cquestion\u003e",
+        "--resource-type",
+        "\u003ctype\u003e",
+        "--resource",
+        "\u003cid\u003e",
+        "--resource",
+        "\u003cid\u003e",
+        "\u0026",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"teach\",\"would\":\"run teach; no changes made\"}\n"
+    },
+    {
+      "command": "teach",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "help",
+      "args": [
+        "teach-lookup",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Adds one row to entity_lookups. Used by the recall path's pattern\nengine to substitute values for canonical names at substitution time.\nComputed kinds (lowercase, uppercase, kebab-case, capitalize-first, slug)\ncannot be taught — they are derived from the canonical input.\n\nUsage:\n  travelclick-pp-cli teach-lookup [flags]\n\nExamples:\n  travelclick-pp-cli teach-lookup --kind country --canonical \"United States\" --value USA\n\nFlags:\n      --canonical string   Canonical entity name (required)\n      --db string          SQLite database file path (default: resolved data directory data.db)\n  -h, --help               help for teach-lookup\n      --kind string        Entity kind, e.g. country, team (required, must not be a computed kind)\n      --value string       Value/alias that should resolve to the canonical (required)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "happy_path",
+      "args": [
+        "teach-lookup",
+        "--kind",
+        "country",
+        "--canonical",
+        "United States",
+        "--value",
+        "USA",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "dry-run: would run teach-lookup; no changes made\n"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "json_fidelity",
+      "args": [
+        "teach-lookup",
+        "--kind",
+        "country",
+        "--canonical",
+        "United States",
+        "--value",
+        "USA",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"teach-lookup\",\"would\":\"run teach-lookup; no changes made\"}\n"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "help",
+      "args": [
+        "teach-pattern",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Adds one row to search_patterns. The recall path uses patterns to\nsubstitute live query entities into a resource template, so a pattern\nwith query_template=\"items in {entity}\" and\nresource_template=\"GROUP-{entity:category}\" generalizes one teach into\na whole family.\n\nUsage:\n  travelclick-pp-cli teach-pattern [flags]\n\nExamples:\n  travelclick-pp-cli teach-pattern --query-template \"items in {entity}\" --resource-template \"GROUP-{entity:category}\" --resource-type \"items\" --entity-kind \"category\" --strategy substitute\n\nFlags:\n      --db string                  SQLite database file path (default: resolved data directory data.db)\n      --entity-kind string         Entity kind name registered in entity_lookups (required)\n  -h, --help                       help for teach-pattern\n      --query-template string      Query template with {entity} placeholder (required)\n      --resource-template string   Resource template with typed entity slot, e.g. PREFIX-{entity:country} (required)\n      --resource-type string       Resource type for substituted IDs (required)\n      --strategy string            Substitution strategy: substitute | substitute-then-search-prefix (default substitute)\n      --venue string               Optional venue scope tag\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "happy_path",
+      "args": [
+        "teach-pattern",
+        "--query-template",
+        "items in {entity}",
+        "--resource-template",
+        "GROUP-{entity:category}",
+        "--resource-type",
+        "items",
+        "--entity-kind",
+        "category",
+        "--strategy",
+        "substitute",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "dry-run: would run teach-pattern; no changes made\n"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "json_fidelity",
+      "args": [
+        "teach-pattern",
+        "--query-template",
+        "items in {entity}",
+        "--resource-template",
+        "GROUP-{entity:category}",
+        "--resource-type",
+        "items",
+        "--entity-kind",
+        "category",
+        "--strategy",
+        "substitute",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"teach-pattern\",\"would\":\"run teach-pattern; no changes made\"}\n"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "help",
+      "args": [
+        "teach-playbook",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Stores a structured CLI command sequence (with entity slots) and/or\nfree-form gotchas/workarounds, keyed on the structural query family.\nThe recall path surfaces this whenever a future query of the same\nfamily fires, so the agent can replay the choreography and read the\nnotes verbatim.\n\nAt least one of --playbook-json/--playbook-file and --notes/--notes-file\nmust be set. --playbook-json takes the playbook body inline so MCP-only\nagents can record playbooks without a file on disk.\n\nUsage:\n  travelclick-pp-cli teach-playbook [flags]\n\nExamples:\n  travelclick-pp-cli teach-playbook --query \"\u003cquestion that anchors the family\u003e\" --playbook-file ~/playbooks/recipe.json --notes-file ~/playbooks/recipe-notes.md\n\nFlags:\n      --db string              Database path (default: standard cache location)\n  -h, --help                   help for teach-playbook\n      --notes string           Free-text notes (gotchas, workarounds) -- mutually exclusive with --notes-file\n      --notes-file string      Path to a markdown file with the notes\n      --playbook-file string   Path to a JSON file with the playbook (steps, entity_slots, expected_tool_calls)\n      --playbook-json string   Inline playbook JSON (steps, entity_slots, expected_tool_calls) -- mutually exclusive with --playbook-file\n      --query string           Example query that anchors the family (required)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "file fixture required: --playbook-file ~/playbooks/recipe.json"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "file fixture required: --playbook-file ~/playbooks/recipe.json"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  travelclick-pp-cli which [query] [flags]\n\nExamples:\n  travelclick-pp-cli which \"stale tickets\"\n  travelclick-pp-cli which \"bottleneck\"\n  travelclick-pp-cli which --limit 1 \"send message\"\n  travelclick-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  travelclick-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  travelclick-pp-cli workflow status\n\n  # Show status as JSON\n  travelclick-pp-cli workflow status --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --insecure                Skip TLS certificate verification\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'travelclick-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select timeSpan,roomTypes,allRoomTypes)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "No archived data. Add a site-specific sync command to populate the store.\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-08-21T04:44:38.125471Z"
+}

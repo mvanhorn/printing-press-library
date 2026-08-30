@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e\\retraction-checker-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e\\20260702-090842-5bac53b7",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

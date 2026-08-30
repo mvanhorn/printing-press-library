@@ -25,13 +25,13 @@
     "peloton_oauth_password": {
       "type": "string",
       "title": "PELOTON_OAUTH_PASSWORD",
-      "description": "Optional. Private bootstrap password supplied by the caller's credential wrapper.",
+      "description": "Your Peloton account password, used to log in automatically. Not needed if a session from a prior login is already persisted.",
       "sensitive": true
     },
     "peloton_oauth_username": {
       "type": "string",
       "title": "PELOTON_OAUTH_USERNAME",
-      "description": "Optional. Private bootstrap username supplied by the caller's credential wrapper.",
+      "description": "Your Peloton login email or username, used to log in automatically. Not needed if a session from a prior login is already persisted.",
       "sensitive": true
     },
     "peloton_user_id": {

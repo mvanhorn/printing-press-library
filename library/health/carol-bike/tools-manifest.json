@@ -1,0 +1,169 @@
+{
+  "api_name": "carol-bike",
+  "base_url": "https://i.carolbike.com/rider-api",
+  "description": "Read and locally mirror personal CAROL Bike workout data.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "env_vars": [
+      "CAROL_BIKE_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "CAROL_BIKE_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "ride_get-latest",
+      "description": "Get the latest ride. Optional: api-version (default: 3.9.1). Returns the Ride.",
+      "method": "GET",
+      "path": "/rider/{riderId}/ride/last",
+      "params": [
+        {
+          "name": "api-version",
+          "wire_name": "v",
+          "type": "string",
+          "location": "query",
+          "description": "CAROL Rider API version.",
+          "aliases": [
+            "v"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ride_list-rehit",
+      "description": "List REHIT rides. Optional: api-version (default: 3.9.1), page (default: 0), size (default: 40). Returns array of Ride.",
+      "method": "GET",
+      "path": "/rider/{riderId}/ride/type/REHIT",
+      "params": [
+        {
+          "name": "api-version",
+          "wire_name": "v",
+          "type": "string",
+          "location": "query",
+          "description": "CAROL Rider API version.",
+          "aliases": [
+            "v"
+          ]
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Zero-based result page."
+        },
+        {
+          "name": "size",
+          "type": "int",
+          "location": "query",
+          "description": "Number of rides per page."
+        }
+      ]
+    },
+    {
+      "name": "stats_get-ride-calendar",
+      "description": "Get recent ride-calendar data. Optional: api-version (default: 3.9.1). Returns array of RideCalendarEntry.",
+      "method": "GET",
+      "path": "/rider/{riderId}/stats/calendar/last",
+      "params": [
+        {
+          "name": "api-version",
+          "wire_name": "v",
+          "type": "string",
+          "location": "query",
+          "description": "CAROL Rider API version.",
+          "aliases": [
+            "v"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "stats_get-ride-count",
+      "description": "Get total ride count. Optional: api-version (default: 3.9.1). Returns the RiderStats.",
+      "method": "GET",
+      "path": "/rider/{riderId}/stats/ride-count",
+      "params": [
+        {
+          "name": "api-version",
+          "wire_name": "v",
+          "type": "string",
+          "location": "query",
+          "description": "CAROL Rider API version.",
+          "aliases": [
+            "v"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "stats_get-rider",
+      "description": "Get aggregate rider statistics. Optional: api-version (default: 3.9.1). Returns the RiderStats.",
+      "method": "GET",
+      "path": "/rider/{riderId}/stats",
+      "params": [
+        {
+          "name": "api-version",
+          "wire_name": "v",
+          "type": "string",
+          "location": "query",
+          "description": "CAROL Rider API version.",
+          "aliases": [
+            "v"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "stats_get-rides-per-week",
+      "description": "Get current weekly ride rate and target. Optional: api-version (default: 3.9.1). Returns the RiderStats.",
+      "method": "GET",
+      "path": "/rider/{riderId}/stats/rides-per-week",
+      "params": [
+        {
+          "name": "api-version",
+          "wire_name": "v",
+          "type": "string",
+          "location": "query",
+          "description": "CAROL Rider API version.",
+          "aliases": [
+            "v"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "trends_get-rider",
+      "description": "Get rider trend series. Optional: api-version (default: 3.9.1), type (default: REHIT). Returns array of TrendPoint.",
+      "method": "GET",
+      "path": "/rider/{riderId}/trends",
+      "params": [
+        {
+          "name": "api-version",
+          "wire_name": "v",
+          "type": "string",
+          "location": "query",
+          "description": "CAROL Rider API version.",
+          "aliases": [
+            "v"
+          ]
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Ride type to include."
+        }
+      ]
+    }
+  ]
+}

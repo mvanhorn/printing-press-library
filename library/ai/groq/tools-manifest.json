@@ -1,0 +1,953 @@
+{
+  "api_name": "groq",
+  "base_url": "https://api.groq.com",
+  "description": "Every Groq endpoint in your terminal, plus a local ledger that tracks token cost and rate-limit budget.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "GROQ_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "GROQ_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://console.groq.com/keys"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "audio_speech",
+      "description": "Generates audio from the input text. Required: input, model, voice. Optional: response_format (default: mp3), sample_rate (default: 48000), speed (default: 1).",
+      "method": "POST",
+      "path": "/openai/v1/audio/speech",
+      "params": [
+        {
+          "name": "input",
+          "type": "string",
+          "location": "body",
+          "description": "The text to generate audio for.",
+          "required": true
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "One of the [available TTS models](/docs/text-to-speech).",
+          "required": true
+        },
+        {
+          "name": "response_format",
+          "type": "string",
+          "location": "body",
+          "description": "The format of the generated audio. Supported formats are `flac, mp3, mulaw, ogg, wav`."
+        },
+        {
+          "name": "sample_rate",
+          "type": "int",
+          "location": "body",
+          "description": "The sample rate for generated audio"
+        },
+        {
+          "name": "speed",
+          "type": "float",
+          "location": "body",
+          "description": "The speed of the generated audio."
+        },
+        {
+          "name": "voice",
+          "type": "string",
+          "location": "body",
+          "description": "The voice to use when generating the audio. List of voices can be found [here](/docs/text-to-speech).",
+          "required": true
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "audio/wav"
+        }
+      ]
+    },
+    {
+      "name": "audio_transcribe",
+      "description": "Transcribes audio into the input language. Required: model. Optional: file, language, prompt (plus 4 more). Returns the new CreateTranscriptionResponseJson.",
+      "method": "POST",
+      "path": "/openai/v1/audio/transcriptions",
+      "params": [
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "The audio file object (not file name) to transcribe, in one of these formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, or webm. Either a file or a URL must be provided. Note that the file field is not supported in Batch API requests."
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "The language of the input audio. Supplying the input language in [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format will improve accuracy and latency."
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the model to use. `whisper-large-v3` and `whisper-large-v3-turbo` are currently available.",
+          "required": true
+        },
+        {
+          "name": "prompt",
+          "type": "string",
+          "location": "body",
+          "description": "An optional text to guide the model's style or continue a previous audio segment. The [prompt](/docs/speech-text) should match the audio language."
+        },
+        {
+          "name": "response_format",
+          "type": "string",
+          "location": "body",
+          "description": "The format of the transcript output, in one of these options: `json`, `text`, or `verbose_json`."
+        },
+        {
+          "name": "temperature",
+          "type": "float",
+          "location": "body",
+          "description": "The sampling temperature, between 0 and 1. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. If set to 0, the model will use [log probability](https://en.wikipedia.org/wiki/Log_probability) to automatically increase the temperature until certain thresholds are hit."
+        },
+        {
+          "name": "timestamp_granularities",
+          "type": "array",
+          "location": "body",
+          "description": "The timestamp granularities to populate for this transcription."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The audio URL to translate/transcribe (supports Base64URL). Either a file or a URL must be provided. For Batch API requests, the URL field is required since the file field is not supported."
+        }
+      ]
+    },
+    {
+      "name": "audio_translate",
+      "description": "Translates audio into English. Required: model. Optional: file, prompt, response_format (default: json) (plus 2 more). Returns the new CreateTranslationResponseJson.",
+      "method": "POST",
+      "path": "/openai/v1/audio/translations",
+      "params": [
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "The audio file object (not file name) translate, in one of these formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, or webm."
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the model to use. `whisper-large-v3` and `whisper-large-v3-turbo` are currently available.",
+          "required": true
+        },
+        {
+          "name": "prompt",
+          "type": "string",
+          "location": "body",
+          "description": "An optional text to guide the model's style or continue a previous audio segment. The [prompt](/docs/guides/speech-to-text/prompting) should be in English."
+        },
+        {
+          "name": "response_format",
+          "type": "string",
+          "location": "body",
+          "description": "The format of the transcript output, in one of these options: `json`, `text`, or `verbose_json`."
+        },
+        {
+          "name": "temperature",
+          "type": "float",
+          "location": "body",
+          "description": "The sampling temperature, between 0 and 1. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. If set to 0, the model will use [log probability](https://en.wikipedia.org/wiki/Log_probability) to automatically increase the temperature until certain thresholds are hit."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The audio URL to translate/transcribe (supports Base64URL). Either file or url must be provided. When using the Batch API only url is supported."
+        }
+      ]
+    },
+    {
+      "name": "batches_cancel",
+      "description": "Cancels a batch. Required: batch_id. Returns the new Batch.",
+      "method": "POST",
+      "path": "/openai/v1/batches/{batch_id}/cancel",
+      "params": [
+        {
+          "name": "batch_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the batch to cancel.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "batches_create",
+      "description": "Creates and executes a batch from an uploaded file of requests. Required: completion_window, endpoint, input_file_id. Optional: metadata. Returns the new Batch.",
+      "method": "POST",
+      "path": "/openai/v1/batches",
+      "params": [
+        {
+          "name": "completion_window",
+          "type": "string",
+          "location": "body",
+          "description": "The time frame within which the batch should be processed. Durations from `24h` to `7d` are supported.",
+          "required": true
+        },
+        {
+          "name": "endpoint",
+          "type": "string",
+          "location": "body",
+          "description": "The endpoint to be used for all requests in the batch. Currently `/v1/chat/completions` is supported.",
+          "required": true
+        },
+        {
+          "name": "input_file_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of an uploaded file that contains requests for the new batch. See [upload file](/docs/api-reference#files-upload) for how to upload a file. Your input file must be formatted as a [JSONL file](/docs/batch), and must be uploaded with the purpose `batch`. The file can be up to 100 MB in size.",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Optional custom metadata for the batch."
+        }
+      ]
+    },
+    {
+      "name": "batches_get",
+      "description": "Retrieves a batch. Required: batch_id. Returns the Batch.",
+      "method": "GET",
+      "path": "/openai/v1/batches/{batch_id}",
+      "params": [
+        {
+          "name": "batch_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the batch to retrieve.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "batches_list",
+      "description": "Returns a list of the user's batches with their current status and request counts.",
+      "method": "GET",
+      "path": "/openai/v1/batches",
+      "params": []
+    },
+    {
+      "name": "chat_completions",
+      "description": "Creates a model response for the given chat conversation. Required: messages, model. Optional: citation_options, compound_custom, custom_template (plus 34 more). Returns the new CreateChatCompletionResponse.",
+      "method": "POST",
+      "path": "/openai/v1/chat/completions",
+      "params": [
+        {
+          "name": "citation_options",
+          "type": "string",
+          "location": "body",
+          "description": "Whether to enable citations in the response (only supported on models with compound features). Omit unless you need citations."
+        },
+        {
+          "name": "compound-custom-models-answering-model",
+          "wire_name": "compound_custom.models.answering_model",
+          "type": "string",
+          "location": "body",
+          "description": "Custom model to use for answering."
+        },
+        {
+          "name": "compound-custom-models-reasoning-model",
+          "wire_name": "compound_custom.models.reasoning_model",
+          "type": "string",
+          "location": "body",
+          "description": "Custom model to use for reasoning."
+        },
+        {
+          "name": "compound-custom-tools-enabled-tools",
+          "wire_name": "compound_custom.tools.enabled_tools",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of tool names that are enabled for the request."
+        },
+        {
+          "name": "custom-template-preserve-system-message-order",
+          "wire_name": "custom_template.preserve_system_message_order",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to preserve the order of system messages."
+        },
+        {
+          "name": "custom-template-relaxed-message-ordering",
+          "wire_name": "custom_template.relaxed_message_ordering",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to allow relaxed message ordering in the conversation."
+        },
+        {
+          "name": "custom-template-template",
+          "wire_name": "custom_template.template",
+          "type": "string",
+          "location": "body",
+          "description": "The custom template string to use for formatting messages.",
+          "required": true
+        },
+        {
+          "name": "debug",
+          "type": "bool",
+          "location": "body",
+          "description": "output input and output token IDs in xgroq debug field"
+        },
+        {
+          "name": "disable_tool_validation",
+          "type": "bool",
+          "location": "body",
+          "description": "If set to true, groq will return called tools without validating that the tool is present in request.tools. tool_choice=required/none will still be enforced, but the request cannot require a specific tool be used."
+        },
+        {
+          "name": "documents",
+          "type": "array",
+          "location": "body",
+          "description": "A list of documents to provide context for the conversation. Each document contains text that can be referenced by the model."
+        },
+        {
+          "name": "exclude_domains",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Deprecated: Use search_settings.exclude_domains instead. A list of domains to exclude from the search results when the model uses a web search tool."
+        },
+        {
+          "name": "exclude_instance_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "For internal use only"
+        },
+        {
+          "name": "frequency_penalty",
+          "type": "float",
+          "location": "body",
+          "description": "This is not yet supported by any of our models. Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim."
+        },
+        {
+          "name": "function_call",
+          "type": "string",
+          "location": "body",
+          "description": "Deprecated in favor of `tool_choice`. Controls which (if any) function is called by the model. `none` means the model will not call a function and instead generates a message. `auto` means the model can pick between generating a message or calling a function. Specifying a particular function via `{'name': 'my_function'}` forces the model to call that function. `none` is the default when no functions are present. `auto` is the default if functions are present."
+        },
+        {
+          "name": "functions",
+          "type": "array",
+          "location": "body",
+          "description": "Deprecated in favor of `tools`. A list of functions the model may generate JSON inputs for."
+        },
+        {
+          "name": "include_domains",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Deprecated: Use search_settings.include_domains instead. A list of domains to include in the search results when the model uses a web search tool."
+        },
+        {
+          "name": "include_reasoning",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to include reasoning in the response. If true, the response will include a `reasoning` field. If false, the model's reasoning will not be included in the response. This field is mutually exclusive with `reasoning_format`."
+        },
+        {
+          "name": "logit_bias",
+          "type": "object",
+          "location": "body",
+          "description": "This is not yet supported by any of our models. Modify the likelihood of specified tokens appearing in the completion."
+        },
+        {
+          "name": "logprobs",
+          "type": "bool",
+          "location": "body",
+          "description": "This is not yet supported by any of our models. Whether to return log probabilities of the output tokens or not. If true, returns the log probabilities of each output token returned in the `content` of `message`."
+        },
+        {
+          "name": "max_completion_tokens",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of tokens that can be generated in the chat completion. The total length of input tokens and generated tokens is limited by the model's context length."
+        },
+        {
+          "name": "max_tokens",
+          "type": "int",
+          "location": "body",
+          "description": "Deprecated in favor of `max_completion_tokens`. The maximum number of tokens that can be generated in the chat completion. The total length of input tokens and generated tokens is limited by the model's context length."
+        },
+        {
+          "name": "messages",
+          "type": "array",
+          "location": "body",
+          "description": "A list of messages comprising the conversation so far.",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "This parameter is not currently supported."
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the model to use. For details on which models are compatible with the Chat API, see available [models](https://console.groq.com/docs/models)",
+          "required": true
+        },
+        {
+          "name": "n",
+          "type": "int",
+          "location": "body",
+          "description": "How many chat completion choices to generate for each input message. Note that the current moment, only n=1 is supported. Other values will result in a 400 response."
+        },
+        {
+          "name": "parallel_tool_calls",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to enable parallel function calling during tool use."
+        },
+        {
+          "name": "presence_penalty",
+          "type": "float",
+          "location": "body",
+          "description": "This is not yet supported by any of our models. Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics."
+        },
+        {
+          "name": "reasoning_effort",
+          "type": "string",
+          "location": "body",
+          "description": "qwen3 models support `none` to disable reasoning and `default` or null to use the model default. qwen/qwen3.8-27b additionally supports `low`, `medium`, and `high`. Its default is `none`; `high` selects the model's native `xhigh` mode. openai/gpt-oss-20b and openai/gpt-oss-120b support 'low', 'medium', or 'high'. 'medium' is the default value."
+        },
+        {
+          "name": "reasoning_format",
+          "type": "string",
+          "location": "body",
+          "description": "Specifies how to output reasoning tokens This field is mutually exclusive with `include_reasoning`."
+        },
+        {
+          "name": "response_format",
+          "type": "string",
+          "location": "body",
+          "description": "An object specifying the format that the model must output. Setting to `{ 'type': 'json_schema', 'json_schema': {...} }` enables Structured Outputs which ensures the model will match your supplied JSON schema. `json_schema` response format is only available on [supported models](https://console.groq.com/docs/structured-outputs#supported-models). Setting to `{ 'type': 'json_object' }` enables the older JSON mode, which ensures the message the model generates is valid JSON. Using `json_schema` is preferred for models that support it."
+        },
+        {
+          "name": "search-settings-country",
+          "wire_name": "search_settings.country",
+          "type": "string",
+          "location": "body",
+          "description": "Name of country to prioritize search results from (e.g., 'united states', 'germany', 'france')."
+        },
+        {
+          "name": "search-settings-exclude-domains",
+          "wire_name": "search_settings.exclude_domains",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of domains to exclude from the search results."
+        },
+        {
+          "name": "search-settings-include-domains",
+          "wire_name": "search_settings.include_domains",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of domains to include in the search results."
+        },
+        {
+          "name": "search-settings-include-images",
+          "wire_name": "search_settings.include_images",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to include images in the search results."
+        },
+        {
+          "name": "seed",
+          "type": "int",
+          "location": "body",
+          "description": "If specified, our system will make a best effort to sample deterministically, such that repeated requests with the same `seed` and parameters should return the same result. Determinism is not guaranteed, and you should refer to the `system_fingerprint` response parameter to monitor changes in the backend."
+        },
+        {
+          "name": "service_tier",
+          "type": "string",
+          "location": "body",
+          "description": "The service tier to use for the request. Defaults to `on_demand`. - `auto` will automatically select the highest tier available within the rate limits of your organization. - `flex` uses the flex tier, which will succeed or fail quickly."
+        },
+        {
+          "name": "stop",
+          "type": "string",
+          "location": "body",
+          "description": "Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence."
+        },
+        {
+          "name": "store",
+          "type": "bool",
+          "location": "body",
+          "description": "This parameter is not currently supported."
+        },
+        {
+          "name": "stream",
+          "type": "bool",
+          "location": "body",
+          "description": "If set, partial message deltas will be sent. Tokens will be sent as data-only [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format) as they become available, with the stream terminated by a `data: [DONE]` message. [Example code](/docs/text-chat#streaming-a-chat-completion)."
+        },
+        {
+          "name": "stream-options-include-usage",
+          "wire_name": "stream_options.include_usage",
+          "type": "bool",
+          "location": "body",
+          "description": "If set, an additional chunk will be streamed before the `data: [DONE]` message. The `usage` field on this chunk shows the token usage statistics for the entire request, and the `choices` field will always be an empty array. All other chunks will also include a `usage` field, but with a null value."
+        },
+        {
+          "name": "temperature",
+          "type": "float",
+          "location": "body",
+          "description": "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. We generally recommend altering this or top_p but not both."
+        },
+        {
+          "name": "tool_choice",
+          "type": "string",
+          "location": "body",
+          "description": "Controls which (if any) tool is called by the model. `none` means the model will not call any tool and instead generates a message. `auto` means the model can pick between generating a message or calling one or more tools. `required` means the model must call one or more tools. Specifying a particular tool via `{'type': 'function', 'function': {'name': 'my_function'}}` forces the model to call that tool. `none` is the default when no tools are present. `auto` is the default if tools are present."
+        },
+        {
+          "name": "tools",
+          "type": "array",
+          "location": "body",
+          "description": "A list of tools the model may call. Currently, only functions are supported as a tool. Use this to provide a list of functions the model may generate JSON inputs for. A max of 128 functions are supported."
+        },
+        {
+          "name": "top_logprobs",
+          "type": "int",
+          "location": "body",
+          "description": "This is not yet supported by any of our models. An integer between 0 and 20 specifying the number of most likely tokens to return at each token position, each with an associated log probability. `logprobs` must be set to `true` if this parameter is used."
+        },
+        {
+          "name": "top_p",
+          "type": "float",
+          "location": "body",
+          "description": "An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered. We generally recommend altering this or temperature but not both."
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "body",
+          "description": "A unique identifier representing your end-user, which can help us monitor and detect abuse."
+        }
+      ]
+    },
+    {
+      "name": "embeddings_create",
+      "description": "Creates an embedding vector representing the input text. Required: input, model. Optional: encoding_format (default: float), user. Returns array of Embedding.",
+      "method": "POST",
+      "path": "/openai/v1/embeddings",
+      "params": [
+        {
+          "name": "encoding_format",
+          "type": "string",
+          "location": "body",
+          "description": "The format to return the embeddings in. Can only be `float` or `base64`."
+        },
+        {
+          "name": "input",
+          "type": "string",
+          "location": "body",
+          "description": "Input text to embed, encoded as a string or array of tokens. To embed multiple inputs in a single request, pass an array of strings or array of token arrays. The input must not exceed the max input tokens for the model, cannot be an empty string, and any array must be 2048 dimensions or less.",
+          "required": true
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the model to use.",
+          "required": true
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "body",
+          "description": "A unique identifier representing your end-user, which can help us monitor and detect abuse."
+        }
+      ]
+    },
+    {
+      "name": "files_delete",
+      "description": "Delete a file. Required: file_id. Returns the DeleteFileResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/openai/v1/files/{file_id}",
+      "params": [
+        {
+          "name": "file_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the file to use for this request.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_download",
+      "description": "Returns the contents of the specified file. Required: file_id.",
+      "method": "GET",
+      "path": "/openai/v1/files/{file_id}/content",
+      "params": [
+        {
+          "name": "file_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the file to use for this request.",
+          "required": true
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/octet-stream"
+        }
+      ]
+    },
+    {
+      "name": "files_list",
+      "description": "Returns a list of files that belong to the user's organization, with id, filename, purpose, bytes, and timestamps.",
+      "method": "GET",
+      "path": "/openai/v1/files",
+      "params": []
+    },
+    {
+      "name": "files_retrieve",
+      "description": "Returns detailed information about a specific file by its ID. Required: file_id.",
+      "method": "GET",
+      "path": "/openai/v1/files/{file_id}",
+      "params": [
+        {
+          "name": "file_id",
+          "type": "string",
+          "location": "path",
+          "description": "The file to retrieve",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_upload",
+      "description": "Upload a file that can be used across various endpoints. The Batch API only supports `.jsonl` files up to 100 MB in size. The input also has a specific required. Required: file, purpose. Returns the new File.",
+      "method": "POST",
+      "path": "/openai/v1/files",
+      "params": [
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "The File object (not file name) to be uploaded.",
+          "required": true
+        },
+        {
+          "name": "purpose",
+          "type": "string",
+          "location": "body",
+          "description": "The intended purpose of the uploaded file. Use 'batch' for [Batch API](/docs/api-reference#batches).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fine_tunings_create",
+      "description": "Creates a new fine tuning for the already uploaded files This endpoint is in closed beta. Optional: base_model, input_file_id, name (plus 1 more). Returns the new ReadFineTuningResponse.",
+      "method": "POST",
+      "path": "/v1/fine_tunings",
+      "params": [
+        {
+          "name": "base_model",
+          "type": "string",
+          "location": "body",
+          "description": "BaseModel is the model that the fine tune was originally trained on."
+        },
+        {
+          "name": "input_file_id",
+          "type": "string",
+          "location": "body",
+          "description": "InputFileID is the id of the file that was uploaded via the /files api."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name is the given name to a fine tuned model."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type is the type of fine tuning format such as 'lora'."
+        }
+      ]
+    },
+    {
+      "name": "fine_tunings_delete",
+      "description": "Deletes an existing fine tuning by id This endpoint is in closed beta. Required: id. Returns the DeleteFineTuningResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/fine_tunings/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fine_tunings_get",
+      "description": "Retrieves an existing fine tuning by id This endpoint is in closed beta. Required: id. Returns the ReadFineTuningResponse.",
+      "method": "GET",
+      "path": "/v1/fine_tunings/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fine_tunings_list",
+      "description": "Lists all previously created fine tunings. This endpoint is in closed beta. Returns array of FineTuningsListItem.",
+      "method": "GET",
+      "path": "/v1/fine_tunings",
+      "params": []
+    },
+    {
+      "name": "models_delete",
+      "description": "Delete a model. Required: model. Returns the DeleteModelResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/openai/v1/models/{model}",
+      "params": [
+        {
+          "name": "model",
+          "type": "string",
+          "location": "path",
+          "description": "The model to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "models_list",
+      "description": "Lists all models currently available on the account, including context window, pricing, and capabilities. Returns array of Model.",
+      "method": "GET",
+      "path": "/openai/v1/models",
+      "params": []
+    },
+    {
+      "name": "models_retrieve",
+      "description": "Returns detailed information about a specific model by ID. Required: model.",
+      "method": "GET",
+      "path": "/openai/v1/models/{model}",
+      "params": [
+        {
+          "name": "model",
+          "type": "string",
+          "location": "path",
+          "description": "The model to get",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reranking_create",
+      "description": "Given a query and a list of documents, returns the documents ranked by their relevance to the query. The documents are scored and sorted in descending order of relevance. Required: docs, model, query. Optional: instruction.",
+      "method": "POST",
+      "path": "/openai/v1/reranking",
+      "params": [
+        {
+          "name": "docs",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "An array of documents to rank. Each document is a string containing the text content. Maximum of 100 documents per request.",
+          "required": true
+        },
+        {
+          "name": "instruction",
+          "type": "string",
+          "location": "body",
+          "description": "Optional instruction to guide the reranking process. If not provided, a default instruction will be used."
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the reranking model to use.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "The search query to rank documents against.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "responses_create",
+      "description": "Creates a model response for the given input. Required: input, model. Optional: instructions, max_output_tokens, metadata (plus 12 more). Returns the new CreateResponseResponse.",
+      "method": "POST",
+      "path": "/openai/v1/responses",
+      "params": [
+        {
+          "name": "input",
+          "type": "string",
+          "location": "body",
+          "description": "Text input to the model, used to generate a response.",
+          "required": true
+        },
+        {
+          "name": "instructions",
+          "type": "string",
+          "location": "body",
+          "description": "Inserts a system (or developer) message as the first item in the model's context."
+        },
+        {
+          "name": "max_output_tokens",
+          "type": "int",
+          "location": "body",
+          "description": "An upper bound for the number of tokens that can be generated for a response, including visible output tokens and reasoning tokens."
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Custom key-value pairs for storing additional information. Maximum of 16 pairs."
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the model to use. For details on which models are compatible with the Responses API, see available [models](https://console.groq.com/docs/models)",
+          "required": true
+        },
+        {
+          "name": "parallel_tool_calls",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable parallel execution of multiple tool calls."
+        },
+        {
+          "name": "reasoning-effort",
+          "wire_name": "reasoning.effort",
+          "type": "string",
+          "location": "body",
+          "description": "Level of reasoning effort. Supported values: `none`, `low`, `medium`, `high`. `none` disables reasoning and is supported only by Qwen3.8 models. Lower graded values provide faster responses with less reasoning depth. When omitted, the default is `none` for Qwen3.8 and `medium` for GPT-OSS models."
+        },
+        {
+          "name": "service_tier",
+          "type": "string",
+          "location": "body",
+          "description": "Specifies the latency tier to use for processing the request."
+        },
+        {
+          "name": "store",
+          "type": "bool",
+          "location": "body",
+          "description": "Response storage flag. Note: Currently only supports false or null values."
+        },
+        {
+          "name": "stream",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable streaming mode to receive response data as server-sent events."
+        },
+        {
+          "name": "temperature",
+          "type": "float",
+          "location": "body",
+          "description": "Controls randomness in the response generation. Range: 0 to 2. Lower values produce more deterministic outputs, higher values increase variety and creativity."
+        },
+        {
+          "name": "text-format",
+          "wire_name": "text.format",
+          "type": "string",
+          "location": "body",
+          "description": "An object specifying the format that the model must output."
+        },
+        {
+          "name": "tool_choice",
+          "type": "string",
+          "location": "body",
+          "description": "Controls which (if any) tool is called by the model. `none` means the model will not call any tool and instead generates a message. `auto` means the model can pick between generating a message or calling one or more tools. `required` means the model must call one or more tools. Specifying a particular tool via `{'type': 'function', 'function': {'name': 'my_function'}}` forces the model to call that tool. `none` is the default when no tools are present. `auto` is the default if tools are present."
+        },
+        {
+          "name": "tools",
+          "type": "array",
+          "location": "body",
+          "description": "List of tools available to the model. Currently supports function definitions only. Maximum of 128 functions."
+        },
+        {
+          "name": "top_p",
+          "type": "float",
+          "location": "body",
+          "description": "Nucleus sampling parameter that controls the cumulative probability cutoff. Range: 0 to 1. A value of 0.1 restricts sampling to tokens within the top 10% probability mass."
+        },
+        {
+          "name": "truncation",
+          "type": "string",
+          "location": "body",
+          "description": "Context truncation strategy. Supported values: `auto` or `disabled`."
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "body",
+          "description": "Optional identifier for tracking end-user requests. Useful for usage monitoring and compliance."
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Rate-limit budget",
+      "command": "rate-limits",
+      "description": "See remaining per-model request/token budget from every API call, with reset windows."
+    },
+    {
+      "name": "Cost ledger analytics",
+      "command": "costs",
+      "description": "Aggregate token and dollar spend from your local completion history, grouped by model or day."
+    },
+    {
+      "name": "Multi-model prompt runner",
+      "command": "compare",
+      "description": "Run one prompt across several models and rank them by latency, tokens/sec, usage, and cost."
+    },
+    {
+      "name": "Batch request pre-flight",
+      "command": "batch validate",
+      "description": "Validate every line of a .jsonl batch request file against the endpoint schema and estimate tokens/cost before uploading."
+    },
+    {
+      "name": "Batch results diagnosis",
+      "command": "batch diagnose",
+      "description": "Tabulate a completed batch's per-line status codes and errors, highlighting retry-worthy failures."
+    },
+    {
+      "name": "Paced bulk audio runner",
+      "command": "audio batch",
+      "description": "Transcribe, translate, or synthesize speech over many audio files with rate-limit-aware pacing and a results manifest."
+    }
+  ]
+}

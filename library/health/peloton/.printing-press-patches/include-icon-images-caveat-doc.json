@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "include-icon-images-caveat-doc",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "The --include-icon-images CLI flag help text (internal/cli/classes_filters.go) and the matching MCP tool parameter description (internal/mcp/tools.go, classes_filters) both note that Peloton's API does not omit display_image_url when include_icon_images=false. This is a documentation-only fix: the client correctly passes the param through in both cases, the API itself just doesn't honor it for that field. Any future regen must keep this caveat in both descriptions (CLI flag help and MCP tool param) since they're independently authored strings, not derived from one shared source.",
+  "reason": "MINOR #10 from a live post-fix verification sweep, confirmed live against the real API: `classes filters --include-icon-images=false` still returned 37 display_image_url occurrences and 0 alternate icon-specific field, confirming this is upstream Peloton API behavior rather than a client bug -- no code fix is possible or appropriate, only documenting the caveat so a user isn't left assuming the client is silently ignoring their own flag.",
+  "files": [
+    "internal/cli/classes_filters.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. Live-verified the caveat text renders in `peloton-pp-cli classes filters --help` output."
+}

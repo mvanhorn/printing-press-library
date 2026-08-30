@@ -277,27 +277,20 @@ func fetchAndParseHotels(ctx context.Context, location, checkin, checkout string
 	return filterHotels(hotels, opts), wouldURL, nil
 }
 
-// fetchTrivagoFor resolves `location` to a Trivago area id/ns via the
-// suggestions tool and runs an area search. Two-call cost amortizes
-// because Trivago returns up to ~50 results per area, which is plenty
-// for the merge to find Google overlaps.
+// fetchTrivagoFor runs a query-based Trivago search for `location`.
+// Trivago's MCP server dropped trivago-search-suggestions, so we no longer
+// resolve the location to an area id/ns; the trivago-accommodation-search
+// tool resolves the query destination itself. One call returns up to ~50
+// results, which is plenty for the merge to find Google overlaps.
 func fetchTrivagoFor(ctx context.Context, location, checkin, checkout string, opts hotelSearchOpts) ([]trivago.Accommodation, error) {
 	c := trivago.NewClient()
-	sug, err := c.Suggestions(ctx, location)
-	if err != nil {
-		return nil, err
-	}
-	for _, s := range sug {
-		if s.ID == 0 || s.NS == 0 {
-			continue
-		}
-		return c.AreaSearch(ctx, trivago.AreaOpts{
-			ID: s.ID, NS: s.NS,
-			Arrival: checkin, Departure: checkout,
-			Adults: opts.Adults, Rooms: opts.Rooms,
-		})
-	}
-	return nil, nil
+	return c.Search(ctx, trivago.SearchOpts{
+		Query:     location,
+		Arrival:   checkin,
+		Departure: checkout,
+		Adults:    opts.Adults,
+		Rooms:     opts.Rooms,
+	})
 }
 
 func buildHotelsRequestURL(location, checkin, checkout string, extras map[string]string) string {

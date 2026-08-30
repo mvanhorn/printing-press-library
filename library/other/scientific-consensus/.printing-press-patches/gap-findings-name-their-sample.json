@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "gap-findings-name-their-sample",
+  "applied_at": "2026-08-29",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Each gap finding names the sample it read. gaps looks at the works one relevance-ranked page returned, so a finding drawn from that page is a fact about those works and must not be worded as a fact about the literature.",
+  "reason": "Three of the four findings read the sample rather than the query: missing-strong-designs its designs, stale-evidence its years, understudied-population its text. Only thin-literature is safe, because it counts total matches. Measured on one claim, gaps reported a latest year of 2022 from 100 works while consensus reported 2018 from 20 — one literature, two numbers, and a reader acting on either would look for a gap the sample invented. The well-covered message needed the same treatment, being the strongest claim of the set. Re-sorting a second query by publication_date was tried and rejected: sorted by date, OpenAlex full-text search returns the newest work matching any term, so stale-evidence would stop firing entirely.",
+  "files": [
+    "internal/cli/gaps.go"
+  ],
+  "validated_outcome": "Wording only: the same findings fire under the same conditions, the JSON field names and output shape are unchanged, and go build, go vet and the full test suite are green. The counts quoted in each message come from len(works), which is the sample the command actually read."
+}

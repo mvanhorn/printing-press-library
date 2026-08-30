@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "unipile-parent-fk-key",
+  "applied_at": "2026-08-25",
+  "base_run_id": "20260824-212156-433d72f1",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Normalise the dependent parent foreign-key name so hyphenated parent tables match their underscored typed column.",
+  "reason": "ParentTable is spelled chat-attendees while the generated column is chat_attendees_id NOT NULL, so the injected key landed under a name nothing reads and every parent-scoped typed projection failed while generic rows still stored.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "chat_attendees_chats and chat_attendees_messages typed projections stopped failing during live sync."
+}

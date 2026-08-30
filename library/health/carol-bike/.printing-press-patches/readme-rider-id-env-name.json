@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "readme-rider-id-env-name",
+  "applied_at": "2026-08-25",
+  "base_run_id": "20260825-194050",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Document the runtime rider-ID environment variable accurately.",
+  "reason": "Generated README examples omitted the underscore in CAROL_BIKE_RIDER_ID, so copied MCP configuration would not provide the required endpoint scope.",
+  "files": [
+    "README.md"
+  ],
+  "validated_outcome": "README and SKILL verification use the same rider-ID environment variable accepted by runtime configuration."
+}

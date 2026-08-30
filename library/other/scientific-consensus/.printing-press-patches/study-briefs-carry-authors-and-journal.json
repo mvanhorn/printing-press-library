@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "study-briefs-carry-authors-and-journal",
+  "applied_at": "2026-08-26",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Every study record the consensus family emits must carry the full OpenAlex authorship list (verbatim, in OpenAlex order) and the primary_location.source name as `authors`/`journal`, both omitempty, and the BibTeX export must render them — a study identified by title alone lets a downstream LLM invent its authors.",
+  "reason": "OpenAlex authorships and primary_location were already requested and parsed, but scWork kept only FirstAuthor and workBrief carried neither, so consensus/compare/controversies JSON described studies by title only. Three synthesis runs over the same 2011 review produced three different first authors. Absent authorships or a missing primary_location.source are normal OpenAlex shapes, so the fields must be omitted rather than emitted as an empty string or placeholder that reads as real attribution.",
+  "files": [
+    "internal/cli/scwork.go",
+    "internal/cli/consensus.go",
+    "internal/cli/analytics_works.go"
+  ],
+  "validated_outcome": "Tests pin verbatim multi-author order (no et al., no initials conversion), an authorships-less work, a work with no primary_location.source, omitempty on both JSON keys, carry-through via both allStudyBriefs and topByStance, and BibTeX joining multiple authors with \" and \" while omitting the field for an author-less entry. go build/vet/test green."
+}

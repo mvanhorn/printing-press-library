@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "pico-gate-on-the-production-relevance-path",
+  "applied_at": "2026-08-27",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Two changes to the heuristic stance path. First, a conclusion that directly answers the claim must be able to override the cue-counting majority: refutationOverride runs after counting, matching strong refutation cues over the full text without pairing and gating meta cues (which describe a controversy rather than a finding) on pairing to both claim sides, with a framing gate so refutation phrasing posed as a question never counts. Second, the relevance gate on every scoring path must require a work to name BOTH sides of the claim — at least one intervention token AND at least one outcome token, matched over the abstract as well as the title — whenever the claim splits around a polarity verb; the older title/topic single-token overlap rule remains only as the fallback for claims that cannot be split, and the two must never run in sequence.",
+  "reason": "The counting pass took a plain majority of positive and negative cues across an abstract, so a paper whose conclusion refutes the claim was outvoted by harm vocabulary in its own background section: 'the evidence does not support a causal association' lost to the word 'risk' appearing four times in the introduction. Separately, IsPICORelevant and its stored corpora existed but had no caller outside tests, so production still filtered on the older overlap rule, where a single shared token anywhere in title or topic was enough and the abstract was never read — a paper naming only the intervention ('coffee bean roasting temperature and yield' under 'coffee improves alertness') passed and entered the score. The gate also had only one caller: consensus. compare, controversies and report reached scoreWorks directly, so off-topic works still moved their verdicts, and in controversies and report the reported StudyCount/Analyzed figures counted works the stance tallies never described. Layering the two gates was rejected: applying a title/topic rule after an abstract-aware one would re-drop works PICO deliberately kept, so they are alternatives selected on whether PICOTokens yields both sides. The fallback is not decorative — a claim phrased without a polarity verb is still a valid claim, and removing the older rule outright would leave those claims with no relevance filtering at all.",
+  "files": [
+    "internal/scengine/stance.go",
+    "internal/scengine/pico.go",
+    "internal/scengine/normalize.go",
+    "internal/cli/scwork.go",
+    "internal/cli/consensus.go",
+    "internal/cli/compare.go",
+    "internal/cli/controversies.go",
+    "internal/cli/report.go"
+  ],
+  "validated_outcome": "testdata/corpora holds 13 stored OpenAlex responses covering claims that are true, false, and genuinely contested; they are real API captures rather than hand-written fixtures, so cue matching is exercised against abstracts as they actually arrive. corpus_regression_test pins current behaviour across all 13 and pico_impact_test measures the gate's effect on each. Relevance tests pin which gate runs rather than that filtering happens: in the PICO case every work carries an intervention token in its title, so the overlap rule would keep all of them and only PICO separates them — verified by forcing the PICO branch off, which fails with both works kept. A second test pins the fallback on an unsplittable claim ('mediterranean diet'), where PICOTokens yields nothing and the overlap rule must still drop the off-topic work. filterRelevant now has exactly one call site in each of consensus.go, compare.go, controversies.go and report.go, verified by grep. go build and the full package test suite green."
+}

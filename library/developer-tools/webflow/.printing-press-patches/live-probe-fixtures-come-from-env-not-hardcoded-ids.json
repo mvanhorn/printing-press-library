@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "live-probe-fixtures-come-from-env-not-hardcoded-ids",
+  "applied_at": "2026-07-28",
+  "base_run_id": "20260728-073020-15799c7c",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Site- and collection-scoped audits resolve their id from the positional argument and fall back to WEBFLOW_SITE_ID / WEBFLOW_COLLECTION_ID; they must never carry a hardcoded id in pp:happy-args.",
+  "reason": "A literal id baked into the happy-path annotation cannot exist in another user's workspace, so the live probe 404s for everyone except the author. Reading the same fixture env vars the generated endpoint commands already use makes a bare invocation work wherever the environment is configured, and keeps the live matrix meaningful across installs. Plan- and capability-gated endpoints (Enterprise-only redirects, ecommerce, forms requiring a republish) additionally carry pp:requires-tier so a site without the feature skips them rather than failing.",
+  "files": ["internal/cli/seo_audit.go", "internal/cli/publish_preview.go", "internal/cli/redirects_audit.go", "internal/cli/drift.go", "internal/cli/collections_completeness.go", "internal/cli/items_bulk_set.go"],
+  "validated_outcome": "Unpinning the ids and tier-gating capability endpoints took the live matrix from 13 failures to 3, the remainder being an NDJSON probe mismatch and plan rate-limit exhaustion.",
+  "upstream_issue": ""
+}

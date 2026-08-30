@@ -55,6 +55,28 @@ type LayoverRestrictions struct {
 	MaxDuration int      // minutes; 0 = no constraint
 }
 
+// ValidateSearchBase checks the query-independent knobs (currency, cabin
+// class, max stops, sort) with the same mappers the live search path uses.
+// PATCH(review-2026-08-01): batch callers run this once before the paced
+// loop — without it an invalid --currency or --stops fails identically on
+// every trip, sleeping --pace between failures, and exits 5 instead of
+// surfacing a usage error before any network call.
+func ValidateSearchBase(opts SearchOptions) error {
+	if _, _, err := normalizeCurrency(opts.Currency); err != nil {
+		return err
+	}
+	if _, err := mapSeatType(opts.CabinClass); err != nil {
+		return err
+	}
+	if _, err := mapMaxStops(opts.MaxStops); err != nil {
+		return err
+	}
+	if _, err := mapSortBy(opts.SortBy); err != nil {
+		return err
+	}
+	return nil
+}
+
 // searchNativeDirect is the post-krisukox native backend.
 func searchNativeDirect(ctx context.Context, opts SearchOptions) (*SearchResult, error) {
 	_, currencyCode, err := normalizeCurrency(opts.Currency)
@@ -105,7 +127,7 @@ func searchNativeDirect(ctx context.Context, opts SearchOptions) (*SearchResult,
 	// multi-city search the user/agent can run interactively, which is
 	// the same UX Google's own "track price" links use.
 	if tripType == tripTypeMultiCity {
-		searchURL, urlErr := MultiCityBookingURL(opts.Segments)
+		searchURL, urlErr := MultiCityBookingURL(opts.Segments, opts.Currency)
 		if urlErr != nil {
 			return nil, fmt.Errorf("multi-city: %w", urlErr)
 		}
@@ -155,6 +177,12 @@ func searchNativeDirect(ctx context.Context, opts SearchOptions) (*SearchResult,
 		return err
 	})
 	switch {
+	case errors.Is(err, ErrRateLimited):
+		// PATCH(amend-2026-07-31): HTTP 429 is an IP-level budget, not a
+		// BotGuard gate — the HTML fallback hits the same host and would
+		// spend more of the exhausted budget. Fail fast; the CLI layer
+		// classifies this to exit 7 with pacing/alternate-source hints.
+		return nil, err
 	case errors.Is(err, errShoppingBlocked):
 		// PATCH(amend-2026-06-26): Google can intermittently return HTTP 200
 		// with a wrb.fr gRPC code-13 envelope. retryBlockedRPC gives the native

@@ -1,0 +1,82 @@
+{
+  "api_name": "is-agentic",
+  "base_url": "https://is-agentic.com",
+  "description": "Turn Is Agentic reports into durable, scriptable readiness evidence.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "report_get-is-agentic-legacy",
+      "description": "Deprecated compatibility alias for GET /api/v1/report. Responses include the RFC 9745 Deprecation header and a successor-version link. Required: url. Returns array of PublicScanIssue.",
+      "method": "GET",
+      "path": "/api/report",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Public HTTP or HTTPS URL whose completed report to retrieve.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "report_get-is-agentic-v1",
+      "description": "Returns one latest completed stored report for a public HTTP or HTTPS URL without launching a scan. This is a single-resource read operation: it has no request body, pagination, idempotency key, or asynchronous job. Required: url.",
+      "method": "GET",
+      "path": "/api/v1/report",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Public HTTP or HTTPS URL whose completed report to retrieve.",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Snapshot ledger",
+      "command": "history",
+      "description": "Keep a local, timestamped ledger of readiness reports and their provenance."
+    },
+    {
+      "name": "Cross-report diff",
+      "command": "diff",
+      "description": "See which readiness scores and findings changed between two retained audits."
+    },
+    {
+      "name": "Explainable policy gate",
+      "command": "check",
+      "description": "Fail CI with an explicit, machine-readable readiness policy decision."
+    },
+    {
+      "name": "Portfolio matrix",
+      "command": "portfolio",
+      "description": "Compare a fleet of public sites in one sortable score and issue matrix."
+    },
+    {
+      "name": "Issue lifecycle queue",
+      "command": "issues",
+      "description": "Track when readiness findings first appeared, last appeared, were fixed, or regressed."
+    },
+    {
+      "name": "Rate-aware fleet scheduler",
+      "command": "portfolio",
+      "description": "Refresh many targets with bounded concurrency, deduplication, and Retry-After-aware pacing."
+    },
+    {
+      "name": "Evidence bundle",
+      "command": "evidence",
+      "description": "Package a report and its provenance into a portable evidence artifact."
+    }
+  ]
+}

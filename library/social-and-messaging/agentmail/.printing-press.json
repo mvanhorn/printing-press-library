@@ -1,0 +1,118 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-26T16:11:47.377688Z",
+  "printing_press_version": "4.31.1",
+  "api_name": "agentmail",
+  "display_name": "AgentMail",
+  "cli_name": "agentmail-pp-cli",
+  "creator": {
+    "handle": "SomSamantray",
+    "name": "Som Samantray"
+  },
+  "owner": "somsamantray",
+  "printer": "SomSamantray",
+  "printer_name": "Som Samantray",
+  "spec_path": "agentmail-openapi-normalized.json",
+  "spec_format": "openapi3",
+  "spec_source": "official",
+  "spec_checksum": "sha256:48a104de6caeac794cc304ef487f00deab6ed3297b5cc1ce110e41325269e291",
+  "run_id": "20260826-200935-47af5c80",
+  "category": "social-and-messaging",
+  "description": "AgentMail operations with local memory, safe sends, and fleet-wide insight.",
+  "mcp_binary": "agentmail-pp-mcp",
+  "mcp_tool_count": 130,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_preference": "Bearer",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Triage queue",
+      "command": "triage queue",
+      "description": "Rank unresolved inbound conversations across inboxes with age, direction, labels, and pending drafts."
+    },
+    {
+      "name": "Send check",
+      "command": "send check",
+      "description": "Review a draft for deterministic recipient, attachment, schedule, duplicate, and idempotency risks before sending."
+    },
+    {
+      "name": "Thread rollup",
+      "command": "thread rollup",
+      "description": "Render compact conversation handoff context with participants, counts, latest direction, age, labels, and extracted reply content."
+    },
+    {
+      "name": "Fleet health",
+      "command": "fleet health",
+      "description": "Report inbox, domain, webhook, list, metrics, API-key, pod, and organization readiness findings."
+    },
+    {
+      "name": "Schedule audit",
+      "command": "schedule audit",
+      "description": "Find scheduled drafts that are overdue, orphaned, duplicated, or missing review state."
+    },
+    {
+      "name": "Delivery reconcile",
+      "command": "delivery reconcile",
+      "description": "Reconcile outbound messages with status, thread placement, timestamps, and later inbound activity."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Triage queue",
+      "command": "triage queue",
+      "description": "Rank unresolved inbound conversations across inboxes with age, direction, labels, and pending drafts."
+    },
+    {
+      "name": "Send check",
+      "command": "send check",
+      "description": "Review a draft for deterministic recipient, attachment, schedule, duplicate, and idempotency risks before sending."
+    },
+    {
+      "name": "Thread rollup",
+      "command": "thread rollup",
+      "description": "Render compact conversation handoff context with participants, counts, latest direction, age, labels, and extracted reply content."
+    },
+    {
+      "name": "Fleet health",
+      "command": "fleet health",
+      "description": "Report inbox, domain, webhook, list, metrics, API-key, pod, and organization readiness findings."
+    },
+    {
+      "name": "Schedule audit",
+      "command": "schedule audit",
+      "description": "Find scheduled drafts that are overdue, orphaned, duplicated, or missing review state."
+    },
+    {
+      "name": "Delivery reconcile",
+      "command": "delivery reconcile",
+      "description": "Reconcile outbound messages with status, thread placement, timestamps, and later inbound activity."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 100,
+    "passed": 158,
+    "total": 158,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 94,
+      "grade": "A",
+      "total": 94
+    }
+  }
+}

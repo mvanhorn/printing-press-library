@@ -90,7 +90,7 @@ func newYoutubeVideosLinksCmd(flags *rootFlags) *cobra.Command {
 		Use:         "videos-links <videoId>",
 		Short:       "Extract resource links from a video's description (expands short links, skips social/storefront noise)",
 		Example:     "  youtube-pp-cli youtube videos-links dQw4w9WgXcQ",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "videoId=dQw4w9WgXcQ", "pp:typed-exit-codes": "0,2,3,5"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -110,7 +110,7 @@ func newYoutubeVideosLinksCmd(flags *rootFlags) *cobra.Command {
 
 			title, description, err := fetchVideoSnippet(cmd.Context(), flags, videoID)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.ErrOrStderr(), err, flags)
 			}
 
 			out := videoLinksResponse{VideoID: videoID, Title: title}
@@ -236,8 +236,7 @@ func fetchVideoSnippet(ctx context.Context, flags *rootFlags, videoID string) (t
 	if err != nil {
 		return "", "", err
 	}
-	c = c.WithContext(ctx)
-	data, err := c.GetWithHeaders("/youtube/v3/videos", map[string]string{
+	data, err := c.GetWithHeaders(ctx, "/youtube/v3/videos", map[string]string{
 		"id":   videoID,
 		"part": "snippet",
 	}, nil)

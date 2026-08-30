@@ -1,0 +1,241 @@
+{
+  "api_name": "redmine",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "redmine-mcp-server",
+      "url": "https://github.com/onozaty/redmine-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 22,
+      "last_updated": "",
+      "command_count": 90,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "redmine-openapi",
+      "url": "https://github.com/d-yoshi/redmine-openapi",
+      "language": "YAML",
+      "install_method": "",
+      "stars": 17,
+      "last_updated": "",
+      "command_count": 56,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-26T15:30:00Z",
+  "novel_features": [
+    {
+      "name": "Roadmap Burndown",
+      "command": "roadmap burndown",
+      "description": "See open/closed issue counts, average completion, and logged-vs-estimated hours for a release version — the Roadmap page Redmine never exposed as an API.",
+      "rationale": "Requires a local join across synced issues, versions, and time entries; Redmine's REST API has no aggregate roadmap endpoint at all.",
+      "example": "redmine-pp-cli roadmap burndown 1.0 --project demo --json",
+      "why_it_matters": "Reach for this before a release-readiness call instead of hand-counting issues in the web UI.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Assignee Workload Report",
+      "command": "workload",
+      "description": "See every assignee's open-issue count and estimated hours in one aggregate view, with a flag for anyone over threshold.",
+      "rationale": "Requires grouping the local issues table by assignee; no Redmine endpoint returns per-user workload totals.",
+      "example": "redmine-pp-cli workload --project demo --threshold 5 --json",
+      "why_it_matters": "Use this before sprint planning to catch overload without opening every engineer's issue list one by one.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale Issue Detection",
+      "command": "issues stale",
+      "description": "Find open issues nobody has touched in N days — Redmine has no built-in staleness concept.",
+      "rationale": "Filters the synced issues table on updated_on age while status remains open; no live endpoint models inactivity.",
+      "example": "redmine-pp-cli issues stale --project demo --days 14 --json",
+      "why_it_matters": "Use this for triage sweeps to surface issues that fell through the cracks, not recently active ones.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Since-Last-Sync Digest",
+      "command": "digest",
+      "description": "A personal activity report of what was created, updated, or closed in a time window, optionally scoped to issues assigned to or watched by you.",
+      "rationale": "Requires join-and-filter logic across created_on/updated_on/closed_on plus assignment/watch state; no single Redmine endpoint returns this.",
+      "example": "redmine-pp-cli digest --since 7d --mine --json",
+      "why_it_matters": "Use this for a 'what did I miss' catch-up instead of paging through each project's activity feed by hand.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cycle-Time by Tracker",
+      "command": "issues cycle-time",
+      "description": "Average days from creation to close, grouped by tracker or project — real duration math the API can't do.",
+      "rationale": "Computes avg(closed_on - created_on) grouped by tracker/project over the local issues table; the generic analytics command only counts rows, it does not compute durations.",
+      "example": "redmine-pp-cli issues cycle-time --group-by tracker --project demo --json",
+      "why_it_matters": "Use this to spot which issue types are taking longer than they should to resolve.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Transitive Blocker Chain",
+      "command": "issues blockers",
+      "description": "Walk the full multi-hop 'blocks'/'blocked by' dependency chain for an issue, not just its direct relations.",
+      "rationale": "Requires a recursive traversal over the local issue_relations table; the API only returns one issue's direct relations per call.",
+      "example": "redmine-pp-cli issues blockers 3 --depth 3 --json",
+      "why_it_matters": "Use this before starting work on an issue to confirm it isn't blocked three hops away by something you haven't seen yet.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Roadmap Burndown",
+      "command": "roadmap burndown",
+      "description": "See open/closed issue counts, average completion, and logged-vs-estimated hours for a release version — the Roadmap page Redmine never exposed as an API.",
+      "rationale": "Requires a local join across synced issues, versions, and time entries; Redmine's REST API has no aggregate roadmap endpoint at all.",
+      "example": "redmine-pp-cli roadmap burndown 1.0 --project demo --json",
+      "why_it_matters": "Reach for this before a release-readiness call instead of hand-counting issues in the web UI.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Assignee Workload Report",
+      "command": "workload",
+      "description": "See every assignee's open-issue count and estimated hours in one aggregate view, with a flag for anyone over threshold.",
+      "rationale": "Requires grouping the local issues table by assignee; no Redmine endpoint returns per-user workload totals.",
+      "example": "redmine-pp-cli workload --project demo --threshold 5 --json",
+      "why_it_matters": "Use this before sprint planning to catch overload without opening every engineer's issue list one by one.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale Issue Detection",
+      "command": "issues stale",
+      "description": "Find open issues nobody has touched in N days — Redmine has no built-in staleness concept.",
+      "rationale": "Filters the synced issues table on updated_on age while status remains open; no live endpoint models inactivity.",
+      "example": "redmine-pp-cli issues stale --project demo --days 14 --json",
+      "why_it_matters": "Use this for triage sweeps to surface issues that fell through the cracks, not recently active ones.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Since-Last-Sync Digest",
+      "command": "digest",
+      "description": "A personal activity report of what was created, updated, or closed in a time window, optionally scoped to issues assigned to or watched by you.",
+      "rationale": "Requires join-and-filter logic across created_on/updated_on/closed_on plus assignment/watch state; no single Redmine endpoint returns this.",
+      "example": "redmine-pp-cli digest --since 7d --mine --json",
+      "why_it_matters": "Use this for a 'what did I miss' catch-up instead of paging through each project's activity feed by hand.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cycle-Time by Tracker",
+      "command": "issues cycle-time",
+      "description": "Average days from creation to close, grouped by tracker or project — real duration math the API can't do.",
+      "rationale": "Computes avg(closed_on - created_on) grouped by tracker/project over the local issues table; the generic analytics command only counts rows, it does not compute durations.",
+      "example": "redmine-pp-cli issues cycle-time --group-by tracker --project demo --json",
+      "why_it_matters": "Use this to spot which issue types are taking longer than they should to resolve.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Transitive Blocker Chain",
+      "command": "issues blockers",
+      "description": "Walk the full multi-hop 'blocks'/'blocked by' dependency chain for an issue, not just its direct relations.",
+      "rationale": "Requires a recursive traversal over the local issue_relations table; the API only returns one issue's direct relations per call.",
+      "example": "redmine-pp-cli issues blockers 3 --depth 3 --json",
+      "why_it_matters": "Use this before starting work on an issue to confirm it isn't blocked three hops away by something you haven't seen yet.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "REDMINE_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Redmine",
+    "headline": "Every Redmine feature, plus a local mirror that finally answers the cross-project questions the Roadmap page never could.",
+    "value_prop": "Redmine's REST API is deeply relational but strictly request-per-entity — no burndown endpoint, no workload endpoint, no staleness concept. This CLI absorbs the full REST surface (issues, projects, time entries, wiki, versions, memberships, and more) and adds a synced SQLite mirror underneath, so burndown, workload, cycle-time, and blocker-chain questions resolve to one local query instead of dozens of live requests.",
+    "auth_narrative": "Redmine is self-hosted, so two things are required instead of just a key: REDMINE_URL (your instance's base URL) and REDMINE_API_KEY (from your account's My Account page, or Administration \u003e Settings \u003e API for admins). Both are sent as-is — REDMINE_API_KEY becomes the X-Redmine-API-Key header on every request.",
+    "quickstart": [
+      {
+        "command": "redmine-pp-cli doctor --dry-run",
+        "comment": "Verify REDMINE_URL and REDMINE_API_KEY are set and the instance is reachable, without making a real call."
+      },
+      {
+        "command": "redmine-pp-cli sync --resources issues-json,projects-json,time-entries-json,users-json --full --resource-param issues-json:status_id=*",
+        "comment": "Pull a full local mirror so search, digest, and every transcendence command have data to work with. The status_id=* override is required to include closed issues — Redmine's default issue list only returns open ones."
+      },
+      {
+        "command": "redmine-pp-cli issues-json get-issues --project-id demo --status-id o --json",
+        "comment": "Confirm the sync worked by listing open issues in a known project."
+      },
+      {
+        "command": "redmine-pp-cli digest --since 7d --mine",
+        "comment": "See what changed in the last week across issues assigned to you."
+      },
+      {
+        "command": "redmine-pp-cli workload --project demo",
+        "comment": "Check whether anyone on the project is carrying too much open work."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports 'connection refused' or a timeout",
+        "fix": "Confirm REDMINE_URL points at a reachable instance (e.g. http://redmine:3000 inside this devcontainer, http://localhost:3001 from the host browser) and that the Redmine container is healthy."
+      },
+      {
+        "symptom": "401 Unauthorized on every command",
+        "fix": "Confirm REDMINE_API_KEY is set and REST API access is enabled on the instance (Administration \u003e Settings \u003e API \u003e 'Enable REST web service')."
+      },
+      {
+        "symptom": "issues-json create-issue fails with 'tracker_id is invalid' or similar",
+        "fix": "Run redmine-pp-cli trackers-json (or issue-statuses-json / enumerations get-issue-priorities) to get valid IDs for this instance — trackers, statuses, and priorities are configured per-instance and IDs are not portable across Redmine installs."
+      },
+      {
+        "symptom": "roadmap burndown, issues cycle-time, or workload undercounts closed issues",
+        "fix": "The default 'sync' only pulls open issues (Redmine's own API default). Re-sync with '--resource-param issues-json:status_id=*' to include closed issues in the local mirror before running these commands."
+      },
+      {
+        "symptom": "roadmap burndown or workload returns empty for a project that has data",
+        "fix": "Run sync first (or re-run it) — these commands read only from the local mirror, not live from the API."
+      }
+    ],
+    "when_to_use": "Use this CLI for any Redmine workflow: triaging and updating issues, logging and reporting time, planning releases against versions, managing projects/users/memberships, and — uniquely — cross-entity reporting (burndown, workload, cycle-time, staleness, blocker chains) that Redmine's own REST API and web UI cannot answer in one call. Good for agents scripting bulk issue updates, CI jobs that log time entries, and periodic digest/health checks.",
+    "anti_triggers": [
+      "Do not use this CLI for real-time Gantt chart rendering or rich visual roadmap graphics — it reports the same underlying data as text/JSON, not a visual timeline.",
+      "Do not use this CLI to edit wiki page rich text/attachments inline — wiki update accepts plain Textile/Markdown body text, not a WYSIWYG diff.",
+      "Do not use this CLI for Redmine account self-service (password reset, 2FA enrollment) — that requires the web login UI.",
+      "Do not use this CLI to sync or mirror issues with GitHub/GitLab/Jira — it only talks to a single Redmine instance's REST API."
+    ],
+    "recipes": [
+      {
+        "title": "Triage open bugs with a narrow agent payload",
+        "command": "redmine-pp-cli issues-json get-issues --project-id demo --status-id o --tracker-id 1 --agent --select id,subject,tracker.name,priority.name",
+        "explanation": "Nested tracker/priority/status objects on every issue add up fast across a full project; --select keeps only the fields an agent actually needs to triage."
+      },
+      {
+        "title": "Find issues nobody has touched in two weeks",
+        "command": "redmine-pp-cli issues stale --project demo --days 14 --json",
+        "explanation": "Surfaces open issues with no recent activity, which Redmine itself has no concept of."
+      },
+      {
+        "title": "See who's carrying the most open work",
+        "command": "redmine-pp-cli workload --project demo --threshold 5",
+        "explanation": "One command instead of opening each engineer's assigned-issue list to eyeball the count."
+      },
+      {
+        "title": "Trace why an issue is blocked",
+        "command": "redmine-pp-cli issues blockers 3 --depth 3",
+        "explanation": "Walks the full transitive blocker chain instead of clicking through each linked issue one hop at a time."
+      },
+      {
+        "title": "Check release readiness for a version",
+        "command": "redmine-pp-cli roadmap burndown 1.0 --project demo --json",
+        "explanation": "Open/closed counts, average done_ratio, and hours variance for the version in one call, replacing a manual Roadmap-page count."
+      }
+    ],
+    "trigger_phrases": [
+      "list my redmine issues",
+      "what's assigned to me in redmine",
+      "check redmine roadmap burndown",
+      "who's overloaded on this redmine project",
+      "find stale redmine issues",
+      "log time in redmine",
+      "use redmine",
+      "run redmine"
+    ]
+  }
+}

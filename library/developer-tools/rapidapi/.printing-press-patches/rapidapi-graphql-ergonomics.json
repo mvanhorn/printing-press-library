@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "rapidapi-graphql-ergonomics",
+  "applied_at": "2026-08-28",
+  "base_run_id": "20260828-090622-dd9c3930",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Hand-authored GraphQL command layer: gqlExec helper with baked query docs, friendly flags, and 35 marketplace/account commands.",
+  "reason": "The generated CLI exposed raw operationName/query/variables flags; the hub's GraphQL BFF needed ergonomic per-command flags with validated query documents.",
+  "files": ["internal/cli/graphql_helpers.go", "internal/cli/promoted_marketplace.go", "internal/cli/search.go", "internal/cli/sync.go", "internal/cli/analytics.go", "internal/cli/account_analytics.go"],
+  "validated_outcome": "verify 100% (68/68), scorecard 93/100, live dogfood 12/13 against the real hub gateway."
+}

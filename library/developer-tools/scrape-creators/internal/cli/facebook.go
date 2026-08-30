@@ -11,11 +11,12 @@ func newFacebookCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "facebook",
 		Short:       "Get public Facebook profiles and posts",
-		Hidden:      true,
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:api-resource": "true", "pp:typed-exit-codes": "0,2"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 
+	cmd.AddCommand(newFacebookCreateCmd(flags))
+	cmd.AddCommand(newFacebookCreateAdlibraryCmd(flags))
 	cmd.AddCommand(newFacebookListCmd(flags))
 	cmd.AddCommand(newFacebookListAdlibraryCmd(flags))
 	cmd.AddCommand(newFacebookListAdlibrary2Cmd(flags))
@@ -25,6 +26,7 @@ func newFacebookCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newFacebookListEventCmd(flags))
 	cmd.AddCommand(newFacebookListEventsCmd(flags))
 	cmd.AddCommand(newFacebookListGroupCmd(flags))
+	cmd.AddCommand(newFacebookListGroup2Cmd(flags))
 	cmd.AddCommand(newFacebookListMarketplaceCmd(flags))
 	cmd.AddCommand(newFacebookListMarketplace2Cmd(flags))
 	cmd.AddCommand(newFacebookListMarketplace3Cmd(flags))

@@ -1,0 +1,131 @@
+name: carol-bike
+display_name: CAROL Bike
+description: Read and locally mirror personal CAROL Bike workout data.
+version: 3.9.1
+base_url: https://i.carolbike.com/rider-api
+endpoint_template_vars: [riderId]
+endpoint_template_env_overrides:
+  riderId: CAROL_BIKE_RIDER_ID
+auth:
+  type: bearer_token
+  env_vars: [CAROL_BIKE_TOKEN]
+  instructions: Use a bearer token from your own authenticated CAROL Bike rider dashboard session.
+resources:
+  ride:
+    description: Read personal CAROL Bike ride history.
+    endpoints:
+      get-latest:
+        method: GET
+        path: /rider/{riderId}/ride/last
+        description: Get the latest ride
+        params:
+          - name: v
+            flag_name: api-version
+            aliases: [v]
+            type: string
+            default: 3.9.1
+            description: CAROL Rider API version.
+        response:
+          type: object
+          item: Ride
+      list-rehit:
+        method: GET
+        path: /rider/{riderId}/ride/type/REHIT
+        description: List REHIT rides
+        params:
+          - name: v
+            flag_name: api-version
+            aliases: [v]
+            type: string
+            default: 3.9.1
+            description: CAROL Rider API version.
+          - name: page
+            type: int
+            default: 0
+            minimum: 0
+            description: Zero-based result page.
+          - name: size
+            type: int
+            default: 40
+            minimum: 1
+            maximum: 200
+            description: Number of rides per page.
+        response:
+          type: array
+          item: Ride
+        response_path: content
+        pagination:
+          type: page
+          cursor_param: page
+          limit_param: size
+  stats:
+    description: Read aggregate CAROL Bike rider statistics.
+    endpoints:
+      get-rider:
+        method: GET
+        path: /rider/{riderId}/stats
+        description: Get aggregate rider statistics
+        params:
+          - {name: v, flag_name: api-version, aliases: [v], type: string, default: 3.9.1, description: CAROL Rider API version.}
+        response: {type: object, item: RiderStats}
+      get-ride-count:
+        method: GET
+        path: /rider/{riderId}/stats/ride-count
+        description: Get total ride count
+        params:
+          - {name: v, flag_name: api-version, aliases: [v], type: string, default: 3.9.1, description: CAROL Rider API version.}
+        response: {type: object, item: RiderStats}
+      get-rides-per-week:
+        method: GET
+        path: /rider/{riderId}/stats/rides-per-week
+        description: Get current weekly ride rate and target
+        params:
+          - {name: v, flag_name: api-version, aliases: [v], type: string, default: 3.9.1, description: CAROL Rider API version.}
+        response: {type: object, item: RiderStats}
+      get-ride-calendar:
+        method: GET
+        path: /rider/{riderId}/stats/calendar/last
+        description: Get recent ride-calendar data
+        params:
+          - {name: v, flag_name: api-version, aliases: [v], type: string, default: 3.9.1, description: CAROL Rider API version.}
+        response: {type: array, item: RideCalendarEntry}
+  trends:
+    description: Read CAROL Bike rider trend series.
+    endpoints:
+      get-rider:
+        method: GET
+        path: /rider/{riderId}/trends
+        description: Get rider trend series
+        params:
+          - {name: v, flag_name: api-version, aliases: [v], type: string, default: 3.9.1, description: CAROL Rider API version.}
+          - {name: type, type: string, default: REHIT, description: Ride type to include.}
+        response: {type: array, item: TrendPoint}
+types:
+  Ride:
+    description: CAROL Bike workout ride.
+    fields:
+      - {name: id, type: int, description: Ride identifier.}
+      - {name: type, type: string, description: Ride type.}
+      - {name: start, type: int, description: Start time as Unix epoch milliseconds.}
+      - {name: duration, type: int, description: Ride duration.}
+      - {name: distance, type: float, description: Ride distance.}
+      - {name: calories, type: float, description: Ride calories.}
+      - {name: caloriesInclEpoc, type: float, description: Calories including EPOC.}
+      - {name: averagePower, type: float, description: Average power.}
+      - {name: averageSprintPower, type: float, description: Average sprint power.}
+      - {name: peakPower, type: float, description: Peak power.}
+      - {name: totalPower, type: float, description: Total power.}
+      - {name: heartRateAverage, type: float, description: Average heart rate.}
+      - {name: heartRateMax, type: float, description: Maximum heart rate.}
+      - {name: rpmAverage, type: float, description: Average cadence.}
+      - {name: rpmMax, type: float, description: Maximum cadence.}
+      - {name: speedAverage, type: float, description: Average speed.}
+      - {name: speedMax, type: float, description: Maximum speed.}
+      - {name: octaneScore, type: float, description: CAROL Octane score.}
+      - {name: valid, type: bool, description: Whether the ride is valid.}
+  RiderStats:
+    description: Aggregate rider statistics.
+  RideCalendarEntry:
+    description: Calendar ride summary.
+  TrendPoint:
+    description: Rider trend data point.

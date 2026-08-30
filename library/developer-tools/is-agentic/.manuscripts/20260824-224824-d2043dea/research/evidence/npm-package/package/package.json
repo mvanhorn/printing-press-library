@@ -1,0 +1,35 @@
+{
+  "name": "is-agentic",
+  "version": "1.0.1",
+  "description": "Score agent readiness with readable terminal reports and structured JSON.",
+  "type": "module",
+  "bin": {
+    "is-agentic": "bin/is-agentic.js"
+  },
+  "files": [
+    "bin",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "ISC",
+  "homepage": "https://is-agentic.com/docs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vercel-labs/is-agentic.git",
+    "directory": "cli"
+  },
+  "bugs": {
+    "url": "https://github.com/vercel-labs/is-agentic/issues"
+  },
+  "keywords": [
+    "ai-agents",
+    "agentic",
+    "cli",
+    "website-audit"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "bonusly-remove-broken-commands",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260810-153232-4e95f81e",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Remove awards, groups, incentives, and meetings commands (CLI, MCP tools, sync, resource_paths, docs, tests) -- no working endpoint could be found for any of them after ~20 live path probes each.",
+  "reason": "Live dogfood testing surfaced these as 404 against the real API. Direct live probing (using an authenticated session) tried ~20 plausible REST path variants per resource (e.g. /users/{id}/awards, /company/awards, /catalog_items, /incentives for awards; /users/{id}/user_groups, /company/user_groups, /groups/custom, /groups/system for groups; /api/v2/meetings, /meetings/mine, /users/me/meetings for meetings) with no success. Rather than ship commands that are guaranteed to fail, removed them entirely: root.go registration, all 14 internal/cli/*.go implementation files, 11 MCP tool bindings + 4 agent-context resource-list entries in internal/mcp/tools.go, the resource entries in internal/cli/resource_paths.go and internal/cli/sync.go (defaultSyncResources, knownSyncResourceNames, syncResourcePath, resourceReadPaths, resourceDetailPaths, resourceReadConfigs), the corresponding expected-command-path entries in internal/cli/root_test.go's TestDeclaredAPISurfaceReachable, and the matching sections/examples in README.md and SKILL.md. Also rewrote README.md's 'Known Gaps' section, which had incorrectly claimed several of these same paths were 'confirmed correct' based on a no-auth 401-vs-404 heuristic that live testing proved unreliable (Bonusly returns 401 on some genuinely nonexistent paths too).",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/resource_paths.go",
+    "internal/cli/sync.go",
+    "internal/cli/root_test.go",
+    "internal/mcp/tools.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go build/go vet/go test ./... all pass. `bonusly-pp-cli --help` no longer lists awards/groups/meetings; MCP tool registration no longer advertises the 11 removed tools. verify-skill reports zero findings.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Live-verification pass for internal/inferred specs before first publish",
+      "reason": "These paths were marked in the original spec as inferred/not yet verified against a real API response. A live-verification pass against declared-uncertain endpoints during generation (when a credential is available) would catch dead endpoints like these before a CLI ever ships them."
+    }
+  ]
+}

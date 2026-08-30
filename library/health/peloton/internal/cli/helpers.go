@@ -490,15 +490,15 @@ func classifyAPIError(err error, flags *rootFlags) error {
 		return authErr(err)
 	case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
 		return authErr(fmt.Errorf("%w\nhint: the API rejected the request — this usually means auth is missing or invalid."+
-			"\n      Run 'peloton-pp-cli auth status' to check the managed OAuth bundle."+
+			"\n      Run 'peloton-pp-cli auth status' to check your persisted Peloton credentials."+
 			"\n      Response: "+cliutil.SanitizeErrorBody(msg), err))
 	case strings.Contains(msg, "HTTP 401"):
-		return authErr(fmt.Errorf("%w\nhint: check the managed OAuth bundle."+
-			"\n      Run 'peloton-pp-cli auth status' to inspect its availability.", err))
+		return authErr(fmt.Errorf("%w\nhint: check your persisted Peloton credentials."+
+			"\n      Run 'peloton-pp-cli auth status' to inspect their availability.", err))
 	case strings.Contains(msg, "HTTP 403"):
 		return authErr(fmt.Errorf("%w\nhint: permission denied. Your credentials are valid but lack access to this resource."+
 			"\n      Check that your credentials have the required permissions and match the API's expected auth scheme."+
-			"\n      Run 'peloton-pp-cli auth status' to inspect the managed OAuth bundle.", err))
+			"\n      Run 'peloton-pp-cli auth status' to inspect your persisted Peloton credentials.", err))
 	case strings.Contains(msg, "HTTP 404"):
 		return notFoundErr(fmt.Errorf("%w\nhint: resource not found. Run the 'list' command to see available items", err))
 	case strings.Contains(msg, "HTTP 429"):
@@ -994,6 +994,15 @@ func unwrapSingleKeyArray(data json.RawMessage) json.RawMessage {
 	return data
 }
 
+// FilterFieldsJSON exports filterFields for the internal/mcp package, whose
+// hand-written tool handlers (e.g. the "search" MCP tool, which builds its
+// own count/results/store_status/resumable envelope rather than going
+// through this package's printOffline/printOutput* pipeline) need the same
+// dotted-path projection --select applies everywhere else in this CLI.
+func FilterFieldsJSON(data json.RawMessage, fields string) json.RawMessage {
+	return filterFields(data, fields)
+}
+
 // filterFields keeps only the specified fields (comma-separated) from JSON objects/arrays.
 // Supports dotted paths like "events.shortName" to descend into nested structures.
 // Arrays are traversed element-wise: "events.shortName" keeps shortName on each event.
@@ -1015,6 +1024,11 @@ func filterFields(data json.RawMessage, fields string) json.RawMessage {
 	}
 	return filterFieldsRec(data, paths)
 }
+
+// maxEnvelopeFallbackKeys bounds filterFieldsRec's envelope-fallback
+// heuristic to objects small enough to be one of this CLI's own thin
+// wrapper shapes. See the guard's call site for why this matters.
+const maxEnvelopeFallbackKeys = 5
 
 // filterFieldsRec applies path filters to a JSON value. Each path is a list of
 // lowercase segments; arrays descend element-wise.
@@ -1070,7 +1084,24 @@ func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
 		// array exists. The `arr != nil` check rejects JSON null, which
 		// json.Unmarshal otherwise accepts into a []json.RawMessage as a
 		// nil slice and would coerce to `[]`.
-		if !matchedAny {
+		// Only attempt the envelope-fallback heuristic on objects small
+		// enough to plausibly be one of this CLI's own thin wrapper shapes
+		// (e.g. offline_history's {"items":[...],"caveats":[...]},
+		// offline_intervals's {"workout_id":...,"ride_id":...,"segments":
+		// [...],"caveats":[...]}) -- every legitimate wrapper this
+		// fallback exists for tops out at maxEnvelopeFallbackKeys fields.
+		// Without this guard, a raw upstream payload passed straight
+		// through (e.g. offline_classes_show's "show one locally stored
+		// class fact", which has no CLI-chosen wrapper at all) trips the
+		// same heuristic whenever it has ANY array-valued field
+		// (segments, related_rides, ...) and the requested --select names
+		// don't happen to be top-level keys on that particular record
+		// shape -- every OTHER field, including large nested objects
+		// (playlist, instructor bio, workout_share_images), then passes
+		// through completely unfiltered at the bottom of
+		// filterListEnvelopeFields's loop, leaking most of the record
+		// instead of returning the requested (possibly empty) projection.
+		if !matchedAny && len(obj) <= maxEnvelopeFallbackKeys {
 			if pending, foundArray := filterListEnvelopeFields(obj, paths); foundArray {
 				filtered = pending
 			}
@@ -1165,6 +1196,21 @@ func printOutputWithFlagsMeta(w io.Writer, data json.RawMessage, flags *rootFlag
 	} else if flags.compact {
 		data = compactFields(data)
 	}
+	return printOutputWithFlagsMetaFiltered(w, data, flags, agentMeta)
+}
+
+// printOutputWithFlagsMetaFiltered is printOutputWithFlagsMeta's tail half
+// (everything after --select/--compact filtering), split out for callers
+// that must apply filtering to an inner payload before it gets wrapped in
+// an outer envelope. printOffline is the motivating case: applying
+// --select to its already-wrapped {"meta":...,"data":...} envelope looks
+// for the requested field names among top-level envelope keys
+// (meta/data) instead of the actual payload fields inside "data",
+// silently returning {} for any real field name (SIGNIFICANT #3 from a
+// live post-fix verification sweep). Live single-fetch commands
+// (e.g. workouts_performance.go) already filter before wrapping in their
+// provenance envelope; printOffline must do the same.
+func printOutputWithFlagsMetaFiltered(w io.Writer, data json.RawMessage, flags *rootFlags, agentMeta map[string]any) error {
 	if flags.agent && flags.asJSON && !flags.csv && !flags.plain && !flags.quiet {
 		wrapped, err := wrapAgentOutput(data, agentMeta)
 		if err != nil {
@@ -2040,7 +2086,7 @@ func printProvenance(cmd *cobra.Command, count int, prov DataProvenance) {
 func nonJSONPayloadError(data json.RawMessage) error {
 	trimmed := bytes.TrimSpace(data)
 	if len(trimmed) > 0 && trimmed[0] == '<' {
-		return authErr(fmt.Errorf("not authenticated or session expired; API returned HTML instead of JSON. Run 'peloton-pp-cli auth status' to inspect the managed OAuth bundle."))
+		return authErr(fmt.Errorf("not authenticated or session expired; API returned HTML instead of JSON. Run 'peloton-pp-cli auth status' to inspect your persisted Peloton credentials."))
 	}
 	if len(trimmed) == 0 {
 		return apiErr(fmt.Errorf("API returned an empty response body; expected JSON"))

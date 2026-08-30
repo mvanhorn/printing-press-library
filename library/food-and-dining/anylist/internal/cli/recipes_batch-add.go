@@ -5,7 +5,6 @@ package cli
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -13,7 +12,6 @@ import (
 func newRecipesBatchAddCmd(flags *rootFlags) *cobra.Command {
 	var bodyListName string
 	var bodyRecipes string
-	var bodyMerge bool
 	var stdinBody bool
 
 	cmd := &cobra.Command{
@@ -42,42 +40,11 @@ func newRecipesBatchAddCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
-
-			ctx := cmd.Context()
-			cfg, st, err := openAuthedLocalStore(flags)
-			if err != nil {
-				return err
-			}
-			defer st.Close()
-
-			total := 0
-			var addedByRecipe []map[string]any
-			for _, recipeName := range strings.Split(bodyRecipes, ",") {
-				recipeName = strings.TrimSpace(recipeName)
-				if recipeName == "" {
-					continue
-				}
-				added, err := addRecipeIngredientsToList(ctx, cfg, st, recipeName, bodyListName, 0, bodyMerge)
-				if err != nil {
-					return err
-				}
-				total += added
-				addedByRecipe = append(addedByRecipe, map[string]any{"recipe": recipeName, "added": added})
-			}
-			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-					"added":   total,
-					"list":    bodyListName,
-					"recipes": addedByRecipe,
-				}, flags)
-			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Added %d ingredients to %q\n", total, bodyListName)
-			return nil
+			return fmt.Errorf("bulk recipe-to-list writes are disabled; use 'recipes ingredients' for facts, then apply explicit item operations selected by the AI")
 		},
 	}
 	cmd.Flags().StringVar(&bodyListName, "list", "", "Target shopping list name")
 	cmd.Flags().StringVar(&bodyRecipes, "recipes", "", "Comma-separated list of recipe names")
-	cmd.Flags().BoolVar(&bodyMerge, "merge", true, "Avoid duplicate unchecked items already on the list")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

@@ -1,0 +1,80 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-28T04:41:14.284559Z",
+  "printing_press_version": "4.31.1",
+  "api_name": "rapidapi",
+  "display_name": "Rapidapi",
+  "cli_name": "rapidapi-pp-cli",
+  "creator": {
+    "handle": "SomSamantray",
+    "name": "Som Samantray"
+  },
+  "owner": "somsamantray",
+  "printer": "SomSamantray",
+  "printer_name": "Som Samantray",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:c0a3c12bb14f8173488c376bb8894cdda6698e5a5e588f0ce56f6a6b6fdbf4fd",
+  "run_id": "20260828-090622-dd9c3930",
+  "category": "developer-tools",
+  "description": "RapidAPI Hub marketplace CLI - search APIs, browse categories & collections, inspect providers",
+  "mcp_binary": "rapidapi-pp-mcp",
+  "mcp_tool_count": 13,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Offline sync & search",
+      "command": "sync",
+      "description": "Sync marketplace data into a local SQLite store with sync-state tracking, then search it offline."
+    },
+    {
+      "name": "Hub analytics with aggregation",
+      "command": "analytics",
+      "description": "Hub-wide metrics plus per-day API traffic aggregated from the local store (SUM, AVG, error rates)."
+    },
+    {
+      "name": "Marketplace export",
+      "command": "export",
+      "description": "Export cached marketplace records to JSON or CSV for offline analysis."
+    },
+    {
+      "name": "Chrome TLS transport",
+      "command": "system csrf",
+      "description": "uTLS Chrome-fingerprint HTTP/2 transport that passes the Cloudflare bot gate, enabling live CLI access to the hub gateway."
+    },
+    {
+      "name": "Cache freshness doctor",
+      "command": "doctor",
+      "description": "Doctor reports cache freshness with schema-gated auto-refresh."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 97.14285714285714,
+    "passed": 68,
+    "total": 70,
+    "failed": 2,
+    "verdict": "FAIL"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 93,
+      "grade": "A",
+      "total": 93
+    }
+  }
+}

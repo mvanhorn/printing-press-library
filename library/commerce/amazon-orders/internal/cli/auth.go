@@ -311,11 +311,15 @@ func newAuthRefreshCmd(flags *rootFlags) *cobra.Command {
 				return authErr(err)
 			}
 
-			if validateBrowserSessionOrWarn(w, cfg, func() error {
+			if !validateBrowserSessionOrWarn(w, cfg, func() error {
 				return validateAndWriteBrowserSessionProofWithRetry(cfg, flags, waitTimeout)
 			}) {
-				fmt.Fprintf(w, "Browser session proof refreshed at %s\n", browserSessionProofPath(cfg))
+				// Restore a non-zero exit so scripts using `auth refresh && orders list`
+				// don't treat a blocked/expired session as success. The warning above
+				// carries the human-readable detail.
+				return authErr(fmt.Errorf("browser session validation failed; cookies saved but the session is not authenticated"))
 			}
+			fmt.Fprintf(w, "Browser session proof refreshed at %s\n", browserSessionProofPath(cfg))
 			return nil
 		},
 	}

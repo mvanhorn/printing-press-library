@@ -4,18 +4,82 @@
 package cli
 
 import (
+	"fmt"
+	"strings"
+
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/anylist/pb"
 	"github.com/spf13/cobra"
 )
 
 func newFoldersCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "folders",
-		Short:  "Organize shopping lists into folders",
-		Hidden: true,
+		Use:   "folders",
+		Short: "Organize shopping lists into folders",
 	}
 
 	cmd.AddCommand(newFoldersCreateCmd(flags))
 	cmd.AddCommand(newFoldersDeleteCmd(flags))
 	cmd.AddCommand(newFoldersListCmd(flags))
+	cmd.AddCommand(newFoldersUpdateCmd(flags))
 	return cmd
+}
+
+// folderLiveWritesEnabled stays false until the remaining folder update
+// operations have their own verified wire contracts.
+func folderLiveWritesEnabled() bool { return false }
+
+// folderCreateDeleteLiveWritesEnabled is enabled only for the exact
+// create-new-folder and delete-folder-items handlers, each of which has a
+// disposable fresh-read round trip recorded in the AnyList status evidence.
+func folderCreateDeleteLiveWritesEnabled() bool { return true }
+
+// folderRenameLiveWritesEnabled is enabled only for set-folder-name, which
+// has its own live fresh-read verification. Child ordering and parent movement
+// have their own verified gates below.
+func folderRenameLiveWritesEnabled() bool { return true }
+
+// folderMoveLiveWritesEnabled is enabled only for move-folder-items, which
+// has a live fresh-read verification. Child ordering has its own gate below.
+func folderMoveLiveWritesEnabled() bool { return true }
+
+// folderChildOrderingLiveWritesEnabled is enabled for the APK-derived
+// set-ordered-folder-items payload, which has a disposable live fresh-read
+// round-trip recorded in the AnyList status evidence.
+func folderChildOrderingLiveWritesEnabled() bool { return true }
+
+// findLiveListFolderByID returns a folder from a fresh user-data response.
+// Folder writes must verify by stable ID; names are not unique identifiers.
+func findLiveListFolderByID(userData *pb.PBUserDataResponse, id string) (*pb.PBListFolder, bool) {
+	if userData == nil || userData.GetListFoldersResponse() == nil {
+		return nil, false
+	}
+	for _, folder := range userData.GetListFoldersResponse().GetListFolders() {
+		if folder != nil && folder.GetIdentifier() == id {
+			return folder, true
+		}
+	}
+	return nil, false
+}
+
+// findLiveListFolderForMutation resolves an exact, case-insensitive name and
+// rejects ambiguity. Substring matching is deliberately not used for writes.
+func findLiveListFolderForMutation(userData *pb.PBUserDataResponse, name string) (*pb.PBListFolder, error) {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return nil, fmt.Errorf("folder name must not be empty")
+	}
+	if userData == nil || userData.GetListFoldersResponse() == nil {
+		return nil, fmt.Errorf("list folder data is missing from AnyList user data")
+	}
+	var match *pb.PBListFolder
+	for _, folder := range userData.GetListFoldersResponse().GetListFolders() {
+		if folder == nil || !strings.EqualFold(strings.TrimSpace(folder.GetName()), name) {
+			continue
+		}
+		if match != nil {
+			return nil, fmt.Errorf("folder name %q is ambiguous; use a stable ID in a future command", name)
+		}
+		match = folder
+	}
+	return match, nil
 }

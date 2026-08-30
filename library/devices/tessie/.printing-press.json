@@ -1,0 +1,65 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-19T19:37:44.782617353Z",
+  "printing_press_version": "4.31.0",
+  "api_name": "tessie",
+  "display_name": "Tessie",
+  "cli_name": "tessie-pp-cli",
+  "creator": {
+    "handle": "keithah",
+    "name": "Keith Herrington"
+  },
+  "owner": "keithah",
+  "printer": "keithah",
+  "printer_name": "Keith Herrington",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:38567c43b6b8d29f9ecf7f6b40b3fc829c8c9461223052c72705e0c11bfe1066",
+  "run_id": "20260819-193744",
+  "category": "devices",
+  "description": "Live Tesla vehicle data and commands from the terminal via the Tessie API",
+  "mcp_binary": "tessie-pp-mcp",
+  "mcp_tool_count": 6,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_preference": "bearerAuth",
+  "auth_env_vars": [
+    "TESSIE_API_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "TESSIE_API_TOKEN",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "assume-vehicle",
+      "command": "use",
+      "description": "Persist an assumed vehicle (matched by display name, VIN, or VIN suffix) so vehicle state/battery/location/wake subcommands fall back to it when no VIN is given; current prints it.",
+      "rationale": "Tessie vehicle endpoints are VIN-keyed; assume-a-car gives a single-token flow where the user sets which car once and every command targets it without repeating a VIN."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 97.22222222222221,
+    "passed": 35,
+    "total": 36,
+    "failed": 1,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 87,
+      "grade": "A (1 of 25 dimensions unverified: live_api_verification)",
+      "total": 87
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

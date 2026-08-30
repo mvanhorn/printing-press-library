@@ -1,0 +1,385 @@
+name: woolworths
+description: "Woolworths (AU) grocery catalogue, specials, unit pricing and trolley"
+version: "0.1.0"
+base_url: "https://www.woolworths.com.au"
+category: commerce
+http_transport: browser-chrome
+health_check_path: "/shop"
+
+# Akamai returns 403 to any request without browser-shaped headers, and silently
+# hangs on POST endpoints whose connection has no warmed cookie jar. Verified
+# 2026-08-23: bare curl -> 403; identical request + User-Agent -> 200.
+required_headers:
+  - name: "Accept"
+    value: "application/json, text/plain, */*"
+  - name: "Accept-Language"
+    value: "en-AU,en;q=0.9"
+  - name: "Referer"
+    value: "https://www.woolworths.com.au/shop"
+  - name: "Origin"
+    value: "https://www.woolworths.com.au"
+  - name: "Sec-Fetch-Site"
+    value: "same-origin"
+  - name: "Sec-Fetch-Mode"
+    value: "cors"
+
+# Catalogue, stores and the guest trolley are fully anonymous. Only savedlists
+# and pastshops need a session, and that session is Auth0 universal login with
+# MFA - there is no programmatic login, so cookie import is the only honest shape.
+auth:
+  type: cookie
+  cookie_domain: woolworths.com.au
+  verify_path: "/api/v3/ui/savedlists"
+  cookies:
+    # IDENTITY cookies only. The generated `auth login` requires every cookie
+    # listed here to be present in the import, so listing anything that is not
+    # identity makes login brittle for no benefit.
+    #
+    # The Akamai clearance cookies (_abck, bm_sz, ak_bmsc, bm_sv) are
+    # deliberately NOT listed: they are bot-clearance rather than identity, they
+    # rotate (bm_sz lasts hours), and internal/client/woolworths_warm.go now
+    # fetches them automatically on every cold jar. Requiring them once forced a
+    # 7-cookie capture at a single instant and produced a session that expired
+    # as soon as clearance rotated. Verified 2026-08-24.
+    - w-rctx
+    - wow-auth-token
+    - prodwow-auth-token
+
+# Cache freshness is deliberately DISABLED. The generator's pre-read auto-refresh
+# calls a resource's list endpoint with no parameters, but every list-shaped
+# endpoint on this API requires an argument: Search/products needs SearchTerm,
+# browse/category needs categoryId, StoreLocator/Stores needs Postcode or
+# Latitude+Longitude. Verified 2026-08-23: enabling cache made `stores list`
+# fire a bare GET that returns HTTP 400 before the real, correct request.
+# There is no syncable read path that can be refreshed blind, so per the
+# spec-authoring rule the cache block must stay off.
+#
+# Note on `sync`: only `settings` syncs cleanly (1702 records). `categories`
+# fetches 25 items but stores 0 because its items key on `NodeId`, which the
+# generator's ID extraction does not recognise and no spec field overrides.
+# Filed as a Printing Press retro candidate rather than patched around here.
+# Price history is accumulated by `real-special` and `specials-diff --refresh`,
+# which record what they fetch - not by `sync`.
+
+learn:
+  entity_lookup_seeds:
+    specials_group:
+      - canonical: "Half Price"
+        aliases: [half price, halfprice, 50% off, half-price]
+      - canonical: "Everyday Low Price"
+        aliases: [edlp, everyday low, low price]
+      - canonical: "Buy More Save More"
+        aliases: [bmsm, multibuy, multi buy, buy more]
+      - canonical: "Lower Shelf Price"
+        aliases: [lower shelf, shelf price drop]
+      - canonical: "Seasonal Price"
+        aliases: [seasonal, seasonal special]
+  synonyms:
+    "on sale": "special"
+    "discounted": "special"
+    "per 100g": "unit price"
+    "cheapest per": "unit price"
+  stopwords:
+    - woolworths
+    - woolies
+
+resources:
+  products:
+    description: "Search and inspect the Woolworths product catalogue"
+    endpoints:
+      search:
+        method: POST
+        path: "/apis/ui/Search/products"
+        mutation: false
+        description: "Search products by term, with optional specials-only filter and sort"
+        example: "  woolworths-pp-cli products search --term \"tim tam\" --page-size 24"
+        happy_args: "--term=milk;--page-size=24"
+        no_auth: true
+        body:
+          - name: SearchTerm
+            flag_name: term
+            type: string
+            required: true
+            description: "Search term, e.g. \"tim tam\" or \"olive oil\""
+          - name: PageNumber
+            flag_name: page
+            type: int
+            required: false
+            default: 1
+            description: "1-based page number"
+          - name: PageSize
+            flag_name: page-size
+            type: int
+            required: false
+            default: 24
+            description: "Results per page; Woolworths hard-caps this at 36"
+          - name: SortType
+            flag_name: sort
+            type: string
+            required: false
+            default: "TraderRelevance"
+            description: "Sort order; CUPAsc/CUPDesc sort by unit price server-side"
+            enum: [TraderRelevance, PriceAsc, PriceDesc, Name, CUPAsc, CUPDesc]
+          - name: IsSpecial
+            flag_name: specials-only
+            type: bool
+            required: false
+            default: false
+            description: "Restrict results to products currently on special"
+      detail:
+        method: GET
+        path: "/apis/ui/product/detail/{stockcode}"
+        description: "Full product record including nutrition, variants and country of origin"
+        example: "  woolworths-pp-cli products detail 6073909"
+        happy_args: "stockcode=6073909"
+        no_auth: true
+        params:
+          - name: stockcode
+            type: string
+            required: true
+            positional: true
+            description: "Woolworths stockcode, e.g. 6073909"
+      batch:
+        method: GET
+        path: "/apis/ui/products/{stockcodes}"
+        description: "Fetch several products in one call by comma-separated stockcodes"
+        example: "  woolworths-pp-cli products batch 6073909,36066"
+        happy_args: "stockcodes=6073909,36066"
+        no_auth: true
+        params:
+          - name: stockcodes
+            type: string
+            required: true
+            positional: true
+            description: "Comma-separated stockcodes, e.g. 6073909,36066"
+      schemaorg:
+        method: GET
+        path: "/api/v3/ui/schemaorg/product/{stockcode}"
+        description: "Product as schema.org JSON-LD; an independent path from products detail"
+        example: "  woolworths-pp-cli products schemaorg 6073909"
+        happy_args: "stockcode=6073909"
+        no_auth: true
+        params:
+          - name: stockcode
+            type: string
+            required: true
+            positional: true
+            description: "Woolworths stockcode, e.g. 6073909"
+      count:
+        method: GET
+        path: "/apis/ui/v2/Search/count"
+        description: "Cheap result counts for a term - products, specials, recipes - without fetching tiles"
+        example: "  woolworths-pp-cli products count --term milk"
+        happy_args: "--term=milk"
+        no_auth: true
+        params:
+          - name: searchTerm
+            flag_name: term
+            type: string
+            required: true
+            description: "Search term to count matches for"
+      suggestions:
+        method: GET
+        path: "/apis/ui/search-suggestions/suggestionsb2c"
+        description: "Ranked search suggestions and autocorrect for a partial term"
+        example: "  woolworths-pp-cli products suggestions --term mil"
+        happy_args: "--term=mil"
+        no_auth: true
+        params:
+          - name: searchTerm
+            flag_name: term
+            type: string
+            required: true
+            description: "Partial search term, e.g. \"mil\""
+
+  categories:
+    description: "Browse the department tree and specials groups"
+    endpoints:
+      list:
+        method: GET
+        path: "/apis/ui/PiesCategoriesWithSpecials"
+        description: "Full department tree including the five specials groups and their product counts"
+        example: "  woolworths-pp-cli categories list"
+        no_auth: true
+        # Response wraps the array as {"Categories":[...]}; without this the
+        # syncer cannot find the list payload and the resource fails to sync.
+        response_path: Categories
+        response:
+          type: array
+      browse:
+        method: POST
+        path: "/apis/ui/browse/category"
+        mutation: false
+        description: "Browse or page one category or specials group by node id"
+        example: "  woolworths-pp-cli categories browse --category-id specialsgroup.3676"
+        happy_args: "--category-id=specialsgroup.3676;--page-size=24"
+        no_auth: true
+        body:
+          - name: categoryId
+            flag_name: category-id
+            type: string
+            required: true
+            description: "Node id, e.g. specialsgroup.3676 (Half Price) or a department node"
+          - name: pageNumber
+            flag_name: page
+            type: int
+            required: false
+            default: 1
+            description: "1-based page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            required: false
+            default: 24
+            description: "Results per page; Woolworths hard-caps this at 36"
+          - name: sortType
+            flag_name: sort
+            type: string
+            required: false
+            default: "TraderRelevance"
+            description: "Sort order; CUPAsc/CUPDesc sort by unit price server-side"
+            enum: [TraderRelevance, PriceAsc, PriceDesc, Name, CUPAsc, CUPDesc]
+          - name: isSpecial
+            flag_name: specials-only
+            type: bool
+            required: false
+            default: false
+            description: "Restrict to products currently on special"
+          # Verified 2026-08-23: this endpoint returns HTTP 400 "Url is required."
+          # and then "FormatObject is required." unless BOTH are present. Their
+          # values only drive SEO metadata in the response, so generic defaults
+          # work for every category and specials-group node.
+          - name: url
+            flag_name: url
+            type: string
+            required: false
+            default: "/shop/browse/specials"
+            description: "Browse path the request is attributed to; required by the API, affects only response SEO metadata"
+          - name: formatObject
+            flag_name: format-object
+            type: string
+            required: false
+            default: "{\"name\":\"Specials\"}"
+            description: "JSON blob the API requires alongside url; affects only response SEO metadata"
+
+  stores:
+    description: "Find Woolworths stores, trading hours and facilities"
+    endpoints:
+      list:
+        method: GET
+        path: "/apis/ui/StoreLocator/Stores"
+        description: "Find stores near a postcode or coordinate, with trading hours and facilities"
+        example: "  woolworths-pp-cli stores list --postcode 2000 --max 5"
+        happy_args: "--postcode=2000;--max=5"
+        no_auth: true
+        params:
+          # Verified 2026-08-23: this endpoint returns HTTP 400 unless EITHER
+          # Postcode OR Latitude+Longitude is supplied. Max and Division alone
+          # are not sufficient.
+          - name: Postcode
+            flag_name: postcode
+            type: string
+            required: false
+            description: "Australian postcode to search near, e.g. 2000. Supply this or latitude+longitude"
+          - name: Latitude
+            flag_name: latitude
+            type: float
+            required: false
+            description: "Latitude to search near, e.g. -33.8688. Use with --longitude instead of --postcode"
+          - name: Longitude
+            flag_name: longitude
+            type: float
+            required: false
+            description: "Longitude to search near, e.g. 151.2093. Use with --latitude instead of --postcode"
+          - name: Max
+            flag_name: max
+            type: int
+            required: false
+            default: 10
+            description: "Maximum stores to return"
+          - name: Division
+            flag_name: division
+            type: string
+            required: false
+            description: "Comma-separated divisions, e.g. SUPERMARKETS,EG,AMPOL. Optional filter; not a substitute for a location"
+
+  trolley:
+    description: "Read and build the trolley; works anonymously as a guest cart"
+    endpoints:
+      get:
+        method: GET
+        path: "/apis/ui/Trolley"
+        description: "Current trolley contents"
+        example: "  woolworths-pp-cli trolley get"
+        no_auth: true
+      add:
+        method: POST
+        path: "/apis/ui/Trolley/Items"
+        description: "Add a product to the trolley by stockcode"
+        example: "  woolworths-pp-cli trolley add --stock-code 36066 --quantity 1 --dry-run"
+        happy_args: "--stock-code=36066;--quantity=1;--dry-run"
+        no_auth: true
+        body:
+          - name: StockCode
+            flag_name: stock-code
+            type: int
+            required: true
+            description: "Stockcode of the product to add"
+          - name: Quantity
+            flag_name: quantity
+            type: int
+            required: false
+            default: 1
+            description: "Quantity to add"
+          - name: Source
+            flag_name: source
+            type: string
+            required: false
+            default: "Search"
+            description: "Origin hint Woolworths records for the add, e.g. Search"
+
+  savedlists:
+    description: "Saved shopping lists (requires an imported Chrome session)"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/v3/ui/savedlists"
+        description: "All saved shopping lists with product and free-text counts"
+        example: "  woolworths-pp-cli savedlists list"
+      get:
+        method: GET
+        path: "/api/v3/ui/savedlists/{listId}"
+        description: "One saved list including its products and free-text lines"
+        example: "  woolworths-pp-cli savedlists get 77341560"
+        happy_args: "listId=77341560"
+        params:
+          - name: listId
+            type: string
+            required: true
+            positional: true
+            description: "Saved list id"
+
+  pastshops:
+    description: "Past shops / order history (requires an imported Chrome session)"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/v3/ui/pastshops"
+        description: "Previous shops recorded against the account"
+        example: "  woolworths-pp-cli pastshops list"
+
+  settings:
+    description: "Site configuration and feature flags"
+    endpoints:
+      list:
+        method: GET
+        path: "/apis/ui/settings"
+        description: "Site settings and feature flags"
+        example: "  woolworths-pp-cli settings list"
+        no_auth: true
+      bootstrap:
+        method: GET
+        path: "/api/ui/v2/bootstrap"
+        description: "App bootstrap config including current site version"
+        example: "  woolworths-pp-cli settings bootstrap"
+        no_auth: true

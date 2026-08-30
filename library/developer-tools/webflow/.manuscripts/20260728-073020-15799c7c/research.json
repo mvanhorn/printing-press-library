@@ -1,0 +1,307 @@
+{
+  "api_name": "webflow",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "js-webflow-api",
+      "url": "https://github.com/webflow/js-webflow-api",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 344,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "webflow-mcp-server",
+      "url": "https://github.com/webflow/mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 135,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "webflow-skills",
+      "url": "https://github.com/webflow/webflow-skills",
+      "language": "Markdown",
+      "install_method": "",
+      "stars": 106,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "webflow-python",
+      "url": "https://github.com/webflow/webflow-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 21,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "openapi-spec",
+      "url": "https://github.com/webflow/openapi-spec",
+      "language": "YAML",
+      "install_method": "",
+      "stars": 13,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "webflowctl",
+      "url": "https://github.com/joinflux/webflowctl",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-28T14:55:00Z",
+  "novel_features": [
+    {
+      "name": "Page SEO audit",
+      "command": "seo audit",
+      "description": "Find every page on a site with a missing, duplicated, or over-length SEO title or description before it costs you traffic.",
+      "rationale": "Requires a local snapshot of every page's SEO metadata plus a self-join to detect duplicates across the site; the API has no audit endpoint and no other Webflow tool stores page data between runs.",
+      "example": "webflow-pp-cli seo audit 580e63e98c9a982ac9b8b741 --agent",
+      "why_it_matters": "Reach for this instead of paging the pages endpoint yourself when you need the site-wide metadata problems ranked, not the raw page objects.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Staged-vs-live drift",
+      "command": "drift",
+      "description": "See exactly which CMS items were edited in staging but never published, field by field.",
+      "rationale": "Requires holding both the staged and the live copy of every item in the local store at once; the API returns them from separate endpoints and never compares them.",
+      "example": "webflow-pp-cli drift 580e63fc8c9a982ac9b8b745 --agent",
+      "why_it_matters": "Reach for this before any publish when you need to know what is actually about to go live rather than trusting the staging view.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Publish preview",
+      "command": "publish preview",
+      "description": "See everything that would change if you published this site right now: pages edited since the last publish, draft pages, and unpublished CMS items, alongside the site's redirect-rule count.",
+      "rationale": "Requires joining site publish timestamps against page update timestamps, per-collection staged/live item counts, and the redirect table, which no single API call returns.",
+      "example": "webflow-pp-cli publish preview 580e63e98c9a982ac9b8b741 --agent",
+      "why_it_matters": "Reach for this as the pre-flight check before calling the publish endpoint, especially in CI where a surprise publish is expensive to undo.",
+      "group": "Publish safety"
+    },
+    {
+      "name": "Query-driven bulk field set",
+      "command": "items bulk-set",
+      "description": "Apply the same field value to many CMS items selected by a condition. Previews the change set by default; --apply writes it, paced so you never hit a rate limit mid-run.",
+      "rationale": "Requires selecting items from the local mirror instead of paging the API, then writing back with pacing driven by the live rate-limit headers; the bulk endpoint is create-only so no bulk update exists to call.",
+      "example": "webflow-pp-cli items bulk-set 580e63fc8c9a982ac9b8b745 --match status=draft --set author=editorial --agent",
+      "why_it_matters": "Reach for this instead of looping the update endpoint yourself; it previews the change set first and survives a 60-request-per-minute ceiling.",
+      "group": "Bulk content work"
+    },
+    {
+      "name": "Collection field completeness",
+      "command": "collections completeness",
+      "description": "Per-field fill rate across a whole collection, so you can spot required fields nobody filled and schema fields nobody uses.",
+      "rationale": "Requires joining the collection field schema against every item's stored values, a comparison that exists only once both are in the local store.",
+      "example": "webflow-pp-cli collections completeness 580e63fc8c9a982ac9b8b745 --agent",
+      "why_it_matters": "Reach for this before a content batch goes live when you need to know which fields are systematically empty rather than checking items one at a time.",
+      "group": "Bulk content work"
+    },
+    {
+      "name": "Redirect table audit",
+      "command": "redirects audit",
+      "description": "Catch redirects that shadow a live page, point nowhere, loop, or duplicate another rule.",
+      "rationale": "Requires cross-checking the redirect table against the site's actual page slugs and CMS item slugs, which only holds together in a local store.",
+      "example": "webflow-pp-cli redirects audit 580e63e98c9a982ac9b8b741 --agent",
+      "why_it_matters": "Reach for this during launch hygiene; the redirect endpoints let you read and write rules but never tell you which ones are wrong.",
+      "group": "Publish safety"
+    },
+    {
+      "name": "Multi-site rollup",
+      "command": "overview",
+      "description": "One row per site you have synced locally: pages, collections, unpublished items, SEO findings, days since last publish.",
+      "rationale": "Requires aggregating several synced tables across every site at once; a workspace token spans all sites but no endpoint returns a cross-site summary.",
+      "example": "webflow-pp-cli overview --agent --select sites.displayName,sites.unpublishedItems,sites.daysSincePublish",
+      "why_it_matters": "Reach for this when the question starts with 'across all my sites'; every other tool forces you to ask it one site at a time. Covers the sites present in the local mirror, so sync every site you care about first.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Page SEO audit",
+      "command": "seo audit",
+      "description": "Find every page on a site with a missing, duplicated, or over-length SEO title or description before it costs you traffic.",
+      "rationale": "Requires a local snapshot of every page's SEO metadata plus a self-join to detect duplicates across the site; the API has no audit endpoint and no other Webflow tool stores page data between runs.",
+      "example": "webflow-pp-cli seo audit 580e63e98c9a982ac9b8b741 --agent",
+      "why_it_matters": "Reach for this instead of paging the pages endpoint yourself when you need the site-wide metadata problems ranked, not the raw page objects.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Staged-vs-live drift",
+      "command": "drift",
+      "description": "See exactly which CMS items were edited in staging but never published, field by field.",
+      "rationale": "Requires holding both the staged and the live copy of every item in the local store at once; the API returns them from separate endpoints and never compares them.",
+      "example": "webflow-pp-cli drift 580e63fc8c9a982ac9b8b745 --agent",
+      "why_it_matters": "Reach for this before any publish when you need to know what is actually about to go live rather than trusting the staging view.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Publish preview",
+      "command": "publish preview",
+      "description": "See everything that would change if you published this site right now: pages edited since the last publish, draft pages, and unpublished CMS items, alongside the site's redirect-rule count.",
+      "rationale": "Requires joining site publish timestamps against page update timestamps, per-collection staged/live item counts, and the redirect table, which no single API call returns.",
+      "example": "webflow-pp-cli publish preview 580e63e98c9a982ac9b8b741 --agent",
+      "why_it_matters": "Reach for this as the pre-flight check before calling the publish endpoint, especially in CI where a surprise publish is expensive to undo.",
+      "group": "Publish safety"
+    },
+    {
+      "name": "Query-driven bulk field set",
+      "command": "items bulk-set",
+      "description": "Apply the same field value to many CMS items selected by a condition. Previews the change set by default; --apply writes it, paced so you never hit a rate limit mid-run.",
+      "rationale": "Requires selecting items from the local mirror instead of paging the API, then writing back with pacing driven by the live rate-limit headers; the bulk endpoint is create-only so no bulk update exists to call.",
+      "example": "webflow-pp-cli items bulk-set 580e63fc8c9a982ac9b8b745 --match status=draft --set author=editorial --agent",
+      "why_it_matters": "Reach for this instead of looping the update endpoint yourself; it previews the change set first and survives a 60-request-per-minute ceiling.",
+      "group": "Bulk content work"
+    },
+    {
+      "name": "Collection field completeness",
+      "command": "collections completeness",
+      "description": "Per-field fill rate across a whole collection, so you can spot required fields nobody filled and schema fields nobody uses.",
+      "rationale": "Requires joining the collection field schema against every item's stored values, a comparison that exists only once both are in the local store.",
+      "example": "webflow-pp-cli collections completeness 580e63fc8c9a982ac9b8b745 --agent",
+      "why_it_matters": "Reach for this before a content batch goes live when you need to know which fields are systematically empty rather than checking items one at a time.",
+      "group": "Bulk content work"
+    },
+    {
+      "name": "Redirect table audit",
+      "command": "redirects audit",
+      "description": "Catch redirects that shadow a live page, point nowhere, loop, or duplicate another rule.",
+      "rationale": "Requires cross-checking the redirect table against the site's actual page slugs and CMS item slugs, which only holds together in a local store.",
+      "example": "webflow-pp-cli redirects audit 580e63e98c9a982ac9b8b741 --agent",
+      "why_it_matters": "Reach for this during launch hygiene; the redirect endpoints let you read and write rules but never tell you which ones are wrong.",
+      "group": "Publish safety"
+    },
+    {
+      "name": "Multi-site rollup",
+      "command": "overview",
+      "description": "One row per site you have synced locally: pages, collections, unpublished items, SEO findings, days since last publish.",
+      "rationale": "Requires aggregating several synced tables across every site at once; a workspace token spans all sites but no endpoint returns a cross-site summary.",
+      "example": "webflow-pp-cli overview --agent --select sites.displayName,sites.unpublishedItems,sites.daysSincePublish",
+      "why_it_matters": "Reach for this when the question starts with 'across all my sites'; every other tool forces you to ask it one site at a time. Covers the sites present in the local mirror, so sync every site you care about first.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "WEBFLOW_API_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Webflow",
+    "headline": "The whole Webflow Data API, plus a local database that lets you audit SEO, diff staging against live, and preview a publish before you trigger it.",
+    "value_prop": "Webflow's own CLI stops at sites, CMS, forms, and assets. Every page-level operation you actually need has an endpoint and no command: SEO metadata, page copy, redirects, robots.txt, custom code. This CLI covers all 117 Data API operations and adds a local SQLite mirror on top. The seven audit commands read that mirror rather than the API, so run `sync --full` once before `seo audit`, `drift`, `publish preview`, `overview`, `redirects audit`, `collections completeness`, or `items bulk-set`; without it they return empty.",
+    "auth_narrative": "Webflow accepts two token shapes on the same `Authorization: Bearer` header. A site token is generated per site under Site settings, Apps \u0026 Integrations, API access. A workspace token starts with `ws-` and covers every site in the workspace. Set either one as `WEBFLOW_API_TOKEN` in your environment; that is the only way to supply a static token, since this CLI has no set-token command. `login` runs the OAuth2 flow instead, and `auth status` shows what is currently loaded. Scopes matter more than the token shape: a token created without data scopes authenticates fine and then returns `403 OAuthForbidden: You are missing the following scopes` on the first real call. `doctor` tells you whether a token loaded and whether the API is reachable; it does not enumerate scopes. Use `token introspect` for that, and read the 403 body, which names the exact scope you are missing. One endpoint sits outside all of this: `workspaces audit-logs` needs an Enterprise workspace plus a workspace token carrying `workspace_activity:read`, a scope the OAuth2 flow cannot grant at all.",
+    "quickstart": [
+      {
+        "command": "webflow-pp-cli doctor",
+        "comment": "Confirms a token loaded and the API is reachable. It does not enumerate scopes; use `token introspect` or read a 403 body for that."
+      },
+      {
+        "command": "webflow-pp-cli sites list",
+        "comment": "Every site the token can reach; you need a site ID for almost everything else."
+      },
+      {
+        "command": "webflow-pp-cli sync --full",
+        "comment": "Builds the local mirror the audit commands read. Sync everything rather than naming resources: CMS items live under a collection, so they only resolve after collections are synced."
+      },
+      {
+        "command": "webflow-pp-cli seo audit 580e63e98c9a982ac9b8b741",
+        "comment": "Ranked SEO findings for every page on that site, computed offline."
+      },
+      {
+        "command": "webflow-pp-cli publish preview 580e63e98c9a982ac9b8b741",
+        "comment": "Everything a publish would change, before you trigger the build."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "403 with `OAuthForbidden: You are missing the following scopes`",
+        "fix": "Your token authenticates but lacks data scopes. Generate a site token under Site settings, Apps \u0026 Integrations, API access, then export it as `WEBFLOW_API_TOKEN`. This CLI has no set-token command; `login` is the OAuth2 path."
+      },
+      {
+        "symptom": "429 Too Many Requests partway through a bulk operation",
+        "fix": "Starter and Basic plans allow 60 requests per minute, CMS and Business allow 120. Run `webflow-pp-cli sites plan get-site 580e63e98c9a982ac9b8b741` to see your tier; bulk commands already pace against `Retry-After`."
+      },
+      {
+        "symptom": "An audit command returns nothing at all",
+        "fix": "The local mirror is empty. Run `webflow-pp-cli sync --full` first."
+      },
+      {
+        "symptom": "`token introspect` returns 500 internal_error",
+        "fix": "Webflow returns a 500 here for tokens with no scopes. Use `webflow-pp-cli doctor` instead, which degrades gracefully."
+      },
+      {
+        "symptom": "Item edits appear in the Designer but not on the live site",
+        "fix": "Staged and live items are separate. Run `webflow-pp-cli drift 580e63fc8c9a982ac9b8b745` to see the gap, then `webflow-pp-cli collections items publish 580e63fc8c9a982ac9b8b745` to push them live."
+      },
+      {
+        "symptom": "`sync --resources items` fails with `WEBFLOW_COLLECTION_ID not set`",
+        "fix": "CMS items are scoped to a collection. Either run `webflow-pp-cli sync --full` so collections are synced first, or set `WEBFLOW_COLLECTION_ID` to the collection you want and re-run."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when the task involves a Webflow site's structure or content rather than its visual design. It is the right tool for auditing SEO metadata across many pages, comparing staged CMS content against what is live, previewing or triggering a publish, bulk-editing collection items, managing redirects and robots.txt, and reading or rewriting page copy through the page DOM. It is also the right tool whenever the question spans more than one site. Note the split: the generated endpoint commands call the API directly, while the seven audit commands (`seo audit`, `drift`, `publish preview`, `overview`, `redirects audit`, `collections completeness`, `items bulk-set`) read the local mirror and need `sync --full` to have run first.",
+    "anti_triggers": [
+      "Do not use this CLI to change a site's visual design, styles, or layout. Those live in the Webflow Designer and are not exposed by the Data API.",
+      "Do not use this CLI to build or deploy Webflow Cloud apps, DevLink component libraries, or Designer Extensions. The official `@webflow/webflow-cli` owns those workflows.",
+      "Do not use this CLI to create or move elements on a page canvas. Only text content through the page DOM endpoints is reachable; structural editing requires the Designer app bridge.",
+      "Do not use this CLI to crawl or audit the rendered public website. It reads Webflow's stored configuration, not the HTML a browser receives."
+    ],
+    "recipes": [
+      {
+        "title": "Rank SEO problems across a site without a crawler",
+        "command": "webflow-pp-cli seo audit 580e63e98c9a982ac9b8b741 --agent --select findings.pageSlug,findings.issue,findings.severity",
+        "explanation": "Reads the local pages mirror and returns only the three fields an agent needs to build a fix list, instead of the full page objects."
+      },
+      {
+        "title": "Check what a publish would actually change",
+        "command": "webflow-pp-cli publish preview 580e63e98c9a982ac9b8b741 --json",
+        "explanation": "Joins publish timestamps, page updates, unpublished item counts, and pending redirects into one pre-flight answer."
+      },
+      {
+        "title": "Find CMS items edited in staging but never published",
+        "command": "webflow-pp-cli drift 580e63fc8c9a982ac9b8b745 --json",
+        "explanation": "Diffs the staged and live copies of every item in the collection field by field."
+      },
+      {
+        "title": "Retag many items in one paced pass",
+        "command": "webflow-pp-cli items bulk-set 580e63fc8c9a982ac9b8b745 --match category=news --set category=updates",
+        "explanation": "Selects matching items from the local mirror and prints the change set. It previews by default; add --apply to execute against the API."
+      },
+      {
+        "title": "Search every synced page, item, and submission at once",
+        "command": "webflow-pp-cli search \"pricing\" --limit 20 --json",
+        "explanation": "Full-text search across the local mirror, which no other Webflow tool offers."
+      }
+    ],
+    "trigger_phrases": [
+      "audit the SEO on my Webflow site",
+      "what would change if I publish this Webflow site",
+      "which Webflow CMS items are not published yet",
+      "bulk update my Webflow collection items",
+      "check my Webflow redirects",
+      "list my Webflow pages",
+      "use webflow",
+      "run webflow"
+    ]
+  }
+}

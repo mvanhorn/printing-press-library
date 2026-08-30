@@ -9,6 +9,16 @@
     "handle": "itsmefelix-",
     "name": "Felix Banuchi"
   },
+  "contributors": [
+    {
+      "handle": "jrmii",
+      "name": "Jim Martin"
+    },
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
   "owner": "itsmefelix-",
   "printer": "itsmefelix-",
   "printer_name": "Felix Banuchi",
@@ -33,14 +43,14 @@
       "kind": "auth_flow_input",
       "required": false,
       "sensitive": true,
-      "description": "Private bootstrap username supplied by the caller's credential wrapper."
+      "description": "Your Peloton login email or username, used to log in automatically. Not needed if a session from a prior login is already persisted."
     },
     {
       "name": "PELOTON_OAUTH_PASSWORD",
       "kind": "auth_flow_input",
       "required": false,
       "sensitive": true,
-      "description": "Private bootstrap password supplied by the caller's credential wrapper."
+      "description": "Your Peloton account password, used to log in automatically. Not needed if a session from a prior login is already persisted."
     }
   ],
   "endpoint_template_vars": [
@@ -48,9 +58,9 @@
   ],
   "novel_features": [
     {
-      "name": "Managed OAuth catalog access",
+      "name": "Automatic Peloton login",
       "command": "auth setup",
-      "description": "Bootstraps a private OAuth bundle and reuses or refreshes it for bearer-authenticated catalog reads."
+      "description": "Shows how to supply PELOTON_OAUTH_USERNAME/PELOTON_OAUTH_PASSWORD; the CLI logs in and persists credentials automatically, no external provisioning service involved."
     }
   ]
 }

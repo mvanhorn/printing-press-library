@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "psx-thin-framework-descriptions",
+  "applied_at": "2026-08-20",
+  "base_run_id": "20260819-222022-b3c3479a",
+  "base_printing_press_version": "4.31.0",
+  "summary": "Lengthened two generated framework Short descriptions flagged by tools-audit.",
+  "reason": "'List client profiles' and 'List recorded learnings' are both under 30 characters, which the machine's own tools-audit reports as thin-short findings on a freshly generated CLI.",
+  "files": ["internal/cli/platform_client.go", "internal/cli/teach.go"],
+  "validated_outcome": "tools-audit: no findings (previously 2 pending).",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/4242"
+}

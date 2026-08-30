@@ -13,6 +13,7 @@ import (
 	"time"
 
 	cdproto "github.com/chromedp/cdproto"
+	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
 	"github.com/dop251/goja"
 )
@@ -61,6 +62,186 @@ func withTockDOMFixtureAtPath(t *testing.T, path, html string, run func(context.
 		t.Skipf("chromedp unavailable for DOM fixture: %v", err)
 	}
 	run(timed)
+}
+
+func TestTockConfirmNetworkTelemetry_FormPostRedirectMatrix(t *testing.T) {
+	tests := []struct {
+		name         string
+		postStatus   int
+		redirect     string
+		closePost    bool
+		wantStatus   int
+		wantPostFail bool
+	}{
+		{name: "post 302 then receipt get 200", postStatus: http.StatusFound, redirect: "/matrix-slug/receipt", wantStatus: http.StatusFound},
+		{name: "post 303 then receipt get 200", postStatus: http.StatusSeeOther, redirect: "/matrix-slug/receipt", wantStatus: http.StatusSeeOther},
+		{name: "post redirect then receipt loading failure", postStatus: http.StatusFound, redirect: "http://127.0.0.1:1/matrix-slug/receipt", wantStatus: http.StatusFound},
+		{name: "direct 2xx", postStatus: http.StatusOK, wantStatus: http.StatusOK},
+		{name: "direct non 2xx", postStatus: http.StatusUnprocessableEntity, wantStatus: http.StatusUnprocessableEntity},
+		{name: "pre response loading failure", closePost: true, wantPostFail: true},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			const checkoutPath = "/matrix-slug/checkout/confirm-purchase"
+			var srv *httptest.Server
+			srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				switch {
+				case r.Method == http.MethodPost && r.URL.Path == checkoutPath:
+					if tc.closePost {
+						hijacker, ok := w.(http.Hijacker)
+						if !ok {
+							t.Error("response writer cannot hijack")
+							return
+						}
+						conn, _, err := hijacker.Hijack()
+						if err != nil {
+							t.Errorf("hijack: %v", err)
+							return
+						}
+						_ = conn.Close()
+						return
+					}
+					if tc.redirect != "" {
+						http.Redirect(w, r, tc.redirect, tc.postStatus)
+						return
+					}
+					w.WriteHeader(tc.postStatus)
+					_, _ = w.Write([]byte(`<!doctype html><p>direct response</p>`))
+				case r.URL.Path == "/matrix-slug/receipt":
+					_, _ = w.Write([]byte(`<!doctype html><p>receipt</p>`))
+				default:
+					_, _ = w.Write([]byte(`<!doctype html><form method="post" action="` + checkoutPath + `"><button type="submit">Complete reservation</button></form>`))
+				}
+			}))
+			defer srv.Close()
+
+			allocCtx, cancelAlloc := chromedp.NewExecAllocator(context.Background(), append(chromedp.DefaultExecAllocatorOptions[:],
+				chromedp.Flag("headless", "new"), chromedp.Flag("no-sandbox", true), chromedp.Flag("disable-gpu", true))...)
+			defer cancelAlloc()
+			ctx, cancel := chromedp.NewContext(allocCtx)
+			defer cancel()
+			timed, cancelTimed := context.WithTimeout(ctx, 12*time.Second)
+			defer cancelTimed()
+			if err := chromedp.Run(timed, chromedp.Navigate(srv.URL+checkoutPath)); err != nil {
+				t.Skipf("chromedp unavailable for network fixture: %v", err)
+			}
+			telemetry := newTockConfirmTelemetry()
+			chromedp.ListenTarget(timed, telemetry.listen("matrix-slug"))
+			if err := chromedp.Run(timed, network.Enable()); err != nil {
+				t.Fatalf("enable network: %v", err)
+			}
+			clickErr := clickPlaceReservation(timed)
+			if clickErr != nil && !isTransientNavigationError(clickErr) && !tc.closePost {
+				t.Fatalf("submit confirm form: %v", clickErr)
+			}
+			deadline := time.Now().Add(3 * time.Second)
+			var got tockConfirmTelemetrySnapshot
+			for time.Now().Before(deadline) {
+				got = telemetry.read()
+				if got.ConfirmPostsSeen == 1 && (got.ConfirmPostLastStatus != 0 || got.ConfirmPostLoadingFailed) {
+					break
+				}
+				time.Sleep(20 * time.Millisecond)
+			}
+			if got.ConfirmPostsSeen != 1 || got.ConfirmPostLastStatus != tc.wantStatus || got.ConfirmPostLoadingFailed != tc.wantPostFail {
+				t.Fatalf("network telemetry = posts:%d status:%d failed:%v, want 1/%d/%v", got.ConfirmPostsSeen, got.ConfirmPostLastStatus, got.ConfirmPostLoadingFailed, tc.wantStatus, tc.wantPostFail)
+			}
+		})
+	}
+}
+
+func TestTockConfirmNetworkTelemetry_GenerationCorrelation(t *testing.T) {
+	t.Run("redirect receipt events do not overwrite post", func(t *testing.T) {
+		telemetry := newTockConfirmTelemetry()
+		listen := telemetry.listen("matrix-slug")
+		listen(&network.EventRequestWillBeSent{RequestID: "nav", Request: &network.Request{Method: http.MethodPost, URL: "https://example.test/matrix-slug/checkout/confirm-purchase"}})
+		listen(&network.EventRequestWillBeSent{RequestID: "nav", RedirectResponse: &network.Response{Status: 303}, Request: &network.Request{Method: http.MethodGet, URL: "https://example.test/matrix-slug/receipt"}})
+		listen(&network.EventResponseReceived{RequestID: "nav", Response: &network.Response{Status: 200}})
+		listen(&network.EventLoadingFailed{RequestID: "nav", ErrorText: "receipt failed"})
+		got := telemetry.read()
+		if got.ConfirmPostsSeen != 1 || got.ConfirmPostLastStatus != 303 || got.ConfirmPostLoadingFailed {
+			t.Fatalf("redirect telemetry = posts:%d status:%d failed:%v, want 1/303/false", got.ConfirmPostsSeen, got.ConfirmPostLastStatus, got.ConfirmPostLoadingFailed)
+		}
+	})
+
+	for _, tc := range []struct {
+		name   string
+		status int
+		failed bool
+	}{
+		{"direct 2xx", 204, false}, {"direct non 2xx", 422, false}, {"pre response loading failure", 0, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			telemetry := newTockConfirmTelemetry()
+			listen := telemetry.listen("matrix-slug")
+			listen(&network.EventRequestWillBeSent{RequestID: "post", Request: &network.Request{Method: http.MethodPost, URL: "https://example.test/matrix-slug/checkout/confirm-purchase"}})
+			if tc.failed {
+				listen(&network.EventLoadingFailed{RequestID: "post"})
+			} else {
+				listen(&network.EventResponseReceived{RequestID: "post", Response: &network.Response{Status: int64(tc.status)}})
+			}
+			got := telemetry.read()
+			if got.ConfirmPostsSeen != 1 || got.ConfirmPostLastStatus != tc.status || got.ConfirmPostLoadingFailed != tc.failed {
+				t.Fatalf("direct telemetry = posts:%d status:%d failed:%v, want 1/%d/%v", got.ConfirmPostsSeen, got.ConfirmPostLastStatus, got.ConfirmPostLoadingFailed, tc.status, tc.failed)
+			}
+		})
+	}
+
+	t.Run("initial failure does not outlive a responding retry", func(t *testing.T) {
+		telemetry := newTockConfirmTelemetry()
+		listen := telemetry.listen("matrix-slug")
+		listen(&network.EventRequestWillBeSent{RequestID: "first", Request: &network.Request{Method: http.MethodPost, URL: "https://example.test/matrix-slug/checkout/confirm-purchase"}})
+		listen(&network.EventLoadingFailed{RequestID: "first"})
+		listen(&network.EventRequestWillBeSent{RequestID: "retry", Request: &network.Request{Method: http.MethodPost, URL: "https://example.test/matrix-slug/checkout/confirm-purchase"}})
+		listen(&network.EventResponseReceived{RequestID: "retry", Response: &network.Response{Status: 200}})
+		got := telemetry.read()
+		if got.ConfirmPostsSeen != 2 || got.ConfirmPostLastStatus != 200 || got.ConfirmPostLoadingFailed {
+			t.Fatalf("failure-then-retry telemetry = posts:%d status:%d failed:%v, want 2/200/false", got.ConfirmPostsSeen, got.ConfirmPostLastStatus, got.ConfirmPostLoadingFailed)
+		}
+	})
+
+	t.Run("retry failure after initial response keeps newest-attempt failure", func(t *testing.T) {
+		telemetry := newTockConfirmTelemetry()
+		listen := telemetry.listen("matrix-slug")
+		listen(&network.EventRequestWillBeSent{RequestID: "first", Request: &network.Request{Method: http.MethodPost, URL: "https://example.test/matrix-slug/checkout/confirm-purchase"}})
+		listen(&network.EventResponseReceived{RequestID: "first", Response: &network.Response{Status: 500}})
+		listen(&network.EventRequestWillBeSent{RequestID: "retry", Request: &network.Request{Method: http.MethodPost, URL: "https://example.test/matrix-slug/checkout/confirm-purchase"}})
+		listen(&network.EventLoadingFailed{RequestID: "retry"})
+		got := telemetry.read()
+		if got.ConfirmPostsSeen != 2 || got.ConfirmPostLastStatus != 0 || !got.ConfirmPostLoadingFailed {
+			t.Fatalf("response-then-retry-failure telemetry = posts:%d status:%d failed:%v, want 2/0/true (failed retry owns the status field)", got.ConfirmPostsSeen, got.ConfirmPostLastStatus, got.ConfirmPostLoadingFailed)
+		}
+	})
+
+	t.Run("late older response cannot overwrite newest generation", func(t *testing.T) {
+		telemetry := newTockConfirmTelemetry()
+		listen := telemetry.listen("matrix-slug")
+		for _, id := range []network.RequestID{"first", "second"} {
+			listen(&network.EventRequestWillBeSent{RequestID: id, Request: &network.Request{Method: http.MethodPost, URL: "https://example.test/matrix-slug/checkout/confirm-purchase"}})
+		}
+		listen(&network.EventResponseReceived{RequestID: "second", Response: &network.Response{Status: 201}})
+		listen(&network.EventResponseReceived{RequestID: "first", Response: &network.Response{Status: 500}})
+		got := telemetry.read()
+		if got.ConfirmPostsSeen != 2 || got.ConfirmPostLastStatus != 201 {
+			t.Fatalf("late-response telemetry = posts:%d status:%d, want 2/201", got.ConfirmPostsSeen, got.ConfirmPostLastStatus)
+		}
+	})
+
+	t.Run("exact escaped path and method allowlist", func(t *testing.T) {
+		telemetry := newTockConfirmTelemetry()
+		listen := telemetry.listen("venue%2Fprivate")
+		for i, req := range []*network.Request{
+			{Method: http.MethodGet, URL: "https://example.test/venue%2Fprivate/checkout/confirm-purchase"},
+			{Method: http.MethodPost, URL: "https://example.test/venue%2Fprivate/checkout/confirm-purchase/extra"},
+			{Method: http.MethodPost, URL: "https://example.test/other/checkout/confirm-purchase"},
+			{Method: http.MethodPost, URL: "https://example.test/venue%2Fprivate/checkout/confirm-purchase"},
+		} {
+			listen(&network.EventRequestWillBeSent{RequestID: network.RequestID(fmt.Sprintf("req-%d", i)), Request: req})
+		}
+		if got := telemetry.read().ConfirmPostsSeen; got != 1 {
+			t.Fatalf("allowlisted post generations = %d, want 1", got)
+		}
+	})
 }
 
 func TestClickComboboxExperienceLayout_ChoosesStandardReservationForSmallParty(t *testing.T) {
@@ -196,6 +377,254 @@ func TestTockBookingPageStateHint_ReportsComboboxControls(t *testing.T) {
 			if !strings.Contains(hint, want) {
 				t.Fatalf("page-state hint missing %q: %s", want, hint)
 			}
+		}
+	})
+}
+
+func TestCheckoutPageStateHint_ReportsLegacyAndSemanticDialogs(t *testing.T) {
+	tests := []struct {
+		name string
+		html string
+	}{
+		{
+			name: "legacy test id",
+			html: `<!doctype html><div role="dialog" style="padding:20px">
+				<div data-testid="sms-confirmation-dialog-content">Stay in the know about your table</div>
+				<button data-testid="sms-skip-button">Skip</button></div>`,
+		},
+		{
+			name: "semantic text alerts",
+			html: `<!doctype html><div role="dialog" aria-modal="true" style="padding:20px">
+				<h2>Enable text alerts from Tock</h2><button>Skip</button></div>`,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			withTockDOMFixture(t, tc.html, func(ctx context.Context) {
+				hint := checkoutPageStateHint(ctx)
+				for _, want := range []string{
+					`"dialog_present":true`,
+					`"skip_control_present":true`,
+					`"sms_dialog_present":true`,
+				} {
+					if !strings.Contains(hint, want) {
+						t.Fatalf("checkout hint missing %s: %s", want, hint)
+					}
+				}
+			})
+		})
+	}
+}
+
+func TestClickPlaceReservation_BeaconCoherenceAndFormValidity(t *testing.T) {
+	html := `<!doctype html>
+		<button id="probe">Confirm something else</button>
+		<form><input required value=""><button id="actual" type="submit" onclick="event.preventDefault()">Complete reservation</button></form>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {
+		if err := clickPlaceReservation(ctx); err != nil {
+			t.Fatalf("first click: %v", err)
+		}
+		if err := clickPlaceReservation(ctx); err != nil {
+			t.Fatalf("second click: %v", err)
+		}
+		state, err := readTockCheckoutPageState(ctx)
+		if err != nil {
+			t.Fatalf("read checkout state: %v", err)
+		}
+		if state.ConfirmClicksReceived != 2 || !state.ConfirmClickTrusted {
+			t.Fatalf("beacon = count:%d trusted:%v, want 2/true (same-node listener must install once)", state.ConfirmClicksReceived, state.ConfirmClickTrusted)
+		}
+		if state.ConfirmTargetMatchesProbe {
+			t.Fatal("actual submit target unexpectedly matched the broad first probe")
+		}
+		if state.ConfirmFormValid || state.InvalidControlCount != 1 {
+			t.Fatalf("form telemetry = valid:%v invalid:%d, want false/1", state.ConfirmFormValid, state.InvalidControlCount)
+		}
+	})
+}
+
+func TestClickPlaceReservation_BeaconAbsentAfterNavigation(t *testing.T) {
+	var srv *httptest.Server
+	srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			_, _ = w.Write([]byte(`<!doctype html><p>receipt</p>`))
+			return
+		}
+		_, _ = w.Write([]byte(`<!doctype html><form method="post"><button type="submit">Complete reservation</button></form>`))
+	}))
+	defer srv.Close()
+	allocCtx, cancelAlloc := chromedp.NewExecAllocator(context.Background(), append(chromedp.DefaultExecAllocatorOptions[:], chromedp.Flag("headless", "new"), chromedp.Flag("no-sandbox", true))...)
+	defer cancelAlloc()
+	ctx, cancel := chromedp.NewContext(allocCtx)
+	defer cancel()
+	timed, cancelTimed := context.WithTimeout(ctx, 10*time.Second)
+	defer cancelTimed()
+	if err := chromedp.Run(timed, chromedp.Navigate(srv.URL+"/checkout/confirm-purchase")); err != nil {
+		t.Skipf("chromedp unavailable for navigation fixture: %v", err)
+	}
+	if err := clickPlaceReservation(timed); err != nil && !isTransientNavigationError(err) {
+		t.Fatalf("click: %v", err)
+	}
+	if err := chromedp.Run(timed, chromedp.WaitVisible("p", chromedp.ByQuery)); err != nil {
+		t.Fatalf("wait navigation: %v", err)
+	}
+	var present bool
+	if err := chromedp.Run(timed, chromedp.Evaluate(`Boolean(window.__trgConfirmClickBeacon)`, &present)); err != nil {
+		t.Fatalf("read beacon: %v", err)
+	}
+	if present {
+		t.Fatal("click beacon survived full-document navigation")
+	}
+}
+
+func TestCheckoutPageStateHint_PaymentIframePresence(t *testing.T) {
+	tests := []struct {
+		name, html string
+		want       int
+	}{
+		{"absent", `<!doctype html>`, 0},
+		{"present src", `<!doctype html><iframe src="https://payments.example/braintree/field"></iframe>`, 1},
+		{"present name and title", `<!doctype html><iframe name="hosted-fields-cvv"></iframe><iframe title="PayPal"></iframe>`, 2},
+		{"unrelated", `<!doctype html><iframe src="https://example.test/map" title="venue map"></iframe>`, 0},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			withTockDOMFixture(t, tc.html, func(ctx context.Context) {
+				state, err := readTockCheckoutPageState(ctx)
+				if err != nil {
+					t.Fatalf("read state: %v", err)
+				}
+				if state.PaymentIframeCount != tc.want {
+					t.Fatalf("payment iframe count = %d, want %d", state.PaymentIframeCount, tc.want)
+				}
+			})
+		})
+	}
+	t.Run("rerendered", func(t *testing.T) {
+		withTockDOMFixture(t, `<!doctype html><div id="root"><iframe name="braintree-old"></iframe></div>`, func(ctx context.Context) {
+			if err := chromedp.Run(ctx, chromedp.Evaluate(`document.getElementById('root').innerHTML='<iframe title="hosted-fields-new"></iframe><iframe src="/ordinary"></iframe>'`, nil)); err != nil {
+				t.Fatalf("rerender: %v", err)
+			}
+			state, err := readTockCheckoutPageState(ctx)
+			if err != nil || state.PaymentIframeCount != 1 {
+				t.Fatalf("rerendered payment iframe = %d, %v, want 1", state.PaymentIframeCount, err)
+			}
+		})
+	})
+}
+
+func TestCheckoutPageStateHint_CanonicalAlertsAndPrivacy(t *testing.T) {
+	secrets := []string{"Ada Lovelace", "ada@example.test", "+1 919 555 0199", "query-token-secret", "4111111111111111"}
+	html := `<!doctype html>
+		<div role="alert">Payment failed for Ada Lovelace ada@example.test +1 919 555 0199 query-token-secret 4111111111111111</div>
+		<div class="checkout-error">Please try again for Ada Lovelace</div>
+		<div class="error-private">unclassified query-token-secret</div>
+		<p>Ada Lovelace ada@example.test +1 919 555 0199 query-token-secret 4111111111111111</p>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase?token=query-token-secret", html, func(ctx context.Context) {
+		hint := checkoutPageStateHintWithTelemetry(ctx, newTockConfirmTelemetry())
+		errorText := fmt.Errorf("receipt page never reached; checkout_state=%s", hint).Error()
+		for _, secret := range secrets {
+			if strings.Contains(hint, secret) {
+				t.Fatalf("checkout hint leaked %q: %s", secret, hint)
+			}
+			if strings.Contains(errorText, secret) {
+				t.Fatalf("checkout error leaked %q: %s", secret, errorText)
+			}
+		}
+		for _, want := range []string{`"alerts":["Payment","Try again","Other alert"]`, `"alert_count":3`} {
+			if !strings.Contains(hint, want) {
+				t.Fatalf("checkout hint missing %s: %s", want, hint)
+			}
+		}
+		if strings.Contains(hint, "query-token-secret") || strings.Contains(hint, "?") {
+			t.Fatalf("checkout hint exposed query material: %s", hint)
+		}
+	})
+}
+
+func TestConfirmEvidenceCombinationMatrix(t *testing.T) {
+	html := `<!doctype html><button onclick="event.preventDefault()">Complete reservation</button>`
+	withTockDOMFixtureAtPath(t, "/matrix-slug/checkout/confirm-purchase", html, func(ctx context.Context) {
+		noPost := newTockConfirmTelemetry()
+		before := checkoutPageStateHintWithTelemetry(ctx, noPost)
+		for _, want := range []string{`"confirm_clicks_received":0`, `"confirm_posts_seen":0`} {
+			if !strings.Contains(before, want) {
+				t.Fatalf("no-click/no-post hint missing %s: %s", want, before)
+			}
+		}
+		if err := clickPlaceReservation(ctx); err != nil {
+			t.Fatalf("trusted fixture click: %v", err)
+		}
+		afterClick := checkoutPageStateHintWithTelemetry(ctx, noPost)
+		for _, want := range []string{
+			`"confirm_clicks_received":1`, `"confirm_click_trusted":true`, `"confirm_posts_seen":0`,
+			`"confirm_target_matches_probe":true`, `"confirm_form_valid":true`, `"invalid_control_count":0`,
+		} {
+			if !strings.Contains(afterClick, want) {
+				t.Fatalf("click/no-post hint missing %s: %s", want, afterClick)
+			}
+		}
+
+		for _, tc := range []struct {
+			name   string
+			status int
+			failed bool
+		}{
+			{"click and post 2xx", 200, false},
+			{"click and post non 2xx", 409, false},
+			{"click and post loading failure", 0, true},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				telemetry := newTockConfirmTelemetry()
+				listen := telemetry.listen("matrix-slug")
+				listen(&network.EventRequestWillBeSent{RequestID: "secret-request-id", Request: &network.Request{
+					URL: "https://example.test/matrix-slug/checkout/confirm-purchase?token=secret-query", Method: http.MethodPost,
+				}})
+				if tc.failed {
+					listen(&network.EventLoadingFailed{RequestID: "secret-request-id", ErrorText: "secret failure URL"})
+				} else {
+					listen(&network.EventResponseReceived{RequestID: "secret-request-id", Response: &network.Response{Status: int64(tc.status)}})
+				}
+				hint := checkoutPageStateHintWithTelemetry(ctx, telemetry)
+				for _, secret := range []string{"secret-request-id", "secret-query", "secret failure URL", "example.test"} {
+					if strings.Contains(hint, secret) {
+						t.Fatalf("network telemetry leaked %q: %s", secret, hint)
+					}
+				}
+				for _, want := range []string{
+					`"confirm_clicks_received":1`, `"confirm_click_trusted":true`, `"confirm_posts_seen":1`,
+					fmt.Sprintf(`"confirm_post_last_status":%d`, tc.status),
+					fmt.Sprintf(`"confirm_post_loading_failed":%v`, tc.failed),
+				} {
+					if !strings.Contains(hint, want) {
+						t.Fatalf("evidence hint missing %s: %s", want, hint)
+					}
+				}
+			})
+		}
+	})
+}
+
+func TestCheckoutPageStateHint_UncappedDialogAndSkipBooleans(t *testing.T) {
+	var controls strings.Builder
+	for i := 0; i < 16; i++ {
+		fmt.Fprintf(&controls, `<button>Control %d</button>`, i)
+	}
+	html := `<!doctype html>` + controls.String() + `
+		<div role="dialog" aria-modal="true" style="padding:20px">
+			<h2>Enable text alerts from Tock</h2><button>Skip</button>
+		</div>`
+	withTockDOMFixture(t, html, func(ctx context.Context) {
+		state, err := readTockCheckoutPageState(ctx)
+		if err != nil {
+			t.Fatalf("read checkout state: %v", err)
+		}
+		if !state.DialogPresent || !state.SkipControlPresent || !state.SMSDialogPresent {
+			t.Fatalf("uncapped booleans = dialog:%v skip:%v sms:%v, want all true",
+				state.DialogPresent, state.SkipControlPresent, state.SMSDialogPresent)
+		}
+		if len(state.VisibleControlLabels) != 16 {
+			t.Fatalf("display labels = %d, want capped 16", len(state.VisibleControlLabels))
 		}
 	})
 }
@@ -426,6 +855,603 @@ func TestWaitForReceiptThroughDialogs_NonTransientDismissErrorAborts(t *testing.
 		if !strings.Contains(err.Error(), "dismissing post-confirm dialog") {
 			t.Fatalf("error = %v, want dismissing post-confirm dialog wrap", err)
 		}
+	})
+}
+
+func TestWaitForReceiptThroughDialogs_DelayedSemanticDialog(t *testing.T) {
+	html := `<!doctype html><p>checkout</p><script>
+		setTimeout(() => {
+			const dialog = document.createElement('div');
+			dialog.setAttribute('role', 'dialog');
+			dialog.setAttribute('aria-modal', 'true');
+			dialog.style.padding = '20px';
+			dialog.innerHTML = '<h2>Enable text alerts from Tock</h2><button id="skip">Skip</button>';
+			document.body.appendChild(dialog);
+			document.getElementById('skip').onclick = () => { location.href = '/receipt?purchaseId=2'; };
+		}, 900);
+	</script>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {
+		var loc string
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			var waitErr error
+			loc, waitErr = waitForReceiptThroughDialogs(actCtx, 6*time.Second)
+			return waitErr
+		}))
+		if err != nil {
+			t.Fatalf("wait through delayed dialog: %v", err)
+		}
+		if !strings.Contains(loc, "/receipt") {
+			t.Fatalf("location = %q, want receipt", loc)
+		}
+	})
+}
+
+func TestWaitForReceiptThroughDialogs_LostClickRetriesOnce(t *testing.T) {
+	html := `<!doctype html><button id="confirm">Complete reservation</button><script>
+		window.confirmClicks = 0;
+		document.getElementById('confirm').onclick = () => {
+			window.confirmClicks++;
+			if (window.confirmClicks === 2) location.href = '/receipt?purchaseId=3';
+		};
+	</script>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {
+		if err := clickPlaceReservation(ctx); err != nil {
+			t.Fatalf("initial confirm click: %v", err)
+		}
+		var loc string
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			var waitErr error
+			loc, waitErr = waitForReceiptThroughDialogsWithRetry(
+				actCtx, 5*time.Second, dismissPostConfirmDialog, 900*time.Millisecond, clickPlaceReservation,
+			)
+			return waitErr
+		}))
+		if err != nil {
+			t.Fatalf("wait after lost click: %v", err)
+		}
+		if !strings.Contains(loc, "/receipt") {
+			t.Fatalf("location = %q, want receipt", loc)
+		}
+	})
+}
+
+func TestClickPlaceReservation_AriaDisabledDoesNotClick(t *testing.T) {
+	html := `<!doctype html><button aria-disabled="true" onclick="window.clicked=true">Complete reservation</button>`
+	withTockDOMFixture(t, html, func(ctx context.Context) {
+		timed, cancel := context.WithTimeout(ctx, 800*time.Millisecond)
+		defer cancel()
+		if err := clickPlaceReservation(timed); err == nil {
+			t.Fatal("expected aria-disabled confirm to remain unavailable")
+		}
+		var clicked bool
+		if err := chromedp.Run(ctx, chromedp.Evaluate(`window.clicked || false`, &clicked)); err != nil {
+			t.Fatalf("read click state: %v", err)
+		}
+		if clicked {
+			t.Fatal("aria-disabled confirm must not be clicked")
+		}
+	})
+}
+
+func TestClickPlaceReservation_RetargetsVisibleConfirmOnRetry(t *testing.T) {
+	html := `<!doctype html>
+		<button id="first" onclick="window.firstClicks=(window.firstClicks||0)+1; this.style.display='none'; document.getElementById('second').style.display='inline-block'">Complete reservation</button>
+		<button id="second" style="display:none" onclick="window.secondClicks=(window.secondClicks||0)+1">Complete reservation</button>`
+	withTockDOMFixture(t, html, func(ctx context.Context) {
+		if err := clickPlaceReservation(ctx); err != nil {
+			t.Fatalf("first confirm click: %v", err)
+		}
+		if err := clickPlaceReservation(ctx); err != nil {
+			t.Fatalf("retargeted confirm click: %v", err)
+		}
+		var firstClicks, secondClicks int
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.firstClicks || 0`, &firstClicks),
+			chromedp.Evaluate(`window.secondClicks || 0`, &secondClicks),
+		); err != nil {
+			t.Fatalf("read retargeted click state: %v", err)
+		}
+		if firstClicks != 1 || secondClicks != 1 {
+			t.Fatalf("first/second confirm clicks = %d/%d, want 1/1", firstClicks, secondClicks)
+		}
+	})
+}
+
+func TestWaitForReceiptThroughDialogs_RetryBudgetSharedAfterDismissal(t *testing.T) {
+	html := `<!doctype html><button id="confirm">Complete reservation</button><script>
+		window.confirmClicks = 0;
+		document.getElementById('confirm').onclick = () => {
+			window.confirmClicks++;
+			if (window.confirmClicks !== 1) return;
+			const dialog = document.createElement('div');
+			dialog.setAttribute('role', 'dialog');
+			dialog.setAttribute('aria-modal', 'true');
+			dialog.style.padding = '20px';
+			dialog.innerHTML = '<p>Enable text alerts from Tock</p><button id="skip">Skip</button>';
+			document.body.appendChild(dialog);
+			document.getElementById('skip').onclick = () => dialog.remove();
+		};
+	</script>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {
+		if err := clickPlaceReservation(ctx); err != nil {
+			t.Fatalf("initial confirm click: %v", err)
+		}
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			_, waitErr := waitForReceiptThroughDialogsWithRetry(
+				actCtx, 2500*time.Millisecond, dismissPostConfirmDialog, 500*time.Millisecond, clickPlaceReservation,
+			)
+			return waitErr
+		}))
+		if err == nil || !strings.Contains(err.Error(), "receipt page never reached") {
+			t.Fatalf("wait error = %v, want receipt timeout", err)
+		}
+		var clicks int
+		if err := chromedp.Run(ctx, chromedp.Evaluate(`window.confirmClicks`, &clicks)); err != nil {
+			t.Fatalf("read confirm clicks: %v", err)
+		}
+		if clicks != 2 {
+			t.Fatalf("confirm clicks = %d, want initial click plus one shared retry", clicks)
+		}
+	})
+}
+
+func TestWaitForReceiptThroughDialogs_OccludedConfirmDoesNotRetry(t *testing.T) {
+	html := `<!doctype html>
+		<button id="confirm">Complete reservation</button>
+		<div role="dialog" aria-modal="true" style="position:fixed;inset:0;background:white;padding:20px;z-index:10">
+			<p>Enable text alerts from Tock</p><button>Agree and Continue</button>
+		</div>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {
+		retryCalls := 0
+		telemetry := newTockConfirmTelemetry()
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			_, waitErr := waitForReceiptThroughDialogsWithRetryTelemetry(
+				actCtx, 1500*time.Millisecond, dismissPostConfirmDialog, 400*time.Millisecond,
+				func(context.Context) error { retryCalls++; return nil },
+				telemetry,
+			)
+			return waitErr
+		}))
+		if err == nil {
+			t.Fatal("expected receipt timeout")
+		}
+		state, stateErr := readTockCheckoutPageState(ctx)
+		if stateErr != nil {
+			t.Fatalf("read checkout state: %v", stateErr)
+		}
+		if !state.DialogPresent || !state.ConfirmOccluded {
+			t.Fatalf("state = dialog:%v occluded:%v, want both true", state.DialogPresent, state.ConfirmOccluded)
+		}
+		if retryCalls != 0 {
+			t.Fatalf("retry calls = %d, want zero", retryCalls)
+		}
+		got := telemetry.read()
+		if got.RecognizedDialogSeen < 1 || got.OccludedSamples < 1 || got.IdleGuardSatisfied || got.RetryOutcome != retryOutcomeNotEligible {
+			t.Fatalf("wait counters = dialogs:%d occluded:%d idle:%v retry:%q", got.RecognizedDialogSeen, got.OccludedSamples, got.IdleGuardSatisfied, got.RetryOutcome)
+		}
+	})
+}
+
+func TestWaitForReceiptThroughDialogs_NonDialogOccluderDoesNotRetry(t *testing.T) {
+	html := `<!doctype html>
+		<button id="confirm" style="position:absolute;left:20px;top:20px;width:200px;height:40px">Complete reservation</button>
+		<div id="overlay" style="position:absolute;left:20px;top:20px;width:200px;height:40px;background:white;z-index:10"></div>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {
+		retryCalls := 0
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			_, waitErr := waitForReceiptThroughDialogsWithRetry(
+				actCtx, 1100*time.Millisecond, func(context.Context) (bool, error) { return false, nil },
+				200*time.Millisecond, func(context.Context) error { retryCalls++; return nil },
+			)
+			return waitErr
+		}))
+		if err == nil {
+			t.Fatal("expected receipt timeout")
+		}
+		state, stateErr := readTockCheckoutPageState(ctx)
+		if stateErr != nil {
+			t.Fatalf("read checkout state: %v", stateErr)
+		}
+		if state.DialogPresent || !state.ConfirmOccluded {
+			t.Fatalf("state = dialog:%v occluded:%v, want false/true", state.DialogPresent, state.ConfirmOccluded)
+		}
+		if retryCalls != 0 {
+			t.Fatalf("retry calls = %d, want zero for independently occluded confirm", retryCalls)
+		}
+	})
+}
+
+func TestWaitForReceiptThroughDialogs_DialogBlocksRetryWhenConfirmIsUnoccluded(t *testing.T) {
+	html := `<!doctype html>
+		<button id="confirm" style="position:absolute;left:20px;top:20px;width:200px;height:40px">Complete reservation</button>
+		<div role="dialog" aria-modal="true" style="position:absolute;left:400px;top:20px;width:250px;height:120px;padding:20px">
+			<p>Enable text alerts from Tock</p><button>Agree and Continue</button>
+		</div>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {
+		retryCalls := 0
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			_, waitErr := waitForReceiptThroughDialogsWithRetry(
+				actCtx, 1100*time.Millisecond, dismissPostConfirmDialog, 200*time.Millisecond,
+				func(context.Context) error { retryCalls++; return nil },
+			)
+			return waitErr
+		}))
+		if err == nil {
+			t.Fatal("expected receipt timeout")
+		}
+		state, stateErr := readTockCheckoutPageState(ctx)
+		if stateErr != nil {
+			t.Fatalf("read checkout state: %v", stateErr)
+		}
+		if !state.DialogPresent || state.ConfirmOccluded {
+			t.Fatalf("state = dialog:%v occluded:%v, want true/false", state.DialogPresent, state.ConfirmOccluded)
+		}
+		if retryCalls != 0 {
+			t.Fatalf("retry calls = %d, want zero while a semantic dialog is present", retryCalls)
+		}
+	})
+}
+
+func TestWaitForReceiptThroughDialogs_AriaDisabledConfirmDoesNotRetry(t *testing.T) {
+	html := `<!doctype html><button aria-disabled="true">Complete reservation</button>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {
+		retryCalls := 0
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			_, waitErr := waitForReceiptThroughDialogsWithRetry(
+				actCtx, 1100*time.Millisecond, func(context.Context) (bool, error) { return false, nil },
+				200*time.Millisecond, func(context.Context) error { retryCalls++; return nil },
+			)
+			return waitErr
+		}))
+		if err == nil {
+			t.Fatal("expected receipt timeout")
+		}
+		state, stateErr := readTockCheckoutPageState(ctx)
+		if stateErr != nil {
+			t.Fatalf("read checkout state: %v", stateErr)
+		}
+		if !state.ConfirmControlPresent || state.ConfirmControlEnabled || state.ConfirmOccluded {
+			t.Fatalf("confirm state = present:%v enabled:%v occluded:%v, want true/false/false",
+				state.ConfirmControlPresent, state.ConfirmControlEnabled, state.ConfirmOccluded)
+		}
+		if retryCalls != 0 {
+			t.Fatalf("retry calls = %d, want zero for aria-disabled confirm", retryCalls)
+		}
+	})
+}
+
+func TestWaitForReceiptThroughDialogs_DialogAtRetryBoundaryResetsIdleTimer(t *testing.T) {
+	html := `<!doctype html>
+		<button id="confirm" style="position:absolute;left:20px;top:20px;width:200px;height:40px">Complete reservation</button>
+		<script>
+			setTimeout(() => {
+				const dialog = document.createElement('div');
+				dialog.id = 'boundary-dialog';
+				dialog.setAttribute('role', 'dialog');
+				dialog.setAttribute('aria-modal', 'true');
+				dialog.style.cssText = 'position:absolute;left:400px;top:20px;width:250px;height:120px;padding:20px';
+				dialog.innerHTML = '<p>Enable text alerts from Tock</p><button>Agree and Continue</button>';
+				document.body.appendChild(dialog);
+				// Insertion at 100ms beats the first ~700ms retry check even
+				// under heavy scheduler lag; removal at 1400ms restarts the
+				// idle timer too late for retryDelay (500ms) to elapse before
+				// the 1700ms receipt deadline. Both margins keep the
+				// zero-retry assertion deterministic.
+				setTimeout(() => dialog.remove(), 1300);
+			}, 100);
+		</script>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {
+		retryCalls := 0
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			_, waitErr := waitForReceiptThroughDialogsWithRetry(
+				actCtx, 1700*time.Millisecond, dismissPostConfirmDialog, 500*time.Millisecond,
+				func(context.Context) error { retryCalls++; return nil },
+			)
+			return waitErr
+		}))
+		if err == nil {
+			t.Fatal("expected receipt timeout")
+		}
+		if retryCalls != 0 {
+			t.Fatalf("retry calls = %d, want zero after dialog reset at retry boundary", retryCalls)
+		}
+	})
+}
+
+func TestWaitForReceiptThroughDialogs_DismissalResetsIdleTimer(t *testing.T) {
+	html := `<!doctype html><button>Complete reservation</button>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {
+		dismissCalls := 0
+		retryCalls := 0
+		dismiss := func(context.Context) (bool, error) {
+			dismissCalls++
+			return dismissCalls == 2, nil
+		}
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			_, waitErr := waitForReceiptThroughDialogsWithRetry(
+				actCtx, 1700*time.Millisecond, dismiss, 500*time.Millisecond,
+				func(context.Context) error { retryCalls++; return nil },
+			)
+			return waitErr
+		}))
+		if err == nil {
+			t.Fatal("expected receipt timeout")
+		}
+		if dismissCalls < 2 {
+			t.Fatalf("dismiss calls = %d, want at least two", dismissCalls)
+		}
+		if retryCalls != 0 {
+			t.Fatalf("retry calls = %d, want zero after dismissal resets the elapsed idle interval", retryCalls)
+		}
+	})
+}
+
+func TestWaitForReceiptThroughDialogs_RedismissesDialogReopenedAfterFirstDismissal(t *testing.T) {
+	html := `<!doctype html><button>Complete reservation</button>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {
+		dismissCalls := 0
+		// Every probe reports a clickable recognized dialog: the loop must
+		// keep dismissing (a retry click re-opens the prompt live), not stop
+		// after the first success.
+		dismiss := func(context.Context) (bool, error) {
+			dismissCalls++
+			return true, nil
+		}
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			_, waitErr := waitForReceiptThroughDialogsWithRetry(
+				actCtx, 2500*time.Millisecond, dismiss, 500*time.Millisecond,
+				func(context.Context) error { return nil },
+			)
+			return waitErr
+		}))
+		if err == nil {
+			t.Fatal("expected receipt timeout")
+		}
+		if dismissCalls < 2 {
+			t.Fatalf("dismiss calls = %d, want at least two (dialog handling must stay armed)", dismissCalls)
+		}
+		if dismissCalls > 3 {
+			t.Fatalf("dismiss calls = %d, want at most three (dismissal cap)", dismissCalls)
+		}
+	})
+}
+
+func TestWaitForReceiptThroughDialogs_RetryClickContextCarriesReceiptDeadline(t *testing.T) {
+	html := `<!doctype html><button>Complete reservation</button>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {
+		waitDeadline := 3 * time.Second
+		start := time.Now()
+		var clickDeadline time.Time
+		var hadDeadline bool
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			_, waitErr := waitForReceiptThroughDialogsWithRetry(
+				actCtx, waitDeadline, func(context.Context) (bool, error) { return false, nil },
+				500*time.Millisecond,
+				func(clickCtx context.Context) error {
+					clickDeadline, hadDeadline = clickCtx.Deadline()
+					return nil
+				},
+			)
+			return waitErr
+		}))
+		if err == nil {
+			t.Fatal("expected receipt timeout")
+		}
+		if !hadDeadline {
+			t.Fatal("retry click context carried no deadline; clickPlaceReservation could poll past the receipt deadline")
+		}
+		if latest := start.Add(waitDeadline + 250*time.Millisecond); clickDeadline.After(latest) {
+			t.Fatalf("retry click deadline %v exceeds receipt deadline bound %v", clickDeadline, latest)
+		}
+	})
+}
+
+func TestClassifyTockConfirmRetryOutcome_TypedErrorsAndPrecedence(t *testing.T) {
+	targetErr := &cdproto.Error{Code: -32000, Message: "Inspected target navigated or closed"}
+	tests := []struct {
+		name string
+		err  error
+		want string
+	}{
+		{"dispatched", nil, retryOutcomeDispatched},
+		{"deadline", fmt.Errorf("wrapped: %w", context.DeadlineExceeded), retryOutcomeErrorDeadline},
+		{"target", fmt.Errorf("wrapped: %w", targetErr), retryOutcomeErrorTarget},
+		{"button missing", fmt.Errorf("wrapped: %w", errPlaceReservationButtonMissing), retryOutcomeErrorMissing},
+		{"button disabled", fmt.Errorf("wrapped: %w", errPlaceReservationButtonDisabled), retryOutcomeErrorDisabled},
+		{"other", errors.New("opaque"), retryOutcomeErrorOther},
+		{"wrapped deadline wins target", fmt.Errorf("both: %w", errors.Join(targetErr, context.DeadlineExceeded)), retryOutcomeErrorDeadline},
+		{"wrapped target wins missing", fmt.Errorf("both: %w", errors.Join(errPlaceReservationButtonMissing, targetErr)), retryOutcomeErrorTarget},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := classifyTockConfirmRetryOutcome(tc.err); got != tc.want {
+				t.Fatalf("outcome = %q, want %q", got, tc.want)
+			}
+		})
+	}
+}
+
+func TestWaitForReceiptThroughDialogs_RetryErrorBeforeDispatchRecorded(t *testing.T) {
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", `<!doctype html><button>Complete reservation</button>`, func(ctx context.Context) {
+		targetErr := &cdproto.Error{Code: -32000, Message: "Inspected target navigated or closed"}
+		for _, tc := range []struct {
+			name      string
+			helperErr error
+			want      string
+		}{
+			{"deadline", fmt.Errorf("before dispatch: %w", context.DeadlineExceeded), retryOutcomeErrorDeadline},
+			{"target", fmt.Errorf("before dispatch: %w", targetErr), retryOutcomeErrorTarget},
+			{"missing", fmt.Errorf("before dispatch: %w", errPlaceReservationButtonMissing), retryOutcomeErrorMissing},
+			{"disabled", fmt.Errorf("before dispatch: %w", errPlaceReservationButtonDisabled), retryOutcomeErrorDisabled},
+			{"other", errors.New("before dispatch opaque"), retryOutcomeErrorOther},
+			{"dispatched", nil, retryOutcomeDispatched},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				telemetry := newTockConfirmTelemetry()
+				calls := 0
+				err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+					_, waitErr := waitForReceiptThroughDialogsWithRetryTelemetry(actCtx, 800*time.Millisecond,
+						func(context.Context) (bool, error) { return false, nil }, 0,
+						func(context.Context) error { calls++; return tc.helperErr }, telemetry)
+					return waitErr
+				}))
+				if err == nil {
+					t.Fatal("expected receipt timeout")
+				}
+				got := telemetry.read()
+				if calls != 1 || got.RetryOutcome != tc.want || !got.IdleGuardSatisfied {
+					t.Fatalf("retry telemetry = calls:%d outcome:%q idle:%v, want 1/%q/true", calls, got.RetryOutcome, got.IdleGuardSatisfied, tc.want)
+				}
+			})
+		}
+	})
+}
+
+func TestWaitForReceiptThroughDialogs_DismissalTelemetryCountsDispatches(t *testing.T) {
+	html := `<!doctype html><button>Complete reservation</button>
+		<div role="dialog" aria-modal="true" style="padding:20px"><p>Enable text alerts from Tock</p><button onclick="this.closest('[role=dialog]').remove()">Skip</button></div>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {
+		telemetry := newTockConfirmTelemetry()
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			_, waitErr := waitForReceiptThroughDialogsInstrumented(actCtx, 900*time.Millisecond, telemetry)
+			return waitErr
+		}))
+		if err == nil {
+			t.Fatal("expected receipt timeout")
+		}
+		got := telemetry.read()
+		if got.RecognizedDialogSeen < 1 || got.DismissalsAttempted != 1 || got.DismissalsSucceeded != 1 {
+			t.Fatalf("dismissal telemetry = seen:%d attempted:%d succeeded:%d, want >=1/1/1", got.RecognizedDialogSeen, got.DismissalsAttempted, got.DismissalsSucceeded)
+		}
+	})
+}
+
+func TestDismissPostConfirmDialog_SelectsSkipNamedByAriaLabelledBy(t *testing.T) {
+	html := `<!doctype html>
+		<div role="dialog" aria-modal="true" style="position:absolute;left:10px;top:10px;padding:20px">
+			<p>Enable text alerts from Tock</p>
+			<span id="skip-name" style="display:none">Skip</span>
+			<button aria-labelledby="skip-name" onclick="window.clickedControl='labelled-skip'" style="width:80px;height:32px"></button>
+			<button onclick="window.clickedControl='agree'">Agree and Continue</button>
+		</div>`
+	withTockDOMFixture(t, html, func(ctx context.Context) {
+		clicked, err := dismissPostConfirmDialog(ctx)
+		if err != nil {
+			t.Fatalf("dismiss labelledby dialog: %v", err)
+		}
+		if !clicked {
+			t.Fatal("expected the aria-labelledby Skip to be clicked")
+		}
+		var control string
+		if err := chromedp.Run(ctx, chromedp.Evaluate(`window.clickedControl || ''`, &control)); err != nil {
+			t.Fatalf("read clicked control: %v", err)
+		}
+		if control != "labelled-skip" {
+			t.Fatalf("clicked control = %q, want labelled-skip", control)
+		}
+	})
+}
+
+func TestWaitForReceiptThroughDialogs_SlowNavigationAfterRetryDoesNotDoubleFire(t *testing.T) {
+	html := `<!doctype html><button>Complete reservation</button>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {
+		retryCalls := 0
+		retryClick := func(retryCtx context.Context) error {
+			retryCalls++
+			return chromedp.Evaluate(`setTimeout(() => { location.href = '/receipt?purchaseId=slow'; }, 900)`, nil).Do(retryCtx)
+		}
+		var loc string
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			var waitErr error
+			loc, waitErr = waitForReceiptThroughDialogsWithRetry(
+				actCtx, 3*time.Second, func(context.Context) (bool, error) { return false, nil },
+				200*time.Millisecond, retryClick,
+			)
+			return waitErr
+		}))
+		if err != nil {
+			t.Fatalf("wait for slow retry navigation: %v", err)
+		}
+		if !strings.Contains(loc, "/receipt") {
+			t.Fatalf("location = %q, want receipt", loc)
+		}
+		if retryCalls != 1 {
+			t.Fatalf("retry calls = %d, want exactly one while navigation is pending", retryCalls)
+		}
+	})
+}
+
+func TestWaitForReceiptThroughDialogs_DoesNotRetryAfterDeadline(t *testing.T) {
+	html := `<!doctype html><button>Complete reservation</button>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {
+		dismissCalls := 0
+		retryCalls := 0
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			_, waitErr := waitForReceiptThroughDialogsWithRetry(
+				actCtx, -time.Millisecond,
+				func(context.Context) (bool, error) { dismissCalls++; return false, nil },
+				0, func(context.Context) error { retryCalls++; return nil },
+			)
+			return waitErr
+		}))
+		if err == nil || !strings.Contains(err.Error(), "receipt page never reached") {
+			t.Fatalf("wait error = %v, want receipt timeout", err)
+		}
+		if dismissCalls != 0 || retryCalls != 0 {
+			t.Fatalf("dismiss/retry calls = %d/%d, want no booking-affecting work after deadline", dismissCalls, retryCalls)
+		}
+	})
+}
+
+func TestWaitForReceiptThroughDialogs_TimeoutHintHasUncappedDialogState(t *testing.T) {
+	html := `<!doctype html><button>Complete reservation</button>
+		<div role="dialog" aria-modal="true" style="position:fixed;inset:0;background:white;padding:20px;z-index:10">
+			<p>Enable text alerts from Tock</p><button>Agree and Continue</button>
+		</div>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {
+		var hint string
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			_, waitErr := waitForReceiptThroughDialogsWithRetry(
+				actCtx, 900*time.Millisecond, dismissPostConfirmDialog, 300*time.Millisecond, clickPlaceReservation,
+			)
+			hint = checkoutPageStateHint(actCtx)
+			return waitErr
+		}))
+		if err == nil {
+			t.Fatal("expected receipt timeout")
+		}
+		for _, want := range []string{`"dialog_present":true`, `"sms_dialog_present":true`, `"confirm_occluded":true`} {
+			if !strings.Contains(hint, want) {
+				t.Fatalf("timeout hint missing %s: %s", want, hint)
+			}
+		}
+	})
+}
+
+func TestReceiptWaitersAcceptSurveyPath(t *testing.T) {
+	withTockDOMFixtureAtPath(t, "/receipt/survey", `<!doctype html><p>survey</p>`, func(ctx context.Context) {
+		t.Run("plain waiter", func(t *testing.T) {
+			var loc string
+			err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+				var waitErr error
+				loc, waitErr = waitForReceiptPage(actCtx, time.Second)
+				return waitErr
+			}))
+			if err != nil || !strings.Contains(loc, "/receipt/survey") {
+				t.Fatalf("plain receipt waiter = %q, %v", loc, err)
+			}
+		})
+		t.Run("dialog waiter", func(t *testing.T) {
+			var loc string
+			err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+				var waitErr error
+				loc, waitErr = waitForReceiptThroughDialogs(actCtx, time.Second)
+				return waitErr
+			}))
+			if err != nil || !strings.Contains(loc, "/receipt/survey") {
+				t.Fatalf("dialog receipt waiter = %q, %v", loc, err)
+			}
+		})
 	})
 }
 
@@ -661,7 +1687,9 @@ func TestClickPinnedSlotByTimeText_ExplicitCardInsulatesFromForeignFormLink(t *t
 		<form>
 		  <a href="/venue/experience/111111">Cross-sell</a>
 		  <section class="experience-card">
-		    <button onclick="window.clickedOwn = true;">6:15 PM Book</button>
+		    <!-- type=button: a typeless button in a form is type=submit, and the
+		         submit navigation races the test's read of window.clickedOwn -->
+		    <button type="button" onclick="window.clickedOwn = true;">6:15 PM Book</button>
 		  </section>
 		</form>`
 	withTockDOMFixtureAtPath(t, "/venue/experience/520126", html, func(ctx context.Context) {
@@ -1690,13 +2718,13 @@ func TestDismissPostConfirmDialog_ClicksPortalSMSDialogSkip(t *testing.T) {
 	})
 }
 
-func TestDismissPostConfirmDialog_GenericFallbackSupportsRoleButton(t *testing.T) {
+func TestDismissPostConfirmDialog_SemanticDialogRequiresExactSkip(t *testing.T) {
 	html := `
 		<!doctype html>
-		<section class="custom-modal" style="padding:20px">
+		<section class="custom-modal" role="dialog" aria-modal="true" style="padding:20px">
 			<div><div><div><span>Receive text confirmation and updates for this and future bookings.</span></div></div></div>
 			<footer>
-				<div role="button" tabindex="0" style="display:inline-block;padding:10px" onclick="window.clickedControl = 'decline'">Not now</div>
+				<div role="button" tabindex="0" style="display:inline-block;padding:10px" onclick="window.clickedControl = 'decline'">Skip</div>
 				<button onclick="window.clickedControl = 'agree'">Agree and Continue</button>
 			</footer>
 		</section>`
@@ -1706,7 +2734,7 @@ func TestDismissPostConfirmDialog_GenericFallbackSupportsRoleButton(t *testing.T
 			t.Fatalf("dismissPostConfirmDialog: %v", err)
 		}
 		if !clicked {
-			t.Fatal("expected generic dialog fallback to find Not now")
+			t.Fatal("expected semantic dialog to find Skip")
 		}
 		var control string
 		if err := chromedp.Run(ctx, chromedp.Evaluate(`window.clickedControl || ''`, &control)); err != nil {
@@ -1714,6 +2742,158 @@ func TestDismissPostConfirmDialog_GenericFallbackSupportsRoleButton(t *testing.T
 		}
 		if control != "decline" {
 			t.Fatalf("clicked control = %q, want decline", control)
+		}
+	})
+}
+
+func TestDismissPostConfirmDialog_SemanticDialogRejectsLegacyDeclinesAndClose(t *testing.T) {
+	tests := []struct {
+		name    string
+		control string
+	}{
+		{name: "legacy decline wording", control: `<button onclick="window.clickedControl='not-now'">Not now</button>`},
+		{name: "close control", control: `<button aria-label="Close" onclick="window.clickedControl='close'">×</button>`},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			html := `<!doctype html><div role="dialog" aria-modal="true" style="padding:20px">
+				<h2>Enable text alerts from Tock</h2>` + tc.control + `
+				<button onclick="window.clickedControl='agree'">Agree and Continue</button>
+			</div>`
+			withTockDOMFixture(t, html, func(ctx context.Context) {
+				clicked, err := dismissPostConfirmDialog(ctx)
+				if err != nil {
+					t.Fatalf("dismiss semantic dialog: %v", err)
+				}
+				if clicked {
+					t.Fatal("semantic dialog without exact Skip must remain untouched")
+				}
+				var control string
+				if err := chromedp.Run(ctx, chromedp.Evaluate(`window.clickedControl || ''`, &control)); err != nil {
+					t.Fatalf("read clicked control: %v", err)
+				}
+				if control != "" {
+					t.Fatalf("unexpected clicked control %q", control)
+				}
+			})
+		})
+	}
+}
+
+func TestDismissPostConfirmDialog_NonSemanticAncestorFallbackStaysDisabled(t *testing.T) {
+	html := `<!doctype html><section style="padding:20px">
+		<p>Enable text alerts from Tock</p>
+		<button onclick="window.clickedControl='skip'">Skip</button>
+		<button onclick="window.clickedControl='agree'">Agree and Continue</button>
+	</section>`
+	withTockDOMFixture(t, html, func(ctx context.Context) {
+		clicked, err := dismissPostConfirmDialog(ctx)
+		if err != nil {
+			t.Fatalf("dismiss non-semantic copy: %v", err)
+		}
+		if clicked {
+			t.Fatal("non-semantic ancestor fallback must not click")
+		}
+		var control string
+		if err := chromedp.Run(ctx, chromedp.Evaluate(`window.clickedControl || ''`, &control)); err != nil {
+			t.Fatalf("read clicked control: %v", err)
+		}
+		if control != "" {
+			t.Fatalf("unexpected clicked control %q", control)
+		}
+	})
+}
+
+func TestDismissPostConfirmDialog_OccludedSkipFailsClosed(t *testing.T) {
+	html := `<!doctype html>
+		<div role="dialog" aria-modal="true" style="position:relative;width:260px;height:180px;padding:20px">
+			<p>Enable text alerts from Tock</p>
+			<button id="skip" style="position:absolute;left:20px;top:100px;width:200px;height:40px;z-index:1" onclick="window.clickedControl='skip'">Skip</button>
+			<button id="agree" style="position:absolute;left:20px;top:100px;width:200px;height:40px;z-index:2" onclick="window.clickedControl='agree'">Agree and Continue</button>
+		</div>`
+	withTockDOMFixture(t, html, func(ctx context.Context) {
+		clicked, err := dismissPostConfirmDialog(ctx)
+		if err != nil {
+			t.Fatalf("dismiss dialog with occluded Skip: %v", err)
+		}
+		if clicked {
+			t.Fatal("occluded Skip must fail closed")
+		}
+		var control string
+		if err := chromedp.Run(ctx, chromedp.Evaluate(`window.clickedControl || ''`, &control)); err != nil {
+			t.Fatalf("read clicked control: %v", err)
+		}
+		if control != "" {
+			t.Fatalf("occluded Skip coordinate landed on %q", control)
+		}
+	})
+}
+
+func TestDismissPostConfirmDialog_PrefersTopmostActiveHost(t *testing.T) {
+	html := `<!doctype html>
+		<div role="dialog" aria-modal="true" style="position:fixed;left:20px;top:20px;width:260px;height:180px;padding:20px;background:white;z-index:1">
+			<p>Enable text alerts from Tock</p>
+			<button style="position:absolute;left:20px;top:100px;width:200px;height:40px" onclick="window.clickedControl='lower'">Skip</button>
+		</div>
+		<div role="dialog" aria-modal="true" style="position:fixed;left:20px;top:20px;width:260px;height:180px;padding:20px;background:white;z-index:2">
+			<p>Enable text alerts from Tock</p>
+			<button style="position:absolute;left:20px;top:100px;width:200px;height:40px" onclick="window.clickedControl='upper'">Skip</button>
+		</div>`
+	withTockDOMFixture(t, html, func(ctx context.Context) {
+		clicked, err := dismissPostConfirmDialog(ctx)
+		if err != nil || !clicked {
+			t.Fatalf("dismiss topmost dialog = %v, %v", clicked, err)
+		}
+		var control string
+		if err := chromedp.Run(ctx, chromedp.Evaluate(`window.clickedControl || ''`, &control)); err != nil {
+			t.Fatalf("read clicked control: %v", err)
+		}
+		if control != "upper" {
+			t.Fatalf("clicked control = %q, want upper", control)
+		}
+	})
+}
+
+func TestDismissPostConfirmDialog_HiddenLegacyAndVisibleSemanticDialog(t *testing.T) {
+	html := `<!doctype html>
+		<div role="dialog" aria-hidden="true" style="display:none">
+			<div data-testid="sms-confirmation-dialog-content">Stay in the know</div>
+			<button data-testid="sms-skip-button" onclick="window.clickedControl='hidden'">Skip</button>
+		</div>
+		<div role="dialog" aria-modal="true" style="padding:20px">
+			<h2>Enable text alerts from Tock</h2>
+			<button onclick="window.clickedControl='visible'">Skip</button>
+		</div>`
+	withTockDOMFixture(t, html, func(ctx context.Context) {
+		clicked, err := dismissPostConfirmDialog(ctx)
+		if err != nil || !clicked {
+			t.Fatalf("dismiss visible semantic dialog = %v, %v", clicked, err)
+		}
+		var control string
+		if err := chromedp.Run(ctx, chromedp.Evaluate(`window.clickedControl || ''`, &control)); err != nil {
+			t.Fatalf("read clicked control: %v", err)
+		}
+		if control != "visible" {
+			t.Fatalf("clicked control = %q, want visible", control)
+		}
+	})
+}
+
+func TestDismissPostConfirmDialog_AmbiguousActiveHostsFailClosed(t *testing.T) {
+	html := `<!doctype html>
+		<div role="dialog" aria-modal="true" style="position:absolute;left:10px;top:10px;padding:20px">
+			<p>Enable text alerts from Tock</p><button onclick="window.clickedControl='one'">Skip</button>
+		</div>
+		<div role="dialog" aria-modal="true" style="position:absolute;left:300px;top:10px;padding:20px">
+			<p>Enable text alerts from Tock</p><button onclick="window.clickedControl='two'">Skip</button>
+		</div>`
+	withTockDOMFixture(t, html, func(ctx context.Context) {
+		clicked, err := dismissPostConfirmDialog(ctx)
+		if err != nil {
+			t.Fatalf("dismiss ambiguous dialogs: %v", err)
+		}
+		if clicked {
+			t.Fatal("ambiguous active dialogs must not be clicked")
 		}
 	})
 }

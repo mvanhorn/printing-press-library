@@ -1,0 +1,239 @@
+{
+  "api_name": "extron",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "av-toolkit",
+      "url": "https://github.com/simonlpaige/av-toolkit",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pyextron",
+      "url": "https://github.com/zombielinux/pyextron",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ha-extron",
+      "url": "https://github.com/NitorCreations/ha-extron",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-11T01:35:00Z",
+  "novel_features": [
+    {
+      "name": "Revision drift check",
+      "command": "literature updates",
+      "description": "See which downloaded spec sheets and manuals have a newer revision available upstream, so project shares never run stale docs.",
+      "rationale": "Only a local catalog with revision metadata can diff your downloaded filenames against the live Rev column without re-downloading everything.",
+      "example": "extron-pp-cli literature updates --dir ./docs --json",
+      "why_it_matters": "Use this before commissioning or re-quoting to catch docs superseded since the last sync.",
+      "group": "Local catalog that compounds"
+    },
+    {
+      "name": "Doc-set completeness",
+      "command": "catalog completeness",
+      "description": "Per-model gap report across Brochure, Declaration of Conformity, Design Guide, Product Guide, Manual, and Revit BIM — see which doc types each model is missing.",
+      "rationale": "Requires cross-tabbing the six literature categories per model in the local catalog — no single site page provides this view.",
+      "example": "extron-pp-cli catalog completeness --bom ./rack.csv --json",
+      "why_it_matters": "Use it before a bid submittal or commissioning checklist to catch missing compliance or reference docs.",
+      "group": "Local catalog that compounds"
+    },
+    {
+      "name": "Library what's-new",
+      "command": "literature recent",
+      "description": "Newest Extron literature across the whole library, ordered by date, filterable by category and age.",
+      "rationale": "The site only surfaces the Date column inside letter-scoped tables; a synced catalog makes the whole library sortable by date offline.",
+      "example": "extron-pp-cli literature recent --days 30 --category manual --json --select title,date,category,url",
+      "why_it_matters": "Use it to track manual/firmware-doc releases without re-checking the website.",
+      "group": "Local catalog that compounds"
+    },
+    {
+      "name": "BOM doc bundle",
+      "command": "literature rack",
+      "description": "Assemble the full official doc set for every model in a rack bill of materials — report or batch-download in one pass.",
+      "rationale": "Resolves model numbers through the local catalog and orchestrates per-model doc bundles; no website flow does this.",
+      "example": "extron-pp-cli literature rack --bom ./rack.csv --download --dir ./docs",
+      "why_it_matters": "Use it when a project's doc binder must match the exact gear list on the job.",
+      "group": "Project-driven assembly"
+    },
+    {
+      "name": "Series grouping",
+      "command": "literature family",
+      "description": "Browse every document for a product family (DTP, MAV, IPL, DVS, ...) across all alphabetical letters at once.",
+      "rationale": "The site indexes literature only by first letter, so family browsing across letters is impossible there; local prefix grouping fixes it.",
+      "example": "extron-pp-cli literature family dtp --json",
+      "why_it_matters": "Use it to pull every doc for a family before writing control code or a design guide review.",
+      "group": "Local catalog that compounds"
+    },
+    {
+      "name": "Download integrity",
+      "command": "catalog verify",
+      "description": "Compare local PDF sizes against the download ledger to flag truncated or mismatched downloads.",
+      "rationale": "Downloads are the flaky leg of the pipeline (WAF resets); only local-vs-ledger byte comparison can prove integrity.",
+      "example": "extron-pp-cli catalog verify --dir ./docs --json",
+      "why_it_matters": "Use it after a batch download or sync to confirm every PDF landed complete and current.",
+      "group": "Local catalog that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Revision drift check",
+      "command": "literature updates",
+      "description": "See which downloaded spec sheets and manuals have a newer revision available upstream, so project shares never run stale docs.",
+      "rationale": "Only a local catalog with revision metadata can diff your downloaded filenames against the live Rev column without re-downloading everything.",
+      "example": "extron-pp-cli literature updates --dir ./docs --json",
+      "why_it_matters": "Use this before commissioning or re-quoting to catch docs superseded since the last sync.",
+      "group": "Local catalog that compounds"
+    },
+    {
+      "name": "Doc-set completeness",
+      "command": "catalog completeness",
+      "description": "Per-model gap report across Brochure, Declaration of Conformity, Design Guide, Product Guide, Manual, and Revit BIM — see which doc types each model is missing.",
+      "rationale": "Requires cross-tabbing the six literature categories per model in the local catalog — no single site page provides this view.",
+      "example": "extron-pp-cli catalog completeness --bom ./rack.csv --json",
+      "why_it_matters": "Use it before a bid submittal or commissioning checklist to catch missing compliance or reference docs.",
+      "group": "Local catalog that compounds"
+    },
+    {
+      "name": "Library what's-new",
+      "command": "literature recent",
+      "description": "Newest Extron literature across the whole library, ordered by date, filterable by category and age.",
+      "rationale": "The site only surfaces the Date column inside letter-scoped tables; a synced catalog makes the whole library sortable by date offline.",
+      "example": "extron-pp-cli literature recent --days 30 --category manual --json --select title,date,category,url",
+      "why_it_matters": "Use it to track manual/firmware-doc releases without re-checking the website.",
+      "group": "Local catalog that compounds"
+    },
+    {
+      "name": "BOM doc bundle",
+      "command": "literature rack",
+      "description": "Assemble the full official doc set for every model in a rack bill of materials — report or batch-download in one pass.",
+      "rationale": "Resolves model numbers through the local catalog and orchestrates per-model doc bundles; no website flow does this.",
+      "example": "extron-pp-cli literature rack --bom ./rack.csv --download --dir ./docs",
+      "why_it_matters": "Use it when a project's doc binder must match the exact gear list on the job.",
+      "group": "Project-driven assembly"
+    },
+    {
+      "name": "Series grouping",
+      "command": "literature family",
+      "description": "Browse every document for a product family (DTP, MAV, IPL, DVS, ...) across all alphabetical letters at once.",
+      "rationale": "The site indexes literature only by first letter, so family browsing across letters is impossible there; local prefix grouping fixes it.",
+      "example": "extron-pp-cli literature family dtp --json",
+      "why_it_matters": "Use it to pull every doc for a family before writing control code or a design guide review.",
+      "group": "Local catalog that compounds"
+    },
+    {
+      "name": "Download integrity",
+      "command": "catalog verify",
+      "description": "Compare local PDF sizes against the download ledger to flag truncated or mismatched downloads.",
+      "rationale": "Downloads are the flaky leg of the pipeline (WAF resets); only local-vs-ledger byte comparison can prove integrity.",
+      "example": "extron-pp-cli catalog verify --dir ./docs --json",
+      "why_it_matters": "Use it after a batch download or sync to confirm every PDF landed complete and current.",
+      "group": "Local catalog that compounds"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Extron",
+    "headline": "Every Extron spec sheet and user manual, browsable and searchable offline with revision tracking no other Extron tool has.",
+    "value_prop": "Extron publishes spec sheets and manuals at extron.com, but finding them means browser tabs, letter-scoped tables, and a WAF that blocks plain curl. extron-pp-cli syncs the whole literature catalog into a local database, then lets you list, search, download, and track revisions from the terminal — including what's new (literature recent), which downloaded docs went stale (literature updates), and which doc types a rack's models are missing (catalog completeness).",
+    "quickstart": [
+      {
+        "command": "extron-pp-cli doctor --dry-run",
+        "comment": "Health check that works without credentials — confirms the CLI and its config are sane."
+      },
+      {
+        "command": "extron-pp-cli catalog sync",
+        "comment": "Fetch the Extron literature catalog into the local store — everything else reads it."
+      },
+      {
+        "command": "extron-pp-cli literature list --category manual --letter m",
+        "comment": "Browse the Manual category for M products (Matrix, MAV) straight from the official index."
+      },
+      {
+        "command": "extron-pp-cli literature get \"MAV Plus Series\" --json",
+        "comment": "Resolve a product name to its official documents with revision and date metadata."
+      },
+      {
+        "command": "extron-pp-cli search \"DTP2\" --type literature",
+        "comment": "Search the synced catalog offline — no website, no WAF."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Connection reset / read tcp ... connection reset by peer on sync or list",
+        "fix": "Extron's WAF intermittently resets non-browser connections. Re-run the command — retries succeed. The CLI retries once automatically."
+      },
+      {
+        "symptom": "search returns nothing right after install",
+        "fix": "Run `extron-pp-cli sync` first — search reads the local catalog, which starts empty."
+      },
+      {
+        "symptom": "literature updates shows everything as stale",
+        "fix": "The drift check compares local filenames against the catalog; re-download with `extron-pp-cli literature updates --download` to normalize filenames."
+      }
+    ],
+    "when_to_use": "Use extron-pp-cli whenever an agent or integrator needs Extron spec sheets, user manuals, design/product guides, Declarations of Conformity, or Revit BIM families for a project — browsing the official literature library, checking what changed, assembling doc sets for a rack, or verifying downloaded PDFs are current and complete.",
+    "anti_triggers": [
+      "Do not use this CLI to control or configure Extron AV devices (SIS/TCP, SSH, IP Link web interfaces) — this CLI covers literature only.",
+      "Do not use this CLI for Extron firmware files or software downloads — the literature library does not include them.",
+      "Do not use this CLI for non-Extron documentation or generic AV manuals."
+    ],
+    "recipes": [
+      {
+        "title": "What did Extron release this month",
+        "command": "extron-pp-cli literature recent --days 30 --json --select title,date,category,url",
+        "explanation": "Agent-friendly list of the newest docs with a narrow --select so the payload stays small."
+      },
+      {
+        "title": "Stale-doc sweep before commissioning",
+        "command": "extron-pp-cli literature updates --dir ./docs --download --dry-run",
+        "explanation": "See which project PDFs are superseded and preview the re-download without touching disk."
+      },
+      {
+        "title": "Rack doc binder",
+        "command": "extron-pp-cli literature rack --bom ./rack.csv --download --dir ./docs",
+        "explanation": "Pull the full official doc set for every model on the job in one pass."
+      },
+      {
+        "title": "Family reference pull",
+        "command": "extron-pp-cli literature family dtp --json",
+        "explanation": "All DTP-family docs across every letter of the index, in machine-readable form."
+      },
+      {
+        "title": "Bid compliance check",
+        "command": "extron-pp-cli catalog completeness --bom ./rack.csv --json",
+        "explanation": "Which models are missing a Declaration of Conformity or manual before the submittal."
+      }
+    ],
+    "trigger_phrases": [
+      "download the Extron manual for",
+      "get the spec sheet for that projector",
+      "find the latest Extron doc revision",
+      "check what Extron literature is new",
+      "pull the Extron docs for this rack",
+      "use extron",
+      "run extron"
+    ]
+  }
+}

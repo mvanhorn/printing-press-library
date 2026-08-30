@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "teslatracker",
+  "cli_name": "teslatracker-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-28T09:15:30Z",
+  "source_commit": "0b297efef2a18eda9e0894aff88b3c651314cff8",
+  "printing_press_version": "4.30.2",
+  "run_id": "20260813-144423-eaf11561",
+  "changes": [
+    {
+      "title": "feat(teslatracker): add teslatracker",
+      "pr": 1842,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1842",
+      "commit": "0b297efef2a18eda9e0894aff88b3c651314cff8"
+    }
+  ]
+}

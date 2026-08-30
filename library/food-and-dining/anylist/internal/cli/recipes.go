@@ -20,10 +20,16 @@ func newRecipesCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newRecipesDeleteCmd(flags))
 	cmd.AddCommand(newRecipesFilterCmd(flags))
 	cmd.AddCommand(newRecipesImportCmd(flags))
+	cmd.AddCommand(newRecipesImportPaprikaCmd(flags))
+	cmd.AddCommand(newRecipesLinkCmd(flags))
 	cmd.AddCommand(newRecipesListCmd(flags))
 	cmd.AddCommand(newRecipesMissingCmd(flags))
+	cmd.AddCommand(newRecipesIngredientsCmd(flags))
+	cmd.AddCommand(newRecipesPhotoCmd(flags))
 	cmd.AddCommand(newRecipesScaleCmd(flags))
 	cmd.AddCommand(newRecipesSearchCmd(flags))
 	cmd.AddCommand(newRecipesShowCmd(flags))
+	cmd.AddCommand(newRecipesSharingCmd(flags))
+	cmd.AddCommand(newRecipesUpdateCmd(flags))
 	return cmd
 }

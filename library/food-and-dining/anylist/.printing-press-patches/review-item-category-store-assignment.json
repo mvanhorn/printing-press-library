@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "id": "review-item-category-store-assignment",
+  "applied_at": "2026-08-16",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Add guarded, read-after-write-verified item category-match and store assignment updates.",
+  "reason": "Browser capture confirms category changes are a multipart /data/shopping-lists/update request containing two PBListOperation entries: update-list-item-category-assignment with the complete original item, followed by set-list-item-category-match-id with the complete updated item and the new match ID in originalValue (not updatedValue). Built-in Other uses match ID other even when its PBListCategory identifier is opaque. Store handlers remain add-list-item-store-id/remove-list-item-store-id with the store identifier in updatedValue. The CLI now resolves exact names or explicit match IDs from fresh metadata, previews without network access by default, requires --apply, verifies the fresh live item, and syncs the cache only after verification. Price, aisle/category-assignment subrecords beyond this captured category path, and recipe photo writes remain unsupported.",
+  "files": [
+    "internal/anylist/client.go",
+    "internal/anylist/item_metadata_test.go",
+    "internal/cli/item_metadata.go",
+    "internal/cli/item_metadata_test.go",
+    "internal/cli/items_update.go",
+    "README.md",
+    "SKILL.md",
+    "tools-manifest.json",
+    "internal/mcp/code_orch_data.go"
+  ],
+  "validated_outcome": "Focused client tests prove the two-operation multipart category wire shape, full-item preservation, originalValue placement, exact store handler IDs, and updatedValue payloads. CLI tests prove built-in Other match-ID handling, explicit custom match-ID resolution, ambiguity rejection, verification, and offline JSON preview. No live account writes were performed in this slice; the parent agent must disposable-test --apply before treating the handlers as account-verified.",
+  "findings_addressed": [
+    "item-category-match-update",
+    "item-category-match-clear",
+    "item-store-assignment-add",
+    "item-store-assignment-remove",
+    "metadata-explicit-apply-and-readback"
+  ]
+}

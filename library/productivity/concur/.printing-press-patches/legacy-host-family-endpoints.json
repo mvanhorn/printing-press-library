@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "id": "legacy-host-family-endpoints",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260812-144651-60addfc5",
+  "base_printing_press_version": "unstamped (pre-4.28.0, no .printing-press.json in this tree)",
+  "summary": "Concur splits its surface across host families: a modern v4/SCIM host (base_url, www-{region}.api.concursolutions.com) and several legacy v1.1/v2.0 APIs documented against a different literal host (www.concursolutions.com/api/...). The client must support an absolute-URL path for endpoints on the second family; a regen must not collapse this back to base_url-relative paths.",
+  "reason": "delegates.list and account.travel were generated with base_url-relative paths guessed from the v4 URI-template pattern (/delegate/v4/delegators, /travelprofile/v2/users/{user_id}). Both 404'd live. developer.concur.com's actual docs place these APIs ('Expense Delegators v1.1', 'Travel Profile v2') on a literal www.concursolutions.com host under /api/... -- a different host and path shape entirely, not a nearby typo. Live-testing the corrected absolute URLs got past the 404 (confirming the path fix) but returned HTTP 401 'Invalid headers' under cookie-session auth for both -- this legacy host does not recognize the modern web-session cookie at all, and both APIs are documented as requiring an OAuth2 Bearer token. This is a genuine, confirmed auth-model boundary, not a bug: cookie-session auth cannot serve either endpoint regardless of further path correction.",
+  "files": [
+    "internal/client/client.go",
+    "internal/cli/promoted_delegates.go",
+    "internal/cli/account_travel.go",
+    "internal/cli/resource_paths.go",
+    "internal/cli/sync.go"
+  ],
+  "changes": [
+    {
+      "file": "internal/client/client.go",
+      "description": "do()/request building now detects an absolute URL (http:// or https:// prefix) in the resolved path and uses it as-is instead of concatenating onto c.BaseURL. Generically useful for any spec with a multi-host-family API surface, not Concur-specific."
+    },
+    {
+      "file": "internal/cli/promoted_delegates.go",
+      "description": "path corrected to the absolute URL https://www.concursolutions.com/api/expense/expensereport/v1.1/delegators (was /delegate/v4/delegators, confirmed 404)."
+    },
+    {
+      "file": "internal/cli/account_travel.go",
+      "description": "path corrected to the absolute URL https://www.concursolutions.com/api/travelprofile/v2.0/profile (was /travelprofile/v2/users/{user_id}, confirmed 404). Also changed the command from a required <user_id> positional to an optional --user-id flag: the real API's userid_type/userid_value are optional query params, not a required path segment, and omitting them correctly returns the current session user's own profile -- the only identity a cookie-session caller can legitimately request anyway."
+    },
+    {
+      "file": "internal/cli/resource_paths.go",
+      "description": "resourceReadPaths['delegates'] and resourceDetailPaths['account'] updated to the same absolute URLs, so sync/search do not silently retain the old wrong paths."
+    },
+    {
+      "file": "internal/cli/sync.go",
+      "description": "syncResourcePath()'s delegates entry updated to match."
+    }
+  ],
+  "validated_outcome": "Before: both commands 404'd (wrong host+path entirely). After: both commands reach the real endpoint and get HTTP 401 'Invalid headers' -- the expected, correct response for a cookie session against an OAuth-only legacy API. This is documented in the spec header and per-endpoint descriptions as AUTH-GATED, not silently left broken.",
+  "upstream_issue": null
+}

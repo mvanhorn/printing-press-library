@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "rundown",
+  "cli_name": "rundown-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-23T09:32:26Z",
+  "source_commit": "5b1cadcce84a0554503fea8a5acf255c90551b1b",
+  "printing_press_version": "4.31.1",
+  "run_id": "20260822-120000-rundown01",
+  "changes": [
+    {
+      "title": "feat(rundown): add rundown",
+      "pr": 1798,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1798",
+      "commit": "5b1cadcce84a0554503fea8a5acf255c90551b1b"
+    }
+  ]
+}

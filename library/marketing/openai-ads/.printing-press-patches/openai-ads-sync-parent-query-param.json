@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "openai-ads-sync-parent-query-param",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-171540-a9bb0a03",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Sync ad-groups and ads as parent-keyed dependents scoped by a query parameter, and restore both to the default sync set.",
+  "reason": "The generator emitted ad-groups and ads as flat top-level resources and omitted them from defaultSyncResources(). The vendor spec marks campaign_id required on GET /ad_groups and ad_group_id required on GET /ads, so a flat sync stored no parent linkage and only appeared to work on a single-campaign account. dependentResourceDef supported only PathTemplate substitution, and /campaigns/{id}/ad_groups returns HTTP 404 because the parent link is a query parameter, not a path segment. Added a ParentQueryParam field and injected it into request params.",
+  "files": ["internal/cli/sync.go"],
+  "validated_outcome": "Live sync against a real ad account now completes with 9 resources and persists ad_groups.campaign_id and ads.ad_group_id; previously it emitted a 404 sync_error for every campaign."
+}

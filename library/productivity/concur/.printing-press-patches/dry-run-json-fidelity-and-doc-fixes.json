@@ -1,0 +1,45 @@
+{
+  "schema_version": 2,
+  "id": "dry-run-json-fidelity-and-doc-fixes",
+  "applied_at": "2026-08-18",
+  "base_run_id": "20260812-144651-60addfc5",
+  "base_printing_press_version": "unstamped (pre-4.28.0, no .printing-press.json in this tree)",
+  "summary": "Three small, mechanical fixes surfaced by publish validate's Step 4.5 live gate (--level full, 317 tests): flights_search.go and hotels_search.go's --dry-run paths printed prose mixed with (or instead of) JSON even when --json was requested, breaking json_fidelity; feedback.go (generated) was missing an Examples section on its parent command. Also bumped go.mod from go 1.26.5 to go 1.26.6, closing 5 real standard-library CVEs (govulncheck: quadratic-complexity DoS in net/url, a TLS handshake gap, an HTTP/2 cleartext timeout gap, an ASN.1 recursion DoS, and an IDNA/punycode validation gap) -- Go's toolchain manager downloaded 1.26.6 automatically once go.mod named it. Also fixed a missing pp:parent-group annotation on approvals.go that caused a spurious 'missing Examples section' dogfood failure on a pure router command (matches the annotation hotels.go/trips.go already carry), and a real bug in expenses_scan_duplicates.go where an unparseable grouping-key amount silently defaulted to $0.00 instead of being skipped. Also restored manuscripts/concur/20260812-144651-60addfc5/research.json, which existed only in the original .runstate working directory (a different PRESS_SCOPE than this repo resolves to) and was never copied to the location later tooling (scorecard --research-dir, dogfood --research-dir, publish Step 4.5) searches -- an archival oversight from the original session, not a new file.",
+  "reason": "User asked to get this CLI ready for publishing. Running the full publish validate + Step 4.5 live gate (317 tests, --level full) surfaced these as the only fixable defects; a much larger open question (4 non-flights/hotels/trips commands -- attendees search, attendee-types, expense-types list, payment-types -- failing live with auth/routing errors, e.g. an Azure AD 'IDX10223: Lifetime validation failed' token-expiry message on attendee-types, suggesting a different credential than the GraphQL-BFF cookie session this CLI otherwise uses) was surfaced but deliberately NOT patched here -- see the 2026-08-18 diagnostic session notes; user chose to hold publishing rather than have it investigated or hand-waved.",
+  "files": [
+    "internal/cli/flights_search.go",
+    "internal/cli/hotels_search.go",
+    "internal/cli/feedback.go",
+    "internal/cli/approvals.go",
+    "internal/cli/expenses_scan_duplicates.go",
+    "go.mod"
+  ],
+  "changes": [
+    {
+      "file": "internal/cli/flights_search.go",
+      "description": "--dry-run's human-readable '(dry run -- no shopping session created)' note moved from stdout to stderr (matching this same function's existing --from/--to resolution notices); stdout now carries only the JSON preview, with dry_run:true folded into it to match the generated commands' envelope convention."
+    },
+    {
+      "file": "internal/cli/hotels_search.go",
+      "description": "--dry-run previously always printed a plain sentence regardless of --json. Now checks the same asJSON/isTerminal condition the real-output branch already uses and emits a small JSON object ({dry_run, to, check_in, check_out}) in that case, falling back to the original human sentence otherwise."
+    },
+    {
+      "file": "internal/cli/feedback.go",
+      "description": "Added an Example field to the parent 'feedback [text]' command using the exact usage already documented in SKILL.md's Agent Feedback section. Generated file (DO-NOT-EDIT); this is a narrow, doc-only addition, not a logic change."
+    },
+    {
+      "file": "internal/cli/approvals.go",
+      "description": "Added the pp:parent-group annotation this pure-router command was missing (hotels.go and trips.go, the closest comparable parent commands, both already carry it), which unblocked dogfood's help-Examples check treating it as a leaf command."
+    },
+    {
+      "file": "internal/cli/expenses_scan_duplicates.go",
+      "description": "fmt.Sscanf's error return was previously ignored, so an unparseable grouping-key amount silently rendered as a misleading $0.00 duplicate-charge amount. Now skips that group instead of reporting fabricated data."
+    },
+    {
+      "file": "go.mod",
+      "description": "go 1.26.5 -> go 1.26.6, closing 5 real govulncheck-reported standard-library CVEs. No API/behavior change; Go's toolchain manager auto-downloaded 1.26.6."
+    }
+  ],
+  "validated_outcome": "go build, go vet ./..., and go test ./... all clean after every change. flights search --dry-run --json and hotels search --dry-run --json both confirmed to emit valid, parseable JSON on stdout with stderr fully separated. feedback --help confirmed to show the new Examples section. govulncheck ./... confirmed 0 vulnerabilities (was 5). publish validate's Step 4.5 live gate (--level full, --research-dir pointed at the restored research.json) dropped from 8/142 failing (quick-level, no research.json) to 8/317 failing at full level with a real research.json wired in; of those 8, 3 are now fixed by this patch, 3 are the already-documented available-expenses-honest-failure guard (not a defect), and 2 remain genuinely open (see the summary/reason fields) and were deliberately left unpatched pending further investigation the user chose to defer.",
+  "upstream_issue": null
+}

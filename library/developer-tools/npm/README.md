@@ -7,13 +7,13 @@ Research npm packages by metadata, downloads, maintainers, freshness, and depend
 The recommended path installs both the `npm-pp-cli` binary and the `pp-npm` agent skill in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install npm
+npx -y @mvanhorn/printing-press-library install npm
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install npm --cli-only
+npx -y @mvanhorn/printing-press-library install npm --cli-only
 ```
 
 

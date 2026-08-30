@@ -1,0 +1,70 @@
+{
+  "api_name": "kie",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "kie-ai-mcp-server",
+      "url": "https://github.com/andrewlwn77/kie-ai-mcp-server",
+      "language": "TypeScript",
+      "install_method": "npm",
+      "stars": 23,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "@felores/kie-ai-mcp-server",
+      "url": "https://www.npmjs.com/package/@felores/kie-ai-mcp-server",
+      "language": "TypeScript",
+      "install_method": "npm",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "kie-ai-mcp-v1",
+      "url": "https://github.com/daanjonk/kie-ai-mcp-v1",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": true,
+      "has_auth_support": true
+    }
+  ],
+  "gaps": [
+    "Every existing option found is an MCP server only -- none ship a standalone CLI binary usable from a shell, CI job, or non-MCP agent runtime.",
+    "None cover the full 70-endpoint dedicated surface (Suno's ~30 endpoints, Veo3.1, Runway/Aleph, Flux Kontext, 4o Image, Gemini Omni, per-model chat completions) alongside the 120+ model Market catalog in one tool.",
+    "None expose Kie.ai's async task pattern (create -> taskId -> poll/callback) as first-class CLI flags (--dry-run, --call-back-url, --agent JSON mode)."
+  ],
+  "patterns": [
+    "Kie.ai's own docs already ship machine-readable per-endpoint OpenAPI fragments (one per doc page) rather than one combined spec -- harvesting and merging those directly produced a far more accurate spec than prose-scraping the landing page.",
+    "The Market catalog's 120+ models share exactly two endpoints (createTask/recordInfo) differentiated only by a `model` field and a loosely-typed `input` object -- modeling this as one generic command pair (with a documented model catalog in docs/MODELS.md) is more honest than fabricating per-model schemas that Kie.ai itself doesn't strictly enforce."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-03T07:56:19Z",
+  "novel_features": [
+    {
+      "name": "Unified Market Catalog Access",
+      "command": "kie-ai-jobs market-create-task",
+      "description": "Single create/query command pair that reaches all 120+ Kie.ai Market models (Seedream, Ideogram, Kling, Wan, Hailuo, PixVerse, ElevenLabs, and more) via a --model identifier and JSON --input, instead of one generated command per model.",
+      "rationale": "Kie.ai's own API funnels every Market model through the same two endpoints (POST /api/v1/jobs/createTask, GET /api/v1/jobs/recordInfo), differentiated only by a `model` field and a per-model `input` shape it does not strictly schema-enforce. Generating 120+ near-identical commands would have been mechanical but wrong -- it would bury the real command surface and force per-model schemas Kie.ai itself doesn't guarantee. Consolidating to one documented pair, backed by a generated catalog (docs/MODELS.md), matches the API's actual contract.",
+      "example": "kie kie-ai-jobs market-create-task --model google/nano-banana --input '{\"prompt\": \"a corgi wearing a tiny wizard hat\", \"aspect_ratio\": \"1:1\"}'",
+      "why_it_matters": "Agents and scripts get one stable command to target any of the 120+ Market models present today or added later, rather than needing to discover and call a different generated command per model.",
+      "group": "Market catalog consolidation"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Unified Market Catalog Access",
+      "command": "kie-ai-jobs market-create-task",
+      "description": "Single create/query command pair that reaches all 120+ Kie.ai Market models via a --model identifier and JSON --input.",
+      "verified": "structural only -- kie kie-ai-jobs market-create-task --help and --dry-run confirmed; no live API key was available to confirm a real generation call"
+    }
+  ],
+  "notes": "No agentic vision/creative-features phase was run for this CLI -- it was generated directly from a hand-merged OpenAPI spec via `cli-printing-press generate --spec`. The one novel_features entry above is a genuine design decision (collapsing 120+ Market models into one command pair instead of mechanically generating 120+ near-duplicates), verified structurally, not a fabricated live-API result."
+}

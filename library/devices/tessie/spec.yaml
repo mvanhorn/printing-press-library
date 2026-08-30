@@ -1,0 +1,129 @@
+name: tessie
+description: "Live Tesla vehicle data and commands from the terminal via the Tessie API"
+version: "0.1.0"
+source: ""
+base_url: "https://api.tessie.com"
+http_transport: standard
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  env_vars:
+    - TESSIE_API_TOKEN
+  scheme: bearerAuth
+
+config:
+  format: toml
+  path: "~/.config/tessie-pp-cli/config.toml"
+
+resources:
+  vehicles:
+    description: "List and select Tesla vehicles"
+    endpoints:
+      list:
+        method: GET
+        path: "/vehicles"
+        description: "List all vehicles with their latest state"
+        params:
+          - name: only_active
+            flag_name: active
+            type: bool
+            required: false
+            position: query
+            description: "Only show active vehicles"
+        response:
+          type: object
+
+  vehicle:
+    description: "Query and command a single vehicle by VIN"
+    endpoints:
+      state:
+        method: GET
+        path: "/{vin}/state"
+        description: "Get the latest full state object of a vehicle: model, lock status, odometer, sentry mode, charge, and climate details."
+        mutation: false
+        params:
+          - name: vin
+            type: string
+            required: true
+            positional: true
+            description: "Vehicle identification number (VIN)"
+          - name: use_cache
+            flag_name: cache
+            type: bool
+            required: false
+            description: "Use cached state (legacy S/X only; default true)"
+        response:
+          type: object
+      battery:
+        method: GET
+        path: "/{vin}/battery"
+        description: "Get the current battery state of a vehicle: charge level percent, estimated driving range, and charging status."
+        mutation: false
+        params:
+          - name: vin
+            type: string
+            required: true
+            positional: true
+            description: "Vehicle identification number (VIN)"
+        response:
+          type: object
+      location:
+        method: GET
+        path: "/{vin}/location"
+        description: "Get the vehicle geolocation: latitude, longitude, street address, and saved location associated with the car."
+        mutation: false
+        params:
+          - name: vin
+            type: string
+            required: true
+            positional: true
+            description: "Vehicle identification number (VIN)"
+        response:
+          type: object
+      wake:
+        method: POST
+        path: "/{vin}/wake"
+        description: "Wake a sleeping vehicle so subsequent commands can reach it. Returns once the car is awake or after a timeout."
+        mutation: true
+        params:
+          - name: vin
+            type: string
+            required: true
+            positional: true
+            description: "Vehicle identification number (VIN)"
+        response:
+          type: object
+
+  commands:
+    description: "Send vehicle commands"
+    endpoints:
+      send:
+        method: POST
+        path: "/{vin}/command/{command}"
+        description: "Send a vehicle command (honk, flash_lights, start_climate, etc.)"
+        mutation: true
+        params:
+          - name: vin
+            type: string
+            required: true
+            positional: true
+            description: "Vehicle identification number (VIN)"
+          - name: command
+            type: string
+            required: true
+            positional: true
+            description: "Vehicle command name"
+        response:
+          type: object
+
+types:
+  Vehicle:
+    fields:
+      - name: vin
+        type: string
+      - name: plate
+        type: string
+      - name: is_active
+        type: bool

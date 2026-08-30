@@ -382,13 +382,30 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 			w := cmd.OutOrStdout()
 			authed := cfg.AccessToken != ""
-			// JSON envelope: {authenticated, verified, source, config}.
+			// PATCH(amend-2026-08-08: surface endpoint-scoped quota blocks)
+			// — valid credentials plus a working /me call do NOT mean the
+			// API is usable: Spotify quota blocks are endpoint-class-scoped
+			// (/me can 200 while /search 429s for hours). Surface active
+			// persisted blocks here so "auth status OK" stops implying
+			// "requests will work". Blocks are scoped to this config's
+			// client ID — quota is enforced per app.
+			cliutil.SetQuotaIdentity(cfg.ClientID)
+			quotaBlocks := cliutil.ActiveQuotaBlocks()
+			// JSON envelope: {authenticated, verified, source, config, quota_blocks}.
 			if flags.asJSON {
+				blocksOut := make([]map[string]any, 0, len(quotaBlocks))
+				for _, b := range quotaBlocks {
+					blocksOut = append(blocksOut, map[string]any{
+						"class":         b.Class,
+						"blocked_until": b.BlockedUntil.UTC().Format(time.RFC3339),
+					})
+				}
 				out := map[string]any{
 					"authenticated": authed,
 					"verified":      false,
 					"source":        cfg.AuthSource,
 					"config":        cfg.Path,
+					"quota_blocks":  blocksOut,
 				}
 				return printJSONFiltered(w, out, flags)
 			}
@@ -412,6 +429,12 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 			if cfg.AuthSource != "" {
 				fmt.Fprintf(w, "  source: %s\n", cfg.AuthSource)
+			}
+			for _, b := range quotaBlocks {
+				fmt.Fprintf(w, "  %s API quota: /%s endpoints blocked until %s (%s remaining)\n",
+					yellow("WARN"), b.Class,
+					b.BlockedUntil.Local().Format("2006-01-02 15:04 MST"),
+					time.Until(b.BlockedUntil).Round(time.Minute))
 			}
 			return nil
 		},

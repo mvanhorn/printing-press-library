@@ -116,6 +116,11 @@ jobs:
             tools/generate-registry \
             tools/generate-skills
           do
+            if [ "$path" = ".github/scripts/verify-publish-package" ] &&
+              ! git diff --quiet "${BASE_REMOTE_REF}...HEAD" -- "$path" ".github/workflows/verify-library-conventions.yml"; then
+              echo "Keeping PR-updated ${path}; this PR is changing the publish-package verifier itself."
+              continue
+            fi
             if git cat-file -e "${BASE_REMOTE_REF}:${path}" 2>/dev/null; then
               git checkout "${BASE_REMOTE_REF}" -- "${path}"
             fi

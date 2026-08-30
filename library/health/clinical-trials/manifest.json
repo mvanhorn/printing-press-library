@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "clinical-trials-pp-mcp",
+  "display_name": "ClinicalTrials.gov",
+  "version": "0.0.0",
+  "description": "A multi-source clinical-trials intelligence system — aggregates, normalizes, and analyzes trials across ClinicalTrials.gov, EU CTIS, and biomedical sources, with an offline SQLite engine no single-registry tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/clinical-trials-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/clinical-trials-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,5945 @@
+{
+ "components": {
+  "schemas": {
+   "Annotation": {
+    "description": "An annotation that provides citations or references for content in a message.",
+    "properties": {
+     "document_citation": {
+      "$ref": "#/components/schemas/DocumentCitation"
+     },
+     "function_citation": {
+      "$ref": "#/components/schemas/FunctionCitation"
+     },
+     "type": {
+      "description": "The type of annotation.",
+      "enum": [
+       "document_citation",
+       "function_citation"
+      ],
+      "type": "string"
+     }
+    },
+    "required": [
+     "type"
+    ],
+    "type": "object"
+   },
+   "Batch": {
+    "properties": {
+     "cancelled_at": {
+      "description": "The Unix timestamp (in seconds) for when the batch was cancelled.",
+      "type": "integer"
+     },
+     "cancelling_at": {
+      "description": "The Unix timestamp (in seconds) for when the batch started cancelling.",
+      "type": "integer"
+     },
+     "completed_at": {
+      "description": "The Unix timestamp (in seconds) for when the batch was completed.",
+      "type": "integer"
+     },
+     "completion_window": {
+      "description": "The time frame within which the batch should be processed.",
+      "type": "string"
+     },
+     "created_at": {
+      "description": "The Unix timestamp (in seconds) for when the batch was created.",
+      "type": "integer"
+     },
+     "endpoint": {
+      "description": "The API endpoint used by the batch.",
+      "type": "string"
+     },
+     "error_file_id": {
+      "description": "The ID of the file containing the outputs of requests with errors.",
+      "type": "string"
+     },
+     "errors": {
+      "properties": {
+       "data": {
+        "items": {
+         "properties": {
+          "code": {
+           "description": "An error code identifying the error type.",
+           "type": "string"
+          },
+          "line": {
+           "description": "The line number of the input file where the error occurred, if applicable.",
+           "nullable": true,
+           "type": "integer"
+          },
+          "message": {
+           "description": "A human-readable message providing more details about the error.",
+           "type": "string"
+          },
+          "param": {
+           "description": "The name of the parameter that caused the error, if applicable.",
+           "nullable": true,
+           "type": "string"
+          }
+         },
+         "type": "object"
+        },
+        "type": "array"
+       },
+       "object": {
+        "description": "The object type, which is always `list`.",
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "expired_at": {
+      "description": "The Unix timestamp (in seconds) for when the batch expired.",
+      "type": "integer"
+     },
+     "expires_at": {
+      "description": "The Unix timestamp (in seconds) for when the batch will expire.",
+      "type": "integer"
+     },
+     "failed_at": {
+      "description": "The Unix timestamp (in seconds) for when the batch failed.",
+      "type": "integer"
+     },
+     "finalizing_at": {
+      "description": "The Unix timestamp (in seconds) for when the batch started finalizing.",
+      "type": "integer"
+     },
+     "id": {
+      "type": "string"
+     },
+     "in_progress_at": {
+      "description": "The Unix timestamp (in seconds) for when the batch started processing.",
+      "type": "integer"
+     },
+     "input_file_id": {
+      "description": "The ID of the input file for the batch.",
+      "type": "string"
+     },
+     "metadata": {
+      "description": "Set of key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format.\n",
+      "nullable": true,
+      "type": "object"
+     },
+     "object": {
+      "description": "The object type, which is always `batch`.",
+      "enum": [
+       "batch"
+      ],
+      "type": "string",
+      "x-stainless-const": true
+     },
+     "output_file_id": {
+      "description": "The ID of the file containing the outputs of successfully executed requests.",
+      "type": "string"
+     },
+     "request_counts": {
+      "description": "The request counts for different statuses within the batch.",
+      "properties": {
+       "completed": {
+        "description": "Number of requests that have been completed successfully.",
+        "type": "integer"
+       },
+       "failed": {
+        "description": "Number of requests that have failed.",
+        "type": "integer"
+       },
+       "total": {
+        "description": "Total number of requests in the batch.",
+        "type": "integer"
+       }
+      },
+      "required": [
+       "total",
+       "completed",
+       "failed"
+      ],
+      "type": "object"
+     },
+     "status": {
+      "description": "The current status of the batch.",
+      "enum": [
+       "validating",
+       "failed",
+       "in_progress",
+       "finalizing",
+       "completed",
+       "expired",
+       "cancelling",
+       "cancelled"
+      ],
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "object",
+     "endpoint",
+     "input_file_id",
+     "completion_window",
+     "status",
+     "created_at"
+    ],
+    "type": "object"
+   },
+   "BatchRequestInput": {
+    "description": "The per-line object of the batch input file",
+    "properties": {
+     "custom_id": {
+      "description": "A developer-provided per-request id that will be used to match outputs to inputs. Must be unique for each request in a batch.",
+      "type": "string"
+     },
+     "method": {
+      "description": "The HTTP method to be used for the request. Currently only `POST` is supported.",
+      "enum": [
+       "POST"
+      ],
+      "type": "string",
+      "x-stainless-const": true
+     },
+     "url": {
+      "description": "The OpenAI API relative URL to be used for the request. Currently `/v1/chat/completions` is supported.",
+      "type": "string"
+     }
+    },
+    "type": "object"
+   },
+   "BatchRequestOutput": {
+    "description": "The per-line object of the batch output and error files",
+    "properties": {
+     "custom_id": {
+      "description": "A developer-provided per-request id that will be used to match outputs to inputs.",
+      "type": "string"
+     },
+     "error": {
+      "description": "For requests that failed with a non-HTTP error, this will contain more information on the cause of the failure.",
+      "nullable": true,
+      "properties": {
+       "code": {
+        "description": "A machine-readable error code.",
+        "type": "string"
+       },
+       "message": {
+        "description": "A human-readable error message.",
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "id": {
+      "type": "string"
+     },
+     "response": {
+      "nullable": true,
+      "properties": {
+       "body": {
+        "description": "The JSON body of the response",
+        "type": "object"
+       },
+       "request_id": {
+        "description": "An unique identifier for the OpenAI API request. Please include this request ID when contacting support.",
+        "type": "string"
+       },
+       "status_code": {
+        "description": "The HTTP status code of the response",
+        "type": "integer"
+       }
+      },
+      "type": "object"
+     }
+    },
+    "type": "object"
+   },
+   "BrowserResult": {
+    "additionalProperties": false,
+    "properties": {
+     "content": {
+      "description": "The content of the browser result",
+      "type": "string"
+     },
+     "live_view_url": {
+      "description": "The live view URL for the browser window",
+      "type": "string"
+     },
+     "title": {
+      "description": "The title of the browser window",
+      "type": "string"
+     },
+     "url": {
+      "description": "The URL of the browser window",
+      "type": "string"
+     }
+    },
+    "required": [
+     "url",
+     "title"
+    ],
+    "type": "object"
+   },
+   "Chart": {
+    "properties": {
+     "elements": {
+      "description": "The chart elements (data series, points, etc.)",
+      "items": {
+       "$ref": "#/components/schemas/ChartElement"
+      },
+      "type": "array"
+     },
+     "title": {
+      "description": "The title of the chart",
+      "type": "string"
+     },
+     "type": {
+      "description": "The type of chart",
+      "enum": [
+       "bar",
+       "box_and_whisker",
+       "line",
+       "pie",
+       "scatter",
+       "superchart",
+       "unknown"
+      ],
+      "type": "string"
+     },
+     "x_label": {
+      "description": "The label for the x-axis",
+      "type": "string"
+     },
+     "x_scale": {
+      "description": "The scale type for the x-axis",
+      "type": "string"
+     },
+     "x_tick_labels": {
+      "description": "The labels for the x-axis ticks",
+      "items": {
+       "type": "string"
+      },
+      "type": "array"
+     },
+     "x_ticks": {
+      "description": "The tick values for the x-axis",
+      "items": {
+       "type": "number"
+      },
+      "type": "array"
+     },
+     "x_unit": {
+      "description": "The unit for the x-axis",
+      "type": "string"
+     },
+     "y_label": {
+      "description": "The label for the y-axis",
+      "type": "string"
+     },
+     "y_scale": {
+      "description": "The scale type for the y-axis",
+      "type": "string"
+     },
+     "y_tick_labels": {
+      "description": "The labels for the y-axis ticks",
+      "items": {
+       "type": "string"
+      },
+      "type": "array"
+     },
+     "y_ticks": {
+      "description": "The tick values for the y-axis",
+      "items": {
+       "type": "number"
+      },
+      "type": "array"
+     },
+     "y_unit": {
+      "description": "The unit for the y-axis",
+      "type": "string"
+     }
+    },
+    "required": [
+     "type",
+     "elements"
+    ],
+    "type": "object"
+   },
+   "ChartElement": {
+    "properties": {
+     "angle": {
+      "description": "The angle for this element",
+      "type": "number"
+     },
+     "first_quartile": {
+      "description": "The first quartile value for this element",
+      "type": "number"
+     },
+     "group": {
+      "description": "The group this element belongs to",
+      "type": "string"
+     },
+     "label": {
+      "description": "The label for this chart element",
+      "type": "string"
+     },
+     "max": {
+      "type": "number"
+     },
+     "median": {
+      "description": "The median value for this element",
+      "type": "number"
+     },
+     "min": {
+      "description": "The minimum value for this element",
+      "type": "number"
+     },
+     "outliers": {
+      "description": "The outliers for this element",
+      "items": {
+       "type": "number"
+      },
+      "type": "array"
+     },
+     "points": {
+      "description": "The points for this element",
+      "items": {
+       "items": {
+        "type": "number"
+       },
+       "type": "array"
+      },
+      "type": "array"
+     },
+     "radius": {
+      "description": "The radius for this element",
+      "type": "number"
+     },
+     "third_quartile": {
+      "description": "The third quartile value for this element",
+      "type": "number"
+     },
+     "value": {
+      "description": "The value for this element",
+      "type": "number"
+     }
+    },
+    "required": [
+     "label"
+    ],
+    "type": "object"
+   },
+   "ChatCompletionDocument": {
+    "additionalProperties": false,
+    "description": "A document that can be referenced by the model while generating responses.",
+    "properties": {
+     "id": {
+      "description": "Optional unique identifier that can be used for citations in responses.",
+      "nullable": true,
+      "type": "string"
+     },
+     "source": {
+      "$ref": "#/components/schemas/ChatCompletionDocumentSource"
+     }
+    },
+    "required": [
+     "source"
+    ],
+    "title": "Document",
+    "type": "object"
+   },
+   "ChatCompletionDocumentSource": {
+    "description": "The source of the document. Only text and JSON sources are currently supported.",
+    "discriminator": {
+     "mapping": {
+      "json": "#/components/schemas/ChatCompletionDocumentSourceJSON",
+      "text": "#/components/schemas/ChatCompletionDocumentSourceText"
+     },
+     "propertyName": "type"
+    },
+    "oneOf": [
+     {
+      "$ref": "#/components/schemas/ChatCompletionDocumentSourceText"
+     },
+     {
+      "$ref": "#/components/schemas/ChatCompletionDocumentSourceJSON"
+     }
+    ],
+    "title": "Document source"
+   },
+   "ChatCompletionDocumentSourceJSON": {
+    "additionalProperties": false,
+    "description": "A document whose contents are provided inline as JSON data.",
+    "properties": {
+     "data": {
+      "additionalProperties": true,
+      "description": "The JSON payload associated with the document.",
+      "type": "object"
+     },
+     "type": {
+      "description": "Identifies this document source as JSON data.",
+      "enum": [
+       "json"
+      ],
+      "type": "string"
+     }
+    },
+    "required": [
+     "type",
+     "data"
+    ],
+    "title": "JSON document source",
+    "type": "object"
+   },
+   "ChatCompletionDocumentSourceText": {
+    "additionalProperties": false,
+    "description": "A document whose contents are provided inline as text.",
+    "properties": {
+     "text": {
+      "description": "The document contents.",
+      "type": "string"
+     },
+     "type": {
+      "description": "Identifies this document source as inline text.",
+      "enum": [
+       "text"
+      ],
+      "type": "string"
+     }
+    },
+    "required": [
+     "type",
+     "text"
+    ],
+    "title": "Text document source",
+    "type": "object"
+   },
+   "ChatCompletionFunctionCallOption": {
+    "description": "Specifying a particular function via `{\"name\": \"my_function\"}` forces the model to call that function.\n",
+    "properties": {
+     "name": {
+      "description": "The name of the function to call.",
+      "type": "string"
+     }
+    },
+    "required": [
+     "name"
+    ],
+    "type": "object"
+   },
+   "ChatCompletionFunctions": {
+    "deprecated": true,
+    "properties": {
+     "description": {
+      "description": "A description of what the function does, used by the model to choose when and how to call the function.",
+      "type": "string"
+     },
+     "name": {
+      "description": "The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.",
+      "type": "string"
+     },
+     "parameters": {
+      "$ref": "#/components/schemas/FunctionParameters"
+     }
+    },
+    "required": [
+     "name"
+    ],
+    "type": "object"
+   },
+   "ChatCompletionMessageExecutedTools": {
+    "description": "A list of tools that were executed during the chat completion for compound AI systems.",
+    "items": {
+     "properties": {
+      "arguments": {
+       "description": "The arguments passed to the tool in JSON format.",
+       "type": "string"
+      },
+      "browser_results": {
+       "description": "Array of browser results",
+       "items": {
+        "$ref": "#/components/schemas/BrowserResult"
+       },
+       "type": "array"
+      },
+      "code_results": {
+       "description": "Array of code execution results",
+       "items": {
+        "$ref": "#/components/schemas/CodeExecutionResult"
+       },
+       "type": "array"
+      },
+      "index": {
+       "description": "The index of the executed tool.",
+       "type": "integer"
+      },
+      "output": {
+       "description": "The output returned by the tool.",
+       "nullable": true,
+       "type": "string"
+      },
+      "search_results": {
+       "description": "The search results returned by the tool, if applicable.",
+       "nullable": true,
+       "properties": {
+        "images": {
+         "description": "List of image URLs returned by the search",
+         "items": {
+          "type": "string"
+         },
+         "type": "array"
+        },
+        "results": {
+         "description": "List of search results",
+         "items": {
+          "properties": {
+           "content": {
+            "description": "The content of the search result",
+            "type": "string"
+           },
+           "score": {
+            "description": "The relevance score of the search result",
+            "format": "float",
+            "type": "number"
+           },
+           "title": {
+            "description": "The title of the search result",
+            "type": "string"
+           },
+           "url": {
+            "description": "The URL of the search result",
+            "type": "string"
+           }
+          },
+          "type": "object"
+         },
+         "type": "array"
+        }
+       },
+       "type": "object"
+      },
+      "type": {
+       "description": "The type of tool that was executed.",
+       "type": "string"
+      }
+     },
+     "required": [
+      "index",
+      "type",
+      "arguments"
+     ],
+     "type": "object"
+    },
+    "type": "array"
+   },
+   "ChatCompletionMessageToolCall": {
+    "properties": {
+     "function": {
+      "description": "The function that the model called.",
+      "properties": {
+       "arguments": {
+        "description": "The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function.",
+        "type": "string"
+       },
+       "name": {
+        "description": "The name of the function to call.",
+        "type": "string"
+       }
+      },
+      "required": [
+       "name",
+       "arguments"
+      ],
+      "type": "object"
+     },
+     "id": {
+      "description": "The ID of the tool call.",
+      "type": "string"
+     },
+     "type": {
+      "description": "The type of the tool. Currently, only `function` is supported.",
+      "enum": [
+       "function"
+      ],
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "type",
+     "function"
+    ],
+    "type": "object"
+   },
+   "ChatCompletionMessageToolCallChunk": {
+    "properties": {
+     "function": {
+      "properties": {
+       "arguments": {
+        "description": "The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function.",
+        "type": "string"
+       },
+       "name": {
+        "description": "The name of the function to call.",
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "id": {
+      "description": "The ID of the tool call.",
+      "type": "string"
+     },
+     "index": {
+      "type": "integer"
+     },
+     "type": {
+      "description": "The type of the tool. Currently, only `function` is supported.",
+      "enum": [
+       "function"
+      ],
+      "type": "string"
+     }
+    },
+    "required": [
+     "index"
+    ],
+    "type": "object"
+   },
+   "ChatCompletionMessageToolCalls": {
+    "description": "The tool calls generated by the model, such as function calls.",
+    "items": {
+     "$ref": "#/components/schemas/ChatCompletionMessageToolCall"
+    },
+    "type": "array"
+   },
+   "ChatCompletionNamedToolChoice": {
+    "description": "Specifies a tool the model should use. Use to force the model to call a specific function.",
+    "properties": {
+     "function": {
+      "properties": {
+       "name": {
+        "description": "The name of the function to call.",
+        "type": "string"
+       }
+      },
+      "required": [
+       "name"
+      ],
+      "type": "object"
+     },
+     "type": {
+      "description": "The type of the tool. Currently, only `function` is supported.",
+      "enum": [
+       "function"
+      ],
+      "type": "string"
+     }
+    },
+    "required": [
+     "type",
+     "function"
+    ],
+    "type": "object"
+   },
+   "ChatCompletionRequestAssistantMessage": {
+    "additionalProperties": false,
+    "properties": {
+     "content": {
+      "description": "The contents of the assistant message. Required unless `tool_calls` or `function_call` is specified.\n",
+      "nullable": true,
+      "oneOf": [
+       {
+        "description": "The text contents of the message.",
+        "title": "Text content",
+        "type": "string"
+       },
+       {
+        "description": "An array of content parts with a defined type, only `text` is supported for this message type.",
+        "items": {
+         "$ref": "#/components/schemas/ChatCompletionRequestMessageContentPartText"
+        },
+        "title": "Array of content parts",
+        "type": "array"
+       }
+      ],
+      "title": "Assistant message content"
+     },
+     "function_call": {
+      "deprecated": true,
+      "description": "Deprecated and replaced by `tool_calls`. The name and arguments of a function that should be called, as generated by the model.",
+      "properties": {
+       "arguments": {
+        "description": "The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function.",
+        "type": "string"
+       },
+       "name": {
+        "description": "The name of the function to call.",
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "name": {
+      "description": "An optional name for the participant. Provides the model information to differentiate between participants of the same role.",
+      "type": "string"
+     },
+     "reasoning": {
+      "description": "The reasoning output by the assistant if reasoning_format was set to 'parsed'.\nThis field is supported on [models that support reasoning](https://console.groq.com/docs/reasoning).\n",
+      "nullable": true,
+      "type": "string"
+     },
+     "role": {
+      "description": "The role of the messages author, in this case `assistant`.",
+      "enum": [
+       "assistant"
+      ],
+      "type": "string"
+     },
+     "tool_call_id": {
+      "description": "DO NOT USE.  This field is present because OpenAI allows it and users send it.",
+      "nullable": true,
+      "required": [
+       "arguments",
+       "name"
+      ],
+      "type": "string",
+      "x-groq-meta": {
+       "hidden": true
+      }
+     },
+     "tool_calls": {
+      "$ref": "#/components/schemas/ChatCompletionMessageToolCalls"
+     }
+    },
+    "required": [
+     "role"
+    ],
+    "title": "Assistant message",
+    "type": "object"
+   },
+   "ChatCompletionRequestFunctionMessage": {
+    "additionalProperties": false,
+    "deprecated": true,
+    "properties": {
+     "content": {
+      "description": "The contents of the function message.",
+      "nullable": true,
+      "title": "Function message content",
+      "type": "string"
+     },
+     "name": {
+      "description": "The name of the function to call.",
+      "type": "string"
+     },
+     "role": {
+      "description": "The role of the messages author, in this case `function`.",
+      "enum": [
+       "function"
+      ],
+      "type": "string"
+     },
+     "tool_call_id": {
+      "description": "DO NOT USE.  This field is present because OpenAI allows it and users send it.",
+      "nullable": true,
+      "type": "string",
+      "x-groq-meta": {
+       "hidden": true
+      }
+     }
+    },
+    "required": [
+     "role",
+     "content",
+     "name"
+    ],
+    "title": "Function message",
+    "type": "object"
+   },
+   "ChatCompletionRequestMessage": {
+    "discriminator": {
+     "mapping": {
+      "assistant": "#/components/schemas/ChatCompletionRequestAssistantMessage",
+      "developer": "#/components/schemas/ChatCompletionRequestSystemMessage",
+      "function": "#/components/schemas/ChatCompletionRequestFunctionMessage",
+      "system": "#/components/schemas/ChatCompletionRequestSystemMessage",
+      "tool": "#/components/schemas/ChatCompletionRequestToolMessage",
+      "user": "#/components/schemas/ChatCompletionRequestUserMessage"
+     },
+     "propertyName": "role"
+    },
+    "oneOf": [
+     {
+      "$ref": "#/components/schemas/ChatCompletionRequestSystemMessage"
+     },
+     {
+      "$ref": "#/components/schemas/ChatCompletionRequestUserMessage"
+     },
+     {
+      "$ref": "#/components/schemas/ChatCompletionRequestAssistantMessage"
+     },
+     {
+      "$ref": "#/components/schemas/ChatCompletionRequestToolMessage"
+     },
+     {
+      "$ref": "#/components/schemas/ChatCompletionRequestFunctionMessage"
+     }
+    ]
+   },
+   "ChatCompletionRequestMessageContentPart": {
+    "oneOf": [
+     {
+      "$ref": "#/components/schemas/ChatCompletionRequestMessageContentPartText"
+     },
+     {
+      "$ref": "#/components/schemas/ChatCompletionRequestMessageContentPartImage"
+     },
+     {
+      "$ref": "#/components/schemas/ChatCompletionRequestMessageContentPartDocument"
+     }
+    ]
+   },
+   "ChatCompletionRequestMessageContentPartDocument": {
+    "properties": {
+     "document": {
+      "properties": {
+       "data": {
+        "additionalProperties": true,
+        "description": "The JSON document data.",
+        "type": "object"
+       },
+       "id": {
+        "description": "Optional unique identifier for the document.",
+        "nullable": true,
+        "type": "string"
+       }
+      },
+      "required": [
+       "data"
+      ],
+      "type": "object"
+     },
+     "type": {
+      "description": "The type of the content part.",
+      "enum": [
+       "document"
+      ],
+      "type": "string"
+     }
+    },
+    "required": [
+     "type",
+     "document"
+    ],
+    "title": "Document content part",
+    "type": "object"
+   },
+   "ChatCompletionRequestMessageContentPartImage": {
+    "properties": {
+     "image_url": {
+      "properties": {
+       "detail": {
+        "default": "auto",
+        "description": "Specifies the detail level of the image.",
+        "enum": [
+         "auto",
+         "low",
+         "high"
+        ],
+        "type": "string"
+       },
+       "url": {
+        "description": "Either a URL of the image or the base64 encoded image data.",
+        "format": "uri",
+        "type": "string"
+       }
+      },
+      "required": [
+       "url"
+      ],
+      "type": "object"
+     },
+     "type": {
+      "description": "The type of the content part.",
+      "enum": [
+       "image_url"
+      ],
+      "type": "string"
+     }
+    },
+    "required": [
+     "type",
+     "image_url"
+    ],
+    "title": "Image content part",
+    "type": "object"
+   },
+   "ChatCompletionRequestMessageContentPartText": {
+    "properties": {
+     "text": {
+      "description": "The text content.",
+      "type": "string"
+     },
+     "type": {
+      "description": "The type of the content part.",
+      "enum": [
+       "text"
+      ],
+      "type": "string"
+     }
+    },
+    "required": [
+     "type",
+     "text"
+    ],
+    "title": "Text content part",
+    "type": "object"
+   },
+   "ChatCompletionRequestSystemMessage": {
+    "additionalProperties": false,
+    "properties": {
+     "content": {
+      "description": "The contents of the system message.",
+      "oneOf": [
+       {
+        "description": "The text contents of the message.",
+        "title": "Text content",
+        "type": "string"
+       },
+       {
+        "description": "An array of content parts with a defined type, only `text` is supported for this message type.",
+        "items": {
+         "$ref": "#/components/schemas/ChatCompletionRequestMessageContentPartText"
+        },
+        "minItems": 1,
+        "title": "Array of content parts",
+        "type": "array"
+       }
+      ],
+      "title": "System message content"
+     },
+     "name": {
+      "description": "An optional name for the participant. Provides the model information to differentiate between participants of the same role.",
+      "type": "string"
+     },
+     "role": {
+      "description": "The role of the messages author, in this case `system`.",
+      "enum": [
+       "system",
+       "developer"
+      ],
+      "type": "string"
+     },
+     "tool_call_id": {
+      "description": "DO NOT USE.  This field is present because OpenAI allows it and users send it.",
+      "nullable": true,
+      "type": "string",
+      "x-groq-meta": {
+       "hidden": true
+      }
+     }
+    },
+    "required": [
+     "content",
+     "role"
+    ],
+    "title": "System message",
+    "type": "object"
+   },
+   "ChatCompletionRequestToolMessage": {
+    "additionalProperties": false,
+    "properties": {
+     "content": {
+      "description": "The contents of the tool message.",
+      "oneOf": [
+       {
+        "description": "The text contents of the message.",
+        "title": "Text content",
+        "type": "string"
+       },
+       {
+        "description": "An array of content parts with a defined type, each can be of type `text` or `image_url` when passing in images. You can pass multiple images by adding multiple `image_url` content parts. Image input is only supported when using the `gpt-4-visual-preview` model.",
+        "items": {
+         "$ref": "#/components/schemas/ChatCompletionRequestMessageContentPart"
+        },
+        "minItems": 1,
+        "title": "Array of content parts",
+        "type": "array"
+       }
+      ],
+      "title": "Tool message content"
+     },
+     "name": {
+      "description": "DO NOT USE.  This field is present because OpenAI allows it and users send it.",
+      "type": "string",
+      "x-groq-meta": {
+       "hidden": true
+      }
+     },
+     "role": {
+      "description": "The role of the messages author, in this case `tool`.",
+      "enum": [
+       "tool"
+      ],
+      "type": "string"
+     },
+     "tool_call_id": {
+      "description": "Tool call that this message is responding to.",
+      "type": "string"
+     }
+    },
+    "required": [
+     "role",
+     "content",
+     "tool_call_id"
+    ],
+    "title": "Tool message",
+    "type": "object"
+   },
+   "ChatCompletionRequestUserMessage": {
+    "additionalProperties": false,
+    "properties": {
+     "content": {
+      "description": "The contents of the user message.\n",
+      "oneOf": [
+       {
+        "description": "The text contents of the message.",
+        "title": "Text content",
+        "type": "string"
+       },
+       {
+        "description": "An array of content parts with a defined type, each can be of type `text` or `image_url` when passing in images. You can pass multiple images by adding multiple `image_url` content parts. Image input is only supported when using the `gpt-4-visual-preview` model.",
+        "items": {
+         "$ref": "#/components/schemas/ChatCompletionRequestMessageContentPart"
+        },
+        "minItems": 1,
+        "title": "Array of content parts",
+        "type": "array"
+       }
+      ],
+      "title": "User message content"
+     },
+     "name": {
+      "description": "An optional name for the participant. Provides the model information to differentiate between participants of the same role.",
+      "type": "string"
+     },
+     "role": {
+      "description": "The role of the messages author, in this case `user`.",
+      "enum": [
+       "user"
+      ],
+      "type": "string"
+     },
+     "tool_call_id": {
+      "description": "DO NOT USE.  This field is present because OpenAI allows it and users send it.",
+      "nullable": true,
+      "type": "string",
+      "x-groq-meta": {
+       "hidden": true
+      }
+     }
+    },
+    "required": [
+     "content",
+     "role"
+    ],
+    "title": "User message",
+    "type": "object"
+   },
+   "ChatCompletionResponseMessage": {
+    "description": "A chat completion message generated by the model.",
+    "properties": {
+     "annotations": {
+      "description": "A list of annotations providing citations and references for the content in the message.",
+      "items": {
+       "$ref": "#/components/schemas/Annotation"
+      },
+      "type": "array"
+     },
+     "content": {
+      "description": "The contents of the message.",
+      "nullable": true,
+      "type": "string"
+     },
+     "executed_tools": {
+      "$ref": "#/components/schemas/ChatCompletionMessageExecutedTools"
+     },
+     "function_call": {
+      "deprecated": true,
+      "description": "Deprecated and replaced by `tool_calls`. The name and arguments of a function that should be called, as generated by the model.",
+      "properties": {
+       "arguments": {
+        "description": "The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function.",
+        "type": "string"
+       },
+       "name": {
+        "description": "The name of the function to call.",
+        "type": "string"
+       }
+      },
+      "required": [
+       "name",
+       "arguments"
+      ],
+      "type": "object"
+     },
+     "reasoning": {
+      "description": "The model's reasoning for a response. Only available for [models that support reasoning](https://console.groq.com/docs/reasoning) when request parameter reasoning_format has value `parsed`.",
+      "nullable": true,
+      "type": "string"
+     },
+     "role": {
+      "description": "The role of the author of this message.",
+      "enum": [
+       "assistant"
+      ],
+      "type": "string"
+     },
+     "tool_calls": {
+      "$ref": "#/components/schemas/ChatCompletionMessageToolCalls"
+     }
+    },
+    "required": [
+     "role",
+     "content"
+    ],
+    "type": "object"
+   },
+   "ChatCompletionRole": {
+    "description": "The role of the author of a message",
+    "enum": [
+     "system",
+     "user",
+     "assistant",
+     "tool",
+     "function"
+    ],
+    "type": "string"
+   },
+   "ChatCompletionStreamOptions": {
+    "description": "Options for streaming response. Only set this when you set `stream: true`.\n",
+    "nullable": true,
+    "properties": {
+     "include_usage": {
+      "description": "If set, an additional chunk will be streamed before the `data: [DONE]` message. The `usage` field on this chunk shows the token usage statistics for the entire request, and the `choices` field will always be an empty array. All other chunks will also include a `usage` field, but with a null value.\n",
+      "nullable": true,
+      "type": "boolean"
+     }
+    },
+    "type": "object"
+   },
+   "ChatCompletionStreamResponseDelta": {
+    "description": "A chat completion delta generated by streamed model responses.",
+    "properties": {
+     "annotations": {
+      "description": "A list of annotations providing citations and references for the content in the message.",
+      "items": {
+       "$ref": "#/components/schemas/Annotation"
+      },
+      "type": "array"
+     },
+     "content": {
+      "description": "The contents of the chunk message.",
+      "nullable": true,
+      "type": "string"
+     },
+     "executed_tools": {
+      "$ref": "#/components/schemas/ChatCompletionMessageExecutedTools"
+     },
+     "function_call": {
+      "deprecated": true,
+      "description": "Deprecated and replaced by `tool_calls`. The name and arguments of a function that should be called, as generated by the model.",
+      "properties": {
+       "arguments": {
+        "description": "The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function.",
+        "type": "string"
+       },
+       "name": {
+        "description": "The name of the function to call.",
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "reasoning": {
+      "description": "The model's reasoning for a response. Only available for [models that support reasoning](https://console.groq.com/docs/reasoning) when request parameter reasoning_format has value `parsed`.",
+      "nullable": true,
+      "type": "string"
+     },
+     "role": {
+      "description": "The role of the author of this message.",
+      "enum": [
+       "system",
+       "user",
+       "assistant",
+       "tool"
+      ],
+      "type": "string"
+     },
+     "tool_calls": {
+      "items": {
+       "$ref": "#/components/schemas/ChatCompletionMessageToolCallChunk"
+      },
+      "type": "array"
+     }
+    },
+    "type": "object"
+   },
+   "ChatCompletionTokenLogprob": {
+    "properties": {
+     "bytes": {
+      "description": "A list of integers representing the UTF-8 bytes representation of the token. Useful in instances where characters are represented by multiple tokens and their byte representations must be combined to generate the correct text representation. Can be `null` if there is no bytes representation for the token.",
+      "items": {
+       "type": "integer"
+      },
+      "nullable": true,
+      "type": "array"
+     },
+     "logprob": {
+      "description": "The log probability of this token, if it is within the top 20 most likely tokens. Otherwise, the value `-9999.0` is used to signify that the token is very unlikely.",
+      "type": "number"
+     },
+     "token": {
+      "description": "The token.",
+      "type": "string"
+     },
+     "top_logprobs": {
+      "description": "List of the most likely tokens and their log probability, at this token position. In rare cases, there may be fewer than the number of requested `top_logprobs` returned.",
+      "items": {
+       "properties": {
+        "bytes": {
+         "description": "A list of integers representing the UTF-8 bytes representation of the token. Useful in instances where characters are represented by multiple tokens and their byte representations must be combined to generate the correct text representation. Can be `null` if there is no bytes representation for the token.",
+         "items": {
+          "type": "integer"
+         },
+         "nullable": true,
+         "type": "array"
+        },
+        "logprob": {
+         "description": "The log probability of this token, if it is within the top 20 most likely tokens. Otherwise, the value `-9999.0` is used to signify that the token is very unlikely.",
+         "type": "number"
+        },
+        "token": {
+         "description": "The token.",
+         "type": "string"
+        }
+       },
+       "required": [
+        "token",
+        "logprob",
+        "bytes"
+       ],
+       "type": "object"
+      },
+      "type": "array"
+     }
+    },
+    "required": [
+     "token",
+     "logprob",
+     "bytes",
+     "top_logprobs"
+    ],
+    "type": "object"
+   },
+   "ChatCompletionTool": {
+    "properties": {
+     "allowed_tools": {
+      "description": "A list of tool names to allow from the MCP server. If specified, only these tools will be exposed to the model. If empty or not specified, all discovered tools will be available.",
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "x-groq-meta": {
+       "hidden": true
+      }
+     },
+     "function": {
+      "$ref": "#/components/schemas/FunctionObject"
+     },
+     "headers": {
+      "additionalProperties": {
+       "type": "string"
+      },
+      "description": "HTTP headers to send with requests to the MCP server (optional for MCP tools).",
+      "type": "object",
+      "x-groq-meta": {
+       "hidden": true
+      }
+     },
+     "server_label": {
+      "description": "A human-readable label for the MCP server (optional for MCP tools).",
+      "type": "string",
+      "x-groq-meta": {
+       "hidden": true
+      }
+     },
+     "server_url": {
+      "description": "The URL of the MCP server to connect to (required for MCP tools).",
+      "type": "string",
+      "x-groq-meta": {
+       "hidden": true
+      }
+     },
+     "type": {
+      "anyOf": [
+       {
+        "description": "The type of the tool. `function`, `browser_search`, and `code_interpreter` are supported.",
+        "enum": [
+         "function",
+         "browser_search",
+         "code_interpreter"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "string"
+       }
+      ]
+     }
+    },
+    "required": [
+     "type"
+    ],
+    "type": "object"
+   },
+   "ChatCompletionToolChoiceOption": {
+    "description": "Controls which (if any) tool is called by the model.\n`none` means the model will not call any tool and instead generates a message.\n`auto` means the model can pick between generating a message or calling one or more tools.\n`required` means the model must call one or more tools.\nSpecifying a particular tool via `{\"type\": \"function\", \"function\": {\"name\": \"my_function\"}}` forces the model to call that tool.\n\n`none` is the default when no tools are present. `auto` is the default if tools are present.\n",
+    "nullable": true,
+    "oneOf": [
+     {
+      "description": "`none` means the model will not call any tool and instead generates a message. `auto` means the model can pick between generating a message or calling one or more tools.\n",
+      "enum": [
+       "none",
+       "auto",
+       "required"
+      ],
+      "type": "string"
+     },
+     {
+      "$ref": "#/components/schemas/ChatCompletionNamedToolChoice"
+     }
+    ],
+    "x-groq-meta": {
+     "validator": "ChatCompletionToolChoiceOption"
+    }
+   },
+   "ChatCompletionUsageBreakdown": {
+    "description": "Usage statistics for compound AI completion requests.",
+    "properties": {
+     "models": {
+      "description": "List of models used in the request and their individual usage statistics",
+      "items": {
+       "properties": {
+        "model": {
+         "description": "The name/identifier of the model used",
+         "type": "string"
+        },
+        "usage": {
+         "$ref": "#/components/schemas/CompletionUsage"
+        }
+       },
+       "required": [
+        "model",
+        "usage"
+       ],
+       "type": "object"
+      },
+      "type": "array"
+     }
+    },
+    "required": [
+     "models"
+    ],
+    "type": "object"
+   },
+   "CodeExecutionResult": {
+    "additionalProperties": false,
+    "properties": {
+     "chart": {
+      "$ref": "#/components/schemas/Chart"
+     },
+     "charts": {
+      "description": "Array of charts from a superchart",
+      "items": {
+       "$ref": "#/components/schemas/Chart"
+      },
+      "type": "array"
+     },
+     "png": {
+      "description": "Base64 encoded PNG image output from code execution",
+      "type": "string"
+     },
+     "text": {
+      "description": "The text version of the code execution result",
+      "type": "string"
+     }
+    },
+    "type": "object"
+   },
+   "CompletionUsage": {
+    "description": "Usage statistics for the completion request.",
+    "properties": {
+     "completion_time": {
+      "description": "Time spent generating tokens",
+      "type": "number"
+     },
+     "completion_tokens": {
+      "description": "Number of tokens in the generated completion.",
+      "type": "integer"
+     },
+     "completion_tokens_details": {
+      "description": "Breakdown of tokens in the completion.",
+      "nullable": true,
+      "properties": {
+       "reasoning_tokens": {
+        "description": "Number of tokens used for reasoning (for reasoning models).",
+        "type": "integer"
+       }
+      },
+      "required": [
+       "reasoning_tokens"
+      ],
+      "type": "object"
+     },
+     "prompt_time": {
+      "description": "Time spent processing input tokens",
+      "type": "number"
+     },
+     "prompt_tokens": {
+      "description": "Number of tokens in the prompt.",
+      "type": "integer"
+     },
+     "prompt_tokens_details": {
+      "description": "Breakdown of tokens in the prompt.",
+      "nullable": true,
+      "properties": {
+       "cached_tokens": {
+        "description": "Number of tokens that were cached and reused.",
+        "type": "integer"
+       }
+      },
+      "required": [
+       "cached_tokens"
+      ],
+      "type": "object"
+     },
+     "queue_time": {
+      "description": "Time the requests was spent queued",
+      "type": "number"
+     },
+     "total_time": {
+      "description": "completion time and prompt time combined",
+      "type": "number"
+     },
+     "total_tokens": {
+      "description": "Total number of tokens used in the request (prompt + completion).",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "prompt_tokens",
+     "completion_tokens",
+     "total_tokens"
+    ],
+    "type": "object"
+   },
+   "CreateChatCompletionRequest": {
+    "additionalProperties": false,
+    "properties": {
+     "citation_options": {
+      "description": "Whether to enable citations in the response (only supported on models with compound features). Omit unless you need citations.",
+      "enum": [
+       "enabled",
+       "disabled"
+      ],
+      "nullable": true,
+      "type": "string"
+     },
+     "compound_custom": {
+      "description": "Custom configuration of models and tools for Compound.",
+      "nullable": true,
+      "properties": {
+       "models": {
+        "nullable": true,
+        "properties": {
+         "answering_model": {
+          "description": "Custom model to use for answering.",
+          "nullable": true,
+          "type": "string"
+         },
+         "reasoning_model": {
+          "description": "Custom model to use for reasoning.",
+          "nullable": true,
+          "type": "string"
+         }
+        },
+        "type": "object"
+       },
+       "tools": {
+        "description": "Configuration options for tools available to Compound.",
+        "nullable": true,
+        "properties": {
+         "enabled_tools": {
+          "description": "A list of tool names that are enabled for the request.",
+          "items": {
+           "type": "string"
+          },
+          "nullable": true,
+          "type": "array"
+         },
+         "wolfram_settings": {
+          "description": "Configuration for the Wolfram tool integration.",
+          "nullable": true,
+          "properties": {
+           "authorization": {
+            "description": "API key used to authorize requests to Wolfram services.",
+            "nullable": true,
+            "type": "string"
+           }
+          },
+          "type": "object"
+         }
+        },
+        "type": "object"
+       }
+      },
+      "type": "object"
+     },
+     "custom_template": {
+      "description": "Custom template configuration for message formatting.",
+      "nullable": true,
+      "properties": {
+       "preserve_system_message_order": {
+        "description": "Whether to preserve the order of system messages.",
+        "nullable": true,
+        "type": "boolean"
+       },
+       "relaxed_message_ordering": {
+        "description": "Whether to allow relaxed message ordering in the conversation.",
+        "nullable": true,
+        "type": "boolean"
+       },
+       "template": {
+        "description": "The custom template string to use for formatting messages.",
+        "type": "string"
+       }
+      },
+      "required": [
+       "template"
+      ],
+      "type": "object",
+      "x-groq-meta": {
+       "hidden": true
+      }
+     },
+     "debug": {
+      "default": false,
+      "description": "output input and output token IDs in xgroq debug field",
+      "nullable": true,
+      "type": "boolean",
+      "x-groq-meta": {
+       "hidden": true
+      }
+     },
+     "disable_tool_validation": {
+      "default": false,
+      "description": "If set to true, groq will return called tools without validating that the tool is present in request.tools. tool_choice=required/none will still be enforced, but the request cannot require a specific tool be used.\n",
+      "type": "boolean"
+     },
+     "documents": {
+      "description": "A list of documents to provide context for the conversation. Each document contains text that can be referenced by the model.",
+      "items": {
+       "$ref": "#/components/schemas/ChatCompletionDocument"
+      },
+      "nullable": true,
+      "type": "array"
+     },
+     "exclude_domains": {
+      "deprecated": true,
+      "description": "Deprecated: Use search_settings.exclude_domains instead.\nA list of domains to exclude from the search results when the model uses a web search tool.\n",
+      "items": {
+       "type": "string"
+      },
+      "nullable": true,
+      "type": "array"
+     },
+     "exclude_instance_ids": {
+      "description": "For internal use only\n",
+      "items": {
+       "type": "string"
+      },
+      "nullable": true,
+      "type": "array",
+      "x-groq-meta": {
+       "hidden": true
+      }
+     },
+     "frequency_penalty": {
+      "default": 0,
+      "description": "This is not yet supported by any of our models. Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.",
+      "maximum": 2,
+      "minimum": -2,
+      "nullable": true,
+      "type": "number"
+     },
+     "function_call": {
+      "deprecated": true,
+      "description": "Deprecated in favor of `tool_choice`.\n\nControls which (if any) function is called by the model.\n`none` means the model will not call a function and instead generates a message.\n`auto` means the model can pick between generating a message or calling a function.\nSpecifying a particular function via `{\"name\": \"my_function\"}` forces the model to call that function.\n\n`none` is the default when no functions are present. `auto` is the default if functions are present.\n",
+      "nullable": true,
+      "oneOf": [
+       {
+        "description": "`none` means the model will not call a function and instead generates a message. `auto` means the model can pick between generating a message or calling a function.\n",
+        "enum": [
+         "none",
+         "auto",
+         "required"
+        ],
+        "type": "string"
+       },
+       {
+        "$ref": "#/components/schemas/ChatCompletionFunctionCallOption"
+       }
+      ]
+     },
+     "functions": {
+      "deprecated": true,
+      "description": "Deprecated in favor of `tools`.\n\nA list of functions the model may generate JSON inputs for.\n",
+      "items": {
+       "$ref": "#/components/schemas/ChatCompletionFunctions"
+      },
+      "maxItems": 128,
+      "nullable": true,
+      "type": "array"
+     },
+     "include_domains": {
+      "deprecated": true,
+      "description": "Deprecated: Use search_settings.include_domains instead.\nA list of domains to include in the search results when the model uses a web search tool.\n",
+      "items": {
+       "type": "string"
+      },
+      "nullable": true,
+      "type": "array"
+     },
+     "include_reasoning": {
+      "description": "Whether to include reasoning in the response.  If true, the response will include a `reasoning` field. If false, the model's reasoning will not be included in the response.\nThis field is mutually exclusive with `reasoning_format`.\n",
+      "nullable": true,
+      "type": "boolean"
+     },
+     "logit_bias": {
+      "additionalProperties": {
+       "type": "integer"
+      },
+      "description": "This is not yet supported by any of our models.\nModify the likelihood of specified tokens appearing in the completion.\n",
+      "nullable": true,
+      "type": "object"
+     },
+     "logprobs": {
+      "default": false,
+      "description": "This is not yet supported by any of our models.\nWhether to return log probabilities of the output tokens or not. If true, returns the log probabilities of each output token returned in the `content` of `message`.\n",
+      "nullable": true,
+      "type": "boolean"
+     },
+     "max_completion_tokens": {
+      "description": "The maximum number of tokens that can be generated in the chat completion. The total length of input tokens and generated tokens is limited by the model's context length.",
+      "nullable": true,
+      "type": "integer"
+     },
+     "max_tokens": {
+      "deprecated": true,
+      "description": "Deprecated in favor of `max_completion_tokens`.\nThe maximum number of tokens that can be generated in the chat completion. The total length of input tokens and generated tokens is limited by the model's context length.\n",
+      "nullable": true,
+      "type": "integer"
+     },
+     "messages": {
+      "description": "A list of messages comprising the conversation so far.",
+      "items": {
+       "$ref": "#/components/schemas/ChatCompletionRequestMessage"
+      },
+      "minItems": 1,
+      "type": "array"
+     },
+     "metadata": {
+      "additionalProperties": {
+       "type": "string"
+      },
+      "description": "This parameter is not currently supported.\n",
+      "nullable": true,
+      "type": "object"
+     },
+     "model": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "enum": [
+         "compound-beta",
+         "compound-beta-mini",
+         "gemma2-9b-it",
+         "llama-3.1-8b-instant",
+         "llama-3.3-70b-versatile",
+         "meta-llama/llama-4-maverick-17b-128e-instruct",
+         "meta-llama/llama-4-scout-17b-16e-instruct",
+         "meta-llama/llama-guard-4-12b",
+         "moonshotai/kimi-k2-instruct",
+         "openai/gpt-oss-120b",
+         "openai/gpt-oss-20b",
+         "qwen/qwen3-32b",
+         "qwen/qwen3.6-27b",
+         "qwen/qwen3.8-27b"
+        ],
+        "type": "string"
+       }
+      ],
+      "description": "ID of the model to use. For details on which models are compatible with the Chat API, see available [models](https://console.groq.com/docs/models)",
+      "example": "meta-llama/llama-4-scout-17b-16e-instruct"
+     },
+     "n": {
+      "default": 1,
+      "description": "How many chat completion choices to generate for each input message. Note that the current moment, only n=1 is supported. Other values will result in a 400 response.",
+      "example": 1,
+      "maximum": 1,
+      "minimum": 1,
+      "nullable": true,
+      "type": "integer"
+     },
+     "parallel_tool_calls": {
+      "default": true,
+      "description": "Whether to enable parallel function calling during tool use.\n",
+      "nullable": true,
+      "type": "boolean"
+     },
+     "presence_penalty": {
+      "default": 0,
+      "description": "This is not yet supported by any of our models. Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.",
+      "maximum": 2,
+      "minimum": -2,
+      "nullable": true,
+      "type": "number"
+     },
+     "reasoning_effort": {
+      "description": "qwen3 models support `none` to disable reasoning and `default` or null\nto use the model default.\n\nqwen/qwen3.8-27b additionally supports `low`, `medium`, and `high`.\nIts default is `none`; `high` selects the model's native `xhigh` mode.\n\nopenai/gpt-oss-20b and openai/gpt-oss-120b support 'low', 'medium', or 'high'.\n'medium' is the default value.\n",
+      "enum": [
+       "none",
+       "default",
+       "low",
+       "medium",
+       "high"
+      ],
+      "nullable": true,
+      "type": "string"
+     },
+     "reasoning_format": {
+      "description": "Specifies how to output reasoning tokens\nThis field is mutually exclusive with `include_reasoning`.\n",
+      "enum": [
+       "hidden",
+       "raw",
+       "parsed"
+      ],
+      "nullable": true,
+      "type": "string"
+     },
+     "response_format": {
+      "description": "An object specifying the format that the model must output. Setting to `{ \"type\": \"json_schema\", \"json_schema\": {...} }` enables Structured Outputs which ensures the model will match your supplied JSON schema. `json_schema` response format is only available on [supported models](https://console.groq.com/docs/structured-outputs#supported-models). Setting to `{ \"type\": \"json_object\" }` enables the older JSON mode, which ensures the message the model generates is valid JSON. Using `json_schema` is preferred for models that support it.\n",
+      "nullable": true,
+      "oneOf": [
+       {
+        "$ref": "#/components/schemas/ResponseFormatText"
+       },
+       {
+        "$ref": "#/components/schemas/ResponseFormatJsonSchema"
+       },
+       {
+        "$ref": "#/components/schemas/ResponseFormatJsonObject"
+       }
+      ]
+     },
+     "search_settings": {
+      "description": "Settings for web search functionality when the model uses a web search tool.\n",
+      "nullable": true,
+      "properties": {
+       "country": {
+        "description": "Name of country to prioritize search results from (e.g., \"united states\", \"germany\", \"france\").",
+        "nullable": true,
+        "type": "string"
+       },
+       "exclude_domains": {
+        "description": "A list of domains to exclude from the search results.",
+        "items": {
+         "type": "string"
+        },
+        "nullable": true,
+        "type": "array"
+       },
+       "include_domains": {
+        "description": "A list of domains to include in the search results.",
+        "items": {
+         "type": "string"
+        },
+        "nullable": true,
+        "type": "array"
+       },
+       "include_images": {
+        "description": "Whether to include images in the search results.",
+        "nullable": true,
+        "type": "boolean"
+       }
+      },
+      "type": "object"
+     },
+     "seed": {
+      "description": "If specified, our system will make a best effort to sample deterministically, such that repeated requests with the same `seed` and parameters should return the same result.\nDeterminism is not guaranteed, and you should refer to the `system_fingerprint` response parameter to monitor changes in the backend.\n",
+      "nullable": true,
+      "type": "integer"
+     },
+     "service_tier": {
+      "description": "The service tier to use for the request. Defaults to `on_demand`.\n- `auto` will automatically select the highest tier available within the rate limits of your organization.\n- `flex` uses the flex tier, which will succeed or fail quickly.\n",
+      "enum": [
+       "auto",
+       "on_demand",
+       "flex",
+       "performance",
+       null
+      ],
+      "nullable": true,
+      "type": "string"
+     },
+     "stop": {
+      "description": "Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.\n",
+      "nullable": true,
+      "oneOf": [
+       {
+        "example": "\n",
+        "nullable": true,
+        "type": "string"
+       },
+       {
+        "items": {
+         "example": "[\"\\n\"]",
+         "type": "string"
+        },
+        "maxItems": 4,
+        "type": "array"
+       }
+      ]
+     },
+     "store": {
+      "description": "This parameter is not currently supported.\n",
+      "nullable": true,
+      "type": "boolean"
+     },
+     "stream": {
+      "default": false,
+      "description": "If set, partial message deltas will be sent. Tokens will be sent as data-only [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format) as they become available, with the stream terminated by a `data: [DONE]` message. [Example code](/docs/text-chat#streaming-a-chat-completion).\n",
+      "nullable": true,
+      "type": "boolean"
+     },
+     "stream_options": {
+      "$ref": "#/components/schemas/ChatCompletionStreamOptions",
+      "x-groq-meta": {
+       "hidden": true
+      }
+     },
+     "temperature": {
+      "default": 1,
+      "description": "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. We generally recommend altering this or top_p but not both.",
+      "example": 1,
+      "maximum": 2,
+      "minimum": 0,
+      "nullable": true,
+      "type": "number"
+     },
+     "tool_choice": {
+      "$ref": "#/components/schemas/ChatCompletionToolChoiceOption"
+     },
+     "tools": {
+      "description": "A list of tools the model may call. Currently, only functions are supported as a tool. Use this to provide a list of functions the model may generate JSON inputs for. A max of 128 functions are supported.\n",
+      "items": {
+       "$ref": "#/components/schemas/ChatCompletionTool"
+      },
+      "maxItems": 128,
+      "nullable": true,
+      "type": "array"
+     },
+     "top_logprobs": {
+      "description": "This is not yet supported by any of our models.\nAn integer between 0 and 20 specifying the number of most likely tokens to return at each token position, each with an associated log probability. `logprobs` must be set to `true` if this parameter is used.\n",
+      "maximum": 20,
+      "minimum": 0,
+      "nullable": true,
+      "type": "integer"
+     },
+     "top_p": {
+      "default": 1,
+      "description": "An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered. We generally recommend altering this or temperature but not both.",
+      "example": 1,
+      "maximum": 1,
+      "minimum": 0,
+      "nullable": true,
+      "type": "number"
+     },
+     "user": {
+      "description": "A unique identifier representing your end-user, which can help us monitor and detect abuse.",
+      "nullable": true,
+      "type": "string"
+     }
+    },
+    "required": [
+     "model",
+     "messages"
+    ],
+    "type": "object"
+   },
+   "CreateChatCompletionResponse": {
+    "description": "Represents a chat completion response returned by model, based on the provided input.",
+    "properties": {
+     "choices": {
+      "description": "A list of chat completion choices. Can be more than one if `n` is greater than 1.",
+      "items": {
+       "properties": {
+        "finish_reason": {
+         "description": "The reason the model stopped generating tokens. This will be `stop` if the model hit a natural stop point or a provided stop sequence,\n`length` if the maximum number of tokens specified in the request was reached,\n`tool_calls` if the model called a tool, or `function_call` (deprecated) if the model called a function.\n",
+         "enum": [
+          "stop",
+          "length",
+          "tool_calls",
+          "function_call"
+         ],
+         "type": "string"
+        },
+        "index": {
+         "description": "The index of the choice in the list of choices.",
+         "type": "integer"
+        },
+        "logprobs": {
+         "description": "Log probability information for the choice.",
+         "nullable": true,
+         "properties": {
+          "content": {
+           "description": "A list of message content tokens with log probability information.",
+           "items": {
+            "$ref": "#/components/schemas/ChatCompletionTokenLogprob"
+           },
+           "nullable": true,
+           "type": "array"
+          }
+         },
+         "required": [
+          "content"
+         ],
+         "type": "object"
+        },
+        "message": {
+         "$ref": "#/components/schemas/ChatCompletionResponseMessage"
+        }
+       },
+       "required": [
+        "finish_reason",
+        "index",
+        "message",
+        "logprobs"
+       ],
+       "type": "object"
+      },
+      "type": "array"
+     },
+     "created": {
+      "description": "The Unix timestamp (in seconds) of when the chat completion was created.",
+      "type": "integer"
+     },
+     "id": {
+      "description": "A unique identifier for the chat completion.",
+      "type": "string"
+     },
+     "mcp_list_tools": {
+      "description": "List of discovered MCP tools from connected servers.",
+      "items": {
+       "properties": {
+        "id": {
+         "description": "Unique identifier for this tool list response.",
+         "type": "string"
+        },
+        "server_label": {
+         "description": "Human-readable label for the MCP server.",
+         "type": "string"
+        },
+        "tools": {
+         "description": "Array of discovered tools from the server.",
+         "items": {
+          "properties": {
+           "annotations": {
+            "description": "Additional metadata for the tool."
+           },
+           "description": {
+            "description": "Description of what the tool does.",
+            "type": "string"
+           },
+           "input_schema": {
+            "additionalProperties": true,
+            "description": "JSON Schema describing the tool's input parameters.",
+            "type": "object"
+           },
+           "name": {
+            "description": "The name of the tool.",
+            "type": "string"
+           }
+          },
+          "type": "object"
+         },
+         "type": "array"
+        },
+        "type": {
+         "description": "The type identifier.",
+         "type": "string"
+        }
+       },
+       "type": "object"
+      },
+      "nullable": true,
+      "type": "array"
+     },
+     "model": {
+      "description": "The model used for the chat completion.",
+      "type": "string"
+     },
+     "object": {
+      "description": "The object type, which is always `chat.completion`.",
+      "enum": [
+       "chat.completion"
+      ],
+      "type": "string"
+     },
+     "service_tier": {
+      "description": "The service tier used for the request.",
+      "enum": [
+       "auto",
+       "on_demand",
+       "flex",
+       "performance",
+       null
+      ],
+      "nullable": true,
+      "type": "string"
+     },
+     "system_fingerprint": {
+      "description": "This fingerprint represents the backend configuration that the model runs with.\n\nCan be used in conjunction with the `seed` request parameter to understand when backend changes have been made that might impact determinism.\n",
+      "type": "string"
+     },
+     "usage": {
+      "$ref": "#/components/schemas/CompletionUsage"
+     },
+     "usage_breakdown": {
+      "allOf": [
+       {
+        "$ref": "#/components/schemas/ChatCompletionUsageBreakdown"
+       }
+      ],
+      "description": "Detailed usage breakdown by model when multiple models are used in the request for compound AI systems."
+     },
+     "x_groq": {
+      "$ref": "#/components/schemas/XGroqNonStreaming"
+     }
+    },
+    "required": [
+     "choices",
+     "created",
+     "id",
+     "model",
+     "object"
+    ],
+    "type": "object"
+   },
+   "CreateChatCompletionStreamResponse": {
+    "description": "Represents a streamed chunk of a chat completion response returned by model, based on the provided input.",
+    "properties": {
+     "choices": {
+      "description": "A list of chat completion choices. Can contain more than one elements if `n` is greater than 1.\n",
+      "items": {
+       "properties": {
+        "delta": {
+         "$ref": "#/components/schemas/ChatCompletionStreamResponseDelta"
+        },
+        "finish_reason": {
+         "description": "The reason the model stopped generating tokens. This will be `stop` if the model hit a natural stop point or a provided stop sequence,\n`length` if the maximum number of tokens specified in the request was reached,\n`tool_calls` if the model called a tool, or `function_call` (deprecated) if the model called a function.\n",
+         "enum": [
+          "stop",
+          "length",
+          "tool_calls",
+          "function_call"
+         ],
+         "nullable": true,
+         "type": "string"
+        },
+        "index": {
+         "description": "The index of the choice in the list of choices.",
+         "type": "integer"
+        },
+        "logprobs": {
+         "description": "Log probability information for the choice.",
+         "nullable": true,
+         "properties": {
+          "content": {
+           "description": "A list of message content tokens with log probability information.",
+           "items": {
+            "$ref": "#/components/schemas/ChatCompletionTokenLogprob"
+           },
+           "nullable": true,
+           "type": "array"
+          }
+         },
+         "required": [
+          "content"
+         ],
+         "type": "object"
+        }
+       },
+       "required": [
+        "delta",
+        "finish_reason",
+        "index"
+       ],
+       "type": "object"
+      },
+      "type": "array"
+     },
+     "created": {
+      "description": "The Unix timestamp (in seconds) of when the chat completion was created. Each chunk has the same timestamp.",
+      "type": "integer"
+     },
+     "id": {
+      "description": "A unique identifier for the chat completion. Each chunk has the same ID.",
+      "type": "string"
+     },
+     "model": {
+      "description": "The model to generate the completion.",
+      "type": "string"
+     },
+     "object": {
+      "description": "The object type, which is always `chat.completion.chunk`.",
+      "enum": [
+       "chat.completion.chunk"
+      ],
+      "type": "string"
+     },
+     "system_fingerprint": {
+      "description": "This fingerprint represents the backend configuration that the model runs with.\nCan be used in conjunction with the `seed` request parameter to understand when backend changes have been made that might impact determinism.\n",
+      "type": "string"
+     },
+     "x_groq": {
+      "$ref": "#/components/schemas/XGroq"
+     }
+    },
+    "required": [
+     "choices",
+     "created",
+     "id",
+     "model",
+     "object"
+    ],
+    "type": "object"
+   },
+   "CreateEmbeddingRequest": {
+    "additionalProperties": false,
+    "properties": {
+     "encoding_format": {
+      "default": "float",
+      "description": "The format to return the embeddings in. Can only be `float` or `base64`.",
+      "enum": [
+       "float",
+       "base64"
+      ],
+      "example": "float",
+      "type": "string"
+     },
+     "input": {
+      "description": "Input text to embed, encoded as a string or array of tokens. To embed multiple inputs in a single request, pass an array of strings or array of token arrays. The input must not exceed the max input tokens for the model, cannot be an empty string, and any array must be 2048 dimensions or less.\n",
+      "example": "The quick brown fox jumped over the lazy dog",
+      "oneOf": [
+       {
+        "default": "",
+        "description": "The string that will be turned into an embedding.",
+        "example": "This is a test.",
+        "title": "string",
+        "type": "string"
+       },
+       {
+        "description": "The array of strings that will be turned into an embeddings.",
+        "items": {
+         "default": "",
+         "example": "['This is a test.']",
+         "type": "string"
+        },
+        "maxItems": 2048,
+        "minItems": 1,
+        "title": "array",
+        "type": "array"
+       }
+      ],
+      "x-groq-meta": {
+       "validator": "EmbeddingInput"
+      }
+     },
+     "model": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "enum": [
+         "nomic-embed-text-v1_5"
+        ],
+        "type": "string"
+       }
+      ],
+      "description": "ID of the model to use.\n",
+      "example": "nomic-embed-text-v1_5"
+     },
+     "user": {
+      "description": "A unique identifier representing your end-user, which can help us monitor and detect abuse.",
+      "nullable": true,
+      "type": "string"
+     }
+    },
+    "required": [
+     "model",
+     "input"
+    ],
+    "type": "object"
+   },
+   "CreateEmbeddingResponse": {
+    "properties": {
+     "data": {
+      "description": "The list of embeddings generated by the model.",
+      "items": {
+       "$ref": "#/components/schemas/Embedding"
+      },
+      "type": "array"
+     },
+     "model": {
+      "description": "The name of the model used to generate the embedding.",
+      "type": "string"
+     },
+     "object": {
+      "description": "The object type, which is always \"list\".",
+      "enum": [
+       "list"
+      ],
+      "type": "string"
+     },
+     "usage": {
+      "description": "The usage information for the request.",
+      "properties": {
+       "prompt_tokens": {
+        "description": "The number of tokens used by the prompt.",
+        "type": "integer"
+       },
+       "total_tokens": {
+        "description": "The total number of tokens used by the request.",
+        "type": "integer"
+       }
+      },
+      "required": [
+       "prompt_tokens",
+       "total_tokens"
+      ],
+      "type": "object"
+     }
+    },
+    "required": [
+     "object",
+     "model",
+     "data",
+     "usage"
+    ],
+    "type": "object"
+   },
+   "CreateFileRequest": {
+    "additionalProperties": false,
+    "properties": {
+     "file": {
+      "description": "The File object (not file name) to be uploaded.\n",
+      "format": "binary",
+      "type": "string"
+     },
+     "purpose": {
+      "description": "The intended purpose of the uploaded file.\nUse \"batch\" for [Batch API](/docs/api-reference#batches).\n",
+      "enum": [
+       "batch"
+      ],
+      "type": "string"
+     }
+    },
+    "required": [
+     "file",
+     "purpose"
+    ],
+    "type": "object"
+   },
+   "CreateFineTuningRequest": {
+    "properties": {
+     "base_model": {
+      "description": "BaseModel is the model that the fine tune was originally trained on.\n",
+      "type": "string"
+     },
+     "input_file_id": {
+      "description": "InputFileID is the id of the file that was uploaded via the /files api.\n",
+      "type": "string"
+     },
+     "name": {
+      "description": "Name is the given name to a fine tuned model.\n",
+      "type": "string"
+     },
+     "type": {
+      "description": "Type is the type of fine tuning format such as \"lora\".\n",
+      "type": "string"
+     }
+    },
+    "type": "object"
+   },
+   "CreateResponseRequest": {
+    "additionalProperties": false,
+    "properties": {
+     "input": {
+      "description": "Text input to the model, used to generate a response.\n",
+      "oneOf": [
+       {
+        "description": "A text input to the model, equivalent to a text input with the `user` role.",
+        "title": "Text input",
+        "type": "string"
+       },
+       {
+        "description": "A list of one or many input items to the model, containing different content types.",
+        "items": {
+         "$ref": "#/components/schemas/ResponseInputItem"
+        },
+        "title": "Input item list",
+        "type": "array"
+       }
+      ]
+     },
+     "instructions": {
+      "description": "Inserts a system (or developer) message as the first item in the model's context.\n",
+      "nullable": true,
+      "type": "string"
+     },
+     "max_output_tokens": {
+      "description": "An upper bound for the number of tokens that can be generated for a response, including visible output tokens and reasoning tokens.\n",
+      "nullable": true,
+      "type": "integer"
+     },
+     "metadata": {
+      "additionalProperties": {
+       "type": "string"
+      },
+      "description": "Custom key-value pairs for storing additional information. Maximum of 16 pairs.\n",
+      "nullable": true,
+      "type": "object"
+     },
+     "model": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "enum": [
+         "gemma2-9b-it",
+         "llama-3.3-70b-versatile",
+         "llama-3.1-8b-instant",
+         "llama-guard-3-8b",
+         "llama3-70b-8192",
+         "llama3-8b-8192"
+        ],
+        "type": "string"
+       }
+      ],
+      "description": "ID of the model to use. For details on which models are compatible with the Responses API, see available [models](https://console.groq.com/docs/models)",
+      "example": "llama-3.3-70b-versatile"
+     },
+     "parallel_tool_calls": {
+      "default": true,
+      "description": "Enable parallel execution of multiple tool calls.\n",
+      "nullable": true,
+      "type": "boolean"
+     },
+     "reasoning": {
+      "description": "Configuration for reasoning capabilities when using [models that support reasoning](https://console.groq.com/docs/reasoning).\n",
+      "nullable": true,
+      "properties": {
+       "effort": {
+        "description": "Level of reasoning effort. Supported values: `none`, `low`, `medium`, `high`.\n`none` disables reasoning and is supported only by Qwen3.8 models. Lower graded\nvalues provide faster responses with less reasoning depth. When omitted, the\ndefault is `none` for Qwen3.8 and `medium` for GPT-OSS models.\n",
+        "enum": [
+         "none",
+         "low",
+         "medium",
+         "high"
+        ],
+        "nullable": true,
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "service_tier": {
+      "default": "auto",
+      "description": "Specifies the latency tier to use for processing the request.\n",
+      "enum": [
+       "auto",
+       "default",
+       "flex"
+      ],
+      "nullable": true,
+      "type": "string"
+     },
+     "store": {
+      "default": false,
+      "description": "Response storage flag. Note: Currently only supports false or null values.\n",
+      "nullable": true,
+      "type": "boolean"
+     },
+     "stream": {
+      "default": false,
+      "description": "Enable streaming mode to receive response data as server-sent events.\n",
+      "nullable": true,
+      "type": "boolean"
+     },
+     "temperature": {
+      "default": 1,
+      "description": "Controls randomness in the response generation. Range: 0 to 2. Lower values produce more deterministic outputs, higher values increase variety and creativity.\n",
+      "example": 1,
+      "maximum": 2,
+      "minimum": 0,
+      "nullable": true,
+      "type": "number"
+     },
+     "text": {
+      "description": "Response format configuration. Supports plain text or structured JSON output.\n",
+      "properties": {
+       "format": {
+        "$ref": "#/components/schemas/ResponseFormatConfiguration"
+       }
+      },
+      "type": "object"
+     },
+     "tool_choice": {
+      "$ref": "#/components/schemas/ResponseToolChoiceOption"
+     },
+     "tools": {
+      "description": "List of tools available to the model. Currently supports function definitions only. Maximum of 128 functions.\n",
+      "items": {
+       "$ref": "#/components/schemas/ResponseTool"
+      },
+      "maxItems": 128,
+      "nullable": true,
+      "type": "array"
+     },
+     "top_p": {
+      "default": 1,
+      "description": "Nucleus sampling parameter that controls the cumulative probability cutoff. Range: 0 to 1. A value of 0.1 restricts sampling to tokens within the top 10% probability mass.\n",
+      "example": 1,
+      "maximum": 1,
+      "minimum": 0,
+      "nullable": true,
+      "type": "number"
+     },
+     "truncation": {
+      "default": "disabled",
+      "description": "Context truncation strategy. Supported values: `auto` or `disabled`.\n",
+      "enum": [
+       "auto",
+       "disabled"
+      ],
+      "nullable": true,
+      "type": "string"
+     },
+     "user": {
+      "description": "Optional identifier for tracking end-user requests. Useful for usage monitoring and compliance.\n",
+      "example": "user-1234",
+      "type": "string"
+     }
+    },
+    "required": [
+     "model",
+     "input"
+    ],
+    "type": "object"
+   },
+   "CreateResponseResponse": {
+    "description": "Represents a response returned by model, based on the provided input.",
+    "properties": {
+     "background": {
+      "default": false,
+      "description": "Whether the response was generated in the background.",
+      "type": "boolean"
+     },
+     "created_at": {
+      "description": "The Unix timestamp (in seconds) of when the response was created.",
+      "type": "integer"
+     },
+     "error": {
+      "description": "An error object if the response failed.",
+      "nullable": true,
+      "properties": {
+       "code": {
+        "description": "The error code.",
+        "type": "string"
+       },
+       "message": {
+        "description": "A human-readable error message.",
+        "type": "string"
+       }
+      },
+      "required": [
+       "code",
+       "message"
+      ],
+      "type": "object"
+     },
+     "id": {
+      "description": "A unique identifier for the response.",
+      "type": "string"
+     },
+     "incomplete_details": {
+      "description": "Details about why the response is incomplete.",
+      "nullable": true,
+      "properties": {
+       "reason": {
+        "description": "The reason why the response is incomplete.",
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "instructions": {
+      "description": "The system instructions used for the response.",
+      "nullable": true,
+      "type": "string"
+     },
+     "max_output_tokens": {
+      "description": "The maximum number of tokens configured for the response.",
+      "nullable": true,
+      "type": "integer"
+     },
+     "max_tool_calls": {
+      "description": "The maximum number of tool calls allowed.",
+      "nullable": true,
+      "type": "integer"
+     },
+     "metadata": {
+      "additionalProperties": {
+       "type": "string"
+      },
+      "description": "Metadata attached to the response.",
+      "nullable": true,
+      "type": "object"
+     },
+     "model": {
+      "description": "The model used for the response.",
+      "type": "string"
+     },
+     "object": {
+      "description": "The object type, which is always `response`.",
+      "enum": [
+       "response"
+      ],
+      "type": "string"
+     },
+     "output": {
+      "description": "An array of content items generated by the model.",
+      "items": {
+       "$ref": "#/components/schemas/ResponseOutputItem"
+      },
+      "type": "array"
+     },
+     "parallel_tool_calls": {
+      "description": "Whether the model can run tool calls in parallel.",
+      "type": "boolean"
+     },
+     "previous_response_id": {
+      "description": "Not supported. Always null.",
+      "nullable": true,
+      "type": "string"
+     },
+     "reasoning": {
+      "description": "Configuration options for [models that support reasoning](https://console.groq.com/docs/reasoning).",
+      "nullable": true,
+      "properties": {
+       "effort": {
+        "description": "The reasoning effort level used. When omitted from the request, this is `none`\nfor Qwen3.8 and `medium` for GPT-OSS models.\n",
+        "enum": [
+         "none",
+         "low",
+         "medium",
+         "high"
+        ],
+        "nullable": true,
+        "type": "string"
+       },
+       "summary": {
+        "description": "Not supported. Always null.",
+        "nullable": true,
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "service_tier": {
+      "description": "The service tier used for processing.",
+      "enum": [
+       "auto",
+       "default",
+       "flex"
+      ],
+      "type": "string"
+     },
+     "status": {
+      "description": "The status of the response generation. One of `completed`, `failed`, `in_progress`, or `incomplete`.\n",
+      "enum": [
+       "completed",
+       "failed",
+       "in_progress",
+       "incomplete"
+      ],
+      "type": "string"
+     },
+     "store": {
+      "description": "Whether the response was stored.",
+      "type": "boolean"
+     },
+     "temperature": {
+      "description": "The sampling temperature used.",
+      "type": "number"
+     },
+     "text": {
+      "description": "Text format configuration used for the response.",
+      "properties": {
+       "format": {
+        "$ref": "#/components/schemas/ResponseFormatConfiguration"
+       }
+      },
+      "type": "object"
+     },
+     "tool_choice": {
+      "$ref": "#/components/schemas/ResponseToolChoiceOption"
+     },
+     "tools": {
+      "description": "The tools that were available to the model.",
+      "items": {
+       "$ref": "#/components/schemas/ResponseTool"
+      },
+      "type": "array"
+     },
+     "top_logprobs": {
+      "default": 0,
+      "description": "The number of top log probabilities returned.",
+      "type": "integer"
+     },
+     "top_p": {
+      "description": "The nucleus sampling parameter used.",
+      "type": "number"
+     },
+     "truncation": {
+      "description": "The truncation strategy used.",
+      "enum": [
+       "auto",
+       "disabled"
+      ],
+      "type": "string"
+     },
+     "usage": {
+      "$ref": "#/components/schemas/ResponseUsage"
+     },
+     "user": {
+      "description": "The user identifier.",
+      "nullable": true,
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "object",
+     "status",
+     "created_at",
+     "output",
+     "model",
+     "tools",
+     "tool_choice",
+     "truncation",
+     "metadata",
+     "temperature",
+     "top_p",
+     "service_tier",
+     "error",
+     "incomplete_details",
+     "parallel_tool_calls",
+     "store"
+    ],
+    "type": "object"
+   },
+   "CreateSpeechRequest": {
+    "additionalProperties": false,
+    "properties": {
+     "input": {
+      "description": "The text to generate audio for.",
+      "example": "The quick brown fox jumped over the lazy dog",
+      "type": "string"
+     },
+     "model": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "enum": [
+         "playai-tts",
+         "playai-tts-arabic"
+        ],
+        "type": "string"
+       }
+      ],
+      "description": "One of the [available TTS models](/docs/text-to-speech).\n",
+      "example": "playai-tts"
+     },
+     "response_format": {
+      "default": "mp3",
+      "description": "The format of the generated audio. Supported formats are `flac, mp3, mulaw, ogg, wav`.",
+      "enum": [
+       "flac",
+       "mp3",
+       "mulaw",
+       "ogg",
+       "wav"
+      ],
+      "type": "string"
+     },
+     "sample_rate": {
+      "default": 48000,
+      "description": "The sample rate for generated audio",
+      "enum": [
+       8000,
+       16000,
+       22050,
+       24000,
+       32000,
+       44100,
+       48000
+      ],
+      "example": 48000,
+      "type": "integer"
+     },
+     "speed": {
+      "default": 1,
+      "description": "The speed of the generated audio.",
+      "example": 1,
+      "maximum": 5,
+      "minimum": 0.5,
+      "type": "number"
+     },
+     "voice": {
+      "description": "The voice to use when generating the audio. List of voices can be found [here](/docs/text-to-speech).",
+      "example": "Fritz-PlayAI",
+      "type": "string"
+     }
+    },
+    "required": [
+     "model",
+     "input",
+     "voice"
+    ],
+    "type": "object"
+   },
+   "CreateTranscriptionRequest": {
+    "properties": {
+     "file": {
+      "description": "The audio file object (not file name) to transcribe, in one of these formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, or webm.\nEither a file or a URL must be provided. Note that the file field is not supported in Batch API requests.\n",
+      "format": "binary",
+      "type": "string"
+     },
+     "language": {
+      "type": "string",
+      "description": "The language of the input audio. Supplying the input language in [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format will improve accuracy and latency.\n"
+     },
+     "model": {
+      "type": "string",
+      "description": "ID of the model to use. `whisper-large-v3` and `whisper-large-v3-turbo` are currently available.\n"
+     },
+     "prompt": {
+      "description": "An optional text to guide the model's style or continue a previous audio segment. The [prompt](/docs/speech-text) should match the audio language.\n",
+      "type": "string"
+     },
+     "response_format": {
+      "default": "json",
+      "description": "The format of the transcript output, in one of these options: `json`, `text`, or `verbose_json`.\n",
+      "enum": [
+       "json",
+       "text",
+       "verbose_json"
+      ],
+      "type": "string"
+     },
+     "temperature": {
+      "default": 0,
+      "description": "The sampling temperature, between 0 and 1. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. If set to 0, the model will use [log probability](https://en.wikipedia.org/wiki/Log_probability) to automatically increase the temperature until certain thresholds are hit.\n",
+      "type": "number"
+     },
+     "url": {
+      "description": "The audio URL to translate/transcribe (supports Base64URL).\nEither a file or a URL must be provided. For Batch API requests, the URL field is required since the file field is not supported.\n",
+      "type": "string"
+     },
+     "timestamp_granularities": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      },
+      "default": [
+       "segment"
+      ],
+      "description": "The timestamp granularities to populate for this transcription."
+     }
+    },
+    "required": [
+     "model"
+    ],
+    "type": "object"
+   },
+   "CreateTranscriptionResponseJson": {
+    "description": "Represents a transcription response returned by model, based on the provided input.",
+    "properties": {
+     "text": {
+      "description": "The transcribed text.",
+      "type": "string"
+     }
+    },
+    "required": [
+     "text"
+    ],
+    "type": "object"
+   },
+   "CreateTranscriptionResponseVerboseJson": {
+    "description": "Represents a verbose json transcription response returned by model, based on the provided input.",
+    "properties": {
+     "duration": {
+      "description": "The duration of the input audio.",
+      "type": "string"
+     },
+     "language": {
+      "description": "The language of the input audio.",
+      "type": "string"
+     },
+     "segments": {
+      "description": "Segments of the transcribed text and their corresponding details.",
+      "items": {
+       "$ref": "#/components/schemas/TranscriptionSegment"
+      },
+      "type": "array"
+     },
+     "text": {
+      "description": "The transcribed text.",
+      "type": "string"
+     },
+     "words": {
+      "description": "Extracted words and their corresponding timestamps.",
+      "items": {
+       "$ref": "#/components/schemas/TranscriptionWord"
+      },
+      "type": "array"
+     }
+    },
+    "required": [
+     "language",
+     "duration",
+     "text"
+    ],
+    "type": "object"
+   },
+   "CreateTranslationRequest": {
+    "properties": {
+     "file": {
+      "description": "The audio file object (not file name) translate, in one of these formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, or webm.\n",
+      "format": "binary",
+      "type": "string"
+     },
+     "model": {
+      "type": "string",
+      "description": "ID of the model to use. `whisper-large-v3` and `whisper-large-v3-turbo` are currently available.\n"
+     },
+     "prompt": {
+      "description": "An optional text to guide the model's style or continue a previous audio segment. The [prompt](/docs/guides/speech-to-text/prompting) should be in English.\n",
+      "type": "string"
+     },
+     "response_format": {
+      "default": "json",
+      "description": "The format of the transcript output, in one of these options: `json`, `text`, or `verbose_json`.\n",
+      "enum": [
+       "json",
+       "text",
+       "verbose_json"
+      ],
+      "type": "string"
+     },
+     "temperature": {
+      "default": 0,
+      "description": "The sampling temperature, between 0 and 1. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. If set to 0, the model will use [log probability](https://en.wikipedia.org/wiki/Log_probability) to automatically increase the temperature until certain thresholds are hit.\n",
+      "type": "number"
+     },
+     "url": {
+      "description": "The audio URL to translate/transcribe (supports Base64URL). Either file or url must be provided.\nWhen using the Batch API only url is supported.\n",
+      "type": "string"
+     }
+    },
+    "required": [
+     "model"
+    ],
+    "type": "object"
+   },
+   "CreateTranslationResponseJson": {
+    "properties": {
+     "text": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "text"
+    ],
+    "type": "object"
+   },
+   "CreateTranslationResponseVerboseJson": {
+    "properties": {
+     "duration": {
+      "description": "The duration of the input audio.",
+      "type": "string"
+     },
+     "language": {
+      "description": "The language of the output translation (always `english`).",
+      "type": "string"
+     },
+     "segments": {
+      "description": "Segments of the translated text and their corresponding details.",
+      "items": {
+       "$ref": "#/components/schemas/TranscriptionSegment"
+      },
+      "type": "array"
+     },
+     "text": {
+      "description": "The translated text.",
+      "type": "string"
+     }
+    },
+    "required": [
+     "language",
+     "duration",
+     "text"
+    ],
+    "type": "object"
+   },
+   "DebugData": {
+    "description": "Debug information including input and output token IDs and strings. Only present when debug=true in the request.",
+    "properties": {
+     "input_token_ids": {
+      "description": "Token IDs for the input.",
+      "items": {
+       "type": "integer"
+      },
+      "type": "array"
+     },
+     "input_tokens": {
+      "description": "Token strings for the input.",
+      "items": {
+       "type": "string"
+      },
+      "type": "array"
+     },
+     "output_token_ids": {
+      "description": "Token IDs for the output.",
+      "items": {
+       "type": "integer"
+      },
+      "type": "array"
+     },
+     "output_tokens": {
+      "description": "Token strings for the output.",
+      "items": {
+       "type": "string"
+      },
+      "type": "array"
+     }
+    },
+    "type": "object"
+   },
+   "DeleteFileResponse": {
+    "properties": {
+     "deleted": {
+      "type": "boolean"
+     },
+     "id": {
+      "type": "string"
+     },
+     "object": {
+      "enum": [
+       "file"
+      ],
+      "type": "string",
+      "x-stainless-const": true
+     }
+    },
+    "required": [
+     "id",
+     "object",
+     "deleted"
+    ],
+    "type": "object"
+   },
+   "DeleteFineTuningResponse": {
+    "properties": {
+     "deleted": {
+      "type": "boolean"
+     },
+     "id": {
+      "type": "string"
+     },
+     "object": {
+      "type": "string"
+     }
+    },
+    "type": "object"
+   },
+   "DeleteModelResponse": {
+    "properties": {
+     "deleted": {
+      "type": "boolean"
+     },
+     "id": {
+      "type": "string"
+     },
+     "object": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "object",
+     "deleted"
+    ],
+    "type": "object"
+   },
+   "DocumentCitation": {
+    "additionalProperties": false,
+    "description": "A citation referencing a specific document that was provided in the request.",
+    "properties": {
+     "document_id": {
+      "description": "The ID of the document being cited, corresponding to a document provided in the request.",
+      "type": "string"
+     },
+     "end_index": {
+      "description": "The character index in the message content where this citation ends.",
+      "type": "integer"
+     },
+     "start_index": {
+      "description": "The character index in the message content where this citation begins.",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "start_index",
+     "end_index",
+     "document_id"
+    ],
+    "type": "object"
+   },
+   "Embedding": {
+    "description": "Represents an embedding vector returned by embedding endpoint.\n",
+    "properties": {
+     "embedding": {
+      "oneOf": [
+       {
+        "description": "The embedding vector, which is a list of floats. The length of vector depends on the model as listed in the [embedding guide](/docs/guides/embeddings).\n",
+        "items": {
+         "type": "number"
+        },
+        "type": "array"
+       },
+       {
+        "description": "The embedding vector, which is a base64 encoded string. The length of vector depends on the model as listed in the [embedding guide](/docs/guides/embeddings).\n",
+        "type": "string"
+       }
+      ]
+     },
+     "index": {
+      "description": "The index of the embedding in the list of embeddings.",
+      "type": "integer"
+     },
+     "object": {
+      "description": "The object type, which is always \"embedding\".",
+      "enum": [
+       "embedding"
+      ],
+      "type": "string"
+     }
+    },
+    "required": [
+     "index",
+     "object",
+     "embedding"
+    ],
+    "type": "object"
+   },
+   "Error": {
+    "properties": {
+     "code": {
+      "nullable": true,
+      "type": "string"
+     },
+     "debug": {
+      "$ref": "#/components/schemas/DebugData"
+     },
+     "failed_generation": {
+      "nullable": true,
+      "type": "string"
+     },
+     "message": {
+      "type": "string"
+     },
+     "param": {
+      "nullable": true,
+      "type": "string"
+     },
+     "schema_code": {
+      "nullable": true,
+      "type": "string"
+     },
+     "schema_kind": {
+      "nullable": true,
+      "type": "string"
+     },
+     "schema_path": {
+      "nullable": true,
+      "type": "string"
+     },
+     "schema_path_segments": {
+      "description": "Segments of the schema path relevant to validation errors.",
+      "items": {
+       "type": "string"
+      },
+      "type": "array"
+     },
+     "type": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "type",
+     "message"
+    ],
+    "type": "object"
+   },
+   "ErrorResponse": {
+    "properties": {
+     "error": {
+      "$ref": "#/components/schemas/Error"
+     }
+    },
+    "required": [
+     "error"
+    ],
+    "type": "object"
+   },
+   "File": {
+    "description": "The `File` object represents a document that has been uploaded.",
+    "properties": {
+     "bytes": {
+      "description": "The size of the file, in bytes.",
+      "type": "integer"
+     },
+     "created_at": {
+      "description": "The Unix timestamp (in seconds) for when the file was created.",
+      "type": "integer"
+     },
+     "filename": {
+      "description": "The name of the file.",
+      "type": "string"
+     },
+     "id": {
+      "description": "The file identifier, which can be referenced in the API endpoints.",
+      "type": "string"
+     },
+     "object": {
+      "description": "The object type, which is always `file`.",
+      "enum": [
+       "file"
+      ],
+      "type": "string",
+      "x-stainless-const": true
+     },
+     "purpose": {
+      "description": "The intended purpose of the file. Supported values are `batch`, and `batch_output`.",
+      "enum": [
+       "batch",
+       "batch_output"
+      ],
+      "type": "string"
+     }
+    },
+    "title": "File"
+   },
+   "FunctionCitation": {
+    "additionalProperties": false,
+    "description": "A citation referencing the result of a function or tool call.",
+    "properties": {
+     "end_index": {
+      "description": "The character index in the message content where this citation ends.",
+      "type": "integer"
+     },
+     "start_index": {
+      "description": "The character index in the message content where this citation begins.",
+      "type": "integer"
+     },
+     "tool_call_id": {
+      "description": "The ID of the tool call being cited, corresponding to a tool call made during the conversation.",
+      "type": "string"
+     }
+    },
+    "required": [
+     "start_index",
+     "end_index",
+     "tool_call_id"
+    ],
+    "type": "object"
+   },
+   "FunctionObject": {
+    "properties": {
+     "description": {
+      "description": "A description of what the function does, used by the model to choose when and how to call the function.",
+      "type": "string"
+     },
+     "name": {
+      "description": "The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.",
+      "type": "string"
+     },
+     "parameters": {
+      "$ref": "#/components/schemas/FunctionParameters"
+     },
+     "strict": {
+      "default": false,
+      "description": "Whether to enable strict schema adherence when generating the output. If set to true, the model will always follow the exact schema defined in the `schema` field. Only a subset of JSON Schema is supported when `strict` is `true`.\n",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "name"
+    ],
+    "type": "object"
+   },
+   "FunctionParameters": {
+    "additionalProperties": true,
+    "description": "Function parameters defined as a JSON Schema object. Refer to https://json-schema.org/understanding-json-schema/ for schema documentation.",
+    "type": "object"
+   },
+   "ListBatchesResponse": {
+    "properties": {
+     "data": {
+      "items": {
+       "$ref": "#/components/schemas/Batch"
+      },
+      "type": "array"
+     },
+     "object": {
+      "enum": [
+       "list"
+      ],
+      "type": "string",
+      "x-stainless-const": true
+     }
+    },
+    "required": [
+     "object",
+     "data"
+    ],
+    "type": "object"
+   },
+   "ListFilesResponse": {
+    "properties": {
+     "data": {
+      "items": {
+       "$ref": "#/components/schemas/File"
+      },
+      "type": "array"
+     },
+     "object": {
+      "enum": [
+       "list"
+      ],
+      "type": "string"
+     }
+    },
+    "required": [
+     "object",
+     "data"
+    ],
+    "type": "object"
+   },
+   "ListFineTuningsResponse": {
+    "properties": {
+     "data": {
+      "items": {
+       "properties": {
+        "base_model": {
+         "description": "BaseModel is the model that the fine tune was originally trained on.\n",
+         "type": "string"
+        },
+        "created_at": {
+         "description": "CreatedAt is the timestamp of when the fine tuned model was created.\n",
+         "type": "number"
+        },
+        "fine_tuned_model": {
+         "description": "FineTunedModel is the final name of the fine tuned model.\n",
+         "type": "string"
+        },
+        "id": {
+         "description": "ID is the unique identifier of a fine tune.\n",
+         "type": "string"
+        },
+        "input_file_id": {
+         "description": "InputFileID is the id of the file that was uploaded via the /files api.\n",
+         "type": "string"
+        },
+        "name": {
+         "description": "Name is the given name to a fine tuned model.\n",
+         "type": "string"
+        },
+        "type": {
+         "description": "Type is the type of fine tuning format such as \"lora\".\n",
+         "type": "string"
+        }
+       },
+       "type": "object"
+      },
+      "type": "array"
+     },
+     "object": {
+      "type": "string"
+     }
+    },
+    "type": "object"
+   },
+   "ListModelsResponse": {
+    "properties": {
+     "data": {
+      "items": {
+       "$ref": "#/components/schemas/Model"
+      },
+      "type": "array"
+     },
+     "object": {
+      "enum": [
+       "list"
+      ],
+      "type": "string"
+     }
+    },
+    "required": [
+     "object",
+     "data"
+    ],
+    "type": "object"
+   },
+   "Model": {
+    "description": "Describes an OpenAI model offering that can be used with the API.",
+    "properties": {
+     "created": {
+      "description": "The Unix timestamp (in seconds) when the model was created.",
+      "type": "integer"
+     },
+     "id": {
+      "description": "The model identifier, which can be referenced in the API endpoints.",
+      "type": "string"
+     },
+     "object": {
+      "description": "The object type, which is always \"model\".",
+      "enum": [
+       "model"
+      ],
+      "type": "string"
+     },
+     "owned_by": {
+      "description": "The organization that owns the model.",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "object",
+     "created",
+     "owned_by"
+    ],
+    "title": "Model"
+   },
+   "ReadFineTuningResponse": {
+    "properties": {
+     "data": {
+      "properties": {
+       "base_model": {
+        "description": "BaseModel is the model that the fine tune was originally trained on.\n",
+        "type": "string"
+       },
+       "created_at": {
+        "description": "CreatedAt is the timestamp of when the fine tuned model was created.\n",
+        "type": "number"
+       },
+       "fine_tuned_model": {
+        "description": "FineTunedModel is the final name of the fine tuned model.\n",
+        "type": "string"
+       },
+       "id": {
+        "description": "ID is the unique identifier of a fine tune.\n",
+        "type": "string"
+       },
+       "input_file_id": {
+        "description": "InputFileID is the id of the file that was uploaded via the /files api.\n",
+        "type": "string"
+       },
+       "name": {
+        "description": "Name is the given name to a fine tuned model.\n",
+        "type": "string"
+       },
+       "type": {
+        "description": "Type is the type of fine tuning format such as \"lora\".\n",
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "id": {
+      "type": "string"
+     },
+     "object": {
+      "type": "string"
+     }
+    },
+    "type": "object"
+   },
+   "RerankingRequest": {
+    "additionalProperties": false,
+    "properties": {
+     "docs": {
+      "description": "An array of documents to rank. Each document is a string containing the text content.\nMaximum of 100 documents per request.\n",
+      "example": [
+       "Machine learning is a subset of artificial intelligence",
+       "The weather forecast predicts rain tomorrow",
+       "Deep learning uses neural networks with multiple layers"
+      ],
+      "items": {
+       "minLength": 1,
+       "type": "string"
+      },
+      "maxItems": 100,
+      "minItems": 1,
+      "type": "array"
+     },
+     "instruction": {
+      "description": "Optional instruction to guide the reranking process. If not provided, \na default instruction will be used.\n",
+      "example": "Find the most relevant document about AI research",
+      "nullable": true,
+      "type": "string"
+     },
+     "model": {
+      "description": "ID of the reranking model to use.\n",
+      "example": "qwen3-reranker-4b",
+      "type": "string"
+     },
+     "query": {
+      "description": "The search query to rank documents against.\n",
+      "example": "artificial intelligence research",
+      "type": "string"
+     }
+    },
+    "required": [
+     "model",
+     "query",
+     "docs"
+    ],
+    "type": "object"
+   },
+   "RerankingResponse": {
+    "properties": {
+     "results": {
+      "description": "List of documents sorted by relevance score in descending order.\nEach result contains the original document text and its relevance score.\n",
+      "items": {
+       "$ref": "#/components/schemas/RerankingResult"
+      },
+      "type": "array"
+     }
+    },
+    "required": [
+     "results"
+    ],
+    "type": "object"
+   },
+   "RerankingResult": {
+    "properties": {
+     "doc": {
+      "description": "The original document text.",
+      "example": "Machine learning is a subset of artificial intelligence",
+      "type": "string"
+     },
+     "score": {
+      "description": "Relevance score between 0.0 and 1.0, where higher scores indicate \ngreater relevance to the query.\n",
+      "example": 0.92,
+      "format": "float",
+      "maximum": 1,
+      "minimum": 0,
+      "type": "number"
+     }
+    },
+    "required": [
+     "doc",
+     "score"
+    ],
+    "type": "object"
+   },
+   "ResponseAnnotation": {
+    "discriminator": {
+     "mapping": {
+      "file_citation": "#/components/schemas/ResponseFileCitation",
+      "url_citation": "#/components/schemas/ResponseUrlCitation"
+     },
+     "propertyName": "type"
+    },
+    "oneOf": [
+     {
+      "$ref": "#/components/schemas/ResponseFileCitation"
+     },
+     {
+      "$ref": "#/components/schemas/ResponseUrlCitation"
+     }
+    ]
+   },
+   "ResponseEasyInputMessage": {
+    "description": "A message input to the model with a role indicating instruction following hierarchy.\n",
+    "properties": {
+     "content": {
+      "description": "Text input to the model.\n",
+      "oneOf": [
+       {
+        "description": "A text input to the model.",
+        "title": "Text input",
+        "type": "string"
+       },
+       {
+        "description": "An array of content parts.",
+        "items": {
+         "$ref": "#/components/schemas/ResponseInputContent"
+        },
+        "title": "Content array",
+        "type": "array"
+       }
+      ]
+     },
+     "role": {
+      "description": "The role of the message input. One of `user`, `assistant`, `system`, or `developer`.\n",
+      "enum": [
+       "user",
+       "assistant",
+       "system",
+       "developer"
+      ],
+      "type": "string"
+     }
+    },
+    "required": [
+     "role",
+     "content"
+    ],
+    "title": "Easy input message",
+    "type": "object"
+   },
+   "ResponseFileCitation": {
+    "description": "A citation to a file.",
+    "properties": {
+     "file_id": {
+      "description": "The ID of the file.",
+      "type": "string"
+     },
+     "index": {
+      "description": "The index of the citation in the text.",
+      "type": "integer"
+     },
+     "type": {
+      "description": "The type of the annotation. Always `file_citation`.",
+      "enum": [
+       "file_citation"
+      ],
+      "type": "string",
+      "x-stainless-const": true
+     }
+    },
+    "required": [
+     "type",
+     "file_id"
+    ],
+    "title": "File citation",
+    "type": "object"
+   },
+   "ResponseFormatConfiguration": {
+    "description": "An object specifying the format that the model must output.\n",
+    "oneOf": [
+     {
+      "$ref": "#/components/schemas/ResponseFormatText"
+     },
+     {
+      "$ref": "#/components/schemas/ResponseFormatJsonObject"
+     },
+     {
+      "$ref": "#/components/schemas/TextResponseFormatJsonSchema"
+     }
+    ]
+   },
+   "ResponseFormatJsonObject": {
+    "description": "JSON object response format. An older method of generating JSON responses. Using `json_schema` is recommended for models that support it. Note that the model will not generate JSON without a system or user message instructing it to do so.\n",
+    "properties": {
+     "type": {
+      "description": "The type of response format being defined. Always `json_object`.",
+      "enum": [
+       "json_object"
+      ],
+      "type": "string",
+      "x-stainless-const": true
+     }
+    },
+    "required": [
+     "type"
+    ],
+    "title": "JSON object",
+    "type": "object"
+   },
+   "ResponseFormatJsonSchema": {
+    "description": "JSON Schema response format. Used to generate structured JSON responses.\n",
+    "properties": {
+     "json_schema": {
+      "description": "Structured Outputs configuration options, including a JSON Schema.\n",
+      "properties": {
+       "description": {
+        "description": "A description of what the response format is for, used by the model to determine how to respond in the format.\n",
+        "type": "string"
+       },
+       "name": {
+        "description": "The name of the response format. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.\n",
+        "type": "string"
+       },
+       "schema": {
+        "$ref": "#/components/schemas/ResponseFormatJsonSchemaSchema"
+       },
+       "strict": {
+        "default": false,
+        "description": "Whether to enable strict schema adherence when generating the output. If set to true, the model will always follow the exact schema defined in the `schema` field. Only a subset of JSON Schema is supported when `strict` is `true`.\n",
+        "nullable": true,
+        "type": "boolean"
+       }
+      },
+      "required": [
+       "name"
+      ],
+      "title": "JSON schema",
+      "type": "object"
+     },
+     "type": {
+      "description": "The type of response format being defined. Always `json_schema`.",
+      "enum": [
+       "json_schema"
+      ],
+      "type": "string",
+      "x-stainless-const": true
+     }
+    },
+    "required": [
+     "type",
+     "json_schema"
+    ],
+    "title": "JSON schema",
+    "type": "object"
+   },
+   "ResponseFormatJsonSchemaSchema": {
+    "additionalProperties": true,
+    "description": "The schema for the response format, described as a JSON Schema object.\nLearn how to build JSON schemas [here](https://json-schema.org/).\n",
+    "title": "JSON schema",
+    "type": "object"
+   },
+   "ResponseFormatText": {
+    "description": "Default response format. Used to generate text responses.\n",
+    "properties": {
+     "type": {
+      "description": "The type of response format being defined. Always `text`.",
+      "enum": [
+       "text"
+      ],
+      "type": "string",
+      "x-stainless-const": true
+     }
+    },
+    "required": [
+     "type"
+    ],
+    "title": "Text",
+    "type": "object"
+   },
+   "ResponseFunctionCall": {
+    "description": "A function call generated by the model.",
+    "properties": {
+     "arguments": {
+      "description": "A JSON string of the arguments to pass to the function.",
+      "type": "string"
+     },
+     "call_id": {
+      "description": "The unique ID of the function tool call generated by the model.",
+      "type": "string"
+     },
+     "id": {
+      "description": "The unique ID of the function tool call.",
+      "type": "string"
+     },
+     "name": {
+      "description": "The name of the function to call.",
+      "type": "string"
+     },
+     "status": {
+      "description": "The status of the item.",
+      "enum": [
+       "in_progress",
+       "completed",
+       "incomplete"
+      ],
+      "type": "string"
+     },
+     "type": {
+      "description": "The type of the function call. Always `function_call`.",
+      "enum": [
+       "function_call"
+      ],
+      "type": "string",
+      "x-stainless-const": true
+     }
+    },
+    "required": [
+     "type",
+     "call_id",
+     "name",
+     "arguments"
+    ],
+    "title": "Function call",
+    "type": "object"
+   },
+   "ResponseFunctionCallOutput": {
+    "description": "The output of a function tool call.",
+    "properties": {
+     "call_id": {
+      "description": "The unique ID of the function tool call generated by the model.",
+      "type": "string"
+     },
+     "id": {
+      "description": "The unique ID of the function tool call output.",
+      "type": "string"
+     },
+     "output": {
+      "description": "A JSON string of the output of the function tool call.",
+      "type": "string"
+     },
+     "status": {
+      "description": "The status of the item.",
+      "enum": [
+       "in_progress",
+       "completed",
+       "incomplete"
+      ],
+      "type": "string"
+     },
+     "type": {
+      "description": "The type of the function tool call output. Always `function_call_output`.",
+      "enum": [
+       "function_call_output"
+      ],
+      "type": "string",
+      "x-stainless-const": true
+     }
+    },
+    "required": [
+     "type",
+     "call_id",
+     "output"
+    ],
+    "title": "Function call output",
+    "type": "object"
+   },
+   "ResponseInputContent": {
+    "discriminator": {
+     "mapping": {
+      "input_text": "#/components/schemas/ResponseInputTextContent"
+     },
+     "propertyName": "type"
+    },
+    "oneOf": [
+     {
+      "$ref": "#/components/schemas/ResponseInputTextContent"
+     }
+    ]
+   },
+   "ResponseInputItem": {
+    "discriminator": {
+     "mapping": {
+      "function_call": "#/components/schemas/ResponseFunctionCall",
+      "function_call_output": "#/components/schemas/ResponseFunctionCallOutput",
+      "item_reference": "#/components/schemas/ResponseItemReference",
+      "message": "#/components/schemas/ResponseInputMessage"
+     },
+     "propertyName": "type"
+    },
+    "oneOf": [
+     {
+      "$ref": "#/components/schemas/ResponseEasyInputMessage"
+     },
+     {
+      "$ref": "#/components/schemas/ResponseInputMessage"
+     },
+     {
+      "$ref": "#/components/schemas/ResponseItemReference"
+     },
+     {
+      "$ref": "#/components/schemas/ResponseFunctionCall"
+     },
+     {
+      "$ref": "#/components/schemas/ResponseFunctionCallOutput"
+     }
+    ]
+   },
+   "ResponseInputMessage": {
+    "description": "A message input to the model with explicit type field.\n",
+    "properties": {
+     "content": {
+      "description": "A list of one or many input content items.",
+      "items": {
+       "$ref": "#/components/schemas/ResponseInputContent"
+      },
+      "type": "array"
+     },
+     "role": {
+      "description": "The role of the message input. One of `user`, `system`, or `developer`. Note: assistant role is not supported with explicit type.\n",
+      "enum": [
+       "user",
+       "system",
+       "developer"
+      ],
+      "type": "string"
+     },
+     "status": {
+      "description": "The status of item. Populated when items are returned via API.",
+      "enum": [
+       "in_progress",
+       "completed",
+       "incomplete"
+      ],
+      "type": "string"
+     },
+     "type": {
+      "description": "The type of the message input. Always set to `message`.",
+      "enum": [
+       "message"
+      ],
+      "type": "string",
+      "x-stainless-const": true
+     }
+    },
+    "required": [
+     "type",
+     "role",
+     "content"
+    ],
+    "title": "Input message",
+    "type": "object"
+   },
+   "ResponseInputTextContent": {
+    "description": "A text input to the model.",
+    "properties": {
+     "text": {
+      "description": "The text input to the model.",
+      "type": "string"
+     },
+     "type": {
+      "description": "The type of the input item. Always `input_text`.",
+      "enum": [
+       "input_text"
+      ],
+      "type": "string",
+      "x-stainless-const": true
+     }
+    },
+    "required": [
+     "type",
+     "text"
+    ],
+    "title": "Input text",
+    "type": "object"
+   },
+   "ResponseItemReference": {
+    "description": "An internal identifier for an item to reference.",
+    "properties": {
+     "id": {
+      "description": "The ID of the item to reference.",
+      "type": "string"
+     },
+     "type": {
+      "description": "The type of item to reference. Always `item_reference`.",
+      "enum": [
+       "item_reference"
+      ],
+      "type": "string",
+      "x-stainless-const": true
+     }
+    },
+    "required": [
+     "type",
+     "id"
+    ],
+    "title": "Item reference",
+    "type": "object"
+   },
+   "ResponseNamedToolChoice": {
+    "description": "Specifies a tool the model should use. Use to force the model to call a specific function.",
+    "properties": {
+     "function": {
+      "properties": {
+       "name": {
+        "description": "The name of the function to call.",
+        "type": "string"
+       }
+      },
+      "required": [
+       "name"
+      ],
+      "type": "object"
+     },
+     "type": {
+      "description": "The type of the tool. Currently, only `function` is supported.",
+      "enum": [
+       "function"
+      ],
+      "type": "string"
+     }
+    },
+    "required": [
+     "type",
+     "function"
+    ],
+    "type": "object"
+   },
+   "ResponseOutputContent": {
+    "discriminator": {
+     "mapping": {
+      "output_text": "#/components/schemas/ResponseOutputTextContent"
+     },
+     "propertyName": "type"
+    },
+    "oneOf": [
+     {
+      "$ref": "#/components/schemas/ResponseOutputTextContent"
+     }
+    ]
+   },
+   "ResponseOutputFunctionCall": {
+    "description": "A function call generated by the model.",
+    "properties": {
+     "arguments": {
+      "description": "A JSON string of the arguments to pass to the function.",
+      "type": "string"
+     },
+     "call_id": {
+      "description": "The unique ID of the function tool call generated by the model.",
+      "type": "string"
+     },
+     "id": {
+      "description": "The unique ID of the function tool call.",
+      "type": "string"
+     },
+     "name": {
+      "description": "The name of the function to call.",
+      "type": "string"
+     },
+     "status": {
+      "description": "The status of the function call.",
+      "enum": [
+       "in_progress",
+       "completed",
+       "incomplete"
+      ],
+      "type": "string"
+     },
+     "type": {
+      "description": "The type of the function call. Always `function_call`.",
+      "enum": [
+       "function_call"
+      ],
+      "type": "string",
+      "x-stainless-const": true
+     }
+    },
+    "required": [
+     "type",
+     "id",
+     "call_id",
+     "name",
+     "arguments"
+    ],
+    "title": "Function call",
+    "type": "object"
+   },
+   "ResponseOutputItem": {
+    "discriminator": {
+     "mapping": {
+      "function_call": "#/components/schemas/ResponseOutputFunctionCall",
+      "message": "#/components/schemas/ResponseOutputMessage",
+      "reasoning": "#/components/schemas/ResponseOutputReasoning"
+     },
+     "propertyName": "type"
+    },
+    "oneOf": [
+     {
+      "$ref": "#/components/schemas/ResponseOutputMessage"
+     },
+     {
+      "$ref": "#/components/schemas/ResponseOutputFunctionCall"
+     },
+     {
+      "$ref": "#/components/schemas/ResponseOutputReasoning"
+     }
+    ]
+   },
+   "ResponseOutputMessage": {
+    "description": "An output message from the model.",
+    "properties": {
+     "content": {
+      "description": "The content of the output message.",
+      "items": {
+       "$ref": "#/components/schemas/ResponseOutputContent"
+      },
+      "type": "array"
+     },
+     "id": {
+      "description": "The unique ID of the output message.",
+      "type": "string"
+     },
+     "role": {
+      "description": "The role of the output message. Always `assistant`.",
+      "enum": [
+       "assistant"
+      ],
+      "type": "string",
+      "x-stainless-const": true
+     },
+     "status": {
+      "description": "The status of the message.",
+      "enum": [
+       "in_progress",
+       "completed",
+       "incomplete"
+      ],
+      "type": "string"
+     },
+     "type": {
+      "description": "The type of the output message. Always `message`.",
+      "enum": [
+       "message"
+      ],
+      "type": "string",
+      "x-stainless-const": true
+     }
+    },
+    "required": [
+     "type",
+     "id",
+     "role",
+     "content"
+    ],
+    "title": "Output message",
+    "type": "object"
+   },
+   "ResponseOutputReasoning": {
+    "description": "A reasoning output from the model. Available for [models that support reasoning](https://console.groq.com/docs/reasoning).",
+    "properties": {
+     "id": {
+      "description": "The unique ID of the reasoning output.",
+      "type": "string"
+     },
+     "summary": {
+      "description": "Summary items (currently empty).",
+      "items": {
+       "type": "object"
+      },
+      "type": "array"
+     },
+     "type": {
+      "description": "The type of the reasoning output. Always `reasoning`.",
+      "enum": [
+       "reasoning"
+      ],
+      "type": "string",
+      "x-stainless-const": true
+     }
+    },
+    "required": [
+     "type",
+     "id",
+     "summary"
+    ],
+    "title": "Reasoning",
+    "type": "object"
+   },
+   "ResponseOutputTextContent": {
+    "description": "A text output from the model.",
+    "properties": {
+     "annotations": {
+      "description": "The annotations of the text output.",
+      "items": {
+       "$ref": "#/components/schemas/ResponseAnnotation"
+      },
+      "type": "array"
+     },
+     "logprobs": {
+      "description": "Log probability information for the output.",
+      "items": {
+       "type": "string"
+      },
+      "nullable": true,
+      "type": "array"
+     },
+     "text": {
+      "description": "The text output from the model.",
+      "type": "string"
+     },
+     "type": {
+      "description": "The type of the output text. Always `output_text`.",
+      "enum": [
+       "output_text"
+      ],
+      "type": "string",
+      "x-stainless-const": true
+     }
+    },
+    "required": [
+     "type",
+     "text",
+     "annotations"
+    ],
+    "title": "Output text",
+    "type": "object"
+   },
+   "ResponseTool": {
+    "properties": {
+     "description": {
+      "description": "Describes the function's purpose. The model uses this to determine when to invoke the function.",
+      "type": "string"
+     },
+     "name": {
+      "description": "The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.",
+      "type": "string"
+     },
+     "parameters": {
+      "$ref": "#/components/schemas/FunctionParameters"
+     },
+     "strict": {
+      "description": "Whether to enable strict schema adherence when generating the function call.",
+      "nullable": true,
+      "type": "boolean"
+     },
+     "type": {
+      "description": "The type of the tool. Currently, only `function` is supported.",
+      "enum": [
+       "function"
+      ],
+      "type": "string"
+     }
+    },
+    "required": [
+     "type",
+     "name"
+    ],
+    "type": "object"
+   },
+   "ResponseToolChoiceOption": {
+    "description": "Controls which (if any) tool is called by the model.\n`none` means the model will not call any tool and instead generates a message.\n`auto` means the model can pick between generating a message or calling one or more tools.\n`required` means the model must call one or more tools.\nSpecifying a particular tool via `{\"type\": \"function\", \"function\": {\"name\": \"my_function\"}}` forces the model to call that tool.\n\n`none` is the default when no tools are present. `auto` is the default if tools are present.\n",
+    "nullable": true,
+    "oneOf": [
+     {
+      "description": "`none` means the model will not call any tool and instead generates a message. `auto` means the model can pick between generating a message or calling one or more tools. `required` means the model must call one or more tools.\n",
+      "enum": [
+       "none",
+       "auto",
+       "required"
+      ],
+      "type": "string"
+     },
+     {
+      "$ref": "#/components/schemas/ResponseNamedToolChoice"
+     }
+    ]
+   },
+   "ResponseUrlCitation": {
+    "description": "A citation for a web resource.",
+    "properties": {
+     "end_index": {
+      "description": "The index of the last character of the URL citation in the message.",
+      "type": "integer"
+     },
+     "start_index": {
+      "description": "The index of the first character of the URL citation in the message.",
+      "type": "integer"
+     },
+     "title": {
+      "description": "The title of the web resource.",
+      "type": "string"
+     },
+     "type": {
+      "description": "The type of the annotation. Always `url_citation`.",
+      "enum": [
+       "url_citation"
+      ],
+      "type": "string",
+      "x-stainless-const": true
+     },
+     "url": {
+      "description": "The URL of the web resource.",
+      "type": "string"
+     }
+    },
+    "required": [
+     "type",
+     "url"
+    ],
+    "title": "URL citation",
+    "type": "object"
+   },
+   "ResponseUsage": {
+    "description": "Usage statistics for the response request.",
+    "properties": {
+     "input_tokens": {
+      "description": "Number of tokens in the input.",
+      "type": "integer"
+     },
+     "input_tokens_details": {
+      "description": "Breakdown of input tokens.",
+      "properties": {
+       "cached_tokens": {
+        "description": "Number of cached tokens.",
+        "type": "integer"
+       },
+       "reasoning_tokens": {
+        "description": "Number of reasoning tokens.",
+        "type": "integer"
+       }
+      },
+      "required": [
+       "cached_tokens"
+      ],
+      "type": "object"
+     },
+     "output_tokens": {
+      "description": "Number of tokens in the generated output.",
+      "type": "integer"
+     },
+     "output_tokens_details": {
+      "description": "Breakdown of output tokens.",
+      "properties": {
+       "cached_tokens": {
+        "description": "Number of cached tokens.",
+        "type": "integer"
+       },
+       "reasoning_tokens": {
+        "description": "Number of reasoning tokens.",
+        "type": "integer"
+       }
+      },
+      "required": [
+       "cached_tokens",
+       "reasoning_tokens"
+      ],
+      "type": "object"
+     },
+     "total_tokens": {
+      "description": "Total number of tokens used in the request (input + output).",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "input_tokens",
+     "input_tokens_details",
+     "output_tokens",
+     "output_tokens_details",
+     "total_tokens"
+    ],
+    "type": "object"
+   },
+   "TextResponseFormatJsonSchema": {
+    "description": "JSON Schema response format. Used to generate structured JSON responses.\n",
+    "properties": {
+     "description": {
+      "description": "A description of what the response format is for, used by the model to determine how to respond in the format.\n",
+      "type": "string"
+     },
+     "name": {
+      "description": "The name of the response format. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.\n",
+      "type": "string"
+     },
+     "schema": {
+      "additionalProperties": true,
+      "description": "The schema for the response format, described as a JSON Schema object.\n",
+      "type": "object"
+     },
+     "strict": {
+      "default": false,
+      "description": "Whether to enable strict schema adherence when generating the output.\n",
+      "nullable": true,
+      "type": "boolean"
+     },
+     "type": {
+      "description": "The type of response format being defined. Always `json_schema`.",
+      "enum": [
+       "json_schema"
+      ],
+      "type": "string",
+      "x-stainless-const": true
+     }
+    },
+    "required": [
+     "type",
+     "name",
+     "schema"
+    ],
+    "title": "JSON schema",
+    "type": "object"
+   },
+   "TranscriptionSegment": {
+    "properties": {
+     "audio_text": {
+      "description": "Transcribed text for the entire chunk",
+      "type": "string"
+     },
+     "avg_logprob": {
+      "description": "Average logprob of the segment. If the value is lower than -1, consider the logprobs failed.",
+      "format": "float",
+      "type": "number"
+     },
+     "chunk_end": {
+      "description": "End chunk timestamp.",
+      "type": "integer"
+     },
+     "chunk_start": {
+      "description": "Start chunk timestamp.",
+      "type": "integer"
+     },
+     "compression_ratio": {
+      "description": "Compression ratio of the segment. If the value is greater than 2.4, consider the compression failed.",
+      "format": "float",
+      "type": "number"
+     },
+     "end": {
+      "description": "End time of the segment in seconds.",
+      "format": "float",
+      "type": "number"
+     },
+     "id": {
+      "description": "Unique identifier of the segment.",
+      "type": "integer"
+     },
+     "no_speech_prob": {
+      "description": "Probability of no speech in the segment. If the value is higher than 1.0 and the `avg_logprob` is below -1, consider this segment silent.",
+      "format": "float",
+      "type": "number"
+     },
+     "seek": {
+      "description": "Seek offset of the segment.",
+      "type": "integer"
+     },
+     "start": {
+      "description": "Start time of the segment in seconds.",
+      "format": "float",
+      "type": "number"
+     },
+     "temperature": {
+      "description": "Temperature parameter used for generating the segment.",
+      "format": "float",
+      "type": "number"
+     },
+     "text": {
+      "description": "Text content of the segment.",
+      "type": "string"
+     },
+     "token_scores": {
+      "description": "Token-level scores.",
+      "items": {
+       "format": "float",
+       "type": "number"
+      },
+      "type": "array"
+     },
+     "tokens": {
+      "description": "Array of token IDs for the text content.",
+      "items": {
+       "type": "integer"
+      },
+      "type": "array"
+     }
+    },
+    "required": [
+     "id",
+     "seek",
+     "start",
+     "end",
+     "text",
+     "tokens"
+    ],
+    "type": "object"
+   },
+   "TranscriptionWord": {
+    "properties": {
+     "end": {
+      "description": "End time of the word in seconds.",
+      "format": "float",
+      "type": "number"
+     },
+     "start": {
+      "description": "Start time of the word in seconds.",
+      "format": "float",
+      "type": "number"
+     },
+     "word": {
+      "description": "The text content of the word.",
+      "type": "string"
+     }
+    },
+    "required": [
+     "word",
+     "start",
+     "end"
+    ],
+    "type": "object"
+   },
+   "XGroq": {
+    "description": "Groq-specific metadata for streaming responses. Different fields appear in different chunks.",
+    "properties": {
+     "debug": {
+      "allOf": [
+       {
+        "$ref": "#/components/schemas/DebugData"
+       }
+      ],
+      "nullable": true
+     },
+     "error": {
+      "description": "An error string indicating why a stream was stopped early.",
+      "nullable": true,
+      "type": "string"
+     },
+     "id": {
+      "description": "A groq request ID which can be used to refer to a specific request to groq support.\nSent only in the first and final chunk.\n",
+      "nullable": true,
+      "type": "string"
+     },
+     "seed": {
+      "description": "The seed used for the request. Sent in the final chunk.",
+      "nullable": true,
+      "type": "integer"
+     },
+     "usage": {
+      "allOf": [
+       {
+        "$ref": "#/components/schemas/CompletionUsage"
+       }
+      ],
+      "description": "Usage information for the stream. Only sent in the final chunk.",
+      "nullable": true
+     },
+     "usage_breakdown": {
+      "allOf": [
+       {
+        "$ref": "#/components/schemas/ChatCompletionUsageBreakdown"
+       }
+      ],
+      "description": "Detailed usage breakdown by model when multiple models are used in the request for compound AI systems. Only sent in the final chunk.",
+      "nullable": true
+     }
+    },
+    "type": "object"
+   },
+   "XGroqNonStreaming": {
+    "description": "Groq-specific metadata for non-streaming chat completion responses.",
+    "properties": {
+     "debug": {
+      "allOf": [
+       {
+        "$ref": "#/components/schemas/DebugData"
+       }
+      ],
+      "nullable": true
+     },
+     "id": {
+      "description": "A groq request ID which can be used to refer to a specific request to groq support.",
+      "type": "string"
+     },
+     "seed": {
+      "description": "The seed used for the request. See the seed property on CreateChatCompletionRequest for more details.",
+      "nullable": true,
+      "type": "integer"
+     },
+     "usage": {
+      "description": "Additional Groq-specific usage metrics (hardware cache statistics).",
+      "nullable": true,
+      "properties": {
+       "dram_cached_tokens": {
+        "description": "Number of tokens served from DRAM cache.",
+        "type": "integer"
+       },
+       "sram_cached_tokens": {
+        "description": "Number of tokens served from SRAM cache.",
+        "type": "integer"
+       }
+      },
+      "type": "object"
+     }
+    },
+    "required": [
+     "id"
+    ],
+    "type": "object"
+   }
+  },
+  "securitySchemes": {
+   "api_key": {
+    "bearerFormat": "apiKey",
+    "scheme": "bearer",
+    "type": "http",
+    "x-auth-env-vars": [
+     "GROQ_API_KEY"
+    ],
+    "x-auth-key-url": "https://console.groq.com/keys",
+    "x-auth-title": "Groq API key",
+    "x-auth-description": "Groq API key (create one at console.groq.com/keys)."
+   }
+  }
+ },
+ "info": {
+  "contact": {
+   "email": "support@example.com",
+   "name": "Groq Support"
+  },
+  "description": "Specification of the Groq cloud API",
+  "termsOfService": "https://groq.com/terms-of-use/",
+  "title": "GroqCloud API",
+  "version": "2.1",
+  "x-display-name": "Groq Cloud",
+  "x-website": "https://console.groq.com"
+ },
+ "openapi": "3.0.1",
+ "paths": {
+  "/openai/v1/audio/speech": {
+   "post": {
+    "operationId": "speech",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CreateSpeechRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "audio/wav": {
+        "schema": {
+         "format": "binary",
+         "type": "string"
+        }
+       }
+      },
+      "description": "OK",
+      "headers": {
+       "Transfer-Encoding": {
+        "description": "chunked",
+        "schema": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    },
+    "summary": "Generates audio from the input text.",
+    "tags": [
+     "Audio"
+    ],
+    "x-groq-metadata": {
+     "examples": [
+      {
+       "request": {
+        "curl": "curl https://api.groq.com/openai/v1/audio/speech \\\n  -H \"Authorization: Bearer $GROQ_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"model\": \"playai-tts\",\n    \"input\": \"I love building and shipping new features for our users!\",\n    \"voice\": \"Fritz-PlayAI\",\n    \"response_format\": \"wav\"\n  }'\n",
+        "js": "import fs from \"fs\";\nimport path from \"path\";\nimport Groq from 'groq-sdk';\n\nconst groq = new Groq({\n  apiKey: process.env.GROQ_API_KEY\n});\n\nconst speechFilePath = \"speech.wav\";\nconst model = \"playai-tts\";\nconst voice = \"Fritz-PlayAI\";\nconst text = \"I love building and shipping new features for our users!\";\nconst responseFormat = \"wav\";\n\nasync function main() {\n  const response = await groq.audio.speech.create({\n    model: model,\n    voice: voice,\n    input: text,\n    response_format: responseFormat\n  });\n\n  const buffer = Buffer.from(await response.arrayBuffer());\n  await fs.promises.writeFile(speechFilePath, buffer);\n}\n\nmain();\n",
+        "py": "import os\nfrom groq import Groq\n\nclient = Groq(api_key=os.environ.get(\"GROQ_API_KEY\"))\n\nspeech_file_path = \"speech.wav\"\nmodel = \"playai-tts\"\nvoice = \"Fritz-PlayAI\"\ntext = \"I love building and shipping new features for our users!\"\nresponse_format = \"wav\"\n\nresponse = client.audio.speech.create(\n    model=model,\n    voice=voice,\n    input=text,\n    response_format=response_format\n)\n\nresponse.write_to_file(speech_file_path)\n"
+       },
+       "title": "Default"
+      }
+     ],
+     "returns": "Returns an audio file in `wav` format."
+    },
+    "x-pp-resource": "audio"
+   }
+  },
+  "/openai/v1/audio/transcriptions": {
+   "post": {
+    "operationId": "transcribe",
+    "requestBody": {
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/CreateTranscriptionRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CreateTranscriptionResponseJson"
+        }
+       }
+      },
+      "description": "OK"
+     }
+    },
+    "summary": "Transcribes audio into the input language.",
+    "tags": [
+     "Audio"
+    ],
+    "x-groq-metadata": {
+     "examples": [
+      {
+       "request": {
+        "curl": "curl https://api.groq.com/openai/v1/audio/transcriptions \\\n  -H \"Authorization: Bearer $GROQ_API_KEY\" \\\n  -H \"Content-Type: multipart/form-data\" \\\n  -F file=\"@./sample_audio.m4a\" \\\n  -F model=\"whisper-large-v3\"\n",
+        "js": "import fs from \"fs\";\nimport Groq from \"groq-sdk\";\n\nconst groq = new Groq();\nasync function main() {\n  const transcription = await groq.audio.transcriptions.create({\n    file: fs.createReadStream(\"sample_audio.m4a\"),\n    model: \"whisper-large-v3\",\n    prompt: \"Specify context or spelling\", // Optional\n    response_format: \"json\", // Optional\n    language: \"en\", // Optional\n    temperature: 0.0, // Optional\n  });\n  console.log(transcription.text);\n}\nmain();\n",
+        "py": "import os\nfrom groq import Groq\n\nclient = Groq()\nfilename = os.path.dirname(__file__) + \"/sample_audio.m4a\"\n\nwith open(filename, \"rb\") as file:\n    transcription = client.audio.transcriptions.create(\n      file=(filename, file.read()),\n      model=\"whisper-large-v3\",\n      prompt=\"Specify context or spelling\",  # Optional\n      response_format=\"json\",  # Optional\n      language=\"en\",  # Optional\n      temperature=0.0  # Optional\n    )\n    print(transcription.text)\n"
+       },
+       "response": "{\n  \"text\": \"Your transcribed text appears here...\",\n  \"x_groq\": {\n    \"id\": \"req_unique_id\"\n  }\n}\n",
+       "title": "Default"
+      }
+     ],
+     "returns": "Returns an audio transcription object."
+    },
+    "x-pp-resource": "audio"
+   }
+  },
+  "/openai/v1/audio/translations": {
+   "post": {
+    "operationId": "translate",
+    "requestBody": {
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/CreateTranslationRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CreateTranslationResponseJson"
+        }
+       },
+       "text/plain": {
+        "schema": {
+         "type": "string"
+        }
+       }
+      },
+      "description": "OK"
+     }
+    },
+    "summary": "Translates audio into English.",
+    "tags": [
+     "Audio"
+    ],
+    "x-groq-metadata": {
+     "examples": [
+      {
+       "request": {
+        "curl": "curl https://api.groq.com/openai/v1/audio/translations \\\n  -H \"Authorization: Bearer $GROQ_API_KEY\" \\\n  -H \"Content-Type: multipart/form-data\" \\\n  -F file=\"@./sample_audio.m4a\" \\\n  -F model=\"whisper-large-v3\"\n",
+        "js": "// Default\nimport fs from \"fs\";\nimport Groq from \"groq-sdk\";\n\nconst groq = new Groq();\nasync function main() {\n  const translation = await groq.audio.translations.create({\n    file: fs.createReadStream(\"sample_audio.m4a\"),\n    model: \"whisper-large-v3\",\n    prompt: \"Specify context or spelling\", // Optional\n    response_format: \"json\", // Optional\n    temperature: 0.0, // Optional\n  });\n  console.log(translation.text);\n}\nmain();\n",
+        "py": "# Default\nimport os\nfrom groq import Groq\n\nclient = Groq()\nfilename = os.path.dirname(__file__) + \"/sample_audio.m4a\"\n\nwith open(filename, \"rb\") as file:\n    translation = client.audio.translations.create(\n      file=(filename, file.read()),\n      model=\"whisper-large-v3\",\n      prompt=\"Specify context or spelling\",  # Optional\n      response_format=\"json\",  # Optional\n      temperature=0.0  # Optional\n    )\n    print(translation.text)\n"
+       },
+       "response": "{\n  \"text\": \"Your translated text appears here...\",\n  \"x_groq\": {\n    \"id\": \"req_unique_id\"\n  }\n}\n",
+       "title": "Default"
+      }
+     ],
+     "returns": "Returns an audio translation object."
+    },
+    "x-pp-resource": "audio"
+   }
+  },
+  "/openai/v1/batches": {
+   "get": {
+    "operationId": "listBatches",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ListBatchesResponse"
+        }
+       }
+      },
+      "description": "Batch listed successfully."
+     }
+    },
+    "summary": "Returns a list of the user's batches with their current status and request counts.",
+    "tags": [
+     "Batch"
+    ],
+    "x-groq-metadata": {
+     "examples": [
+      {
+       "request": {
+        "curl": "curl https://api.groq.com/openai/v1/batches \\\n  -H \"Authorization: Bearer $GROQ_API_KEY\" \\\n  -H \"Content-Type: application/json\"\n",
+        "js": "import Groq from 'groq-sdk';\n\nconst client = new Groq({\n  apiKey: process.env['GROQ_API_KEY'], // This is the default and can be omitted\n});\n\nasync function main() {\n  const batchList = await client.batches.list();\n  console.log(batchList.data);\n}\n\nmain();\n",
+        "py": "import os\nfrom groq import Groq\n\nclient = Groq(\n    api_key=os.environ.get(\"GROQ_API_KEY\"),  # This is the default and can be omitted\n)\nbatch_list = client.batches.list()\nprint(batch_list.data)\n"
+       },
+       "response": "{\n  \"object\": \"list\",\n  \"data\": [\n    {\n      \"id\": \"batch_01jh6xa7reempvjyh6n3yst2zw\",\n      \"object\": \"batch\",\n      \"endpoint\": \"/v1/chat/completions\",\n      \"errors\": null,\n      \"input_file_id\": \"file_01jh6x76wtemjr74t1fh0faj5t\",\n      \"completion_window\": \"24h\",\n      \"status\": \"validating\",\n      \"output_file_id\": null,\n      \"error_file_id\": null,\n      \"finalizing_at\": null,\n      \"failed_at\": null,\n      \"expired_at\": null,\n      \"cancelled_at\": null,\n      \"request_counts\": {\n        \"total\": 0,\n        \"completed\": 0,\n        \"failed\": 0\n      },\n      \"metadata\": null,\n      \"created_at\": 1736472600,\n      \"expires_at\": 1736559000,\n      \"cancelling_at\": null,\n      \"completed_at\": null,\n      \"in_progress_at\": null\n    }\n  ]\n}\n",
+       "title": "Default"
+      }
+     ],
+     "returns": "A list of batches"
+    },
+    "x-pp-resource": "batches",
+    "x-live-dogfood-requires-tier": "batch"
+   },
+   "post": {
+    "operationId": "create",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "properties": {
+         "completion_window": {
+          "description": "The time frame within which the batch should be processed. Durations from `24h` to `7d` are supported.",
+          "type": "string"
+         },
+         "endpoint": {
+          "description": "The endpoint to be used for all requests in the batch. Currently `/v1/chat/completions` is supported.",
+          "enum": [
+           "/v1/chat/completions"
+          ],
+          "type": "string"
+         },
+         "input_file_id": {
+          "description": "The ID of an uploaded file that contains requests for the new batch.\n\nSee [upload file](/docs/api-reference#files-upload) for how to upload a file.\n\nYour input file must be formatted as a [JSONL file](/docs/batch), and must be uploaded with the purpose `batch`. The file can be up to 100 MB in size.\n",
+          "type": "string"
+         },
+         "metadata": {
+          "additionalProperties": {
+           "type": "string"
+          },
+          "description": "Optional custom metadata for the batch.",
+          "nullable": true,
+          "type": "object"
+         }
+        },
+        "required": [
+         "input_file_id",
+         "endpoint",
+         "completion_window"
+        ],
+        "type": "object"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Batch"
+        }
+       }
+      },
+      "description": "Batch created successfully."
+     }
+    },
+    "summary": "Creates and executes a batch from an uploaded file of requests.",
+    "tags": [
+     "Batch"
+    ],
+    "x-groq-metadata": {
+     "examples": [
+      {
+       "request": {
+        "curl": "curl https://api.groq.com/openai/v1/batches \\\n  -H \"Authorization: Bearer $GROQ_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"input_file_id\": \"file_01jh6x76wtemjr74t1fh0faj5t\",\n    \"endpoint\": \"/v1/chat/completions\",\n    \"completion_window\": \"24h\"\n  }'\n",
+        "js": "import Groq from 'groq-sdk';\n\nconst client = new Groq({\n  apiKey: process.env['GROQ_API_KEY'], // This is the default and can be omitted\n});\n\nasync function main() {\n  const batch = await client.batches.create({\n    completion_window: \"24h\",\n    endpoint: \"/v1/chat/completions\",\n    input_file_id: \"file_01jh6x76wtemjr74t1fh0faj5t\",\n  });\n  console.log(batch.id);\n}\n\nmain();\n",
+        "py": "import os\nfrom groq import Groq\n\nclient = Groq(\n    api_key=os.environ.get(\"GROQ_API_KEY\"),  # This is the default and can be omitted\n)\nbatch = client.batches.create(\n    completion_window=\"24h\",\n    endpoint=\"/v1/chat/completions\",\n    input_file_id=\"file_01jh6x76wtemjr74t1fh0faj5t\",\n)\nprint(batch.id)\n"
+       },
+       "response": "{\n  \"id\": \"batch_01jh6xa7reempvjyh6n3yst2zw\",\n  \"object\": \"batch\",\n  \"endpoint\": \"/v1/chat/completions\",\n  \"errors\": null,\n  \"input_file_id\": \"file_01jh6x76wtemjr74t1fh0faj5t\",\n  \"completion_window\": \"24h\",\n  \"status\": \"validating\",\n  \"output_file_id\": null,\n  \"error_file_id\": null,\n  \"finalizing_at\": null,\n  \"failed_at\": null,\n  \"expired_at\": null,\n  \"cancelled_at\": null,\n  \"request_counts\": {\n    \"total\": 0,\n    \"completed\": 0,\n    \"failed\": 0\n  },\n  \"metadata\": null,\n  \"created_at\": 1736472600,\n  \"expires_at\": 1736559000,\n  \"cancelling_at\": null,\n  \"completed_at\": null,\n  \"in_progress_at\": null\n}\n",
+       "title": "Default"
+      }
+     ],
+     "returns": "A created batch object."
+    },
+    "x-pp-resource": "batches",
+    "x-live-dogfood-requires-tier": "batch"
+   }
+  },
+  "/openai/v1/batches/{batch_id}": {
+   "get": {
+    "operationId": "get",
+    "parameters": [
+     {
+      "description": "The ID of the batch to retrieve.",
+      "in": "path",
+      "name": "batch_id",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Batch"
+        }
+       }
+      },
+      "description": "Batch retrieved successfully."
+     }
+    },
+    "summary": "Retrieves a batch.",
+    "tags": [
+     "Batch"
+    ],
+    "x-groq-metadata": {
+     "examples": [
+      {
+       "request": {
+        "curl": "curl https://api.groq.com/openai/v1/batches/batch_01jh6xa7reempvjyh6n3yst2zw \\\n  -H \"Authorization: Bearer $GROQ_API_KEY\" \\\n  -H \"Content-Type: application/json\"\n",
+        "js": "import Groq from 'groq-sdk';\n\nconst client = new Groq({\n  apiKey: process.env['GROQ_API_KEY'], // This is the default and can be omitted\n});\n\nasync function main() {\n  const batch = await client.batches.retrieve(\"batch_01jh6xa7reempvjyh6n3yst2zw\");\n  console.log(batch.id);\n}\n\nmain();\n",
+        "py": "import os\nfrom groq import Groq\n\nclient = Groq(\n    api_key=os.environ.get(\"GROQ_API_KEY\"),  # This is the default and can be omitted\n)\nbatch = client.batches.retrieve(\n    \"batch_01jh6xa7reempvjyh6n3yst2zw\",\n)\nprint(batch.id)\n"
+       },
+       "response": "{\n  \"id\": \"batch_01jh6xa7reempvjyh6n3yst2zw\",\n  \"object\": \"batch\",\n  \"endpoint\": \"/v1/chat/completions\",\n  \"errors\": null,\n  \"input_file_id\": \"file_01jh6x76wtemjr74t1fh0faj5t\",\n  \"completion_window\": \"24h\",\n  \"status\": \"validating\",\n  \"output_file_id\": null,\n  \"error_file_id\": null,\n  \"finalizing_at\": null,\n  \"failed_at\": null,\n  \"expired_at\": null,\n  \"cancelled_at\": null,\n  \"request_counts\": {\n    \"total\": 0,\n    \"completed\": 0,\n    \"failed\": 0\n  },\n  \"metadata\": null,\n  \"created_at\": 1736472600,\n  \"expires_at\": 1736559000,\n  \"cancelling_at\": null,\n  \"completed_at\": null,\n  \"in_progress_at\": null\n}\n",
+       "title": "Default"
+      }
+     ],
+     "returns": "A batch object."
+    },
+    "x-pp-resource": "batches",
+    "x-live-dogfood-requires-tier": "batch"
+   }
+  },
+  "/openai/v1/batches/{batch_id}/cancel": {
+   "post": {
+    "operationId": "cancel",
+    "parameters": [
+     {
+      "description": "The ID of the batch to cancel.",
+      "in": "path",
+      "name": "batch_id",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Batch"
+        }
+       }
+      },
+      "description": "Batch cancelled successfully."
+     }
+    },
+    "summary": "Cancels a batch.",
+    "tags": [
+     "Batch"
+    ],
+    "x-groq-metadata": {
+     "examples": [
+      {
+       "request": {
+        "curl": "curl -X POST https://api.groq.com/openai/v1/batches/batch_01jh6xa7reempvjyh6n3yst2zw/cancel \\\n  -H \"Authorization: Bearer $GROQ_API_KEY\" \\\n  -H \"Content-Type: application/json\"\n",
+        "js": "import Groq from 'groq-sdk';\n\nconst client = new Groq({\n  apiKey: process.env['GROQ_API_KEY'], // This is the default and can be omitted\n});\n\nasync function main() {\n  const batch = await client.batches.cancel(\"batch_01jh6xa7reempvjyh6n3yst2zw\");\n  console.log(batch.id);\n}\n\nmain();\n",
+        "py": "import os\nfrom groq import Groq\n\nclient = Groq(\n    api_key=os.environ.get(\"GROQ_API_KEY\"),  # This is the default and can be omitted\n)\nbatch = client.batches.cancel(\n    \"batch_01jh6xa7reempvjyh6n3yst2zw\",\n)\nprint(batch.id)\n"
+       },
+       "response": "{\n  \"id\": \"batch_01jh6xa7reempvjyh6n3yst2zw\",\n  \"object\": \"batch\",\n  \"endpoint\": \"/v1/chat/completions\",\n  \"errors\": null,\n  \"input_file_id\": \"file_01jh6x76wtemjr74t1fh0faj5t\",\n  \"completion_window\": \"24h\",\n  \"status\": \"cancelling\",\n  \"output_file_id\": null,\n  \"error_file_id\": null,\n  \"finalizing_at\": null,\n  \"failed_at\": null,\n  \"expired_at\": null,\n  \"cancelled_at\": null,\n  \"request_counts\": {\n    \"total\": 0,\n    \"completed\": 0,\n    \"failed\": 0\n  },\n  \"metadata\": null,\n  \"created_at\": 1736472600,\n  \"expires_at\": 1736559000,\n  \"cancelling_at\": null,\n  \"completed_at\": null,\n  \"in_progress_at\": null\n}\n",
+       "title": "Default"
+      }
+     ],
+     "returns": "A batch object."
+    },
+    "x-pp-resource": "batches",
+    "x-live-dogfood-requires-tier": "batch"
+   }
+  },
+  "/openai/v1/chat/completions": {
+   "post": {
+    "operationId": "completions",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CreateChatCompletionRequest"
+       }
+      }
+     },
+     "description": "The chat prompt and parameters",
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CreateChatCompletionResponse"
+        }
+       }
+      },
+      "description": "OK"
+     }
+    },
+    "summary": "Creates a model response for the given chat conversation.",
+    "tags": [
+     "Chat"
+    ],
+    "x-groq-metadata": {
+     "examples": [
+      {
+       "request": {
+        "curl": "curl https://api.groq.com/openai/v1/chat/completions -s \\\n-H \"Content-Type: application/json\" \\\n-H \"Authorization: Bearer $GROQ_API_KEY\" \\\n-d '{\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [{\n      \"role\": \"user\",\n      \"content\": \"Explain the importance of fast language models\"\n  }]\n}'\n",
+        "js": "import Groq from \"groq-sdk\";\n\nconst groq = new Groq({ apiKey: process.env.GROQ_API_KEY });\n\nasync function main() {\n  const completion = await groq.chat.completions\n    .create({\n      messages: [\n        {\n          role: \"user\",\n          content: \"Explain the importance of fast language models\",\n        },\n      ],\n      model: \"llama-3.3-70b-versatile\",\n    })\n  console.log(completion.choices[0].message.content);\n}\n\nmain();\n",
+        "py": "import os\n\nfrom groq import Groq\n\nclient = Groq(\n    # This is the default and can be omitted\n    api_key=os.environ.get(\"GROQ_API_KEY\"),\n)\n\nchat_completion = client.chat.completions.create(\n    messages=[\n        {\n            \"role\": \"system\",\n            \"content\": \"You are a helpful assistant.\"\n        },\n        {\n            \"role\": \"user\",\n            \"content\": \"Explain the importance of fast language models\",\n        }\n    ],\n    model=\"llama-3.3-70b-versatile\",\n)\n\nprint(chat_completion.choices[0].message.content)\n"
+       },
+       "response": "$25",
+       "title": "Default"
+      }
+     ],
+     "returns": "Returns a [chat completion](/docs/api-reference#chat-create) object, or a streamed sequence of [chat completion chunk](/docs/api-reference#chat-create) objects if the request is streamed."
+    },
+    "x-pp-resource": "chat"
+   }
+  },
+  "/openai/v1/embeddings": {
+   "post": {
+    "operationId": "createEmbedding",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CreateEmbeddingRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CreateEmbeddingResponse"
+        }
+       }
+      },
+      "description": "OK"
+     }
+    },
+    "summary": "Creates an embedding vector representing the input text.",
+    "tags": [
+     "Embeddings"
+    ],
+    "x-pp-resource": "embeddings"
+   }
+  },
+  "/openai/v1/files": {
+   "get": {
+    "operationId": "listFiles",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ListFilesResponse"
+        }
+       }
+      },
+      "description": "OK"
+     }
+    },
+    "summary": "Returns a list of files that belong to the user's organization, with id, filename, purpose, bytes, and timestamps.",
+    "tags": [
+     "Files"
+    ],
+    "x-groq-metadata": {
+     "examples": [
+      {
+       "request": {
+        "curl": "curl https://api.groq.com/openai/v1/files \\\n  -H \"Authorization: Bearer $GROQ_API_KEY\" \\\n  -H \"Content-Type: application/json\"\n",
+        "js": "import Groq from 'groq-sdk';\n\nconst client = new Groq({\n  apiKey: process.env['GROQ_API_KEY'], // This is the default and can be omitted\n});\n\nasync function main() {\n  const fileList = await client.files.list();\n  console.log(fileList.data);\n}\n\nmain();\n",
+        "py": "import os\nfrom groq import Groq\n\nclient = Groq(\n    api_key=os.environ.get(\"GROQ_API_KEY\"),  # This is the default and can be omitted\n)\nfile_list = client.files.list()\nprint(file_list.data)\n"
+       },
+       "response": "{\n  \"object\": \"list\",\n  \"data\": [\n    {\n      \"id\": \"file_01jh6x76wtemjr74t1fh0faj5t\",\n      \"object\": \"file\",\n      \"bytes\": 966,\n      \"created_at\": 1736472501,\n      \"filename\": \"batch_file.jsonl\",\n      \"purpose\": \"batch\"\n    }\n  ]\n}\n",
+       "title": "Default"
+      }
+     ],
+     "returns": "A list of [File](/docs/api-reference#files-upload) objects."
+    },
+    "x-pp-resource": "files"
+   },
+   "post": {
+    "operationId": "uploadFile",
+    "requestBody": {
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/CreateFileRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/File"
+        }
+       }
+      },
+      "description": "OK"
+     }
+    },
+    "summary": "Upload a file that can be used across various endpoints.\n\nThe Batch API only supports `.jsonl` files up to 100 MB in size. The input also has a specific required",
+    "tags": [
+     "Files"
+    ],
+    "x-groq-metadata": {
+     "examples": [
+      {
+       "request": {
+        "curl": "curl https://api.groq.com/openai/v1/files \\\n  -H \"Authorization: Bearer $GROQ_API_KEY\" \\\n  -F purpose=\"batch\" \\\n  -F \"file=@batch_file.jsonl\"\n",
+        "js": "import Groq from 'groq-sdk';\n\nconst client = new Groq({\n  apiKey: process.env['GROQ_API_KEY'], // This is the default and can be omitted\n});\n\nconst fileContent = '{\"custom_id\": \"request-1\", \"method\": \"POST\", \"url\": \"/v1/chat/completions\", \"body\": {\"model\": \"llama-3.1-8b-instant\", \"messages\": [{\"role\": \"user\", \"content\": \"Explain the importance of fast language models\"}]}}\\n';\n\nasync function main() {\n  const blob = new Blob([fileContent]);\n  const file = new File([blob], 'batch.jsonl');\n\n  const createdFile = await client.files.create({ file: file, purpose: 'batch' });\n  console.log(createdFile.id);\n}\n\nmain();\n",
+        "py": "import os\nimport requests # pip install requests first!\n\ndef upload_file_to_groq(api_key, file_path):\n    url = \"https://api.groq.com/openai/v1/files\"\n\n    headers = {\n        \"Authorization\": f\"Bearer {api_key}\"\n    }\n\n    # Prepare the file and form data\n    files = {\n        \"file\": (\"batch_file.jsonl\", open(file_path, \"rb\"))\n    }\n\n    data = {\n        \"purpose\": \"batch\"\n    }\n\n    # Make the POST request\n    response = requests.post(url, headers=headers, files=files, data=data)\n\n    return response.json()\n\n# Usage example\napi_key = os.environ.get(\"GROQ_API_KEY\")\nfile_path = \"batch_file.jsonl\"  # Path to your JSONL file\n\ntry:\n    result = upload_file_to_groq(api_key, file_path)\n    print(result)\nexcept Exception as e:\n    print(f\"Error: {e}\")\n"
+       },
+       "response": "{\n  \"id\": \"file_01jh6x76wtemjr74t1fh0faj5t\",\n  \"object\": \"file\",\n  \"bytes\": 966,\n  \"created_at\": 1736472501,\n  \"filename\": \"batch_file.jsonl\",\n  \"purpose\": \"batch\"\n}\n",
+       "title": "Default"
+      }
+     ],
+     "returns": "The uploaded File object."
+    },
+    "x-pp-resource": "files"
+   }
+  },
+  "/openai/v1/files/{file_id}": {
+   "delete": {
+    "operationId": "deleteFile",
+    "parameters": [
+     {
+      "description": "The ID of the file to use for this request.",
+      "in": "path",
+      "name": "file_id",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DeleteFileResponse"
+        }
+       }
+      },
+      "description": "OK"
+     }
+    },
+    "summary": "Delete a file.",
+    "tags": [
+     "Files"
+    ],
+    "x-groq-metadata": {
+     "examples": [
+      {
+       "request": {
+        "curl": "curl -X DELETE https://api.groq.com/openai/v1/files/file_01jh6x76wtemjr74t1fh0faj5t \\\n  -H \"Authorization: Bearer $GROQ_API_KEY\" \\\n  -H \"Content-Type: application/json\"\n",
+        "js": "import Groq from 'groq-sdk';\n\nconst client = new Groq({\n  apiKey: process.env['GROQ_API_KEY'], // This is the default and can be omitted\n});\n\nasync function main() {\n  const fileDelete = await client.files.delete(\"file_01jh6x76wtemjr74t1fh0faj5t\");\n  console.log(fileDelete);\n}\n\nmain();\n",
+        "py": "import os\nfrom groq import Groq\n\nclient = Groq(\n    api_key=os.environ.get(\"GROQ_API_KEY\"),  # This is the default and can be omitted\n)\nfile_delete = client.files.delete(\n    \"file_01jh6x76wtemjr74t1fh0faj5t\",\n)\nprint(file_delete)\n"
+       },
+       "response": "{\n  \"id\": \"file_01jh6x76wtemjr74t1fh0faj5t\",\n  \"object\": \"file\",\n  \"deleted\": true\n}\n",
+       "title": "Default"
+      }
+     ],
+     "returns": "A deleted file response object."
+    },
+    "x-pp-resource": "files"
+   },
+   "get": {
+    "operationId": "retrieveFile",
+    "parameters": [
+     {
+      "description": "The file to retrieve",
+      "in": "path",
+      "name": "file_id",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/File"
+        }
+       }
+      },
+      "description": "OK"
+     }
+    },
+    "summary": "Returns detailed information about a specific file by its ID.",
+    "tags": [
+     "Files"
+    ],
+    "x-groq-metadata": {
+     "examples": [
+      {
+       "request": {
+        "curl": "curl https://api.groq.com/openai/v1/files/file_01jh6x76wtemjr74t1fh0faj5t \\\n  -H \"Authorization: Bearer $GROQ_API_KEY\" \\\n  -H \"Content-Type: application/json\"\n",
+        "js": "import Groq from 'groq-sdk';\n\nconst client = new Groq({\n  apiKey: process.env['GROQ_API_KEY'], // This is the default and can be omitted\n});\n\nasync function main() {\n    const file = await client.files.info('file_01jh6x76wtemjr74t1fh0faj5t');\n    console.log(file);\n}\n\nmain();\n",
+        "py": "import os\nfrom groq import Groq\n\nclient = Groq(\n    api_key=os.environ.get(\"GROQ_API_KEY\"),  # This is the default and can be omitted\n)\nfile = client.files.info(\n    \"file_01jh6x76wtemjr74t1fh0faj5t\",\n)\nprint(file)\n"
+       },
+       "response": "{\n  \"id\": \"file_01jh6x76wtemjr74t1fh0faj5t\",\n  \"object\": \"file\",\n  \"bytes\": 966,\n  \"created_at\": 1736472501,\n  \"filename\": \"batch_file.jsonl\",\n  \"purpose\": \"batch\"\n}\n",
+       "title": "Default"
+      }
+     ],
+     "returns": "A file object."
+    },
+    "x-pp-resource": "files"
+   }
+  },
+  "/openai/v1/files/{file_id}/content": {
+   "get": {
+    "operationId": "downloadFile",
+    "parameters": [
+     {
+      "description": "The ID of the file to use for this request.",
+      "in": "path",
+      "name": "file_id",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/octet-stream": {
+        "schema": {
+         "format": "binary",
+         "type": "string"
+        }
+       }
+      },
+      "description": "OK"
+     }
+    },
+    "summary": "Returns the contents of the specified file.",
+    "tags": [
+     "Files"
+    ],
+    "x-groq-metadata": {
+     "examples": [
+      {
+       "request": {
+        "curl": "curl https://api.groq.com/openai/v1/files/file_01jh6x76wtemjr74t1fh0faj5t/content \\\n  -H \"Authorization: Bearer $GROQ_API_KEY\" \\\n  -H \"Content-Type: application/json\"\n",
+        "js": "import Groq from 'groq-sdk';\n\nconst client = new Groq({\n  apiKey: process.env['GROQ_API_KEY'], // This is the default and can be omitted\n});\n\nasync function main() {\n    const response = await client.files.content('file_01jh6x76wtemjr74t1fh0faj5t');\n    console.log(response);\n}\n\nmain();\n",
+        "py": "import os\nfrom groq import Groq\n\nclient = Groq(\n    api_key=os.environ.get(\"GROQ_API_KEY\"),  # This is the default and can be omitted\n)\nresponse = client.files.content(\n    \"file_01jh6x76wtemjr74t1fh0faj5t\",\n)\nprint(response)\n"
+       },
+       "title": "Default"
+      }
+     ],
+     "returns": "The file content"
+    },
+    "x-pp-resource": "files"
+   }
+  },
+  "/openai/v1/models": {
+   "get": {
+    "description": "get all available models",
+    "operationId": "listModels",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ListModelsResponse"
+        }
+       }
+      },
+      "description": "OK"
+     }
+    },
+    "summary": "Lists all models currently available on the account, including context window, pricing, and capabilities.",
+    "tags": [
+     "Models"
+    ],
+    "x-groq-metadata": {
+     "examples": [
+      {
+       "request": {
+        "curl": "curl https://api.groq.com/openai/v1/models \\\n-H \"Authorization: Bearer $GROQ_API_KEY\"\n",
+        "js": "import Groq from \"groq-sdk\";\n\nconst groq = new Groq({ apiKey: process.env.GROQ_API_KEY });\n\nasync function main() {\n  const models = await groq.models.list();\n  console.log(models);\n}\n\nmain();\n",
+        "py": "import os\nfrom groq import Groq\n\nclient = Groq(\n    # This is the default and can be omitted\n    api_key=os.environ.get(\"GROQ_API_KEY\"),\n)\n\nmodels = client.models.list()\n\nprint(models)\n"
+       },
+       "response": "$26",
+       "title": "Default"
+      }
+     ],
+     "returns": "A list of model objects."
+    },
+    "x-pp-resource": "models"
+   }
+  },
+  "/openai/v1/models/{model}": {
+   "delete": {
+    "description": "Delete a model",
+    "operationId": "deleteModel",
+    "parameters": [
+     {
+      "description": "The model to delete",
+      "in": "path",
+      "name": "model",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DeleteModelResponse"
+        }
+       }
+      },
+      "description": "OK"
+     }
+    },
+    "summary": "Delete model",
+    "tags": [
+     "Models"
+    ],
+    "x-pp-resource": "models"
+   },
+   "get": {
+    "description": "Get a specific model",
+    "operationId": "retrieveModel",
+    "parameters": [
+     {
+      "description": "The model to get",
+      "in": "path",
+      "name": "model",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Model"
+        }
+       }
+      },
+      "description": "OK"
+     }
+    },
+    "summary": "Returns detailed information about a specific model by ID.",
+    "tags": [
+     "Models"
+    ],
+    "x-groq-metadata": {
+     "examples": [
+      {
+       "request": {
+        "curl": "curl https://api.groq.com/openai/v1/models/llama-3.3-70b-versatile \\\n-H \"Authorization: Bearer $GROQ_API_KEY\"\n",
+        "js": "import Groq from \"groq-sdk\";\n\nconst groq = new Groq({ apiKey: process.env.GROQ_API_KEY });\n\nasync function main() {\n  const model = await groq.models.retrieve(\"llama-3.3-70b-versatile\");\n  console.log(model);\n}\n\nmain();\n",
+        "py": "import os\nfrom groq import Groq\n\nclient = Groq(\n    # This is the default and can be omitted\n    api_key=os.environ.get(\"GROQ_API_KEY\"),\n)\n\nmodel = client.models.retrieve(\"llama-3.3-70b-versatile\")\n\nprint(model)\n"
+       },
+       "response": "{\n  \"id\": \"llama3-8b-8192\",\n  \"object\": \"model\",\n  \"created\": 1693721698,\n  \"owned_by\": \"Meta\",\n  \"active\": true,\n  \"context_window\": 8192,\n  \"public_apps\": null,\n  \"max_completion_tokens\": 8192\n}\n",
+       "title": "Default"
+      }
+     ],
+     "returns": "A model object."
+    },
+    "x-pp-resource": "models"
+   }
+  },
+  "/openai/v1/reranking": {
+   "post": {
+    "description": "Given a query and a list of documents, returns the documents ranked by their relevance to the query.\nThe documents are scored and sorted in descending order of relevance.\n",
+    "operationId": "createReranking",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RerankingRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RerankingResponse"
+        }
+       }
+      },
+      "description": "OK"
+     }
+    },
+    "summary": "Reranks documents based on their relevance to a query.",
+    "tags": [
+     "Reranking"
+    ],
+    "x-groq-metadata": {
+     "examples": [
+      {
+       "request": {
+        "curl": "curl https://api.groq.com/openai/v1/reranking \\\n  -H \"Authorization: Bearer $GROQ_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"model\": \"qwen3-reranker-4b\",\n    \"query\": \"artificial intelligence\",\n    \"docs\": [\n      \"Machine learning is a subset of AI\",\n      \"The weather is nice today\",\n      \"Deep learning uses neural networks\"\n    ]\n  }'\n",
+        "js": "import Groq from 'groq-sdk';\n\nconst client = new Groq({\n  apiKey: process.env['GROQ_API_KEY'],\n});\n\nasync function main() {\n  const reranking = await client.reranking.create({\n    model: 'qwen3-reranker-4b',\n    query: 'artificial intelligence',\n    docs: [\n      'Machine learning is a subset of AI',\n      'The weather is nice today',\n      'Deep learning uses neural networks'\n    ]\n  });\n  console.log(reranking.results);\n}\nmain();\n",
+        "py": "import os\nfrom groq import Groq\n\nclient = Groq(api_key=os.environ.get(\"GROQ_API_KEY\"))\n\nreranking = client.reranking.create(\n    model=\"qwen3-reranker-4b\",\n    query=\"artificial intelligence\",\n    docs=[\n        \"Machine learning is a subset of AI\",\n        \"The weather is nice today\", \n        \"Deep learning uses neural networks\"\n    ]\n)\nprint(reranking.results)\n"
+       },
+       "response": "{\n  \"results\": [\n    {\n      \"doc\": \"Machine learning is a subset of AI\",\n      \"score\": 0.92\n    },\n    {\n      \"doc\": \"Deep learning uses neural networks\", \n      \"score\": 0.87\n    },\n    {\n      \"doc\": \"The weather is nice today\",\n      \"score\": 0.23\n    }\n  ]\n}\n",
+       "title": "Basic Reranking"
+      },
+      {
+       "request": {
+        "json": "{\n  \"model\": \"qwen3-reranker-4b\",\n  \"query\": \"climate change effects\",\n  \"docs\": [\n    \"Global warming causes sea level rise\",\n    \"Electric cars reduce emissions\",\n    \"Renewable energy is growing fast\"\n  ],\n  \"instruction\": \"Find documents specifically about environmental impacts\"\n}\n"
+       },
+       "response": "{\n  \"results\": [\n    {\n      \"doc\": \"Global warming causes sea level rise\",\n      \"score\": 0.95\n    },\n    {\n      \"doc\": \"Electric cars reduce emissions\",\n      \"score\": 0.78\n    },\n    {\n      \"doc\": \"Renewable energy is growing fast\",\n      \"score\": 0.65\n    }\n  ]\n}\n",
+       "title": "Reranking with Custom Instruction"
+      }
+     ],
+     "returns": "A list of documents sorted by relevance score in descending order. \nScores range from 0.0 to 1.0, where higher scores indicate greater relevance to the query.\n"
+    },
+    "x-pp-resource": "reranking"
+   }
+  },
+  "/openai/v1/responses": {
+   "post": {
+    "operationId": "createResponse",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CreateResponseRequest"
+       }
+      }
+     },
+     "description": "The input prompt and parameters",
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CreateResponseResponse"
+        }
+       }
+      },
+      "description": "OK"
+     }
+    },
+    "summary": "Creates a model response for the given input.",
+    "tags": [
+     "Responses"
+    ],
+    "x-groq-metadata": {
+     "examples": [
+      {
+       "request": {
+        "curl": "curl https://api.groq.com/openai/v1/responses -s \\\n-H \"Content-Type: application/json\" \\\n-H \"Authorization: Bearer $GROQ_API_KEY\" \\\n-d '{\n  \"model\": \"openai/gpt-oss-120b\",\n  \"input\": \"Tell me a three sentence bedtime story about a unicorn.\"\n}'\n"
+       },
+       "response": "$27",
+       "title": "Default"
+      }
+     ],
+     "returns": "Returns a [response](/docs/api-reference#responses-create) object, or a streamed sequence of [response events](/docs/api-reference#responses-streaming) if the request is streamed."
+    },
+    "x-pp-resource": "responses"
+   }
+  },
+  "/v1/fine_tunings": {
+   "get": {
+    "operationId": "listFineTunings",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ListFineTuningsResponse"
+        }
+       }
+      },
+      "description": "OK"
+     }
+    },
+    "summary": "Lists all previously created fine tunings. This endpoint is in closed beta.",
+    "tags": [
+     "Fine Tuning"
+    ],
+    "x-groq-metadata": {
+     "examples": [
+      {
+       "request": {
+        "curl": "curl https://api.groq.com/v1/fine_tunings -s \\\n    -H \"Content-Type: application/json\" \\\n    -H \"Authorization: Bearer $GROQ_API_KEY\"\n",
+        "js": "import Groq from \"groq-sdk\";\n\nconst groq = new Groq({ apiKey: process.env.GROQ_API_KEY });\n\nasync function main() {\n    const fineTunings = await groq.fine_tunings.list();\n    console.log(fineTunings);\n}\n\nmain();\n",
+        "py": "import os\n\nfrom groq import Groq\n\nclient = Groq(\n    # This is the default and can be omitted\n    api_key=os.environ.get(\"GROQ_API_KEY\"),\n)\n\nfine_tunings = client.fine_tunings.list()\n\nprint(fine_tunings)\n"
+       },
+       "response": "{\n    \"object\": \"list\",\n    \"data\": [\n        {\n            \"id\": \"string\",\n            \"name\": \"string\",\n            \"base_model\": \"string\",\n            \"type\": \"string\",\n            \"input_file_id\": \"string\",\n            \"created_at\": 0,\n            \"fine_tuned_model\": \"string\"\n        }\n    ]\n}\n",
+       "title": "Default"
+      }
+     ],
+     "returns": "The list of fine tunes"
+    },
+    "x-pp-resource": "fine-tunings",
+    "x-live-dogfood-requires-tier": "fine-tuning",
+    "x-pp-example": "groq-pp-cli fine-tunings list"
+   },
+   "post": {
+    "operationId": "createFineTuning",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CreateFineTuningRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ReadFineTuningResponse"
+        }
+       }
+      },
+      "description": "OK"
+     }
+    },
+    "summary": "Creates a new fine tuning for the already uploaded files This endpoint is in closed beta.",
+    "tags": [
+     "Fine Tuning"
+    ],
+    "x-groq-metadata": {
+     "examples": [
+      {
+       "request": {
+        "curl": "curl https://api.groq.com/v1/fine_tunings -s \\\n    -H \"Content-Type: application/json\" \\\n    -H \"Authorization: Bearer $GROQ_API_KEY\" \\\n    -d '{\n        \"input_file_id\": \"<file-id>\",\n        \"name\": \"test-1\",\n        \"type\": \"lora\",\n        \"base_model\": \"llama-3.1-8b-instant\"\n    }'\n",
+        "js": "import Groq from \"groq-sdk\";\n\nconst groq = new Groq({ apiKey: process.env.GROQ_API_KEY });\n\nasync function main() {\n    const fineTunings = await groq.fine_tunings.create({\n        input_file_id: \"<file-id>\",\n        name: \"test-1\",\n        type: \"lora\",\n        base_model: \"llama-3.1-8b-instant\"\n    });\n    console.log(fineTunings);\n}\n\nmain();\n",
+        "py": "import os\n\nfrom groq import Groq\n\nclient = Groq(\n    # This is the default and can be omitted\n    api_key=os.environ.get(\"GROQ_API_KEY\"),\n)\n\nfine_tunings = client.fine_tunings.create(\n    input_file_id=\"<file-id>\",\n    name=\"test-1\",\n    type=\"lora\",\n    base_model=\"llama-3.1-8b-instant\"\n)\n\nprint(fine_tunings)\n"
+       },
+       "response": "{\n    \"id\": \"string\",\n    \"object\": \"object\",\n    \"data\": {\n        \"id\": \"string\",\n        \"name\": \"string\",\n        \"base_model\": \"string\",\n        \"type\": \"string\",\n        \"input_file_id\": \"string\",\n        \"created_at\": 0,\n        \"fine_tuned_model\": \"string\"\n    }\n}\n",
+       "title": "Default"
+      }
+     ],
+     "returns": "The newly created fine tune"
+    },
+    "x-pp-resource": "fine-tunings",
+    "x-live-dogfood-requires-tier": "fine-tuning",
+    "x-pp-example": "groq-pp-cli fine-tunings create --file file-abc123 --model llama-3.1-8b-instant"
+   }
+  },
+  "/v1/fine_tunings/{id}": {
+   "delete": {
+    "operationId": "deleteFineTuning",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "id",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DeleteFineTuningResponse"
+        }
+       }
+      },
+      "description": "OK"
+     }
+    },
+    "summary": "Deletes an existing fine tuning by id This endpoint is in closed beta.",
+    "tags": [
+     "Fine Tuning"
+    ],
+    "x-groq-metadata": {
+     "examples": [
+      {
+       "request": {
+        "curl": "curl -X DELETE https://api.groq.com/v1/fine_tunings/:id -s \\\n    -H \"Content-Type: application/json\" \\\n    -H \"Authorization: Bearer $GROQ_API_KEY\"\n",
+        "js": "import Groq from \"groq-sdk\";\n\nconst groq = new Groq({ apiKey: process.env.GROQ_API_KEY });\n\nasync function main() {\n    await groq.fine_tunings.delete({id: \"<id>\"});\n}\n\nmain();\n",
+        "py": "import os\n\nfrom groq import Groq\n\nclient = Groq(\n    # This is the default and can be omitted\n    api_key=os.environ.get(\"GROQ_API_KEY\"),\n)\n\nclient.fine_tunings.delete(id=\"<id>\")\n"
+       },
+       "response": "{\n    \"id\": \"string\",\n    \"object\": \"fine_tuning\",\n    \"deleted\": true\n}\n",
+       "title": "Default"
+      }
+     ],
+     "returns": "A confirmation of the deleted fine tune"
+    },
+    "x-pp-resource": "fine-tunings",
+    "x-live-dogfood-requires-tier": "fine-tuning",
+    "x-pp-example": "groq-pp-cli fine-tunings delete ft-abc123"
+   },
+   "get": {
+    "operationId": "getFineTuning",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "id",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ReadFineTuningResponse"
+        }
+       }
+      },
+      "description": "OK"
+     }
+    },
+    "summary": "Retrieves an existing fine tuning by id This endpoint is in closed beta.",
+    "tags": [
+     "Fine Tuning"
+    ],
+    "x-groq-metadata": {
+     "examples": [
+      {
+       "request": {
+        "curl": "curl https://api.groq.com/v1/fine_tunings/:id -s \\\n    -H \"Content-Type: application/json\" \\\n    -H \"Authorization: Bearer $GROQ_API_KEY\"\n",
+        "js": "import Groq from \"groq-sdk\";\n\nconst groq = new Groq({ apiKey: process.env.GROQ_API_KEY });\n\nasync function main() {\n    const fineTuning = await groq.fine_tunings.get({id: \"<id>\"});\n    console.log(fineTuning);\n}\n\nmain();\n",
+        "py": "import os\n\nfrom groq import Groq\n\nclient = Groq(\n    # This is the default and can be omitted\n    api_key=os.environ.get(\"GROQ_API_KEY\"),\n)\n\nfine_tuning = client.fine_tunings.get(id=\"<id>\")\n\nprint(fine_tuning)\n"
+       },
+       "response": "{\n    \"id\": \"string\",\n    \"object\": \"object\",\n    \"data\": {\n        \"id\": \"string\",\n        \"name\": \"string\",\n        \"base_model\": \"string\",\n        \"type\": \"string\",\n        \"input_file_id\": \"string\",\n        \"created_at\": 0,\n        \"fine_tuned_model\": \"string\"\n    }\n}\n",
+       "title": "Default"
+      }
+     ],
+     "returns": "A fine tune metadata object"
+    },
+    "x-pp-resource": "fine-tunings",
+    "x-live-dogfood-requires-tier": "fine-tuning",
+    "x-pp-example": "groq-pp-cli fine-tunings get ft-abc123"
+   }
+  }
+ },
+ "security": [
+  {
+   "api_key": []
+  }
+ ],
+ "servers": [
+  {
+   "url": "https://api.groq.com"
+  }
+ ],
+ "x-groq-metadata": {
+  "groups": [
+   {
+    "description": "",
+    "id": "chat",
+    "sections": [
+     {
+      "key": "createChatCompletion",
+      "path": "create",
+      "type": "endpoint"
+     }
+    ],
+    "title": "Chat",
+    "type": "endpoints"
+   },
+   {
+    "description": "",
+    "id": "responses",
+    "sections": [
+     {
+      "key": "createResponse",
+      "path": "create",
+      "type": "endpoint"
+     }
+    ],
+    "title": "Responses (beta)",
+    "type": "endpoints"
+   },
+   {
+    "description": "",
+    "id": "audio",
+    "sections": [
+     {
+      "key": "createTranscription",
+      "path": "transcription",
+      "type": "endpoint"
+     },
+     {
+      "key": "createTranslation",
+      "path": "translation",
+      "type": "endpoint"
+     },
+     {
+      "key": "createSpeech",
+      "path": "speech",
+      "type": "endpoint"
+     }
+    ],
+    "title": "Audio",
+    "type": "endpoints"
+   },
+   {
+    "description": "",
+    "id": "models",
+    "sections": [
+     {
+      "key": "listModels",
+      "path": "list",
+      "type": "endpoint"
+     },
+     {
+      "key": "retrieveModel",
+      "path": "retrieve",
+      "type": "endpoint"
+     }
+    ],
+    "title": "Models",
+    "type": "endpoints"
+   },
+   {
+    "description": "",
+    "id": "batches",
+    "sections": [
+     {
+      "key": "createBatch",
+      "path": "create",
+      "type": "endpoint"
+     },
+     {
+      "key": "retrieveBatch",
+      "path": "retrieve",
+      "type": "endpoint"
+     },
+     {
+      "key": "listBatches",
+      "path": "list",
+      "type": "endpoint"
+     },
+     {
+      "key": "cancelBatch",
+      "path": "cancel",
+      "type": "endpoint"
+     }
+    ],
+    "title": "Batches",
+    "type": "endpoints"
+   },
+   {
+    "description": "",
+    "id": "files",
+    "sections": [
+     {
+      "key": "uploadFile",
+      "path": "upload",
+      "type": "endpoint"
+     },
+     {
+      "key": "listFiles",
+      "path": "list",
+      "type": "endpoint"
+     },
+     {
+      "key": "deleteFile",
+      "path": "delete",
+      "type": "endpoint"
+     },
+     {
+      "key": "retrieveFile",
+      "path": "retrieve",
+      "type": "endpoint"
+     },
+     {
+      "key": "downloadFile",
+      "path": "download",
+      "type": "endpoint"
+     }
+    ],
+    "title": "Files",
+    "type": "endpoints"
+   },
+   {
+    "description": "",
+    "id": "fine-tuning",
+    "sections": [
+     {
+      "key": "listFineTunings",
+      "path": "list",
+      "type": "endpoint"
+     },
+     {
+      "key": "createFineTuning",
+      "path": "create",
+      "type": "endpoint"
+     },
+     {
+      "key": "getFineTuning",
+      "path": "get",
+      "type": "endpoint"
+     },
+     {
+      "key": "deleteFineTuning",
+      "path": "delete",
+      "type": "endpoint"
+     }
+    ],
+    "title": "Fine Tuning",
+    "type": "endpoints"
+   }
+  ]
+ },
+ "x-cache": {
+  "enabled": true,
+  "stale_after": "24h",
+  "refresh_timeout": "30s",
+  "resources": {
+   "models": "24h"
+  }
+ },
+ "x-pp-default-rate-limit": "auto",
+ "x-learn": {
+  "entity_lookup_seeds": {
+   "model": [
+    {
+     "canonical": "llama-3.3-70b-versatile",
+     "aliases": [
+      "llama 3.3 70b",
+      "llama3.3",
+      "llama 70b"
+     ]
+    },
+    {
+     "canonical": "llama-3.1-8b-instant",
+     "aliases": [
+      "llama 3.1 8b",
+      "llama 8b instant",
+      "llama3.1"
+     ]
+    },
+    {
+     "canonical": "openai/gpt-oss-120b",
+     "aliases": [
+      "gpt-oss 120b",
+      "gpt oss 120b",
+      "gpt-oss-120b"
+     ]
+    },
+    {
+     "canonical": "openai/gpt-oss-20b",
+     "aliases": [
+      "gpt-oss 20b",
+      "gpt oss 20b",
+      "gpt-oss-20b"
+     ]
+    },
+    {
+     "canonical": "whisper-large-v3",
+     "aliases": [
+      "whisper",
+      "whisper v3",
+      "whisper-large"
+     ]
+    },
+    {
+     "canonical": "whisper-large-v3-turbo",
+     "aliases": [
+      "whisper turbo",
+      "whisper-large-v3-turbo"
+     ]
+    },
+    {
+     "canonical": "groq/compound",
+     "aliases": [
+      "compound",
+      "groq compound"
+     ]
+    },
+    {
+     "canonical": "groq/compound-mini",
+     "aliases": [
+      "compound mini"
+     ]
+    },
+    {
+     "canonical": "qwen/qwen3.6-27b",
+     "aliases": [
+      "qwen 3.6",
+      "qwen3.6",
+      "qwen 27b"
+     ]
+    },
+    {
+     "canonical": "qwen/qwen3.8-27b",
+     "aliases": [
+      "qwen 3.8",
+      "qwen3.8"
+     ]
+    }
+   ]
+  }
+ }
+}

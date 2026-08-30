@@ -1,0 +1,274 @@
+{
+  "api_name": "groq",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "groq-mcp-server",
+      "url": "https://github.com/groq/groq-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 44,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "groq-python",
+      "url": "https://github.com/groq/groq-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 611,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "groq-code-cli",
+      "url": "https://github.com/build-with-groq/groq-code-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 740,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "groq-cli-chat",
+      "url": "https://github.com/OleksiyM/groq-cli-chat",
+      "language": "Go",
+      "install_method": "",
+      "stars": 21,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "groqcli",
+      "url": "https://github.com/ciraben/groqcli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "groq-cli-minimal",
+      "url": "https://github.com/orliesaurus/groq-cli-minimal",
+      "language": "Shell",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-29T11:20:00Z",
+  "novel_features": [
+    {
+      "name": "Rate-limit budget",
+      "command": "rate-limits",
+      "description": "See remaining per-model request/token budget from every API call, with reset windows.",
+      "rationale": "Joins per-model RPM/RPD/TPM/TPD limits with x-ratelimit-* headers captured into the local ledger — no single API call or dashboard shows this from the shell.",
+      "example": "groq-pp-cli rate-limits --model openai/gpt-oss-20b --json",
+      "why_it_matters": "Reach for this before a bulk run or when a 429 interrupts a pipeline; it tells you the exact remaining budget and reset time instead of guessing.",
+      "group": "Local ledger that compounds"
+    },
+    {
+      "name": "Cost ledger analytics",
+      "command": "costs",
+      "description": "Aggregate token and dollar spend from your local completion history, grouped by model or day.",
+      "rationale": "Joins local completion-history token usage with per-model prices in the synced catalog — spend accounting that would otherwise be a manual spreadsheet.",
+      "example": "groq-pp-cli costs --since 48h --group-by model --agent",
+      "why_it_matters": "Use this to answer 'how much did my eval runs cost this week' without exporting anything from the console.",
+      "group": "Local ledger that compounds"
+    },
+    {
+      "name": "Multi-model prompt runner",
+      "command": "compare",
+      "description": "Run one prompt across several models and rank them by latency, tokens/sec, usage, and cost.",
+      "rationale": "Fans out real chat-completions calls and joins catalog prices for an empirical ranking — no other Groq tool runs the same prompt head-to-head from the shell.",
+      "example": "groq-pp-cli compare \"Explain transformers in one line\" --models openai/gpt-oss-20b,openai/gpt-oss-120b --agent",
+      "why_it_matters": "Pick the right model for a task by measuring real speed and cost instead of reading spec sheets.",
+      "group": "Empirical model selection"
+    },
+    {
+      "name": "Batch request pre-flight",
+      "command": "batch validate",
+      "description": "Validate every line of a .jsonl batch request file against the endpoint schema and estimate tokens/cost before uploading.",
+      "rationale": "Checks embedded per-endpoint request schemas locally and estimates cost from catalog pricing — the API rejects a whole batch on one malformed line only after upload.",
+      "example": "groq-pp-cli batch validate eval-batch.jsonl --json",
+      "why_it_matters": "Catch malformed batch lines and get a cost estimate before submitting a 100 MB file.",
+      "group": "Batch workflow guardrails"
+    },
+    {
+      "name": "Batch results diagnosis",
+      "command": "batch diagnose",
+      "description": "Tabulate a completed batch's per-line status codes and errors, highlighting retry-worthy failures.",
+      "rationale": "Downloads real batch results and parses each line's status/error fields locally — replacing grep-based error tabulation over thousands of lines.",
+      "example": "groq-pp-cli batch diagnose batch_abc123 --json",
+      "why_it_matters": "Know exactly which batch lines failed and why, in seconds, from the shell.",
+      "group": "Batch workflow guardrails"
+    },
+    {
+      "name": "Paced bulk audio runner",
+      "command": "audio batch",
+      "description": "Transcribe, translate, or synthesize speech over many audio files with rate-limit-aware pacing and a results manifest.",
+      "rationale": "Orchestrates the audio endpoints with pacing from the local rate-limit ledger and a per-file success/failure manifest — the bulk-audio workflow no existing tool handles.",
+      "example": "groq-pp-cli audio batch episodes/ --action transcribe --pace --model whisper-large-v3",
+      "why_it_matters": "Run a whole folder of episodes without dying mid-batch on a rate limit or re-processing completed files.",
+      "group": "Paced bulk audio"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Rate-limit budget",
+      "command": "rate-limits",
+      "description": "See remaining per-model request/token budget from every API call, with reset windows.",
+      "rationale": "Joins per-model RPM/RPD/TPM/TPD limits with x-ratelimit-* headers captured into the local ledger — no single API call or dashboard shows this from the shell.",
+      "example": "groq-pp-cli rate-limits --model openai/gpt-oss-20b --json",
+      "why_it_matters": "Reach for this before a bulk run or when a 429 interrupts a pipeline; it tells you the exact remaining budget and reset time instead of guessing.",
+      "group": "Local ledger that compounds"
+    },
+    {
+      "name": "Cost ledger analytics",
+      "command": "costs",
+      "description": "Aggregate token and dollar spend from your local completion history, grouped by model or day.",
+      "rationale": "Joins local completion-history token usage with per-model prices in the synced catalog — spend accounting that would otherwise be a manual spreadsheet.",
+      "example": "groq-pp-cli costs --since 48h --group-by model --agent",
+      "why_it_matters": "Use this to answer 'how much did my eval runs cost this week' without exporting anything from the console.",
+      "group": "Local ledger that compounds"
+    },
+    {
+      "name": "Multi-model prompt runner",
+      "command": "compare",
+      "description": "Run one prompt across several models and rank them by latency, tokens/sec, usage, and cost.",
+      "rationale": "Fans out real chat-completions calls and joins catalog prices for an empirical ranking — no other Groq tool runs the same prompt head-to-head from the shell.",
+      "example": "groq-pp-cli compare \"Explain transformers in one line\" --models openai/gpt-oss-20b,openai/gpt-oss-120b --agent",
+      "why_it_matters": "Pick the right model for a task by measuring real speed and cost instead of reading spec sheets.",
+      "group": "Empirical model selection"
+    },
+    {
+      "name": "Batch request pre-flight",
+      "command": "batch validate",
+      "description": "Validate every line of a .jsonl batch request file against the endpoint schema and estimate tokens/cost before uploading.",
+      "rationale": "Checks embedded per-endpoint request schemas locally and estimates cost from catalog pricing — the API rejects a whole batch on one malformed line only after upload.",
+      "example": "groq-pp-cli batch validate eval-batch.jsonl --json",
+      "why_it_matters": "Catch malformed batch lines and get a cost estimate before submitting a 100 MB file.",
+      "group": "Batch workflow guardrails"
+    },
+    {
+      "name": "Batch results diagnosis",
+      "command": "batch diagnose",
+      "description": "Tabulate a completed batch's per-line status codes and errors, highlighting retry-worthy failures.",
+      "rationale": "Downloads real batch results and parses each line's status/error fields locally — replacing grep-based error tabulation over thousands of lines.",
+      "example": "groq-pp-cli batch diagnose batch_abc123 --json",
+      "why_it_matters": "Know exactly which batch lines failed and why, in seconds, from the shell.",
+      "group": "Batch workflow guardrails"
+    },
+    {
+      "name": "Paced bulk audio runner",
+      "command": "audio batch",
+      "description": "Transcribe, translate, or synthesize speech over many audio files with rate-limit-aware pacing and a results manifest.",
+      "rationale": "Orchestrates the audio endpoints with pacing from the local rate-limit ledger and a per-file success/failure manifest — the bulk-audio workflow no existing tool handles.",
+      "example": "groq-pp-cli audio batch episodes/ --action transcribe --pace --model whisper-large-v3",
+      "why_it_matters": "Run a whole folder of episodes without dying mid-batch on a rate limit or re-processing completed files.",
+      "group": "Paced bulk audio"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "GROQ_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Groq Cloud",
+    "headline": "Every Groq endpoint in your terminal, plus a local ledger that tracks token cost and rate-limit budget.",
+    "value_prop": "groq-pp-cli wraps the full GroqCloud API — chat, responses, audio, vision, embeddings, reranking, batches, files, and fine-tuning — into one agent-native CLI. Beyond the endpoints, it syncs a model catalog to SQLite, keeps a local completion ledger that tracks cost and usage, and turns Groq's x-ratelimit headers into a spend-and-budget view no other Groq tool offers.",
+    "quickstart": [
+      {
+        "command": "groq-pp-cli doctor --dry-run",
+        "comment": "Health check that works without credentials — confirms config and network wiring"
+      },
+      {
+        "command": "groq-pp-cli models list --json",
+        "comment": "See the live model catalog; also validates your GROQ_API_KEY"
+      },
+      {
+        "command": "groq-pp-cli chat completions --model openai/gpt-oss-20b --messages '[{\"role\":\"user\",\"content\":\"Explain fast inference in one sentence\"}]'",
+        "comment": "First completion, with usage and latency stats"
+      },
+      {
+        "command": "groq-pp-cli sync --resources models,files,batches --full",
+        "comment": "Build the local SQLite mirror for offline search and the ledger commands"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "429 Too Many Requests",
+        "fix": "Run `groq-pp-cli rate-limits` to see remaining per-model budget, then wait for `retry-after` or lower volume; bulk audio supports `--pace`"
+      },
+      {
+        "symptom": "401 Invalid API key",
+        "fix": "Export GROQ_API_KEY from console.groq.com/keys or run `groq-pp-cli auth set-token \u003ckey\u003e`"
+      },
+      {
+        "symptom": "Model not found",
+        "fix": "Run `groq-pp-cli models list` for current IDs — preview models are deprecated without notice"
+      },
+      {
+        "symptom": "Unsupported field error",
+        "fix": "Groq is OpenAI-compatible but not identical: logprobs, logit_bias, top_logprobs, and messages[].name are unsupported — drop them from the request"
+      }
+    ],
+    "when_to_use": "Reach for this CLI for terminal-first work against GroqCloud: one-off and scripted chat completions with usage stats, audio transcription/translation/synthesis pipelines, RAG embedding and reranking steps, batch job submission and diagnosis, and model evaluation across the catalog. Its local ledger and history make it the natural choice for agent harnesses that need cost and rate-limit visibility on every call.",
+    "anti_triggers": [
+      "Do not use this CLI to run a persistent interactive coding agent; use an IDE/agent tool instead.",
+      "Do not use it for Groq console account management (billing, org settings, spend limits) — the REST API does not cover those.",
+      "Do not use it as a generic OpenAI client for other providers; the base URL is fixed to api.groq.com.",
+      "Do not use it for WebSocket/real-time inference surfaces that are not part of the REST API reference."
+    ],
+    "recipes": [
+      {
+        "title": "Rank models on one prompt",
+        "command": "groq-pp-cli compare \"Explain transformers\" --models openai/gpt-oss-20b,openai/gpt-oss-120b,qwen/qwen3.6-27b --agent --select models.0.model,models.0.latency_ms",
+        "explanation": "The --agent + --select pair narrows the ranked comparison to the fields you care about instead of dumping full outputs."
+      },
+      {
+        "title": "Check your budget before a big run",
+        "command": "groq-pp-cli rate-limits --json",
+        "explanation": "See remaining per-model requests and tokens before launching a bulk workload."
+      },
+      {
+        "title": "Pre-flight a batch file",
+        "command": "groq-pp-cli batch validate eval-batch.jsonl --json",
+        "explanation": "Validate every request line and estimate cost before uploading a .jsonl batch."
+      },
+      {
+        "title": "Transcribe a folder with pacing",
+        "command": "groq-pp-cli audio batch episodes/ --action transcribe --pace --model whisper-large-v3",
+        "explanation": "Bulk transcription that paces itself against your rate-limit budget and writes a success/failure manifest."
+      },
+      {
+        "title": "What did my evals cost",
+        "command": "groq-pp-cli costs --since 48h --group-by model",
+        "explanation": "Aggregate token and dollar spend from local history, grouped by model."
+      }
+    ],
+    "trigger_phrases": [
+      "ask groq",
+      "run a groq chat",
+      "transcribe this audio with groq",
+      "compare groq models",
+      "use groq cloud",
+      "groq batch"
+    ]
+  }
+}

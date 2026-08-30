@@ -22,6 +22,7 @@ func newIssuesCreateCmd(flags *rootFlags) *cobra.Command {
 	var descStdin bool
 	var priorityFlag int
 	var labelsFlag []string
+	var labelNamesFlag []string
 	var mediaFlag []string
 	var mediaPublic bool
 	var dbPath string
@@ -155,6 +156,21 @@ sub-issue under an existing parent.`,
 			if stateFlag != "" {
 				input["stateId"] = stateFlag
 			}
+			if len(labelNamesFlag) > 0 {
+				if c == nil {
+					var err error
+					lookupClient, err := newPortfolioLookupClient(flags)
+					if err != nil {
+						return err
+					}
+					c = lookupClient
+				}
+				resolvedLabelIDs, err := resolveLabelNamesForWriteLive(c, labelNamesFlag, teamFlag, flags)
+				if err != nil {
+					return err
+				}
+				labelsFlag = mergeLabelIDs(labelsFlag, resolvedLabelIDs)
+			}
 			if len(labelsFlag) > 0 {
 				input["labelIds"] = labelsFlag
 			}
@@ -234,6 +250,7 @@ sub-issue under an existing parent.`,
 						assignee { id name displayName }
 						project { id name }
 						parent { id identifier title }
+						labels { nodes { id name color } }
 					}
 				}
 			}`
@@ -277,6 +294,7 @@ sub-issue under an existing parent.`,
 							Identifier string `json:"identifier"`
 							Title      string `json:"title"`
 						} `json:"parent,omitempty"`
+						Labels issueLabels `json:"labels"`
 					} `json:"issue"`
 				} `json:"issueCreate"`
 			}
@@ -285,6 +303,16 @@ sub-issue under an existing parent.`,
 			}
 			if !parsed.IssueCreate.Success {
 				return apiErr(fmt.Errorf("Linear reported issueCreate success=false"))
+			}
+			var labelMismatchErr error
+			if len(labelsFlag) > 0 {
+				observed := make([]string, 0, len(parsed.IssueCreate.Issue.Labels.Nodes))
+				for _, label := range parsed.IssueCreate.Issue.Labels.Nodes {
+					observed = append(observed, label.ID)
+				}
+				if !sameLabelIDs(labelsFlag, observed) {
+					labelMismatchErr = apiErr(fmt.Errorf("issue %s (%s) created with label mismatch: requested %v, observed %v", parsed.IssueCreate.Issue.Identifier, parsed.IssueCreate.Issue.ID, mergeLabelIDs(nil, labelsFlag), mergeLabelIDs(nil, observed)))
+				}
 			}
 
 			sess := resolvePPSession(flags, session)
@@ -308,6 +336,7 @@ sub-issue under an existing parent.`,
 					"description": parsed.IssueCreate.Issue.Description,
 					"url":         parsed.IssueCreate.Issue.URL,
 					"priority":    parsed.IssueCreate.Issue.Priority,
+					"labels":      parsed.IssueCreate.Issue.Labels,
 					"team": map[string]any{
 						"id":  parsed.IssueCreate.Issue.Team.ID,
 						"key": parsed.IssueCreate.Issue.Team.Key,
@@ -353,6 +382,22 @@ sub-issue under an existing parent.`,
 			} else {
 				fmt.Fprintf(os.Stderr, "warning: cannot open ledger at %s: %v\n", dbPath, dbErr)
 			}
+			if labelMismatchErr != nil {
+				if flags.asJSON {
+					flags.errorWritten = true
+					_ = json.NewEncoder(os.Stdout).Encode(map[string]any{
+						"error": labelMismatchErr.Error(),
+						"code":  ExitCode(labelMismatchErr),
+						"type":  cliErrorType(ExitCode(labelMismatchErr)),
+						"created_issue": map[string]string{
+							"id":         parsed.IssueCreate.Issue.ID,
+							"identifier": parsed.IssueCreate.Issue.Identifier,
+							"url":        parsed.IssueCreate.Issue.URL,
+						},
+					})
+				}
+				return labelMismatchErr
+			}
 
 			if flags.asJSON {
 				enc := json.NewEncoder(os.Stdout)
@@ -397,6 +442,7 @@ sub-issue under an existing parent.`,
 	cmd.Flags().StringVar(&stateTypeFlag, "state-type", "", "Workflow state type (triage, backlog, unstarted, started, completed, canceled, duplicate); resolved against --team")
 	cmd.Flags().StringVar(&parentFlag, "parent", "", "Parent issue identifier or UUID; creates the issue as a sub-issue")
 	cmd.Flags().StringSliceVar(&labelsFlag, "label", nil, "Label UUIDs (repeatable)")
+	cmd.Flags().StringSliceVar(&labelNamesFlag, "label-name", nil, "Resolve and attach label(s) by exact name (repeatable; team-scoped + team-safe global)")
 	cmd.Flags().StringSliceVar(&mediaFlag, "media", nil, "Upload file and append it to the description markdown (repeatable)")
 	cmd.Flags().BoolVar(&mediaPublic, "media-public", false, "Request public Linear asset URLs for uploaded media")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (for team-key resolution and pp_created ledger)")

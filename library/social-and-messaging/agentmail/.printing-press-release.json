@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "agentmail",
+  "cli_name": "agentmail-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-27T09:16:49Z",
+  "source_commit": "dd645aad133c3e17d1e14f00eee6ce82d17deb6f",
+  "printing_press_version": "4.31.1",
+  "run_id": "20260826-200935-47af5c80",
+  "changes": [
+    {
+      "title": "feat(agentmail): add AgentMail CLI",
+      "pr": 1834,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1834",
+      "commit": "dd645aad133c3e17d1e14f00eee6ce82d17deb6f"
+    }
+  ]
+}

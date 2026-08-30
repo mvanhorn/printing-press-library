@@ -36,7 +36,7 @@ func newNovelOpenAdviceCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("open-advice reads local scan history only; it has no live equivalent (remove --data-source live)"))
 			}
 
-			recs, err := loadStore()
+			recs, err := loadStoreFor(flags)
 			if err != nil {
 				return err
 			}
@@ -77,7 +77,15 @@ func renderOpenAdvice(cmd *cobra.Command, items []store.OpenItem) error {
 	}
 	for _, url := range order {
 		list := bySite[url]
-		fmt.Fprintf(out, "%s  (level %d — %s, %d open)\n", bold(url), list[0].Level, list[0].LevelName, len(list))
+		if list[0].Score != nil {
+			label := fmt.Sprintf("score %d", *list[0].Score)
+			if list[0].ScoreLabel != "" {
+				label += " — " + list[0].ScoreLabel
+			}
+			fmt.Fprintf(out, "%s  (%s, %d open)\n", bold(url), label, len(list))
+		} else {
+			fmt.Fprintf(out, "%s  (level %d — %s, %d open)\n", bold(url), list[0].Level, list[0].LevelName, len(list))
+		}
 		for _, it := range list {
 			fmt.Fprintf(out, "  %s %s\n", red("[fail]"), it.Check)
 			if it.Description != "" {

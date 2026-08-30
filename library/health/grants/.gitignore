@@ -1,13 +1,13 @@
-# Fordított bináris / compiled binary — sose commitold
+# Compiled binary — never commit
 grants.exe
 grants
 *.exe
 
-# Go build/test kimenet
+# Go build/test output
 /build/
 *.out
 *.test
 
-# OS/editor zaj
+# OS/editor noise
 .DS_Store
 Thumbs.db

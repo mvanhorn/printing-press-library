@@ -1,0 +1,244 @@
+{
+  "api_name": "irail",
+  "base_url": "https://api.irail.be",
+  "description": "Every Belgian rail lookup the existing tools offer, plus transfer-risk, delay history and accessibility data that none of them have.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "irail-pp-cli/0.1.0 (+https://github.com/mvanhorn/printing-press-library)"
+    }
+  ],
+  "tools": [
+    {
+      "name": "board_list",
+      "description": "Live departures (or arrivals) at a station, with delay, platform and occupancy. Required: station. Optional: station-id, board-type (default: departure), alerts (default: false) (plus 3 more). Returns array of Departure.",
+      "method": "GET",
+      "path": "/v1/liveboard?format=json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "station",
+          "type": "string",
+          "location": "query",
+          "description": "Station name, e.g. Ghent-Sint-Pieters. Do not combine with --station-id",
+          "required": true
+        },
+        {
+          "name": "station-id",
+          "wire_name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Station id (BE.NMBS.008892007) instead of a name. Do not combine with --station",
+          "aliases": [
+            "id"
+          ]
+        },
+        {
+          "name": "board-type",
+          "wire_name": "arrdep",
+          "type": "string",
+          "location": "query",
+          "description": "Show the departures board or the arrivals board",
+          "aliases": [
+            "arrdep"
+          ]
+        },
+        {
+          "name": "alerts",
+          "type": "bool",
+          "location": "query",
+          "description": "Include railworks and service alerts announced for these trains"
+        },
+        {
+          "name": "time",
+          "type": "string",
+          "location": "query",
+          "description": "Time to query as hhmm (e.g. 1230). Defaults to now in Belgium"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Date to query as ddmmyy (e.g. 300917). Defaults to today in Belgium"
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Language for station and text fields"
+        }
+      ]
+    },
+    {
+      "name": "disruptions_list",
+      "description": "Current disruptions and planned works across the whole network. Optional: line-break, lang (default: en). Returns array of Disturbance.",
+      "method": "GET",
+      "path": "/v1/disturbances?format=json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "line-break",
+          "wire_name": "lineBreakCharacter",
+          "type": "string",
+          "location": "query",
+          "description": "Sequence to use for line breaks in descriptions. Empty produces continuous text"
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Language for station and text fields"
+        }
+      ]
+    },
+    {
+      "name": "logs_list",
+      "description": "Last request log entries. Note: upstream currently returns an empty list; bulk archives live at gtfs.irail.be/logs/.",
+      "method": "GET",
+      "path": "/v1/logs?format=json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "route_plan",
+      "description": "Plan a journey between two stations, including transfers and per-leg delay. Required: from, to. Optional: time-basis (default: departure), transport (default: automatic), time (plus 2 more). Returns array of Connection.",
+      "method": "GET",
+      "path": "/v1/connections?format=json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Departure station name or id",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Destination station name or id",
+          "required": true
+        },
+        {
+          "name": "time-basis",
+          "wire_name": "timesel",
+          "type": "string",
+          "location": "query",
+          "description": "Whether --time means the departure time or the required arrival time",
+          "aliases": [
+            "timesel"
+          ]
+        },
+        {
+          "name": "transport",
+          "wire_name": "typeOfTransport",
+          "type": "string",
+          "location": "query",
+          "description": "Which services to consider. automatic allows international trains only for cross-border travel"
+        },
+        {
+          "name": "time",
+          "type": "string",
+          "location": "query",
+          "description": "Time to query as hhmm (e.g. 1230). Defaults to now in Belgium"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Date to query as ddmmyy (e.g. 300917). Defaults to today in Belgium"
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Language for station and text fields"
+        }
+      ]
+    },
+    {
+      "name": "stations_list",
+      "description": "List every station iRail knows about (716 incl. cross-border). Optional: lang (default: en). Returns array of Station.",
+      "method": "GET",
+      "path": "/v1/stations?format=json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Language for station and text fields"
+        }
+      ]
+    },
+    {
+      "name": "train_composition",
+      "description": "Physical make-up of a train: segments, units, and per-carriage facilities. Required: id. Optional: fields, lang (default: en). Returns the Composition.",
+      "method": "GET",
+      "path": "/v1/composition?format=json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Train id, e.g. S51507 or IC1832",
+          "required": true
+        },
+        {
+          "name": "fields",
+          "wire_name": "data",
+          "type": "string",
+          "location": "query",
+          "description": "Leave empty for iRail's curated stable fields, or 'all' for raw unfiltered NMBS data"
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Language for station and text fields"
+        }
+      ]
+    },
+    {
+      "name": "train_get",
+      "description": "Every stop of one train with live delay. Note: iRail ignores the date parameter. Required: id. Optional: date, alerts (default: false), lang (default: en). Returns the Vehicle.",
+      "method": "GET",
+      "path": "/v1/vehicle?format=json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Vehicle id, e.g. BE.NMBS.IC1832 or IC1832",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Date as ddmmyy. Upstream currently ignores this and returns today"
+        },
+        {
+          "name": "alerts",
+          "type": "bool",
+          "location": "query",
+          "description": "Include railworks and service alerts for this train"
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Language for station and text fields"
+        }
+      ]
+    }
+  ]
+}

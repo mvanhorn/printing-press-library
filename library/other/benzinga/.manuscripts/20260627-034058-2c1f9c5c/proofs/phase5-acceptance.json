@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "benzinga",
+  "run_id": "20260627-034058-2c1f9c5c",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 220,
+  "tests_passed": 220,
+  "tests_skipped": 101,
+  "auth_context": {
+    "type": "none"
+  }
+}

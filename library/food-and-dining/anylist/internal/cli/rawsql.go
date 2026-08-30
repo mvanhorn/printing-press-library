@@ -15,7 +15,7 @@ import (
 func newSQLCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "sql <query>",
-		Short: "Run a raw SQL query against the local AnyList cache",
+		Short: "Run SQL against the local AnyList cache; queries may mutate local data",
 		Long: `Run arbitrary SQL against the local SQLite cache. Requires sync to have been run first.
 
 Useful aggregation patterns:
@@ -24,7 +24,8 @@ Useful aggregation patterns:
   SELECT r.name, AVG(r.rating) as avg_rating FROM recipes r GROUP BY r.name`,
 		Example: `  anylist-pp-cli sql "SELECT name, COUNT(*) FROM items GROUP BY name ORDER BY 2 DESC LIMIT 10"
   anylist-pp-cli sql "SELECT list_id, COUNT(*) as total FROM items GROUP BY list_id" --json`,
-		Args: cobra.MinimumNArgs(1),
+		Annotations: map[string]string{"mcp:read-only": "false", "mcp:local-write": "true"},
+		Args:        cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 
@@ -32,6 +33,7 @@ Useful aggregation patterns:
 			if err != nil {
 				return configErr(err)
 			}
+			cfg.DatabasePath = flags.databasePath
 
 			st, err := store.Open(cfg)
 			if err != nil {

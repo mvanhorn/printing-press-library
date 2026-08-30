@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/groq-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260829-110906-2137b57d",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

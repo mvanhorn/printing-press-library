@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "api_name": "gmail",
+  "run_id": "20260818-095450",
+  "status": "fail",
+  "level": "full",
+  "matrix_size": 154,
+  "tests_passed": 107,
+  "tests_skipped": 85,
+  "tests_failed": 47,
+  "auth_context": {
+    "type": "none"
+  },
+  "failure_summary": {
+    "exit_nonzero": 46,
+    "output_mismatch": 1,
+    "commands": [
+      "cleanup apply",
+      "cleanup plan",
+      "delta",
+      "digest",
+      "labels create",
+      "labels rename",
+      "playbook amend",
+      "rules add",
+      "rules rm",
+      "rules run",
+      "score",
+      "senders",
+      "sort suggest",
+      "storage report",
+      "sync",
+      "teach",
+      "teach-pattern",
+      "teach-playbook",
+      "trash report",
+      "undo",
+      "unsub audit",
+      "unsub plan",
+      "unsub run",
+      "unsub verify"
+    ]
+  }
+}

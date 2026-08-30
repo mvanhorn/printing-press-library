@@ -44,14 +44,28 @@ func newOfflineHistoryCmd(flags *rootFlags) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		return printOffline(cmd, flags, map[string]any{"items": payloads(facts), "caveats": caveatIfEmpty(facts, "no recorded workout facts are stored")})
+		value := map[string]any{"items": payloads(facts)}
+		// caveatIfEmpty returns nil (not an empty slice) when there's
+		// nothing to report; only set the key when there's a real caveat
+		// so a caller can test for the key's presence instead of having to
+		// null-check its value too (round-11 verification NEW 3: this used
+		// to always include "caveats": null).
+		if c := caveatIfEmpty(facts, "no recorded workout facts are stored"); c != nil {
+			value["caveats"] = c
+		}
+		return printOffline(cmd, flags, value)
 	}}
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum facts to return; 0 returns all.")
 	return cmd
 }
 
+// newOfflineWorkoutCmd builds its cobra.Command directly (Use as a literal,
+// not routed through offlineIDCmd) so verify-skill's static Use: scan can
+// resolve "offline workout" to this file. Routed through the shared helper,
+// the Use string only ever existed as a function argument, never as a
+// literal `Use: "..."` — invisible to a checker that only reads source text.
 func newOfflineWorkoutCmd(flags *rootFlags) *cobra.Command {
-	return offlineIDCmd("workout <workout_id>", "Show a locally stored workout detail and its recorded history fact.", flags, func(cmd *cobra.Command, id string) (any, []string, error) {
+	run := func(cmd *cobra.Command, id string) (any, []string, error) {
 		detail, err := offlineFact(cmd, "workout_details", id)
 		if err != nil {
 			return nil, nil, err
@@ -63,7 +77,14 @@ func newOfflineWorkoutCmd(flags *rootFlags) *cobra.Command {
 			out["caveats"] = []string{"recorded history fact is unavailable"}
 		}
 		return out, nil, nil
-	})
+	}
+	return &cobra.Command{Use: "workout <workout_id>", Short: "Show a locally stored workout detail and its recorded history fact.", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+		value, caveats, err := run(cmd, args[0])
+		if err != nil {
+			return err
+		}
+		return printOfflineWithCaveats(cmd, flags, value, caveats)
+	}}
 }
 
 func newOfflinePerformanceCmd(flags *rootFlags) *cobra.Command {
@@ -79,27 +100,40 @@ func newOfflinePerformanceCmd(flags *rootFlags) *cobra.Command {
 	})
 }
 
+// newOfflineIntervalsCmd builds its cobra.Command directly for the same
+// reason as newOfflineWorkoutCmd above — see its comment.
 func newOfflineIntervalsCmd(flags *rootFlags) *cobra.Command {
-	return offlineIDCmd("intervals <workout_id>", "Show the stored class segments associated with a recorded workout when available.", flags, func(cmd *cobra.Command, id string) (any, []string, error) {
+	run := func(cmd *cobra.Command, id string) (any, []string, error) {
 		detail, err := offlineFact(cmd, "workout_details", id)
 		if err != nil {
 			return nil, nil, err
 		}
-		rideID := stringValue(decodePayload(detail), "ride_id", "rideId")
+		rideID := workoutDetailRideID(decodePayload(detail))
 		if rideID == "" {
-			return map[string]any{"workout_id": id, "segments": []any{}}, []string{"workout detail does not include a class identifier"}, nil
+			return map[string]any{"workout_id": id, "segments": []any{}}, []string{"workout is not class-based (e.g. a freestyle Just Run/Just Ride/Outdoor session), so it has no associated class structure"}, nil
 		}
-		class, err := offlineFact(cmd, "classes", rideID)
+		// offlineClass, not a direct offlineFact(cmd, "classes", rideID)
+		// call: falls back to the generic resources table on a
+		// provider_payloads miss (see offlineClass's doc comment /
+		// CARRIED 4 in the round-11 verification report).
+		class, err := offlineClass(cmd, rideID)
 		if err != nil {
 			return map[string]any{"workout_id": id, "ride_id": rideID, "segments": []any{}}, []string{"stored class structure is unavailable"}, nil
 		}
 		obj := decodePayload(class)
 		segments, ok := objectValue(obj, "segments", "intervals")
 		if !ok {
-			return map[string]any{"workout_id": id, "ride_id": rideID, "segments": []any{}}, []string{"stored class has no comparable segment list"}, nil
+			return map[string]any{"workout_id": id, "ride_id": rideID, "segments": []any{}}, []string{classSegmentsMissingCaveat(obj)}, nil
 		}
 		return map[string]any{"workout_id": id, "ride_id": rideID, "segments": segments}, nil, nil
-	})
+	}
+	return &cobra.Command{Use: "intervals <workout_id>", Short: "Show the stored class segments associated with a recorded workout when available.", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+		value, caveats, err := run(cmd, args[0])
+		if err != nil {
+			return err
+		}
+		return printOfflineWithCaveats(cmd, flags, value, caveats)
+	}}
 }
 
 func newOfflineClassesCmd(flags *rootFlags) *cobra.Command {
@@ -118,7 +152,7 @@ func newOfflineClassesCmd(flags *rootFlags) *cobra.Command {
 		v := decodePayload(f)
 		segments, ok := objectValue(v, "segments", "intervals")
 		if !ok {
-			return map[string]any{"ride_id": id, "segments": []any{}}, []string{"stored class has no comparable segment list"}, nil
+			return map[string]any{"ride_id": id, "segments": []any{}}, []string{classSegmentsMissingCaveat(v)}, nil
 		}
 		return map[string]any{"ride_id": id, "segments": segments}, nil, nil
 	}), newOfflineFiltersCmd(flags))
@@ -187,7 +221,8 @@ func newOfflineStrengthCmd(flags *rootFlags) *cobra.Command {
 }
 
 func newOfflineRepeatCmd(flags *rootFlags) *cobra.Command {
-	return &cobra.Command{Use: "repeat <first_workout_id> <second_workout_id>", Short: "Compare two recorded workouts only when their stored class identifiers match.", Args: cobra.ExactArgs(2), RunE: func(cmd *cobra.Command, args []string) error {
+	var full bool
+	cmd := &cobra.Command{Use: "repeat <first_workout_id> <second_workout_id>", Short: "Compare two recorded workouts only when their stored class identifiers match.", Args: cobra.ExactArgs(2), RunE: func(cmd *cobra.Command, args []string) error {
 		first, err := offlineFact(cmd, "workout_details", args[0])
 		if err != nil {
 			return err
@@ -196,16 +231,18 @@ func newOfflineRepeatCmd(flags *rootFlags) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		firstRide, secondRide := stringValue(decodePayload(first), "ride_id", "rideId"), stringValue(decodePayload(second), "ride_id", "rideId")
+		firstRide, secondRide := workoutDetailRideID(decodePayload(first)), workoutDetailRideID(decodePayload(second))
 		if firstRide == "" || secondRide == "" {
-			return printOffline(cmd, flags, map[string]any{"same_class": false, "caveats": []string{"one or both workout details lack a comparable class identifier"}})
+			return printOffline(cmd, flags, map[string]any{"same_class": false, "caveats": []string{"one or both workouts are not class-based (e.g. a freestyle Just Run/Just Ride/Outdoor session), so they cannot share a class"}})
 		}
 		if firstRide != secondRide {
 			return notFoundErr(fmt.Errorf("workouts %q and %q have different stored class identifiers", args[0], args[1]))
 		}
-		out := map[string]any{"same_class": true, "ride_id": firstRide, "workouts": []any{repeatFact(cmd, args[0]), repeatFact(cmd, args[1])}}
+		out := map[string]any{"same_class": true, "ride_id": firstRide, "workouts": []any{repeatFact(cmd, args[0], full), repeatFact(cmd, args[1], full)}}
 		return printOffline(cmd, flags, out)
 	}}
+	cmd.Flags().BoolVar(&full, "full", false, "Include each workout's complete raw performance record (all per-second sample arrays: metrics, location_data, seconds_since_pedaling_start) instead of just the compact summary/average fields. Full records can be several MB for long workouts and will likely exceed the MCP result budget; prefer the default summary output through MCP, or query offline performance <workout_id> directly for one workout's full data at a time.")
+	return cmd
 }
 
 func offlineIDCmd(use, short string, flags *rootFlags, run func(*cobra.Command, string) (any, []string, error)) *cobra.Command {
@@ -214,11 +251,36 @@ func offlineIDCmd(use, short string, flags *rootFlags, run func(*cobra.Command, 
 		if err != nil {
 			return err
 		}
-		if len(caveats) > 0 {
-			return printOffline(cmd, flags, map[string]any{"result": value, "caveats": caveats})
-		}
-		return printOffline(cmd, flags, value)
+		return printOfflineWithCaveats(cmd, flags, value, caveats)
 	}}
+}
+
+// printOfflineWithCaveats prints value via printOffline, merging any
+// caveats into value's own top-level shape rather than nesting value under
+// a separate "result" key. A response's field locations must not depend on
+// whether that particular call happened to produce a caveat: before this,
+// --select <field> worked when a call was caveat-free but required
+// --select result.<field> when it wasn't -- unknowable in advance, since it
+// depends on the very data the caller is trying to select from. Keeping
+// fields at the same stable top-level location either way removes that
+// guesswork.
+func printOfflineWithCaveats(cmd *cobra.Command, flags *rootFlags, value any, caveats []string) error {
+	if len(caveats) == 0 {
+		return printOffline(cmd, flags, value)
+	}
+	if obj, ok := value.(map[string]any); ok {
+		merged := make(map[string]any, len(obj)+1)
+		for k, v := range obj {
+			merged[k] = v
+		}
+		merged["caveats"] = caveats
+		return printOffline(cmd, flags, merged)
+	}
+	// Defensive fallback: value isn't a JSON object, so caveats can't be
+	// merged into it directly (no current offline command's run callback
+	// ever returns a non-object value here, but the wrapped shape is
+	// still safer than silently dropping the value or the caveats).
+	return printOffline(cmd, flags, map[string]any{"result": value, "caveats": caveats})
 }
 
 func offlineFacts(cmd *cobra.Command, family string, limit int) ([]store.ProviderFact, error) {
@@ -247,38 +309,236 @@ func offlineFact(cmd *cobra.Command, family, id string) (store.ProviderFact, err
 	}
 	return fact, err
 }
+
+// offlineClass reads a single locally cached class fact. This used to also
+// try a "catalog_classes" provider_payloads family as a fallback,
+// inherited from the original generated code. No write path in this CLI
+// has ever targeted that family name -- discriminatorDispatchers (sync.go)
+// is empty, so no discriminated-write resource resolution exists at all --
+// confirmed dead, and removed rather than kept as a defensive no-op per
+// this repo's "don't validate for scenarios that can't happen" convention.
 func offlineClass(cmd *cobra.Command, id string) (store.ProviderFact, error) {
 	if f, e := offlineFact(cmd, "classes", id); e == nil {
 		return f, nil
 	}
-	return offlineFact(cmd, "catalog_classes", id)
+	return offlineClassFromResources(cmd, id)
 }
+
+// offlineClassFromResources falls back to the generic resources table --
+// which every synced class lands in via the flat classes list sync -- when
+// the "classes" provider_payloads family has no fact for this id. The two
+// stores can diverge for a small number of ids (CARRIED 4 in the round-11
+// verification report: 97 ids present in resources but absent from
+// provider_payloads on a real account, erroring "stored classes fact not
+// found"). Without this, an id genuinely synced locally reads as "not
+// found" purely because the secondary provider_payloads index missed it.
+//
+// This used to also try a "catalog_classes" provider_payloads family
+// before falling back here, inherited from the original generated code.
+// No write path in this CLI has ever targeted that family name --
+// discriminatorDispatchers (sync.go) is empty, so no discriminated-write
+// resource resolution exists at all -- confirmed dead, and removed rather
+// than kept as a defensive no-op per this repo's "don't validate for
+// scenarios that can't happen" convention.
+func offlineClassFromResources(cmd *cobra.Command, id string) (store.ProviderFact, error) {
+	db, err := openStoreForRead(cmd.Context(), "peloton-pp-cli")
+	if err != nil {
+		return store.ProviderFact{}, fmt.Errorf("opening local database: %w", err)
+	}
+	if db == nil {
+		return store.ProviderFact{}, fmt.Errorf("no local data. Run 'peloton-pp-cli sync' first")
+	}
+	defer db.Close()
+	data, err := db.Get("classes", id)
+	if err != nil {
+		return store.ProviderFact{}, notFoundErr(fmt.Errorf("stored classes fact %q not found", id))
+	}
+	return store.ProviderFact{Family: "classes", ProviderID: id, Payload: data}, nil
+}
+
+// classSegmentsMissingCaveat distinguishes two different reasons a stored
+// class fact has no "segments"/"intervals" field, which otherwise collapse
+// into the same misleading caveat (round-11 verification NEW 1): a class
+// synced only via the bulk catalog list endpoint never carries segments or
+// target_metrics_data at all -- those fields only come from the per-class
+// detail endpoint -- so "no segments" there means "never detail-fetched,"
+// not "this class genuinely has none." A detail-shaped fact (recognizable
+// by its top-level "ride" container -- see nestedIDContainerKeys in
+// internal/store/peloton.go, the same signal the write-through cache uses
+// to resolve a detail response's id) that still lacks segments is the
+// genuine case.
+func classSegmentsMissingCaveat(class any) string {
+	if classIsListForm(class) {
+		// `sync --resources classes_detail` derives its parent ride ids
+		// from workouts.ride_id (see planClassDetailSync in sync.go),
+		// not from the classes resource this caveat is about -- if
+		// workouts haven't been synced yet, that command silently no-ops
+		// with a "no synced workouts to derive parent ids from" warning
+		// instead of populating this class, which would look like the
+		// suggested fix simply didn't work. Naming the prerequisite here
+		// avoids that dead end.
+		return "class was synced in catalog list form only (segments/target metrics are only present after a detail fetch); run `classes structure <ride_id>` live, or `sync --resources workouts,classes_detail` (workouts must be synced first; classes_detail's fan-out is scoped to classes referenced by synced workouts), to populate them"
+	}
+	return "stored class has no segment list"
+}
+
+// classIsListForm reports whether a decoded class fact came from the bulk
+// catalog list endpoint (GET /api/v2/ride/archived) rather than the
+// per-class detail endpoint (GET /api/ride/{ride_id}/details). The list
+// endpoint's items are flatter -- title, duration, instructor_id, ratings,
+// stream URLs, pedaling offsets -- and never carry a top-level "ride"
+// object; only the detail endpoint's response nests ride/segments/averages
+// that way.
+func classIsListForm(class any) bool {
+	obj, ok := class.(map[string]any)
+	if !ok {
+		return true
+	}
+	_, hasRide := obj["ride"].(map[string]any)
+	return !hasRide
+}
+
+// offlineClasses returns every locally cached class fact, sorted by id.
+// Reads only the "classes" provider_payloads family (see offlineClass's
+// doc comment for why a "catalog_classes" family this used to also merge
+// in was removed as dead code -- no write path has ever targeted it).
 func offlineClasses(cmd *cobra.Command) ([]store.ProviderFact, error) {
-	detailed, err := offlineFacts(cmd, "classes", 0)
+	facts, err := offlineFacts(cmd, "classes", 0)
 	if err != nil {
 		return nil, err
 	}
-	catalog, err := offlineFacts(cmd, "catalog_classes", 0)
+	sort.SliceStable(facts, func(i, j int) bool { return facts[i].ProviderID < facts[j].ProviderID })
+	return facts, nil
+}
+
+// printOffline wraps value in the standard offline {"meta":...,"data":...}
+// envelope. --select/--compact must filter value itself before wrapping --
+// applying them to the already-wrapped envelope would look for the
+// requested field names among the envelope's own top-level keys
+// (meta/data) instead of value's real fields, silently returning {} for
+// any legitimate field name.
+//
+// --select wins over --compact when both are set (matching
+// printOutputWithFlagsMeta's identical precedence elsewhere): an explicit
+// field list is the user's authoritative request, so naming a field
+// --compact would otherwise strip (e.g. --select detail.achievement_templates
+// --compact) correctly returns that field in full -- the caller asked for
+// it by name, so --compact does not run at all in that case. This is
+// intentional, not a --compact regression; verify --compact's own
+// stripping behavior with a standalone --compact call, no --select.
+func printOffline(cmd *cobra.Command, flags *rootFlags, value any) error {
+	raw, err := json.Marshal(value)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	seen := map[string]bool{}
-	all := append([]store.ProviderFact{}, detailed...)
-	for _, f := range detailed {
-		seen[f.ProviderID] = true
-	}
-	for _, f := range catalog {
-		if !seen[f.ProviderID] {
-			all = append(all, f)
+	data := json.RawMessage(raw)
+	// caveats is metadata about the response (why a field is empty/missing),
+	// not selectable content -- a --select projection that omits it silently
+	// discards the one thing explaining an otherwise-surprising empty field,
+	// inviting a caller to misread "no caveat mentioned" as "no data gap"
+	// rather than "I didn't ask to see it". Captured before filtering and
+	// restored unconditionally after, the same way "meta" already survives
+	// --select untouched.
+	var caveats json.RawMessage
+	if obj, ok := value.(map[string]any); ok {
+		if c, present := obj["caveats"]; present {
+			if raw, err := json.Marshal(c); err == nil && string(raw) != "null" {
+				// A typed-nil slice (e.g. a caller building its own
+				// map literal around caveatIfEmpty's return value)
+				// marshals to the JSON literal "null", not an absent
+				// key -- "present" alone doesn't mean "has a real
+				// value" here. Guarding on the marshaled bytes (rather
+				// than "c != nil", which is always true for a nil
+				// slice boxed in this interface) keeps a null caveats
+				// key from surviving into the response at all.
+				caveats = raw
+			}
 		}
 	}
-	sort.SliceStable(all, func(i, j int) bool { return all[i].ProviderID < all[j].ProviderID })
-	return all, nil
+	if flags.selectFields != "" {
+		data = filterFields(data, flags.selectFields)
+	} else if flags.compact {
+		data = compactOfflineFields(data)
+	}
+	var filteredValue any
+	if err := json.Unmarshal(data, &filteredValue); err != nil {
+		return err
+	}
+	if caveats != nil {
+		if obj, ok := filteredValue.(map[string]any); ok {
+			var c any
+			if err := json.Unmarshal(caveats, &c); err == nil {
+				obj["caveats"] = c
+			}
+		}
+	}
+	envelope, err := json.Marshal(map[string]any{"meta": map[string]any{"source": "local", "network": false}, "data": filteredValue})
+	if err != nil {
+		return err
+	}
+	return printOutputWithFlagsMetaFiltered(cmd.OutOrStdout(), json.RawMessage(envelope), flags, map[string]any{"source": "local"})
 }
-func printOffline(cmd *cobra.Command, flags *rootFlags, value any) error {
-	out := map[string]any{"meta": map[string]any{"source": "local", "network": false}, "data": value}
-	return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+
+// compactOfflineVerboseFields extends the shared compactVerboseObjectFields
+// blocklist with Peloton-specific bulky fields confirmed present in real
+// workout_details payloads (achievement_templates: badge metadata, ~370
+// bytes even when nearly empty; muscle_group_score: per-muscle-group
+// scoring detail on strength workouts). Kept separate from
+// compactVerboseObjectFields (helpers.go) rather than added to it, since
+// that set is shared by every printed CLI's --compact and these two names
+// are Peloton-specific noise, not generic API metadata.
+var compactOfflineVerboseFields = map[string]bool{
+	"achievement_templates": true,
+	"muscle_group_score":    true,
 }
+
+// compactOfflineFields is compactFields' offline counterpart: it applies
+// the same blocklist recursively at every nesting level, not just the top.
+// offline output routinely wraps the real payload under a structural key
+// (detail/history on offline_workout, result on any offline command that
+// returns a caveat) rather than exposing fields at the top level, so the
+// shared, shallow compactFields left --compact doing nothing for these
+// shapes -- the wrapper keys themselves never matched the blocklist, so
+// their full nested content passed through untouched (SIGNIFICANT #C from
+// a fourth live post-fix verification sweep). Deliberately scoped to
+// offline output only: live single-fetch commands' flat responses don't
+// have this wrapping problem, and their nested objects (e.g. `workouts
+// show`'s "ride" object) are meaningful content --compact should leave
+// intact, not blindly recurse into.
+func compactOfflineFields(data json.RawMessage) json.RawMessage {
+	var value any
+	if err := json.Unmarshal(data, &value); err != nil {
+		return data
+	}
+	compacted, err := json.Marshal(compactOfflineValue(value))
+	if err != nil {
+		return data
+	}
+	return compacted
+}
+
+func compactOfflineValue(value any) any {
+	switch v := value.(type) {
+	case map[string]any:
+		kept := make(map[string]any, len(v))
+		for k, child := range v {
+			if compactVerboseObjectFields[k] || compactOfflineVerboseFields[k] {
+				continue
+			}
+			kept[k] = compactOfflineValue(child)
+		}
+		return kept
+	case []any:
+		out := make([]any, len(v))
+		for i, item := range v {
+			out[i] = compactOfflineValue(item)
+		}
+		return out
+	default:
+		return value
+	}
+}
+
 func decodePayload(f store.ProviderFact) any {
 	var value any
 	dec := json.NewDecoder(strings.NewReader(string(f.Payload)))
@@ -318,6 +578,50 @@ func stringValue(value any, keys ...string) string {
 		return fmt.Sprint(v)
 	}
 	return ""
+}
+
+// pelotonNoClassRideID is Peloton's sentinel ride id for freestyle/
+// non-class workouts (Just Run, Outdoor Running, Just Ride, and similar)
+// that have no associated class. It's a genuine-looking 32-character value
+// -- indistinguishable from a real class id by shape alone -- appearing in
+// workout_details' nested ride.id for any workout that isn't tied to a
+// scheduled or on-demand class. Confirmed against real account data: 84 of
+// 430 synced workout_details records carry this exact value.
+const pelotonNoClassRideID = "00000000000000000000000000000000"
+
+// workoutDetailRideID extracts the class (ride) id from a decoded
+// "workout_details" payload. Unlike the "workouts" family -- where
+// enrichWorkoutRideMetadata (internal/store/peloton.go) promotes ride.id to
+// a top-level ride_id at write time, specifically because lookupFieldValue
+// only ever reads top-level fields -- workout_details is stored as-is, and
+// Peloton's API nests the class id under ride.id / ride.title with no
+// top-level ride_id/rideId at all. Without this fallback, offline_intervals
+// and offline_repeat treated every class-based workout as if it had no
+// class association, since they only checked the top-level keys that
+// workout_details payloads never actually carry.
+//
+// Returns "" both when no ride id is present at all and when Peloton's
+// pelotonNoClassRideID sentinel is found -- both mean "this workout has no
+// class association." Without the sentinel check, offline_repeat treated
+// any two freestyle workouts (both carrying the identical sentinel) as
+// belonging to the same class (a false positive same_class:true), and
+// offline_intervals reported a misleading "stored class structure is
+// unavailable" caveat -- implying a sync gap -- for a workout that was
+// never a class in the first place. Callers that need "no class" as a
+// distinct outcome from "class data unavailable" should treat this
+// function's empty return as the former; the class-lookup failure caveat
+// is a separate, later step.
+func workoutDetailRideID(value any) string {
+	id := stringValue(value, "ride_id", "rideId")
+	if id == "" {
+		if ride, ok := objectValue(value, "ride"); ok {
+			id = stringValue(ride, "id")
+		}
+	}
+	if id == pelotonNoClassRideID {
+		return ""
+	}
+	return id
 }
 func numberValue(value any, keys ...string) (float64, bool) {
 	v, ok := objectValue(value, keys...)
@@ -485,7 +789,69 @@ func walkTargetNumbers(value any, inTargetField bool, visit func(float64)) {
 func normalKey(key string) string {
 	return strings.ReplaceAll(strings.ReplaceAll(strings.ToLower(key), "_", ""), "-", "")
 }
-func repeatFact(cmd *cobra.Command, id string) any {
+
+// performanceSummaryFields are the compact, comparison-relevant fields of a
+// "performance" record copied verbatim -- confirmed against the largest
+// real record on a live account: together well under 15KB even for a
+// multi-hour workout. "metrics" is handled separately by
+// stripMetricSampleValues below rather than listed here, since only part of
+// it (each entry's "values" array) is the bulky per-second data; the rest
+// (average_value/max_value/zones[] durations) is exactly the aggregate
+// comparison signal offline_repeat needs, especially for any workout whose
+// summaries/average_summaries are thin (e.g. non-power activities like
+// stretches or yoga). location_data and seconds_since_pedaling_start are
+// dropped entirely -- pure per-second sample arrays with no aggregate form
+// (confirmed live: location_data 4.3MB, seconds_since_pedaling_start 157KB
+// on the largest real record) -- along with any other unlisted field.
+var performanceSummaryFields = []string{"summaries", "average_summaries", "duration", "effort_zones", "splits_data", "splits_metrics", "summary_available"}
+
+// stripMetricSampleValues copies a performance record's "metrics" array,
+// dropping each entry's "values" field (the per-second sample array, e.g.
+// 300 points for a 5-minute segment, far more for a long ride) while
+// keeping its aggregate fields (average_value, max_value, zones[] with
+// per-zone durations) intact. Those aggregates are the real comparison
+// signal offline_repeat exists to surface -- dropping "metrics" wholesale,
+// as an earlier version of this allowlist did, kept the size win but cost
+// the comparison itself for any workout without rich summaries/
+// average_summaries.
+func stripMetricSampleValues(metrics any) any {
+	arr, ok := metrics.([]any)
+	if !ok {
+		return metrics
+	}
+	out := make([]any, len(arr))
+	for i, m := range arr {
+		obj, ok := m.(map[string]any)
+		if !ok {
+			out[i] = m
+			continue
+		}
+		trimmed := make(map[string]any, len(obj))
+		for k, v := range obj {
+			if k == "values" {
+				continue
+			}
+			trimmed[k] = v
+		}
+		out[i] = trimmed
+	}
+	return out
+}
+
+// repeatFact builds one side of offline_repeat's comparison: the workout's
+// id, recorded date, and its stored performance record, when available.
+// full=false (the default) keeps only performanceSummaryFields -- a
+// compact, comparison-relevant subset -- since a real performance record
+// can be several MB (per-second metric/location/timestamp arrays) and two
+// of them together routinely exceed the 60KB MCP result budget, silently
+// defeating the comparison this command exists to provide. full=true
+// (--full) returns the complete raw record, samples and all, for callers
+// that specifically need it and can accept the size (or aren't running
+// through the MCP surface's budget). Performance data is included raw
+// either way, not as any computed delta/ranking between the two workouts,
+// keeping offline_repeat consistent with this file's "factual,
+// non-prescriptive" contract (see the package-level comment above).
+func repeatFact(cmd *cobra.Command, id string, full bool) any {
 	out := map[string]any{"workout_id": id}
 	if f, e := offlineFact(cmd, "workouts", id); e == nil {
 		v := decodePayload(f)
@@ -494,5 +860,31 @@ func repeatFact(cmd *cobra.Command, id string) any {
 	if out["recorded_at"] == "" {
 		out["caveat"] = "recorded date is unavailable"
 	}
+	perf, e := offlineFact(cmd, "performance", id)
+	if e != nil {
+		out["performance_caveat"] = "recorded performance graph is unavailable"
+		return out
+	}
+	payload := decodePayload(perf)
+	if full {
+		out["performance"] = payload
+		return out
+	}
+	obj, ok := payload.(map[string]any)
+	if !ok {
+		out["performance"] = payload
+		return out
+	}
+	summary := make(map[string]any, len(performanceSummaryFields)+1)
+	for _, key := range performanceSummaryFields {
+		if v, present := obj[key]; present {
+			summary[key] = v
+		}
+	}
+	if metrics, present := obj["metrics"]; present {
+		summary["metrics"] = stripMetricSampleValues(metrics)
+	}
+	out["performance"] = summary
+	out["performance_note"] = "summary fields plus per-metric aggregates (each metric's per-second \"values\" array is stripped); pass --full for the complete raw record (may be several MB for long workouts)"
 	return out
 }

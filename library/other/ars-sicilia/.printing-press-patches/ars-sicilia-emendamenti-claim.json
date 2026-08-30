@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-emendamenti-claim",
+  "applied_at": "2026-08-20",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "La descrizione di `legge cronologia` non promette piu' «gli emendamenti citati nei resoconti d'aula», che il comando non ha mai raccolto, e la voce di `which_assenti` sugli emendamenti non lo indica piu' come ripiego: rimanda alla prosa dei resoconti d'aula, che e' la cosa piu' vicina che esiste davvero.",
+  "reason": "La descrizione elencava fra i passaggi risaliti anche gli emendamenti, ma nessuna versione del comando li ha mai cercati: `git log -S` su legge_cronologia.go non trova alcun codice che li tocchi, e su cinque cronologie diverse — comprese due finanziarie — le chiavi in output sono sempre e solo eventi, legisl, numero, titolo, url. Non e' una regressione ma una promessa mai mantenuta, ripetuta in cinque copie (.printing-press.json, SKILL.md, README.md, root.go, which.go). La voce che ingannava di piu' era pero' quella di which_assenti: il comando `which` risponde alle domande su cio' che il portale non pubblica dicendo la cosa piu' vicina che si puo' fare, e per gli emendamenti indicava `legge cronologia`, cioe' mandava chi cercava un ripiego su un comando che a quella domanda non risponde. Il portale non pubblica gli emendamenti come atti a se': l'unico posto dove compaiono e' la prosa dei resoconti d'aula, uno per uno dentro un discorso, e la voce ora dice quello e come arrivarci.",
+  "files": [".printing-press.json", "internal/cli/root.go", "internal/cli/which.go", "internal/cli/which_assenti.go", "SKILL.md", "README.md"],
+  "validated_outcome": "`which \"quali emendamenti sono stati presentati a un ddl\"` continua a intercettare la domanda e la voce `non_coperto` ora rimanda a `resoconti get <legisl> <seduta>` a valle di `ddl iter`/`legge cronologia`, con la nota che sulle sedute recenti il testo sta nel PDF indicato da pdf_url. Nessun'altra menzione degli emendamenti resta nelle descrizioni dei comandi (grep su SKILL.md, README.md, .printing-press.json e internal/), a parte l'elenco di cio' che il portale non pubblica in SKILL.md, che e' corretto."
+}

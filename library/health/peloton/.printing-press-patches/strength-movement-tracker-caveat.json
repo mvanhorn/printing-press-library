@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "strength-movement-tracker-caveat",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "The live `strength <workout_id>` command (internal/cli/promoted_strength.go) prints an unconditional stderr warning (\"warning: workout detail has no movement tracker data\") when the fetched workout detail's movement_tracker_data/movementTrackerData/movements field is absent -- reusing offline.go's existing objectValue helper for the same three-key lookup offline_strength already does. Most workouts (anything that isn't a tracked strength class) have none, and without this signal a bike ride with no tracker data looked identical to a real fetch problem. JSON stdout output is unchanged; the warning goes to stderr only, matching this file's existing unconditional-stderr-warning convention (e.g. data_source.go's write-through-cache warning) rather than restructuring the JSON envelope, which stays the raw API payload. Any future regen must keep this check paired with cacheWorkoutDetail's call in the same branch.",
+  "reason": "MINOR #11 from a live post-fix verification sweep: promoted_strength.go had zero caveat logic for the absent-tracker-data case, unlike offline_strength (offline.go) which already surfaces an explicit caveat for the identical condition on the same underlying field.",
+  "files": [
+    "internal/cli/promoted_strength.go",
+    "internal/cli/promoted_strength_test.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. New tests TestStrengthWarnsWhenMovementTrackerDataAbsent and TestStrengthDoesNotWarnWhenMovementTrackerDataPresent drive the real `strength` command end-to-end against a fake HTTP server and assert the warning fires only when appropriate."
+}

@@ -36,6 +36,12 @@ func newWorkoutsShowCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			if prov.Source == "live" {
+				// See cacheWorkoutDetail's doc comment: offline workout/
+				// intervals/strength all read the "workout_details" family,
+				// which the generic write-through above never populates.
+				cacheWorkoutDetail(cmd.Context(), args[0], data)
+			}
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope

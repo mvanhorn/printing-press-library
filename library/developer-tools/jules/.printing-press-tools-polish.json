@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-08-21T15:57:40.521169Z",
+  "cli_dir": "\u003ccli-dir\u003e/jules-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (internal/cli/platform_client.go); Short is brief but precise for a platform-source list command, matching the accepted 'Print version'/'Check CLI health' pattern; generator-template fix needed if richer default text is wanted"
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (internal/cli/teach.go); Short is brief but precise, names the exact resource (learnings) being listed; generator-template fix needed if richer default text is wanted"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 0,
+    "captured": "2026-08-21T15:39:56.120607Z"
+  }
+}

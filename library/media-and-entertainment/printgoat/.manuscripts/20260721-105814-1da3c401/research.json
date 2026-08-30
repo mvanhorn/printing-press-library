@@ -1,0 +1,333 @@
+{
+  "api_name": "printgoat",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "thingfinder",
+      "url": "https://github.com/nukleas/thingfinder",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "thingiverse_downloader",
+      "url": "https://github.com/jcarolinares/thingiverse_downloader",
+      "language": "Python",
+      "install_method": "",
+      "stars": 56,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "CultsDL",
+      "url": "https://github.com/pattonwebz/CultsDL",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 13,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "printables-cli-api",
+      "url": "https://github.com/GhostTypes/printables-cli-api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 8,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "thingiverse-easy-download",
+      "url": "https://github.com/ajh1138/thingiverse-easy-download",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "Cults3D file downloads are unsupported by upstream API design (search/metadata only) — documented, not a bug.",
+    "Own-purchase Cults3D download via session cookie (CultsDL pattern) is not implemented — out of documented-API scope."
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-21T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-Source Duplicate \u0026 Value Detection",
+      "command": "duplicates",
+      "description": "See instantly when the same design is listed free on one site and paid on another, before you download the wrong one.",
+      "rationale": "Requires a local index holding normalized results from all three sites' different schemas at once to fuzzy-match title, dimensions, and file count across sources.",
+      "example": "printgoat-pp-cli duplicates \"gopro mount\" --agent",
+      "why_it_matters": "Reach for this before downloading anything from a paid Cults3D listing — it tells you if the same file exists free elsewhere.",
+      "group": "Cross-site intelligence"
+    },
+    {
+      "name": "Local History Diff / Staleness",
+      "command": "history diff",
+      "description": "Know exactly what changed on a model since you last looked — new files, price changes, license changes.",
+      "rationale": "Upstream APIs only ever return current state; only a local timestamped snapshot from a prior fetch gives you something to diff against.",
+      "example": "printgoat-pp-cli history diff printables:3161 --agent",
+      "why_it_matters": "Use this instead of re-fetching a model's full detail when you only need to know what's different since last time.",
+      "group": "Provenance, resume \u0026 integrity"
+    },
+    {
+      "name": "License Compliance Audit",
+      "command": "license audit",
+      "description": "Flag license conflicts across your entire local library against how you actually intend to use the files.",
+      "rationale": "Requires joining each library item's site-reported license against a locally stored 'intended use' tag — no API knows what you plan to do with a file you already own.",
+      "example": "printgoat-pp-cli license audit --library --intent commercial --agent",
+      "why_it_matters": "Run this before a commercial print job to catch license conflicts the site's own badge won't warn you about.",
+      "group": "Provenance, resume \u0026 integrity"
+    },
+    {
+      "name": "Failure-Informed Re-Search",
+      "command": "similar",
+      "description": "Re-search for alternatives after a bad print, automatically excluding the model and designer that failed you.",
+      "rationale": "Print outcome is data no API collects (it happens on your printer after download); only a local outcome log lets re-search exclude or downweight a bad result and its designer.",
+      "example": "printgoat-pp-cli similar printables:3161 --agent",
+      "why_it_matters": "Use after logging a failed print (`log fail`) instead of re-running a generic search that will surface the same bad result again.",
+      "group": "Print outcome memory"
+    },
+    {
+      "name": "Cross-Source Resumable Batch Job",
+      "command": "job download",
+      "description": "Batch-download across all three sites as one crash-safe job that actually resumes from where it stopped.",
+      "rationale": "A job pulling files from 3 hosts with 3 auth schemes and 3 rate limits needs one local manifest tracking byte-offset per file per source — no single-site downloader has ever modeled 'a job spanning hosts.'",
+      "example": "printgoat-pp-cli job resume job-20260721-01 --agent",
+      "why_it_matters": "Use this for any multi-file or multi-source batch pull; it survives crashes and rate-limit backoff without restarting completed files.",
+      "group": "Provenance, resume \u0026 integrity"
+    },
+    {
+      "name": "Cross-Site Designer Following",
+      "command": "feed",
+      "description": "Follow a designer across all the sites they post to and see new uploads from any of them in one feed.",
+      "rationale": "The unified feed is built from a user-declared table linking one person's accounts across three unrelated user-ID systems, then polling all three locally — no site is aware the other two accounts exist.",
+      "example": "printgoat-pp-cli feed --agent",
+      "why_it_matters": "Check this instead of manually revisiting three separate designer profile pages to see what's new.",
+      "group": "Cross-site intelligence"
+    },
+    {
+      "name": "Print-Job Version Pinning",
+      "command": "snapshot verify",
+      "description": "Prove exactly which file version you used for a past print job, even if the upstream model has since changed.",
+      "rationale": "Pins exact file hashes/source/version used for a specific print run locally so a reprint months later can detect drift — remote APIs never expose their own past state.",
+      "example": "printgoat-pp-cli snapshot verify batch-march-orders --agent",
+      "why_it_matters": "Use this for provenance/reproducibility on any job whose output needs to match a prior run exactly.",
+      "group": "Provenance, resume \u0026 integrity"
+    },
+    {
+      "name": "Library Health / Link-Rot Report",
+      "command": "library doctor",
+      "description": "Find orphaned files, missing files, silent duplicates, and remote listings that have been delisted (and can never be re-fetched).",
+      "rationale": "Cross-references the on-disk file manifest, the local downloads table, and a live existence re-check across all three remote catalogs — a single-site tool never tracks files it didn't source.",
+      "example": "printgoat-pp-cli library doctor --agent",
+      "why_it_matters": "Run periodically to catch link rot before a delisted source becomes unrecoverable if the local copy is ever lost.",
+      "group": "Provenance, resume \u0026 integrity"
+    },
+    {
+      "name": "Format-Availability Gap Finder",
+      "command": "formats gaps",
+      "description": "Find alternatives when a model only ships in one file format and you need another.",
+      "rationale": "Compares one model's file-format list against every other locally indexed, similarly-tagged result — a join no single site's file endpoint can perform since it only sees its own catalog.",
+      "example": "printgoat-pp-cli formats gaps printables:3161 --agent",
+      "why_it_matters": "Use when a search result is STL-only and you need 3MF or STEP — this looks for tag-similar alternatives that include the missing format.",
+      "group": "Cross-site intelligence"
+    },
+    {
+      "name": "Personal Designer Reliability Score",
+      "command": "designer stats",
+      "description": "See your own success/failure rate with a specific designer, pooled across every site they publish on.",
+      "rationale": "Aggregates the user's private print-outcome log by designer across all 3 sites' worth of downloads — a signal no platform collects (post-download print outcomes).",
+      "example": "printgoat-pp-cli designer stats \"PrintedSolid\" --agent",
+      "why_it_matters": "Check this before downloading a new model from a designer you've printed before, when site-level popularity counts don't reflect your own experience.",
+      "group": "Print outcome memory"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-Source Duplicate \u0026 Value Detection",
+      "command": "duplicates",
+      "description": "See instantly when the same design is listed free on one site and paid on another, before you download the wrong one.",
+      "rationale": "Requires a local index holding normalized results from all three sites' different schemas at once to fuzzy-match title, dimensions, and file count across sources.",
+      "example": "printgoat-pp-cli duplicates \"gopro mount\" --agent",
+      "why_it_matters": "Reach for this before downloading anything from a paid Cults3D listing — it tells you if the same file exists free elsewhere.",
+      "group": "Cross-site intelligence"
+    },
+    {
+      "name": "Local History Diff / Staleness",
+      "command": "history diff",
+      "description": "Know exactly what changed on a model since you last looked — new files, price changes, license changes.",
+      "rationale": "Upstream APIs only ever return current state; only a local timestamped snapshot from a prior fetch gives you something to diff against.",
+      "example": "printgoat-pp-cli history diff printables:3161 --agent",
+      "why_it_matters": "Use this instead of re-fetching a model's full detail when you only need to know what's different since last time.",
+      "group": "Provenance, resume \u0026 integrity"
+    },
+    {
+      "name": "License Compliance Audit",
+      "command": "license audit",
+      "description": "Flag license conflicts across your entire local library against how you actually intend to use the files.",
+      "rationale": "Requires joining each library item's site-reported license against a locally stored 'intended use' tag — no API knows what you plan to do with a file you already own.",
+      "example": "printgoat-pp-cli license audit --library --intent commercial --agent",
+      "why_it_matters": "Run this before a commercial print job to catch license conflicts the site's own badge won't warn you about.",
+      "group": "Provenance, resume \u0026 integrity"
+    },
+    {
+      "name": "Failure-Informed Re-Search",
+      "command": "similar",
+      "description": "Re-search for alternatives after a bad print, automatically excluding the model and designer that failed you.",
+      "rationale": "Print outcome is data no API collects (it happens on your printer after download); only a local outcome log lets re-search exclude or downweight a bad result and its designer.",
+      "example": "printgoat-pp-cli similar printables:3161 --agent",
+      "why_it_matters": "Use after logging a failed print (`log fail`) instead of re-running a generic search that will surface the same bad result again.",
+      "group": "Print outcome memory"
+    },
+    {
+      "name": "Cross-Source Resumable Batch Job",
+      "command": "job download",
+      "description": "Batch-download across all three sites as one crash-safe job that actually resumes from where it stopped.",
+      "rationale": "A job pulling files from 3 hosts with 3 auth schemes and 3 rate limits needs one local manifest tracking byte-offset per file per source — no single-site downloader has ever modeled 'a job spanning hosts.'",
+      "example": "printgoat-pp-cli job resume job-20260721-01 --agent",
+      "why_it_matters": "Use this for any multi-file or multi-source batch pull; it survives crashes and rate-limit backoff without restarting completed files.",
+      "group": "Provenance, resume \u0026 integrity"
+    },
+    {
+      "name": "Cross-Site Designer Following",
+      "command": "feed",
+      "description": "Follow a designer across all the sites they post to and see new uploads from any of them in one feed.",
+      "rationale": "The unified feed is built from a user-declared table linking one person's accounts across three unrelated user-ID systems, then polling all three locally — no site is aware the other two accounts exist.",
+      "example": "printgoat-pp-cli feed --agent",
+      "why_it_matters": "Check this instead of manually revisiting three separate designer profile pages to see what's new.",
+      "group": "Cross-site intelligence"
+    },
+    {
+      "name": "Print-Job Version Pinning",
+      "command": "snapshot verify",
+      "description": "Prove exactly which file version you used for a past print job, even if the upstream model has since changed.",
+      "rationale": "Pins exact file hashes/source/version used for a specific print run locally so a reprint months later can detect drift — remote APIs never expose their own past state.",
+      "example": "printgoat-pp-cli snapshot verify batch-march-orders --agent",
+      "why_it_matters": "Use this for provenance/reproducibility on any job whose output needs to match a prior run exactly.",
+      "group": "Provenance, resume \u0026 integrity"
+    },
+    {
+      "name": "Library Health / Link-Rot Report",
+      "command": "library doctor",
+      "description": "Find orphaned files, missing files, silent duplicates, and remote listings that have been delisted (and can never be re-fetched).",
+      "rationale": "Cross-references the on-disk file manifest, the local downloads table, and a live existence re-check across all three remote catalogs — a single-site tool never tracks files it didn't source.",
+      "example": "printgoat-pp-cli library doctor --agent",
+      "why_it_matters": "Run periodically to catch link rot before a delisted source becomes unrecoverable if the local copy is ever lost.",
+      "group": "Provenance, resume \u0026 integrity"
+    },
+    {
+      "name": "Format-Availability Gap Finder",
+      "command": "formats gaps",
+      "description": "Find alternatives when a model only ships in one file format and you need another.",
+      "rationale": "Compares one model's file-format list against every other locally indexed, similarly-tagged result — a join no single site's file endpoint can perform since it only sees its own catalog.",
+      "example": "printgoat-pp-cli formats gaps printables:3161 --agent",
+      "why_it_matters": "Use when a search result is STL-only and you need 3MF or STEP — this looks for tag-similar alternatives that include the missing format.",
+      "group": "Cross-site intelligence"
+    },
+    {
+      "name": "Personal Designer Reliability Score",
+      "command": "designer stats",
+      "description": "See your own success/failure rate with a specific designer, pooled across every site they publish on.",
+      "rationale": "Aggregates the user's private print-outcome log by designer across all 3 sites' worth of downloads — a signal no platform collects (post-download print outcomes).",
+      "example": "printgoat-pp-cli designer stats \"PrintedSolid\" --agent",
+      "why_it_matters": "Check this before downloading a new model from a designer you've printed before, when site-level popularity counts don't reflect your own experience.",
+      "group": "Print outcome memory"
+    }
+  ],
+  "narrative": {
+    "display_name": "PrintGoat",
+    "headline": "Search and reliably download 3D-print files across Printables and Thingiverse (plus search Cults3D) — with real resumable downloads and cross-site duplicate detection nothing else has.",
+    "value_prop": "PrintGoat unifies three separate 3D-model communities into one searchable, scriptable tool instead of three browser tabs. It's the only tool that actually resumes interrupted downloads via HTTP byte-range requests rather than just skipping files that already exist by name, and the only one that tells you when the same design is free on one site and paid on another before you download the wrong copy.",
+    "auth_narrative": "Each source has a different auth story: Printables needs nothing at all (its GraphQL backend works fully anonymously for search and download). Thingiverse requires a free self-registered OAuth2 app token (`auth set-token --source thingiverse`). Cults3D requires your account handle plus a self-service API key via HTTP Basic Auth (`auth set-token --source cults3d`) — and by Cults3D's own design, its API can search and browse but never download other users' files, so Cults3D results are search/metadata only.",
+    "quickstart": [
+      {
+        "command": "printgoat-pp-cli doctor --dry-run",
+        "comment": "Health check that works with zero configuration — confirms which sources are reachable and which need auth."
+      },
+      {
+        "command": "printgoat-pp-cli search \"benchy\" --agent",
+        "comment": "Unified search across all three sources; works immediately since Printables needs no auth."
+      },
+      {
+        "command": "printgoat-pp-cli files printables:3161 --agent",
+        "comment": "List a model's files in one normalized shape regardless of source."
+      },
+      {
+        "command": "printgoat-pp-cli download printables:3161 --all",
+        "comment": "Download every file for a model, with real resume if interrupted."
+      },
+      {
+        "command": "printgoat-pp-cli duplicates \"raspberry pi case\" --agent",
+        "comment": "See the cross-site duplicate/price/license comparison that no other tool surfaces."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Thingiverse requests suddenly all fail after working fine",
+        "fix": "Thingiverse invalidates tokens outright on abusive rate-limit hits (300 req/5min) rather than just returning 429 — re-run `auth set-token --source thingiverse` with a fresh token."
+      },
+      {
+        "symptom": "Cults3D returns 401 even with an API key set",
+        "fix": "Cults3D uses HTTP Basic Auth with your account handle as the username, not just the API key — set both via `auth set-token --source cults3d`."
+      },
+      {
+        "symptom": "Printables search intermittently times out or returns an HTML challenge page",
+        "fix": "Printables' GraphQL backend sits behind Cloudflare; retry with backoff — `doctor` will report if it's currently blocking."
+      }
+    ],
+    "when_to_use": "Use PrintGoat when searching for a 3D-printable design across multiple communities at once, when you need to know if a paid model has a free equivalent elsewhere, when managing a library of downloaded STL/3MF/G-code files, or when running a batch download job that needs to survive interruption.",
+    "anti_triggers": [
+      "Do not use this for slicing STL/3MF files into G-code — it has no slicer integration.",
+      "Do not use this to control a printer or print farm — no OctoPrint/Klipper integration exists.",
+      "Do not use this to upload, publish, or cross-post your own designs to these sites — it is a discovery/download tool only.",
+      "Do not expect Cults3D file downloads — that source is search/metadata only by the platform's own design."
+    ],
+    "recipes": [
+      {
+        "title": "Unified search with narrowed output",
+        "command": "printgoat-pp-cli search \"cable clip\" --agent --select results.name,results.source,results.price,results.license",
+        "explanation": "Search results are deeply nested per-source objects; --select trims the response to just the fields an agent needs for a quick comparison."
+      },
+      {
+        "title": "Find the cheapest legitimate copy of a design",
+        "command": "printgoat-pp-cli duplicates \"phone stand\" --agent",
+        "explanation": "Surfaces the same design across sources with price and license side by side before you commit to a paid download."
+      },
+      {
+        "title": "Resume an interrupted batch job",
+        "command": "printgoat-pp-cli job resume job-20260721-01 --agent",
+        "explanation": "Continues a multi-source download job from its last completed byte offset per file instead of restarting."
+      },
+      {
+        "title": "Audit your library before a commercial print run",
+        "command": "printgoat-pp-cli license audit --library --intent commercial --agent",
+        "explanation": "Flags any locally downloaded file whose license doesn't permit the commercial use you've declared."
+      }
+    ],
+    "trigger_phrases": [
+      "find me a 3D model for",
+      "search thingiverse",
+      "search printables",
+      "is this STL free anywhere else",
+      "download this 3d print file",
+      "3d print file search",
+      "use printgoat",
+      "run printgoat"
+    ]
+  }
+}

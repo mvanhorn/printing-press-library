@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/media-and-entertainment/ticketdata
 
-go 1.26.5
+go 1.26.6
 
 require (
 	github.com/enetx/surf v1.0.199
@@ -12,7 +12,7 @@ require (
 require modernc.org/sqlite v1.37.0
 
 require (
-	github.com/enetx/http v1.0.28
+	github.com/enetx/http v1.0.29
 	github.com/mark3labs/mcp-go v0.47.0
 )
 
@@ -49,7 +49,7 @@ require (
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
 	golang.org/x/net v0.55.0 // indirect
-	golang.org/x/text v0.38.0 // indirect
+	golang.org/x/text v0.39.0 // indirect
 	modernc.org/libc v1.62.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.9.1 // indirect

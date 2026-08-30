@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "wanderlog-plan-help-examples",
+  "applied_at": "2026-08-23",
+  "base_run_id": "20260619-000132-cc275322",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Add plan leaf Examples and point them at the shared Morocco --plan-url with --dry-run on writes.",
+  "reason": "Dogfood help required an Examples section, and fake 16-char --target-key values 404 on live happy_path.",
+  "files": [
+    "internal/cli/plan_budget.go",
+    "internal/cli/plan_history.go",
+    "internal/cli/plan_collab_ext.go",
+    "internal/cli/plan_outline.go",
+    "internal/cli/plan_votes.go",
+    "internal/cli/plan_edit.go",
+    "internal/cli/plan_edit_more.go",
+    "internal/cli/plan_batch.go",
+    "internal/cli/plan_reservation.go"
+  ],
+  "validated_outcome": "go test ./internal/cli passed; Examples use the shared Morocco plan-url and keep --dry-run on writes."
+}

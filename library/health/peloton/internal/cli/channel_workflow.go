@@ -6,8 +6,9 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"time"
+	"strconv"
 
+	"github.com/mvanhorn/printing-press-library/library/health/peloton/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/health/peloton/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -24,85 +25,128 @@ func newWorkflowCmd(flags *rootFlags) *cobra.Command {
 
 	return cmd
 }
+
+// newWorkflowArchiveCmd is a fixed-scope convenience wrapper over `sync`:
+// "archive everything, bounded and resumable the same way sync already is."
+// It used to be its own hand-rolled sync loop with a resources list that was
+// never populated (`resources := []string{}`), so every invocation silently
+// archived nothing regardless of flags -- and even a correctly populated
+// version would have duplicated sync's dependent fan-out (performance,
+// workout_details) and bounding logic (--max-parents, --stale-before,
+// --latest-only) as a second, divergence-prone implementation. Delegating to
+// a real `sync` command instance instead means workflow_archive inherits
+// every one of sync's fixes automatically, including ones added after this
+// command was written, at the cost of no longer having its own bespoke
+// summary shape -- `--json` now emits the same {"event":...} line stream
+// sync does, terminated by a sync_summary event, rather than a single
+// {"resources_synced":...} object.
 func newWorkflowArchiveCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	var full bool
+	var maxPages int
+	var maxParents int
+	var staleBeforeFlag string
 
 	cmd := &cobra.Command{
 		Use:   "archive",
-		Short: "Sync all resources to local store for offline access and search",
-		Long: `Archive fetches all syncable resources from the API and stores them in a
-local SQLite database. Supports incremental sync (only new data since last run)
-and full resync. After archiving, use 'search' for instant full-text search.`,
+		Short: "Sync all resources (including performance and workout_details) to local store for offline access and search",
+		Long: `Archive fetches every syncable resource from the API -- workouts, classes,
+and their per-workout dependents (performance, workout_details) -- and stores
+them in a local SQLite database. It is a fixed-scope convenience wrapper over
+'sync --resources workouts,classes' (which cascades to performance and
+workout_details automatically): same bounded, resumable dependent fan-out,
+same flags. Use 'sync' directly for resource selection, --since, or
+--latest-only. After archiving, use 'search' for instant full-text search.
+
+A large account's dependent fan-out (one HTTP request per already-synced
+workout for performance/workout_details) will not complete in a single call;
+re-run archive to continue where --max-parents left off, same as sync.
+--max-parents alone does not bound the flat classes/workouts phase that runs
+before it -- classes in particular declares no incremental filter, so a full
+pass paginates every archived class on the account (tens of thousands on a
+long-lived one) and can take several minutes on its own, likely exceeding an
+MCP tool call's timeout. Pass --max-pages too to bound that phase as well;
+re-run archive (the resume cursor persists) to continue.
+
+When this command runs as an MCP tool call (as opposed to a direct shell
+invocation), --max-pages defaults to 5 and --max-parents to 500 if left
+unset, so an agent that calls this tool with no arguments still gets a
+bounded, timeout-safe call instead of an unbounded one. Pass either flag
+explicitly to override.`,
 		Example: `  # Archive all resources
   peloton-pp-cli workflow archive
 
   # Full re-archive (ignore previous sync state)
-  peloton-pp-cli workflow archive --full`,
+  peloton-pp-cli workflow archive --full
+
+  # Bound both the flat phase and the dependent fan-out per call, then
+  # re-run to continue -- needed to keep a single call inside an MCP
+  # tool call's timeout on a large account
+  peloton-pp-cli workflow archive --max-pages 5 --max-parents 500
+
+  # Backfill only records fetched before a known cutoff (e.g. a fix's deploy time)
+  peloton-pp-cli workflow archive --stale-before 2026-08-14T09:00:00Z --max-parents 500`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := flags.newClient()
-			if err != nil {
-				return err
+			// A caller that never learns about --max-pages/--max-parents
+			// (e.g. an MCP agent invoking this tool with no arguments)
+			// otherwise runs the flat classes phase fully unbounded --
+			// tens of thousands of pages on a long-lived account, several
+			// minutes on its own, reliably exceeding an MCP tool call's
+			// timeout with no partial result. Substitute the same bounded
+			// defaults this command's own Example block recommends, but
+			// only when running as an MCP-spawned subprocess (see
+			// MCPShelloutEnvVar) and only when the caller left the flag
+			// unset -- a human running this from a shell keeps today's
+			// unbounded-by-default behavior, and an explicit flag value
+			// (including 0) always wins.
+			if cliutil.IsMCPShelloutEnv() {
+				if !cmd.Flags().Changed("max-pages") {
+					maxPages = 5
+				}
+				if !cmd.Flags().Changed("max-parents") {
+					maxParents = 500
+				}
 			}
-			c.NoCache = true
+			syncCmd := newSyncCmd(flags)
+			// Detached from rootCmd (never added via AddCommand), so it
+			// inherits none of rootCmd's error/usage printing config --set
+			// explicitly rather than let cobra print its own "Error: ..."
+			// plus usage here, then have that same error print AGAIN when it
+			// propagates back up through this RunE to the real root's
+			// Execute(). Every other command in this CLI returns its error
+			// silently for the same reason; this keeps that contract intact
+			// across the delegation.
+			syncCmd.SilenceErrors = true
+			syncCmd.SilenceUsage = true
 
-			if dbPath == "" {
-				dbPath = defaultDBPath("peloton-pp-cli")
+			syncArgs := []string{"--resources", "workouts,classes"}
+			if dbPath != "" {
+				syncArgs = append(syncArgs, "--db", dbPath)
 			}
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
-			if err != nil {
-				return fmt.Errorf("opening store: %w", err)
-			}
-			defer s.Close()
-
-			resources := []string{}
-			totalSynced := 0
-			syncEventWriter := cmd.OutOrStdout()
-			if flags.asJSON {
-				syncEventWriter = cmd.ErrOrStderr()
-			}
-
-			// --full clears the cursor here because syncResource reads
-			// existingCursor unconditionally; its full param only gates the
-			// since filter, not cursor reset. Mirrors newSyncCmd's pattern.
 			if full {
-				for _, resource := range resources {
-					_ = s.SaveSyncState(resource, "", 0)
-				}
+				syncArgs = append(syncArgs, "--full")
 			}
-
-			for _, resource := range resources {
-				res := syncResource(cmd.Context(), c, s, resource, "", full, 100, false, false, nil, syncEventWriter)
-				if res.Err != nil {
-					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: error: %v\n", resource, res.Err)
-					continue
-				}
-				if res.Warn != nil {
-					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: warning: %v\n", resource, res.Warn)
-					continue
-				}
-				totalSynced += res.Count
-				fmt.Fprintf(cmd.ErrOrStderr(), "  %s: %d synced\n", resource, res.Count)
+			if maxPages > 0 {
+				syncArgs = append(syncArgs, "--max-pages", strconv.Itoa(maxPages))
 			}
-
-			if flags.asJSON {
-				enc := json.NewEncoder(cmd.OutOrStdout())
-				enc.SetIndent("", "  ")
-				return enc.Encode(map[string]any{
-					"resources_synced": len(resources),
-					"total_items":      totalSynced,
-					"store_path":       dbPath,
-					"timestamp":        time.Now().UTC().Format(time.RFC3339),
-				})
+			if maxParents > 0 {
+				syncArgs = append(syncArgs, "--max-parents", strconv.Itoa(maxParents))
 			}
-
-			fmt.Fprintf(cmd.OutOrStdout(), "Archived %d items across %d resources to %s\n", totalSynced, len(resources), dbPath)
-			return nil
+			if staleBeforeFlag != "" {
+				syncArgs = append(syncArgs, "--stale-before", staleBeforeFlag)
+			}
+			syncCmd.SetArgs(syncArgs)
+			syncCmd.SetOut(cmd.OutOrStdout())
+			syncCmd.SetErr(cmd.ErrOrStderr())
+			return syncCmd.ExecuteContext(cmd.Context())
 		},
 	}
 
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	cmd.Flags().BoolVar(&full, "full", false, "Full re-archive (ignore previous sync state)")
+	cmd.Flags().IntVar(&maxPages, "max-pages", 0, "Bound how many pages the flat workouts/classes phase fetches per resource per call (0 = unlimited; cap-hit emits a sync_warning event). classes in particular has no incremental filter, so this is the only way to bound its cost -- without it, a full classes pass can take several minutes and will likely exceed an MCP tool call's timeout regardless of --max-parents. Same semantics as 'sync --max-pages'.")
+	cmd.Flags().IntVar(&maxParents, "max-parents", 0, "Bound how many performance/workout_details dependent fetches happen per call (0 = unbounded). Same semantics as 'sync --max-parents': a cap hit still exits 0, just re-run archive to continue.")
+	cmd.Flags().StringVar(&staleBeforeFlag, "stale-before", "", "Refetch performance/workout_details records last fetched before this timestamp or duration (e.g. 2026-08-14T09:00:00Z or 72h), without --full's \"redo literally everything\" cost. Same semantics as 'sync --stale-before'.")
 
 	return cmd
 }

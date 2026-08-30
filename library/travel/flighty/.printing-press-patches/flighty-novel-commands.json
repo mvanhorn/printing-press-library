@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-08-28",
+  "base_run_id": "20260827-213420-70c6dbaf",
+  "base_printing_press_version": "4.31.1",
+  "id": "flighty-novel-commands",
+  "summary": "Seven cross-airport transcendence commands (worst, find-flight, airline, compare, route, nearby, diff) with catalog resolution helpers, snapshot history, and a domain FTS search.",
+  "reason": "Phase 1.5 approved transcendence features require SQLite joins, haversine math, and snapshot diffs the generator does not emit.",
+  "files": [
+    "internal/cli/flighty_models.go",
+    "internal/cli/flighty_catalog.go",
+    "internal/cli/airports_worst.go",
+    "internal/cli/airports_nearby.go",
+    "internal/cli/airports_airline.go",
+    "internal/cli/airports_compare.go",
+    "internal/cli/airports_route.go",
+    "internal/cli/airports_find_flight.go",
+    "internal/cli/airports_diff.go",
+    "internal/store/flighty_migrations.go",
+    "internal/store/flighty_search.go",
+    "internal/cli/flighty_novel_test.go"
+  ],
+  "validated_outcome": "Live dogfood matrix 99/99 including per-novel-command happy-path probes."
+}

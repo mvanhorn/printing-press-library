@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "go-directive-matches-catalog-toolchain",
+  "applied_at": "2026-08-22",
+  "base_run_id": "20260822-095304-45ca41a1",
+  "base_printing_press_version": "4.31.1",
+  "summary": "The module Go floor must not exceed the catalog's pinned Go toolchain.",
+  "reason": "With GOTOOLCHAIN=local, package loading failed under the catalog's root .go-version because the generated module required Go 1.26.7 while the catalog runtime is Go 1.26.6.",
+  "files": [
+    "go.mod"
+  ],
+  "validated_outcome": "Under Go 1.26.6 with GOTOOLCHAIN=local, go list, go mod tidy -diff, build, vet, tests, and govulncheck@v1.3.0 ./... passed; no reachable vulnerabilities were found."
+}

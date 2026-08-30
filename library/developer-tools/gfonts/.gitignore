@@ -1,0 +1,24 @@
+# Binaries
+/gfonts
+*.exe
+
+# Go build artifacts
+*.test
+*.out
+
+# Dependency directories
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cache
+*gfonts-metadata-cache.json
+gfonts-binary

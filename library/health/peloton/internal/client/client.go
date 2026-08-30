@@ -862,7 +862,7 @@ func looksLikeCredentialPlaceholder(value string) bool {
 }
 
 func authPlaceholderCredentialError(cfg *config.Config) error {
-	return authPlaceholderCredentialErrorWithSetup(cfg, "run peloton-pp-cli auth status; bootstrap credentials are supplied by the private OAuth wrapper")
+	return authPlaceholderCredentialErrorWithSetup(cfg, "run peloton-pp-cli auth status; set PELOTON_OAUTH_USERNAME and PELOTON_OAUTH_PASSWORD to your Peloton login and the CLI logs in automatically")
 }
 
 func authPlaceholderCredentialErrorWithSetup(cfg *config.Config, setup string) error {

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "agoda",
+  "cli_name": "agoda-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-27T09:16:49Z",
+  "source_commit": "f2179c8d6f25abf3a9c732f95b1ed13302d5f29c",
+  "printing_press_version": "4.31.1",
+  "run_id": "20260826-175510-45b00483",
+  "changes": [
+    {
+      "title": "feat(agoda): add agoda",
+      "pr": 1831,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1831",
+      "commit": "f2179c8d6f25abf3a9c732f95b1ed13302d5f29c"
+    }
+  ]
+}

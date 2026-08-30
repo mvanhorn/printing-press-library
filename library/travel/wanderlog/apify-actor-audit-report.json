@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/wanderlog",
+  "research_dir": "\u003ccli-dir\u003e/20260619-000132-cc275322",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

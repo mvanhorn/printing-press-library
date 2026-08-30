@@ -1,0 +1,197 @@
+{
+  "export": {
+    "app": "Corpova",
+    "analysis": "Consensus analysis",
+    "query": "probiotics improve gut health",
+    "filters": [],
+    "rows_exported": 1,
+    "rows_total": 1,
+    "source": "OpenAlex (CC0)",
+    "exported_at": "2026-07-24T08:41:29.485Z"
+  },
+  "rows": [
+    {
+      "claim": "probiotics improve gut health",
+      "verdict": "evidence-supports",
+      "consensus_score": 1,
+      "confidence": 0.41,
+      "evidence_strength": "very-low",
+      "apex_design": "narrative-review",
+      "studies_analyzed": 9,
+      "supporting": 6,
+      "refuting": 0,
+      "mixed": 0,
+      "inconclusive": 3,
+      "method": "heuristic",
+      "ai_stance": "supports",
+      "ai_confidence": 0.85,
+      "ai_model": "openrouter/free"
+    }
+  ],
+  "response": {
+    "stance_source": "llm:openrouter",
+    "llm_synthesis": {
+      "stance": "supports",
+      "confidence": 0.85,
+      "reasoning": "A review of relevant literature demonstrates a consensus that probiotics contribute to gut health by modulating the microbiota, enhancing immune function, and improving nutrient bioavailability. While some studies express caution regarding the complexity of the gut ecosystem and the need for more precision, the existing high-quality reviews consistently support the beneficial role of probiotics in maintaining intestinal homeostasis.",
+      "key_evidence": [
+        "Probiotics assist in replenishing gut microbial populations and recuperating the host immune system (ISAPP consensus).",
+        "Consumption of probiotics can improve intestinal tract health and enhance nutrient bioavailability (2006 review).",
+        "Introduction of probiotics can assist in achieving a favorable balance in the intestinal microbial ecosystem (2017 review).",
+        "Probiotic species like Lactobacillus and Bifidobacterium are noted for their potential to modulate gut microbiota and prevent degenerative diseases (2018 review)."
+      ],
+      "excluded_studies": [
+        {
+          "title": "Using probiotics to improve swine gut health and nutrient utilization",
+          "reason": "animal model only: focused on swine production rather than human health"
+        }
+      ],
+      "model": "openrouter/free"
+    },
+    "divergence": false,
+    "result": {
+      "claim": "probiotics improve gut health",
+      "verdict": "evidence-supports",
+      "consensus_score": 1,
+      "confidence": 0.41,
+      "evidence_strength": "very-low",
+      "apex_design": "narrative-review",
+      "study_count": 9,
+      "supporting": 6,
+      "refuting": 0,
+      "mixed": 0,
+      "inconclusive": 3,
+      "total_citations": 22693,
+      "stance_method": "heuristic",
+      "relevant_count": 9,
+      "near_unanimous": true,
+      "evidence_guarded": false,
+      "top_supporting": [
+        {
+          "title": "Effects of Probiotics, Prebiotics, and Synbiotics on Human Health",
+          "year": 2017,
+          "doi": "10.3390/nu9091021",
+          "cited_by_count": 2345,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "The human gastrointestinal tract is colonised by a complex ecosystem of microorganisms. Intestinal bacteria are not only commensal, but they also undergo a synbiotic co-evolution along with their host. Beneficial intestinal bacteria have numerous and important functions, e.g., they produce various nutrients for their host, prevent infections caused by intestinal pathogens, and modulate a normal immunological response. Therefore, modification of the intestinal microbiota in order to achieve, restore, and maintain favourable balance in the ecosystem, and the activity of microorganisms present in the gastrointestinal tract is necessary for the improved health condition of the host. The introduction of probiotics, prebiotics, or synbiotics into human diet is favourable for the intestinal microbiota. They may be consumed in the form of raw vegetables and fruit, fermented pickles, or dairy products. Another source may be pharmaceutical formulas and functional food. This paper provides a review of available information and summarises the current knowledge on the effects of probiotics, prebiotics, and synbiotics on human health. The mechanism of beneficial action of those substances is discussed, and verified study results proving their efficacy in human nutrition are presented."
+        },
+        {
+          "title": "Probiotics and their fermented food products are beneficial for health",
+          "year": 2006,
+          "doi": "10.1111/j.1365-2672.2006.02963.x",
+          "cited_by_count": 1433,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Probiotics are usually defined as microbial food supplements with beneficial effects on the consumers. Most probiotics fall into the group of organisms' known as lactic acid-producing bacteria and are normally consumed in the form of yogurt, fermented milks or other fermented foods. Some of the beneficial effect of lactic acid bacteria consumption include: (i) improving intestinal tract health; (ii) enhancing the immune system, synthesizing and enhancing the bioavailability of nutrients; (iii) reducing symptoms of lactose intolerance, decreasing the prevalence of allergy in susceptible individuals; and (iv) reducing risk of certain cancers. The mechanisms by which probiotics exert their effects are largely unknown, but may involve modifying gut pH, antagonizing pathogens through production of antimicrobial compounds, competing for pathogen binding and receptor sites as well as for available nutrients and growth factors, stimulating immunomodulatory cells, and producing lactase. Selection criteria, efficacy, food and supplement sources and safety issues around probiotics are reviewed. Recent scientific investigation has supported the important role of probiotics as a part of a healthy diet for human as well as for animals and may be an avenue to provide a safe, cost effective, and 'natural' approach that adds a barrier against microbial infection. This paper presents a review of probiotics in health maintenance and disease prevention."
+        },
+        {
+          "title": "Probiotic Species in the Modulation of Gut Microbiota: An Overview",
+          "year": 2018,
+          "doi": "10.1155/2018/9478630",
+          "cited_by_count": 818,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Probiotics are microbial strains that are beneficial to health, and their potential has recently led to a significant increase in research interest in their use to modulate the gut microbiota. The animal gut is a complex ecosystem of host cells, microbiota, and available nutrients, and the microbiota prevents several degenerative diseases in humans and animals via immunomodulation. The gut microbiota and its influence on human nutrition, metabolism, physiology, and immunity are addressed, and several probiotic species and strains are discussed to improve the understanding of modulation of gut microbiota. This paper provides a broad review of several Lactobacillus spp., Bifidobacterium spp., and other coliform bacteria as the most promising probiotic species and their role in the prevention of degenerative diseases, such as obesity, diabetes, cancer, cardiovascular diseases, malignancy, liver disease, and inflammatory bowel disease. This review also discusses a recent study of Saccharomyces spp. in which inflammation was prevented by promotion of proinflammatory immune function via the production of short-chain fatty acids. A summary of gut microbiota alteration with future perspectives is also provided."
+        }
+      ],
+      "top_refuting": [],
+      "all_studies": [
+        {
+          "title": "Using probiotics to improve swine gut health and nutrient utilization",
+          "year": 2017,
+          "doi": "10.1016/j.aninu.2017.06.007",
+          "cited_by_count": 439,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "To maintain a healthy gut is definitely key for a pig to digest and absorb dietary nutrients efficiently. A balanced microbiota (i.e., a healthy micro-ecosystem) is an indispensable constituent of a healthy gut. Probiotics, the live microorganisms which, when administered in adequate amounts, confer good health benefits onto the host, are a category of feed additives that can be used to replenish the gut microbial population while recuperating the host immune system. Besides their antitoxin and diarrhea reduction effects, dietary supplementation of probiotics can improve gut health, nutrient digestibilities and, therefore, benefit nutrient utilization and growth performance of pigs. Current knowledge in the literature pertinent to the beneficial effects of utilizing various probiotics for swine production has been comprehensively reviewed, and the safety and the risk issues related to probiotic usage have also been discussed in this paper. Considering that the foremost cost in a swine operation is feed cost, feed efficiency holds a very special, if not the paramount, significance in commercial swine production. Globally, the swine industry along with other animal industries is moving towards restricting and eventually a total ban on the usage of antibiotic growth promoters. Therefore, selection of an ideal alternative to the in-feed antibiotics to compensate for the lost benefits due to the ban on the antibiotic usage is urgently needed to support the industry for profitable "
+        },
+        {
+          "title": "Using probiotics and prebiotics to improve gut health",
+          "year": 2003,
+          "doi": "10.1016/s1359-6446(03)02746-6",
+          "cited_by_count": 421,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": ""
+        },
+        {
+          "title": "The International Scientific Association for Probiotics and Prebiotics consensus statement on the scope and appropriate use of the term probiotic",
+          "year": 2014,
+          "doi": "10.1038/nrgastro.2014.66",
+          "cited_by_count": 9221,
+          "design": "unclassified",
+          "stance": "supporting",
+          "stance_confidence": 0.8999999999999999,
+          "abstract": "Probiotics are widely regarded as live microorganisms that, when administered in sufficient amounts, confer a health benefit, but guidance is needed on the most appropriate use of the term. This Consensus Statement outlines recommendations for the scope and definition of the term 'probiotic' as determined by an expert panel convened by the International Scientific Association for Probiotics and Prebiotics in October 2013. An expert panel was convened in October 2013 by the International Scientific Association for Probiotics and Prebiotics (ISAPP) to discuss the field of probiotics. It is now 13 years since the definition of probiotics and 12 years after guidelines were published for regulators, scientists and industry by the Food and Agriculture Organization of the United Nations and the WHO (FAO/WHO). The FAO/WHO definition of a probiotic—“live microorganisms which when administered in adequate amounts confer a health benefit on the host”—was reinforced as relevant and sufficiently accommodating for current and anticipated applications. However, inconsistencies between the FAO/WHO Expert Consultation Report and the FAO/WHO Guidelines were clarified to take into account advances in science and applications. A more precise use of the term 'probiotic' will be useful to guide clinicians and consumers in differentiating the diverse products on the market. This document represents the conclusions of the ISAPP consensus meeting on the appropriate use and scope of the term probiotic"
+        },
+        {
+          "title": "Probiotics and prebiotics in intestinal health and disease: from biology to the clinic",
+          "year": 2019,
+          "doi": "10.1038/s41575-019-0173-3",
+          "cited_by_count": 1995,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Gut microbiota in human metabolic health and disease",
+          "year": 2020,
+          "doi": "10.1038/s41579-020-0433-9",
+          "cited_by_count": 4642,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        },
+        {
+          "title": "Probiotics and their fermented food products are beneficial for health",
+          "year": 2006,
+          "doi": "10.1111/j.1365-2672.2006.02963.x",
+          "cited_by_count": 1433,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Probiotics are usually defined as microbial food supplements with beneficial effects on the consumers. Most probiotics fall into the group of organisms' known as lactic acid-producing bacteria and are normally consumed in the form of yogurt, fermented milks or other fermented foods. Some of the beneficial effect of lactic acid bacteria consumption include: (i) improving intestinal tract health; (ii) enhancing the immune system, synthesizing and enhancing the bioavailability of nutrients; (iii) reducing symptoms of lactose intolerance, decreasing the prevalence of allergy in susceptible individuals; and (iv) reducing risk of certain cancers. The mechanisms by which probiotics exert their effects are largely unknown, but may involve modifying gut pH, antagonizing pathogens through production of antimicrobial compounds, competing for pathogen binding and receptor sites as well as for available nutrients and growth factors, stimulating immunomodulatory cells, and producing lactase. Selection criteria, efficacy, food and supplement sources and safety issues around probiotics are reviewed. Recent scientific investigation has supported the important role of probiotics as a part of a healthy diet for human as well as for animals and may be an avenue to provide a safe, cost effective, and 'natural' approach that adds a barrier against microbial infection. This paper presents a review of probiotics in health maintenance and disease prevention."
+        },
+        {
+          "title": "Effects of Probiotics, Prebiotics, and Synbiotics on Human Health",
+          "year": 2017,
+          "doi": "10.3390/nu9091021",
+          "cited_by_count": 2345,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "The human gastrointestinal tract is colonised by a complex ecosystem of microorganisms. Intestinal bacteria are not only commensal, but they also undergo a synbiotic co-evolution along with their host. Beneficial intestinal bacteria have numerous and important functions, e.g., they produce various nutrients for their host, prevent infections caused by intestinal pathogens, and modulate a normal immunological response. Therefore, modification of the intestinal microbiota in order to achieve, restore, and maintain favourable balance in the ecosystem, and the activity of microorganisms present in the gastrointestinal tract is necessary for the improved health condition of the host. The introduction of probiotics, prebiotics, or synbiotics into human diet is favourable for the intestinal microbiota. They may be consumed in the form of raw vegetables and fruit, fermented pickles, or dairy products. Another source may be pharmaceutical formulas and functional food. This paper provides a review of available information and summarises the current knowledge on the effects of probiotics, prebiotics, and synbiotics on human health. The mechanism of beneficial action of those substances is discussed, and verified study results proving their efficacy in human nutrition are presented."
+        },
+        {
+          "title": "Probiotic Species in the Modulation of Gut Microbiota: An Overview",
+          "year": 2018,
+          "doi": "10.1155/2018/9478630",
+          "cited_by_count": 818,
+          "design": "narrative-review",
+          "stance": "supporting",
+          "stance_confidence": 0.95,
+          "abstract": "Probiotics are microbial strains that are beneficial to health, and their potential has recently led to a significant increase in research interest in their use to modulate the gut microbiota. The animal gut is a complex ecosystem of host cells, microbiota, and available nutrients, and the microbiota prevents several degenerative diseases in humans and animals via immunomodulation. The gut microbiota and its influence on human nutrition, metabolism, physiology, and immunity are addressed, and several probiotic species and strains are discussed to improve the understanding of modulation of gut microbiota. This paper provides a broad review of several Lactobacillus spp., Bifidobacterium spp., and other coliform bacteria as the most promising probiotic species and their role in the prevention of degenerative diseases, such as obesity, diabetes, cancer, cardiovascular diseases, malignancy, liver disease, and inflammatory bowel disease. This review also discusses a recent study of Saccharomyces spp. in which inflammation was prevented by promotion of proinflammatory immune function via the production of short-chain fatty acids. A summary of gut microbiota alteration with future perspectives is also provided."
+        },
+        {
+          "title": "The pros, cons, and many unknowns of probiotics",
+          "year": 2019,
+          "doi": "10.1038/s41591-019-0439-x",
+          "cited_by_count": 1379,
+          "design": "narrative-review",
+          "stance": "inconclusive",
+          "stance_confidence": 0.2,
+          "abstract": ""
+        }
+      ],
+      "note": "1 off-topic work(s) excluded by relevance gate; near-unanimous result (no refuting or mixed studies) — check that genuine debate was not filtered out"
+    }
+  }
+}

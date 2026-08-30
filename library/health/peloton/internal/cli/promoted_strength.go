@@ -45,6 +45,30 @@ func newStrengthPromotedCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			if prov.Source == "live" {
+				// See cacheWorkoutDetail's doc comment: this endpoint is the
+				// same GET /api/workout/{workout_id} workouts_show.go hits,
+				// and offline workout/intervals/strength all read the
+				// "workout_details" family, which the generic write-through
+				// above (under "strength") never populates.
+				cacheWorkoutDetail(cmd.Context(), args[0], data)
+			}
+			// Peloton only populates movement_tracker_data for classes that
+			// track individual movements (e.g. strength classes); most
+			// workouts have none. offline_strength (offline.go) already
+			// warns callers with an explicit caveat in that case — this live
+			// single-fetch counterpart had no equivalent signal at all, so a
+			// bike ride with no tracker data looked identical to a real
+			// fetch failure with no explanation. Unconditional stderr
+			// (not gated by output mode) matches how other live commands in
+			// this file already surface non-fatal data-shape warnings, e.g.
+			// data_source.go's write-through-cache warning.
+			var decoded any
+			if json.Unmarshal(data, &decoded) == nil {
+				if _, ok := objectValue(decoded, "movement_tracker_data", "movementTrackerData", "movements"); !ok {
+					fmt.Fprintln(cmd.ErrOrStderr(), "warning: workout detail has no movement tracker data")
+				}
+			}
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope

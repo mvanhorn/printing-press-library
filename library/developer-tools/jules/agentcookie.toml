@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "jules-pp-cli"
+display_name = "Jules"
+description = "Jules Planning & Progress API for async coding tasks"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/jules-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+JULES_API_KEY = true

@@ -1,0 +1,567 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Keenable API",
+    "version": "1.0.0",
+    "description": "Search the web and fetch clean page content with reproducible, agent-native workflows."
+  },
+  "servers": [
+    {
+      "url": "https://api.keenable.ai",
+      "description": "Production"
+    }
+  ],
+  "security": [],
+  "paths": {
+    "/v1/search": {
+      "post": {
+        "operationId": "search_post",
+        "tags": [
+          "Search"
+        ],
+        "summary": "Search the web",
+        "description": "Perform a web search using a JSON request body. Supports date filters and site restriction.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/InsufficientCredits"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "x-pp-resource": "web_search",
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/v1/search/public": {
+      "post": {
+        "operationId": "search_post_public",
+        "tags": [
+          "Search"
+        ],
+        "summary": "Search the web without a key",
+        "description": "Keyless twin of POST /v1/search. Same request body and same response, no API key. Rate limited per IP rather than per organization, and consumes no credits.",
+        "security": [],
+        "parameters": [
+          {
+            "name": "X-Keenable-Title",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 256
+            },
+            "description": "Name of the application making the call. Required on the public endpoints; without it the request is rejected with 400 \"Missing app identifier\". Longer values are truncated. The keenable_title query parameter carries the same value when a header is not an option."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "x-pp-resource": "web_search"
+      }
+    },
+    "/v1/fetch": {
+      "get": {
+        "operationId": "fetch",
+        "tags": [
+          "Fetch"
+        ],
+        "summary": "Fetch page content",
+        "description": "Extract clean content (markdown) from a web page URL.",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "URL of the page to fetch"
+          },
+          {
+            "name": "max_chars",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 50000
+            },
+            "description": "Maximum number of characters of content to return. Longer content is truncated and a notice is appended after the cut, so the response runs slightly past this number."
+          },
+          {
+            "name": "live",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "Fetch the page live from the source instead of returning Keenable's indexed copy. Enables fetching URLs that are not indexed."
+          },
+          {
+            "name": "prompt",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 2000
+            },
+            "description": "Optional extraction instruction. When set, an LLM reads the fetched page and the response content is only the output for this instruction instead of the full page. Example: \"List all pricing tiers with their monthly prices\"."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Extracted page content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FetchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/InsufficientCredits"
+          },
+          "404": {
+            "description": "Page not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Content could not be extracted (unsupported domain or extraction failure)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/v1/fetch/public": {
+      "get": {
+        "operationId": "fetch_public",
+        "tags": [
+          "Fetch"
+        ],
+        "summary": "Fetch page content without a key",
+        "description": "Keyless twin of GET /v1/fetch. Same query parameters and same response, no API key. Rate limited per IP rather than per organization, and consumes no credits.",
+        "security": [],
+        "parameters": [
+          {
+            "name": "X-Keenable-Title",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 256
+            },
+            "description": "Name of the application making the call. Required on the public endpoints; without it the request is rejected with 400 \"Missing app identifier\". Longer values are truncated. The keenable_title query parameter carries the same value when a header is not an option."
+          },
+          {
+            "name": "url",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "URL of the page to fetch"
+          },
+          {
+            "name": "max_chars",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 50000
+            },
+            "description": "Maximum number of characters of content to return. Longer content is truncated and a notice is appended after the cut, so the response runs slightly past this number."
+          },
+          {
+            "name": "live",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "Fetch the page live from the source instead of returning Keenable's indexed copy. Enables fetching URLs that are not indexed."
+          },
+          {
+            "name": "prompt",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 2000
+            },
+            "description": "Optional extraction instruction. When set, an LLM reads the fetched page and the response content is only the output for this instruction instead of the full page. Example: \"List all pricing tiers with their monthly prices\"."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Extracted page content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FetchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "description": "Page not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Content could not be extracted (unsupported domain or extraction failure)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "apiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "API key for authentication. Obtain one from the Keenable dashboard.",
+        "x-auth-env-vars": [
+          "KEENABLE_API_KEY"
+        ]
+      }
+    },
+    "schemas": {
+      "ApiError": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error category (e.g. \"Bad request\", \"Not found\")"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable detail about what went wrong"
+          },
+          "details": {
+            "description": "Structured details (validation errors, etc.)"
+          }
+        }
+      },
+      "SearchRequest": {
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query"
+          },
+          "acquired_after": {
+            "type": "string",
+            "description": "Filter: pages acquired after this date (YYYY-MM-DD, ISO 8601, or relative like \"7d\")"
+          },
+          "acquired_before": {
+            "type": "string",
+            "description": "Filter: pages acquired before this date. A bare YYYY-MM-DD includes that whole day (up to 23:59:59.999 UTC); pass a timestamp to cut at an exact instant"
+          },
+          "published_after": {
+            "type": "string",
+            "description": "Filter: pages published after this date"
+          },
+          "published_before": {
+            "type": "string",
+            "description": "Filter: pages published before this date. A bare YYYY-MM-DD includes that whole day (up to 23:59:59.999 UTC); pass a timestamp to cut at an exact instant"
+          },
+          "site": {
+            "type": "string",
+            "description": "Restrict results to a specific domain"
+          },
+          "query_time": {
+            "type": "string",
+            "description": "Search the index as it stood at this point in time: pages acquired after it are excluded. A bare YYYY-MM-DD resolves to 00:00:00 UTC. Relative deltas on the date filters are computed from this instant instead of the request time"
+          },
+          "snippet_max_length": {
+            "type": "integer",
+            "minimum": 180,
+            "maximum": 10000,
+            "description": "Maximum length, in characters, of the snippet returned per result. When omitted, a default snippet length is used."
+          },
+          "max_results": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of results to return. When omitted, up to 10 results are returned."
+          }
+        }
+      },
+      "SearchResponse": {
+        "type": "object",
+        "required": [
+          "query",
+          "results"
+        ],
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Echo of the search query"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SearchResult"
+            }
+          }
+        }
+      },
+      "SearchResult": {
+        "type": "object",
+        "required": [
+          "title",
+          "url",
+          "description"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Page title"
+          },
+          "url": {
+            "type": "string",
+            "description": "Page URL"
+          },
+          "description": {
+            "type": "string",
+            "description": "Page description"
+          },
+          "snippet": {
+            "type": "string",
+            "description": "Search snippet with query-relevant highlights"
+          },
+          "published_at": {
+            "type": "string",
+            "description": "When the page was published (ISO 8601)"
+          },
+          "acquired_at": {
+            "type": "string",
+            "description": "When the page was indexed (ISO 8601)"
+          }
+        }
+      },
+      "FetchResponse": {
+        "type": "object",
+        "required": [
+          "url",
+          "content"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Fetched URL (may differ from input after redirects)"
+          },
+          "title": {
+            "type": "string",
+            "description": "Page title"
+          },
+          "content": {
+            "type": "string",
+            "description": "Extracted content in markdown"
+          },
+          "description": {
+            "type": "string",
+            "description": "Meta description"
+          },
+          "author": {
+            "type": "string",
+            "description": "Author name"
+          },
+          "published_at": {
+            "type": "string",
+            "description": "Publish date (ISO 8601)"
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Invalid request parameters",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Missing or invalid API key",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        }
+      },
+      "InsufficientCredits": {
+        "description": "No credits available — upgrade your plan or purchase more credits",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        }
+      },
+      "RateLimitExceeded": {
+        "description": "Rate limit exceeded — slow down or upgrade your plan",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-learn": {
+    "entity_lookup_seeds": {},
+    "synonyms": {}
+  },
+  "x-mcp": {
+    "transport": [
+      "stdio",
+      "http"
+    ],
+    "orchestration": "code",
+    "endpoint_tools": "hidden"
+  }
+}

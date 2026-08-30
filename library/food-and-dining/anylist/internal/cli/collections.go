@@ -4,6 +4,8 @@
 package cli
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
@@ -20,4 +22,25 @@ func newCollectionsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newCollectionsListCmd(flags))
 	cmd.AddCommand(newCollectionsRemoveCmd(flags))
 	return cmd
+}
+
+// Recipe collection writes remain disabled until a disposable live round-trip
+// proves that AnyList persists the requested collection state. The command
+// layer still exposes deterministic previews, but --apply must fail closed
+// before authentication or any HTTP request while that proof is absent.
+func recipeCollectionLiveWritesEnabled() bool { return false }
+
+func collectionWritePreview(cmd *cobra.Command, flags *rootFlags, action string, apply bool, fields map[string]any) error {
+	if fields == nil {
+		fields = map[string]any{}
+	}
+	fields["status"] = "preview"
+	fields["action"] = action
+	fields["apply"] = apply
+	fields["dry_run"] = true
+	if flags.asJSON {
+		return printJSONFiltered(cmd.OutOrStdout(), fields, flags)
+	}
+	fmt.Fprintf(cmd.OutOrStdout(), "Preview: would %s (pass --apply to write)\n", action)
+	return nil
 }

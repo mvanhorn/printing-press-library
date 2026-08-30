@@ -1,0 +1,80 @@
+{
+  "reachability": {
+    "mode": "browser_http",
+    "confidence": 0.85,
+    "evidence": ["x-vercel-mitigated: challenge on stdlib HTTP", "surf-chrome transport returns 200"]
+  },
+  "endpoint_clusters": [
+    {
+      "path": "/server/{slug}",
+      "method": "GET",
+      "response_shape": "html+jsonld:SoftwareApplication",
+      "observed_auth": [],
+      "size_class": "small"
+    },
+    {
+      "path": "/client/{slug}",
+      "method": "GET",
+      "response_shape": "html+jsonld:SoftwareApplication",
+      "observed_auth": [],
+      "size_class": "small"
+    },
+    {
+      "path": "/tools/skills/{slug}",
+      "method": "GET",
+      "response_shape": "html+jsonld:SoftwareApplication+FAQPage",
+      "observed_auth": [],
+      "size_class": "small"
+    },
+    {
+      "path": "/search",
+      "method": "GET",
+      "response_shape": "html+jsonld:SearchResultsPage>ItemList",
+      "observed_auth": [],
+      "size_class": "medium"
+    },
+    {
+      "path": "/categories/{slug}",
+      "method": "GET",
+      "response_shape": "html+jsonld:ItemList",
+      "observed_auth": [],
+      "size_class": "medium"
+    },
+    {
+      "path": "/leaderboards",
+      "method": "GET",
+      "response_shape": "html+jsonld:ItemList(100)",
+      "observed_auth": [],
+      "size_class": "medium"
+    },
+    {
+      "path": "/tools/skills/leaderboard",
+      "method": "GET",
+      "response_shape": "html+jsonld:ItemList(100)",
+      "observed_auth": [],
+      "size_class": "medium"
+    },
+    {
+      "path": "/daily",
+      "method": "GET",
+      "response_shape": "html+jsonld:ItemList",
+      "observed_auth": [],
+      "size_class": "small"
+    },
+    {
+      "path": "/daily/skills",
+      "method": "GET",
+      "response_shape": "html+jsonld:ItemList",
+      "observed_auth": [],
+      "size_class": "small"
+    },
+    {
+      "path": "/api/similar-tools",
+      "method": "GET",
+      "response_shape": "json:array",
+      "observed_auth": [],
+      "size_class": "small"
+    }
+  ],
+  "empty_response_shapes": false
+}

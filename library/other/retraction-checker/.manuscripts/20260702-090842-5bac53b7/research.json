@@ -1,0 +1,163 @@
+{
+  "api_name": "retraction-checker",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "scientific-consensus-pp-cli",
+      "url": "https://github.com/mvanhorn/printing-press-library/tree/main/library/other/scientific-consensus",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-02T09:10:00Z",
+  "novel_features": [
+    {
+      "name": "Retraction check",
+      "command": "check",
+      "description": "Tell whether a paper (by DOI or PMID) has been retracted, when, why, and where the notice is.",
+      "rationale": "Crossref embeds Retraction Watch update records; we parse update-to/update-by plus the RETRACTED title signal into one structured verdict no raw API call returns.",
+      "example": "retraction-checker-pp-cli check 10.1016/j.micpro.2020.103768 --json",
+      "why_it_matters": "Agents citing a paper should verify it is not retracted before relying on it.",
+      "group": "Retraction intelligence"
+    },
+    {
+      "name": "Bibliography scan",
+      "command": "scan",
+      "description": "Batch-check a reading list or .bib file and flag every retracted entry.",
+      "rationale": "Reuses the batch-file line pattern (skip blank/# lines) and fans out DOI/PMID lookups against Crossref with a single command.",
+      "example": "retraction-checker-pp-cli scan refs.bib --json",
+      "why_it_matters": "Catches retracted citations across a whole manuscript or literature review at once.",
+      "group": "Retraction intelligence"
+    },
+    {
+      "name": "Superseding research",
+      "command": "superseded",
+      "description": "For a retracted or older paper, find related more-recent research on the same topic, ranked by citation count.",
+      "rationale": "Joins Crossref retraction/date context with OpenAlex citation-ranked related works published after the original — a cross-source view no single API provides.",
+      "example": "retraction-checker-pp-cli superseded 10.1016/j.micpro.2020.103768 --json",
+      "why_it_matters": "When a paper is retracted, the agent still needs the current best evidence on the topic.",
+      "group": "Retraction intelligence"
+    },
+    {
+      "name": "Retraction watch",
+      "command": "watch",
+      "description": "Monitor a topic or reading list for newly-announced retractions since the last run.",
+      "rationale": "Persists a baseline of seen retraction notices and diffs on each run, using the snapshot/first-run-baseline pattern.",
+      "example": "retraction-checker-pp-cli watch \"machine learning\" --json",
+      "why_it_matters": "Surfaces new retractions in a field or personal library without re-reading everything.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Retraction check",
+      "command": "check",
+      "description": "Tell whether a paper (by DOI or PMID) has been retracted, when, why, and where the notice is.",
+      "rationale": "Crossref embeds Retraction Watch update records; we parse update-to/update-by plus the RETRACTED title signal into one structured verdict no raw API call returns.",
+      "example": "retraction-checker-pp-cli check 10.1016/j.micpro.2020.103768 --json",
+      "why_it_matters": "Agents citing a paper should verify it is not retracted before relying on it.",
+      "group": "Retraction intelligence"
+    },
+    {
+      "name": "Bibliography scan",
+      "command": "scan",
+      "description": "Batch-check a reading list or .bib file and flag every retracted entry.",
+      "rationale": "Reuses the batch-file line pattern (skip blank/# lines) and fans out DOI/PMID lookups against Crossref with a single command.",
+      "example": "retraction-checker-pp-cli scan refs.bib --json",
+      "why_it_matters": "Catches retracted citations across a whole manuscript or literature review at once.",
+      "group": "Retraction intelligence"
+    },
+    {
+      "name": "Superseding research",
+      "command": "superseded",
+      "description": "For a retracted or older paper, find related more-recent research on the same topic, ranked by citation count.",
+      "rationale": "Joins Crossref retraction/date context with OpenAlex citation-ranked related works published after the original — a cross-source view no single API provides.",
+      "example": "retraction-checker-pp-cli superseded 10.1016/j.micpro.2020.103768 --json",
+      "why_it_matters": "When a paper is retracted, the agent still needs the current best evidence on the topic.",
+      "group": "Retraction intelligence"
+    },
+    {
+      "name": "Retraction watch",
+      "command": "watch",
+      "description": "Monitor a topic or reading list for newly-announced retractions since the last run.",
+      "rationale": "Persists a baseline of seen retraction notices and diffs on each run, using the snapshot/first-run-baseline pattern.",
+      "example": "retraction-checker-pp-cli watch \"machine learning\" --json",
+      "why_it_matters": "Surfaces new retractions in a field or personal library without re-reading everything.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Retraction Checker",
+    "headline": "Check whether a paper is retracted, why, and what the current research says now — keyless, over Crossref and OpenAlex.",
+    "value_prop": "Retraction Checker turns Crossref's embedded Retraction Watch data into a one-shot verdict: is this DOI or PMID retracted, when, why, and where is the notice. It batch-scans reading lists and .bib files, finds citation-ranked superseding research via OpenAlex, and watches a topic or library for newly-announced retractions. Fully keyless.",
+    "quickstart": [
+      {
+        "command": "retraction-checker-pp-cli doctor --dry-run",
+        "comment": "Confirm the CLI and Crossref reachability before checking papers"
+      },
+      {
+        "command": "retraction-checker-pp-cli check 10.1016/j.micpro.2020.103768 --json",
+        "comment": "Check a single DOI for retraction status"
+      },
+      {
+        "command": "retraction-checker-pp-cli scan refs.bib --json",
+        "comment": "Flag retracted entries across a bibliography"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Rate-limited by Crossref",
+        "fix": "Pass --mailto you@example.com to join the polite pool for better limits"
+      },
+      {
+        "symptom": "PMID not found",
+        "fix": "PMIDs are resolved to DOIs first; some records have no DOI and cannot be checked via Crossref"
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or researcher needs to verify that a cited paper has not been retracted, audit a bibliography for retracted references, or find current research that supersedes a retracted study. It is the right choice for citation-integrity checks in literature reviews and RAG pipelines.",
+    "anti_triggers": [
+      "Do not use this CLI to fetch full-text papers or PDFs",
+      "Do not use it for general scholarly search unrelated to retraction — use scientific-consensus for consensus and evidence analytics"
+    ],
+    "recipes": [
+      {
+        "title": "Check a DOI",
+        "command": "retraction-checker-pp-cli check 10.1016/j.micpro.2020.103768 --json",
+        "explanation": "Returns retraction status, date, reason source, and notice reference for one paper."
+      },
+      {
+        "title": "Audit a bibliography",
+        "command": "retraction-checker-pp-cli scan reading-list.txt --agent --select doi,retracted,reason",
+        "explanation": "Scans one DOI/PMID per line and returns only the key retraction fields for each entry."
+      },
+      {
+        "title": "Find superseding work",
+        "command": "retraction-checker-pp-cli superseded 10.1016/j.micpro.2020.103768 --json",
+        "explanation": "Lists more-recent related papers ranked by citations, published after the retracted paper."
+      },
+      {
+        "title": "Watch a field",
+        "command": "retraction-checker-pp-cli watch \"crispr\" --json",
+        "explanation": "Baselines retraction notices for a topic and reports new ones on later runs."
+      }
+    ],
+    "trigger_phrases": [
+      "is this paper retracted",
+      "check retraction",
+      "check this DOI",
+      "scan my bibliography for retractions",
+      "what replaced this retracted paper",
+      "use retraction-checker",
+      "run retraction-checker"
+    ]
+  }
+}

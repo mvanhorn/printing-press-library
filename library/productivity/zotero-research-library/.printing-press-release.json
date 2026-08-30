@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "zotero-research-library",
+  "cli_name": "zotero-research-library-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-26T09:20:32Z",
+  "source_commit": "d010c2bd2188e74e12d9d70867ce1306d0c5652f",
+  "printing_press_version": "4.30.1",
+  "run_id": "20260806-100315-0ed5c3e3",
+  "changes": [
+    {
+      "title": "feat(zotero-research-library): Zotero research library CLI (productivity)",
+      "pr": 1668,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1668",
+      "commit": "d010c2bd2188e74e12d9d70867ce1306d0c5652f"
+    }
+  ]
+}

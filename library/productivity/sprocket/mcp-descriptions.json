@@ -1,0 +1,6 @@
+{
+  "descriptions": {
+    "club_get": "Fetch the club's public metadata object from /meta-api/public/club (no parameters, no per-user data). Returns the club-level configuration the public site is built from: name, identifiers, branding, and contact/social fields as the platform stores them. Use this for who the club is; use club_settings for how the public club site is configured, and the account_* tools for the signed-in user.",
+    "club_settings": "Fetch the club's public settings object from /api/public/clubs/settings (no parameters, no per-user data). Returns public site configuration — display, registration, and contact options for the club as a whole. Use this for the public club configuration; use club_get for the club's identity/branding metadata, and the registrations_* / payments_* tools for the signed-in user's own data."
+  }
+}

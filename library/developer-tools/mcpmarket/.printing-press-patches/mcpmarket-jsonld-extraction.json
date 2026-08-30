@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "mcpmarket-jsonld-extraction",
+  "applied_at": "2026-08-27",
+  "base_run_id": "20260827-211137-37906ad0",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Hand-built server/mcpclient/skill list, search, category, leaderboard, and daily commands using custom multi-block JSON-LD extraction, replacing what would have been generated html_extract endpoints.",
+  "reason": "MCP Market listing pages embed 2-3 <script type=application/ld+json> blocks per page (Organization, WebSite, ItemList for plain listings; CollectionPage/SearchResultsPage wrapping mainEntity.itemListElement for category/search pages). The generator's html_extract embedded-json mode only returns the first matching script block, which is never the ItemList on these pages. Hand-written extraction walks every JSON-LD block and picks the right one by @type.",
+  "files": [
+    "internal/cli/mcpmarket_jsonld.go",
+    "internal/cli/mcpmarket_server_list.go",
+    "internal/cli/mcpmarket_mcpclient_list.go",
+    "internal/cli/mcpmarket_skill_list.go"
+  ],
+  "validated_outcome": "127/127 live dogfood tests passing; live-verified against mcpmarket.com/server, /search, /categories/<slug>, /leaderboards, /daily, /tools/skills, /tools/skills/leaderboard, /daily/skills, /client.",
+  "upstream_issue": null
+}

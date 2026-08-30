@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "review-list-settings-clear",
+  "applied_at": "2026-08-23",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Expose the live-verified remove-list-settings operation as an explicit, apply-gated clear command.",
+  "reason": "A disposable list settings probe showed remove-list-settings returns HTTP 200 and a fresh user-data read confirms the settings record is absent. Guessed save/update/set handlers returned HTTP 200 without persistence, so general settings writes remain unsupported and are not enabled.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "tools-manifest.json",
+    "internal/mcp/tools.go",
+    "internal/mcp/code_orch_data.go",
+    "internal/cli/lists_settings.go",
+    "internal/cli/lists_settings_clear.go",
+    "internal/cli/lists_settings_clear_test.go"
+  ],
+  "validated_outcome": "Focused tests passed. A disposable list was cleared with --apply, fresh read-back verified the settings record absent, local cache synchronization completed, and the disposable list was deleted. No production data was changed.",
+  "findings_addressed": [
+    "list-settings-remove-live-roundtrip",
+    "settings-clear-preview-apply-gate",
+    "settings-clear-cache-sync"
+  ]
+}

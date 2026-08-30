@@ -1,7 +1,7 @@
 {
   "api_name": "youtube",
   "base_url": "https://youtube.googleapis.com",
-  "description": "YouTube Data API v3 (trimmed read-only subset: search, videos, channels, playlists, playlistItems) for blog-research workflows. API-key auth only; OAuth-required write operations are out of scope.",
+  "description": "A self-maintained competitor-monitoring machine for YouTube: full read API coverage plus a local databank of channel histories, snapshots, comments, and packaging assets - market data hours old, not weeks.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {
@@ -19,16 +19,172 @@
         "sensitive": true,
         "description": "YouTube Data API key for read-only public-data operations"
       }
-    ]
+    ],
+    "key_url": "https://console.cloud.google.com"
   },
   "required_headers": [],
   "tools": [
     {
+      "name": "youtube_activities-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: channelId, home, maxResults (plus 5 more). Returns array of Activity.",
+      "method": "GET",
+      "path": "/youtube/v3/activities",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more activity resource properties that the API response will include. If the parameter identifies a property that contains child properties, the child properties will be included in the response. For example, in an activity resource, the snippet property contains other properties that identify the type of activity, a display title for the activity, and so forth. If you set *part=snippet*, the API response will also contain all of those nested properties.",
+          "required": true
+        },
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "Channel id"
+        },
+        {
+          "name": "home",
+          "type": "bool",
+          "location": "query",
+          "description": "Home"
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The *maxResults* parameter specifies the maximum number of items that should be returned in..."
+        },
+        {
+          "name": "mine",
+          "type": "bool",
+          "location": "query",
+          "description": "Mine"
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The *pageToken* parameter identifies a specific page in the result set that should be returned."
+        },
+        {
+          "name": "publishedAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Published after"
+        },
+        {
+          "name": "publishedBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Published before"
+        },
+        {
+          "name": "regionCode",
+          "type": "string",
+          "location": "query",
+          "description": "Region code"
+        }
+      ]
+    },
+    {
+      "name": "youtube_captions-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part, videoId. Optional: id, onBehalfOf, onBehalfOfContentOwner. Returns array of Caption.",
+      "method": "GET",
+      "path": "/youtube/v3/captions",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more caption resource parts that the API response will include. The part names that you can include in the parameter value are id and snippet.",
+          "required": true
+        },
+        {
+          "name": "videoId",
+          "type": "string",
+          "location": "query",
+          "description": "Returns the captions for the specified video.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Returns the captions with the given IDs for Stubby or Apiary."
+        },
+        {
+          "name": "onBehalfOf",
+          "type": "string",
+          "location": "query",
+          "description": "ID of the Google+ Page for the channel that the request is on behalf of."
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners. The *onBehalfOfContentOwner* parameter indicates that the request's authorization credentials identify a YouTube CMS user who is acting on behalf of the content owner specified in the parameter value. This parameter is intended for YouTube content partners that own and manage many different YouTube channels. It allows content owners to authenticate once and get access to all their video and channel data, without having to provide authentication credentials for each individual channel. The actual CMS account that the user authenticates with must be linked to the specified YouTube content owner."
+        }
+      ]
+    },
+    {
+      "name": "youtube_channel-sections-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: channelId, hl, id (plus 2 more). Returns array of ChannelSection.",
+      "method": "GET",
+      "path": "/youtube/v3/channelSections",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more channelSection resource properties that the API response will include. The part names that you can include in the parameter value are id, snippet, and contentDetails. If the parameter identifies a property that contains child properties, the child properties will be included in the response. For example, in a channelSection resource, the snippet property contains other properties, such as a display title for the channelSection. If you set *part=snippet*, the API response will also contain all of those nested properties.",
+          "required": true
+        },
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "Return the ChannelSections owned by the specified channel ID."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Return content in specified language"
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Return the ChannelSections with the given IDs for Stubby or Apiary."
+        },
+        {
+          "name": "mine",
+          "type": "bool",
+          "location": "query",
+          "description": "Return the ChannelSections owned by the authenticated user."
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        }
+      ]
+    },
+    {
       "name": "youtube_channels-list",
-      "description": "Retrieves a list of resources, possibly filtered. Optional: categoryId, forUsername, hl (plus 4 more). Returns the ChannelListResponse.",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: categoryId, forUsername, hl (plus 8 more). Returns array of Channel.",
       "method": "GET",
       "path": "/youtube/v3/channels",
       "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more channel resource properties that the API response will include. If the parameter identifies a property that contains child properties, the child properties will be included in the response. For example, in a channel resource, the contentDetails property contains other properties, such as the uploads properties. As such, if you set *part=contentDetails*, the API response will also contain all of those nested properties.",
+          "required": true
+        },
         {
           "name": "categoryId",
           "type": "string",
@@ -60,6 +216,12 @@
           "description": "Return the channels managed by the authenticated user."
         },
         {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The *maxResults* parameter specifies the maximum number of items that should be returned in..."
+        },
+        {
           "name": "mine",
           "type": "bool",
           "location": "query",
@@ -70,20 +232,180 @@
           "type": "bool",
           "location": "query",
           "description": "Return the channels subscribed to the authenticated user"
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The *pageToken* parameter identifies a specific page in the result set that should be returned."
+        },
+        {
+          "name": "forHandle",
+          "type": "string",
+          "location": "query",
+          "description": "Return the channel associated with a YouTube handle."
+        }
+      ]
+    },
+    {
+      "name": "youtube_comment-threads-list",
+      "description": "Retrieves a list of top-level comment threads, filterable by video, channel, or thread id. Public read-only when filtered by videoId, channelId, or id; moderationStatus filtering is OAuth-only and not exposed here. Required: part. Optional: videoId, channelId, id (plus 7 more). Returns array of CommentThread.",
+      "method": "GET",
+      "path": "/youtube/v3/commentThreads",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of commentThread resource properties to include in the response (e.g. snippet, replies, id).",
+          "required": true
+        },
+        {
+          "name": "videoId",
+          "type": "string",
+          "location": "query",
+          "description": "Return comment threads on the specified video."
+        },
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "Return comment threads on the specified channel (top-level channel comments only, not video comments)."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of comment thread IDs to fetch directly."
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of items to return per page (1-100)."
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order for the returned threads."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for the next page of results."
+        },
+        {
+          "name": "searchTerms",
+          "type": "string",
+          "location": "query",
+          "description": "Limit threads to those whose top-level comment matches the search terms."
+        },
+        {
+          "name": "textFormat",
+          "type": "string",
+          "location": "query",
+          "description": "Format in which comment text is returned."
+        },
+        {
+          "name": "postId",
+          "type": "string",
+          "location": "query",
+          "description": "Returns the comment threads of the specified post."
+        },
+        {
+          "name": "allThreadsRelatedToChannelId",
+          "type": "string",
+          "location": "query",
+          "description": "Returns the comment threads of all videos of the channel and the channel comments as well."
+        }
+      ]
+    },
+    {
+      "name": "youtube_i18n-languages-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: hl. Returns array of I18nLanguage.",
+      "method": "GET",
+      "path": "/youtube/v3/i18nLanguages",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies the i18nLanguage resource properties that the API response will include. Set the parameter value to snippet.",
+          "required": true
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Hl"
+        }
+      ]
+    },
+    {
+      "name": "youtube_i18n-regions-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: hl. Returns array of I18nRegion.",
+      "method": "GET",
+      "path": "/youtube/v3/i18nRegions",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies the i18nRegion resource properties that the API response will include. Set the parameter value to snippet.",
+          "required": true
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Hl"
         }
       ]
     },
     {
       "name": "youtube_playlist-items-list",
-      "description": "Retrieves a list of resources, possibly filtered. Optional: id, playlistId, videoId. Returns the PlaylistItemListResponse.",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: id, maxResults, onBehalfOfContentOwner (plus 3 more). Returns array of PlaylistItem.",
       "method": "GET",
       "path": "/youtube/v3/playlistItems",
       "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more playlistItem resource properties that the API response will include. If the parameter identifies a property that contains child properties, the child properties will be included in the response. For example, in a playlistItem resource, the snippet property contains numerous fields, including the title, description, position, and resourceId properties. As such, if you set *part=snippet*, the API response will contain all of those properties.",
+          "required": true
+        },
         {
           "name": "id",
           "type": "array",
           "location": "query",
           "description": "Id"
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The *maxResults* parameter specifies the maximum number of items that should be returned in..."
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The *pageToken* parameter identifies a specific page in the result set that should be returned."
         },
         {
           "name": "playlistId",
@@ -101,10 +423,17 @@
     },
     {
       "name": "youtube_playlists-list",
-      "description": "Retrieves a list of resources, possibly filtered. Optional: channelId, hl, id (plus 2 more). Returns the PlaylistListResponse.",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: channelId, hl, id (plus 5 more). Returns array of Playlist.",
       "method": "GET",
       "path": "/youtube/v3/playlists",
       "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more playlist resource properties that the API response will include. If the parameter identifies a property that contains child properties, the child properties will be included in the response. For example, in a playlist resource, the snippet property contains properties like author, title, description, tags, and timeCreated. As such, if you set *part=snippet*, the API response will contain all of those properties.",
+          "required": true
+        },
         {
           "name": "channelId",
           "type": "string",
@@ -124,25 +453,50 @@
           "description": "Return the playlists with the given IDs for Stubby or Apiary."
         },
         {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The *maxResults* parameter specifies the maximum number of items that should be returned in..."
+        },
+        {
           "name": "mine",
           "type": "bool",
           "location": "query",
           "description": "Return the playlists owned by the authenticated user."
         },
         {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
           "name": "onBehalfOfContentOwnerChannel",
           "type": "string",
           "location": "query",
           "description": "This parameter can only be used in a properly authorized request. *Note:* This parameter is intended exclusively for YouTube content partners. The *onBehalfOfContentOwnerChannel* parameter specifies the YouTube channel ID of the channel to which a video is being added. This parameter is required when a request specifies a value for the onBehalfOfContentOwner parameter, and it can only be used in conjunction with that parameter. In addition, the request must be authorized using a CMS account that is linked to the content owner that the onBehalfOfContentOwner parameter specifies. Finally, the channel that the onBehalfOfContentOwnerChannel parameter value specifies must be linked to the content owner that the onBehalfOfContentOwner parameter specifies. This parameter is intended for YouTube content partners that own and manage many different YouTube channels. It allows content owners to authenticate once and perform actions on behalf of the channel specified in the parameter value, without having to provide authentication credentials for each separate channel."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The *pageToken* parameter identifies a specific page in the result set that should be returned."
         }
       ]
     },
     {
       "name": "youtube_search-list",
-      "description": "Retrieves a list of search resources. Optional: channelId, channelType, eventType (plus 24 more). Returns the SearchListResponse.",
+      "description": "Retrieves a list of search resources. Required: part. Optional: channelId, channelType, eventType (plus 28 more). Returns array of SearchResult.",
       "method": "GET",
       "path": "/youtube/v3/search",
       "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more search resource properties that the API response will include. Set the parameter value to snippet.",
+          "required": true
+        },
         {
           "name": "channelId",
           "type": "string",
@@ -192,10 +546,28 @@
           "description": "Filter on distance from the location (specified above)."
         },
         {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The *maxResults* parameter specifies the maximum number of items that should be returned in..."
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
           "name": "order",
           "type": "string",
           "location": "query",
           "description": "Sort order of the results."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The *pageToken* parameter identifies a specific page in the result set that should be returned."
         },
         {
           "name": "publishedAfter",
@@ -304,15 +676,61 @@
           "type": "string",
           "location": "query",
           "description": "Filter on videos of a specific type."
+        },
+        {
+          "name": "videoPaidProductPlacement",
+          "type": "string",
+          "location": "query",
+          "description": "Video paid product placement"
+        }
+      ]
+    },
+    {
+      "name": "youtube_video-categories-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: hl, id, regionCode. Returns array of VideoCategory.",
+      "method": "GET",
+      "path": "/youtube/v3/videoCategories",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies the videoCategory resource properties that the API response will include. Set the parameter value to snippet.",
+          "required": true
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Hl"
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Returns the video categories with the given IDs for Stubby or Apiary."
+        },
+        {
+          "name": "regionCode",
+          "type": "string",
+          "location": "query",
+          "description": "Region code"
         }
       ]
     },
     {
       "name": "youtube_videos-list",
-      "description": "Retrieves a list of resources, possibly filtered. Optional: chart, hl, id (plus 6 more). Returns the VideoListResponse.",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: chart, hl, id (plus 9 more). Returns array of Video.",
       "method": "GET",
       "path": "/youtube/v3/videos",
       "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more video resource properties that the API response will include. If the parameter identifies a property that contains child properties, the child properties will be included in the response. For example, in a video resource, the snippet property contains the channelId, title, description, tags, and categoryId properties. As such, if you set *part=snippet*, the API response will contain all of those properties.",
+          "required": true
+        },
         {
           "name": "chart",
           "type": "string",
@@ -344,6 +762,12 @@
           "description": "Max height"
         },
         {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The *maxResults* parameter specifies the maximum number of items that should be returned in the result set. *Note:* This parameter is supported for use in conjunction with the myRating and chart parameters, but it is not supported for use in conjunction with the id parameter."
+        },
+        {
           "name": "maxWidth",
           "type": "int",
           "location": "query",
@@ -354,6 +778,18 @@
           "type": "string",
           "location": "query",
           "description": "Return videos liked/disliked by the authenticated user. Does not support RateType.RATED_TYPE_NONE."
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The *pageToken* parameter identifies a specific page in the result set that should be returned. In an API response, the nextPageToken and prevPageToken properties identify other pages that could be retrieved. *Note:* This parameter is supported for use in conjunction with the myRating and chart parameters, but it is not supported for use in conjunction with the id parameter."
         },
         {
           "name": "regionCode",
@@ -368,6 +804,58 @@
           "description": "Use chart that is specific to the specified video category"
         }
       ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Competitor watchlist",
+      "command": "watch list",
+      "description": "Register the competitor channels your monitoring machine tracks, in a typed watchlist table you own."
+    },
+    {
+      "name": "Watchlist monitor",
+      "command": "monitor",
+      "description": "Refresh every watched channel in one run: stats snapshot, new uploads, re-snapshot of recent video statistics."
+    },
+    {
+      "name": "Video velocity",
+      "command": "velocity",
+      "description": "See which tracked videos are gaining views fastest right now, computed from real between-snapshot deltas."
+    },
+    {
+      "name": "Growth between snapshots",
+      "command": "growth",
+      "description": "Channel-level subscriber, view, and upload-count deltas between dated local snapshots."
+    },
+    {
+      "name": "Breakout finder",
+      "command": "breakouts",
+      "description": "Chain search filters into a matrix (terms x upload window x duration x region), join results to channel size, and rank fresh high-momentum videos."
+    },
+    {
+      "name": "Comment intelligence",
+      "command": "comments-mine",
+      "description": "Sync comments into a typed full-text-searchable table and report top-liked comments, keyword frequencies, and audience questions."
+    },
+    {
+      "name": "Channel history backfill",
+      "command": "backfill",
+      "description": "Pull a channel's complete upload history with statistics into the local databank in one command."
+    },
+    {
+      "name": "Packaging collector",
+      "command": "packaging",
+      "description": "Collect titles, thumbnails (downloaded as local image files), and hook text from transcript openings into a packaging table."
+    },
+    {
+      "name": "Workspaces",
+      "command": "workspace list",
+      "description": "Named databanks: keep the competitor machine in one database and explore a new niche in another, switching instantly."
+    },
+    {
+      "name": "API key ring",
+      "command": "keys list",
+      "description": "Store multiple named YouTube API keys, switch between them instantly, and optionally fail over automatically via --rotate when one runs out of quota."
     }
   ]
 }

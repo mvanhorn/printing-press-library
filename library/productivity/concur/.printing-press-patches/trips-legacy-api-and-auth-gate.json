@@ -1,0 +1,35 @@
+{
+  "schema_version": 2,
+  "id": "trips-legacy-api-and-auth-gate",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260812-144651-60addfc5",
+  "base_printing_press_version": "unstamped (pre-4.28.0, no .printing-press.json in this tree)",
+  "summary": "trips.list and trips.get now target Trip v1.1 (www.concursolutions.com/api/travel/trip/v1.1/), not Itinerary v4 (/travel/v4/trips) -- Itinerary v4 has no enumerable list endpoint at all (retrieve-by-known-ID only; IDs come from webhook events per developer.concur.com), so it cannot back a `trips list` command regardless of auth. Trip v1.1 is the only Concur travel API with real list/query semantics. Both APIs were live-tested and both require an OAuth2 access token -- cookie-session auth cannot reach flight/hotel/car/rail trip data via either path. A regen must not silently revert to Itinerary v4's path.",
+  "reason": "User asked to specifically test flights and hotels under travel. Investigation of the original trips.get 404 (previously mis-attributed to auth-gating alone) revealed it was ALSO a wrong-host-family bug like delegates/account.travel: Itinerary v4's real host is {region}.api.concursolutions.com (e.g. us2.api.concursolutions.com or us.api.concursolutions.com), not base_url's www-us2.api.concursolutions.com. Correcting the host changed the response from 404 to 401 'Authorization Required', confirming the path is real but requires a company-level OAuth token (matches developer.concur.com's explicit statement for Itinerary v4). Since Itinerary v4 has no list endpoint, trips.list was re-pointed at Trip v1.1 instead (which DOES have list semantics), and trips.get was moved to the same API family for a consistent auth model. Trip v1.1 lives on the same legacy host as delegates/account.travel (www.concursolutions.com) and returned the identical 401 'Invalid headers' -- confirming it requires OAuth2 (scope ITINER) just like the other legacy-host APIs.",
+  "files": [
+    "internal/cli/trips_list.go",
+    "internal/cli/trips_get.go",
+    "internal/cli/resource_paths.go",
+    "internal/cli/sync.go"
+  ],
+  "changes": [
+    {
+      "file": "internal/cli/trips_list.go",
+      "description": "path changed from /travel/v4/trips to the absolute URL https://www.concursolutions.com/api/travel/trip/v1.1/. Params changed from a synthetic user_id to Trip v1.1's real userid_type=login/userid_value pair, only sent when --user-id is provided (optional, matches account_travel.go's pattern). --user-id flag description corrected: Trip v1.1 wants a login/username, not a UUID."
+    },
+    {
+      "file": "internal/cli/trips_get.go",
+      "description": "path changed from /travel/v4/trips/{trip_id} to the absolute URL https://www.concursolutions.com/api/travel/trip/v1.1/{trip_id}, for consistency with trips.list (same API family, same auth model)."
+    },
+    {
+      "file": "internal/cli/resource_paths.go",
+      "description": "resourceReadPaths['trips'] and resourceDetailPaths['trips'] updated to the Trip v1.1 absolute URLs."
+    },
+    {
+      "file": "internal/cli/sync.go",
+      "description": "syncResourcePath()'s trips entry updated to match."
+    }
+  ],
+  "validated_outcome": "trips list and trips get both now return HTTP 401 'Invalid headers' (the legacy-host cookie-rejection signature already confirmed for delegates/account.travel), instead of trips.get's previous HTTP 404 (wrong host) and trips.list's previous untested state. This is a strictly more accurate and more informative failure: the path is confirmed real and reachable, the blocker is confirmed to be the auth model, not a routing bug. No path fix or host substitution changes this outcome -- flight and hotel trip data requires a registered OAuth2 partner/company application (scope ITINER for Trip v1.1, or travel.itinerary.read + company token for Itinerary v4); it is not reachable via a personal browser cookie session under any known Concur API.",
+  "upstream_issue": null
+}

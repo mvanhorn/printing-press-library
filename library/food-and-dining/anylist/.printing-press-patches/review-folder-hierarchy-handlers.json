@@ -1,0 +1,11 @@
+{
+  "id": "review-folder-hierarchy-handlers",
+  "source": "direct-input",
+  "summary": "Verify AnyList folder move and ordering handlers.",
+  "evidence": {
+    "move_handler": "move-folder-items with folderItems plus originalParentFolderId and updatedParentFolderId moved a disposable child on fresh read-back",
+    "ordering_handler": "set-ordered-folder-items with three bounded payload variants returned HTTP 200 but did not change fresh item order",
+    "cleanup": "Disposable hierarchy markers were removed; local cache was refreshed and no Kitchen Notes markers remain."
+  },
+  "validated_outcome": "Parent movement is evidence-backed; child ordering remains fail-closed pending a complete payload capture. Production deletion now refuses non-empty folders to avoid stale parent memberships."
+}

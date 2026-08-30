@@ -1,0 +1,1178 @@
+query citySearch($CitySearchRequest: CitySearchRequest!, $ContentSummaryRequest: ContentSummaryRequest!, $PricingSummaryRequest: PricingRequestParameters, $PriceStreamMetaLabRequest: PriceStreamMetaLabRequest, $ContentTopicsRequest: TopicsRequest) {
+  citySearch(CitySearchRequest: $CitySearchRequest) {
+    featuredPulseProperties(ContentSummaryRequest: $ContentSummaryRequest, PricingSummaryRequest: $PricingSummaryRequest) {
+      propertyId
+      propertyResultType
+      pricing {
+        pulseCampaignMetadata {
+          promotionTypeId
+          webCampaignId
+          campaignTypeId
+          campaignBadgeText
+          campaignBadgeDescText
+          dealExpiryTime
+          showPulseMerchandise
+          campaignBadgeLogo
+          campaignBadgeType
+        }
+        isAvailable
+        isReady
+        suggestPriceType {
+          suggestPrice
+          applyType
+        }
+        offers {
+          roomOffers {
+            room {
+              pricing {
+                currency
+                price {
+                  perNight {
+                    exclusive {
+                      crossedOutPrice
+                      display
+                    }
+                    inclusive {
+                      crossedOutPrice
+                      display
+                    }
+                  }
+                  perRoomPerNight {
+                    exclusive {
+                      crossedOutPrice
+                      display
+                    }
+                    inclusive {
+                      crossedOutPrice
+                      display
+                    }
+                  }
+                  perBook {
+                    exclusive {
+                      crossedOutPrice
+                      display
+                    }
+                    inclusive {
+                      crossedOutPrice
+                      display
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      content {
+        reviews {
+          contentReview {
+            isDefault
+            providerId
+            cumulative {
+              reviewCount
+              score
+            }
+          }
+          cumulative {
+            reviewCount
+            score
+          }
+        }
+        images {
+          hotelImages {
+            urls {
+              value
+            }
+          }
+        }
+        informationSummary {
+          hasHostExperience
+          displayName
+          rating
+          propertyLinks {
+            propertyPage
+          }
+          address {
+            country {
+              id
+            }
+            area {
+              name
+            }
+            city {
+              name
+            }
+          }
+          nhaSummary {
+            hostType
+          }
+        }
+      }
+    }
+    searchResult {
+      sortMatrix {
+        result {
+          fieldId
+          sorting {
+            sortField
+            sortOrder
+            sortParams {
+              id
+            }
+          }
+          display {
+            name
+          }
+          childMatrix {
+            fieldId
+            sorting {
+              sortField
+              sortOrder
+              sortParams {
+                id
+              }
+            }
+            display {
+              name
+            }
+            childMatrix {
+              fieldId
+              sorting {
+                sortField
+                sortOrder
+                sortParams {
+                  id
+                }
+              }
+              display {
+                name
+              }
+            }
+          }
+        }
+      }
+      searchInfo {
+        hasSecretDeal
+        isComplete
+        totalFilteredHotels
+        hasEscapesPackage
+        searchStatus {
+          searchCriteria {
+            checkIn
+          }
+          searchStatus
+        }
+        objectInfo {
+          objectName
+          cityName
+          cityEnglishName
+          countryId
+          countryEnglishName
+          mapLatitude
+          mapLongitude
+          mapZoomLevel
+          wlPreferredCityName
+          wlPreferredCountryName
+          cityId
+          cityCenterPolygon {
+            geoPoints {
+              lon
+              lat
+            }
+            touristAreaCenterPoint {
+              lon
+              lat
+            }
+          }
+        }
+      }
+      urgencyDetail {
+        urgencyScore
+      }
+      histogram {
+        bins {
+          numOfElements
+          upperBound {
+            perNightPerRoom
+            perPax
+          }
+        }
+      }
+      nhaProbability
+    }
+    properties(ContentSummaryRequest: $ContentSummaryRequest, PricingSummaryRequest: $PricingSummaryRequest, PriceStreamMetaLabRequest: $PriceStreamMetaLabRequest, ContentTopicsRequest: $ContentTopicsRequest) {
+      propertyId
+      sponsoredDetail {
+        sponsoredType
+        trackingData
+        isShowSponsoredFlag
+      }
+      propertyResultType
+      content {
+        informationSummary {
+          hotelCharacter {
+            hotelTag {
+              name
+              symbol
+            }
+            hotelView {
+              name
+              symbol
+            }
+          }
+          propertyLinks {
+            propertyPage
+          }
+          atmospheres {
+            id
+            name
+          }
+          isSustainableTravel
+          localeName
+          defaultName
+          displayName
+          accommodationType
+          awardYear
+          hasHostExperience
+          nhaSummary {
+            hostPropertyCount
+          }
+          address {
+            countryCode
+            country {
+              id
+              name
+            }
+            city {
+              id
+              name
+            }
+            area {
+              id
+              name
+            }
+          }
+          propertyType
+          rating
+          isGovernmentVerifiedStars
+          agodaGuaranteeProgram
+          remarks {
+            renovationInfo {
+              renovationType
+              year
+            }
+          }
+          spokenLanguages {
+            id
+          }
+          geoInfo {
+            latitude
+            longitude
+          }
+        }
+        propertyEngagement {
+          lastBooking
+          peopleLooking
+          todayBooking
+        }
+        nonHotelAccommodation {
+          masterRooms {
+            noOfBathrooms
+            noOfBedrooms
+            noOfBeds
+            roomSizeSqm
+            highlightedFacilities
+          }
+          hostLevel {
+            id
+            name
+          }
+          supportedLongStay
+        }
+        facilities {
+          id
+        }
+        images {
+          hotelImages {
+            id
+            caption
+            providerId
+            urls {
+              key
+              value
+            }
+          }
+        }
+        reviews {
+          contentReview {
+            isDefault
+            providerId
+            demographics {
+              groups {
+                id
+                grades {
+                  id
+                  score
+                }
+              }
+            }
+            summaries {
+              recommendationScores {
+                recommendationScore
+              }
+              snippets {
+                countryId
+                countryCode
+                countryName
+                date
+                demographicId
+                demographicName
+                reviewer
+                reviewRating
+                snippet
+              }
+            }
+            cumulative {
+              reviewCount
+              score
+            }
+          }
+          cumulative {
+            reviewCount
+            score
+          }
+          cumulativeForHost {
+            hostAvgHotelReviewRating
+            hostHotelReviewTotalCount
+          }
+        }
+        familyFeatures {
+          hasChildrenFreePolicy
+          isFamilyRoom
+          hasMoreThanOneBedroom
+          isInterConnectingRoom
+          isInfantCottageAvailable
+          hasKidsPool
+          hasKidsClub
+        }
+        personalizedInformation {
+          childrenFreePolicy {
+            fromAge
+            toAge
+          }
+        }
+        localInformation {
+          landmarks {
+            transportation {
+              landmarkName
+              distanceInM
+            }
+            topLandmark {
+              landmarkName
+              distanceInM
+            }
+            beach {
+              landmarkName
+              distanceInM
+            }
+          }
+          hasAirportTransfer
+        }
+        highlight {
+          cityCenter {
+            distanceFromCityCenter
+          }
+          favoriteFeatures {
+            features {
+              id
+              title
+              category
+            }
+          }
+          uniqueAttributes {
+            summary
+          }
+          hasNearbyPublicTransportation
+        }
+        rateCategories {
+          escapeRateCategories {
+            rateCategoryId
+            localizedRateCategoryName
+          }
+        }
+      }
+      contentTopics {
+        topics {
+          topic
+          reviewSnippets
+        }
+      }
+      soldOut {
+        soldOutPrice {
+          averagePrice
+        }
+      }
+      pricing {
+        pulseCampaignMetadata {
+          promotionTypeId
+          webCampaignId
+          campaignTypeId
+          campaignBadgeText
+          campaignBadgeDescText
+          dealExpiryTime
+          showPulseMerchandise
+          campaignBadgeLogo
+          campaignBadgeType
+        }
+        isAvailable
+        isReady
+        benefits
+        cheapestRoomOffer {
+          agodaCash {
+            showBadge
+            giftcardGuid
+            dayToEarn
+            earnId
+            percentage
+            expiryDay
+          }
+          cashback {
+            cashbackGuid
+            showPostCashbackPrice
+            cashbackVersion
+            percentage
+            earnId
+            dayToEarn
+            expiryDay
+            cashbackType
+            appliedCampaignName
+          }
+        }
+        isEasyCancel
+        isInsiderDeal
+        isMultiHotelEligible
+        suggestPriceType {
+          suggestPrice
+          applyType
+        }
+        roomBundle {
+          bundleId
+          bundleType
+          saveAmount {
+            perNight {
+              ...Frag9abe3g1db5950065hc29
+            }
+          }
+        }
+        pointmax {
+          channelId
+          point
+        }
+        priceChange {
+          changePercentage
+          searchDate
+        }
+        payment {
+          cancellation {
+            cancellationType
+            freeCancellationDate
+          }
+          payLater {
+            isEligible
+          }
+          payAtHotel {
+            isEligible
+          }
+          noCreditCard {
+            isEligible
+          }
+          taxReceipt {
+            isEligible
+          }
+        }
+        cheapestStayPackageRatePlans {
+          stayPackageType
+          ratePlanId
+        }
+        pricingMessages {
+          location
+          ids
+        }
+        suppliersSummaries {
+          id
+          supplierHotelId
+        }
+        supplierInfo {
+          id
+          name
+          isAgodaBand
+        }
+        childPolicy {
+          freeChildren
+        }
+        growthProgramInfo {
+          badges
+        }
+        offers {
+          bundleType
+          bundleDetail {
+            bundleSegmentRoomIdentifiers {
+              quantity
+            }
+          }
+          roomOffers {
+            room {
+              extraPriceInfo {
+                displayPriceWithSurchargesPRPN
+                corDisplayPriceWithSurchargesPRPN
+              }
+              availableRooms
+              isPromoEligible
+              promotions {
+                typeId
+                promotionDiscount {
+                  value
+                }
+                isRatePlanAsPromotion
+                cmsTypeId
+                description
+              }
+              consolidatedAppliedDiscount {
+                totalDiscountJacketMessage
+                breakdowns {
+                  title
+                }
+              }
+              bookingDuration {
+                unit
+                value
+              }
+              supplierId
+              corSummary {
+                hasCor
+                corType
+                isOriginal
+                hasOwnCOR
+                isBlacklistedCor
+              }
+              localVoucher {
+                currencyCode
+                amount
+              }
+              packaging {
+                token {
+                  clientToken
+                  interSystemToken
+                }
+                products {
+                  refId
+                  info {
+                    type
+                    offerType
+                    identifier {
+                      key
+                      value
+                    }
+                  }
+                  pricingItems {
+                    currency
+                    display {
+                      perPax {
+                        type
+                        allInclusive {
+                          chargeTotal
+                          specialPriceAndSaving {
+                            targetPrice
+                            saving {
+                              amount
+                            }
+                          }
+                          crossedOut
+                        }
+                        exclusive {
+                          chargeTotal
+                          specialPriceAndSaving {
+                            targetPrice
+                            saving {
+                              amount
+                            }
+                          }
+                          crossedOut
+                        }
+                      }
+                      perBook {
+                        type
+                        allInclusive {
+                          chargeTotal
+                          specialPriceAndSaving {
+                            targetPrice
+                            saving {
+                              amount
+                            }
+                          }
+                          crossedOut
+                        }
+                        exclusive {
+                          chargeTotal
+                          specialPriceAndSaving {
+                            targetPrice
+                            saving {
+                              amount
+                            }
+                          }
+                          crossedOut
+                        }
+                      }
+                      perRoomPerNight {
+                        allInclusive {
+                          chargeTotal
+                          specialPriceAndSaving {
+                            targetPrice
+                            saving {
+                              amount
+                            }
+                          }
+                          crossedOut
+                        }
+                        exclusive {
+                          chargeTotal
+                          specialPriceAndSaving {
+                            targetPrice
+                            saving {
+                              amount
+                            }
+                          }
+                          crossedOut
+                        }
+                      }
+                    }
+                  }
+                }
+                pricing {
+                  display {
+                    perBook {
+                      total {
+                        allInclusive {
+                          specialPriceAndSaving {
+                            targetPrice
+                            saving {
+                              amount
+                            }
+                          }
+                          crossedOut
+                          channelSaving {
+                            amount
+                          }
+                          totalSaving {
+                            amount
+                          }
+                          original
+                          chargeTotal
+                        }
+                        exclusive {
+                          specialPriceAndSaving {
+                            targetPrice
+                            saving {
+                              amount
+                            }
+                          }
+                          crossedOut
+                          channelSaving {
+                            amount
+                          }
+                          totalSaving {
+                            amount
+                          }
+                          original
+                          chargeTotal
+                        }
+                      }
+                      differential {
+                        allInclusive {
+                          chargeTotal
+                        }
+                        exclusive {
+                          chargeTotal
+                        }
+                      }
+                    }
+                    perPax {
+                      total {
+                        allInclusive {
+                          crossedOut
+                          channelSaving {
+                            amount
+                          }
+                          totalSaving {
+                            amount
+                          }
+                          original
+                          chargeTotal
+                        }
+                        exclusive {
+                          crossedOut
+                          channelSaving {
+                            amount
+                          }
+                          totalSaving {
+                            amount
+                          }
+                          original
+                          chargeTotal
+                        }
+                      }
+                      differential {
+                        allInclusive {
+                          chargeTotal
+                        }
+                        exclusive {
+                          chargeTotal
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              pricing {
+                currency
+                price {
+                  perNight {
+                    exclusive {
+                      display
+                      cashbackPrice
+                      displayAfterCashback
+                      originalPrice
+                    }
+                    inclusive {
+                      display
+                      cashbackPrice
+                      displayAfterCashback
+                      originalPrice
+                    }
+                  }
+                  perBook {
+                    exclusive {
+                      display
+                      cashbackPrice
+                      displayAfterCashback
+                      rebatePrice
+                      pseudoCouponPrice
+                      originalPrice
+                      autoAppliedPromoDiscount
+                      loyaltyOfferSummary {
+                        ...Frag1df0430jiiej94i8hfbj
+                        basePrice {
+                          ...Fragf4ij3896ah899ejejb1g
+                        }
+                        offers {
+                          ...Fragea80e354285312i83b0i
+                          burn {
+                            ...Frag6d4049g38604d818774a
+                            pointsRange {
+                              ...Fragfbaf356c6ih20cb8c19e
+                            }
+                          }
+                          earn {
+                            ...Frag58gf1073j57677i10hjb
+                          }
+                        }
+                      }
+                    }
+                    inclusive {
+                      display
+                      crossedOutPrice
+                      cashbackPrice
+                      displayAfterCashback
+                      rebatePrice
+                      pseudoCouponPrice
+                      originalPrice
+                      autoAppliedPromoDiscount
+                      loyaltyOfferSummary {
+                        ...Frag1df0430jiiej94i8hfbj
+                        basePrice {
+                          ...Fragf4ij3896ah899ejejb1g
+                        }
+                        offers {
+                          ...Fragea80e354285312i83b0i
+                          burn {
+                            ...Frag6d4049g38604d818774a
+                            pointsRange {
+                              ...Fragfbaf356c6ih20cb8c19e
+                            }
+                          }
+                          earn {
+                            ...Frag58gf1073j57677i10hjb
+                          }
+                        }
+                      }
+                    }
+                  }
+                  perRoomPerNight {
+                    exclusive {
+                      display
+                      crossedOutPrice
+                      cashbackPrice
+                      displayAfterCashback
+                      rebatePrice
+                      pseudoCouponPrice
+                      originalPrice
+                      loyaltyOfferSummary {
+                        basePrice {
+                          exclusive
+                          allInclusive
+                        }
+                        status
+                        offers {
+                          identifier
+                          status
+                          burn {
+                            points
+                            payableAmount
+                            pointsRange {
+                              ...Fragfbaf356c6ih20cb8c19e
+                            }
+                          }
+                          earn {
+                            points
+                          }
+                          offerType
+                          isSelected
+                        }
+                      }
+                    }
+                    inclusive {
+                      display
+                      crossedOutPrice
+                      cashbackPrice
+                      displayAfterCashback
+                      rebatePrice
+                      pseudoCouponPrice
+                      originalPrice
+                      loyaltyOfferSummary {
+                        basePrice {
+                          exclusive
+                          allInclusive
+                        }
+                        status
+                        offers {
+                          identifier
+                          status
+                          burn {
+                            points
+                            payableAmount
+                            pointsRange {
+                              ...Fragfbaf356c6ih20cb8c19e
+                            }
+                          }
+                          earn {
+                            points
+                          }
+                          offerType
+                          isSelected
+                        }
+                      }
+                    }
+                  }
+                  totalDiscount
+                  priceAfterAppliedAgodaCash {
+                    perBook {
+                      ...Frag05ge70a5594hafcdhcih
+                    }
+                    perRoomPerNight {
+                      ...Frag05ge70a5594hafcdhcih
+                    }
+                  }
+                }
+                apsPeek {
+                  perRoomPerNight {
+                    ...Frag9abe3g1db5950065hc29
+                  }
+                  perBook {
+                    ...Frag9abe3g1db5950065hc29
+                  }
+                }
+                promotionPricePeek {
+                  display {
+                    perBook {
+                      ...Frag9abe3g1db5950065hc29
+                    }
+                    perRoomPerNight {
+                      ...Frag9abe3g1db5950065hc29
+                    }
+                    perNight {
+                      ...Frag9abe3g1db5950065hc29
+                    }
+                  }
+                  peekDiscountDisplay {
+                    perBook {
+                      ...Frag9abe3g1db5950065hc29
+                    }
+                    perRoomPerNight {
+                      ...Frag9abe3g1db5950065hc29
+                    }
+                    perNight {
+                      ...Frag9abe3g1db5950065hc29
+                    }
+                  }
+                  discountType
+                  promotionCodeType
+                  promotionCode
+                  promoAppliedOnFinalPrice
+                  childPromotions {
+                    campaignId
+                  }
+                  campaignName
+                }
+                channelDiscountSummary {
+                  channelDiscountBreakdown {
+                    display
+                    discountPercent
+                    channelId
+                  }
+                }
+                promotionsCumulative {
+                  promotionCumulativeType
+                  amountPercentage
+                  minNightsStay
+                }
+              }
+              uid
+              payment {
+                paymentModel
+                cancellation {
+                  cancellationType
+                }
+              }
+              discount {
+                deals
+                channelDiscount
+              }
+              saveUpTo {
+                perRoomPerNight
+              }
+              benefits {
+                id
+                targetType
+              }
+              channel {
+                id
+              }
+              mseRoomSummaries {
+                supplierId
+                subSupplierId
+                pricingSummaries {
+                  currency
+                  channelDiscountSummary {
+                    channelDiscountBreakdown {
+                      channelId
+                      discountPercent
+                      display
+                    }
+                  }
+                  price {
+                    perRoomPerNight {
+                      exclusive {
+                        display
+                      }
+                      inclusive {
+                        display
+                      }
+                    }
+                  }
+                }
+              }
+              cashback {
+                cashbackGuid
+                showPostCashbackPrice
+                cashbackVersion
+                percentage
+                earnId
+                dayToEarn
+                expiryDay
+                cashbackType
+                appliedCampaignName
+              }
+              agodaCash {
+                showBadge
+                giftcardGuid
+                dayToEarn
+                expiryDay
+                percentage
+              }
+              corInfo {
+                corBreakdown {
+                  taxExPN {
+                    ...Fragjbafib38h7c5e09i9jci
+                  }
+                  taxInPN {
+                    ...Fragjbafib38h7c5e09i9jci
+                  }
+                  taxExPRPN {
+                    ...Fragjbafib38h7c5e09i9jci
+                  }
+                  taxInPRPN {
+                    ...Fragjbafib38h7c5e09i9jci
+                  }
+                }
+                corInfo {
+                  corType
+                }
+              }
+              loyaltyDisplay {
+                items
+              }
+              capacity {
+                extraBedsAvailable
+              }
+              pricingMessages {
+                formatted {
+                  location
+                  texts {
+                    index
+                    text
+                  }
+                }
+              }
+              campaign {
+                selected {
+                  campaignId
+                  promotionId
+                  messages {
+                    campaignName
+                    title
+                    titleWithDiscount
+                    description
+                    linkOutText
+                    url
+                  }
+                }
+              }
+              stayPackageType
+              isMseLastClickedOffer
+            }
+          }
+        }
+      }
+      metaLab {
+        attributes {
+          attributeId
+          dataType
+          value
+          version
+        }
+      }
+      enrichment {
+        topSellingPoint {
+          tspType
+          value
+        }
+        pricingBadges {
+          badges
+        }
+        uniqueSellingPoint {
+          rank
+          segment
+          uspType
+          uspPropertyType
+        }
+        bookingHistory {
+          bookingCount {
+            count
+            timeFrame
+          }
+        }
+        showReviewSnippet
+        isPopular
+        roomInformation {
+          cheapestRoomSizeSqm
+          facilities {
+            id
+            propertyFacilityName
+            symbol
+          }
+        }
+        jacketMetadata {
+          type
+          title
+          description
+          iconUrl
+          trailingAsset
+          flagship {
+            storeId
+          }
+          pulse {
+            promotionTypeId
+            webCampaignId
+            campaignTypeId
+            showPulseMerchandise
+          }
+        }
+      }
+    }
+    searchEnrichment {
+      pageToken
+    }
+    aggregation {
+      matrixGroupResults {
+        matrixGroup
+        matrixItemResults {
+          id
+          name
+          count
+          filterKey
+          filterRequestType
+          syncId
+          extraDataResults {
+            text
+            matrixExtraDataType
+          }
+        }
+      }
+    }
+  }
+}
+
+fragment Frag1df0430jiiej94i8hfbj on LoyaltyOfferSummary {
+  status
+}
+
+fragment Fragf4ij3896ah899ejejb1g on DisplayPrice {
+  exclusive
+  allInclusive
+}
+
+fragment Fragea80e354285312i83b0i on LoyaltyOffer {
+  identifier
+  status
+  offerType
+  isSelected
+}
+
+fragment Frag6d4049g38604d818774a on LoyaltyBurnInfo {
+  points
+  payableAmount
+}
+
+fragment Fragfbaf356c6ih20cb8c19e on PointsRange {
+  maxPointsApplicable
+  minPointsApplicable
+}
+
+fragment Frag58gf1073j57677i10hjb on LoyaltyEarnInfo {
+  points
+}
+
+fragment Frag05ge70a5594hafcdhcih on DisplayPrice {
+  exclusive
+  allInclusive
+}
+
+fragment Frag9abe3g1db5950065hc29 on DFDisplayPrice {
+  exclusive
+  allInclusive
+}
+
+fragment Fragjbafib38h7c5e09i9jci on DFCorBreakdownItem {
+  price
+  id
+}

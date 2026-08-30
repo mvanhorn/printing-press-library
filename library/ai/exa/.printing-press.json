@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-09T17:35:28.441439Z",
+  "printing_press_version": "4.30.1",
+  "api_name": "exa",
+  "display_name": "Exa",
+  "cli_name": "exa-pp-cli",
+  "creator": {
+    "handle": "SomSamantray",
+    "name": "Som Samantray"
+  },
+  "owner": "somsamantray",
+  "printer": "SomSamantray",
+  "printer_name": "Som Samantray",
+  "spec_path": "spec.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:192e197747370a6128d62ac43c1309978de78a4715587b82e7898513ce16b5dd",
+  "run_id": "20260809-202528-0d1b9f8c",
+  "category": "ai",
+  "description": "Every Exa search API feature, plus local history, spend tracking, and diffing no other Exa tool has.",
+  "mcp_binary": "exa-pp-mcp",
+  "mcp_tool_count": 58,
+  "mcp_ready": "full",
+  "api_version": "2.0.0",
+  "auth_type": "bearer_token",
+  "auth_preference": "bearer",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Spend report",
+      "command": "spend",
+      "description": "See cumulative API spend across every Exa call, broken down by day and resource."
+    },
+    {
+      "name": "Monitor run diff",
+      "command": "monitor diff",
+      "description": "Compare two synced monitor runs and see exactly which URLs are new, gone, or unchanged."
+    },
+    {
+      "name": "Entity report",
+      "command": "entity report",
+      "description": "Build a first-seen / last-seen / mention-count timeline for any company or person across your synced searches and webset items."
+    },
+    {
+      "name": "Webset new",
+      "command": "webset new",
+      "description": "List items added to a live webset since your last sync, so you only see what changed."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Spend report",
+      "command": "spend",
+      "description": "See cumulative API spend across every Exa call, broken down by day and resource."
+    },
+    {
+      "name": "Monitor run diff",
+      "command": "monitor diff",
+      "description": "Compare two synced monitor runs and see exactly which URLs are new, gone, or unchanged."
+    },
+    {
+      "name": "Entity report",
+      "command": "entity report",
+      "description": "Build a first-seen / last-seen / mention-count timeline for any company or person across your synced searches and webset items."
+    },
+    {
+      "name": "Webset new",
+      "command": "webset new",
+      "description": "List items added to a live webset since your last sync, so you only see what changed."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 100,
+    "passed": 89,
+    "total": 89,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 90,
+      "grade": "A",
+      "total": 90
+    }
+  }
+}

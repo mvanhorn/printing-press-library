@@ -1,0 +1,541 @@
+{
+  "api_name": "bonusly",
+  "base_url": "https://bonus.ly/api/v1",
+  "description": "The recognition analytics Bonusly reserves for admins -- rebuilt from data any employee can already read.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {BONUSLY_API_TOKEN}",
+    "env_vars": [
+      "BONUSLY_API_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "BONUSLY_API_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "balance_show",
+      "description": "Your current giving/redeemable balance, monthly budget, and lifetime stats. Returns the Balance.",
+      "method": "GET",
+      "path": "/users/points_balance",
+      "params": []
+    },
+    {
+      "name": "company_show",
+      "description": "Company metadata: name, locale, plan, feature flags, subscription state. Returns the Company.",
+      "method": "GET",
+      "path": "/companies/show",
+      "params": []
+    },
+    {
+      "name": "departments_list",
+      "description": "List departments with per-department user counts. Optional: search, cursor. Returns array of Department.",
+      "method": "GET",
+      "path": "/users/departments",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Prefix-match search on department name"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "departments_users",
+      "description": "List users belonging to a department (exact match). Required: department. Optional: search, cursor. Returns array of User.",
+      "method": "GET",
+      "path": "/users/departments/{department}/users",
+      "params": [
+        {
+          "name": "department",
+          "type": "string",
+          "location": "path",
+          "description": "Department name",
+          "required": true
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "locations_list",
+      "description": "List locations with per-location user counts. Optional: search, cursor. Returns array of Location.",
+      "method": "GET",
+      "path": "/users/locations",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Prefix-match search on location name"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "locations_users",
+      "description": "List users belonging to a location (exact match). Required: location. Optional: search, cursor. Returns array of User.",
+      "method": "GET",
+      "path": "/users/locations/{location}/users",
+      "params": [
+        {
+          "name": "location",
+          "type": "string",
+          "location": "path",
+          "description": "Location name",
+          "required": true
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "org_chain",
+      "description": "Walk the manager chain upward from a user, closest-first. Required: user. Returns array of User.",
+      "method": "GET",
+      "path": "/users/{user}/manager_chain",
+      "params": [
+        {
+          "name": "user",
+          "type": "string",
+          "location": "path",
+          "description": "User's id, email, or name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_reports",
+      "description": "List users who report directly to a given manager. Required: manager. Optional: search, cursor. Returns array of User.",
+      "method": "GET",
+      "path": "/users/{manager}/direct_reports",
+      "params": [
+        {
+          "name": "manager",
+          "type": "string",
+          "location": "path",
+          "description": "Manager's user id, email, or name",
+          "required": true
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "org_top",
+      "description": "List users with no manager (org-chart entry points). Optional: search, cursor. Returns array of User.",
+      "method": "GET",
+      "path": "/users/top_level",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "org_tree",
+      "description": "Walk the reporting tree downward from a user. Required: user. Optional: depth (default: 1). Returns the ReportingTree.",
+      "method": "GET",
+      "path": "/users/{user}/reporting_tree",
+      "params": [
+        {
+          "name": "user",
+          "type": "string",
+          "location": "path",
+          "description": "User's id, email, or name",
+          "required": true
+        },
+        {
+          "name": "depth",
+          "type": "int",
+          "location": "query",
+          "description": "How many layers deep to walk (max 5)"
+        }
+      ]
+    },
+    {
+      "name": "recognition_create",
+      "description": "Give recognition. reason must be the full mini-DSL string: '+N @mention #hashtag your message' -- the promoted 'give' command synthesizes this from structured flags; this raw endpoint is the low-level passthrough. Required: reason. Optional: parent-bonus-id. Returns the new Recognition.",
+      "method": "POST",
+      "path": "/bonuses",
+      "params": [
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "body",
+          "description": "Full recognition text: +<amount> @<mention> [@<mention2> ...] <message> #<hashtag>",
+          "required": true
+        },
+        {
+          "name": "parent-bonus-id",
+          "wire_name": "parent_bonus_id",
+          "type": "string",
+          "location": "body",
+          "description": "Reply/add-on to an existing recognition"
+        }
+      ]
+    },
+    {
+      "name": "recognition_delete",
+      "description": "Delete (undo) a recognition you gave, within 24 hours of creation. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/bonuses/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "recognition_feed",
+      "description": "List/browse the company recognition feed with filters. Optional: limit (default: 20), start_time, end_time (plus 5 more). Returns array of Recognition.",
+      "method": "GET",
+      "path": "/bonuses",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max results to return"
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 8601 start of date range (confirmed param name)"
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 8601 end of date range (confirmed param name)"
+        },
+        {
+          "name": "giver_email",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by giver's email (confirmed param name)"
+        },
+        {
+          "name": "receiver_email",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by a receiver's email (confirmed param name)"
+        },
+        {
+          "name": "user-email",
+          "wire_name": "user_email",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to recognition involving this user as giver or receiver (confirmed param name)"
+        },
+        {
+          "name": "hashtag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by hashtag; leading # is optional (confirmed param name)"
+        },
+        {
+          "name": "include_children",
+          "type": "bool",
+          "location": "query",
+          "description": "Include add-on/comment rows inline (confirmed param name)"
+        }
+      ]
+    },
+    {
+      "name": "recognition_get",
+      "description": "Get a single recognition by id. Required: id. Returns the Recognition.",
+      "method": "GET",
+      "path": "/bonuses/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "recognition_given",
+      "description": "List recognition given by a user. Required: giver_email. Optional: start_time, end_time, limit (default: 20). Returns array of Recognition.",
+      "method": "GET",
+      "path": "/bonuses",
+      "params": [
+        {
+          "name": "giver_email",
+          "type": "string",
+          "location": "query",
+          "description": "Giver's email",
+          "required": true
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "recognition_group-count",
+      "description": "Resolve a group (department/location/team) and count how many recipients a post would reach. Required: group_name. Optional: cursor. Returns the GroupRecipientCount.",
+      "method": "GET",
+      "path": "/bonuses/group_recipient_count",
+      "params": [
+        {
+          "name": "group_name",
+          "type": "string",
+          "location": "path",
+          "description": "Group name: 'everyone', a department, a location, or '<manager>'s team'",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "recognition_last-given",
+      "description": "Get when you last gave recognition to each of a batch of users (max 20 ids). Required: user-ids. Returns array of LastGivenEntry.",
+      "method": "GET",
+      "path": "/bonuses/last_given",
+      "params": [
+        {
+          "name": "user-ids",
+          "wire_name": "user_ids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated user IDs, max 20",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "recognition_list-types",
+      "description": "List the recognition-type values accepted by feed filters (celebrations, awards, incentives, peer, external_recognition). Returns array of RecognitionType.",
+      "method": "GET",
+      "path": "/bonuses/recognition_types",
+      "params": []
+    },
+    {
+      "name": "recognition_received",
+      "description": "List recognition received by a user. Required: receiver_email. Optional: start_time, end_time, limit (default: 20). Returns array of Recognition.",
+      "method": "GET",
+      "path": "/bonuses",
+      "params": [
+        {
+          "name": "receiver_email",
+          "type": "string",
+          "location": "query",
+          "description": "Recipient's email",
+          "required": true
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "recognition_update",
+      "description": "Edit a recognition you gave, within 24 hours of creation. reason REPLACES the entire message -- include the +amount, @mentions, and #hashtag you want to keep. Required: id, reason. Returns the updated Recognition.",
+      "method": "PUT",
+      "path": "/bonuses/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "body",
+          "description": "Complete replacement recognition text",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "redemptions_get",
+      "description": "Get a single reward redemption by id (your own, or any if you have rewards-admin). Required: id. Returns the Redemption.",
+      "method": "GET",
+      "path": "/redemptions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "redemptions_list-mine",
+      "description": "List your own reward redemptions, newest first. Optional: limit (default: 20), cursor. Returns array of Redemption.",
+      "method": "GET",
+      "path": "/users/me/redemptions",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size, 1-100"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "Resolve a single user by id, email, or display name. Required: identifier. Returns the User.",
+      "method": "GET",
+      "path": "/users/show",
+      "params": [
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "User id, email, or full display name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_get-bulk",
+      "description": "Bulk-fetch users by a list of user IDs. Required: ids. Returns array of User.",
+      "method": "GET",
+      "path": "/users/bulk",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated user IDs",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_me",
+      "description": "Get the authenticated user's own profile. Returns the User.",
+      "method": "GET",
+      "path": "/users/me",
+      "params": []
+    },
+    {
+      "name": "users_search",
+      "description": "Search users by name or email, with optional department/location filters. Optional: query, department, location (plus 1 more). Returns array of User.",
+      "method": "GET",
+      "path": "/users/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Name or email search term"
+        },
+        {
+          "name": "department",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by department name (exact match)"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by location name (exact match)"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    }
+  ]
+}

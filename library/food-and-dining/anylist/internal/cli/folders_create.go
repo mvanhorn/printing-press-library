@@ -5,8 +5,10 @@ package cli
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/anylist"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/anylist/pb"
 	"github.com/spf13/cobra"
@@ -15,10 +17,11 @@ import (
 func newFoldersCreateCmd(flags *rootFlags) *cobra.Command {
 	var bodyName string
 	var stdinBody bool
+	var apply bool
 
 	cmd := &cobra.Command{
 		Use:         "create",
-		Short:       "Create a new list folder",
+		Short:       "Create a list folder (preview unless --apply)",
 		Example:     "  anylist-pp-cli folders create --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "folders.create", "pp:method": "POST", "pp:path": "/data/list-folders/update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -29,47 +32,72 @@ func newFoldersCreateCmd(flags *rootFlags) *cobra.Command {
 				}
 				bodyName = stringFromBody(body, "name")
 			}
-			if bodyName == "" && !cmd.Flags().Changed("name") && !flags.dryRun {
+			if strings.TrimSpace(bodyName) == "" && apply && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "name")
 			}
-			if dryRunOK(flags) {
-				return nil
+			if !apply || flags.dryRun {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"status": "preview",
+					"action": "create",
+					"name":   strings.TrimSpace(bodyName),
+				}, flags)
 			}
+			if !folderCreateDeleteLiveWritesEnabled() {
+				return fmt.Errorf("folder create live mutation is disabled until AnyList's folder protobuf round-trip is verified")
+			}
+
 			ctx := cmd.Context()
 			cfg, st, err := openAuthedLocalStore(flags)
 			if err != nil {
 				return err
 			}
 			defer st.Close()
-			_, listDataID, rootFolderID, err := currentListFolderData(ctx, cfg)
+			userData, listDataID, rootFolderID, err := currentListFolderData(ctx, cfg)
 			if err != nil {
 				return err
 			}
-			folder := &pb.PBListFolder{
-				Identifier:     newRecipeID(),
-				Name:           bodyName,
-				Timestamp:      float64(time.Now().UnixMilli()),
-				FolderSettings: &pb.PBListFolderSettings{},
-			}
-			if err := anylist.New(cfg).SaveListFolder(ctx, listDataID, folder, rootFolderID); err != nil {
+			if existing, err := findLiveListFolderForMutation(userData, bodyName); err != nil {
 				return err
+			} else if existing != nil {
+				return fmt.Errorf("folder %q already exists (id %s)", bodyName, existing.GetIdentifier())
 			}
-			if err := syncStoreFromLive(ctx, cfg, st); err != nil {
-				return fmt.Errorf("refreshing data after creating folder: %w", err)
+			folder := &pb.PBListFolder{
+				Identifier: strings.ReplaceAll(uuid.NewString(), "-", ""),
+				Timestamp:  float64(time.Now().Unix()),
+				Name:       strings.TrimSpace(bodyName),
+				Items:      []*pb.PBListFolderItem{},
+				FolderSettings: &pb.PBListFolderSettings{
+					ListsSortOrder:     int32(pb.PBListFolderSettings_ManualSortOrder),
+					FolderSortPosition: int32(pb.PBListFolderSettings_FolderSortPositionAfterLists),
+				},
+			}
+			if err := anylist.New(cfg).CreateListFolder(ctx, listDataID, folder, rootFolderID); err != nil {
+				return fmt.Errorf("creating folder %q: %w", folder.GetName(), err)
+			}
+			verifiedData, err := anylist.New(cfg).GetUserData(ctx)
+			if err != nil {
+				return fmt.Errorf("verifying creation of folder %q: %w", folder.GetName(), err)
+			}
+			verified, found := findLiveListFolderByID(verifiedData, folder.GetIdentifier())
+			if !found || verified.GetName() != folder.GetName() {
+				return fmt.Errorf("folder creation verification failed: %q was not read back", folder.GetName())
+			}
+			if err := st.SyncFromUserData(verifiedData); err != nil {
+				return fmt.Errorf("updating local cache after creating folder: %w", err)
+			}
+			if flags.quiet {
+				return nil
 			}
 			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-					"created": true,
-					"folder":  folder.GetName(),
-					"id":      folder.GetIdentifier(),
-				}, flags)
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"created": true, "folder": verified.GetName(), "id": verified.GetIdentifier()}, flags)
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Created folder %q\n", folder.GetName())
+			fmt.Fprintf(cmd.OutOrStdout(), "Created folder %q\n", verified.GetName())
 			return nil
 		},
 	}
 	cmd.Flags().StringVar(&bodyName, "name", "", "Folder name")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.Flags().BoolVar(&apply, "apply", false, "Enable live mutation with fresh read-after-write verification")
 
 	return cmd
 }

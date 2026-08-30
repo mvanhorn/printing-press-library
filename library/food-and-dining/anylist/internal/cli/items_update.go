@@ -5,8 +5,12 @@ package cli
 
 import (
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/anylist"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/anylist/pb"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/store"
 
 	"github.com/spf13/cobra"
 )
@@ -14,15 +18,28 @@ import (
 func newItemsUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyListName string
 	var bodyName string
+	var bodyItemID string
+	var bodyNewName string
 	var bodyQuantity string
 	var bodyNotes string
 	var bodyCategory string
+	var bodyClearCategory bool
+	var bodyStore string
+	var bodyRemoveStore string
+	var bodyPrice float64
+	var bodyPriceStore string
+	var bodyPriceDetails string
+	var bodyPriceSet bool
+	var bodyClearPrice bool
+	var bodyBarcode string
+	var bodyPackageSize string
 	var stdinBody bool
+	var apply bool
 
 	cmd := &cobra.Command{
 		Use:         "update",
-		Short:       "Update an existing item's quantity or notes",
-		Example:     "  anylist-pp-cli items update --list example-resource",
+		Short:       "Update an item's fields, category, store assignments, or price",
+		Example:     "  anylist-pp-cli items update --list Groceries --item Milk --category Produce --apply --json",
 		Annotations: map[string]string{"pp:endpoint": "items.update", "pp:method": "POST", "pp:path": "/data/shopping-lists/update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if stdinBody {
@@ -32,21 +49,71 @@ func newItemsUpdateCmd(flags *rootFlags) *cobra.Command {
 				}
 				bodyListName = stringFromBody(body, "list")
 				bodyName = stringFromBody(body, "item")
+				bodyItemID = stringFromBody(body, "item_id")
+				bodyNewName = stringFromBody(body, "name")
 				bodyQuantity = stringFromBody(body, "quantity")
 				bodyNotes = stringFromBody(body, "notes")
 				bodyCategory = stringFromBody(body, "category")
+				bodyClearCategory = boolFromBody(body, "clear_category")
+				bodyStore = stringFromBody(body, "store")
+				bodyRemoveStore = stringFromBody(body, "remove_store")
+				bodyPrice, bodyPriceSet = floatFromBody(body, "price")
+				bodyPriceStore = stringFromBody(body, "price_store")
+				bodyPriceDetails = stringFromBody(body, "price_details")
+				bodyClearPrice = boolFromBody(body, "clear_price")
+				bodyBarcode = stringFromBody(body, "barcode")
+				bodyPackageSize = stringFromBody(body, "package_size")
+				apply = boolFromBody(body, "apply")
 			}
 			if !cmd.Flags().Changed("list") && bodyListName == "" && !flags.dryRun {
 				return fmt.Errorf("required flag \"list\" not set")
 			}
-			if !cmd.Flags().Changed("item") && bodyName == "" && !flags.dryRun {
-				return fmt.Errorf("required flag \"item\" not set")
+			if bodyItemID == "" && !cmd.Flags().Changed("item") && bodyName == "" && !flags.dryRun {
+				return fmt.Errorf("required flag \"item\" or \"item-id\" not set")
 			}
-			if bodyCategory != "" && !flags.dryRun {
-				return fmt.Errorf("category updates are not supported by the verified AnyList operation set; update quantity or notes instead")
+			if bodyItemID != "" && bodyName != "" {
+				return fmt.Errorf("item and item-id are mutually exclusive")
 			}
-			if bodyQuantity == "" && bodyNotes == "" && !flags.dryRun {
-				return fmt.Errorf("nothing to update; set --quantity or --notes")
+			if bodyCategory != "" && bodyClearCategory {
+				return fmt.Errorf("category and clear_category are mutually exclusive")
+			}
+			priceRequested := bodyPriceSet || cmd.Flags().Changed("price")
+			if priceRequested && bodyClearPrice {
+				return fmt.Errorf("price and clear_price are mutually exclusive")
+			}
+			if priceRequested && bodyPrice < 0 {
+				return fmt.Errorf("price must not be negative")
+			}
+			metadataRequested := bodyCategory != "" || bodyClearCategory || bodyStore != "" || bodyRemoveStore != "" || priceRequested || bodyClearPrice
+			if bodyNewName == "" && bodyQuantity == "" && bodyNotes == "" && bodyBarcode == "" && bodyPackageSize == "" && !metadataRequested && !flags.dryRun {
+				return fmt.Errorf("nothing to update; set --name, --quantity, --notes, --barcode, --package-size, --category, --clear-category, --store, --remove-store, --price, or --clear-price")
+			}
+			if !apply || flags.dryRun {
+				preview := map[string]any{
+					"dry_run":        true,
+					"list":           bodyListName,
+					"item":           bodyName,
+					"item_id":        bodyItemID,
+					"name":           bodyNewName,
+					"quantity":       bodyQuantity,
+					"notes":          bodyNotes,
+					"barcode":        bodyBarcode,
+					"package_size":   bodyPackageSize,
+					"category":       bodyCategory,
+					"clear_category": bodyClearCategory,
+					"store":          bodyStore,
+					"remove_store":   bodyRemoveStore,
+					"price":          bodyPrice,
+					"price_store":    bodyPriceStore,
+					"price_details":  bodyPriceDetails,
+					"clear_price":    bodyClearPrice,
+					"apply":          apply,
+				}
+				if flags.asJSON {
+					return printJSONFiltered(cmd.OutOrStdout(), preview, flags)
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "Dry run: would update item %q in %q (pass --apply to write)\n", bodyName, bodyListName)
+				return nil
 			}
 			if dryRunOK(flags) {
 				return nil
@@ -63,13 +130,22 @@ func newItemsUpdateCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			item, err := st.FindItemByName(list.ID, bodyName)
+			var item *store.ItemRow
+			if bodyItemID != "" {
+				item, err = st.FindItemByID(list.ID, bodyItemID)
+			} else {
+				item, err = st.FindItemByName(list.ID, bodyName)
+			}
 			if err != nil {
 				return err
 			}
 
 			updates := map[string]string{}
 			expected := map[string]string{}
+			if bodyNewName != "" {
+				updates["name"] = bodyNewName
+				expected["name"] = bodyNewName
+			}
 			if bodyQuantity != "" {
 				updates["quantity"] = bodyQuantity
 				expected["quantity"] = bodyQuantity
@@ -78,30 +154,162 @@ func newItemsUpdateCmd(flags *rootFlags) *cobra.Command {
 				updates["details"] = bodyNotes
 				expected["details"] = bodyNotes
 			}
+			if bodyBarcode != "" {
+				updates["product_upc"] = bodyBarcode
+				expected["product_upc"] = bodyBarcode
+			}
 
 			alClient := anylist.New(cfg)
-			if err := alClient.UpdateItemFields(ctx, list.ID, item.ID, updates); err != nil {
-				return fmt.Errorf("updating item: %w", err)
+			var liveData *pb.PBUserDataResponse
+			var liveItem *pb.ListItem
+			var found bool
+			var expectedCategoryID, expectedCategoryName, expectedAddStoreID, expectedRemoveStoreID string
+			var expectedPrices []*pb.PBItemPrice
+			if metadataRequested {
+				liveData, err = alClient.GetUserData(ctx)
+				if err != nil {
+					return fmt.Errorf("reading current item metadata: %w", err)
+				}
+				liveItem, found = findLiveItemByID(liveData, list.ID, item.ID)
+				if !found {
+					return fmt.Errorf("updating metadata: item %q is not present in the live list", item.Name)
+				}
+				if bodyCategory != "" {
+					category, resolveErr := resolveLiveCategoryRecord(liveData, list.ID, bodyCategory)
+					if resolveErr != nil {
+						return resolveErr
+					}
+					expectedCategoryID, resolveErr = resolveLiveCategory(liveData, list.ID, bodyCategory)
+					if resolveErr != nil {
+						return resolveErr
+					}
+					expectedCategoryName = category.GetName()
+					if expectedCategoryID == "other" {
+						expectedCategoryName = "other"
+					}
+				} else if bodyClearCategory {
+					expectedCategoryID = "other"
+					expectedCategoryName = "other"
+				}
+				if bodyCategory != "" || bodyClearCategory {
+					if err := alClient.UpdateItemCategoryAssignment(ctx, list.ID, liveItem, liveItem.GetCategoryMatchId(), expectedCategoryID, expectedCategoryName); err != nil {
+						return fmt.Errorf("updating item category: %w", err)
+					}
+				}
+				if bodyStore != "" {
+					expectedAddStoreID, err = resolveLiveStore(liveData, list.ID, bodyStore)
+					if err != nil {
+						return err
+					}
+				}
+				if bodyRemoveStore != "" {
+					expectedRemoveStoreID, err = resolveLiveStore(liveData, list.ID, bodyRemoveStore)
+					if err != nil {
+						return err
+					}
+				}
+				if priceRequested {
+					expectedPrices = []*pb.PBItemPrice{{
+						Amount:  bodyPrice,
+						StoreId: strings.TrimSpace(bodyPriceStore),
+						Details: bodyPriceDetails,
+						Date:    time.Now().Format("2006-01-02"),
+					}}
+				} else if bodyClearPrice {
+					expectedPrices = priceClearTargets(liveItem, bodyPriceStore)
+				}
+				if expectedAddStoreID != "" {
+					if err := alClient.AddItemStoreID(ctx, list.ID, item.ID, expectedAddStoreID); err != nil {
+						return fmt.Errorf("adding item store: %w", err)
+					}
+				}
+				if expectedRemoveStoreID != "" {
+					if err := alClient.RemoveItemStoreID(ctx, list.ID, item.ID, expectedRemoveStoreID); err != nil {
+						return fmt.Errorf("removing item store: %w", err)
+					}
+				}
+				for _, expectedPrice := range expectedPrices {
+					if err := alClient.SaveItemPrice(ctx, list.ID, item.ID, expectedPrice); err != nil {
+						return fmt.Errorf("updating item price for store %q: %w", expectedPrice.GetStoreId(), err)
+					}
+				}
 			}
-			if err := syncStoreFromLive(ctx, cfg, st); err != nil {
+			if bodyPackageSize != "" {
+				if liveData == nil {
+					liveData, err = alClient.GetUserData(ctx)
+					if err != nil {
+						return fmt.Errorf("reading current item metadata: %w", err)
+					}
+				}
+				liveItem, found = findLiveItemByID(liveData, list.ID, item.ID)
+				if !found {
+					return fmt.Errorf("updating package size: item %q is not present in the live list", item.Name)
+				}
+				if err := alClient.UpdateItemPackageSize(ctx, list.ID, liveItem, &pb.PBItemPackageSize{RawPackageSize: bodyPackageSize}); err != nil {
+					return fmt.Errorf("updating package size: %w", err)
+				}
+				expected["package_size"] = bodyPackageSize
+			}
+			if len(updates) > 0 {
+				if err := alClient.UpdateItemFields(ctx, list.ID, item.ID, updates); err != nil {
+					return fmt.Errorf("updating item: %w", err)
+				}
+			}
+			verifiedData, err := alClient.GetUserData(ctx)
+			if err != nil {
+				return fmt.Errorf("refreshing data after update: %w", err)
+			}
+			if bodyPackageSize != "" {
+				liveItem, found := findLiveItemByID(verifiedData, list.ID, item.ID)
+				if !found {
+					return fmt.Errorf("update verification failed: item %q is not present in the live list", item.Name)
+				}
+				if got := formatPackageSize(liveItem.GetPackageSizePb()); got != bodyPackageSize {
+					return fmt.Errorf("update verification failed: package size is %q, expected %q", got, bodyPackageSize)
+				}
+			}
+			if metadataRequested {
+				liveItem, found := findLiveItemByID(verifiedData, list.ID, item.ID)
+				if !found {
+					return fmt.Errorf("item metadata verification failed: item %q is not present in the live list", item.Name)
+				}
+				if err := verifyLiveItemMetadata(liveItem, expectedCategoryID, bodyCategory != "" || bodyClearCategory, expectedAddStoreID, expectedRemoveStoreID); err != nil {
+					return err
+				}
+				if len(expectedPrices) > 0 {
+					if err := verifyLiveItemPrices(liveItem, expectedPrices, bodyClearPrice); err != nil {
+						return err
+					}
+				}
+			}
+			if err := st.SyncFromUserData(verifiedData); err != nil {
 				return fmt.Errorf("refreshing data after update: %w", err)
 			}
 			updated, err := st.FindItemByID(list.ID, item.ID)
 			if err != nil {
 				return fmt.Errorf("verifying update: %w", err)
 			}
-			if v, ok := expected["quantity"]; ok && updated.Quantity != v {
-				return fmt.Errorf("update verification failed: quantity is %q, expected %q", updated.Quantity, v)
+			if err := verifyItemUpdate(updated, expected); err != nil {
+				return err
 			}
-			if v, ok := expected["details"]; ok && updated.Details != v {
-				return fmt.Errorf("update verification failed: notes are %q, expected %q", updated.Details, v)
+			if metadataRequested {
+				if err := verifyCachedItemMetadata(updated, expectedCategoryID, bodyCategory != "" || bodyClearCategory, expectedAddStoreID, expectedRemoveStoreID); err != nil {
+					return err
+				}
+				if len(expectedPrices) > 0 {
+					if err := verifyCachedItemPrices(updated, expectedPrices, bodyClearPrice); err != nil {
+						return err
+					}
+				}
 			}
 
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-					"updated": true,
-					"item":    updated,
-					"list":    list.Name,
+					"updated":      true,
+					"verified":     true,
+					"item":         updated,
+					"list":         list.Name,
+					"package_size": formatPackageSize(updated.PackageSize),
 				}, flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Updated %q in %q\n", updated.Name, list.Name)
@@ -110,10 +318,44 @@ func newItemsUpdateCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&bodyListName, "list", "", "List name")
 	cmd.Flags().StringVar(&bodyName, "item", "", "Item name to update")
+	cmd.Flags().StringVar(&bodyItemID, "item-id", "", "Stable AnyList item ID to update (preferred for agent workflows)")
+	cmd.Flags().StringVar(&bodyNewName, "name", "", "New item name")
 	cmd.Flags().StringVar(&bodyQuantity, "quantity", "", "New quantity")
 	cmd.Flags().StringVar(&bodyNotes, "notes", "", "New notes")
-	cmd.Flags().StringVar(&bodyCategory, "category", "", "New category (currently unsupported by verified AnyList operations)")
+	cmd.Flags().StringVar(&bodyCategory, "category", "", "Category name or ID to assign (requires --apply)")
+	cmd.Flags().BoolVar(&bodyClearCategory, "clear-category", false, "Clear the item's category match (requires --apply)")
+	cmd.Flags().StringVar(&bodyStore, "store", "", "Store name or ID to assign (requires --apply)")
+	cmd.Flags().StringVar(&bodyRemoveStore, "remove-store", "", "Store name or ID to remove (requires --apply)")
+	cmd.Flags().Float64Var(&bodyPrice, "price", 0, "New item price (requires --apply)")
+	cmd.Flags().StringVar(&bodyPriceStore, "price-store", "", "Store ID associated with --price")
+	cmd.Flags().StringVar(&bodyPriceDetails, "price-details", "", "Optional details associated with --price")
+	cmd.Flags().BoolVar(&bodyClearPrice, "clear-price", false, "Clear the item's price; without --price-store, clear every stored price (requires --apply)")
+	cmd.Flags().StringVar(&bodyBarcode, "barcode", "", "New UPC/EAN barcode")
+	cmd.Flags().StringVar(&bodyBarcode, "upc", "", "Alias for --barcode")
+	cmd.Flags().StringVar(&bodyPackageSize, "package-size", "", "New package size (for example, '16 oz' or '12 count')")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.Flags().BoolVar(&apply, "apply", false, "Enable category/store live writes with fresh read-after-write verification")
 
 	return cmd
+}
+
+func verifyItemUpdate(updated *store.ItemRow, expected map[string]string) error {
+	if v, ok := expected["name"]; ok && updated.Name != v {
+		return fmt.Errorf("update verification failed: name is %q, expected %q", updated.Name, v)
+	}
+	if v, ok := expected["quantity"]; ok && updated.Quantity != v {
+		return fmt.Errorf("update verification failed: quantity is %q, expected %q", updated.Quantity, v)
+	}
+	if v, ok := expected["details"]; ok && updated.Details != v {
+		return fmt.Errorf("update verification failed: notes are %q, expected %q", updated.Details, v)
+	}
+	if v, ok := expected["product_upc"]; ok && updated.ProductUpc != v {
+		return fmt.Errorf("update verification failed: barcode is %q, expected %q", updated.ProductUpc, v)
+	}
+	if v, ok := expected["package_size"]; ok {
+		if got := formatPackageSize(updated.PackageSize); got != v {
+			return fmt.Errorf("update verification failed: package size is %q, expected %q", got, v)
+		}
+	}
+	return nil
 }

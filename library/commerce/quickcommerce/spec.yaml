@@ -1,0 +1,405 @@
+name: quickcommerce
+display_name: QuickCommerce API
+cli_description: Compare live Indian product prices, stock, and delivery ETAs from the terminal
+version: "1.0.0"
+description: Real-time product search, pricing, inventory, and delivery ETA across Indian quick-commerce and marketplace platforms.
+category: commerce
+base_url: https://api.quickcommerceapi.com
+health_check_path: /v1/supported-platforms
+auth:
+  type: api_key
+  header: X-API-Key
+  in: header
+  env_vars:
+    - QUICKCOMMERCE_API_KEY
+  key_url: https://quickcommerceapi.com/auth/signup
+  instructions: Copy the API key from the QuickCommerce dashboard.
+config:
+  format: toml
+  path: ~/.config/quickcommerce-pp-cli/config.toml
+learn:
+  entity_lookup_seeds:
+    platform:
+      - canonical: BlinkIt
+        aliases: [blinkit, blink it]
+      - canonical: Zepto
+        aliases: [zepto]
+      - canonical: Swiggy
+        aliases: [swiggy instamart, instamart]
+      - canonical: BigBasket
+        aliases: [bigbasket, big basket]
+      - canonical: DMart
+        aliases: [dmart, d mart, dmart ready]
+      - canonical: JioMart
+        aliases: [jiomart, jio mart]
+      - canonical: Minutes
+        aliases: [flipkart minutes, minutes]
+      - canonical: Amazon
+        aliases: [amazon india]
+      - canonical: Nykaa
+        aliases: [nykaa]
+      - canonical: Myntra
+        aliases: [myntra]
+      - canonical: Flipkart
+        aliases: [flipkart marketplace]
+  synonyms:
+    "price compare": compare
+    "price comparison": compare
+    "delivery time": eta
+resources:
+  products:
+    description: Search products by keyword, location, and platform.
+    endpoints:
+      search:
+        method: GET
+        path: /v1/search
+        description: Search products on one platform by keyword and location.
+        syncable: true
+        example: "  quickcommerce-pp-cli products --query milk --latitude 12.9021 --longitude 77.6639 --platform BlinkIt"
+        params:
+          - name: q
+            flag_name: query
+            aliases: [q]
+            type: string
+            required: true
+            default: milk
+            description: Product keyword such as milk or atta 5kg.
+          - name: lat
+            flag_name: latitude
+            aliases: [lat]
+            type: float
+            required: true
+            default: 12.9021
+            description: Delivery latitude in decimal degrees.
+          - name: lon
+            flag_name: longitude
+            aliases: [lon]
+            type: float
+            required: true
+            default: 77.6639
+            description: Delivery longitude in decimal degrees.
+          - name: platform
+            type: string
+            required: true
+            default: BlinkIt
+            description: Platform to search, for example BlinkIt or Zepto.
+            enum: [BlinkIt, Zepto, Swiggy, BigBasket, DMart, JioMart, Minutes, Amazon, Nykaa, Myntra, Flipkart]
+          - name: x-geolocation-pincode
+            flag_name: pincode
+            aliases: [geolocation-pincode]
+            in: header
+            type: string
+            required: false
+            description: Six-digit pincode required by DMart, JioMart, and Minutes.
+        response:
+          type: array
+          item: Product
+        response_path: data.products
+  items:
+    description: Fetch current details for a platform item.
+    endpoints:
+      get:
+        method: GET
+        path: /v1/item
+        description: Get live price, stock, and availability for an item ID.
+        example: "  quickcommerce-pp-cli items --item-id 501346 --latitude 12.9021 --longitude 77.6639 --platform BlinkIt"
+        params:
+          - name: item_id
+            flag_name: item-id
+            aliases: [item]
+            type: string
+            required: true
+            description: Platform-specific item ID returned by product search.
+          - name: lat
+            flag_name: latitude
+            aliases: [lat]
+            type: float
+            required: true
+            description: Delivery latitude in decimal degrees.
+          - name: lon
+            flag_name: longitude
+            aliases: [lon]
+            type: float
+            required: true
+            description: Delivery longitude in decimal degrees.
+          - name: platform
+            type: string
+            required: true
+            description: Platform that owns the item ID.
+            enum: [BlinkIt, Zepto, Swiggy, BigBasket, DMart, JioMart, Minutes, Amazon, Nykaa, Myntra, Flipkart]
+          - name: x-geolocation-pincode
+            flag_name: pincode
+            aliases: [geolocation-pincode]
+            in: header
+            type: string
+            required: false
+            description: Six-digit pincode required by DMart, JioMart, and Minutes.
+        response:
+          type: array
+          item: Item
+        response_path: data.items
+  delivery:
+    description: Check delivery timing and store availability.
+    endpoints:
+      eta:
+        method: GET
+        path: /v1/eta
+        description: Get delivery ETA and store availability for one platform.
+        example: "  quickcommerce-pp-cli delivery eta --latitude 12.9021 --longitude 77.6639 --platform BlinkIt"
+        params:
+          - name: lat
+            flag_name: latitude
+            aliases: [lat]
+            type: float
+            required: true
+            description: Delivery latitude in decimal degrees.
+          - name: lon
+            flag_name: longitude
+            aliases: [lon]
+            type: float
+            required: true
+            description: Delivery longitude in decimal degrees.
+          - name: platform
+            type: string
+            required: true
+            description: Quick-commerce platform to check.
+            enum: [BlinkIt, Zepto, Swiggy, BigBasket, DMart, JioMart, Minutes]
+          - name: x-geolocation-pincode
+            flag_name: pincode
+            aliases: [geolocation-pincode]
+            in: header
+            type: string
+            required: false
+            description: Six-digit pincode required by DMart, JioMart, and Minutes.
+        response:
+          type: object
+          item: DeliveryETA
+        response_path: data
+      compare:
+        method: GET
+        path: /v1/groupeta
+        description: Compare delivery ETAs across quick-commerce platforms.
+        example: "  quickcommerce-pp-cli delivery compare --platforms BlinkIt,Zepto,Swiggy --latitude 12.9021 --longitude 77.6639"
+        params:
+          - name: platforms
+            type: string
+            required: true
+            description: Comma-separated quick-commerce platform names.
+          - name: lat
+            flag_name: latitude
+            aliases: [lat]
+            type: float
+            required: true
+            description: Delivery latitude in decimal degrees.
+          - name: lon
+            flag_name: longitude
+            aliases: [lon]
+            type: float
+            required: true
+            description: Delivery longitude in decimal degrees.
+          - name: x-geolocation-pincode
+            flag_name: pincode
+            aliases: [geolocation-pincode]
+            in: header
+            type: string
+            required: false
+            description: Six-digit pincode required by DMart, JioMart, and Minutes.
+        response:
+          type: object
+          item: GroupETA
+        response_path: data
+  comparison:
+    description: Compare products across multiple platforms.
+    endpoints:
+      search:
+        method: GET
+        path: /v1/groupsearch
+        description: Search and compare products across multiple platforms.
+        example: "  quickcommerce-pp-cli comparison --query milk --platforms BlinkIt,Zepto,Swiggy --latitude 12.9021 --longitude 77.6639"
+        params:
+          - name: q
+            flag_name: query
+            aliases: [q]
+            type: string
+            required: true
+            description: Product keyword to compare across platforms.
+          - name: platforms
+            type: string
+            required: true
+            description: Comma-separated platform names to compare.
+          - name: lat
+            flag_name: latitude
+            aliases: [lat]
+            type: float
+            required: true
+            description: Delivery latitude in decimal degrees.
+          - name: lon
+            flag_name: longitude
+            aliases: [lon]
+            type: float
+            required: true
+            description: Delivery longitude in decimal degrees.
+          - name: group
+            type: bool
+            required: false
+            default: false
+            description: Return the provider's grouped product response.
+          - name: x-geolocation-pincode
+            flag_name: pincode
+            aliases: [geolocation-pincode]
+            in: header
+            type: string
+            required: false
+            description: Six-digit pincode required by DMart, JioMart, and Minutes.
+        response:
+          type: object
+          item: GroupSearch
+        response_path: data
+  account:
+    description: Inspect API credit balance and packs.
+    endpoints:
+      credits:
+        method: GET
+        path: /v1/credits
+        description: Check credit balance, usage, and expiry.
+        example: "  quickcommerce-pp-cli account --json"
+        response:
+          type: object
+          item: Credits
+  platforms:
+    description: Discover platform support and ETA scope.
+    endpoints:
+      list:
+        method: GET
+        path: /v1/supported-platforms
+        no_auth: true
+        description: List platforms supported by each endpoint.
+        example: "  quickcommerce-pp-cli platforms --json"
+        response:
+          type: object
+          item: SupportedPlatforms
+types:
+  Product:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: brand
+        type: string
+      - name: available
+        type: bool
+      - name: images
+        type: array
+      - name: mrp
+        type: float
+      - name: offer_price
+        type: float
+      - name: quantity
+        type: string
+      - name: deeplink
+        type: string
+      - name: rating
+        type: float
+      - name: rating_count
+        type: int
+      - name: inventory
+        type: int
+      - name: platform
+        type: object
+  Item:
+    fields:
+      - name: item_id
+        type: string
+      - name: name
+        type: string
+      - name: brand
+        type: string
+      - name: quantity
+        type: string
+      - name: available
+        type: bool
+      - name: price
+        type: float
+      - name: mrp
+        type: float
+      - name: inventory
+        type: int
+      - name: deeplink
+        type: string
+      - name: rating
+        type: float
+      - name: rating_count
+        type: int
+      - name: platform
+        type: string
+      - name: store_id
+        type: string
+      - name: fetched_at
+        type: string
+  DeliveryETA:
+    fields:
+      - name: platform
+        type: string
+      - name: eta
+        type: string
+      - name: open
+        type: bool
+      - name: store_id
+        type: string
+      - name: store_ids
+        type: array
+      - name: icon
+        type: string
+      - name: url
+        type: string
+      - name: lat
+        type: float
+      - name: lon
+        type: float
+  GroupETA:
+    fields:
+      - name: platforms
+        type: array
+      - name: lat
+        type: float
+      - name: lon
+        type: float
+      - name: credit_cost
+        type: int
+      - name: results
+        type: array
+  GroupSearch:
+    fields:
+      - name: query
+        type: string
+      - name: platforms
+        type: array
+      - name: lat
+        type: float
+      - name: lon
+        type: float
+      - name: credit_cost
+        type: int
+      - name: results
+        type: object
+  Credits:
+    fields:
+      - name: summary
+        type: object
+      - name: active
+        type: array
+      - name: inactive
+        type: array
+  SupportedPlatforms:
+    fields:
+      - name: platforms
+        type: array
+      - name: count
+        type: int
+      - name: search
+        type: array
+      - name: item
+        type: array
+      - name: eta
+        type: array

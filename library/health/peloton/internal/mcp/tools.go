@@ -33,8 +33,22 @@ const (
 	defaultMCPRateLimit = 2
 )
 
+// rideArchivedRedundantFields are top-level keys on /api/v2/ride/archived
+// responses (classes_catalog, classes_search) that duplicate static catalog
+// vocabulary already available in full via classes_filters (see
+// makeAPIHandlerStripFields's doc comment for why these must be stripped
+// rather than left for the shared MCP response trimmer to sort out).
+var rideArchivedRedundantFields = []string{"ride_types", "class_types"}
+
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
+	// Set once, before any tool is registered or called: os/exec inherits
+	// the parent process's environment on every companion CLI subprocess
+	// the shellout layer (cobratree.RegisterAll below) spawns, so this
+	// single Setenv reaches every one of them. See MCPShelloutEnvVar's
+	// doc comment for why commands like `workflow archive` need to know.
+	_ = os.Setenv(cliutil.MCPShelloutEnvVar, "1")
+
 	s.AddTool(
 		mcplib.NewTool("account_show",
 			mcplib.WithDescription("Show the current profile fact. Returns the Profile."),
@@ -46,7 +60,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("classes_catalog",
-			mcplib.WithDescription("List a caller-scoped archived class catalog page. Required: browse_category, content_format. Optional: limit (default: 100), page (default: 0), sort_by (default: original_air_time) (plus 3 more). Returns array of Class."),
+			mcplib.WithDescription("List a caller-scoped archived class catalog page. Required: browse_category, content_format. Optional: limit (default: 100), cursor, sort_by (default: original_air_time) (plus 3 more). Returns array of Class."),
 			mcplib.WithString("browse_category", mcplib.Required(), mcplib.Description("Required catalog category.")),
 			mcplib.WithString("content_format", mcplib.Required(), mcplib.Description("Required provider content format.")),
 			mcplib.WithNumber("limit", mcplib.Description("Maximum records per page.")),
@@ -59,12 +73,12 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/api/v2/ride/archived", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: ""}, []mcpParamBinding{{PublicName: "browse_category", WireName: "browse_category", Location: "query"}, {PublicName: "content_format", WireName: "content_format", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "100"}, {PublicName: "sort_by", WireName: "sort_by", Location: "query", Default: "original_air_time"}, {PublicName: "desc", WireName: "desc", Location: "query", Default: "true"}, {PublicName: "instructor_id", WireName: "instructor_id", Location: "query"}, {PublicName: "class_type_id", WireName: "class_type_id", Location: "query"}}, []string{}),
+		makeAPIHandlerStripFields("GET", "/api/v2/ride/archived", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: ""}, []mcpParamBinding{{PublicName: "browse_category", WireName: "browse_category", Location: "query"}, {PublicName: "content_format", WireName: "content_format", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "100"}, {PublicName: "sort_by", WireName: "sort_by", Location: "query", Default: "original_air_time"}, {PublicName: "desc", WireName: "desc", Location: "query", Default: "true"}, {PublicName: "instructor_id", WireName: "instructor_id", Location: "query"}, {PublicName: "class_type_id", WireName: "class_type_id", Location: "query"}}, []string{}, rideArchivedRedundantFields),
 	)
 	s.AddTool(
 		mcplib.NewTool("classes_filters",
 			mcplib.WithDescription("Show provider class/filter vocabulary and embedded instructor metadata. Required: browse_category. Optional: include_icon_images (default: true), library_type (default: on_demand). Returns the FilterVocabulary."),
-			mcplib.WithBoolean("include_icon_images", mcplib.Description("Include provider icon image references.")),
+			mcplib.WithBoolean("include_icon_images", mcplib.Description("Include provider icon image references. Caveat: Peloton's API does not omit display_image_url when this is false (upstream API behavior, not a client-side gap).")),
 			mcplib.WithString("library_type", mcplib.Description("Provider library type.")),
 			mcplib.WithString("browse_category", mcplib.Required(), mcplib.Description("Provider browse category.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -75,7 +89,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("classes_search",
-			mcplib.WithDescription("Search the caller-scoped catalog by factual provider filters; U4 adds offline structural predicates. Required: browse_category, content_format. Optional: limit (default: 100), page (default: 0), sort_by (default: original_air_time) (plus 3 more). Returns array of Class."),
+			mcplib.WithDescription("Search the caller-scoped catalog by factual provider filters; U4 adds offline structural predicates. Required: browse_category, content_format. Optional: limit (default: 100), cursor, sort_by (default: original_air_time) (plus 3 more). Returns array of Class."),
 			mcplib.WithString("browse_category", mcplib.Required(), mcplib.Description("Required catalog category.")),
 			mcplib.WithString("content_format", mcplib.Required(), mcplib.Description("Required provider content format.")),
 			mcplib.WithNumber("limit", mcplib.Description("Maximum records per page.")),
@@ -88,7 +102,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/api/v2/ride/archived", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: ""}, []mcpParamBinding{{PublicName: "browse_category", WireName: "browse_category", Location: "query"}, {PublicName: "content_format", WireName: "content_format", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "100"}, {PublicName: "sort_by", WireName: "sort_by", Location: "query", Default: "original_air_time"}, {PublicName: "desc", WireName: "desc", Location: "query", Default: "true"}, {PublicName: "instructor_id", WireName: "instructor_id", Location: "query"}, {PublicName: "class_type_id", WireName: "class_type_id", Location: "query"}}, []string{}),
+		makeAPIHandlerStripFields("GET", "/api/v2/ride/archived", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: ""}, []mcpParamBinding{{PublicName: "browse_category", WireName: "browse_category", Location: "query"}, {PublicName: "content_format", WireName: "content_format", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "100"}, {PublicName: "sort_by", WireName: "sort_by", Location: "query", Default: "original_air_time"}, {PublicName: "desc", WireName: "desc", Location: "query", Default: "true"}, {PublicName: "instructor_id", WireName: "instructor_id", Location: "query"}, {PublicName: "class_type_id", WireName: "class_type_id", Location: "query"}}, []string{}, rideArchivedRedundantFields),
 	)
 	s.AddTool(
 		mcplib.NewTool("classes_show",
@@ -122,7 +136,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("workouts_list",
-			mcplib.WithDescription("List workout history in newest-first pages; user_id is supplied by the caller until U3 links the profile fact. Required: user_id. Optional: joins (default: ride), limit (default: 100), page (default: 0) (plus 1 more). Returns array of Workout."),
+			mcplib.WithDescription("List workout history in newest-first pages; user_id is supplied by the caller until U3 links the profile fact. Required: user_id. Optional: joins (default: ride), limit (default: 100), cursor (plus 1 more). Returns array of Workout."),
 			mcplib.WithString("user_id", mcplib.Required(), mcplib.Description("Provider user identifier.")),
 			mcplib.WithString("joins", mcplib.Description("Include linked ride metadata.")),
 			mcplib.WithNumber("limit", mcplib.Description("Maximum records per page.")),
@@ -161,6 +175,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDescription("Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)")),
 			mcplib.WithNumber("limit", mcplib.Description("Max results (default 25)")),
+			mcplib.WithString("select", mcplib.Description("Comma-separated dotted field paths to project from the response envelope, e.g. results.id,results.title,results.resource_type. Arrays are traversed element-wise. Reduces token cost when result objects carry large nested fields (stream URLs, rating counts, full nested ride objects) you don't need.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
@@ -243,6 +258,25 @@ func formatMCPParamValue(v any) string {
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
 func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, pageConfig mcpPageConfig, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
+	return makeAPIHandlerStripFields(method, pathTemplate, readOnly, binaryResponse, headerOverrides, pageConfig, bindings, positionalParams, nil)
+}
+
+// makeAPIHandlerStripFields is makeAPIHandler plus stripFields: top-level
+// object keys to drop from a successful GET response before it reaches the
+// MCP result budget/trimming logic in bound.go. Peloton's real
+// /api/v2/ride/archived response (classes_catalog, classes_search) always
+// includes ride_types/class_types sidecar vocabulary arrays (234 items each)
+// alongside the actual "data" results — static catalog data already
+// available via classes_filters, unrelated to the query. Left in, they
+// starve bound.go's single-array-field trimmer (boundedSingleArrayObject /
+// boundedSingleArrayPageObject bail to an unbounded raw preview whenever a
+// response has 2+ array fields, since it can no longer tell which array is
+// "the" list), so any classes_catalog/classes_search response large enough
+// to need trimming got a useless raw preview instead of a proper bounded
+// item list. Stripping the known-redundant fields up front, endpoint by
+// endpoint, is a narrower and lower-risk fix than teaching the shared
+// trimmer to pick "the right array" out of an arbitrary multi-array object.
+func makeAPIHandlerStripFields(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, pageConfig mcpPageConfig, bindings []mcpParamBinding, positionalParams []string, stripFields []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		c, err := newMCPClient()
 		if err != nil {
@@ -413,6 +447,10 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			}
 		}
 
+		if len(stripFields) > 0 {
+			data = stripTopLevelFields(data, stripFields)
+		}
+
 		if binaryResponse {
 			encoded := base64.StdEncoding.EncodeToString(data)
 			out, err := json.Marshal(map[string]any{
@@ -439,6 +477,32 @@ func mcpToolResultText(method string, data json.RawMessage) *mcplib.CallToolResu
 	return mcplib.NewToolResultText(bound.EndpointResponse(method, data))
 }
 
+// stripTopLevelFields removes the named top-level keys from a JSON object
+// response, leaving every other field's bytes untouched. A no-op (returns
+// data unchanged) when data isn't a JSON object or none of the named keys
+// are present, so it's safe to call unconditionally on any response shape.
+func stripTopLevelFields(data json.RawMessage, fields []string) json.RawMessage {
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return data
+	}
+	changed := false
+	for _, f := range fields {
+		if _, ok := obj[f]; ok {
+			delete(obj, f)
+			changed = true
+		}
+	}
+	if !changed {
+		return data
+	}
+	out, err := json.Marshal(obj)
+	if err != nil {
+		return data
+	}
+	return out
+}
+
 // mcpToolError keeps provider-controlled typed endpoint errors within the MCP
 // text-result budget just like successful endpoint results.
 func mcpToolError(message string) *mcplib.CallToolResult {
@@ -458,7 +522,7 @@ func newMCPClient() (*client.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	return newMCPClientFromConfig(cfg), nil
+	return newMCPClientFromConfig(cfg)
 }
 
 func newMCPConfig() (*config.Config, error) {
@@ -469,7 +533,7 @@ func newMCPConfig() (*config.Config, error) {
 	return cfg, nil
 }
 
-func newMCPClientFromConfig(cfg *config.Config) *client.Client {
+func newMCPClientFromConfig(cfg *config.Config) (*client.Client, error) {
 	c := client.New(cfg, 60*time.Second, defaultMCPRateLimit)
 	// Agents calling through MCP need fresh data every call. The on-disk
 	// response cache survives across MCP server invocations, so a
@@ -477,7 +541,15 @@ func newMCPClientFromConfig(cfg *config.Config) *client.Client {
 	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
 	// constructs its own client and is unaffected.
 	c.NoCache = true
-	return c
+	// This client is built directly (not via rootFlags.newClient()), so it
+	// never runs the clientHooks registry CLI commands go through — without
+	// this, every MCP tool call authenticates with no credential at all.
+	// See InstallManagedPelotonBearer's doc comment for why both call sites
+	// must invoke the same underlying auth logic.
+	if err := cli.InstallManagedPelotonBearer(c); err != nil {
+		return nil, err
+	}
+	return c, nil
 }
 
 func mcpDBPath() (string, error) {
@@ -559,7 +631,22 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
 	}
 
-	return toolResultJSON(mcpSearchEnvelope(results, storeStatus))
+	envelope := mcpSearchEnvelope(results, storeStatus)
+	// Unlike every shellout-mirrored and makeAPIHandler-based tool, search
+	// is hand-written and builds its own count/results/store_status/
+	// resumable envelope directly as a map -- it never passes through this
+	// CLI's printOffline/printOutput* pipeline, which is where --select
+	// support normally lives. Apply the same projection here so --select
+	// isn't a silent no-op on the one MCP tool most likely to return many
+	// large rows (full nested ride objects, stream URLs, rating counts).
+	if selectFields, ok := args["select"].(string); ok && strings.TrimSpace(selectFields) != "" {
+		raw, marshalErr := json.Marshal(envelope)
+		if marshalErr != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("encoding result: %v", marshalErr)), nil
+		}
+		return toolResultJSON(cli.FilterFieldsJSON(raw, selectFields))
+	}
+	return toolResultJSON(envelope)
 }
 
 func mcpSearchEnvelope(results []json.RawMessage, storeStatus mcpStoreStatusKind) map[string]any {
@@ -848,27 +935,33 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 	ctx := map[string]any{
 		"api":         "peloton",
 		"description": "Read-only Peloton workout, class, and structural-provider facts in a private local store.",
-		"archetype":   "crm",
-		"tool_count":  10,
+		"archetype":   "health_fitness",
+		"tool_count":  30,
 		"paths":       paths,
 		// tool_surface tells agents which surface a capability lives on.
-		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion peloton-pp-cli binary.",
+		"tool_surface": "MCP exposes typed endpoint tools, framework tools (search/sql/context/sync/offline/workflow), plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion peloton-pp-cli binary. Typed endpoint tools forward any argument not in their declared schema straight onto the live API as a raw query/body param, unvalidated — this is intentional (it's an escape hatch for real Peloton filters our internal spec doesn't declare, e.g. classes_search accepts more provider filters than its 8 typed params cover), but it also means a misspelled argument name silently no-ops instead of erroring, and CLI-only flags like --select/--compact/--csv/--quiet have no effect on typed endpoint tools (they only work on command-mirror tools).",
 		"auth": map[string]any{
-			"type": "oauth2_refresh",
+			// "session_login" deliberately avoids any OAuth-flavored term:
+			// Peloton has no OAuth flow at all, just POST /auth/login once
+			// with the env vars below, then persist the resulting session.
+			// A prior "managed OAuth bundle" wording here cost hours of
+			// dead-end debugging chasing a nonexistent external OAuth
+			// provisioning service.
+			"type": "session_login",
 			"env_vars": []map[string]any{
 				{
 					"name":        "PELOTON_OAUTH_USERNAME",
 					"kind":        "auth_flow_input",
-					"required":    false,
+					"required":    true,
 					"sensitive":   true,
-					"description": "Set during initial auth setup.",
+					"description": "Your Peloton login email/username. Set it directly; the CLI logs in automatically on first use and persists the result — no external provisioning service involved. Not needed if a session from a prior login is already persisted.",
 				},
 				{
 					"name":        "PELOTON_OAUTH_PASSWORD",
 					"kind":        "auth_flow_input",
-					"required":    false,
+					"required":    true,
 					"sensitive":   true,
-					"description": "Set during initial auth setup.",
+					"description": "Your Peloton account password. Set it directly; the CLI logs in automatically on first use and persists the result — no external provisioning service involved. Not needed if a session from a prior login is already persisted.",
 				},
 			},
 		},
@@ -882,6 +975,20 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"name":        "classes",
 				"description": "Read-only catalog, class detail, planned structure, and provider filter vocabulary.",
 				"endpoints":   []string{"catalog", "filters", "search", "show", "structure"},
+				"syncable":    true,
+				"searchable":  true,
+			},
+			{
+				"name":        "performance",
+				"description": "Per-workout recorded performance samples and summaries. No bulk list endpoint; synced one request per workout as a parent-keyed dependent of workouts.",
+				"endpoints":   []string{"workouts performance"},
+				"syncable":    true,
+				"searchable":  true,
+			},
+			{
+				"name":        "workout_details",
+				"description": "Full per-workout detail payload, including the movement-tracker fields strength reads. No bulk list endpoint; synced one request per workout as a parent-keyed dependent of workouts. \"strength\" is accepted as a sync alias for this resource.",
+				"endpoints":   []string{"workouts show", "strength"},
 				"syncable":    true,
 				"searchable":  true,
 			},
@@ -900,21 +1007,27 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			},
 		},
 		"query_tips": []string{
-			"Pagination uses cursor-based paging. Pass page parameter for subsequent pages.",
+			"Pagination uses cursor-based paging: pass the cursor value from a previous response back as the cursor argument to fetch the next page.",
 			"Control page size with the limit parameter (default 100).",
 			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
+			"Run sync (no args) to populate workouts and classes; naming workouts also cascades into per-workout performance and workout_details, which offline workout/intervals/repeat/strength read.",
+			"performance/workout_details have no bulk endpoint (one request per workout), so a large account's dependent sync is bounded and resumable per call: by default only workouts missing a record are fetched (repeated calls drain a backlog for free); sync --resources performance --full --max-parents <n> forces a bounded, resumable redo (e.g. to backfill a fix) via the sync command-mirror tool; sync --resources performance --stale-before <timestamp|duration> --max-parents <n> is a more targeted alternative that only refetches records older than a cutoff, skipping already-correct ones.",
+			"Use offline commands for network-free reads of previously-synced data; they never make a live API call.",
+			"offline_workout nests output under detail/history (use --select detail.title to reach a nested field). Every other offline command's fields, including \"caveats\" when a caveat applies, sit at the TOP level of the response -- not wrapped under a \"result\" key -- so e.g. offline_intervals's segments is reached with --select segments, not --select result.segments. offline_classes_filters double-nests under filters.filters (the wrapper's own \"filters\" key containing the provider's \"filters\" array) and filters.sorts -- there is no browse_categories/class_types field on this endpoint. Dotted --select paths only descend into object keys, not array indices (e.g. filters.filters.0.name does not work); arrays are matched element-wise instead.",
+			"Run doctor to check auth state, credential location, and sync cache freshness before assuming an API or credential problem.",
+			"Unrecognized typed-tool arguments are forwarded as raw live API params, not validated — a misspelled filter name silently no-ops instead of erroring. Double-check argument spelling against the tool's declared schema.",
 		},
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Managed OAuth catalog access", "command": "auth setup", "description": "Bootstraps a private OAuth bundle and reuses or refreshes it for bearer-authenticated catalog reads.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Automatic Peloton login", "command": "auth setup", "description": "Shows how to supply PELOTON_OAUTH_USERNAME/PELOTON_OAUTH_PASSWORD; the CLI logs in and persists credentials automatically, no external provisioning service involved.", "rationale": "Peloton has no interactive OAuth consent screen to shell out to; login is just posting credentials once and persisting the resulting session, so a command mirror is enough — no dedicated typed tool is needed.", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Managed OAuth catalog access", "insight": ""},
-			{"topic": "Contact lookup", "insight": "Use search for finding contacts by name/email. List endpoints return unsorted results and require pagination for large datasets."},
-			{"topic": "Activity tracking", "insight": "When checking deal activity, sync first and query locally. CRM APIs often throttle activity-log endpoints heavily."},
+			{"topic": "Automatic Peloton login", "insight": "Set PELOTON_OAUTH_USERNAME/PELOTON_OAUTH_PASSWORD once; the CLI logs in and persists the session automatically on first use — no separate interactive login step."},
+			{"topic": "Sync workflow", "insight": "Run sync to populate workouts and classes locally; naming workouts cascades into per-workout performance and workout_details automatically (no bulk endpoint exists for either, so this is one request per workout)."},
+			{"topic": "Offline fallback", "insight": "offline commands only see what has already been synced or fetched live at least once. If a workout is missing, sync workouts first — it cascades into performance and workout_details for you."},
 		},
 	}
 	return toolResultJSON(ctx)

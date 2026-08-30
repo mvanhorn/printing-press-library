@@ -1,0 +1,2 @@
+Error: unknown flag: --dir
+unknown flag: --dir

@@ -1,0 +1,57 @@
+{
+  "api_name": "thelancet",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "category": "developer-tools",
+  "cli_name": "thelancet-pp-cli",
+  "creator": {
+    "name": "laci141",
+    "handle": "laci141"
+  },
+  "description": "Search Lancet articles offline and analyze author impact, institutional networks, and editorial trends — powered by the free OpenAlex scholarly graph.",
+  "display_name": "The Lancet",
+  "generated_at": "2026-06-17T08:37:40.0869496Z",
+  "mcp_binary": "thelancet-pp-mcp",
+  "mcp_public_tool_count": 5,
+  "mcp_ready": "full",
+  "mcp_tool_count": 5,
+  "novel_features": [
+    {
+      "name": "Lab Citation Impact Rank",
+      "command": "rank-authors",
+      "description": "Rank researchers at your institution by citation impact within a specific Lancet journal or topic."
+    },
+    {
+      "name": "Institutional Citation Mesh",
+      "command": "mesh",
+      "description": "Find researchers at your institution who co-author Lancet papers and quantify how their work connects."
+    },
+    {
+      "name": "Affiliation Growth Tracking",
+      "command": "affiliation-growth",
+      "description": "Track institutions gaining publication velocity in Lancet journals; identify rising research centers."
+    },
+    {
+      "name": "Editorial Drift Detector",
+      "command": "drift",
+      "description": "Compare how a journal's topic distribution shifts between two time windows; spot emerging and fading specialties."
+    },
+    {
+      "name": "Reading List Curation",
+      "command": "curate",
+      "description": "Auto-generate ranked reading lists for a topic, sorted by date/citations/relevance, exportable as Markdown or BibTeX."
+    },
+    {
+      "name": "Citation Visibility Gap",
+      "command": "visibility-gap",
+      "description": "Find authors whose citation impact is out of step with the prestige of the Lancet journals they publish in."
+    }
+  ],
+  "printer": "laci141",
+  "printer_name": "laci141",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260617-072858-2f9fe13e",
+  "schema_version": 1,
+  "spec_checksum": "sha256:defa4bfc5f927ae6d2bb6c510ad138f407224b641ef0d1187e3e1e08d1568983",
+  "spec_format": "openapi3"
+}

@@ -1,0 +1,211 @@
+name: psx
+description: "Pakistan Stock Exchange data portal CLI with a local market mirror"
+version: "0.1.0"
+category: payments
+base_url: "https://dps.psx.com.pk"
+http_transport: standard
+health_check_path: "/symbols"
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+  - name: Referer
+    value: "https://dps.psx.com.pk/"
+  - name: X-Requested-With
+    value: "XMLHttpRequest"
+
+auth:
+  type: none
+  header: ""
+  format: ""
+  env_vars: []
+
+config:
+  format: toml
+  path: "~/.config/psx-pp-cli/config.toml"
+
+cache:
+  enabled: true
+  stale_after: 24h
+  refresh_timeout: 45s
+
+learn:
+  ticker_patterns:
+    - "^[A-Z0-9]{3,12}$"
+  stopwords:
+    - stock
+    - share
+    - scrip
+  synonyms:
+    "most recent": "latest"
+    "kse 100": "kse100"
+    "kse-100": "kse100"
+    "kmi 30": "kmi30"
+    "all share": "allshr"
+  entity_lookup_seeds:
+    index:
+      - canonical: KSE100
+        aliases: [kse100, kse 100, kse-100, the index, benchmark index, main index]
+      - canonical: KSE30
+        aliases: [kse30, kse 30, kse-30]
+      - canonical: KMI30
+        aliases: [kmi30, kmi 30, shariah index, islamic index]
+      - canonical: KMIALLSHR
+        aliases: [kmi all share, shariah all share]
+      - canonical: ALLSHR
+        aliases: [all share index, allshare]
+      - canonical: PSXDIV20
+        aliases: [dividend 20, div20, dividend index]
+      - canonical: BKTI
+        aliases: [banking index, bank index]
+      - canonical: OGTI
+        aliases: [oil and gas index, energy index]
+      - canonical: MII30
+        aliases: [meezan index]
+    announcement_stream:
+      - canonical: C
+        aliases: [companies, company announcements, corporate announcements]
+      - canonical: E
+        aliases: [psx notices, exchange notices]
+      - canonical: B
+        aliases: [secp notices, regulator notices]
+      - canonical: D
+        aliases: [nccpl notices, clearing notices]
+      - canonical: A
+        aliases: [cdc notices, depository notices]
+    market_board:
+      - canonical: REG
+        aliases: [regular, spot, cash market]
+      - canonical: DFC
+        aliases: [deliverable futures, futures]
+      - canonical: CSF
+        aliases: [cash settled futures]
+      - canonical: ODL
+        aliases: [odd lot]
+      - canonical: SQR
+        aliases: [square up]
+
+resources:
+  symbols:
+    description: "Listed instrument master: equities, ETFs and debt securities"
+    endpoints:
+      list:
+        method: GET
+        path: "/symbols"
+        description: "List every listed instrument with sector, ETF and debt flags"
+        example: "  psx-pp-cli symbols list --json"
+        params: []
+        response:
+          type: array
+          item: Symbol
+
+  timeseries:
+    description: "Intraday tick and end-of-day price series"
+    endpoints:
+      intraday:
+        method: GET
+        path: "/timeseries/int/{symbol}"
+        description: "Intraday tick series as [epoch, price, volume] tuples (last active session)"
+        example: "  psx-pp-cli timeseries intraday OGDC --json"
+        happy_args: "symbol=OGDC"
+        params:
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Instrument or index code, e.g. OGDC or KSE100"
+        response:
+          type: array
+        response_path: data
+      eod:
+        method: GET
+        path: "/timeseries/eod/{symbol}"
+        description: "End-of-day series as [epoch, close, volume, open] tuples"
+        example: "  psx-pp-cli timeseries eod KSE100 --json"
+        happy_args: "symbol=KSE100"
+        params:
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Instrument or index code, e.g. OGDC or KSE100"
+        response:
+          type: array
+        response_path: data
+
+  sectors:
+    description: "Sector aggregates and rankings"
+    endpoints:
+      top:
+        method: GET
+        path: "/data/top-10-sectors"
+        description: "Top sectors ranked by traded volume"
+        example: "  psx-pp-cli sectors top --json"
+        params: []
+        response:
+          type: array
+          item: SectorVolume
+
+  calendar:
+    description: "AGM and EOGM meeting calendar"
+    endpoints:
+      list:
+        method: POST
+        path: "/calendar"
+        description: "AGM and EOGM events in a date window"
+        example: "  psx-pp-cli calendar list --from 2026-08-01 --to 2026-09-30 --json"
+        happy_args: "--from=2026-08-01;--to=2026-09-30"
+        body:
+          - name: from
+            type: string
+            required: true
+            description: "Window start date, YYYY-MM-DD"
+          - name: to
+            type: string
+            required: true
+            description: "Window end date, YYYY-MM-DD"
+        request_content_type: application/x-www-form-urlencoded
+        response:
+          type: array
+          item: CalendarEvent
+        response_path: data
+
+types:
+  Symbol:
+    fields:
+      - name: symbol
+        type: string
+      - name: name
+        type: string
+      - name: sectorName
+        type: string
+      - name: isETF
+        type: bool
+      - name: isDebt
+        type: bool
+  SectorVolume:
+    fields:
+      - name: name
+        type: string
+      - name: code
+        type: string
+      - name: volume
+        type: int
+  CalendarEvent:
+    fields:
+      - name: id
+        type: int
+      - name: symbol
+        type: string
+      - name: name
+        type: string
+      - name: type
+        type: string
+      - name: date
+        type: string
+      - name: time
+        type: string
+      - name: city
+        type: string
+      - name: period_end
+        type: string

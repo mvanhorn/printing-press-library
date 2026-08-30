@@ -1,0 +1,187 @@
+{
+  "api_name": "wanderlog",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "wanderlog-mcp",
+      "url": "https://github.com/shaikhspeare/wanderlog-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 48,
+      "last_updated": "",
+      "command_count": 19,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Wanderlog-to-KML",
+      "url": "https://github.com/danilden1/Wanderlog-to-KML",
+      "language": "Python",
+      "install_method": "",
+      "stars": 10,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "wanderlog_importer",
+      "url": "https://github.com/devsuhh/wanderlog_importer",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 4,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "No official Wanderlog OpenAPI spec was found; the CLI is generated from replayable web API, HTML, and community-source evidence.",
+    "plan clone/fill apply mode requires WANDERLOG_COOKIE and should only be live-tested against an approved disposable target trip.",
+    "Broad standalone ShareDB trip editing and local sync-backed consensus workflows are intentionally out of scope for this focused clone/fill print."
+  ],
+  "patterns": [
+    "browser-sniffed-web-api",
+    "cookie-backed-plan-clone",
+    "sharedb-json0-fill",
+    "local-itinerary-analysis"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-21T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Shared plan clone/fill",
+      "command": "plan clone",
+      "description": "Create a new Wanderlog trip from a shared or public source plan, then fill it with the source plan template.",
+      "rationale": "Requires combining the public tripPlan read endpoint, cookie-backed trip creation, and ShareDB JSON0 fill operations.",
+      "example": "wanderlog-pp-cli plan clone --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --dry-run --agent",
+      "why_it_matters": "Use this when the user wants to turn an existing shared Wanderlog plan into their own new editable trip.",
+      "group": "Plan cloning and fill"
+    },
+    {
+      "name": "Existing trip fill from template",
+      "command": "plan fill",
+      "description": "Fill an existing Wanderlog trip from a shared or public source plan with dry-run and force safeguards.",
+      "rationale": "Requires reading both source and target plans and applying sanitized ShareDB section/block operations to the target.",
+      "example": "wanderlog-pp-cli plan fill --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --target-key exampletarget --dry-run --agent",
+      "why_it_matters": "Use this when the user already created a target trip and wants to populate it from a shared template.",
+      "group": "Plan cloning and fill"
+    },
+    {
+      "name": "Clone preview and copyability report",
+      "command": "plan preview",
+      "description": "Inspect a shared plan and report dates, sections, blocks, resources, and clone warnings before any write.",
+      "rationale": "Requires normalizing the shared URL/key and extracting source tripPlan/resource structure into a mutation-safe report.",
+      "example": "wanderlog-pp-cli plan preview --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent",
+      "why_it_matters": "Use this before clone/fill to confirm what will be copied and whether credentials are needed.",
+      "group": "Plan cloning and fill"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Shared plan clone/fill",
+      "command": "plan clone",
+      "description": "Create a new Wanderlog trip from a shared or public source plan, then fill it with the source plan template.",
+      "rationale": "Requires combining the public tripPlan read endpoint, cookie-backed trip creation, and ShareDB JSON0 fill operations.",
+      "example": "wanderlog-pp-cli plan clone --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --dry-run --agent",
+      "why_it_matters": "Use this when the user wants to turn an existing shared Wanderlog plan into their own new editable trip.",
+      "group": "Plan cloning and fill"
+    },
+    {
+      "name": "Existing trip fill from template",
+      "command": "plan fill",
+      "description": "Fill an existing Wanderlog trip from a shared or public source plan with dry-run and force safeguards.",
+      "rationale": "Requires reading both source and target plans and applying sanitized ShareDB section/block operations to the target.",
+      "example": "wanderlog-pp-cli plan fill --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --target-key exampletarget --dry-run --agent",
+      "why_it_matters": "Use this when the user already created a target trip and wants to populate it from a shared template.",
+      "group": "Plan cloning and fill"
+    },
+    {
+      "name": "Clone preview and copyability report",
+      "command": "plan preview",
+      "description": "Inspect a shared plan and report dates, sections, blocks, resources, and clone warnings before any write.",
+      "rationale": "Requires normalizing the shared URL/key and extracting source tripPlan/resource structure into a mutation-safe report.",
+      "example": "wanderlog-pp-cli plan preview --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent",
+      "why_it_matters": "Use this before clone/fill to confirm what will be copied and whether credentials are needed.",
+      "group": "Plan cloning and fill"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "WANDERLOG_COOKIE"
+  },
+  "narrative": {
+    "display_name": "Wanderlog",
+    "headline": "Clone shared Wanderlog plans into editable trips, then mine guides and places for agent-ready planning.",
+    "value_prop": "Use anonymous Wanderlog endpoints to read shared/public plans, guides, geos, places, and category lists. With WANDERLOG_COOKIE, plan clone/fill creates or updates a private trip using ShareDB-backed writes; dry-run and preview modes make the copy plan inspectable before mutation.",
+    "auth_narrative": "Public guide, geo, place, category, shared-plan preview, and shared itinerary reads work without credentials. Creating or filling a target trip requires WANDERLOG_COOKIE, including the current connect.sid cookie value in Cookie-header format. ShareDB apply mode is gated behind --apply and should be dogfooded only against an approved disposable target trip.",
+    "quickstart": [
+      {
+        "command": "wanderlog-pp-cli doctor --dry-run",
+        "comment": "Verify the generated CLI and config path before making live requests."
+      },
+      {
+        "command": "wanderlog-pp-cli plan preview --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent",
+        "comment": "Inspect the source plan shape before copying anything."
+      },
+      {
+        "command": "wanderlog-pp-cli plan clone --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --dry-run --agent",
+        "comment": "Preview the new-trip clone operation without writing to Wanderlog."
+      },
+      {
+        "command": "wanderlog-pp-cli geos autocomplete Paris --agent --select id,name,fullName,slug",
+        "comment": "Resolve a destination geo id for guide and place workflows."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "plan clone or plan fill refuses to apply.",
+        "fix": "Run the same command with --dry-run first, then set WANDERLOG_COOKIE and pass --apply only for an approved target trip."
+      },
+      {
+        "symptom": "Personal trip commands return an auth or HTML login response.",
+        "fix": "Refresh WANDERLOG_COOKIE with a current connect.sid cookie from a logged-in Wanderlog browser session."
+      },
+      {
+        "symptom": "A public guide or plan key returns incompatibleItineraryConversion.",
+        "fix": "Pass --client-schema-version 2; the public tripPlan endpoint requires the current client schema."
+      }
+    ],
+    "when_to_use": "Use this CLI when the task is about cloning a shared Wanderlog plan into a new editable trip, filling an existing trip from a public template, previewing shared-plan contents, exporting itineraries, or mining guides and places for agent-ready travel planning context.",
+    "anti_triggers": [
+      "Do not use this CLI to book hotels, flights, restaurants, or paid travel services.",
+      "Do not run plan clone/fill apply mode against a real trip unless the user explicitly approves that target.",
+      "Do not use this CLI as a general Google Maps scraper."
+    ],
+    "recipes": [
+      {
+        "title": "Preview a shared Morocco plan",
+        "command": "wanderlog-pp-cli plan preview --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent",
+        "explanation": "Check dates, sections, blocks, and copy warnings without credentials."
+      },
+      {
+        "title": "Dry-run a new-trip clone",
+        "command": "wanderlog-pp-cli plan clone --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --dry-run --agent",
+        "explanation": "Show the new trip that would be created and filled before writing to Wanderlog."
+      },
+      {
+        "title": "Dry-run filling an existing trip",
+        "command": "wanderlog-pp-cli plan fill --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --target-key exampletarget --dry-run --agent",
+        "explanation": "Compare source and target copy actions before applying to an existing trip."
+      },
+      {
+        "title": "Extract a public guide for agent planning",
+        "command": "wanderlog-pp-cli guides get naertjcoixqrgrfc --client-schema-version 2 --agent --select tripPlan.title,tripPlan.itinerary.sections,resources.placeMetadata",
+        "explanation": "Pull only the guide/plan structure and place metadata an agent needs."
+      }
+    ],
+    "trigger_phrases": [
+      "clone this Wanderlog plan",
+      "fill a new Wanderlog trip",
+      "copy a shared Wanderlog itinerary",
+      "preview a Wanderlog shared plan",
+      "use Wanderlog",
+      "run Wanderlog"
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/webflow-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260728-073020-15799c7c",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

@@ -1,0 +1,233 @@
+{
+  "api_name": "mcpmarket",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "smithery-ai/cli",
+      "url": "https://github.com/smithery-ai/cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "Authenticated org/toolkit/team management API (app.mcpmarket.com/api/v1/*) beyond GET /me is documented in name only — no endpoint shapes were captured live and are intentionally not implemented.",
+    "A skill's full SKILL.md frontmatter+body is populated by client-side JavaScript after the page loads and is not present in the server-rendered HTML this CLI fetches over plain HTTP, so it cannot be read via the CLI. `server get`/browse commands still return the entity's description, feature list, and author from JSON-LD."
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-27T15:45:00Z",
+  "novel_features": [
+    {
+      "name": "Trending Delta",
+      "command": "trending",
+      "description": "See which MCP servers/skills are rising fastest vs. holding steady, computed from your own browse history.",
+      "rationale": "Requires like-count velocity computed across at least two local snapshots — the live site only shows a static daily page with no rate-of-change.",
+      "example": "mcpmarket-pp-cli trending --since 7d --json",
+      "why_it_matters": "Use this before picking a tool when momentum matters more than raw popularity.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sync Diff",
+      "command": "diff",
+      "description": "See exactly which servers, clients, or skills were added, removed, or changed between two snapshots.",
+      "rationale": "The website has no history endpoint; this requires two persisted local snapshots and a row-level diff.",
+      "example": "mcpmarket-pp-cli diff --from 2026-08-01 --to 2026-08-27 --json",
+      "why_it_matters": "Use this to audit what changed in the catalog over a release cycle.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Author Portfolio",
+      "command": "author",
+      "description": "See everything one GitHub org has published across servers, skills, and clients in one view.",
+      "rationale": "No single MCP Market endpoint unions entity types by author; this requires a local cross-table join.",
+      "example": "mcpmarket-pp-cli author mendableai --json",
+      "why_it_matters": "Use this to evaluate an author's full footprint before trusting one of their servers.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Time-Travel Leaderboard",
+      "command": "leaderboard",
+      "description": "See what the top-100 leaderboard looked like on a past date, not just right now.",
+      "rationale": "The site only ever renders the current top-100; this requires a locally archived snapshot.",
+      "example": "mcpmarket-pp-cli leaderboard --as-of 2026-08-01 --json",
+      "why_it_matters": "Use this to answer 'what was trending three weeks ago' without external archives.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stack Recommendation",
+      "command": "stack",
+      "description": "Chain the similar-tools recommendation graph multiple hops to build a ranked shortlist around a server you already use.",
+      "rationale": "Doing this live would mean dozens of sequential API calls per query; this walks and dedupes the graph locally.",
+      "example": "mcpmarket-pp-cli stack firecrawl --depth 2 --json",
+      "why_it_matters": "Use this to discover a full toolchain, not just one related item at a time.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Category Watch",
+      "command": "watch category",
+      "description": "Flag newly-appeared listings in a category since your last check.",
+      "rationale": "Requires comparing category membership across checks to detect new entrants.",
+      "example": "mcpmarket-pp-cli watch category \"developer-tools\" --json",
+      "why_it_matters": "Use this to stay current on a category you track without re-browsing it manually.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Duplicate Detector",
+      "command": "dedupe",
+      "description": "Surface near-identical listings from different authors within a category.",
+      "rationale": "Corpus-wide text-similarity scan across a category's descriptions requires the full local dataset, not a single lookup.",
+      "example": "mcpmarket-pp-cli dedupe --category api-development --json",
+      "why_it_matters": "Use this to avoid installing three servers that all do the same thing.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Trending Delta",
+      "command": "trending",
+      "description": "See which MCP servers/skills are rising fastest vs. holding steady, computed from your own browse history.",
+      "rationale": "Requires like-count velocity computed across at least two local snapshots — the live site only shows a static daily page with no rate-of-change.",
+      "example": "mcpmarket-pp-cli trending --since 7d --json",
+      "why_it_matters": "Use this before picking a tool when momentum matters more than raw popularity.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sync Diff",
+      "command": "diff",
+      "description": "See exactly which servers, clients, or skills were added, removed, or changed between two snapshots.",
+      "rationale": "The website has no history endpoint; this requires two persisted local snapshots and a row-level diff.",
+      "example": "mcpmarket-pp-cli diff --from 2026-08-01 --to 2026-08-27 --json",
+      "why_it_matters": "Use this to audit what changed in the catalog over a release cycle.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Author Portfolio",
+      "command": "author",
+      "description": "See everything one GitHub org has published across servers, skills, and clients in one view.",
+      "rationale": "No single MCP Market endpoint unions entity types by author; this requires a local cross-table join.",
+      "example": "mcpmarket-pp-cli author mendableai --json",
+      "why_it_matters": "Use this to evaluate an author's full footprint before trusting one of their servers.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Time-Travel Leaderboard",
+      "command": "leaderboard",
+      "description": "See what the top-100 leaderboard looked like on a past date, not just right now.",
+      "rationale": "The site only ever renders the current top-100; this requires a locally archived snapshot.",
+      "example": "mcpmarket-pp-cli leaderboard --as-of 2026-08-01 --json",
+      "why_it_matters": "Use this to answer 'what was trending three weeks ago' without external archives.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stack Recommendation",
+      "command": "stack",
+      "description": "Chain the similar-tools recommendation graph multiple hops to build a ranked shortlist around a server you already use.",
+      "rationale": "Doing this live would mean dozens of sequential API calls per query; this walks and dedupes the graph locally.",
+      "example": "mcpmarket-pp-cli stack firecrawl --depth 2 --json",
+      "why_it_matters": "Use this to discover a full toolchain, not just one related item at a time.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Category Watch",
+      "command": "watch category",
+      "description": "Flag newly-appeared listings in a category since your last check.",
+      "rationale": "Requires comparing category membership across checks to detect new entrants.",
+      "example": "mcpmarket-pp-cli watch category \"developer-tools\" --json",
+      "why_it_matters": "Use this to stay current on a category you track without re-browsing it manually.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Duplicate Detector",
+      "command": "dedupe",
+      "description": "Surface near-identical listings from different authors within a category.",
+      "rationale": "Corpus-wide text-similarity scan across a category's descriptions requires the full local dataset, not a single lookup.",
+      "example": "mcpmarket-pp-cli dedupe --category api-development --json",
+      "why_it_matters": "Use this to avoid installing three servers that all do the same thing.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "MCP Market",
+    "headline": "Every MCP Market search, leaderboard, and category browse — plus trending deltas, snapshot diffs, and author portfolios no other tool tracks.",
+    "value_prop": "MCP Market has no official CLI today. This one mirrors the public catalog (servers, clients, Agent Skills) locally as you browse it, and because it's stateful across runs, it can answer questions the live website simply cannot: what's trending fastest, what changed since last week, and what one author has shipped across every entity type.",
+    "quickstart": [
+      {
+        "command": "mcpmarket-pp-cli doctor --dry-run",
+        "comment": "confirm the CLI can reach mcpmarket.com before doing anything else"
+      },
+      {
+        "command": "mcpmarket-pp-cli server search \"web scraping\" --json",
+        "comment": "search the live catalog directly, no setup required"
+      },
+      {
+        "command": "mcpmarket-pp-cli server get firecrawl --json",
+        "comment": "look up full detail on one server"
+      },
+      {
+        "command": "mcpmarket-pp-cli server list --json",
+        "comment": "browse servers — each browse also mirrors results locally"
+      },
+      {
+        "command": "mcpmarket-pp-cli trending --since 7d --json",
+        "comment": "after browsing on two different days, see what's rising fastest"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "requests to mcpmarket.com return errors or empty pages",
+        "fix": "the site sits behind a Vercel bot-protection checkpoint; this CLI ships Chrome-fingerprint HTTP transport by default — no action needed, but retry if you see transient 429s"
+      },
+      {
+        "symptom": "trending/diff/author/watch commands return no data or a 'not enough history' note",
+        "fix": "these compare against a local snapshot from browsing (server list/search/category/leaderboard/daily). Browse the catalog at least twice, on different days, then retry"
+      }
+    ],
+    "when_to_use": "Use this CLI to discover, compare, and track MCP servers, MCP clients, and Agent Skills — searching the catalog, reading full detail, and answering trend/history questions the live website can't.",
+    "anti_triggers": [
+      "Do not use this CLI to connect a server to your own MCP Market organization or manage toolkits/team billing — that requires an authenticated account flow this CLI does not implement.",
+      "Do not use this CLI to actually install or run an MCP server on your machine — it surfaces install guidance from the listing, it does not execute installs.",
+      "Do not use this CLI to read a skill's full SKILL.md body — that content is only populated client-side by the website's JavaScript and is not present in the plain HTTP response this CLI fetches."
+    ],
+    "recipes": [
+      {
+        "title": "Find the best PDF tool and see what it's related to",
+        "command": "mcpmarket-pp-cli server search \"pdf\" --json --select 0.name,0.url",
+        "explanation": "narrow a broad search then feed a result's slug into stack"
+      },
+      {
+        "title": "Check who's trending in the last week",
+        "command": "mcpmarket-pp-cli trending --since 7d --json --select 0.name,0.delta",
+        "explanation": "select just the fields that matter to avoid parsing a verbose payload"
+      },
+      {
+        "title": "See a server's full detail",
+        "command": "mcpmarket-pp-cli server get firecrawl --json",
+        "explanation": "one call returns description, features, author, and related items"
+      },
+      {
+        "title": "Build a toolchain around a server you already use",
+        "command": "mcpmarket-pp-cli stack firecrawl --depth 2 --json",
+        "explanation": "walks the similar-tools graph two hops out"
+      },
+      {
+        "title": "Audit an author's full footprint",
+        "command": "mcpmarket-pp-cli author mendableai --json",
+        "explanation": "see every server, client, and skill one GitHub org has published (from what's been browsed locally)"
+      }
+    ],
+    "trigger_phrases": [
+      "find an MCP server for X",
+      "search mcp market",
+      "what's trending on mcp market",
+      "browse mcp market categories",
+      "use mcpmarket",
+      "run mcpmarket"
+    ]
+  }
+}

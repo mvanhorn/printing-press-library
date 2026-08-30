@@ -1,0 +1,15 @@
+{
+  "reachability": {"mode": "standard_http", "evidence": "all product endpoints 200 anonymously over plain HTTPS"},
+  "auth": {"required": false, "observed_auth": []},
+  "endpoint_clusters": [
+    {"path": "/api/inventory/{vin}", "method": "GET", "status": 200, "observed_auth": [], "response_format": "json"},
+    {"path": "/api/inventory/{vin}/report", "method": "GET", "status": 200, "observed_auth": [], "response_format": "json"},
+    {"path": "/api/advisor/conversations", "method": "GET", "status": 200, "observed_auth": [], "response_format": "json"}
+  ],
+  "html_surfaces": [
+    {"path": "/inventory", "extract": "jsonld:ItemList", "paginated": "?page=N"},
+    {"path": "/tesla-model-3", "extract": "jsonld:ItemList"},
+    {"path": "/tesla-model-y", "extract": "jsonld:ItemList"},
+    {"path": "/used-tesla", "extract": "jsonld:ItemList"}
+  ]
+}

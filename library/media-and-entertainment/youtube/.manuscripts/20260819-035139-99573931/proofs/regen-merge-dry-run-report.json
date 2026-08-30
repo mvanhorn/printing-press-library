@@ -1,0 +1,1902 @@
+{
+  "cli_dir": "<home>/Coding/printing-press/library/youtube",
+  "fresh_dir": "<home>/Coding/printing-press/.runstate/printing-press-78a1e835/runs/20260819-035139-99573931/working/youtube-pp-cli",
+  "applied": false,
+  "files": [
+    {
+      "path": "cmd/youtube-pp-cli/main.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "cmd/youtube-pp-mcp/main.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "const:defaultHTTPAddr": {
+            "published": "const (\n\tdefaultHTTPAddr = \":7777\"\n)",
+            "fresh": "const (\n\tdefaultHTTPAddr = \"127.0.0.1:7777\"\n)"
+          },
+          "main": {
+            "published": "func main() {\n\t_ = os.Setenv(\"YOUTUBE_LEARN_SURFACE\", \"mcp\")\n\ts := server.NewMCPServer(\n\t\t\"Youtube Data\",\n\t\t\"2026.7.1\",\n...",
+            "fresh": "func main() {\n\t_ = os.Setenv(\"YOUTUBE_LEARN_SURFACE\", \"mcp\")\n\tif err := cli.BindMCPServerProfile(); err != nil {\n\t\tfmt.F..."
+          }
+        }
+      }
+    },
+    {
+      "path": "go.mod",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "go.sum",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cache/cache.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/agent_context.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "buildAgentContext": {
+            "published": "func buildAgentContext(rootCmd *cobra.Command) agentContext {\n\tenvVars := []agentContextAuthEnvVar{\n\t\t{\n\t\t\tName:        ...",
+            "fresh": "func buildAgentContext(rootCmd *cobra.Command) agentContext {\n\tenvVars := []agentContextAuthEnvVar{\n\t\t{\n\t\t\tName:        ..."
+          },
+          "collectAgentCommands": {
+            "published": "func collectAgentCommands(c *cobra.Command) []agentContextCommand {\n\tchildren := c.Commands()\n\tsort.Slice(children, func...",
+            "fresh": "func collectAgentCommands(c *cobra.Command) []agentContextCommand {\n\tchildren := c.Commands()\n\tsort.Slice(children, func..."
+          },
+          "type:agentContextCommand": {
+            "published": "type agentContextCommand struct {\n\tName        string                `json:\"name\"`\n\tUse         string                `j...",
+            "fresh": "type agentContextCommand struct {\n\tName        string                `json:\"name\"`\n\tUse         string                `j..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/analytics.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/auth.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAuthCmd": {
+            "published": "func newAuthCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"auth\",\n\t\tShort: \"Manage authenticat...",
+            "fresh": "func newAuthCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"auth\",\n\t\tShort:       \"Manage..."
+          },
+          "newAuthStatusCmd": {
+            "published": "func newAuthStatusCmd(flags *rootFlags) *cobra.Command {\n\treturn \u0026cobra.Command{\n\t\tUse:     \"status\",\n\t\tShort:   \"Show a...",
+            "fresh": "func newAuthStatusCmd(flags *rootFlags) *cobra.Command {\n\treturn \u0026cobra.Command{\n\t\tUse:     \"status\",\n\t\tShort:   \"Show a..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/auth_keys.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/auth_keys_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/backfill.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/backfill_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/breakouts.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/breakouts_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/channel_uploads.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newYoutubeChannelUploadsCmd": {
+            "published": "func newYoutubeChannelUploadsCmd(flags *rootFlags) *cobra.Command {\n\tvar top int\n\tcmd := \u0026cobra.Command{\n\t\tUse:         ...",
+            "fresh": "func newYoutubeChannelUploadsCmd(flags *rootFlags) *cobra.Command {\n\tvar top int\n\tcmd := \u0026cobra.Command{\n\t\tUse:         ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/channel_workflow.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newWorkflowStatusCmd": [
+            "OpenWithContext"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/comments_mine.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/comments_mine_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/data_source.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "resolvePaginatedReadWithStrategy": [
+            "Errorf",
+            "assertLiveJSONBody",
+            "attachFreshness",
+            "isNetworkError",
+            "paginatedGet",
+            "resolveLocal",
+            "validateDataSourceStrategy",
+            "writeThroughCache"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/deliver.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "deliverWebhook": {
+            "published": "func deliverWebhook(url string, body []byte, compact bool) error {\n\tcontentType := \"application/json\"\n\tif compact {\n\t\tco...",
+            "fresh": "func deliverWebhook(url string, body []byte, compact bool) error {\n\tcontentType := \"application/json\"\n\tif compact {\n\t\tco..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/doctor.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "collectCacheReport": {
+            "published": "func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]any {\n\treport := map[string]any{}\n\tdbPath...",
+            "fresh": "func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]any {\n\treport := map[string]any{}\n\tdbPath..."
+          },
+          "collectCredentialsLocationReport": {
+            "published": "func collectCredentialsLocationReport(report map[string]any, cfg *config.Config) {\n\tif cfg == nil {\n\t\treturn\n\t}\n\tif cfg....",
+            "fresh": "func collectCredentialsLocationReport(report map[string]any, cfg *config.Config) {\n\tif cfg == nil {\n\t\treturn\n\t}\n\tcredent..."
+          },
+          "doctorExitForFailOn": {
+            "published": "func doctorExitForFailOn(failOn string, report map[string]any) error {\n\tif failOn == \"\" {\n\t\treturn nil\n\t}\n\tworstError :=...",
+            "fresh": "func doctorExitForFailOn(failOn string, report map[string]any) error {\n\tif failOn == \"\" {\n\t\treturn nil\n\t}\n\tworstError :=..."
+          },
+          "newDoctorCmd": {
+            "published": "func newDoctorCmd(flags *rootFlags) *cobra.Command {\n\tvar failOn string\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"doctor\",\n\t\tSho...",
+            "fresh": "func newDoctorCmd(flags *rootFlags) *cobra.Command {\n\tvar failOn string\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"doctor\",\n\t\tSho..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/export.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/feedback.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newFeedbackCmd": {
+            "published": "func newFeedbackCmd(flags *rootFlags) *cobra.Command {\n\tvar useStdin bool\n\tvar send bool\n\tcmd := \u0026cobra.Command{\n\t\tUse: ...",
+            "fresh": "func newFeedbackCmd(flags *rootFlags) *cobra.Command {\n\tvar useStdin bool\n\tvar send bool\n\tcmd := \u0026cobra.Command{\n\t\tUse: ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/growth.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/growth_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/helpers.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "compactListEnvelopeObject"
+        ],
+        "in_fresh_not_published": [
+          "(*noopWriteError).Error",
+          "(*noopWriteError).Unwrap",
+          "(*selectMatchState).merge",
+          "(responsePathPaginatedClient).GetWithHeaders",
+          "(responsePathPaginatedClient).IsDryRun",
+          "appendArrayQueryParam",
+          "canonicalPaginationCollectionKeys",
+          "classifyAPIErrorOnly",
+          "cloneRawObject",
+          "collectionItemsForOutput",
+          "compactListEnvelopeObjectAtDepth",
+          "configureDefaultDBScope",
+          "currentDefaultDBScopeHash",
+          "declarePlatformAnalytics",
+          "defaultDBPathInDir",
+          "defaultDBScopeHashLen",
+          "defaultDBScopeState",
+          "deleteRawPath",
+          "dryRunResult",
+          "emitPaginatedGetRepeatedPageWarning",
+          "emitPlatformOutputMetadata",
+          "envelopeMetadataKeys",
+          "extractPaginatedItemsFromObject",
+          "extractPaginatedItemsMatchingPath",
+          "filterFieldsRecAtDepth",
+          "harnessRefusalResult",
+          "hasChangedLocalFlags",
+          "isDryRunResponse",
+          "isDryRunResponseForClient",
+          "isJSONArray",
+          "maxListEnvelopeDepth",
+          "noopWriteError",
+          "paginatedCollectionEnvelopeField",
+          "paginatedGetWithResponsePath",
+          "paginatedItemsEqual",
+          "platformStructuredOutputSelected",
+          "resolvePlatformWindow",
+          "responsePathItemsKey",
+          "responsePathPaginatedClient",
+          "selectFieldKeys",
+          "selectMatchState",
+          "setDefaultDBScopeCredential",
+          "validatePlatformAnalytics",
+          "wrapPlatformStructuredOutput",
+          "writeDryRun",
+          "writeHarnessRefusal"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/learn_init.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newLearnConfig": {
+            "published": "func newLearnConfig() *entities.Config {\n\tcfg := entities.NewConfig()\n\tif re, err := regexp.Compile(`^[A-Za-z0-9_-]{11}$...",
+            "fresh": "func newLearnConfig() *entities.Config {\n\tcfg := entities.NewConfig()\n\tif re, err := regexp.Compile(`^[A-Za-z0-9_-]{11}$..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/learn_init_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/learnings_candidates.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newLearningsCandidatesCmd": {
+            "published": "func newLearningsCandidatesCmd(flags *rootFlags) *cobra.Command {\n\tvar classFilter string\n\tvar statusFilter string\n\tvar ...",
+            "fresh": "func newLearningsCandidatesCmd(flags *rootFlags) *cobra.Command {\n\tvar classFilter string\n\tvar statusFilter string\n\tvar ..."
+          },
+          "newLearningsConfirmCmd": {
+            "published": "func newLearningsConfirmCmd(flags *rootFlags) *cobra.Command {\n\tvar dbPath string\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"co...",
+            "fresh": "func newLearningsConfirmCmd(flags *rootFlags) *cobra.Command {\n\tvar dbPath string\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"co..."
+          },
+          "newLearningsPurgeCmd": {
+            "published": "func newLearningsPurgeCmd(flags *rootFlags) *cobra.Command {\n\tvar includeTombstones bool\n\tvar dbPath string\n\tcmd := \u0026cob...",
+            "fresh": "func newLearningsPurgeCmd(flags *rootFlags) *cobra.Command {\n\tvar includeTombstones bool\n\tvar dbPath string\n\tcmd := \u0026cob..."
+          },
+          "newLearningsRejectCmd": {
+            "published": "func newLearningsRejectCmd(flags *rootFlags) *cobra.Command {\n\tvar dbPath string\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"rej...",
+            "fresh": "func newLearningsRejectCmd(flags *rootFlags) *cobra.Command {\n\tvar dbPath string\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"rejec..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/learnings_candidates_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/learnings_stats.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newLearningsStatsCmd": {
+            "published": "func newLearningsStatsCmd(flags *rootFlags) *cobra.Command {\n\tvar dbPath string\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"stats\"...",
+            "fresh": "func newLearningsStatsCmd(flags *rootFlags) *cobra.Command {\n\tvar dbPath string\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"stats\"..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/learnings_stats_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/monitor.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/monitor_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/packaging.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/packaging_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/platform_cli_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/platform_client.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/platform_window.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/platform_window_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/playbook_init.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/playbook_init_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/playbooks/embed.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/playlist_enrich.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "walkPlaylistItems": {
+            "published": "func walkPlaylistItems(c apiGetter, playlistID string, needed int, flags *rootFlags) ([]playlistEntry, int, []string, er...",
+            "fresh": "func walkPlaylistItems(c apiGetter, playlistID string, needed int, flags *rootFlags) ([]playlistEntry, int, []string, er..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/playlist_enrich_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/profile.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "ApplyProfileToFlags": {
+            "published": "func ApplyProfileToFlags(cmd *cobra.Command, profile *Profile) error {\n\tif profile == nil || len(profile.Values) == 0 {\n...",
+            "fresh": "func ApplyProfileToFlags(cmd *cobra.Command, profile *Profile) error {\n\tif profile == nil || len(profile.Values) == 0 {\n..."
+          },
+          "newProfileCmd": {
+            "published": "func newProfileCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"profile\",\n\t\tShort: \"Named sets o...",
+            "fresh": "func newProfileCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"profile\",\n\t\tShort: \"Named sets o..."
+          },
+          "newProfileSaveCmd": {
+            "published": "func newProfileSaveCmd(flags *rootFlags) *cobra.Command {\n\tvar description string\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"save...",
+            "fresh": "func newProfileSaveCmd(flags *rootFlags) *cobra.Command {\n\tvar description string\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"save..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/resource_paths.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/root.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "(*rootFlags).newClient": {
+            "published": "func (f *rootFlags) newClient() (*client.Client, error) {\n\tcfg, err := config.Load(f.configPath)\n\tif err != nil {\n\t\tretu...",
+            "fresh": "func (f *rootFlags) newClient() (*client.Client, error) {\n\tcfg, err := config.Load(f.configPath)\n\tif err != nil {\n\t\tretu..."
+          },
+          "Execute": {
+            "published": "func Execute() (retErr error) {\n\tvar flags rootFlags\n\trootCmd := newRootCmd(\u0026flags)\n\texecutedCmd, err := rootCmd.Execute...",
+            "fresh": "func Execute() (retErr error) {\n\tvar flags rootFlags\n\trootCmd := newRootCmd(\u0026flags)\n\tdefer finalizePlatformInvocation(\u0026f..."
+          },
+          "newRootCmd": {
+            "published": "func newRootCmd(flags *rootFlags) *cobra.Command {\n\trootCmd := \u0026cobra.Command{\n\t\tUse:   \"youtube-pp-cli\",\n\t\tShort: \"Mana...",
+            "fresh": "func newRootCmd(flags *rootFlags) *cobra.Command {\n\trootCmd := \u0026cobra.Command{\n\t\tUse:   \"youtube-pp-cli\",\n\t\tShort: `Yout..."
+          },
+          "type:rootFlags": {
+            "published": "type rootFlags struct {\n\tasJSON  bool\n\tcompact bool\n\tcsv     bool\n\tplain   bool\n\tquiet   bool\n\tdryRun  bool\n\tnoCache boo...",
+            "fresh": "type rootFlags struct {\n\tasJSON  bool\n\tcompact bool\n\tcsv     bool\n\tplain   bool\n\tquiet   bool\n\tdryRun  bool\n\tnoCache boo..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/root_test.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "TestFilterFields": {
+            "published": "func TestFilterFields(t *testing.T) {\n\tt.Parallel()\n\tcases := []struct {\n\t\tname   string\n\t\tinput  string\n\t\tfields string...",
+            "fresh": "func TestFilterFields(t *testing.T) {\n\tt.Parallel()\n\tcases := []struct {\n\t\tname   string\n\t\tinput  string\n\t\tfields string..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/search.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newSearchCmd": [
+            "SearchYouTube"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/search_bulk.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/sync.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "extractID": [
+            "LookupFieldValue",
+            "ResourceIDString",
+            "suffixIDFieldFallback"
+          ],
+          "extractJSONItemsArray": [
+            "len"
+          ],
+          "extractPageItems": [
+            "Unmarshal",
+            "extractItemsByKnownKeys",
+            "extractItemsFromEnvelope",
+            "extractJSONItemsArray",
+            "extractPaginationFromEnvelope",
+            "extractSingleObjectArraySibling",
+            "responsePayloadAtPath",
+            "responsePayloadParentAtPath"
+          ],
+          "hydratedItemPath": [
+            "PathEscape"
+          ],
+          "isEmptyPageResponse": [
+            "envelopeReportsFailure"
+          ],
+          "newSyncCmd": [
+            "GetSyncState",
+            "SaveSyncState"
+          ],
+          "syncResource": [
+            "SaveSyncState",
+            "extractPageItems",
+            "isDryRunResponse"
+          ],
+          "upsertResourceBatch": [
+            "UpsertBatch"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/sync_hint.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/sync_hint_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/sync_numeric_id_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/teach.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newLearningsCmd": {
+            "published": "func newLearningsCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"lea...",
+            "fresh": "func newLearningsCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"lea..."
+          },
+          "newLearningsForgetCmd": {
+            "published": "func newLearningsForgetCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {\n\tvar resourceArg string\n\tvar ac...",
+            "fresh": "func newLearningsForgetCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {\n\tvar resourceArg string\n\tvar ac..."
+          },
+          "newLearningsListCmd": {
+            "published": "func newLearningsListCmd(flags *rootFlags) *cobra.Command {\n\tvar queryFilter string\n\tvar sourceFilter string\n\tvar resour...",
+            "fresh": "func newLearningsListCmd(flags *rootFlags) *cobra.Command {\n\tvar queryFilter string\n\tvar sourceFilter string\n\tvar resour..."
+          },
+          "newRecallCmd": {
+            "published": "func newRecallCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {\n\tvar minConf int\n\tvar limit int\n\tvar dbP...",
+            "fresh": "func newRecallCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {\n\tvar minConf int\n\tvar limit int\n\tvar dbP..."
+          },
+          "newTeachCmd": {
+            "published": "func newTeachCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {\n\tvar query string\n\tvar resources []string...",
+            "fresh": "func newTeachCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {\n\tvar query string\n\tvar resources []string..."
+          },
+          "newTeachLookupCmd": {
+            "published": "func newTeachLookupCmd(flags *rootFlags) *cobra.Command {\n\tvar kind string\n\tvar canonical string\n\tvar value string\n\tvar ...",
+            "fresh": "func newTeachLookupCmd(flags *rootFlags) *cobra.Command {\n\tvar kind string\n\tvar canonical string\n\tvar value string\n\tvar ..."
+          },
+          "newTeachPatternCmd": {
+            "published": "func newTeachPatternCmd(flags *rootFlags) *cobra.Command {\n\tvar queryTemplate string\n\tvar resourceTemplate string\n\tvar r...",
+            "fresh": "func newTeachPatternCmd(flags *rootFlags) *cobra.Command {\n\tvar queryTemplate string\n\tvar resourceTemplate string\n\tvar r..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/teach_playbook.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newPlaybookAmendCmd": {
+            "published": "func newPlaybookAmendCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {\n\tvar query string\n\tvar addNote st...",
+            "fresh": "func newPlaybookAmendCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {\n\tvar query string\n\tvar addNote st..."
+          },
+          "newPlaybookCmd": {
+            "published": "func newPlaybookCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"play...",
+            "fresh": "func newPlaybookCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:        ..."
+          },
+          "newPlaybookListCmd": {
+            "published": "func newPlaybookListCmd(flags *rootFlags) *cobra.Command {\n\tvar dbPath string\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"li...",
+            "fresh": "func newPlaybookListCmd(flags *rootFlags) *cobra.Command {\n\tvar dbPath string\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"li..."
+          },
+          "newTeachPlaybookCmd": {
+            "published": "func newTeachPlaybookCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {\n\tvar query string\n\tvar playbookFi...",
+            "fresh": "func newTeachPlaybookCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {\n\tvar query string\n\tvar playbookFi..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/teach_playbook_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/teach_test.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "withTempLearnHome": [
+            "TempDir"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/velocity.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/velocity_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/version.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/videos_comments.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newYoutubeVideosCommentsCmd": {
+            "published": "func newYoutubeVideosCommentsCmd(flags *rootFlags) *cobra.Command {\n\tvar top int\n\tvar order string\n\tcmd := \u0026cobra.Comman...",
+            "fresh": "func newYoutubeVideosCommentsCmd(flags *rootFlags) *cobra.Command {\n\tvar top int\n\tvar order string\n\tcmd := \u0026cobra.Comman..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/videos_embed.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/videos_enrich.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/videos_enrich_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/videos_links.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newYoutubeVideosLinksCmd": {
+            "published": "func newYoutubeVideosLinksCmd(flags *rootFlags) *cobra.Command {\n\tvar resolve bool\n\tvar includeSocial bool\n\tcmd := \u0026cobr...",
+            "fresh": "func newYoutubeVideosLinksCmd(flags *rootFlags) *cobra.Command {\n\tvar resolve bool\n\tvar includeSocial bool\n\tcmd := \u0026cobr..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/videos_links_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/videos_related.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newYoutubeVideosRelatedCmd": {
+            "published": "func newYoutubeVideosRelatedCmd(flags *rootFlags) *cobra.Command {\n\tvar limit int\n\tvar sameChannelOnly bool\n\tcmd := \u0026cob...",
+            "fresh": "func newYoutubeVideosRelatedCmd(flags *rootFlags) *cobra.Command {\n\tvar limit int\n\tvar sameChannelOnly bool\n\tcmd := \u0026cob..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/videos_transcript.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newYoutubeVideosTranscriptCmd": [
+            "Encode",
+            "NewEncoder",
+            "SetIndent"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/videos_transcript_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/watch.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/watch_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/which.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "rankWhich": [
+            "Fields"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/which_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/workspace.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/workspace_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newYoutubeCmd": {
+            "published": "func newYoutubeCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"youtube\",\n\t\tShort:       \"...",
+            "fresh": "func newYoutubeCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"youtube\",\n\t\tShort:       \"..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_activities-list.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube_analyst_helpers.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube_analyst_helpers_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube_captions-list.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube_channel-sections-list.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube_channel_uploads.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube_channel_uploads_test.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube_channels-list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newYoutubeChannelsListCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_comment-threads-list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newYoutubeCommentThreadsListCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_i18n-languages-list.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube_i18n-regions-list.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube_novels.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube_playlist-items-list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newYoutubePlaylistItemsListCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_playlists-list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newYoutubePlaylistsListCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_search-list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newYoutubeSearchListCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_search_bulk.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube_search_bulk_test.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube_video-categories-list.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube_videos-list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newYoutubeVideosListCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_videos_comments.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube_videos_comments_test.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube_videos_embed.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube_videos_embed_test.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube_videos_related.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube_videos_related_test.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube_videos_transcript.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube_videos_transcript_test.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/client/client.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "(*Client).invalidateCache"
+        ],
+        "in_fresh_not_published": [
+          "(*Client).BindPlatformSession",
+          "(*Client).GetMutating",
+          "(*Client).GetMutatingWithHeaders",
+          "(*Client).IsDryRun",
+          "(*Client).PatchQueryWithParams",
+          "(*Client).PatchQueryWithParamsAndHeaders",
+          "(*Client).PutQueryWithParams",
+          "(*Client).PutQueryWithParamsAndHeaders",
+          "(*Client).SetPlatformEndpointBudget",
+          "(*Client).cacheKeyFor",
+          "(*Client).cacheResourceDir",
+          "(*Client).doMutation",
+          "(*Client).invalidateCacheAfterMutation",
+          "(*Client).invalidateCacheResource",
+          "(*Client).platformBudgetLocked",
+          "(*Client).platformCacheMetadataMatches",
+          "(*Client).platformRetryPolicy",
+          "(*Client).readCacheWithHeaders",
+          "(*Client).waitForPlatformBudget",
+          "(*Client).writeCacheWithHeaders",
+          "(*Client).writePlatformCacheMetadata",
+          "cacheResourceTag",
+          "canonicalRepresentationHeaders",
+          "canonicalStringMap",
+          "collapseHTMLErrorBody",
+          "extractHTMLTitle",
+          "findHTMLCloseTag",
+          "htmlTagEnd",
+          "htmlTagName",
+          "isHTMLSpace",
+          "isHTMLTagNameByte",
+          "isPermanentDNSError",
+          "looksLikeHTMLBody",
+          "maxErrorBodyBytes",
+          "numericVersionSegment",
+          "platformCacheMetadata",
+          "requestIdempotencyKey",
+          "safeEndpointClass",
+          "stripControlCharacters",
+          "stripHTMLTags",
+          "truncateRunes"
+        ]
+      }
+    },
+    {
+      "path": "internal/client/client_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/client/client_verify_short_circuit_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/client/platform_budget_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/client/platform_rate_limit_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/cliutil_test.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "TestParseStoredTime": {
+            "published": "func TestParseStoredTime(t *testing.T) {\n\tcases := []struct {\n\t\tname string\n\t\tin   string\n\t\twant time.Time\n\t}{\n\t\t{\n\t\t\tna...",
+            "fresh": "func TestParseStoredTime(t *testing.T) {\n\tcases := []struct {\n\t\tname         string\n\t\tin           string\n\t\twant        ..."
+          },
+          "TestRateLimitError_ErrorsAs": {
+            "published": "func TestRateLimitError_ErrorsAs(t *testing.T) {\n\tvar err error = \u0026RateLimitError{URL: \"https://x\", RetryAfter: time.Sec...",
+            "fresh": "func TestRateLimitError_ErrorsAs(t *testing.T) {\n\tcause := errors.New(\"underlying API error\")\n\tvar err error = \u0026RateLimi..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cliutil/credentials.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "LoadCredentials": [
+            "Clean",
+            "Is",
+            "ReadFile",
+            "Unmarshal",
+            "credentialsPath",
+            "warnCredentialsIssue"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cliutil/credentials_perms_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/credentials_test.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "TestCorruptCredentialsFallsBackToLegacyConfig",
+          "TestCredentialsFileWinsWhenLegacyConfigAlsoHasSecrets",
+          "legacyCredentialTOML"
+        ],
+        "in_fresh_not_published": [
+          "TestCaptureCredentialStderrDrainsConcurrently",
+          "TestConfigFileWinsWhenCredentialsFileAlsoHasSecrets",
+          "TestCorruptCredentialsDoesNotOverrideLegacyConfig",
+          "TestExplicitConfigFallsBackToGlobalCredentialsWhenSiblingEmpty",
+          "TestExplicitConfigFallsBackToGlobalCredentialsWhenSiblingEmptyAndLoose",
+          "TestExplicitConfigFallsBackToGlobalCredentialsWhenSiblingMissing",
+          "TestExplicitConfigFileCredentialsWinOverSiblingAndGlobal",
+          "TestExplicitConfigRefusesLooseMalformedSiblingInsteadOfUsingGlobal",
+          "TestExplicitConfigRejectsMalformedSiblingInsteadOfUsingGlobal",
+          "TestExplicitConfigUsesSiblingCredentialsBeforeGlobal",
+          "TestPartialConfigCredentialsMergeMissingFields",
+          "TestSymlinkedExplicitConfigUsesResolvedSiblingCredentials",
+          "legacyConfigData",
+          "partialConfigData",
+          "writeCredentialsFile"
+        ]
+      }
+    },
+    {
+      "path": "internal/cliutil/creds_perms_eval.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/creds_perms_eval_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/creds_perms_unix.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/creds_perms_windows.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/duration.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/duration_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/extractnumber.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/extractnumber_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/fanout.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/jwtshape.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/jwtshape_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/odata_date.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/odata_date_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/paths.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "AtomicWritePrivateFile": [
+            "Rename"
+          ],
+          "defaultBase": [
+            "UserHomeDir"
+          ],
+          "expandTilde": [
+            "UserHomeDir"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cliutil/paths_test.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "resetPathEnv": [
+            "Setenv",
+            "TempDir"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cliutil/probe.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/ratelimit.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "type:RateLimitError": {
+            "published": "type RateLimitError struct {\n\tURL        string\n\tRetryAfter time.Duration\n\tBody       string\n}",
+            "fresh": "type RateLimitError struct {\n\tURL        string\n\tRetryAfter time.Duration\n\tBody       string\n\tCause      error\n}"
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cliutil/testenv/sandbox_unix.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/testenv/sandbox_windows.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/testenv/testenv.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/text.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "ParseStoredTime": {
+            "published": "func ParseStoredTime(s string) time.Time {\n\ts = strings.TrimSpace(s)\n\tif s == \"\" {\n\t\treturn time.Time{}\n\t}\n\tfor _, layou...",
+            "fresh": "func ParseStoredTime(s string) time.Time {\n\ts = strings.TrimSpace(s)\n\tif s == \"\" {\n\t\treturn time.Time{}\n\t}\n\tfor _, layou..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cliutil/verifyenv.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/config/config.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "Load": [
+            "LoadCredentials"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/config/config_perms_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/derive.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/derive_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/doc.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/entities/config.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/entities/config_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/entities/extract.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/entities/extract_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/journal.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/journal_test.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "withJournalHome": [
+            "TempDir"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/learn/lookups/seeds.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/lookups/seeds_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/lookups/store.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/lookups/store_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/match.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/match_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/normalize.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/normalize_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/apply.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/apply_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/doc.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/extract.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/extract_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/store.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/store_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/playbooks.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/playbooks_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/preseed.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/preseed_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/promote.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/promote_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/protocol.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/recall.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/recall_canonical_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/recall_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/synthesize.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/synthesize_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/teach.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/teach_log.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/teach_log_test.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "withTempHomeForLog": [
+            "Setenv",
+            "TempDir"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/learn/teach_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/bound/bound.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "boundedListEnvelope": {
+            "published": "func boundedListEnvelope(field string, items []json.RawMessage, originalBytes int, note string) []byte {\n\tbuild := func(...",
+            "fresh": "func boundedListEnvelope(field string, items []json.RawMessage, originalBytes int, note string) []byte {\n\tbuild := func(..."
+          },
+          "boundedPageListEnvelope": {
+            "published": "func boundedPageListEnvelope(field string, items []json.RawMessage, original json.RawMessage, note string, opts PageOpti...",
+            "fresh": "func boundedPageListEnvelope(field string, items []json.RawMessage, original json.RawMessage, note string, opts PageOpti..."
+          },
+          "boundedSingleArrayPageObject": {
+            "published": "func boundedSingleArrayPageObject(data json.RawMessage, opts PageOptions) ([]byte, bool) {\n\tvar obj map[string]json.RawM...",
+            "fresh": "func boundedSingleArrayPageObject(data json.RawMessage, opts PageOptions) ([]byte, bool) {\n\tvar obj map[string]json.RawM..."
+          },
+          "previewEnvelope": {
+            "published": "func previewEnvelope(data []byte, note string) string {\n\tlimit := len(data)\n\tif limit \u003e maxPreviewBytes {\n\t\tlimit = maxP...",
+            "fresh": "func previewEnvelope(data []byte, note string) string {\n\tlimit := len(data)\n\tif limit \u003e maxPreviewBytes {\n\t\tlimit = maxP..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/bound/bound_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/cobratree/classify.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "classify": {
+            "published": "func classify(cmd *cobra.Command) commandKind {\n\tif cmd == nil || cmd.Hidden || isMCPHidden(cmd) {\n\t\treturn commandHidde...",
+            "fresh": "func classify(cmd *cobra.Command) commandKind {\n\tif cmd == nil || cmd.Hidden || isMCPHidden(cmd) {\n\t\treturn commandHidde..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/cobratree/cli_path.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/cobratree/names.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/cobratree/shellout.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "shellOutToCLI": [
+            "NewToolResultError",
+            "NewToolResultText",
+            "Text"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/cobratree/shellout_test.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "TestPositionalAlternativeLabelsProduceAnthropicSafeKeys"
+        ],
+        "in_fresh_not_published": [
+          "TestCappedCaptureDrainsWithoutRetainingFullInput",
+          "TestRegisterAllDescendsThroughCobraHiddenButPrunesMCPHidden",
+          "TestRunCLICommandBoundsFailureOutput",
+          "TestRunCLICommandFiltersSuccessStderrHints",
+          "TestShellOutBoundsFinalError",
+          "TestShellOutSurfacesSuccessStderrHintsSeparateFromJSON",
+          "toolResultContentText"
+        ]
+      }
+    },
+    {
+      "path": "internal/mcp/cobratree/typemap.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "invalidSchemaPropertyChars",
+          "schemaPropertyName"
+        ]
+      }
+    },
+    {
+      "path": "internal/mcp/cobratree/walker.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "walk": [
+            "classify"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/handlers.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/intents.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/platform_gate.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/platform_gate_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/tools.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "RegisterTools": {
+            "published": "func RegisterTools(s *server.MCPServer) {\n\ts.AddTool(\n\t\tmcplib.NewTool(\"youtube_channels-list\",\n\t\t\tmcplib.WithDescriptio...",
+            "fresh": "func RegisterTools(s *server.MCPServer) {\n\tinstallFreshTenantGate(s)\n\ts.AddTool(\n\t\tmcplib.NewTool(\"youtube_activities-li..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/tools_test.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "resetMCPPathEnv": [
+            "Setenv",
+            "TempDir"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/platform/conformance_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/doctor.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/gate.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/metadata.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/migration.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/perms_unix.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/perms_windows.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/profile.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/ratelimit.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/receipt.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/candidates.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "(*Store).ConfirmCandidate": [
+            "Lock",
+            "Unlock"
+          ],
+          "(*Store).ConfirmCandidateWithPlaybook": [
+            "Lock",
+            "Unlock"
+          ],
+          "(*Store).ConfirmCandidateWithPlaybookNote": [
+            "Lock",
+            "Unlock"
+          ],
+          "(*Store).DeriveCandidate": [
+            "Lock",
+            "Unlock"
+          ],
+          "(*Store).ExpireCandidates": [
+            "Lock",
+            "Unlock"
+          ],
+          "(*Store).PurgeCandidates": [
+            "Lock",
+            "Unlock"
+          ],
+          "(*Store).RejectCandidate": [
+            "Lock",
+            "Unlock"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/store/candidates_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/store/events.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "(*Store).DeleteLearnEventsByFamilyHash": [
+            "Lock",
+            "Unlock"
+          ],
+          "(*Store).InsertLearnEvent": [
+            "Lock",
+            "Unlock"
+          ],
+          "(*Store).PruneLearnEvents": [
+            "Lock",
+            "Unlock"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/store/events_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/store/extras.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/store/learnings.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "(*Store).ForgetLearnings": [
+            "Lock",
+            "Unlock"
+          ],
+          "(*Store).UpsertLearning": [
+            "Lock",
+            "Unlock"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/store/learnings_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/store/playbooks.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "(*Store).AppendPlaybookNotes": [
+            "Lock",
+            "Unlock"
+          ],
+          "(*Store).UpsertPlaybook": [
+            "Lock",
+            "Unlock"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/store/playbooks_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/store/schema_version_test.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "TestOpenAppliesPragmas": {
+            "published": "func TestOpenAppliesPragmas(t *testing.T) {\n\tdbPath := filepath.Join(t.TempDir(), \"data.db\")\n\ts, err := Open(dbPath)\n\tif...",
+            "fresh": "func TestOpenAppliesPragmas(t *testing.T) {\n\tdbPath := filepath.Join(t.TempDir(), \"data.db\")\n\ts, err := Open(dbPath)\n\tif..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/store/store.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "(*Store).SearchYouTube",
+          "ftsMatchQuery"
+        ],
+        "in_fresh_not_published": [
+          "(*Store).ReconcileAll",
+          "(*Store).SaveSyncProgress",
+          "(*Store).SaveSyncStateAt",
+          "(*Store).UpsertBatchDetailed",
+          "(*Store).lockForWrite",
+          "(*Store).reconcileUnseen",
+          "(*Store).unlockAfterWrite",
+          "FTSMatchQuery",
+          "ensureSQLiteJournalPrivate",
+          "extendedJSONIDMapString",
+          "extendedJSONIDString",
+          "genericDescriptiveIDFieldFallbacks",
+          "hardenSQLiteFiles",
+          "rejectNewerSchemaBeforeJournalMode",
+          "resourceIDBaseOverrides"
+        ]
+      }
+    },
+    {
+      "path": "internal/store/upsert_batch_test.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "TestUpsertBatch_GenericFallbackList": {
+            "published": "func TestUpsertBatch_GenericFallbackList(t *testing.T) {\n\tdbPath := filepath.Join(t.TempDir(), \"data.db\")\n\ts, err := Ope...",
+            "fresh": "func TestUpsertBatch_GenericFallbackList(t *testing.T) {\n\tdbPath := filepath.Join(t.TempDir(), \"data.db\")\n\ts, err := Ope..."
+          },
+          "TestUpsertBatch_UnwrapsIDBearingEnvelopeItems": {
+            "published": "func TestUpsertBatch_UnwrapsIDBearingEnvelopeItems(t *testing.T) {\n\tdbPath := filepath.Join(t.TempDir(), \"data.db\")\n\ts, ...",
+            "fresh": "func TestUpsertBatch_UnwrapsIDBearingEnvelopeItems(t *testing.T) {\n\tdbPath := filepath.Join(t.TempDir(), \"data.db\")\n\ts, ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/store/youtube_migrations.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/youtube_search.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/types/types.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "spec.yaml",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    }
+  ],
+  "go_mod": {
+    "merged": false,
+    "preserved_module_path": "github.com/mvanhorn/printing-press-library/library/media-and-entertainment/youtube",
+    "added_requires": [
+      "golang.org/x/text v0.14.0",
+      "github.com/santhosh-tekuri/jsonschema/v6 v6.0.2"
+    ]
+  }
+}

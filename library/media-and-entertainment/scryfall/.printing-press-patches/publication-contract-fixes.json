@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-08-22",
+  "base_run_id": "20260821-194838",
+  "base_printing_press_version": "4.29.0",
+  "id": "publication-contract-fixes",
+  "summary": "Publication-contract fixes before first public PR: canonical go.mod module path and go 1.26.6 floor, x/text v0.41.0 vuln bump, novel_features description keys, MCP manifest.json, veltri-23 attribution.",
+  "description": "Canonical module path per Scan policy, go directive at repo-wide floor, govulncheck-clean x/text, publish-package schema conformance (novel_features description/rationale), MCP descriptor for the advertised full MCP surface, creator attribution to the PR author's account.",
+  "reason": "Generated tree shipped a bare module name, sub-floor go directive, vulnerable x/text, non-conforming novel_features keys, missing manifest.json, and wrong creator handle; all block upstream CI gates.",
+  "files": [
+    "go.mod",
+    "go.sum",
+    "internal/**/*.go",
+    ".printing-press.json",
+    "manifest.json",
+    "README.md",
+    "NOTICE"
+  ],
+  "validated_outcome": "go build/vet clean; govulncheck: code affected by 0 vulnerabilities; shipcheck re-run pending push",
+  "safety": "No behavioral change: import-path rename, dependency floor bump, metadata/doc fixes only."
+}

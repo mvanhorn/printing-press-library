@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "openai-ads-pp-mcp",
+  "display_name": "OpenAI Ads",
+  "version": "2.3.0",
+  "description": "The first OpenAI Ads client that can write, and the only one that keeps local history.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/openai-ads-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/openai-ads-pp-mcp",
+      "args": [],
+      "env": {
+        "PRINTING_PRESS_CLIENT_PROFILE": "${user_config.printing_press_client_profile}"
+      }
+    }
+  },
+  "user_config": {
+    "printing_press_client_profile": {
+      "type": "string",
+      "title": "Client profile",
+      "description": "Binds the MCP server to an existing tenant-gated Printing Press client profile.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

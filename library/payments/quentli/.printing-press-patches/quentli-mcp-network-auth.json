@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "quentli-mcp-network-auth",
+  "applied_at": "2026-08-08",
+  "base_run_id": "20260805-194716-31db2fb2",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Default the MCP streamable-HTTP transport to 127.0.0.1:7777 instead of the generator's wildcard :7777, and require a bearer secret on any non-loopback bind.",
+  "reason": "The generated MCP server exposes every tool in this CLI, including mutations that create payments, issue refunds, and file SAT tax invoices, and those tools act with the operator's QUENTLI_SECRET_KEY. The streamable-HTTP transport performs no inbound authentication of its own, so the wildcard default bind published credential-backed payment tooling to any host that could reach the port, and an explicit --addr bind was equally unauthenticated. This patch makes loopback the default and, for any non-loopback bind, requires QUENTLI_MCP_AUTH_TOKEN and enforces 'Authorization: Bearer' with a constant-time compare; without the secret the server refuses to start rather than serving unauthenticated. Kept deliberately identical to the respondio patch of the same shape (PR #1663) so the two CLIs do not drift. The generator emits the wildcard default and no auth boundary for every CLI, so the durable fix belongs in the Printing Press template; this patch hardens the shipped binary in the meantime.",
+  "files": ["cmd/quentli-pp-mcp/main.go"]
+}

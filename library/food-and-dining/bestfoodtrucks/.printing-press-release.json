@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "bestfoodtrucks",
+  "cli_name": "bestfoodtrucks-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-27T09:14:23Z",
+  "source_commit": "bb973defecfbf859948e6c11464101a5549c29ee",
+  "printing_press_version": "4.31.1",
+  "run_id": "20260826-125727-8281a074",
+  "changes": [
+    {
+      "title": "feat(bestfoodtrucks): add Best Food Trucks CLI",
+      "pr": 1839,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1839",
+      "commit": "bb973defecfbf859948e6c11464101a5549c29ee"
+    }
+  ]
+}

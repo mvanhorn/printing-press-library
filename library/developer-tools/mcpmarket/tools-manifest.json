@@ -1,0 +1,134 @@
+{
+  "api_name": "mcpmarket",
+  "base_url": "https://mcpmarket.com",
+  "description": "Every MCP Market search, leaderboard, and category browse — plus trending deltas, snapshot diffs, and author portfolios no other tool tracks.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "category_list",
+      "description": "List every MCP Market catalog category (e.g. Developer Tools, API Development) with its live server count and slug. Returns array.",
+      "method": "GET",
+      "path": "/categories",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "mcpclient_get",
+      "description": "Get details for one MCP client. Required: slug.",
+      "method": "GET",
+      "path": "/client/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Client slug, e.g. zed",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "server_get",
+      "description": "Get details for one MCP server. Required: slug.",
+      "method": "GET",
+      "path": "/server/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Server slug, e.g. firecrawl",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "server_similar",
+      "description": "Related/similar servers or skills. Required: slug, category, type (default: server). Returns array.",
+      "method": "GET",
+      "path": "/api/similar-tools",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "server or skill",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "skill_get",
+      "description": "Get details for one Agent Skill. Required: slug.",
+      "method": "GET",
+      "path": "/tools/skills/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Skill slug",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Trending Delta",
+      "command": "trending",
+      "description": "See which MCP servers/skills are rising fastest vs. holding steady, computed from your own browse history."
+    },
+    {
+      "name": "Sync Diff",
+      "command": "diff",
+      "description": "See exactly which servers, clients, or skills were added, removed, or changed between two snapshots."
+    },
+    {
+      "name": "Author Portfolio",
+      "command": "author",
+      "description": "See everything one GitHub org has published across servers, skills, and clients in one view."
+    },
+    {
+      "name": "Time-Travel Leaderboard",
+      "command": "leaderboard",
+      "description": "See what the top-100 leaderboard looked like on a past date, not just right now."
+    },
+    {
+      "name": "Stack Recommendation",
+      "command": "stack",
+      "description": "Chain the similar-tools recommendation graph multiple hops to build a ranked shortlist around a server you already use."
+    },
+    {
+      "name": "Category Watch",
+      "command": "watch category",
+      "description": "Flag newly-appeared listings in a category since your last check."
+    },
+    {
+      "name": "Duplicate Detector",
+      "command": "dedupe",
+      "description": "Surface near-identical listings from different authors within a category."
+    }
+  ]
+}

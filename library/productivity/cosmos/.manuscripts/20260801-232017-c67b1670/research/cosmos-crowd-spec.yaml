@@ -1,0 +1,39 @@
+name: cosmos
+description: Discovered API spec for cosmos (crowd-sniff)
+version: 0.1.0
+base_url: https://api.cosmos.so
+spec_source: community
+auth:
+    type: api_key
+    header: key
+    format: ""
+    env_vars:
+        - COSMOS_API_KEY
+    env_var_specs:
+        - name: COSMOS_API_KEY
+          kind: per_call
+          required: true
+          sensitive: true
+          inferred: true
+    in: query
+config:
+    format: toml
+    path: ~/.config/cosmos-pp-cli/config.toml
+resources:
+    _cosmos:
+        description: Operations on remote-renderer-url
+        endpoints:
+            list_remote_renderer_url:
+                method: GET
+                path: /_cosmos/remote-renderer-url
+                description: GET /_cosmos/remote-renderer-url
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+types: {}

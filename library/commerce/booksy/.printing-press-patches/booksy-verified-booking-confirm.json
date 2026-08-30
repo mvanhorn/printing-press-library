@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "booksy-verified-booking-confirm",
+  "applied_at": "2026-08-19",
+  "base_run_id": "20260818-170717-f70dff69",
+  "base_printing_press_version": "4.30.3",
+  "summary": "book --confirm sends the full captured confirm payload (ISO datetime, pre-auth/agreements, dry-run-resolved staffer) and parses appointment_uid; adds --payment-method and --note.",
+  "reason": "The generated book command reconstructed the confirm endpoint by convention. A real captured booking showed the confirm POST needs the fuller payload and, for prepayment businesses, a payment_method id.",
+  "files": ["internal/cli/book.go"],
+  "validated_outcome": "Confirm payload validated against the live dry_run endpoint (HTTP 201); 113 live dogfood checks pass."
+}

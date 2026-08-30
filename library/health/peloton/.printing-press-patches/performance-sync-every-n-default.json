@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "performance-sync-every-n-default",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "syncPerformanceDependent (sync.go) must default every_n=1 on every /api/workout/{workout_id}/performance_graph fetch, matching the --every-n=1 default the single-fetch `workouts performance` command already sets via its cobra flag (workouts_performance.go). Peloton's API defaults to a heavily downsampled response (~50x fewer samples) when every_n is omitted, and sync's dependent fan-out never goes through cobra flag machinery at all, so without an explicit default every performance_graph record written by sync was silently downsampled relative to what a manual single-fetch would store. Any future regen must preserve this default and keep it applied before userParams.applyTo(\"performance\", params, true), so --param/--global-param/--resource-param overrides can still replace it.",
+  "reason": "Confirmed via live post-fix verification sweep against the user's real account: BLOCKING #1 in the structured findings report was performance data downsampled ~50x through sync vs. single-fetch. Root cause isolated by grepping every_n across internal/cli/workouts_performance.go (sets it, line 37) and internal/cli/sync.go (zero matches before this fix). Mirrors the existing joins=ride default already added for workouts sync earlier this session, for the same reason: sync's flat/dependent loops bypass cobra flag defaults entirely and need their own explicit defaults.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "go build/vet/test pass; pending live re-verification of a scoped sync + `offline performance <id>` against the user's real account to confirm sample density now matches single-fetch output."
+}

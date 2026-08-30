@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "qsys-qds-lts-attribution",
+  "applied_at": "2026-08-25",
+  "base_run_id": "20260824-192635-14fb8c13",
+  "base_printing_press_version": "4.31.1",
+  "summary": "qds attributes LTS wording to the queried release only: a sentence's first LTS phrase designates the version mention nearest it; a later LTS phrase in the same sentence is a new designation only when a version mention immediately precedes it as its subject.",
+  "reason": "Greptile P1s on PR #1808 (three rounds): whole-article and then whole-sentence scanning let one release's LTS designation (or its end date) bleed onto another release the text merely mentions, while collapsing to one designation per sentence dropped genuinely independent designations ('9.8 is LTS through March 2027 and 10.0 is LTS through June 2028'). Sentence bounds treat digit.digit periods as version dots; subject adjacency (letters and spaces only, within 40 bytes) separates '... and Designer 10.0 is LTS ...' from elliptical continuations like '...; LTS support ends March 2027'.",
+  "files": ["internal/cli/qds.go", "internal/cli/qds_test.go"],
+  "validated_outcome": "TestDetectLTSForVersion covers other-release, same-sentence-both-releases, nearest-mention, and far-mention cases (misattribution cases failed before each fix); full suite and live gate repassed."
+}

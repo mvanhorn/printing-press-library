@@ -291,7 +291,14 @@ playlists become the graph substrate instead.`,
 			counts := map[string]int{}
 			names := map[string]string{}
 			for _, pl := range srch.Playlists.Items {
-				items, err := c.Get(cmd.Context(), "/playlists/"+pl.ID+"/tracks", map[string]string{"limit": "10"})
+				// PATCH(amend-2026-08-08: fields param on track fetches) —
+				// only artist id/name are consumed, so ask Spotify to strip
+				// the rest of the (large) track payload server-side. Trims
+				// bytes per call, not call count.
+				items, err := c.Get(cmd.Context(), "/playlists/"+pl.ID+"/tracks", map[string]string{
+					"limit":  "10",
+					"fields": "items(track(artists(id,name)))",
+				})
 				if err != nil {
 					continue
 				}

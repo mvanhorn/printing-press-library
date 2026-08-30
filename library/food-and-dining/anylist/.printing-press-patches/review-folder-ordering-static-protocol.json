@@ -1,0 +1,56 @@
+{
+  "id": "review-folder-ordering-static-protocol",
+  "source": "static-analysis",
+  "task_id": "anylist-folder-ordering-evidence-20260823",
+  "recorded_at": "2026-08-23",
+  "summary": "Static analysis could not prove an exact replayable set-ordered-folder-items payload. The later five-variant disposable live probe is the current evidence: every candidate returned HTTP 200 without persistence, so child ordering remains fail-closed.",
+  "inputs": {
+    "dex": {
+      "path": "/tmp/anylist-classes.dex",
+      "sha256": "ab39d2855de350c308c9f9aadf8c9e0849ff359e8298e92b7bdc46aac6e34dab",
+      "size_bytes": 7570696,
+      "provenance": "external-ephemeral-input; unpacked from com.purplecover.anylist 3.0.3 xapk",
+      "strings_snapshot": "/tmp/dex-strings.txt"
+    },
+    "schema": "internal/anylist/pb/api.proto and api.pb.go (checked in)",
+    "client": "internal/anylist/client.go, internal/anylist/client_test.go, internal/cli/folders_update.go",
+    "prior_records": [
+      {"path": ".printing-press-patches/review-folder-hierarchy-handlers.json", "status": "external-prior-record; not present in the static-analysis worktree", "sha256": null},
+      {"path": ".printing-press-patches/review-folder-payload-variants.json", "status": "external-prior-record; not present in the static-analysis worktree", "sha256": null},
+      {"path": ".printing-press-patches/review-folder-handler-bruteforce.json", "status": "external-prior-record; not present in the static-analysis worktree", "sha256": null},
+      {"path": "library/food-and-dining/anylist/.printing-press-patches/review-folder-write-fail-closed.json", "status": "external-prior-record; not present in the static-analysis worktree", "sha256": null},
+      {"path": "library/food-and-dining/anylist/.printing-press-patches/review-folder-metadata-handlers.json", "status": "external-prior-record; not present in the static-analysis worktree", "sha256": null}
+    ]
+  },
+  "exact_static_facts": {
+    "route": "POST /data/list-folders/update is present in the dex string pool and checked-in client. This record does not itself perform or re-assert live writes; prior live results are external evidence listed above.",
+    "handler_id": "set-ordered-folder-items appears once in the dex string pool, but the pool gives no owning class or request construction.",
+    "wrapper_type": {"type": "PBListFolderOperationList", "fields_checked_in": {"operations": "1 (repeated PBListFolderOperation)"}},
+    "request_message": {"type": "PBListFolderOperation", "fields_checked_in": {"metadata": "1 (PBOperationMetadata)", "listDataId": "2 (string)", "listFolder": "3 (PBListFolder)", "folderItems": "4 (repeated PBListFolderItem)", "originalParentFolderId": "5 (string)", "updatedParentFolderId": "6 (string)"}, "status": "checked-in schema fact; dex field-number parity is unverified"},
+    "metadata_message": {"type": "PBOperationMetadata", "fields_checked_in": {"operationId": "1 (string)", "handlerId": "2 (string)", "userId": "3 (string)", "operationClass": "4 (enum)"}},
+    "item_and_folder_messages": {"PBListFolderItem": {"identifier": "1 (string)", "itemType": "2 (enum ListType/FolderType)"}, "PBListFolder": {"identifier": "1", "timestamp": "2", "name": "3", "items": "4 (repeated PBListFolderItem)", "folderSettings": "5"}},
+    "no_json_template": "The dex string pool contains no JSON template or literal payload for this protobuf operation."
+  },
+  "live_probe_reconciliation": {
+    "probe_source": {"path": "review-folder-ordering-live-probe.json", "status": "current in-worktree live probe; supersedes the earlier three-variant record"},
+    "probes": [
+      {"variant": "folderItems only plus metadata/listDataId", "live_result": "HTTP 200; fresh folder order unchanged"},
+      {"variant": "complete listFolder carrying ordered items", "live_result": "HTTP 200; fresh folder order unchanged"},
+      {"variant": "complete listFolder plus updatedParentFolderId", "live_result": "HTTP 200; fresh folder order unchanged"}
+    ],
+    "reconciliation": "The current five-variant probe covers the prior three shapes plus a refreshed timestamp, alternate multipart part name, and parent/item fields; all five still fit the checked-in schema and all returned HTTP 200 without persistence."
+  },
+  "unresolved_gaps": [
+    "No bytecode decompilation was available in this session.",
+    "Dex field-number parity with the checked-in protobuf is unverified.",
+    "The Android multipart part name is unresolved (operations versus list-folder-operations).",
+    "A timestamp update or other required field may be missing.",
+    "The live probe is disposable and explicit-gated; see review-folder-ordering-live-probe.json and internal/anylist/folder_ordering_probe_test.go."
+  ],
+  "conclusion": {
+    "exact_replayable_payload_provable": false,
+    "gate_state": "Production child-ordering remains fail-closed; no ordering handler, gate, or transport was changed by this record.",
+    "invariants_held": ["No live AnyList requests or writes were made by this static-analysis task.", "No secrets, cookies, tokens, or personal account data are recorded.", "Claims are limited to checked-in schema, hashed external dex input, and explicitly labeled external prior records."]
+  },
+  "tags": ["folder-ordering", "set-ordered-folder-items", "static-analysis", "dex-string-evidence", "fail-closed"]
+}

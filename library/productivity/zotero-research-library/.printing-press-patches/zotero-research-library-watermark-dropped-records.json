@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "zotero-research-library-watermark-dropped-records",
+  "applied_at": "2026-08-06",
+  "base_run_id": "20260806-100315-0ed5c3e3",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Advance the incremental sync watermark only when every consumed record was stored: extract/hydration failures AND silently-skipped records (scalar deletion tombstones) both hold the watermark. UpsertBatch counts a record stored only after its typed-table projection succeeds, so typed failures also hold the watermark for retry.",
+  "reason": "Greptile P1 on publish PR #1668: sync --resources deleted (scalar keys) advanced the watermark past records that were never stored, excluding them from all future incremental runs. Extended: the /deleted endpoint returns a category map (collections/items/searches/tags/settings); extractPageItems' known-key strategy kept only the items array, silently dropping deleted collections, searches, and tags. flattenDeletedCategories now flattens every category into storable {key: '<category>/<key>', category} tombstones before upsert. Further extended: stored tombstones are now APPLIED \u2014 applyDeletedTombstones hard-deletes the corresponding cached records (typed row, FTS, generic row via store.DeleteResourceByID) so offline commands stop returning deleted records; application errors fail the sync so the watermark never advances past unmirrored tombstones.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "extractFailureTotal > 0 or consumedTotal != totalCount leaves the watermark untouched (SaveSyncProgress preserves the prior watermark); build/tests pass. Live-validated 2026-08-06: sync --resources deleted --resource-param deleted:since=0 stored 695 tombstones (693 items + 2 collections; collections were previously dropped). Tombstone application live-validated: a planted cached record matching a real deleted-item key was removed (tombstones_applied removed=1) with typed and generic rows both gone.",
+  "upstream_issue": null
+}

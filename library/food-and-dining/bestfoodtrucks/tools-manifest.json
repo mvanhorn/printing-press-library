@@ -1,0 +1,68 @@
+{
+  "api_name": "bestfoodtrucks",
+  "base_url": "https://api.bestfoodtrucks.com",
+  "description": "The only Best Food Trucks client that can tell you where a truck goes, not just what's parked outside today.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "graphql_query",
+      "description": "Execute a raw GraphQL query or mutation against the Best Food Trucks API. Required: query. Optional: operationName, variables (default: map[]). Returns the new graphql_response.",
+      "method": "POST",
+      "path": "/graphql",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "operationName",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL operation name (optional; informational for multi-operation documents)"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Full GraphQL query or mutation document text",
+          "required": true
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables as a JSON object"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Digest",
+      "command": "lot digest",
+      "description": "Turns a lot's upcoming schedule into ready-to-paste announcement text instead of raw structured data."
+    },
+    {
+      "name": "Cuisine Alert",
+      "command": "trucks find",
+      "description": "Finds every upcoming shift at a lot matching a cuisine, without opening each shift page one at a time."
+    },
+    {
+      "name": "Truck Schedule",
+      "command": "truck schedule",
+      "description": "Shows every lot a specific truck visits, past and future — a view the Best Food Trucks website itself never built."
+    },
+    {
+      "name": "Market Hotlist",
+      "command": "market hotlist",
+      "description": "Ranks trucks operating in a city by review signal, a cross-truck aggregate the site never computes."
+    },
+    {
+      "name": "Route Planner",
+      "command": "lots digest",
+      "description": "Combines multiple lots' schedules into one view in a single command instead of visiting each lot's page separately."
+    }
+  ]
+}

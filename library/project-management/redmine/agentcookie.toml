@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "redmine-pp-cli"
+display_name = "Redmine"
+description = "Every Redmine feature, plus a local mirror that finally answers the cross-project questions the Roadmap page never could."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/redmine-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+REDMINE_API_KEY = true

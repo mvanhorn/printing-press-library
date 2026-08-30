@@ -11,13 +11,13 @@ Printed by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 The recommended path installs both the `openart-pp-cli` binary and the `pp-openart` agent skill in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install openart
+npx -y @mvanhorn/printing-press-library install openart
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install openart --cli-only
+npx -y @mvanhorn/printing-press-library install openart --cli-only
 ```
 
 

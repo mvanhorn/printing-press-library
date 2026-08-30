@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-csv-aggregati",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "--csv rende una tabella anche sui quattro comandi aggregati, che avvolgono le righe in un oggetto invece di restituire un array in radice. Nuovo helper righeDaOggetto, chiamato da printCSV prima del ripiego a JSON; quando le righe non sono deducibili l'output resta JSON ma un hint su stderr lo dice.",
+  "reason": "printCSV vuole un array in radice, e `ddl iter`, `legge cronologia`, `deputato profilo` e `commissione dossier` restituiscono un oggetto: con --csv finivano tutti nel ramo «oggetto singolo», che stampa il JSON. Il formato chiesto non arrivava e nessuno lo diceva — sono esattamente i comandi che un ricercatore esporta per analizzarli altrove. Due forme riconosciute senza sapere quale comando ha prodotto il payload: una sola lista di oggetti in radice (`atti`, `eventi`), oppure liste annidate di un livello (`sezioni[].risultati` del dossier), dove i campi scalari del contenitore diventano colonne su ogni riga — senza, si perderebbe a quale sezione appartiene una riga. Con zero o piu' di una lista di oggetti non si sceglie: un CSV plausibile e sbagliato sarebbe peggio del JSON. Le liste di scalari (`troncato: [\"interrogazioni\"]`) non contano come righe.",
+  "files": [
+    "internal/cli/csv_righe.go",
+    "internal/cli/csv_righe_test.go",
+    "internal/cli/helpers.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "Prima, tutti e quattro gli aggregati con --csv stampavano il loro JSON. Dopo: `ddl iter 18 1153 --csv` -> 8 colonne (archive_id,data,data_iso,doc_id,fase,sede,titolo,url) e una riga per evento; `deputato profilo \"Chinnici Valentina\" --legisl 18 --data 2026-08-01:2026-08-14 --csv` -> una riga per atto; `legge cronologia 18 1 --anno 2026 --csv` -> 9 colonne; `commissione dossier \"SESTA\" --legisl 18 --csv` letto da duckdb da' 30 convocazioni, 30 sommari, 16 pareri, 30 ddl_assegnati, ciascuno con la colonna `tipo` della sezione e data_iso tipizzato come data. Array in radice invariati. I test mordono: disattivando righeDaOggetto, TestCSVDaSezioniAnnidate fallisce. go test ./... e go vet verdi."
+}

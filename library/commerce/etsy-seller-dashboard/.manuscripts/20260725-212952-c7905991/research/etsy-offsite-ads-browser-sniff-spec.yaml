@@ -1,0 +1,1050 @@
+name: etsy-offsite-ads
+description: Discovered API spec for etsy
+version: 0.1.0
+base_url: https://www.etsy.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "limit" from query: search input'
+    - 'rejected auth candidate "offset" from query: search input'
+    - 'rejected auth candidate "sort_order" from query: search input'
+    - 'rejected auth candidate "sort_type" from query: search input'
+config:
+    format: toml
+    path: ~/.config/etsy-offsite-ads-pp-cli/config.toml
+resources:
+    ajax:
+        description: Operations on statsd
+        endpoints:
+            create_chat_start:
+                method: POST
+                path: /api/v3/ajax/member/support-chatbot/conversation/chat-start
+                description: POST /api/v3/ajax/member/support-chatbot/conversation/chat-start
+                params:
+                    - name: email
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: email
+                    - name: jwt_token
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sierra_agent_token
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sierra_interface_strings
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: agent_disabled_message
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: agent_joined_message
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: agent_left_message
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: agent_transfer_queue_next_message
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: agent_transfer_queue_size_message
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: agent_transfer_waiting_message
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: average_wait_time
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: bot_name
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: conversation_ended_message
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: custom_greeting
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: disclosure
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: end_conversation_menu_label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: error_message
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: estimated_wait_time
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: get_help_button_label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: here_to_help_header
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: input_placeholder
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: new_chat_button_label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: no_conversations_subheader
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: print_transcript_menu_label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: survey_negative_feedback
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: survey_neutral_feedback
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: survey_positive_feedback
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: survey_prompt
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: user_id
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: vendor
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body:
+                    - name: convo_ingress_type
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: convo_start_pathname
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: ChatStart
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+            create_statsd:
+                method: POST
+                path: /api/v3/ajax/public/statsd
+                description: POST /api/v3/ajax/public/statsd
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: statsd
+                pagination: null
+            get_ad_traffic:
+                method: GET
+                path: /api/v3/ajax/shop/{shop_id}/offsite-ads-data/ad-traffic
+                description: GET /api/v3/ajax/shop/{shop_id}/offsite-ads-data/ad-traffic
+                params:
+                    - name: comparison_end_date
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: comparison_start_date
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: end_date
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: shop_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The shop_id path segment
+                      fields: []
+                    - name: start_date
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: AdTrafficComparisonStat
+                pagination: null
+                response_path: comparisonStats
+            get_channel_performance:
+                method: GET
+                path: /api/v3/ajax/shop/{shop_id}/offsite-ads-data/channel-performance
+                description: GET /api/v3/ajax/shop/{shop_id}/offsite-ads-data/channel-performance
+                params:
+                    - name: end_date
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: shop_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The shop_id path segment
+                      fields: []
+                    - name: start_date
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: ChannelPerformanceList
+                pagination: null
+                response_path: list
+            get_combined:
+                method: GET
+                path: /api/v3/ajax/bespoke/shop/{shop_id}/sales-coupons/combined
+                description: GET /api/v3/ajax/bespoke/shop/{shop_id}/sales-coupons/combined
+                params:
+                    - name: date_range_preference
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: shop_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The shop_id path segment
+                      fields: []
+                    - name: specific_dates
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: CombinedPromotion
+                pagination: null
+                response_path: promotions
+            get_listing_performance:
+                method: GET
+                path: /api/v3/ajax/shop/{shop_id}/offsite-ads-data/listing-performance
+                description: GET /api/v3/ajax/shop/{shop_id}/offsite-ads-data/listing-performance
+                params:
+                    - name: end_date
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: shop_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The shop_id path segment
+                      fields: []
+                    - name: start_date
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: ListingPerformance
+                pagination: null
+            get_listings:
+                method: GET
+                path: /api/v3/ajax/shop/{shop_id}/prolist/stats/listings
+                description: GET /api/v3/ajax/shop/{shop_id}/prolist/stats/listings
+                params:
+                    - name: is_promoted
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: offset
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: shop_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The shop_id path segment
+                      fields: []
+                    - name: sort_order
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sort_type
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: Listing
+                pagination: null
+                response_path: listings
+            get_nav_badge_counts:
+                method: GET
+                path: /api/v3/ajax/shop/{shop_id}/manager/nav-badge-counts
+                description: GET /api/v3/ajax/shop/{shop_id}/manager/nav-badge-counts
+                params:
+                    - name: shop_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The shop_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: NavBadgeCount
+                pagination: null
+            get_offsite_ads_stats:
+                method: GET
+                path: /api/v3/ajax/shop/{shop_id}/offsite-ads-stats
+                description: GET /api/v3/ajax/shop/{shop_id}/offsite-ads-stats
+                params:
+                    - name: end_date
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: period
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: shop_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The shop_id path segment
+                      fields: []
+                    - name: start_date
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: OffsiteAdsStat
+                pagination: null
+    include:
+        description: Operations on tags.js
+        endpoints:
+            create_tags.js:
+                method: POST
+                path: /include/tags.js
+                description: POST /include/tags.js
+                params:
+                    - name: cookie
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: status
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body:
+                    - name: Referer
+                      type: string
+                      required: true
+                      positional: false
+                      default: https%3A%2F%2Fwww.etsy.com%2Fyour%2Fshops%2Fme%2Fsales-discounts%2Fdetails-stats
+                      description: ""
+                      fields: []
+                    - name: cid
+                      type: string
+                      required: true
+                      positional: false
+                      default: wj8rxqxddxyvQfAWDr4nWGisdmR48slC6~o0xU2RRmCp4FNSCrg8MOQ2NNOnWnf7_myQWOMue~IFzxtuG4txuHhrYGXADD24SyuaVoPGgHBZ3OtPNSY7MOhBlciq5~Nd
+                      description: ""
+                      fields: []
+                    - name: ddk
+                      type: string
+                      required: true
+                      positional: false
+                      default: D013AA612AB2224D03B2318D0F5B19
+                      description: ""
+                      fields: []
+                    - name: ddv
+                      type: string
+                      required: true
+                      positional: false
+                      default: 5.9.0
+                      description: ""
+                      fields: []
+                    - name: eventCounters
+                      type: string
+                      required: true
+                      positional: false
+                      default: '{"mousemove":1,"pointermove":1,"click":1,"scroll":0,"touchstart":0,"touchend":0,"touchmove":0,"keydown":0,"keyup":0}'
+                      description: ""
+                      fields: []
+                    - name: jsType
+                      type: string
+                      required: true
+                      positional: false
+                      default: le
+                      description: ""
+                      fields: []
+                    - name: jspl
+                      type: string
+                      required: true
+                      positional: false
+                      default: T61yUgA84U2DWjnDjIu9i2bmLyOi04bt-HWVXvrYuvEZtefqsxUC4rxPR6tmikh3ydipfI-XmLemPziCk5trBu84SKDKipSHoWqVuDzcEgLRm_In4ydiCFY0y-zfLLkQNnfWsWaoWWY7FG8sx6Sh60QlaerYW-KCM7nuR3qnJYKUWNit39q4xs_exhSaTqI7qNmRKfTYdUVX0jF11jqlEb6TDJAs1nR-uzwdxZMAJHDn-0P0N3V0BuBG8OHpgrr9yf-xyw9RSq_yScxPyjCB9SGiiMzqOhnx2X4w63986Bwafz0YATYw0qgMeXscHuSSJe56yyrxgzbvVEJvRfYitadXLYU2hyVGrTi5z3L2GUO0Dpkgz4YIAtB1ozkDTfqN5aBPBKsyl8lgjjurSXn8dPGTTd6pelcsN8MjYHGO8gznJw_KXw2-lQA21AXy-GZbXe1YhV2UKG-iv8SyA-LPoBuS8SM74M1VfaQF83eHTFcf494LPPN6ewOamlej3eYuAVlSwUG5IMINIKDvktSuyWMul6Z5t6Y-amndD1xaXNm9fO1a-sdL_QWFf7-TPieA3MU3_Mls4qY1kuIJ4y6n_gsLLctrejKmp8FZKeufjSE0PBEBU9CHPBOWnIwMjXKleUEI-hibVmu99CLUJQs1PmGIPe36Wl6WICp4PvHBMyxbo-eJCRR2cxKceOMgvpRABkkJmnynI46NQr8xJuNz5v_h3ELAHkC4ES02Oakg2PCSgX3MQNDJVe4I3Tt2SaMuZ_WsdbIYbf2ze0QII4cfgnMpGU_kiOEQC3hYt9bPt_uYjYDwRo9v-MIm-ZOcd4oBAxi6B3GnhAAgB2hE48rsTbtqzQ0QY3tBvWaaelmFGL1ieb1j_S4kdfSd-VltUkYfPPymHkVd6CsUJ_oYtPAKpAw1dwt8MeO-tqInnhKGBNZ1HgusdW-yC5RRFvgCoEW1usJ7j3eSe7HkSBTrEf7y-Ao2yBkw5BQ2LSYHVDpqe__O5chdP-Jq7TU_iMkGGgr6nrjI6PONdl-2uKJYiUk0bsd95B1wZKWE8qnq9xztZuertPTUr1vDza2ClTeXC65XOpK6Js59LhGjSa7nkD3LTZpUx5CDYaIGLGmoI1iO43TIXRerswTuxKO01GTrdzLmRuKvV7vMA5pQiIDW7mn6cwYvJcYQzSMWGTFELPPiG0lfE58UzHMb5ptWhjSAV21L1P2Q-h9AOdHj-_m2Fdr77DZz1z3r5yaV8FKBdVxt8Gttme3h55zkQwt-zmiyD9w5GAifvazgEjLCmpdgPqzwpGzXEFvXidYSes0iM2f06CVoBLy__J4Zg4GyvvKqeKq2m58vbEmn-8j495bdgexdM-pHUbQwMAOlN45kYEYkPNQ6g8gn3kPYhKcpUvkU8OyDYB54UYIKOHfcO_ET6QYqiEjm20jPoFIgXLzkdrvNzf_7qIWOq4A112-HfhSKbGRx0vu5G6OfAOb1QGGXdTV1NhwzSzuu46Yr7BSHlFGfrYsxoKUOPNzrwn5u7sUgXOS8FyslhuTkS4cv3G1UOXmV2U5KSeEko9JXdGqsT7n3qVe-_67JS__Vkf2ZMqBkgEcxy6cyd1Kjez2yxtGUJYQSOtW5cF-3h4IXdJyPWv3jKotYFRvNGupor-kdlyWlwoN8A_WKTINzB68BrpdRZ5-CigHAm2i80o6fVsC00rf5IG0eonCLgeQCDTLM9wF0AUFCVTN5wxhlzYcTM0x1vkHAaaoAwF8-88eA2xpBR4tpMV5elZyUEf0sHPg9uGNiUbFRatsuukYxKaGZt-PJwj-y-tPLOfDhMmZ7IfnlQpn2EJl0lyxF-ugeJE_jTLKrjqnOOThmi4MJEG2Hcf9aJJYQFOCs62GJjdLYvYoLgjamF9z2wrIdywmZCOq3-77dBu6sBTPbpAjJkE8FY27OzKoGYCxLCipu598TtI3xjtRI8rNElPCtdqZY4JuWAq9KYIyyLvZGwpJvv_0i9kZe4hWoh_lStm2uY40u6xlRHSmTd1YS3_kGLjOXcJsZhFtHkg46A7wJ359BeE5WALoRTelJYNHQH7tXe1cQMYozgPYfk1QsSbjAMOR6pw73ljgQLDelNL6QqKscHkgLMhEhCvcnb4oaXfbQyntDq1PYD-myB5GhexMk8fuVWdUgrjzzKrRU0VMeWzgLjIyJ0E0YwT_wGxIaQJcO98lRLL5qlMHRvdsnopZwn6p3PyMfuFW0VguIY0exkAH6ISKgg52PcCSsTpp3BOb9YFdTHspJb-P0bY38U6i5sdMuZzubKmdhgmCUb6kYGcMEvfU97LEwX14Y2VYss4oUAshZIdu7pqdGytv8z7mvpL0H_y2De4rzL_8hORjt7EDu1A6_pDrQBJfRtZWJKFeuWCvSV1sRypoFkSZXeiFlB9hYR7VmO1AwLrkmtwGU18Nn6c0bz5kbaeuBTwALWwCAyy3L2IQWPHVrKER1gPOz0ErGrqdrNedOj0r3wctem7zfMtGuEnZ9Rtu_Mz-qk0i3sYy7cIxSxlAcBR44kjCXNxZtFaW7Zv5uwyRe7ubWlYQSfiXe_b6PWYDX5tEM07ULIf9rDQ_tj3DWfoPYccaMSM80nMs6QFrxyxKR6E-yy946jWkYhZjJ2MEKov5volRfcXXTNDoLXo0Q25_BU-_l-LmtUAxynm2gYkexyOHtPVRu8omGcKVjwHQDVonqUf2eb8JE9GnyuEcB2FzMP3qTclTXi_QiR14GdYOOVV8TLWblN7cm-CtWq8FgmRrb5kTf7hX9MFH15_TSmjSDBKroLwxi3ntyUETb6fgBeXT22uKGDz_GtvX91fKzk_SwxKFXKlQyQdoAPxGr4TEiA3hdYObeCOS-496PatfLA4GPVA_D-Mbh_sVJ6FNpybgqV28E1qR2dY_5vbAmIVLu_Df7mKH11jchOzglsE1cGClx5XCoMM5JctxfPMUcHdSUbVatDGZRwnhgoug15NoM-gO_6M47WbBwYSUaln-12uQhqy1F47ImQ1wwbnMPFBBaozRFgSAZZPXxA24gGVg3Yhdol5hNj9puR6ITlXvUfigihrgemNYMcO53VSLYziUzCh--O1R0uGhjfWOmHQVy1bW06guDfovc70cHM25Z4tDs8sW8WgR2o_SzxfHqknyysOAOeoxYtC3QYupmaJMLM-MjDJd7nMvBqpnLriW5mkjXXZwxbfqrlkQBVyT65ifE6UF04CCf6hKKL9kB69y7ogMs3QG5sh7dNZbmPhy8jXRTXdc4YOeIsqDXMe0dE10-iUmpcvRqgfc0oQKJH6rVn6rxvZiWwfYn5E1egSqoVeb4Qr-9Cl6U2yC9B3VPWElnPp7TKUvrzYlRh2s1kB5XKBTlyuWe0yYwceLBqGVMCXVKVb0FA3WuizEdM7A40ozbJvQfOuaRgeu9zvEmDNB8yj8OeAj0EtEW-WAUcHDI0uy-6zIqyYjfW2N7FN3heEnvC6UX7wWDHJpJE0_xtl7xIL5gy3kmJeTp_QuT8s8_YTuWMqjO3DDb6SsqZtfhKSQEYvXl540l1V9dvYgaIYFOLIA0PkCtOIQXq3ygy5mDtL-fTDhNfkjJDZ94K6lXXSNcqp6RyrxFiTU7cMRITxna_fpMw6dI4tlV53diJ5Xw-WkpYIRT2RBXnEbOagwNuDRBRxpSR42_z4oh9dBwjduurFSLQVPomJh5sFr_WwkYWj-qgZA-_4Gfx_72QKN1SwX1oVb0jNGh722vUL0JDaFoaQcE1F3DAnSy8yxH0JcwWWWwgGLg4mbfD98pcLNxFXU8kpE-ww18I25wnC2rBwGUg31uk5hqua2MME-UVMMORlF_lq-JrVTSG80AZXdJpNytoxXX5G8e4vfQLDJjUkn6OaBEFyB5SPAZdPBMHnhURnNmaFKL11WnW-_K0YDpUDi7OtEZTA6bgtX6wUY7dml31vuE-5kMIi8CdVwmbe5ELBzY-bhGLMMlConyKyq84XKjsZ0y2H9vgNlyvFpIXuE2jqrQfzccvoDRMZzCiAjQbpuvIw8zGpPuuLwRs1SHQXbv72YBJb5AknkwtymUl25j_bxTR6FZEA_QLE4kLcS0H_qAhtMMEdeGA0iDCrhq6pMWrXkj0ajNoYj0l80PVuUJGUT1DVlSDCGk3Os8cawZqlEM5sF_GRgUDxZBviZCxPiwVaNYoA6T8Ff6KbFfda7Dvm3RR30oxev93tmor1aH_LPwEUzBCh2RzIHxusWd0SHj3f9ARsY62D65MxgaBQIo6F7jDAPRmXjRf56DwVVWnhmCDZM1De3m9frI04Rmv7WBQpFYlvD27ufNjFIq09ssARnWz-3BHgWdVVcv_xIQzgazeKC0DqLEwl2AenVS8JE_QgIEyGuKL6jI8k894yoQ_Tcx1s2836kcP3KS_wIX3LUcFVZQMByI5Fc47-vPDI0Yyn-UwMO757gMITUj7kCBBbJpQQlw-KHAyqbmHPEA4YgBATuTaYBt_6dlKYF5FVeJFaiBXbRFteTgMKeYc5rKaSXcU-FWbq-SLr2WoXwo0edyLlDj496U5fWRAeNnTcbKoYAcfRKbEJmOUKyxwNXDsJU7D-drDgoUUoH2YOhIVn9H9qN76jpPGh-NpdMM3_cJUusVySXi8FavaTAZPuly9inbzNYu5CHIVW9KGt_XLDpwGjDe_ShlpaEatFX2SGXgK0G96zVhsA1YL8jdwtRw2MLbnHY_0i-jv-KbG0Lin_O5-wDDs57enrJ5IqHsEVfgDclUGE6FdipAopN0XdqOMa-nGh6H--j5eQ9Cr0rrTFyy1Lf_Gtt_u49O54G-okH4P2sYGqDl0qqXYm63GSTdRQLcFuBIexrBWedMzK45Ro2ATDtzWtDAbJo5CzbhzEQG_FlMWit76y1XOw935h0NZhitAwcvMiJU0d0e6C6zVjIdEIlt3FuXrai3P_z6wIJ9Afeja6TIB0F_vfDxqwonPZXNHDg_NJHpvyCiSe5rG4QfhJclre4B7SheknOd-odUn5A_b875sqI5sV9Y-zxxmtUOTGoBbbs_zi76sla6YVhfkx6KnaokmdpzudP5fraQOUwogBlHwApl43tmJVfw32ejSgEH5QQoeneqWoXlw9R__O5KXGr44LrTj-SbFORw-gNU1A3Gg4w6sY0Wpohop8UH7Rdv40rQ8lnL-HTphJnD0Gy-Nu_geGDxW_0F6DvtiknjY8HJrq1-EA0VGsfLdN0pjFVZgln6ABC_d_QT3IQZeIBs8OstbDOyNOu4VzyVgvMKXyYsZNjE9mrvJP-rNJHCHmaIbARtnp119kWxC9Iw6hMOalBlEnYsLX7Nh3764sMCnHiDx-N5qja0QcipS-7K3i4AhoILRVrjEMqq3k3RA5zkEyLndeW8WAITCoAxzfomH9biMhQGZ-VFfwZWApp8u6r6gMxjEOCPWGaZrL6NCikkXmH8NDmNM8m4f-rOFqyp08bwXmoBcgZ1TeHqeaPXcA09b85ZG_lXj7BW_43id13AQaFkaZ0l5gsZ9JOWR2Vtq_PVRx9KuLslQ43BfxHK5SWchDuEjTZzHG6-lgHTb2ztSz7StLuoPyL3_Ivi2KtW-6AOsrAbtyKbQbowhg5hHSWUAImsYD_b-g7Sbkz5DPvBguUIQgoOwfGTFWDlP-bwdX0wmhxD5wY3W_XsP6OBwQcrJN8J366lwdZpChn1KhrExKlXrlWXJXBLNk2Yz2CnpSIJvdEMKJYjwYvCGtzSx9kgnOVBpvpXYwwkWMW1a6bCwCCqAjfpZZ_z_yIh5-3befCon4AGojEtlvj1wZs1kCflT7Kt1gnrhIus7MlqDu4YuWKeESWkbA97BVeZ7hHuPkIWrJWP7IticRcueIVCuDE1C02EDjAh0VFi9rkiIAAMiqd-Yexf0WQHsRsjFZ_TGuqKnx2S4BvDbiGxuuKOC-Z4iLMnpQJ_1qWpiuWSc_oAPdBc1krNmdtEfTSgnerVLjzfBgmiqC_Uf00Ag2PgKuCLhExttNVDSw99R2VCa4yJMzWyFleffyHtN7NyF3W8uyNTBQ98hukK_zLJU7h5QwtxRtw8QL4-2xp6bbLXw3UK4zbXS4KFYpB996MFvw0QphEA1-oNFf-tve1MDrJFqYcjRGMTW9C0KHD-X1RR7hgohTP6D9YRiBfp6kvupbaa-qd6AFc7IrZUFriLe_H4y0wph8GN4hYPU_FO-oKdrV964lnGXHCJxn9PMO57_0MR6t7KFPk-xXDmrOCPaxJ-VgLejwaV6CEfpXd_ZT6Ly8_68V0wIj3kMrdY-iAF3Q-bao20RlM-ZRURW0gaZzt3TPlTDuywzJFS9sPrhFJhqQfC-GM5FB0g-Y9qMbXewm7rp8o4TG7pztVH63JwDYQ8I435jm0Ibo_9uHkzn8vxvubCQ5k5ASSEB_AjN4uKk6iM3IBisfZgBgW0yxghJd7VjAlf0-qeysG7CYZzJnbGm-evIehGks4P6lFsCRmI4XK34Ib3pAcC7mygRu0a0Ef-dRNbkpdAwOTV9hrL3UjycPWBdBsx8UgYbAVIWaxkM8Dzpyvu7vpkJYKsrDQkMLKxlcEYSRebLBt8uAUCkr6fKq1S6H4-cRqHf5V4GgMRrYI2PCD5vTKyTJ8QCyLsMbtc2r1IyG5W3ns58khn7pZSZsputGHtcihCztTSGAhnZBuHKjCg45f11r-KQGISVyW5EcGOfSBFxMDiIDNC5ZYYoe8JiggoEabKkhaUu56U4gJfXV8fth8zWeYrWcmI
+                      description: ""
+                      fields: []
+                    - name: request
+                      type: string
+                      required: true
+                      positional: false
+                      default: '%2Fyour%2Fshops%2Fme%2Fsales-discounts%2Fdetails-stats'
+                      description: ""
+                      fields: []
+                    - name: responsePage
+                      type: string
+                      required: true
+                      positional: false
+                      default: origin
+                      description: ""
+                      fields: []
+                request_content_type: application/x-www-form-urlencoded
+                response:
+                    type: object
+                    item: TagsJ
+                pagination: null
+    paula:
+        description: Operations on polyfill.min.js
+        endpoints:
+            list_polyfill.min.js:
+                method: GET
+                path: /paula/v3/polyfill.min.js
+                description: GET /paula/v3/polyfill.min.js
+                params:
+                    - name: etsy-v
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: features
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: flags
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: polyfill.min.js
+                pagination: null
+    your:
+        description: Operations on offsite-ads
+        endpoints:
+            list_offsite_ads:
+                method: GET
+                path: /your/shops/me/offsite-ads
+                description: Fetch structured links from /your/shops/me/offsite-ads
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_sales_discounts:
+                method: GET
+                path: /your/shops/me/sales-discounts
+                description: Fetch structured links from /your/shops/me/sales-discounts
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+types:
+    AdTrafficComparisonStat:
+        fields:
+            - name: clickCount
+              type: integer
+            - name: timestamp
+              type: integer
+    ChannelPerformanceList:
+        fields:
+            - name: channel
+              type: string
+            - name: clicks
+              type: integer
+            - name: percent
+              type: integer
+    ChatStart:
+        fields:
+            - name: email
+              type: string
+              format: email
+            - name: jwt_token
+              type: string
+            - name: sierra_agent_token
+              type: string
+            - name: sierra_interface_strings
+              type: ref:SierraInterfaceStrings
+            - name: user_id
+              type: integer
+            - name: vendor
+              type: string
+    CombinedPromotion:
+        fields:
+            - name: buyer_description
+              type: string
+            - name: condition_min_num_order_items
+              type: integer
+            - name: condition_min_total_order_price
+              type: integer
+            - name: coupon_url
+              type: string
+              format: url
+            - name: create_date
+              type: integer
+            - name: create_date_ms
+              type: integer
+            - name: currency_code
+              type: string
+            - name: discount_value
+              type: string
+            - name: discoverability_type
+              type: integer
+            - name: end_date
+              type: integer
+              omit_empty: true
+            - name: end_date_ms
+              type: integer
+            - name: grants_buyer_targeted_offers
+              type: bool
+            - name: is_buyer_targeted_offer_campaign_stopped
+              type: bool
+            - name: is_legacy
+              type: bool
+            - name: is_promoted_offer_eligible
+              type: bool
+            - name: is_single_use_per_buyer
+              type: bool
+            - name: promo_classification
+              type: integer
+              omit_empty: true
+            - name: promotion_id
+              type: integer
+            - name: promotion_max_total_redemptions
+              type: integer
+            - name: promotion_name
+              type: string
+            - name: promotion_subtype
+              type: integer
+            - name: promotion_type
+              type: integer
+            - name: reward_fixed_discount_on_items_in_set
+              type: integer
+            - name: reward_fixed_discount_on_order
+              type: integer
+            - name: reward_percent_discount_on_items_in_set
+              type: integer
+            - name: reward_percent_discount_on_order
+              type: integer
+            - name: reward_set_listing_ids
+              type: array
+            - name: sale_type
+              type: string
+            - name: start_date
+              type: integer
+            - name: start_date_ms
+              type: integer
+            - name: targeted_offer
+              type: ref:TargetedOffer
+              omit_empty: true
+            - name: venue_id
+              type: integer
+    Counts:
+        fields:
+            - name: appstoreV2
+              type: integer
+            - name: content-compliance
+              type: integer
+            - name: customer-service
+              type: integer
+            - name: dashboard
+              type: integer
+            - name: finances
+              type: integer
+            - name: finances.accepted-payments
+              type: integer
+            - name: finances.monthly-statements
+              type: integer
+            - name: finances.payment-account
+              type: integer
+            - name: finances.quickbooks
+              type: integer
+            - name: finances.taxpayer-id
+              type: integer
+            - name: finances.turbotax
+              type: integer
+            - name: finances.xero
+              type: integer
+            - name: inventory
+              type: integer
+            - name: marketing
+              type: integer
+            - name: marketing.etsy-ads
+              type: integer
+            - name: marketing.offsite-ads
+              type: integer
+            - name: marketing.sales-discounts
+              type: integer
+            - name: marketing.share-and-save
+              type: integer
+            - name: marketing.social-media
+              type: integer
+            - name: messages
+              type: integer
+            - name: orders
+              type: integer
+            - name: search-dashboard
+              type: integer
+            - name: search-header
+              type: integer
+            - name: settings
+              type: integer
+            - name: settings.facebook-shops
+              type: integer
+            - name: settings.grace_management_nav_title
+              type: integer
+            - name: settings.info
+              type: integer
+            - name: settings.options
+              type: integer
+            - name: settings.partners
+              type: integer
+            - name: settings.shipping-settings
+              type: integer
+            - name: settings.shop-policies
+              type: integer
+            - name: settings.storefront-settings
+              type: integer
+            - name: settings.translations
+              type: integer
+            - name: shop_analytics
+              type: integer
+            - name: stats
+              type: integer
+            - name: stats.marketplace-insights
+              type: integer
+            - name: stats.shop_analytics
+              type: integer
+            - name: support
+              type: integer
+            - name: support.contact-us
+              type: integer
+            - name: support.etsy-help-center
+              type: integer
+            - name: support.ip-infringement
+              type: integer
+            - name: support.seller-forums
+              type: integer
+            - name: support.seller-handbook
+              type: integer
+            - name: support.shipping-costs
+              type: integer
+            - name: support.site-policies
+              type: integer
+    Listing:
+        fields:
+            - name: listing
+              type: ref:Listing2
+            - name: totalStats
+              type: ref:TotalStats
+    Listing2:
+        fields:
+            - name: currencyCode
+              type: string
+            - name: imageAltText
+              type: string
+            - name: imageUrlFullxfull
+              type: string
+              format: url
+            - name: isPromoted
+              type: bool
+            - name: listingId
+              type: integer
+            - name: listingStrategy
+              type: object
+            - name: maxTagCount
+              type: integer
+            - name: priceInt
+              type: integer
+            - name: quantity
+              type: integer
+            - name: sectionName
+              type: string
+            - name: state
+              type: string
+            - name: tags
+              type: array
+            - name: title
+              type: string
+    ListingPerformance:
+        fields:
+            - name: clicksCount
+              type: integer
+            - name: imageUrl
+              type: string
+              format: url
+            - name: listingId
+              type: integer
+            - name: listingTitle
+              type: string
+            - name: listingUrl
+              type: string
+              format: url
+            - name: ordersCount
+              type: integer
+            - name: revenue
+              type: integer
+            - name: revenueFormatted
+              type: string
+    NavBadgeCount:
+        fields:
+            - name: counts
+              type: ref:Counts
+    OffsiteAdsStat:
+        fields:
+            - name: directRevenue
+              type: string
+            - name: fees
+              type: string
+            - name: indirectFees
+              type: string
+            - name: indirectNewBuyers
+              type: string
+            - name: indirectOrders
+              type: string
+            - name: indirectRevenue
+              type: string
+            - name: newBuyers
+              type: string
+            - name: orders
+              type: string
+            - name: showIndirectSection
+              type: bool
+            - name: totalRevenue
+              type: string
+    SierraInterfaceStrings:
+        fields:
+            - name: agent_disabled_message
+              type: string
+            - name: agent_joined_message
+              type: string
+            - name: agent_left_message
+              type: string
+            - name: agent_transfer_queue_next_message
+              type: string
+            - name: agent_transfer_queue_size_message
+              type: string
+            - name: agent_transfer_waiting_message
+              type: string
+            - name: average_wait_time
+              type: string
+            - name: bot_name
+              type: string
+            - name: conversation_ended_message
+              type: string
+            - name: custom_greeting
+              type: string
+            - name: disclosure
+              type: string
+            - name: end_conversation_menu_label
+              type: string
+            - name: error_message
+              type: string
+            - name: estimated_wait_time
+              type: string
+            - name: get_help_button_label
+              type: string
+            - name: here_to_help_header
+              type: string
+            - name: input_placeholder
+              type: string
+            - name: new_chat_button_label
+              type: string
+            - name: no_conversations_subheader
+              type: string
+            - name: print_transcript_menu_label
+              type: string
+            - name: survey_negative_feedback
+              type: string
+            - name: survey_neutral_feedback
+              type: string
+            - name: survey_positive_feedback
+              type: string
+            - name: survey_prompt
+              type: string
+    TagsJ:
+        fields:
+            - name: cookie
+              type: string
+            - name: status
+              type: integer
+    TargetedOffer:
+        fields:
+            - name: coupon_description
+              type: string
+            - name: coupon_discount_amount_or_free_shipping
+              type: string
+            - name: coupon_name
+              type: string
+            - name: currency_code
+              type: string
+            - name: current_month_send_count
+              type: integer
+            - name: current_month_spend
+              type: integer
+            - name: has_more_recent_campaign_with_active_promotion
+              type: bool
+            - name: is_active
+              type: bool
+            - name: is_buyer_targeted_offer_campaign_stopped
+              type: bool
+            - name: last_30_days_send_count
+              type: integer
+            - name: promo_classification
+              type: string
+            - name: promoted_offer_id
+              type: integer
+            - name: promotion_id
+              type: integer
+            - name: start_date
+              type: integer
+    TotalStats:
+        fields:
+            - name: clickCount
+              type: integer
+            - name: clickRate
+              type: number
+            - name: conversions
+              type: integer
+            - name: impressionCount
+              type: integer
+            - name: revenue
+              type: integer
+            - name: roas
+              type: integer
+            - name: spentTotal
+              type: integer

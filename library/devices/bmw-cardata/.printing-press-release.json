@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "bmw-cardata",
+  "cli_name": "bmw-cardata-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-26T09:41:25Z",
+  "source_commit": "efe229e36e2a353022549f7dac2c9621e6ae10de",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260630-212750-ea90da3f",
+  "changes": [
+    {
+      "title": "feat(bmw-cardata): add bmw-cardata",
+      "pr": 1828,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1828",
+      "commit": "efe229e36e2a353022549f7dac2c9621e6ae10de"
+    }
+  ]
+}

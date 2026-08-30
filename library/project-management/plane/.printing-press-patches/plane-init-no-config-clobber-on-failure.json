@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "plane-init-no-config-clobber-on-failure",
+  "applied_at": "2026-07-24",
+  "base_run_id": "20260724-124302-67128fc0",
+  "base_printing_press_version": "4.29.0",
+  "summary": "A failed `init` no longer touches the config or credential files: the pre-probe cfg.Save() and cfg.SaveCredential() are gone, probes run against the in-memory candidate base URL and API key, and everything is persisted in one write only after at least one workspace enrolls.",
+  "reason": "init persisted `normalizeHost(host) + '/api/v1/workspaces/{slug}'` before probing, with host falling back to https://api.plane.so when --host was omitted. On a self-hosted setup, `init <bad-slug>` without --host therefore clobbered a working base_url to the cloud endpoint even though enrollment failed, silently repointing every later command (surfaced by the live dogfood gate: its `init __printing_press_invalid__` error-path test poisoned the sandbox config and failed 12 downstream live tests with 404 'Workspace not found'). The early write existed only so probeWorkspace's fresh client, which loads config from disk, could see a custom --host; probeWorkspace now takes an optional in-memory base URL override instead, so the failure path leaves the config byte-for-byte untouched.",
+  "files": [
+    "internal/cli/workspaces_novel.go"
+  ],
+  "patch_tags": [],
+  "novel_files": [
+    "internal/cli/init_config_preserve_test.go"
+  ],
+  "validated_outcome": "go build ./... + go vet ./... green. TestInitFailureLeavesConfigUntouched (bad slug without --host, with explicit --host, and with --api-key; byte-compare of config.toml plus no credentials.toml appears) and TestInitSuccessPersistsConfig (single post-enrollment write of base_url + registry + default, credential persisted when --api-key given) pass under a sandboxed HOME. Live dogfood gate rerun: all 12 formerly failing tests pass; the config poisoning no longer reproduces.",
+  "deferred_to_upstream": []
+}

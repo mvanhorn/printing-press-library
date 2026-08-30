@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "aol-puglia",
+  "cli_name": "aol-puglia-pp-cli",
+  "version": "2026.8.2",
+  "released_at": "2026-08-30T09:06:47Z",
+  "source_commit": "7401d37ebf8cf6dcc71831adae3d7b1b4edffe49",
+  "printing_press_version": "4.30.3",
+  "run_id": "20260617-160648",
+  "changes": [
+    {
+      "title": "fix(aol-puglia): correct tipo-item docs and validate azienda input",
+      "pr": 1862,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1862",
+      "commit": "7401d37ebf8cf6dcc71831adae3d7b1b4edffe49"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "workspace-admin-pp-cli"
+display_name = "Google Workspace Admin"
+description = "GAT-style Google Workspace auditing as an agent-native CLI: sync Directory, Drive, Gmail, Reports, and Alert Center into a local store, then run offline cross-API audits, offboarding, and OAuth-app risk checks that GAM and the official gws CLI cannot persist."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/workspace-admin-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+GOOGLE_WORKSPACE_TOKEN = true

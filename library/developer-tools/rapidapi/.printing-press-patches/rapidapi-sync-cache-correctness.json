@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "rapidapi-sync-cache-correctness",
+  "applied_at": "2026-08-28",
+  "base_run_id": "20260828-090622-dd9c3930",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Sync must resume from a real upstream cursor and propagate every failure (including a malformed page shape) rather than treating it as \"no more data\"; auto-refresh must not falsely advance freshness, and must run its internal GraphQL calls on an isolated cobra.Command rather than the invoking command (whose own --query/--variables flags, e.g. teach's unrelated required --query, must never leak into gqlExec's raw-override escape hatch). SearchApis must treat an empty query as \"match everything\".",
+  "reason": "The generated sync loop wrote a wall-clock timestamp as its \"cursor\" (never resumable, never paginated past page one), swallowed hard fetch/decode failures (including a malformed pagination payload) into an always-success exit, and the auto-refresh hook advanced the local freshness marker without ever fetching anything. Auto-refresh's first fix pass also introduced a real cross-command bug: passing the actually-invoked cobra.Command into the internal sync calls let gqlExec's --query/--variables raw-override escape hatch pick up an unrelated invoking command's own flags (e.g. `teach --query \"<question>\"`), corrupting the internal GraphQL requests. The store's empty-query search path also short-circuited to zero rows instead of the full cache, breaking the default (unfiltered) export command. `syncResource` now also reports whether its pagination loop stopped because of `maxPages` rather than genuine end-of-data (a reprint must preserve this signal even though `autoRefreshIfStale` deliberately does not gate freshness on it — see the code comment: gating would starve the freshness marker forever for any large resource under the small auto-refresh bound). `cacheDomainRows` now warns (not fails) when a page's per-item upsert failures leave it short of the fetched count, matching this repo's Shopify CLI anomaly-warning convention. A second-pass re-review caught two more real defects that a reprint must not reintroduce: `syncCollectionResource`'s cap-hit path persisted the page just consumed as its resume cursor instead of the next page, which made a capped resume re-fetch the same page forever (fixed: the per-page cursor write always persists `page+1`); and `export.go`'s api export path called `SearchApis(\"\", 0)`, which silently caps at `SearchApis`' own interactive-style default of 50 records even though the generic (non-api) export path is uncapped — `export.go` now passes an explicit large limit so an api export of a 79k+-record catalog isn't truncated.",
+  "files": [
+    "internal/store/store.go",
+    "internal/cli/sync.go",
+    "internal/cli/graphql_helpers.go",
+    "internal/cli/auto_refresh.go",
+    "internal/cli/root.go",
+    "internal/cli/export.go"
+  ],
+  "validated_outcome": "go test ./... green (new pagination/failure-propagation/freshness/empty-query regression coverage); go build, go vet, go mod tidy, govulncheck, and the SKILL.md verifier all pass.",
+  "upstream_issue": null
+}

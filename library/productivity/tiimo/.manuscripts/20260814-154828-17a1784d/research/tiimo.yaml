@@ -1,0 +1,727 @@
+name: tiimo
+description: "Tiimo visual planner CLI - export, query, and analyze your own plan"
+version: "0.1.0"
+base_url: "https://api.tiimoapp.com"
+health_check_path: "/api/profiles"
+category: productivity
+cli_description: "Your Tiimo plan, finally exportable, queryable, and yours."
+
+# Auth is OpenID Connect (Duende/IdentityServer) at auth.tiimoapp.com.
+# The data API accepts Authorization: Bearer <access_token> with scope
+# tiimo_webapi. A public client_id for an interactive CLI flow has not been
+# confirmed, so the shipped default is an operator-supplied bearer token.
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  token_url: "https://auth.tiimoapp.com/connect/token"
+  scopes:
+    - openid
+    - offline_access
+    - tiimo_webapi
+  env_vars:
+    - TIIMO_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/tiimo-pp-cli/config.toml"
+
+# Local mirror is refreshed by `sync` from the upstream date-window read, so
+# pre-read freshness is meaningful. A planner's day changes often but not by
+# the minute.
+cache:
+  enabled: true
+  stale_after: 12h
+  refresh_timeout: 30s
+
+# Small typed surface (~16 endpoints), so no Cloudflare pattern. Deliberately
+# stdio-only: the emitted HTTP transport binds all interfaces without
+# authenticating callers, which is the wrong default for a personal planner
+# whose tools carry a bearer token for the user's own account.
+mcp:
+  transport:
+    - stdio
+
+learn:
+  synonyms:
+    "to do": "todo"
+    "to-do": "todo"
+    "most recent": "latest"
+    "right now": "today"
+  entity_lookup_seeds:
+    time_of_day:
+      - canonical: Morning
+        aliases: [am, morning, early]
+      - canonical: Afternoon
+        aliases: [pm, afternoon, midday]
+      - canonical: Evening
+        aliases: [night, evening, tonight]
+      - canonical: Anytime
+        aliases: [unscheduled, whenever, anytime]
+
+resources:
+  profiles:
+    description: "Tiimo profiles (an account can hold several shared profiles)"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/profiles"
+        description: "List every profile on the account"
+        example: "  tiimo-pp-cli profiles list --json"
+        response:
+          type: array
+          item: Profile
+      get:
+        method: GET
+        path: "/api/profiles/{profile_id}"
+        description: "Get a single profile"
+        params:
+          - name: profile_id
+            type: string
+            required: true
+            positional: true
+            description: "Profile UUID"
+        response:
+          type: object
+          item: Profile
+
+  activities:
+    description: "Timeline activities - the scheduled items that make up a day"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/profiles/{profile_id}/activities"
+        description: "List activities in a date window, keyed by day"
+        happy_args: "profile_id=example-profile-id;--from-date=2026-08-14;--to-date=2026-08-15"
+        params:
+          - name: profile_id
+            type: string
+            required: true
+            positional: true
+            description: "Profile UUID"
+          - name: fromDate
+            flag_name: from-date
+            type: string
+            required: true
+            description: "Window start, YYYY-MM-DD. Required by the API."
+            format: date
+          - name: toDate
+            flag_name: to-date
+            type: string
+            required: false
+            description: "Window end, YYYY-MM-DD. Defaults to the start date."
+            format: date
+        response:
+          type: object
+          item: ActivityDay
+      get:
+        method: GET
+        path: "/api/profiles/{profile_id}/activities/{activity_id}"
+        description: "Get a single activity by ID"
+        params:
+          - name: profile_id
+            type: string
+            required: true
+            positional: true
+            description: "Profile UUID"
+          - name: activity_id
+            type: string
+            required: true
+            positional: true
+            description: "Activity UUID"
+        response:
+          type: object
+          item: Activity
+      create:
+        method: POST
+        path: "/api/profiles/{profile_id}/activities"
+        description: "Create an activity on the timeline"
+        params:
+          - name: profile_id
+            type: string
+            required: true
+            positional: true
+            description: "Profile UUID"
+        body:
+          - name: title
+            type: string
+            required: true
+            description: "Activity title"
+          - name: description
+            type: string
+            description: "Longer note attached to the activity"
+          - name: startTime
+            flag_name: start-time
+            type: string
+            required: true
+            description: "Local start, e.g. 2026-08-14T09:00:00 (no timezone suffix)"
+          - name: endTime
+            flag_name: end-time
+            type: string
+            description: "Local end, e.g. 2026-08-14T09:30:00"
+          - name: duration
+            type: int
+            description: "Duration in SECONDS (1800 = 30 minutes)"
+          - name: type
+            type: string
+            default: "Play"
+            description: "Activity type as used by the app"
+          - name: isAllDay
+            flag_name: all-day
+            type: bool
+            default: false
+            description: "Treat as an all-day activity"
+          - name: iconType
+            flag_name: icon-type
+            type: string
+            default: "UnicodeEmoji"
+            description: "Icon kind; UnicodeEmoji means iconId holds a literal emoji"
+          - name: iconId
+            flag_name: icon
+            type: string
+            description: "Emoji character when icon-type is UnicodeEmoji"
+          - name: sortPriority
+            flag_name: sort-priority
+            type: int
+            default: 100
+            description: "Ordering weight within its bucket"
+        response:
+          type: object
+          item: Activity
+      update:
+        method: PUT
+        path: "/api/profiles/{profile_id}/activities/{activity_id}"
+        description: "Replace an activity. The API rejects PATCH with 405, so send the full object."
+        params:
+          - name: profile_id
+            type: string
+            required: true
+            positional: true
+            description: "Profile UUID"
+          - name: activity_id
+            type: string
+            required: true
+            positional: true
+            description: "Activity UUID"
+        body:
+          - name: title
+            type: string
+            description: "Activity title"
+          - name: startTime
+            flag_name: start-time
+            type: string
+            description: "Local start timestamp"
+          - name: endTime
+            flag_name: end-time
+            type: string
+            description: "Local end timestamp"
+          - name: duration
+            type: int
+            description: "Duration in seconds"
+          - name: completedAt
+            flag_name: completed-at
+            type: string
+            description: "Completion timestamp; set to mark the activity done"
+        response:
+          type: object
+          item: Activity
+      delete:
+        method: DELETE
+        path: "/api/profiles/{profile_id}/activities/{activity_id}"
+        description: "Delete an activity"
+        params:
+          - name: profile_id
+            type: string
+            required: true
+            positional: true
+            description: "Profile UUID"
+          - name: activity_id
+            type: string
+            required: true
+            positional: true
+            description: "Activity UUID"
+
+  todo_tasks:
+    description: "To-do tasks - the priority-bucketed list, separate from the timeline"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/profiles/{profile_id}/todo-tasks"
+        description: "List to-do tasks"
+        params:
+          - name: profile_id
+            type: string
+            required: true
+            positional: true
+            description: "Profile UUID"
+        response:
+          type: array
+          item: TodoTask
+      get:
+        method: GET
+        path: "/api/profiles/{profile_id}/todo-tasks/{task_id}"
+        description: "Get a single to-do task"
+        params:
+          - name: profile_id
+            type: string
+            required: true
+            positional: true
+            description: "Profile UUID"
+          - name: task_id
+            type: string
+            required: true
+            positional: true
+            description: "Task UUID"
+        response:
+          type: object
+          item: TodoTask
+      create:
+        method: POST
+        path: "/api/profiles/{profile_id}/todo-tasks"
+        description: "Create a to-do task. Returns 200 with the created task."
+        params:
+          - name: profile_id
+            type: string
+            required: true
+            positional: true
+            description: "Profile UUID"
+        body:
+          - name: todoTaskListId
+            flag_name: list-id
+            type: string
+            required: true
+            description: "Target to-do list UUID"
+          - name: title
+            type: string
+            required: true
+            description: "Task title"
+          - name: notes
+            type: string
+            description: "Free-text notes"
+          - name: duration
+            type: int
+            description: "Estimated duration in seconds"
+          - name: iconType
+            flag_name: icon-type
+            type: string
+            default: "UnicodeEmoji"
+            description: "Icon kind"
+          - name: iconId
+            flag_name: icon
+            type: string
+            description: "Emoji character when icon-type is UnicodeEmoji"
+        response:
+          type: object
+          item: TodoTask
+      update:
+        method: PUT
+        path: "/api/profiles/{profile_id}/todo-tasks"
+        description: "Update a to-do task. Note the API updates via the COLLECTION path; item-level PUT returns 405."
+        params:
+          - name: profile_id
+            type: string
+            required: true
+            positional: true
+            description: "Profile UUID"
+        body:
+          - name: taskId
+            flag_name: task-id
+            type: string
+            required: true
+            description: "Task UUID being updated"
+          - name: todoTaskListId
+            flag_name: list-id
+            type: string
+            required: true
+            description: "Owning to-do list UUID"
+          - name: title
+            type: string
+            description: "Task title"
+          - name: isChecked
+            flag_name: checked
+            type: bool
+            description: "Completion state. To-dos use isChecked, not isCompleted."
+          - name: checkedAt
+            flag_name: checked-at
+            type: string
+            description: "Completion timestamp"
+        response:
+          type: object
+          item: TodoTask
+      delete:
+        method: DELETE
+        path: "/api/profiles/{profile_id}/todo-tasks/{task_id}"
+        description: "Delete a to-do task"
+        params:
+          - name: profile_id
+            type: string
+            required: true
+            positional: true
+            description: "Profile UUID"
+          - name: task_id
+            type: string
+            required: true
+            positional: true
+            description: "Task UUID"
+
+  todo_lists:
+    description: "To-do lists that group tasks"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/profiles/{profile_id}/todo-task-lists"
+        description: "List to-do lists with their tasks"
+        params:
+          - name: profile_id
+            type: string
+            required: true
+            positional: true
+            description: "Profile UUID"
+        response:
+          type: object
+          item: TodoTaskListEnvelope
+        response_path: lists
+
+  tags:
+    description: "User-defined tags applied to activities and tasks"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/profiles/{profile_id}/tags"
+        description: "List tags"
+        params:
+          - name: profile_id
+            type: string
+            required: true
+            positional: true
+            description: "Profile UUID"
+        response:
+          type: array
+          item: Tag
+
+  routines:
+    description: "Saved routines"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/profiles/{profile_id}/routines"
+        description: "List routines in a date window"
+        happy_args: "profile_id=example-profile-id;--from=2026-08-14"
+        params:
+          - name: profile_id
+            type: string
+            required: true
+            positional: true
+            description: "Profile UUID"
+          - name: from
+            type: string
+            required: true
+            description: "Window start, YYYY-MM-DD. Required by the API."
+            format: date
+          - name: to
+            type: string
+            description: "Window end, YYYY-MM-DD"
+            format: date
+        response:
+          type: array
+          item: Routine
+
+  calendars:
+    description: "External calendars linked into Tiimo"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/externalCalendar/profiles/{profile_id}/linkedCalendars"
+        description: "List linked external calendars"
+        params:
+          - name: profile_id
+            type: string
+            required: true
+            positional: true
+            description: "Profile UUID"
+        response:
+          type: array
+          item: LinkedCalendar
+      activities:
+        method: GET
+        path: "/api/externalCalendar/profiles/{profile_id}/externalCalendars/{calendar_id}/activities"
+        description: "List imported activities from one linked calendar. These are read-only in Tiimo."
+        params:
+          - name: profile_id
+            type: string
+            required: true
+            positional: true
+            description: "Profile UUID"
+          - name: calendar_id
+            type: string
+            required: true
+            positional: true
+            description: "Linked calendar UUID"
+          - name: fromDate
+            flag_name: from-date
+            type: string
+            required: true
+            description: "Window start, YYYY-MM-DD"
+            format: date
+          - name: toDate
+            flag_name: to-date
+            type: string
+            description: "Window end, YYYY-MM-DD"
+            format: date
+        response:
+          type: object
+          item: ActivityDay
+
+  configuration:
+    description: "Server-side feature configuration"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/configuration"
+        description: "Feature flags, locked features, and client configuration"
+        response:
+          type: object
+          item: Configuration
+
+types:
+  Profile:
+    fields:
+      - name: profileId
+        type: string
+      - name: name
+        type: string
+
+  ActivityDay:
+    fields:
+      - name: date
+        type: string
+      - name: activities
+        type: string
+
+  Activity:
+    fields:
+      - name: activityId
+        type: string
+      - name: title
+        type: string
+      - name: description
+        type: string
+      - name: type
+        type: string
+      - name: state
+        type: string
+      - name: sortPriority
+        type: int
+      - name: startTime
+        type: string
+      - name: endTime
+        type: string
+      - name: duration
+        type: int
+      - name: startTimeActual
+        type: string
+      - name: endTimeActual
+        type: string
+      - name: durationActual
+        type: int
+      - name: durationPaused
+        type: int
+      - name: pausedTime
+        type: string
+      - name: completedAt
+        type: string
+      - name: isAllDay
+        type: bool
+      - name: iconId
+        type: string
+      - name: iconType
+        type: string
+      - name: iconUrl
+        type: string
+      - name: backgroundColor
+        type: string
+      - name: isRepeating
+        type: bool
+      - name: recurrenceType
+        type: string
+      - name: origin
+        type: string
+      - name: calendarId
+        type: string
+      - name: externalEventId
+        type: string
+      - name: taskEnrichmentId
+        type: string
+      - name: isReadOnly
+        type: bool
+      - name: allowEarlyStart
+        type: bool
+      - name: allowEarlyEnd
+        type: bool
+      - name: startTimeUtc
+        type: string
+      - name: endTimeUtc
+        type: string
+      - name: startTimeLocal
+        type: string
+      - name: endTimeLocal
+        type: string
+      - name: timeUtcOffset
+        type: string
+
+  Repetition:
+    fields:
+      - name: type
+        type: string
+      - name: weeklyFrequency
+        type: int
+      - name: firstDay
+        type: string
+      - name: lastDay
+        type: string
+      - name: interval
+        type: int
+      - name: daily
+        type: bool
+      - name: weekly
+        type: bool
+      - name: monthly
+        type: bool
+      - name: yearly
+        type: bool
+
+  Checklist:
+    fields:
+      - name: checklistId
+        type: string
+      - name: isCompleted
+        type: bool
+
+  ChecklistItem:
+    fields:
+      - name: checklistItemId
+        type: string
+      - name: title
+        type: string
+      - name: isChecked
+        type: bool
+      - name: checkedAt
+        type: string
+      - name: checklistDate
+        type: string
+      - name: index
+        type: int
+      - name: iconId
+        type: string
+      - name: iconType
+        type: string
+
+  Grouping:
+    fields:
+      - name: groupingType
+        type: string
+      - name: groupingLabel
+        type: string
+
+  TodoTask:
+    fields:
+      - name: profileId
+        type: string
+      - name: taskId
+        type: string
+      - name: todoTaskListId
+        type: string
+      - name: title
+        type: string
+      - name: notes
+        type: string
+      - name: duration
+        type: int
+      - name: iconId
+        type: string
+      - name: iconType
+        type: string
+      - name: iconUrl
+        type: string
+      - name: backgroundColor
+        type: string
+      - name: isChecked
+        type: bool
+      - name: createdAt
+        type: string
+      - name: checkedAt
+        type: string
+
+  TodoTaskListEnvelope:
+    fields:
+      - name: lists
+        type: string
+
+  TodoTaskList:
+    fields:
+      - name: todoTaskListId
+        type: string
+      - name: profileId
+        type: string
+      - name: title
+        type: string
+      - name: description
+        type: string
+      - name: selectedGrouping
+        type: string
+      - name: sortOrder
+        type: int
+
+  Tag:
+    fields:
+      - name: tagId
+        type: string
+      - name: name
+        type: string
+      - name: backgroundColor
+        type: string
+      - name: tagIndex
+        type: int
+      - name: source
+        type: string
+      - name: iconId
+        type: string
+      - name: iconType
+        type: string
+
+  Routine:
+    fields:
+      - name: routineId
+        type: string
+      - name: title
+        type: string
+
+  LinkedCalendar:
+    fields:
+      - name: calendarId
+        type: string
+      - name: name
+        type: string
+      - name: color
+        type: string
+      - name: externalCalendarId
+        type: string
+      - name: externalCalendarProvider
+        type: string
+      - name: email
+        type: string
+      - name: hidden
+        type: bool
+      - name: isReadOnly
+        type: bool
+      - name: connected
+        type: bool
+      - name: iconId
+        type: string
+      - name: iconType
+        type: string
+
+  Configuration:
+    fields:
+      - name: streaksVersion
+        type: int

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "bmw-cardata-pp-cli"
+display_name = "BMW CarData"
+description = "Your BMW's telemetry, on the command line — device-code login, live telematic snapshots, charging history, and a local SQLite store that turns raw VSS data into trends, cost, and fleet insight no other tool gives you."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/bmw-cardata-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+BMW_CARDATA_ACCESS_TOKEN = true

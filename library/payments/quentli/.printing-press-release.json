@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "quentli",
+  "cli_name": "quentli-pp-cli",
+  "version": "2026.8.8",
+  "released_at": "2026-08-21T08:29:25Z",
+  "source_commit": "a99895c913a155edd85e744a947ee17a88f003f0",
+  "printing_press_version": "4.30.1",
+  "run_id": "20260805-194716-31db2fb2",
+  "changes": [
+    {
+      "title": "feat(quentli): add quentli",
+      "pr": 1662,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1662",
+      "commit": "a99895c913a155edd85e744a947ee17a88f003f0"
+    }
+  ]
+}

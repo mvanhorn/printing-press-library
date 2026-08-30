@@ -1,0 +1,753 @@
+name: respondio
+description: "Respond.io customer messaging platform CLI - contacts, conversations, messages, and workspace"
+version: "0.1.0"
+category: social-and-messaging
+base_url: "https://api.respond.io/v2"
+health_check_path: "/space/channel"
+
+# Category enrichment: single canonical env var, bearer token
+auth:
+  type: bearer_token
+  header: Authorization
+  format: "Bearer {token}"
+  env_vars:
+    - RESPOND_IO_API_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/respondio-pp-cli/config.toml"
+
+learn:
+  entity_lookup_seeds:
+    contact:
+      - canonical: "id:0"
+        aliases: ["contact", "customer"]
+  # no ticker_patterns: no fixed-prefix ID-shaped tokens to anchor
+
+types:
+  Contact:
+    fields:
+      - name: id
+        type: int
+      - name: firstName
+        type: string
+      - name: lastName
+        type: string
+      - name: phone
+        type: string
+      - name: email
+        type: string
+      - name: language
+        type: string
+      - name: profilePic
+        type: string
+      - name: countryCode
+        type: string
+      - name: status
+        type: string
+      - name: tags
+        type: array
+      - name: lifecycle
+        type: string
+      - name: created_at
+        type: int
+
+  ContactChannel:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: source
+        type: string
+      - name: lastMessageTime
+        type: int
+      - name: created_at
+        type: int
+
+  Message:
+    fields:
+      - name: messageId
+        type: int
+      - name: channelMessageId
+        type: string
+      - name: contactId
+        type: int
+      - name: channelId
+        type: int
+      - name: traffic
+        type: string
+      - name: status
+        type: array
+
+  SpaceUser:
+    fields:
+      - name: id
+        type: int
+      - name: firstName
+        type: string
+      - name: lastName
+        type: string
+      - name: email
+        type: string
+      - name: role
+        type: string
+
+  CustomField:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: dataType
+        type: string
+      - name: allowedValues
+        type: array
+
+  ClosingNote:
+    fields:
+      - name: category
+        type: string
+      - name: description
+        type: string
+
+  SpaceChannel:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: source
+        type: string
+      - name: created_at
+        type: int
+
+  WhatsAppTemplate:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: channelId
+        type: int
+      - name: languageCode
+        type: string
+      - name: category
+        type: string
+      - name: status
+        type: string
+
+  SpaceTag:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: emoji
+        type: string
+      - name: colorCode
+        type: string
+
+  User:
+    fields:
+      - name: id
+        type: int
+      - name: firstName
+        type: string
+      - name: lastName
+        type: string
+      - name: email
+        type: string
+
+resources:
+  contact:
+    description: "Manage Respond.io contacts and contact-level actions"
+    endpoints:
+      get:
+        method: GET
+        path: "/contact/{identifier}"
+        description: "Get a contact by identifier (id:123, email:user@example.com, phone:+1234567890)"
+        params:
+          - name: identifier
+            type: string
+            required: true
+            positional: true
+            description: "Contact identifier - id:N, email:addr, or phone:+num"
+        example: "  respondio-pp-cli contact get id:42"
+        happy_args: "id=id:42"
+        response:
+          type: object
+          item: Contact
+      create:
+        method: POST
+        path: "/contact/{identifier}"
+        description: "Create a new contact (identifier must be email: or phone:)"
+        params:
+          - name: identifier
+            type: string
+            required: true
+            positional: true
+            description: "New contact identifier - email:addr or phone:+num"
+        body:
+          properties:
+            firstName:
+              type: string
+            lastName:
+              type: string
+            phone:
+              type: string
+            email:
+              type: string
+            language:
+              type: string
+            countryCode:
+              type: string
+        example: "  respondio-pp-cli contact create email:user@example.com --firstName John --lastName Doe"
+        happy_args: "identifier=email:user@example.com;--firstName=John"
+        response:
+          type: object
+          item: Contact
+      update:
+        method: PUT
+        path: "/contact/{identifier}"
+        description: "Update an existing contact"
+        params:
+          - name: identifier
+            type: string
+            required: true
+            positional: true
+            description: "Contact identifier"
+        body:
+          properties:
+            firstName:
+              type: string
+            lastName:
+              type: string
+            phone:
+              type: string
+            email:
+              type: string
+            language:
+              type: string
+            countryCode:
+              type: string
+        example: "  respondio-pp-cli contact update id:42 --lastName Smith"
+        happy_args: "identifier=id:42"
+        response:
+          type: object
+          item: Contact
+      upsert:
+        method: POST
+        path: "/contact/create_or_update/{identifier}"
+        description: "Create or update a contact keyed by email/phone identifier"
+        params:
+          - name: identifier
+            type: string
+            required: true
+            positional: true
+            description: "Contact identifier - email:addr or phone:+num"
+        body:
+          properties:
+            firstName:
+              type: string
+            lastName:
+              type: string
+            phone:
+              type: string
+            email:
+              type: string
+            language:
+              type: string
+            countryCode:
+              type: string
+        example: "  respondio-pp-cli contact upsert email:user@example.com --firstName John"
+        happy_args: "identifier=email:user@example.com"
+        response:
+          type: object
+          item: Contact
+      delete:
+        method: DELETE
+        path: "/contact/{identifier}"
+        description: "Delete a contact"
+        params:
+          - name: identifier
+            type: string
+            required: true
+            positional: true
+            description: "Contact identifier"
+        example: "  respondio-pp-cli contact delete id:42"
+        happy_args: "identifier=id:42"
+      list:
+        method: POST
+        path: "/contact/list"
+        description: "List contacts with optional search and filters"
+        body:
+          properties:
+            search:
+              type: string
+              description: "Free-text search across contacts"
+            timezone:
+              type: string
+              description: "Timezone for the filter evaluation"
+            limit:
+              type: int
+              description: "Max contacts to return (1-100)"
+            cursorId:
+              type: int
+              description: "Pagination cursor from previous response"
+        example: "  respondio-pp-cli contact list --search Acme --limit 25"
+        happy_args: "--search=Acme;--limit=5"
+        response:
+          type: array
+          item: Contact
+          path: items
+        pagination:
+          type: cursor
+          cursor_field: pagination.next
+      add-tags:
+        method: POST
+        path: "/contact/{identifier}/tag"
+        description: "Add tags to a contact"
+        params:
+          - name: identifier
+            type: string
+            required: true
+            positional: true
+            description: "Contact identifier"
+        body:
+          properties:
+            tags:
+              type: array
+              items:
+                type: string
+              description: "Tag names to add (1-10 tags)"
+        example: "  respondio-pp-cli contact add-tags id:42 --tags vip --tags premium"
+        happy_args: "identifier=id:42;--tags=vip"
+      remove-tags:
+        method: DELETE
+        path: "/contact/{identifier}/tag"
+        description: "Remove tags from a contact"
+        params:
+          - name: identifier
+            type: string
+            required: true
+            positional: true
+            description: "Contact identifier"
+        body:
+          properties:
+            tags:
+              type: array
+              items:
+                type: string
+              description: "Tag names to remove"
+        example: "  respondio-pp-cli contact remove-tags id:42 --tags old-tag"
+        happy_args: "identifier=id:42;--tags=old-tag"
+      list-channels:
+        method: GET
+        path: "/contact/{identifier}/channels"
+        description: "List all channels connected to a contact"
+        params:
+          - name: identifier
+            type: string
+            required: true
+            positional: true
+            description: "Contact identifier"
+          - name: limit
+            type: int
+            description: "Max channels to return"
+          - name: cursorId
+            type: int
+            description: "Pagination cursor"
+        example: "  respondio-pp-cli contact list-channels id:42"
+        happy_args: "identifier=id:42"
+        response:
+          type: array
+          item: ContactChannel
+          path: items
+        pagination:
+          type: cursor
+          cursor_field: pagination.next
+      merge:
+        method: POST
+        path: "/contact/merge"
+        description: "Merge two contacts into one"
+        body:
+          properties:
+            contactIds:
+              type: array
+              items:
+                type: int
+              required: true
+              description: "Two contact IDs to merge [id1, id2]"
+        example: "  respondio-pp-cli contact merge --contactIds 42 --contactIds 43"
+      update-lifecycle:
+        method: POST
+        path: "/contact/{identifier}/lifecycle/update"
+        description: "Update a contact's lifecycle stage"
+        params:
+          - name: identifier
+            type: string
+            required: true
+            positional: true
+            description: "Contact identifier"
+        body:
+          properties:
+            name:
+              type: string
+              description: "New lifecycle stage name (empty to remove)"
+        example: "  respondio-pp-cli contact update-lifecycle id:42 --name trial"
+        happy_args: "identifier=id:42;--name=trial"
+
+  message:
+    description: "Send and retrieve messages for a contact"
+    endpoints:
+      send:
+        method: POST
+        path: "/contact/{identifier}/message"
+        description: "Send a message to a contact"
+        params:
+          - name: identifier
+            type: string
+            required: true
+            positional: true
+            description: "Contact identifier"
+        body:
+          properties:
+            channelId:
+              type: int
+              description: "Channel to send through (optional)"
+            message:
+              type: object
+              description: "Message payload (type, text, attachment, template, etc.)"
+        example: "  respondio-pp-cli message send id:42 --message '{\"type\":\"text\",\"text\":\"Hello!\"}'"
+        happy_args: "identifier=id:42"
+      get:
+        method: GET
+        path: "/contact/{identifier}/message/{messageId}"
+        description: "Get a message by ID"
+        params:
+          - name: identifier
+            type: string
+            required: true
+            positional: true
+            description: "Contact identifier"
+          - name: messageId
+            type: int
+            required: true
+            positional: true
+            description: "Message ID"
+        example: "  respondio-pp-cli message get id:42 987654"
+        happy_args: "identifier=id:42;messageId=987654"
+        response:
+          type: object
+          item: Message
+      list:
+        method: GET
+        path: "/contact/{identifier}/message/list"
+        description: "List messages for a contact"
+        params:
+          - name: identifier
+            type: string
+            required: true
+            positional: true
+            description: "Contact identifier"
+          - name: limit
+            type: int
+            description: "Max messages to return"
+          - name: cursorId
+            type: int
+            description: "Pagination cursor"
+        example: "  respondio-pp-cli message list id:42 --limit 25"
+        happy_args: "identifier=id:42;--limit=5"
+        response:
+          type: array
+          item: Message
+          path: items
+        pagination:
+          type: cursor
+          cursor_field: pagination.next
+
+  conversation:
+    description: "Manage conversation assignment and status"
+    endpoints:
+      assign:
+        method: POST
+        path: "/contact/{identifier}/conversation/assignee"
+        description: "Assign or unassign a conversation"
+        params:
+          - name: identifier
+            type: string
+            required: true
+            positional: true
+            description: "Contact identifier"
+        body:
+          properties:
+            assignee:
+              type: string
+              description: "User ID or email to assign, or empty/null to unassign"
+        example: "  respondio-pp-cli conversation assign id:42 --assignee 456"
+        happy_args: "identifier=id:42"
+      update-status:
+        method: POST
+        path: "/contact/{identifier}/conversation/status"
+        description: "Open or close a conversation"
+        params:
+          - name: identifier
+            type: string
+            required: true
+            positional: true
+            description: "Contact identifier"
+        body:
+          properties:
+            status:
+              type: string
+              description: "open or close"
+            category:
+              type: string
+              description: "Closing category when closing"
+            summary:
+              type: string
+              description: "Closing summary when closing"
+        example: "  respondio-pp-cli conversation update-status id:42 --status close --category Resolved"
+        happy_args: "identifier=id:42;--status=close"
+
+  comment:
+    description: "Add internal comments to contacts"
+    endpoints:
+      create:
+        method: POST
+        path: "/contact/{identifier}/comment"
+        description: "Create an internal comment on a contact"
+        params:
+          - name: identifier
+            type: string
+            required: true
+            positional: true
+            description: "Contact identifier"
+        body:
+          properties:
+            text:
+              type: string
+              required: true
+              description: "Comment text (mention users with {{@user.ID}})"
+        example: "  respondio-pp-cli comment create id:42 --text enable-checkout"
+        happy_args: "identifier=id:42;--text=hi"
+
+  space:
+    description: "Respond.io workspace-level operations"
+    endpoints:
+      list-users:
+        method: GET
+        path: "/space/user"
+        description: "List users in the workspace"
+        params:
+          - name: limit
+            type: int
+            description: "Max users to return"
+          - name: cursorId
+            type: int
+            description: "Pagination cursor"
+        example: "  respondio-pp-cli space list-users --limit 50"
+        happy_args: "--limit=5"
+        response:
+          type: array
+          item: SpaceUser
+          path: items
+        pagination:
+          type: cursor
+          cursor_field: pagination.next
+      get-user:
+        method: GET
+        path: "/space/user/{id}"
+        description: "Get a user by ID"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "User ID"
+        example: "  respondio-pp-cli space get-user 42"
+        happy_args: "id=42"
+        response:
+          type: object
+          item: SpaceUser
+      create-custom-field:
+        method: POST
+        path: "/space/custom_field"
+        description: "Create a custom field definition"
+        body:
+          properties:
+            name:
+              type: string
+              required: true
+              description: "Field name"
+            slug:
+              type: string
+              description: "Unique slug"
+            description:
+              type: string
+            dataType:
+              type: string
+              description: "text, list, checkbox, email, number, url, date, or time"
+            allowedValues:
+              type: array
+              items:
+                type: string
+              description: "Allowed values for list data type"
+        example: "  respondio-pp-cli space create-custom-field --name Priority --dataType list --allowedValues Low --allowedValues High"
+        happy_args: "--name=test-field"
+        response:
+          type: object
+          item: CustomField
+      list-custom-fields:
+        method: GET
+        path: "/space/custom_field"
+        description: "List all custom field definitions"
+        params:
+          - name: limit
+            type: int
+            description: "Max fields to return"
+          - name: cursorId
+            type: int
+            description: "Pagination cursor"
+        example: "  respondio-pp-cli space list-custom-fields"
+        happy_args: "--limit=5"
+        response:
+          type: array
+          item: CustomField
+          path: items
+        pagination:
+          type: cursor
+          cursor_field: pagination.next
+      get-custom-field:
+        method: GET
+        path: "/space/custom_field/{id}"
+        description: "Get a custom field by ID"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Custom field ID"
+        example: "  respondio-pp-cli space get-custom-field 42"
+        happy_args: "id=42"
+        response:
+          type: object
+          item: CustomField
+      list-closing-notes:
+        method: GET
+        path: "/space/closing_notes"
+        description: "List closing note categories"
+        example: "  respondio-pp-cli space list-closing-notes"
+        happy_args: "--limit=5"
+        response:
+          type: array
+          item: ClosingNote
+          path: items
+      list-channels:
+        method: GET
+        path: "/space/channel"
+        description: "List all channels in the workspace"
+        params:
+          - name: limit
+            type: int
+            description: "Max channels to return"
+          - name: cursorId
+            type: int
+            description: "Pagination cursor"
+        example: "  respondio-pp-cli space list-channels"
+        happy_args: "--limit=5"
+        response:
+          type: array
+          item: SpaceChannel
+          path: items
+        pagination:
+          type: cursor
+          cursor_field: pagination.next
+      list-templates:
+        method: GET
+        path: "/space/channel/{channelId}/template"
+        description: "List message templates for a channel"
+        params:
+          - name: channelId
+            type: int
+            required: true
+            positional: true
+            description: "Channel ID"
+          - name: limit
+            type: int
+            description: "Max templates to return"
+          - name: cursorId
+            type: int
+            description: "Pagination cursor"
+        example: "  respondio-pp-cli space list-templates 12345"
+        happy_args: "channelId=12345;--limit=5"
+        response:
+          type: array
+          item: WhatsAppTemplate
+          path: items
+        pagination:
+          type: cursor
+          cursor_field: pagination.next
+      create-tag:
+        method: POST
+        path: "/space/tag"
+        description: "Create a workspace tag"
+        body:
+          properties:
+            name:
+              type: string
+              required: true
+              description: "Tag name"
+            description:
+              type: string
+            colorCode:
+              type: string
+              description: "Hex color code"
+            emoji:
+              type: string
+        example: "  respondio-pp-cli space create-tag --name VIP --emoji star"
+        happy_args: "--name=test-tag"
+        response:
+          type: object
+          item: SpaceTag
+      update-tag:
+        method: PUT
+        path: "/space/tag"
+        description: "Update a workspace tag"
+        body:
+          properties:
+            currentName:
+              type: string
+              required: true
+              description: "Current tag name to update"
+            name:
+              type: string
+              description: "New tag name"
+            description:
+              type: string
+            colorCode:
+              type: string
+            emoji:
+              type: string
+        example: "  respondio-pp-cli space update-tag --currentName VIP --name Premium"
+        happy_args: "--currentName=test-tag"
+        response:
+          type: object
+          item: SpaceTag
+      delete-tag:
+        method: DELETE
+        path: "/space/tag"
+        description: "Delete a workspace tag"
+        body:
+          properties:
+            name:
+              type: string
+              required: true
+              description: "Tag name to delete"
+        example: "  respondio-pp-cli space delete-tag --name old-tag"
+        happy_args: "--name=test-tag"

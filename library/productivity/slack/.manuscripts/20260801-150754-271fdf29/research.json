@@ -1,0 +1,337 @@
+{
+  "api_name": "slack",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "korotovsky/slack-mcp-server",
+      "url": "https://github.com/korotovsky/slack-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1700,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "rockymadden/slack-cli",
+      "url": "https://github.com/rockymadden/slack-cli",
+      "language": "Shell",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "shaharia-lab/slackcli",
+      "url": "https://github.com/shaharia-lab/slackcli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "slackapi/slack-cli",
+      "url": "https://github.com/slackapi/slack-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tumf/slack-rs",
+      "url": "https://github.com/tumf/slack-rs",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "piekstra/slack-cli",
+      "url": "https://github.com/piekstra/slack-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 22,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "slackapi/python-slack-sdk",
+      "url": "https://github.com/slackapi/python-slack-sdk",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "slackapi/slack-api-specs",
+      "url": "https://github.com/slackapi/slack-api-specs",
+      "language": "JSON",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-01T20:05:00Z",
+  "novel_features": [
+    {
+      "name": "Archive Recall",
+      "command": "archive recall",
+      "description": "Find messages in your local archive, including ones Slack has already hidden behind the 90-day retention wall.",
+      "rationale": "Requires a local FTS5 index over synced messages joined to users and channels for name resolution and thread context; no API call returns messages Slack no longer serves.",
+      "example": "slack-pp-cli archive recall \"deploy\" --agent --limit 20",
+      "why_it_matters": "Reach for this instead of search when the answer may be older than 90 days, or when you only hold a bot token, since Slack's search endpoint rejects bot tokens outright.",
+      "group": "Local archive that outlives Slack"
+    },
+    {
+      "name": "Archive Coverage",
+      "command": "archive coverage",
+      "description": "Show what date range your local mirror actually holds per channel, and where the gaps are.",
+      "rationale": "Requires aggregating per-channel timestamp ranges across the local store and diffing consecutive synced windows; the API has no concept of what you have already mirrored.",
+      "example": "slack-pp-cli archive coverage --json",
+      "why_it_matters": "Check this before trusting an empty recall result, so you can tell a genuine absence from an unsynced range.",
+      "group": "Local archive that outlives Slack"
+    },
+    {
+      "name": "Catch-up",
+      "command": "catchup",
+      "description": "See what happened while you were away: new volume per channel, messages that mention you, and threads still waiting on your reply.",
+      "rationale": "Requires one local pass joining messages, conversations, users, and usergroup membership to compute obligation rather than unread volume, which Slack's own badge cannot express.",
+      "example": "slack-pp-cli catchup --since 24h --agent",
+      "why_it_matters": "Use this as the single call that replaces listing channels, pulling history per channel, and resolving mentions by hand.",
+      "group": "Obligation over volume"
+    },
+    {
+      "name": "Stale Thread Radar",
+      "command": "threads stale",
+      "description": "List threads across the archive where the last reply is not yours and nobody has answered since.",
+      "rationale": "Requires grouping local messages by thread_ts and ranking by age since the latest reply; thread reply-ownership is a Slack-specific structure with no equivalent endpoint.",
+      "example": "slack-pp-cli threads stale --days 3 --json",
+      "why_it_matters": "Pick this when the question is what is unanswered, rather than what is recent.",
+      "group": "Obligation over volume"
+    },
+    {
+      "name": "Channel Health",
+      "command": "health",
+      "description": "Compare your channels by messages per day, distinct posters, median first-reply latency, and days idle.",
+      "rationale": "Requires a per-channel aggregate over the local store joined to users; comparing channels through the API alone means one paginated call per channel with no shared basis.",
+      "example": "slack-pp-cli health --dying --json",
+      "why_it_matters": "Use this for archive-candidate decisions when you are not a workspace admin and have no export or admin console.",
+      "group": "Workspace stewardship"
+    },
+    {
+      "name": "User Activity",
+      "command": "users activity",
+      "description": "Profile where one person posts, which threads they carry, and when they were last seen.",
+      "rationale": "Requires a cross-channel rollup over local messages and reactions per user, which no single endpoint assembles.",
+      "example": "slack-pp-cli users activity chris --days 30 --json",
+      "why_it_matters": "Reach for this for handoff and standup context about a named teammate, not about yourself.",
+      "group": "Workspace stewardship"
+    },
+    {
+      "name": "Identity Card",
+      "command": "users whois",
+      "description": "Turn an opaque Slack ID, handle, or email into one card with shared channels, timezone, DND state, and last-seen.",
+      "rationale": "Requires resolving any identifier form against the local users table then joining messages for shared channels and recency, collapsing what is otherwise a per-ID lookup loop.",
+      "example": "slack-pp-cli users whois U04AB9XYZ --agent",
+      "why_it_matters": "Use this the moment a payload hands you a bare U-prefixed or C-prefixed ID, instead of calling users info per identifier.",
+      "group": "Identity resolution"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Archive Recall",
+      "command": "archive recall",
+      "description": "Find messages in your local archive, including ones Slack has already hidden behind the 90-day retention wall.",
+      "rationale": "Requires a local FTS5 index over synced messages joined to users and channels for name resolution and thread context; no API call returns messages Slack no longer serves.",
+      "example": "slack-pp-cli archive recall \"deploy\" --agent --limit 20",
+      "why_it_matters": "Reach for this instead of search when the answer may be older than 90 days, or when you only hold a bot token, since Slack's search endpoint rejects bot tokens outright.",
+      "group": "Local archive that outlives Slack"
+    },
+    {
+      "name": "Archive Coverage",
+      "command": "archive coverage",
+      "description": "Show what date range your local mirror actually holds per channel, and where the gaps are.",
+      "rationale": "Requires aggregating per-channel timestamp ranges across the local store and diffing consecutive synced windows; the API has no concept of what you have already mirrored.",
+      "example": "slack-pp-cli archive coverage --json",
+      "why_it_matters": "Check this before trusting an empty recall result, so you can tell a genuine absence from an unsynced range.",
+      "group": "Local archive that outlives Slack"
+    },
+    {
+      "name": "Catch-up",
+      "command": "catchup",
+      "description": "See what happened while you were away: new volume per channel, messages that mention you, and threads still waiting on your reply.",
+      "rationale": "Requires one local pass joining messages, conversations, users, and usergroup membership to compute obligation rather than unread volume, which Slack's own badge cannot express.",
+      "example": "slack-pp-cli catchup --since 24h --agent",
+      "why_it_matters": "Use this as the single call that replaces listing channels, pulling history per channel, and resolving mentions by hand.",
+      "group": "Obligation over volume"
+    },
+    {
+      "name": "Stale Thread Radar",
+      "command": "threads stale",
+      "description": "List threads across the archive where the last reply is not yours and nobody has answered since.",
+      "rationale": "Requires grouping local messages by thread_ts and ranking by age since the latest reply; thread reply-ownership is a Slack-specific structure with no equivalent endpoint.",
+      "example": "slack-pp-cli threads stale --days 3 --json",
+      "why_it_matters": "Pick this when the question is what is unanswered, rather than what is recent.",
+      "group": "Obligation over volume"
+    },
+    {
+      "name": "Channel Health",
+      "command": "health",
+      "description": "Compare your channels by messages per day, distinct posters, median first-reply latency, and days idle.",
+      "rationale": "Requires a per-channel aggregate over the local store joined to users; comparing channels through the API alone means one paginated call per channel with no shared basis.",
+      "example": "slack-pp-cli health --dying --json",
+      "why_it_matters": "Use this for archive-candidate decisions when you are not a workspace admin and have no export or admin console.",
+      "group": "Workspace stewardship"
+    },
+    {
+      "name": "User Activity",
+      "command": "users activity",
+      "description": "Profile where one person posts, which threads they carry, and when they were last seen.",
+      "rationale": "Requires a cross-channel rollup over local messages and reactions per user, which no single endpoint assembles.",
+      "example": "slack-pp-cli users activity chris --days 30 --json",
+      "why_it_matters": "Reach for this for handoff and standup context about a named teammate, not about yourself.",
+      "group": "Workspace stewardship"
+    },
+    {
+      "name": "Identity Card",
+      "command": "users whois",
+      "description": "Turn an opaque Slack ID, handle, or email into one card with shared channels, timezone, DND state, and last-seen.",
+      "rationale": "Requires resolving any identifier form against the local users table then joining messages for shared channels and recency, collapsing what is otherwise a per-ID lookup loop.",
+      "example": "slack-pp-cli users whois U04AB9XYZ --agent",
+      "why_it_matters": "Use this the moment a payload hands you a bare U-prefixed or C-prefixed ID, instead of calling users info per identifier.",
+      "group": "Identity resolution"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SLACK_BOT_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Slack",
+    "headline": "Every Slack read your token can make, mirrored to local SQLite so your history outlives Slack's own retention wall.",
+    "value_prop": "Slack hides messages past the free-plan retention window and gates export behind admin. This CLI syncs conversations, users, files, and reactions into a local SQLite database with full-text search, so `archive recall` finds decisions Slack itself will no longer serve you. On top of the mirror it computes things no endpoint returns: `catchup` for what is still waiting on you, `threads stale` for unanswered threads, and `health` for which channels are dying.",
+    "auth_narrative": "Authentication is a bearer token, but Slack splits capability across two token types and no scope grant crosses that line. A bot token (`xoxb-`, set as `SLACK_BOT_TOKEN`) reaches conversations, users, files, reactions, usergroups, emoji, team, dnd, and bots. A user token (`xoxp-`, set as `SLACK_USER_TOKEN`) is required for the `search`, `stars`, and `reminders` families, which return `not_allowed_token_type` for bot tokens no matter which scopes you add. Run `doctor` to see which token types are configured and therefore which command families are reachable. Note also that Slack moved `conversations.history` and `conversations.replies` to a far stricter rate limit for apps redistributed outside the Marketplace; internal apps you create and install in your own workspace keep the original limits.",
+    "quickstart": [
+      {
+        "command": "slack-pp-cli doctor --dry-run",
+        "comment": "Confirm the binary runs and see which credentials it will look for, before any network call."
+      },
+      {
+        "command": "slack-pp-cli doctor",
+        "comment": "Verify the token is valid and learn which command families your token type can reach."
+      },
+      {
+        "command": "slack-pp-cli sync --resources conversations,users --full",
+        "comment": "Mirror channels and users first; everything else resolves against them."
+      },
+      {
+        "command": "slack-pp-cli archive sync --since 30d",
+        "comment": "Pull message history into the archive. The top-level sync only walks flat list endpoints, so this is the step that makes recall, catchup, threads stale, and health work."
+      },
+      {
+        "command": "slack-pp-cli archive recall \"deploy\" --agent",
+        "comment": "Search the mirror, including anything already past Slack's retention wall."
+      },
+      {
+        "command": "slack-pp-cli catchup --since 24h",
+        "comment": "See what is still waiting on you rather than what is merely unread."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "`not_allowed_token_type` on search, stars, or reminders commands",
+        "fix": "Those families require a user token. Set SLACK_USER_TOKEN to an xoxp- token with the matching scope; adding bot scopes cannot fix it."
+      },
+      {
+        "symptom": "`missing_scope` when syncing conversations",
+        "fix": "Add the missing read scope in your app's OAuth \u0026 Permissions page, then reinstall to the workspace so the token is reissued."
+      },
+      {
+        "symptom": "Sync returns far fewer records than expected and stops early",
+        "fix": "Run `slack-pp-cli archive coverage --json` to see the mirrored range per channel, then re-run sync with a wider `--since` window."
+      },
+      {
+        "symptom": "`ratelimited` errors while syncing message history",
+        "fix": "Slack applies a much stricter tier to conversations.history for apps redistributed outside the Marketplace. Use a token from an app you created and installed in your own workspace, or lower `--max-pages` and sync in smaller windows."
+      },
+      {
+        "symptom": "`channel_not_found` for a direct-message channel ID",
+        "fix": "Raw D-prefixed IDs are not accepted directly; resolve the DM by user with the command's user-targeting flag instead of passing the D id."
+      },
+      {
+        "symptom": "`archive recall` returns nothing for a message you are certain exists",
+        "fix": "Check `archive coverage` first; an empty result means the range was never synced, not that the message is absent."
+      },
+      {
+        "symptom": "archive sync reports not_in_channel for every channel",
+        "fix": "A bot token can only read channels it has joined. Run /invite @your-app in each channel you want mirrored, then re-run archive sync."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when the question is about Slack content rather than Slack app development, and when the answer benefits from history, aggregation, or repeated querying. It is the right tool for finding old decisions, summarizing what you missed, auditing which channels are alive, and resolving opaque Slack IDs into people. It is also the right tool when you hold only a bot token, because the local mirror answers search-shaped questions that Slack's own search endpoint refuses to serve bot tokens.",
+    "anti_triggers": [
+      "Do not use this CLI to build, scaffold, or deploy a Slack app; that is what the official slackapi/slack-cli does.",
+      "Do not use this CLI for Enterprise Grid administration; admin.* methods are deliberately excluded and would fail with a normal workspace token.",
+      "Do not use this CLI as a real-time bot or event listener; it is a request-response tool with no Socket Mode or Events API runtime.",
+      "Do not use this CLI to read a workspace you have not synced; every archive-backed command reports an unsynced mirror rather than silently returning empty.",
+      "Do not use this CLI for compliance or legal export; Slack's Discovery API and admin export exist for that and carry guarantees this tool does not."
+    ],
+    "recipes": [
+      {
+        "title": "Find a decision Slack has forgotten",
+        "command": "slack-pp-cli archive recall \"deploy\" --agent --select results.channel,results.user,results.ts,results.text",
+        "explanation": "Searches the local mirror and narrows the payload to just the fields worth reading, so an agent does not burn context on full message objects."
+      },
+      {
+        "title": "Morning obligation check",
+        "command": "slack-pp-cli catchup --since 24h --json",
+        "explanation": "Returns new volume per channel, messages mentioning you, and threads whose last reply is not yours."
+      },
+      {
+        "title": "Find archive candidates without admin access",
+        "command": "slack-pp-cli health --dying --json",
+        "explanation": "Ranks your channels by idle days and posting volume so you can propose archives with evidence."
+      },
+      {
+        "title": "Resolve an opaque ID from a payload",
+        "command": "slack-pp-cli users whois U04AB9XYZ --agent",
+        "explanation": "Turns a bare Slack user ID into shared channels, timezone, DND state, and last-seen in one call."
+      },
+      {
+        "title": "Confirm the mirror before trusting an empty result",
+        "command": "slack-pp-cli archive coverage --json",
+        "explanation": "Shows the mirrored timestamp range per channel so an empty recall can be read as a sync gap rather than an absence."
+      }
+    ],
+    "trigger_phrases": [
+      "search old slack messages",
+      "what did I miss in slack",
+      "which slack channels are dying",
+      "find unanswered slack threads",
+      "who is this slack user id",
+      "use slack-pp-cli",
+      "run slack"
+    ]
+  }
+}

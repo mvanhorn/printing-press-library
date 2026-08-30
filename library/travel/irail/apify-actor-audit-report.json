@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/irail",
+  "research_dir": "\u003ccli-dir\u003e/20260724-212701-ae5b4630",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

@@ -9,13 +9,13 @@ The first CLI for the War.gov/UFO declassified files portal. Search across every
 The recommended path installs both the `ufo-goat-pp-cli` binary and the `pp-ufo` agent skill in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install ufo
+npx -y @mvanhorn/printing-press-library install ufo
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install ufo --cli-only
+npx -y @mvanhorn/printing-press-library install ufo --cli-only
 ```
 
 ### Without Node (Go fallback)

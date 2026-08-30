@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-08-08T01:09:36.858955Z",
+  "cli_dir": "\u003ccli-dir\u003e/openai-ads-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Generated DO-NOT-EDIT framework command; 'List client profiles' is exact for a no-flag, no-arg command whose entire output is the profile-name array, so no qualifier is available to add"
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Generated DO-NOT-EDIT learn-loop command; the Short does under-sell its seven filters, but it lives in the shared teach.go template and is not reachable from mcp-descriptions.json (shell-out tool, absent from tools-manifest.json) - filed as a generator retro candidate instead of a hand-edit that regen would wipe"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-08-08T00:58:14.864162Z"
+  },
+  "progress": {
+    "last_processed_finding_id": "thin-short:teach.go:691"
+  }
+}

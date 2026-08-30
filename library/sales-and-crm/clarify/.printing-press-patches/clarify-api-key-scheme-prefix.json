@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "clarify-api-key-scheme-prefix",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260817-102905-ca271321",
+  "base_printing_press_version": "4.30.3",
+  "summary": "AuthHeader() normalizes the credential to Clarify's `api-key <key>` Authorization scheme when the raw key is supplied.",
+  "reason": "Clarify rejects Bearer and raw-key Authorization values; the apiKey security scheme sends the configured value verbatim, so the scheme prefix must be added client-side.",
+  "files": ["internal/config/config.go"],
+  "validated_outcome": "Full live dogfood 185/185 against a real workspace with CLARIFY_API_KEY holding the raw key."
+}

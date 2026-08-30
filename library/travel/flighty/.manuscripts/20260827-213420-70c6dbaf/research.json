@@ -1,0 +1,259 @@
+{
+  "api_name": "flighty",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "flighty-mcp-server (CPLX)",
+      "url": "https://github.com/CPLX/flighty-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "flighty-mcp (LukasHaas)",
+      "url": "https://github.com/LukasHaas/flighty-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "flighty-mcp (sailingnaturali)",
+      "url": "https://github.com/sailingnaturali/flighty-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-27T22:00:00Z",
+  "novel_features": [
+    {
+      "name": "Worst-airports ranking",
+      "command": "airports worst",
+      "description": "Rank the network's airports right now by cumulative delay and cancellations — the web map color-codes but never ranks.",
+      "rationale": "Requires sorting the full synced airport catalog by cumulativeDelay and canceledPercentage; the site only color-codes statuses on a map.",
+      "example": "flighty-pp-cli airports worst --region Europe --limit 5 --json",
+      "why_it_matters": "When an agent needs 'which airports are worst right now', this answers in one command instead of scraping the map.",
+      "group": "Cross-airport intelligence"
+    },
+    {
+      "name": "Flight lookup by number",
+      "command": "airports find-flight",
+      "description": "Find one flight by number across arrivals and departures boards — status, original vs actual time, gate, belt, terminal.",
+      "rationale": "Requires joining both flight boards and filtering by flight number; the web UI separates boards and needs eyeballing.",
+      "example": "flighty-pp-cli airports find-flight den UA5072 --json",
+      "why_it_matters": "The 'when is my flight actually leaving' question answered in one deterministic command.",
+      "group": "Flight board intelligence"
+    },
+    {
+      "name": "Network airline disruption",
+      "command": "airports airline",
+      "description": "One airline's delay/cancel/divert footprint aggregated across every synced airport — impossible per-airport on the site.",
+      "rationale": "Requires scanning disruptedAirlines[] across all synced airport details and grouping by airline; the site is per-airport only.",
+      "example": "flighty-pp-cli airports airline UA --json",
+      "why_it_matters": "Travel agents and ops folks ask 'which airline is the worst offender across my hubs today' — this answers it network-wide.",
+      "group": "Cross-airport intelligence"
+    },
+    {
+      "name": "Airport comparison",
+      "command": "airports compare",
+      "description": "Side-by-side status, delays, warnings, and flight rules for two airports.",
+      "rationale": "Requires joining two airport detail records; the web app shows one airport at a time.",
+      "example": "flighty-pp-cli airports compare sfo oak --json",
+      "why_it_matters": "Choosing between alternates (SFO vs OAK) is a two-entity question the site cannot express.",
+      "group": "Cross-airport intelligence"
+    },
+    {
+      "name": "Route disruption check",
+      "command": "airports route",
+      "description": "Both directions of one origin-destination pair's delay/cancel/divert stats, joined from each side's disrupted routes.",
+      "rationale": "disruptedRoutes are directional (origin-only); the reciprocal view requires a second fetch and manual reconciliation.",
+      "example": "flighty-pp-cli airports route sfo den --json",
+      "why_it_matters": "Route data exists only from one airport's perspective; this shows both ends of the same route.",
+      "group": "Cross-airport intelligence"
+    },
+    {
+      "name": "Healthy-alternates finder",
+      "command": "airports nearby",
+      "description": "Distance-ranked nearby airports, flagging which have normal operations right now.",
+      "rationale": "Requires haversine math over the catalog's lat/lon joined to live status; the map renders but never ranks 'nearest healthy airport'.",
+      "example": "flighty-pp-cli airports nearby sfo --healthy-only --limit 3 --json",
+      "why_it_matters": "When your airport is melting down, 'where else can I fly from' is the immediate follow-up.",
+      "group": "Cross-airport intelligence"
+    },
+    {
+      "name": "Change diff since last sync",
+      "command": "airports diff",
+      "description": "What changed since the last sync: status transitions, new/cleared warnings, delay deltas.",
+      "rationale": "No upstream history exists (snapshot-only site); deltas exist only in the local SQLite snapshot history.",
+      "example": "flighty-pp-cli airports diff --json",
+      "why_it_matters": "Monitors and writers need 'what changed since this morning' — the numbers reset upstream, local history persists.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Worst-airports ranking",
+      "command": "airports worst",
+      "description": "Rank the network's airports right now by cumulative delay and cancellations — the web map color-codes but never ranks.",
+      "rationale": "Requires sorting the full synced airport catalog by cumulativeDelay and canceledPercentage; the site only color-codes statuses on a map.",
+      "example": "flighty-pp-cli airports worst --region Europe --limit 5 --json",
+      "why_it_matters": "When an agent needs 'which airports are worst right now', this answers in one command instead of scraping the map.",
+      "group": "Cross-airport intelligence"
+    },
+    {
+      "name": "Flight lookup by number",
+      "command": "airports find-flight",
+      "description": "Find one flight by number across arrivals and departures boards — status, original vs actual time, gate, belt, terminal.",
+      "rationale": "Requires joining both flight boards and filtering by flight number; the web UI separates boards and needs eyeballing.",
+      "example": "flighty-pp-cli airports find-flight den UA5072 --json",
+      "why_it_matters": "The 'when is my flight actually leaving' question answered in one deterministic command.",
+      "group": "Flight board intelligence"
+    },
+    {
+      "name": "Network airline disruption",
+      "command": "airports airline",
+      "description": "One airline's delay/cancel/divert footprint aggregated across every synced airport — impossible per-airport on the site.",
+      "rationale": "Requires scanning disruptedAirlines[] across all synced airport details and grouping by airline; the site is per-airport only.",
+      "example": "flighty-pp-cli airports airline UA --json",
+      "why_it_matters": "Travel agents and ops folks ask 'which airline is the worst offender across my hubs today' — this answers it network-wide.",
+      "group": "Cross-airport intelligence"
+    },
+    {
+      "name": "Airport comparison",
+      "command": "airports compare",
+      "description": "Side-by-side status, delays, warnings, and flight rules for two airports.",
+      "rationale": "Requires joining two airport detail records; the web app shows one airport at a time.",
+      "example": "flighty-pp-cli airports compare sfo oak --json",
+      "why_it_matters": "Choosing between alternates (SFO vs OAK) is a two-entity question the site cannot express.",
+      "group": "Cross-airport intelligence"
+    },
+    {
+      "name": "Route disruption check",
+      "command": "airports route",
+      "description": "Both directions of one origin-destination pair's delay/cancel/divert stats, joined from each side's disrupted routes.",
+      "rationale": "disruptedRoutes are directional (origin-only); the reciprocal view requires a second fetch and manual reconciliation.",
+      "example": "flighty-pp-cli airports route sfo den --json",
+      "why_it_matters": "Route data exists only from one airport's perspective; this shows both ends of the same route.",
+      "group": "Cross-airport intelligence"
+    },
+    {
+      "name": "Healthy-alternates finder",
+      "command": "airports nearby",
+      "description": "Distance-ranked nearby airports, flagging which have normal operations right now.",
+      "rationale": "Requires haversine math over the catalog's lat/lon joined to live status; the map renders but never ranks 'nearest healthy airport'.",
+      "example": "flighty-pp-cli airports nearby sfo --healthy-only --limit 3 --json",
+      "why_it_matters": "When your airport is melting down, 'where else can I fly from' is the immediate follow-up.",
+      "group": "Cross-airport intelligence"
+    },
+    {
+      "name": "Change diff since last sync",
+      "command": "airports diff",
+      "description": "What changed since the last sync: status transitions, new/cleared warnings, delay deltas.",
+      "rationale": "No upstream history exists (snapshot-only site); deltas exist only in the local SQLite snapshot history.",
+      "example": "flighty-pp-cli airports diff --json",
+      "why_it_matters": "Monitors and writers need 'what changed since this morning' — the numbers reset upstream, local history persists.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Flighty Airports",
+    "headline": "Every Flighty Airports meltdown map feature, plus cross-airport intelligence no web page can answer.",
+    "value_prop": "Live status, METAR weather, performance, and flight boards for 156 tracked airports — parsed straight from Flighty's SSR payload with no app install, no API key, and no login. Then it goes further than the site: network-wide rankings, airline footprints, route checks, healthy alternates, and change diffs, all from a local SQLite mirror that keeps working offline.",
+    "quickstart": [
+      {
+        "command": "flighty-pp-cli airports list --status MAJOR_ISSUES --json",
+        "comment": "See which airports are melting down right now"
+      },
+      {
+        "command": "flighty-pp-cli airports show den --json",
+        "comment": "Full status, weather (raw METAR), and today's performance for one airport"
+      },
+      {
+        "command": "flighty-pp-cli airports worst --region Europe --limit 5 --json",
+        "comment": "Rank the network — the web map never ranks"
+      },
+      {
+        "command": "flighty-pp-cli airports find-flight den UA5072 --json",
+        "comment": "Find one flight across arrivals and departures boards"
+      },
+      {
+        "command": "flighty-pp-cli sync --resources airports --full",
+        "comment": "Mirror the catalog locally for offline search and cross-airport commands"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "airports show says airport not found",
+        "fix": "Use the IATA code (den) or exact slug (denver-intl-den); run flighty-pp-cli airports list to see tracked airports"
+      },
+      {
+        "symptom": "Cross-airport commands (worst, nearby, airline, diff) return empty",
+        "fix": "Run flighty-pp-cli sync --resources airports --full first — those commands read the local mirror"
+      },
+      {
+        "symptom": "Data looks stale",
+        "fix": "Re-sync or use --data-source live on commands that support it; Flighty updates the site continuously"
+      }
+    ],
+    "when_to_use": "When you or an agent need live airport disruption status, METAR weather, flight boards, or cross-airport disruption intelligence from the terminal. Ideal for pre-flight checks, travel-agent sweeps, meltdown-day writeups, and automation that needs JSON airport data without a private API.",
+    "anti_triggers": [
+      "Tracking a specific flight's live position — use Flighty's app or a flight-tracking API like AeroAPI; this CLI covers airport-level status only",
+      "Flight booking or price search — use a booking API; Flighty Airports has no pricing data",
+      "Personal flight history — the community Flighty MCP servers read your app database; this CLI is public-airport-data only",
+      "Airports not on the meltdown map — the site tracks 156 airports; unlisted airports are unavailable"
+    ],
+    "recipes": [
+      {
+        "title": "Morning meltdown sweep",
+        "command": "flighty-pp-cli airports list --status MAJOR_ISSUES --json --select iata,city,status,warnings",
+        "explanation": "One line of JSON naming every airport in serious trouble right now."
+      },
+      {
+        "title": "Pre-flight check",
+        "command": "flighty-pp-cli airports show den --json --select airportWeather.flightRulesTitle,today.departurePerformance.onTime.percentage,warnings",
+        "explanation": "Flight rules, on-time rate, and active warnings for your departure airport before you leave."
+      },
+      {
+        "title": "Find your flight's real departure",
+        "command": "flighty-pp-cli airports find-flight den UA5072 --json",
+        "explanation": "Status, original vs actual time, and gate for one flight number across both boards."
+      },
+      {
+        "title": "Rank Europe's worst hubs",
+        "command": "flighty-pp-cli airports worst --region Europe --limit 5 --json",
+        "explanation": "Magnitude-ranked by cumulative delay and cancellations — the web map never ranks."
+      },
+      {
+        "title": "Where else can I fly from",
+        "command": "flighty-pp-cli airports nearby sfo --healthy-only --limit 3 --json",
+        "explanation": "Nearest airports with normal operations when your home airport is melting down."
+      }
+    ],
+    "trigger_phrases": [
+      "is my airport delayed",
+      "airport meltdown map",
+      "why is denver airport delayed",
+      "which airports are worst right now",
+      "check airport status",
+      "flight departures board",
+      "use flighty",
+      "run flighty"
+    ]
+  }
+}

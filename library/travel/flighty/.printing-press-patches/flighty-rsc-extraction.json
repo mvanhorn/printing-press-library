@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-08-28",
+  "base_run_id": "20260827-213420-70c6dbaf",
+  "base_printing_press_version": "4.31.1",
+  "id": "flighty-rsc-extraction",
+  "summary": "Hand-authored Next.js RSC flight-chunk extractor plus kind-based page extraction wired into the five generated airports endpoint commands and the syncer.",
+  "reason": "The generic embedded-json HTML extractor cannot parse Next.js App Router self.__next_f.push payloads, which is the only data surface flighty.com/airports exposes.",
+  "files": [
+    "internal/rsc/rsc.go",
+    "internal/rsc/rsc_test.go",
+    "internal/cli/flighty_extract.go",
+    "internal/cli/airports_list.go",
+    "internal/cli/airports_tv.go",
+    "internal/cli/airports_show.go",
+    "internal/cli/airports_arrivals.go",
+    "internal/cli/airports_departures.go",
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "airports list/show/arrivals/departures return typed JSON from live SSR pages; sync stores 157 catalog rows."
+}

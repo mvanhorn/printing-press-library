@@ -36,13 +36,13 @@ func newNovelWatchRunCmd(flags *rootFlags) *cobra.Command {
 		Example: strings.Trim(`
   giustizia-amministrativa-pp-cli watch run appalti-lazio --testo appalto --sede roma --tipo sentenza --limit 50
   giustizia-amministrativa-pp-cli watch run appalti-lazio --json`, "\n"),
-		Annotations: map[string]string{"mcp:read-only": "false"},
+		Annotations: map[string]string{"mcp:read-only": "false", "pp:happy-args": "nome=dogfood-appalto;--testo=appalto;--limit=3"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if gaSkip(flags) {
-				return nil
+				return emitSkip(cmd, flags)
 			}
 			name := args[0]
 			st, err := openGAStore(cmd.Context())

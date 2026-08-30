@@ -1,0 +1,335 @@
+{
+  "api_name": "texas-roadhouse",
+  "base_url": "https://www.texasroadhouse.com",
+  "description": "Waitlist CLI for Texas Roadhouse. Find a nearby store, read the quote, join and leave the list.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "mapbox_get_mapbox.places",
+      "description": "GET /api/mapbox/geocoding/v5/mapbox.places/{id}. Required: id. Optional: country, types. Returns array of MapboxPlaceFeature.",
+      "method": "GET",
+      "path": "/api/mapbox/geocoding/v5/mapbox.places/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id path segment",
+          "required": true
+        },
+        {
+          "name": "types",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "stores_list_near",
+      "description": "GET /api/stores/near. Optional: lat, limit, long (plus 5 more). Returns array of NearRestaurant.",
+      "method": "GET",
+      "path": "/api/stores/near",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "lat",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "long",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "nomnom",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "nomnom_calendars_from",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "nomnom_calendars_to",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "nomnom_exclude_extref",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "radius",
+          "type": "integer",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "texasroadhouse_cancel",
+      "description": "Cancel a waitlist request (destructive). Live cancel requires yes=true; dry-run=true previews without POSTing. Required: waitlistRequestId, siteId. Optional: clientid, yes, dry-run. Returns the new WaitlistCancelResult.",
+      "method": "POST",
+      "path": "/api/texasroadhouse/waitlist/cancel",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "clientid",
+          "type": "string",
+          "location": "query",
+          "description": "Must be texasroadhouse"
+        },
+        {
+          "name": "waitlistRequestId",
+          "type": "integer",
+          "location": "body",
+          "description": "Request id from submit",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "body",
+          "description": "Store extref",
+          "required": true
+        },
+        {
+          "name": "yes",
+          "type": "boolean",
+          "location": "query",
+          "description": "Required for a live cancel. Same meaning as CLI --yes."
+        },
+        {
+          "name": "dry-run",
+          "type": "boolean",
+          "location": "query",
+          "description": "Preview the request body without POSTing. Same meaning as CLI --dry-run."
+        }
+      ]
+    },
+    {
+      "name": "texasroadhouse_checkin",
+      "description": "Check in once the party is at the host stand (destructive). Live check-in requires yes=true; dry-run=true previews without POSTing. Required: waitlist_id. Optional: yes, dry-run. Returns the new WaitlistCheckinResult.",
+      "method": "POST",
+      "path": "/api/texasroadhouse/waitlist/{waitlist_id}/checkin",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "waitlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "Store extref (not internal store id). Springfield MO is 218.",
+          "required": true
+        },
+        {
+          "name": "yes",
+          "type": "boolean",
+          "location": "query",
+          "description": "Required for a live check-in. Same meaning as CLI --yes."
+        },
+        {
+          "name": "dry-run",
+          "type": "boolean",
+          "location": "query",
+          "description": "Preview the request body without POSTing. Same meaning as CLI --dry-run."
+        }
+      ]
+    },
+    {
+      "name": "texasroadhouse_get_quote",
+      "description": "GET /api/texasroadhouse/waitlist/{waitlist_id}/quote. Required: waitlist_id. Returns the Quote.",
+      "method": "GET",
+      "path": "/api/texasroadhouse/waitlist/{waitlist_id}/quote",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "waitlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "The waitlist_id path segment",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "texasroadhouse_get_settings",
+      "description": "GET /api/texasroadhouse/waitlist/{waitlist_id}/settings. Required: waitlist_id. Returns array of SettingSpecialSeatingType.",
+      "method": "GET",
+      "path": "/api/texasroadhouse/waitlist/{waitlist_id}/settings",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "waitlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "The waitlist_id path segment",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "texasroadhouse_get_status",
+      "description": "GET waitlist request status. Query clientid=texasroadhouse. Required: waitlist_id, request_id. Optional: clientid. Returns the WaitlistStatus.",
+      "method": "GET",
+      "path": "/api/texasroadhouse/waitlist/{waitlist_id}/requests/{request_id}/status",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "waitlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "Store extref (not internal store id). Springfield MO is 218.",
+          "required": true
+        },
+        {
+          "name": "request_id",
+          "type": "string",
+          "location": "path",
+          "description": "Waitlist request id from a successful submit.",
+          "required": true
+        },
+        {
+          "name": "clientid",
+          "type": "string",
+          "location": "query",
+          "description": "Must be texasroadhouse"
+        }
+      ]
+    },
+    {
+      "name": "texasroadhouse_get_test",
+      "description": "GET /api/texasroadhouse/waitlist/{waitlist_id}/test. Required: waitlist_id. Returns the Test.",
+      "method": "GET",
+      "path": "/api/texasroadhouse/waitlist/{waitlist_id}/test",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "waitlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "The waitlist_id path segment",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "texasroadhouse_submit",
+      "description": "Join a store waitlist (destructive). Live join requires yes=true; dry-run=true previews without POSTing. Required: waitlist_id, EmailAddress, FirstName, LastName, PrimaryPhoneAreaCode, PrimaryPhoneNumber, PartySize, WaitMinutes. Optional: IsSmoking, PrimaryPhoneExtension, PrimaryPhoneType, Platform, yes, dry-run. Returns the new WaitlistSubmitResult.",
+      "method": "POST",
+      "path": "/api/texasroadhouse/waitlist/{waitlist_id}/submit",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "waitlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "Store extref (not internal store id). Springfield MO is 218.",
+          "required": true
+        },
+        {
+          "name": "EmailAddress",
+          "type": "string",
+          "location": "body",
+          "description": "Guest email",
+          "required": true
+        },
+        {
+          "name": "FirstName",
+          "type": "string",
+          "location": "body",
+          "description": "Guest first name",
+          "required": true
+        },
+        {
+          "name": "LastName",
+          "type": "string",
+          "location": "body",
+          "description": "Guest last name",
+          "required": true
+        },
+        {
+          "name": "IsSmoking",
+          "type": "bool",
+          "location": "body",
+          "description": "Always false in the web app"
+        },
+        {
+          "name": "PrimaryPhoneAreaCode",
+          "type": "string",
+          "location": "body",
+          "description": "3-digit area code",
+          "required": true
+        },
+        {
+          "name": "PrimaryPhoneExtension",
+          "type": "string",
+          "location": "body",
+          "description": "Usually empty"
+        },
+        {
+          "name": "PrimaryPhoneNumber",
+          "type": "string",
+          "location": "body",
+          "description": "Local number as xxx-xxxx",
+          "required": true
+        },
+        {
+          "name": "PrimaryPhoneType",
+          "type": "integer",
+          "location": "body",
+          "description": "Web app sends 1"
+        },
+        {
+          "name": "PartySize",
+          "type": "number",
+          "location": "body",
+          "description": "Party size, max 6",
+          "required": true
+        },
+        {
+          "name": "WaitMinutes",
+          "type": "integer",
+          "location": "body",
+          "description": "From quote MinQuote for this party size",
+          "required": true
+        },
+        {
+          "name": "Platform",
+          "type": "string",
+          "location": "body",
+          "description": "Web app sends web"
+        },
+        {
+          "name": "yes",
+          "type": "boolean",
+          "location": "query",
+          "description": "Required for a live join. Same meaning as CLI --yes."
+        },
+        {
+          "name": "dry-run",
+          "type": "boolean",
+          "location": "query",
+          "description": "Preview the request body without POSTing. Same meaning as CLI --dry-run."
+        }
+      ]
+    }
+  ]
+}

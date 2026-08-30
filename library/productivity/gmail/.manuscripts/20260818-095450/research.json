@@ -1,0 +1,311 @@
+{
+  "api_name": "gmail",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "googleworkspace/cli",
+      "url": "https://github.com/googleworkspace/cli",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Gmail-MCP-Server",
+      "url": "https://github.com/GongRzhe/Gmail-MCP-Server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gmail-cleaner",
+      "url": "https://github.com/Gururagavendra/gmail-cleaner",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gmail-declutter-extension",
+      "url": "https://github.com/InboxWhiz/gmail-declutter-extension",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gmail-unsubscribe",
+      "url": "https://github.com/justjake/gmail-unsubscribe",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gmail-multi-cli",
+      "url": "https://github.com/davidtkeane/gmail-multi-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "cmdg",
+      "url": "https://github.com/ThomasHabets/cmdg",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-google-gmail",
+      "url": "https://github.com/cablate/mcp-google-gmail",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-18T16:20:00Z",
+  "novel_features": [
+    {
+      "name": "Unsubscribe compliance check",
+      "command": "unsub verify",
+      "description": "See which senders kept mailing you after a one-click unsubscribe, with an escalation query per violator.",
+      "rationale": "Requires joining the local unsubscribe ledger against post-unsubscribe arrivals in the synced store — one-click is fire-and-forget in every other tool.",
+      "example": "gmail-pp-cli unsub verify --account ads --agent",
+      "why_it_matters": "After running unsubscribes, this is the only way to learn which ones actually stuck before escalating to block/filter decisions.",
+      "group": "Cleanup that compounds"
+    },
+    {
+      "name": "Mailbox delta report",
+      "command": "delta",
+      "description": "Everything new since your last check: new messages per category and sender, never-seen senders, volume spikes.",
+      "rationale": "Requires a local checkpoint row plus synced tables — a live API can only re-list, it cannot diff against what was already reported.",
+      "example": "gmail-pp-cli delta --account personal --agent",
+      "why_it_matters": "The first question of any recurring mailbox check is what changed — this answers it without re-reporting what the operator already saw.",
+      "group": "Local state that answers instantly"
+    },
+    {
+      "name": "Storage attribution report",
+      "command": "storage report",
+      "description": "Which senders, labels, years, and attachments own your storage, with ready-to-run cleanup queries per row.",
+      "rationale": "Gmail exposes only a profile total; attribution requires local aggregation over sizeEstimate, labels, and dates.",
+      "example": "gmail-pp-cli storage report --account ads --top 15 --agent",
+      "why_it_matters": "Turns a vague quota number into a ranked hit-list whose rows paste straight into cleanup plan.",
+      "group": "Local state that answers instantly"
+    },
+    {
+      "name": "Saved cleanup rules",
+      "command": "rules run",
+      "description": "Named local recipes (query plus trash or label action) replayed through the preview-confirm-undo engine as one merged plan.",
+      "rationale": "Server-side Gmail filters are structurally absent from this binary; a local rulebook replayed through the safe engine is the compliant recurrence path.",
+      "example": "gmail-pp-cli rules run --plan-only --agent",
+      "why_it_matters": "Standing hygiene (old promos to trash, receipts to their folder) becomes one command a scheduled job can run daily, always previewed before applying.",
+      "group": "Cleanup that compounds"
+    },
+    {
+      "name": "Sort suggestions",
+      "command": "sort suggest",
+      "description": "Senders whose mail you already label consistently, with a generated plan to label the rest the same way.",
+      "rationale": "Requires majority-label statistics over messages, labels, and senders in the local store — mechanical, LLM-free categorization.",
+      "example": "gmail-pp-cli sort suggest --account personal --min-confidence 0.8 --agent",
+      "why_it_matters": "Folder-sorting at scale without guessing: the plan only proposes what the operator's own labeling history already proves.",
+      "group": "Cleanup that compounds"
+    },
+    {
+      "name": "Trash undo-window watch",
+      "command": "trash report",
+      "description": "What you trashed, grouped by applied plan, with days remaining before Gmail's 30-day purge makes undo impossible.",
+      "rationale": "Requires the local mutation ledger joined to trash state — the API has no memory of why or when something was trashed.",
+      "example": "gmail-pp-cli trash report --closing-soon --agent",
+      "why_it_matters": "The last regret-check: surfaces batches whose undo window is closing so recovery happens while it still can.",
+      "group": "Safety made visible"
+    },
+    {
+      "name": "Mailbox health score",
+      "command": "score",
+      "description": "Per-account hygiene metrics — unread share, promo share, subscription count, storage headroom — snapshotted over time.",
+      "rationale": "Requires local aggregates persisted to a snapshots table; week-over-week campaign progress no single API call can report.",
+      "example": "gmail-pp-cli score --account ads --agent",
+      "why_it_matters": "Shows whether the cleanup campaign is actually winning — Promotions down 60% since baseline beats a feeling.",
+      "group": "Safety made visible"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Unsubscribe compliance check",
+      "command": "unsub verify",
+      "description": "See which senders kept mailing you after a one-click unsubscribe, with an escalation query per violator.",
+      "rationale": "Requires joining the local unsubscribe ledger against post-unsubscribe arrivals in the synced store — one-click is fire-and-forget in every other tool.",
+      "example": "gmail-pp-cli unsub verify --account ads --agent",
+      "why_it_matters": "After running unsubscribes, this is the only way to learn which ones actually stuck before escalating to block/filter decisions.",
+      "group": "Cleanup that compounds"
+    },
+    {
+      "name": "Mailbox delta report",
+      "command": "delta",
+      "description": "Everything new since your last check: new messages per category and sender, never-seen senders, volume spikes.",
+      "rationale": "Requires a local checkpoint row plus synced tables — a live API can only re-list, it cannot diff against what was already reported.",
+      "example": "gmail-pp-cli delta --account personal --agent",
+      "why_it_matters": "The first question of any recurring mailbox check is what changed — this answers it without re-reporting what the operator already saw.",
+      "group": "Local state that answers instantly"
+    },
+    {
+      "name": "Storage attribution report",
+      "command": "storage report",
+      "description": "Which senders, labels, years, and attachments own your storage, with ready-to-run cleanup queries per row.",
+      "rationale": "Gmail exposes only a profile total; attribution requires local aggregation over sizeEstimate, labels, and dates.",
+      "example": "gmail-pp-cli storage report --account ads --top 15 --agent",
+      "why_it_matters": "Turns a vague quota number into a ranked hit-list whose rows paste straight into cleanup plan.",
+      "group": "Local state that answers instantly"
+    },
+    {
+      "name": "Saved cleanup rules",
+      "command": "rules run",
+      "description": "Named local recipes (query plus trash or label action) replayed through the preview-confirm-undo engine as one merged plan.",
+      "rationale": "Server-side Gmail filters are structurally absent from this binary; a local rulebook replayed through the safe engine is the compliant recurrence path.",
+      "example": "gmail-pp-cli rules run --plan-only --agent",
+      "why_it_matters": "Standing hygiene (old promos to trash, receipts to their folder) becomes one command a scheduled job can run daily, always previewed before applying.",
+      "group": "Cleanup that compounds"
+    },
+    {
+      "name": "Sort suggestions",
+      "command": "sort suggest",
+      "description": "Senders whose mail you already label consistently, with a generated plan to label the rest the same way.",
+      "rationale": "Requires majority-label statistics over messages, labels, and senders in the local store — mechanical, LLM-free categorization.",
+      "example": "gmail-pp-cli sort suggest --account personal --min-confidence 0.8 --agent",
+      "why_it_matters": "Folder-sorting at scale without guessing: the plan only proposes what the operator's own labeling history already proves.",
+      "group": "Cleanup that compounds"
+    },
+    {
+      "name": "Trash undo-window watch",
+      "command": "trash report",
+      "description": "What you trashed, grouped by applied plan, with days remaining before Gmail's 30-day purge makes undo impossible.",
+      "rationale": "Requires the local mutation ledger joined to trash state — the API has no memory of why or when something was trashed.",
+      "example": "gmail-pp-cli trash report --closing-soon --agent",
+      "why_it_matters": "The last regret-check: surfaces batches whose undo window is closing so recovery happens while it still can.",
+      "group": "Safety made visible"
+    },
+    {
+      "name": "Mailbox health score",
+      "command": "score",
+      "description": "Per-account hygiene metrics — unread share, promo share, subscription count, storage headroom — snapshotted over time.",
+      "rationale": "Requires local aggregates persisted to a snapshots table; week-over-week campaign progress no single API call can report.",
+      "example": "gmail-pp-cli score --account ads --agent",
+      "why_it_matters": "Shows whether the cleanup campaign is actually winning — Promotions down 60% since baseline beats a feeling.",
+      "group": "Safety made visible"
+    }
+  ],
+  "narrative": {
+    "display_name": "Gmail",
+    "headline": "Mailbox cleanup that can prove itself — preview, confirm, undo, verify — from a binary that structurally cannot send email.",
+    "value_prop": "Every read and cleanup surface from the Gmail tool landscape, multi-account, with a local SQLite store underneath: sender intelligence, all-category digests, bulk trash/label with preview-confirm-undo, RFC 8058 one-click unsubscribes with a compliance ledger. Send, drafts, settings, and permanent deletion are absent from the binary by construction — Trash is the ceiling.",
+    "auth_narrative": "Installed-app OAuth with named multi-account profiles (per-profile token store, consented-account verification). The only scope ever requested is gmail.modify; send/draft/settings endpoints do not exist in this binary, and permanent deletion is impossible under this scope — Google enforces the Trash ceiling, not us.",
+    "quickstart": [
+      {
+        "command": "gmail-pp-cli accounts auth --account personal",
+        "comment": "One-time OAuth consent per named account profile"
+      },
+      {
+        "command": "gmail-pp-cli sync --account personal --full",
+        "comment": "Build the local store the intelligence commands run on"
+      },
+      {
+        "command": "gmail-pp-cli digest --account personal --agent",
+        "comment": "The all-category summary: counts, unread aging, top senders per tab"
+      },
+      {
+        "command": "gmail-pp-cli senders --account personal --top 20 --agent",
+        "comment": "Who actually fills this mailbox — volume, size, unread rate"
+      },
+      {
+        "command": "gmail-pp-cli cleanup plan --q \"category:promotions older_than:1y\" --action trash --account personal",
+        "comment": "Preview first, always: counts and samples before anything moves"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on any command",
+        "fix": "Re-run gmail-pp-cli accounts auth --account \u003cname\u003e — the refresh token was revoked (password changes revoke Gmail tokens)"
+      },
+      {
+        "symptom": "sync reports an expired history cursor (HTTP 404)",
+        "fix": "Run gmail-pp-cli sync --account \u003cname\u003e --full — Gmail expires historyId cursors after long gaps; a full resync rebuilds cleanly"
+      },
+      {
+        "symptom": "cleanup apply refuses without a plan token",
+        "fix": "Run cleanup plan first and pass its printed token to apply — applies never run unplanned"
+      },
+      {
+        "symptom": "unsub run skips a sender",
+        "fix": "That sender only offers mailto: unsubscribe — it appears in unsub audit --mailto-only for manual handling; this tool never sends email"
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent or operator needs to understand or clean a Gmail mailbox safely: summaries across every category, sender and storage intelligence, bulk trash/label with preview and undo, and one-click unsubscribes with follow-up verification. It is the wrong tool for composing or sending anything — by design it cannot.",
+    "recipes": [
+      {
+        "title": "Morning mailbox delta",
+        "command": "gmail-pp-cli delta --account ads --agent",
+        "explanation": "What arrived since the last check, grouped by category and sender, without re-reporting what was already seen."
+      },
+      {
+        "title": "Top senders, narrowed for an agent",
+        "command": "gmail-pp-cli senders --account personal --top 25 --agent --select senders.email,senders.count,senders.unread_rate",
+        "explanation": "Dotted --select keeps the payload to the three fields a triage decision needs."
+      },
+      {
+        "title": "Unsubscribe audit before acting",
+        "command": "gmail-pp-cli unsub audit --account ads --min-count 5 --agent",
+        "explanation": "Ranks subscription senders by volume and classifies each as one-click (actionable) or mailto-only (desk list)."
+      },
+      {
+        "title": "Preview a year-old promotions purge",
+        "command": "gmail-pp-cli cleanup plan --q \"category:promotions older_than:1y\" --action trash --account personal --agent",
+        "explanation": "Counts and samples first; the printed plan token is required by cleanup apply, and every apply is undoable."
+      },
+      {
+        "title": "Verify last week's unsubscribes stuck",
+        "command": "gmail-pp-cli unsub verify --account ads --since 7d --agent",
+        "explanation": "Joins the unsubscribe ledger to fresh arrivals — violators come back with an escalation query."
+      }
+    ],
+    "trigger_phrases": [
+      "clean up my inbox",
+      "summarize my email",
+      "who emails me the most",
+      "unsubscribe me from these",
+      "what's eating my Gmail storage",
+      "use gmail-pp-cli",
+      "run gmail"
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "review-recipes-update-save",
+  "applied_at": "2026-08-16",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Add a field-preserving recipes update command backed by verified save-recipe operations.",
+  "reason": "Paprika cleanup needs to repair recipe ingredients and preparation steps without rebuilding or silently clearing unrelated AnyList recipe metadata. Add explicit field-preserving updates, read-after-write verification by recipe ID, and cache synchronization only after a verified save.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "internal/cli/local_anylist.go",
+    "internal/cli/recipes.go",
+    "internal/cli/recipes_update.go",
+    "internal/cli/recipes_update_test.go"
+  ],
+  "validated_outcome": "Registered recipes update with safe flags and stdin ingredient/preparation-step arrays, preserving omitted PBRecipe fields through clone-and-patch updates. Added parser, preservation, explicit-field verification, and cache read-back coverage; focused tests pass and no production recipe was mutated during validation."
+}

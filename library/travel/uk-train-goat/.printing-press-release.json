@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "uk-train-goat",
   "cli_name": "uk-train-goat-pp-cli",
-  "version": "2026.7.2",
-  "released_at": "2026-07-24T23:52:48Z",
-  "source_commit": "7a042318377fae2cc8f4c75ca3ac1a62f2406c2e",
+  "version": "2026.8.1",
+  "released_at": "2026-08-17T07:57:07Z",
+  "source_commit": "40363ac0936c4f406625f8399d8ad9b57673170e",
   "printing_press_version": "4.20.1",
   "run_id": "20260603-220423",
   "changes": [
     {
-      "title": "feat(uk-train-goat): add walk-up fare lookup from RJFAF feed",
-      "pr": 1341,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1341",
-      "commit": "7a042318377fae2cc8f4c75ca3ac1a62f2406c2e"
+      "title": "fix(catalog): align Go fallback docs with toolchain floor",
+      "pr": 1735,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1735",
+      "commit": "40363ac0936c4f406625f8399d8ad9b57673170e"
     }
   ]
 }

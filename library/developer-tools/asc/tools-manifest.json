@@ -1,0 +1,1851 @@
+{
+  "api_name": "asc",
+  "base_url": "https://api.appstoreconnect.apple.com",
+  "description": "A read-only App Store Connect cockpit that shows every app you ship at once — review state, builds, downloads, and ratings in one glance.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "ASC_ITC_BEARER_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ASC_ITC_BEARER_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "app-store-review-details_get-instance",
+      "description": "Get instance. Required: id. Optional: fields[appStoreReviewDetails], fields[appStoreVersions], fields[appStoreReviewAttachments] (plus 1 more). Returns array of AppStoreReviewDetailsGetInstanceItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/v1/appStoreReviewDetails/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "the id of the requested resource",
+          "required": true
+        },
+        {
+          "name": "fields[appStoreReviewDetails]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreReviewDetails"
+        },
+        {
+          "name": "fields[appStoreVersions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreVersions"
+        },
+        {
+          "name": "fields[appStoreReviewAttachments]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreReviewAttachments"
+        },
+        {
+          "name": "limit[appStoreReviewAttachments]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related appStoreReviewAttachments returned (when they are included)"
+        }
+      ]
+    },
+    {
+      "name": "app-store-versions_get-instance",
+      "description": "Get instance. Required: id. Optional: fields[appStoreVersions], fields[apps], fields[appStoreVersionLocalizations] (plus 12 more). Returns array of AppStoreVersionsGetInstanceItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/v1/appStoreVersions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "the id of the requested resource",
+          "required": true
+        },
+        {
+          "name": "fields[appStoreVersions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreVersions"
+        },
+        {
+          "name": "fields[apps]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type apps"
+        },
+        {
+          "name": "fields[appStoreVersionLocalizations]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreVersionLocalizations"
+        },
+        {
+          "name": "fields[builds]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type builds"
+        },
+        {
+          "name": "fields[appStoreVersionPhasedReleases]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreVersionPhasedReleases"
+        },
+        {
+          "name": "fields[gameCenterAppVersions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type gameCenterAppVersions"
+        },
+        {
+          "name": "fields[routingAppCoverages]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type routingAppCoverages"
+        },
+        {
+          "name": "fields[appStoreReviewDetails]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreReviewDetails"
+        },
+        {
+          "name": "fields[appStoreVersionSubmissions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreVersionSubmissions"
+        },
+        {
+          "name": "fields[appClipDefaultExperiences]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appClipDefaultExperiences"
+        },
+        {
+          "name": "fields[appStoreVersionExperiments]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreVersionExperiments"
+        },
+        {
+          "name": "fields[alternativeDistributionPackages]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type alternativeDistributionPackages"
+        },
+        {
+          "name": "limit[appStoreVersionExperiments]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related appStoreVersionExperiments returned (when they are included)"
+        },
+        {
+          "name": "limit[appStoreVersionExperimentsV2]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related appStoreVersionExperimentsV2 returned (when they are included)"
+        },
+        {
+          "name": "limit[appStoreVersionLocalizations]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related appStoreVersionLocalizations returned (when they are included)"
+        }
+      ]
+    },
+    {
+      "name": "app-store-versions_app-store-version-submission_app-store-versions-get-to-one-related",
+      "description": "App store versions get to one related. Required: id. Optional: fields[appStoreVersionSubmissions], fields[appStoreVersions]. Returns array of AppStoreVersion.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/v1/appStoreVersions/{id}/appStoreVersionSubmission",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "the id of the requested resource",
+          "required": true
+        },
+        {
+          "name": "fields[appStoreVersionSubmissions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreVersionSubmissions"
+        },
+        {
+          "name": "fields[appStoreVersions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreVersions"
+        }
+      ]
+    },
+    {
+      "name": "apps_get-collection",
+      "description": "Get collection. Optional: filter[name], filter[bundleId], filter[sku] (plus 53 more). Returns array of App.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/v1/apps",
+      "params": [
+        {
+          "name": "filter[name]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'name'"
+        },
+        {
+          "name": "filter[bundleId]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'bundleId'"
+        },
+        {
+          "name": "filter[sku]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'sku'"
+        },
+        {
+          "name": "filter[appStoreVersions.appStoreState]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'appStoreVersions.appStoreState'"
+        },
+        {
+          "name": "filter[appStoreVersions.platform]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'appStoreVersions.platform'"
+        },
+        {
+          "name": "filter[appStoreVersions.appVersionState]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'appStoreVersions.appVersionState'"
+        },
+        {
+          "name": "filter[reviewSubmissions.state]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'reviewSubmissions.state'"
+        },
+        {
+          "name": "filter[reviewSubmissions.platform]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'reviewSubmissions.platform'"
+        },
+        {
+          "name": "filter[appStoreVersions]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by id(s) of related 'appStoreVersions'"
+        },
+        {
+          "name": "filter[id]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by id(s)"
+        },
+        {
+          "name": "exists[gameCenterEnabledVersions]",
+          "type": "bool",
+          "location": "query",
+          "description": "filter by existence or non-existence of related 'gameCenterEnabledVersions'"
+        },
+        {
+          "name": "sort",
+          "type": "array",
+          "location": "query",
+          "description": "comma-separated list of sort expressions; resources will be sorted as specified"
+        },
+        {
+          "name": "fields[apps]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type apps"
+        },
+        {
+          "name": "fields[appEncryptionDeclarations]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appEncryptionDeclarations"
+        },
+        {
+          "name": "fields[buildIcons]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type buildIcons"
+        },
+        {
+          "name": "fields[ciProducts]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type ciProducts"
+        },
+        {
+          "name": "fields[betaGroups]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaGroups"
+        },
+        {
+          "name": "fields[appStoreVersions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreVersions"
+        },
+        {
+          "name": "fields[preReleaseVersions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type preReleaseVersions"
+        },
+        {
+          "name": "fields[betaAppLocalizations]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaAppLocalizations"
+        },
+        {
+          "name": "fields[builds]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type builds"
+        },
+        {
+          "name": "fields[betaLicenseAgreements]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaLicenseAgreements"
+        },
+        {
+          "name": "fields[betaAppReviewDetails]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaAppReviewDetails"
+        },
+        {
+          "name": "fields[appInfos]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appInfos"
+        },
+        {
+          "name": "fields[appClips]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appClips"
+        },
+        {
+          "name": "fields[endUserLicenseAgreements]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type endUserLicenseAgreements"
+        },
+        {
+          "name": "fields[inAppPurchases]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type inAppPurchases"
+        },
+        {
+          "name": "fields[subscriptionGroups]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type subscriptionGroups"
+        },
+        {
+          "name": "fields[gameCenterEnabledVersions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type gameCenterEnabledVersions"
+        },
+        {
+          "name": "fields[appCustomProductPages]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appCustomProductPages"
+        },
+        {
+          "name": "fields[promotedPurchases]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type promotedPurchases"
+        },
+        {
+          "name": "fields[appEvents]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appEvents"
+        },
+        {
+          "name": "fields[reviewSubmissions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type reviewSubmissions"
+        },
+        {
+          "name": "fields[subscriptionGracePeriods]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type subscriptionGracePeriods"
+        },
+        {
+          "name": "fields[gameCenterDetails]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type gameCenterDetails"
+        },
+        {
+          "name": "fields[appStoreVersionExperiments]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreVersionExperiments"
+        },
+        {
+          "name": "fields[androidToIosAppMappingDetails]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type androidToIosAppMappingDetails"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "maximum resources per page"
+        },
+        {
+          "name": "limit[androidToIosAppMappingDetails]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related androidToIosAppMappingDetails returned (when they are included)"
+        },
+        {
+          "name": "limit[appClips]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related appClips returned (when they are included)"
+        },
+        {
+          "name": "limit[appCustomProductPages]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related appCustomProductPages returned (when they are included)"
+        },
+        {
+          "name": "limit[appEncryptionDeclarations]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related appEncryptionDeclarations returned (when they are included)"
+        },
+        {
+          "name": "limit[appEvents]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related appEvents returned (when they are included)"
+        },
+        {
+          "name": "limit[appInfos]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related appInfos returned (when they are included)"
+        },
+        {
+          "name": "limit[appStoreVersionExperimentsV2]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related appStoreVersionExperimentsV2 returned (when they are included)"
+        },
+        {
+          "name": "limit[appStoreVersions]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related appStoreVersions returned (when they are included)"
+        },
+        {
+          "name": "limit[betaAppLocalizations]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related betaAppLocalizations returned (when they are included)"
+        },
+        {
+          "name": "limit[betaGroups]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related betaGroups returned (when they are included)"
+        },
+        {
+          "name": "limit[builds]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related builds returned (when they are included)"
+        },
+        {
+          "name": "limit[gameCenterEnabledVersions]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related gameCenterEnabledVersions returned (when they are included)"
+        },
+        {
+          "name": "limit[inAppPurchases]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related inAppPurchases returned (when they are included)"
+        },
+        {
+          "name": "limit[inAppPurchasesV2]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related inAppPurchasesV2 returned (when they are included)"
+        },
+        {
+          "name": "limit[preReleaseVersions]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related preReleaseVersions returned (when they are included)"
+        },
+        {
+          "name": "limit[promotedPurchases]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related promotedPurchases returned (when they are included)"
+        },
+        {
+          "name": "limit[reviewSubmissions]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related reviewSubmissions returned (when they are included)"
+        },
+        {
+          "name": "limit[subscriptionGroups]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related subscriptionGroups returned (when they are included)"
+        }
+      ]
+    },
+    {
+      "name": "apps_get-instance",
+      "description": "Get instance. Required: id. Optional: fields[apps], fields[appEncryptionDeclarations], fields[buildIcons] (plus 40 more). Returns array of AppsGetInstanceItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/v1/apps/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "the id of the requested resource",
+          "required": true
+        },
+        {
+          "name": "fields[apps]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type apps"
+        },
+        {
+          "name": "fields[appEncryptionDeclarations]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appEncryptionDeclarations"
+        },
+        {
+          "name": "fields[buildIcons]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type buildIcons"
+        },
+        {
+          "name": "fields[ciProducts]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type ciProducts"
+        },
+        {
+          "name": "fields[betaGroups]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaGroups"
+        },
+        {
+          "name": "fields[appStoreVersions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreVersions"
+        },
+        {
+          "name": "fields[preReleaseVersions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type preReleaseVersions"
+        },
+        {
+          "name": "fields[betaAppLocalizations]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaAppLocalizations"
+        },
+        {
+          "name": "fields[builds]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type builds"
+        },
+        {
+          "name": "fields[betaLicenseAgreements]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaLicenseAgreements"
+        },
+        {
+          "name": "fields[betaAppReviewDetails]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaAppReviewDetails"
+        },
+        {
+          "name": "fields[appInfos]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appInfos"
+        },
+        {
+          "name": "fields[appClips]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appClips"
+        },
+        {
+          "name": "fields[endUserLicenseAgreements]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type endUserLicenseAgreements"
+        },
+        {
+          "name": "fields[inAppPurchases]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type inAppPurchases"
+        },
+        {
+          "name": "fields[subscriptionGroups]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type subscriptionGroups"
+        },
+        {
+          "name": "fields[gameCenterEnabledVersions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type gameCenterEnabledVersions"
+        },
+        {
+          "name": "fields[appCustomProductPages]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appCustomProductPages"
+        },
+        {
+          "name": "fields[promotedPurchases]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type promotedPurchases"
+        },
+        {
+          "name": "fields[appEvents]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appEvents"
+        },
+        {
+          "name": "fields[reviewSubmissions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type reviewSubmissions"
+        },
+        {
+          "name": "fields[subscriptionGracePeriods]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type subscriptionGracePeriods"
+        },
+        {
+          "name": "fields[gameCenterDetails]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type gameCenterDetails"
+        },
+        {
+          "name": "fields[appStoreVersionExperiments]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreVersionExperiments"
+        },
+        {
+          "name": "fields[androidToIosAppMappingDetails]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type androidToIosAppMappingDetails"
+        },
+        {
+          "name": "limit[androidToIosAppMappingDetails]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related androidToIosAppMappingDetails returned (when they are included)"
+        },
+        {
+          "name": "limit[appClips]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related appClips returned (when they are included)"
+        },
+        {
+          "name": "limit[appCustomProductPages]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related appCustomProductPages returned (when they are included)"
+        },
+        {
+          "name": "limit[appEncryptionDeclarations]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related appEncryptionDeclarations returned (when they are included)"
+        },
+        {
+          "name": "limit[appEvents]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related appEvents returned (when they are included)"
+        },
+        {
+          "name": "limit[appInfos]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related appInfos returned (when they are included)"
+        },
+        {
+          "name": "limit[appStoreVersionExperimentsV2]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related appStoreVersionExperimentsV2 returned (when they are included)"
+        },
+        {
+          "name": "limit[appStoreVersions]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related appStoreVersions returned (when they are included)"
+        },
+        {
+          "name": "limit[betaAppLocalizations]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related betaAppLocalizations returned (when they are included)"
+        },
+        {
+          "name": "limit[betaGroups]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related betaGroups returned (when they are included)"
+        },
+        {
+          "name": "limit[builds]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related builds returned (when they are included)"
+        },
+        {
+          "name": "limit[gameCenterEnabledVersions]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related gameCenterEnabledVersions returned (when they are included)"
+        },
+        {
+          "name": "limit[inAppPurchases]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related inAppPurchases returned (when they are included)"
+        },
+        {
+          "name": "limit[inAppPurchasesV2]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related inAppPurchasesV2 returned (when they are included)"
+        },
+        {
+          "name": "limit[preReleaseVersions]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related preReleaseVersions returned (when they are included)"
+        },
+        {
+          "name": "limit[promotedPurchases]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related promotedPurchases returned (when they are included)"
+        },
+        {
+          "name": "limit[reviewSubmissions]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related reviewSubmissions returned (when they are included)"
+        },
+        {
+          "name": "limit[subscriptionGroups]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related subscriptionGroups returned (when they are included)"
+        }
+      ]
+    },
+    {
+      "name": "apps_app-store-versions_apps-get-to-many-related",
+      "description": "Apps get to many related. Required: id. Optional: filter[platform], filter[versionString], filter[appStoreState] (plus 18 more). Returns array of AppStoreVersion.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/v1/apps/{id}/appStoreVersions",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "the id of the requested resource",
+          "required": true
+        },
+        {
+          "name": "filter[platform]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'platform'"
+        },
+        {
+          "name": "filter[versionString]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'versionString'"
+        },
+        {
+          "name": "filter[appStoreState]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'appStoreState'"
+        },
+        {
+          "name": "filter[appVersionState]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'appVersionState'"
+        },
+        {
+          "name": "filter[id]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by id(s)"
+        },
+        {
+          "name": "fields[appStoreVersions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreVersions"
+        },
+        {
+          "name": "fields[apps]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type apps"
+        },
+        {
+          "name": "fields[appStoreVersionLocalizations]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreVersionLocalizations"
+        },
+        {
+          "name": "fields[builds]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type builds"
+        },
+        {
+          "name": "fields[appStoreVersionPhasedReleases]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreVersionPhasedReleases"
+        },
+        {
+          "name": "fields[gameCenterAppVersions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type gameCenterAppVersions"
+        },
+        {
+          "name": "fields[routingAppCoverages]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type routingAppCoverages"
+        },
+        {
+          "name": "fields[appStoreReviewDetails]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreReviewDetails"
+        },
+        {
+          "name": "fields[appStoreVersionSubmissions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreVersionSubmissions"
+        },
+        {
+          "name": "fields[appClipDefaultExperiences]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appClipDefaultExperiences"
+        },
+        {
+          "name": "fields[appStoreVersionExperiments]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreVersionExperiments"
+        },
+        {
+          "name": "fields[alternativeDistributionPackages]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type alternativeDistributionPackages"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "maximum resources per page"
+        },
+        {
+          "name": "limit[appStoreVersionLocalizations]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related appStoreVersionLocalizations returned (when they are included)"
+        },
+        {
+          "name": "limit[appStoreVersionExperiments]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related appStoreVersionExperiments returned (when they are included)"
+        },
+        {
+          "name": "limit[appStoreVersionExperimentsV2]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related appStoreVersionExperimentsV2 returned (when they are included)"
+        }
+      ]
+    },
+    {
+      "name": "apps_beta-groups_apps-get-to-many-related",
+      "description": "Apps get to many related. Required: id. Optional: fields[betaGroups], limit. Returns array of BetaGroup.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/v1/apps/{id}/betaGroups",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "the id of the requested resource",
+          "required": true
+        },
+        {
+          "name": "fields[betaGroups]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaGroups"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "maximum resources per page"
+        }
+      ]
+    },
+    {
+      "name": "apps_builds_apps-get-to-many-related",
+      "description": "Apps get to many related. Required: id. Optional: fields[builds], limit. Returns array of Build.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/v1/apps/{id}/builds",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "the id of the requested resource",
+          "required": true
+        },
+        {
+          "name": "fields[builds]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type builds"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "maximum resources per page"
+        }
+      ]
+    },
+    {
+      "name": "apps_customer-reviews_apps-get-to-many-related",
+      "description": "Apps get to many related. Required: id. Optional: filter[territory], filter[rating], filter[reviewTerritory] (plus 6 more). Returns array of CustomerReview.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/v1/apps/{id}/customerReviews",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "the id of the requested resource",
+          "required": true
+        },
+        {
+          "name": "filter[territory]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'territory'"
+        },
+        {
+          "name": "filter[rating]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'rating'"
+        },
+        {
+          "name": "filter[reviewTerritory]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by id(s) of related 'reviewTerritory'"
+        },
+        {
+          "name": "exists[publishedResponse]",
+          "type": "bool",
+          "location": "query",
+          "description": "filter by publishedResponse"
+        },
+        {
+          "name": "sort",
+          "type": "array",
+          "location": "query",
+          "description": "comma-separated list of sort expressions; resources will be sorted as specified"
+        },
+        {
+          "name": "fields[customerReviews]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type customerReviews"
+        },
+        {
+          "name": "fields[customerReviewResponses]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type customerReviewResponses"
+        },
+        {
+          "name": "fields[territories]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type territories"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "maximum resources per page"
+        }
+      ]
+    },
+    {
+      "name": "beta-groups_get-collection",
+      "description": "Get collection. Optional: filter[name], filter[isInternalGroup], filter[publicLinkEnabled] (plus 14 more). Returns array of BetaGroup.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/v1/betaGroups",
+      "params": [
+        {
+          "name": "filter[name]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'name'"
+        },
+        {
+          "name": "filter[isInternalGroup]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'isInternalGroup'"
+        },
+        {
+          "name": "filter[publicLinkEnabled]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'publicLinkEnabled'"
+        },
+        {
+          "name": "filter[publicLinkLimitEnabled]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'publicLinkLimitEnabled'"
+        },
+        {
+          "name": "filter[publicLink]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'publicLink'"
+        },
+        {
+          "name": "filter[app]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by id(s) of related 'app'"
+        },
+        {
+          "name": "filter[builds]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by id(s) of related 'builds'"
+        },
+        {
+          "name": "filter[id]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by id(s)"
+        },
+        {
+          "name": "sort",
+          "type": "array",
+          "location": "query",
+          "description": "comma-separated list of sort expressions; resources will be sorted as specified"
+        },
+        {
+          "name": "fields[betaGroups]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaGroups"
+        },
+        {
+          "name": "fields[apps]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type apps"
+        },
+        {
+          "name": "fields[builds]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type builds"
+        },
+        {
+          "name": "fields[betaTesters]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaTesters"
+        },
+        {
+          "name": "fields[betaRecruitmentCriteria]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaRecruitmentCriteria"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "maximum resources per page"
+        },
+        {
+          "name": "limit[betaTesters]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related betaTesters returned (when they are included)"
+        },
+        {
+          "name": "limit[builds]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related builds returned (when they are included)"
+        }
+      ]
+    },
+    {
+      "name": "beta-groups_get-instance",
+      "description": "Get instance. Required: id. Optional: fields[betaGroups], fields[apps], fields[builds] (plus 4 more). Returns array of BetaGroupsGetInstanceItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/v1/betaGroups/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "the id of the requested resource",
+          "required": true
+        },
+        {
+          "name": "fields[betaGroups]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaGroups"
+        },
+        {
+          "name": "fields[apps]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type apps"
+        },
+        {
+          "name": "fields[builds]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type builds"
+        },
+        {
+          "name": "fields[betaTesters]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaTesters"
+        },
+        {
+          "name": "fields[betaRecruitmentCriteria]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaRecruitmentCriteria"
+        },
+        {
+          "name": "limit[betaTesters]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related betaTesters returned (when they are included)"
+        },
+        {
+          "name": "limit[builds]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related builds returned (when they are included)"
+        }
+      ]
+    },
+    {
+      "name": "beta-testers_get-collection",
+      "description": "Get collection. Optional: filter[firstName], filter[lastName], filter[email] (plus 14 more). Returns array of BetaTester.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/v1/betaTesters",
+      "params": [
+        {
+          "name": "filter[firstName]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'firstName'"
+        },
+        {
+          "name": "filter[lastName]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'lastName'"
+        },
+        {
+          "name": "filter[email]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'email'"
+        },
+        {
+          "name": "filter[inviteType]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'inviteType'"
+        },
+        {
+          "name": "filter[apps]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by id(s) of related 'apps'"
+        },
+        {
+          "name": "filter[betaGroups]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by id(s) of related 'betaGroups'"
+        },
+        {
+          "name": "filter[builds]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by id(s) of related 'builds'"
+        },
+        {
+          "name": "filter[id]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by id(s)"
+        },
+        {
+          "name": "sort",
+          "type": "array",
+          "location": "query",
+          "description": "comma-separated list of sort expressions; resources will be sorted as specified"
+        },
+        {
+          "name": "fields[betaTesters]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaTesters"
+        },
+        {
+          "name": "fields[apps]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type apps"
+        },
+        {
+          "name": "fields[betaGroups]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaGroups"
+        },
+        {
+          "name": "fields[builds]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type builds"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "maximum resources per page"
+        },
+        {
+          "name": "limit[apps]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related apps returned (when they are included)"
+        },
+        {
+          "name": "limit[betaGroups]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related betaGroups returned (when they are included)"
+        },
+        {
+          "name": "limit[builds]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related builds returned (when they are included)"
+        }
+      ]
+    },
+    {
+      "name": "beta-testers_get-instance",
+      "description": "Get instance. Required: id. Optional: fields[betaTesters], fields[apps], fields[betaGroups] (plus 4 more). Returns array of BetaTestersGetInstanceItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/v1/betaTesters/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "the id of the requested resource",
+          "required": true
+        },
+        {
+          "name": "fields[betaTesters]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaTesters"
+        },
+        {
+          "name": "fields[apps]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type apps"
+        },
+        {
+          "name": "fields[betaGroups]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaGroups"
+        },
+        {
+          "name": "fields[builds]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type builds"
+        },
+        {
+          "name": "limit[apps]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related apps returned (when they are included)"
+        },
+        {
+          "name": "limit[betaGroups]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related betaGroups returned (when they are included)"
+        },
+        {
+          "name": "limit[builds]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related builds returned (when they are included)"
+        }
+      ]
+    },
+    {
+      "name": "builds_get-collection",
+      "description": "Get collection. Optional: filter[version], filter[expired], filter[processingState] (plus 31 more). Returns array of Build.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/v1/builds",
+      "params": [
+        {
+          "name": "filter[version]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'version'"
+        },
+        {
+          "name": "filter[expired]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'expired'"
+        },
+        {
+          "name": "filter[processingState]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'processingState'"
+        },
+        {
+          "name": "filter[betaAppReviewSubmission.betaReviewState]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'betaAppReviewSubmission.betaReviewState'"
+        },
+        {
+          "name": "filter[usesNonExemptEncryption]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'usesNonExemptEncryption'"
+        },
+        {
+          "name": "filter[preReleaseVersion.version]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'preReleaseVersion.version'"
+        },
+        {
+          "name": "filter[preReleaseVersion.platform]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'preReleaseVersion.platform'"
+        },
+        {
+          "name": "filter[buildAudienceType]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'buildAudienceType'"
+        },
+        {
+          "name": "filter[preReleaseVersion]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by id(s) of related 'preReleaseVersion'"
+        },
+        {
+          "name": "filter[app]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by id(s) of related 'app'"
+        },
+        {
+          "name": "filter[betaGroups]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by id(s) of related 'betaGroups'"
+        },
+        {
+          "name": "filter[appStoreVersion]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by id(s) of related 'appStoreVersion'"
+        },
+        {
+          "name": "filter[id]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by id(s)"
+        },
+        {
+          "name": "exists[usesNonExemptEncryption]",
+          "type": "bool",
+          "location": "query",
+          "description": "filter by attribute 'usesNonExemptEncryption'"
+        },
+        {
+          "name": "sort",
+          "type": "array",
+          "location": "query",
+          "description": "comma-separated list of sort expressions; resources will be sorted as specified"
+        },
+        {
+          "name": "fields[builds]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type builds"
+        },
+        {
+          "name": "fields[preReleaseVersions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type preReleaseVersions"
+        },
+        {
+          "name": "fields[betaTesters]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaTesters"
+        },
+        {
+          "name": "fields[betaGroups]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaGroups"
+        },
+        {
+          "name": "fields[betaBuildLocalizations]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaBuildLocalizations"
+        },
+        {
+          "name": "fields[appEncryptionDeclarations]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appEncryptionDeclarations"
+        },
+        {
+          "name": "fields[betaAppReviewSubmissions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaAppReviewSubmissions"
+        },
+        {
+          "name": "fields[apps]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type apps"
+        },
+        {
+          "name": "fields[buildBetaDetails]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type buildBetaDetails"
+        },
+        {
+          "name": "fields[appStoreVersions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreVersions"
+        },
+        {
+          "name": "fields[buildIcons]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type buildIcons"
+        },
+        {
+          "name": "fields[buildBundles]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type buildBundles"
+        },
+        {
+          "name": "fields[buildUploads]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type buildUploads"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "maximum resources per page"
+        },
+        {
+          "name": "limit[betaBuildLocalizations]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related betaBuildLocalizations returned (when they are included)"
+        },
+        {
+          "name": "limit[betaGroups]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related betaGroups returned (when they are included)"
+        },
+        {
+          "name": "limit[buildBundles]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related buildBundles returned (when they are included)"
+        },
+        {
+          "name": "limit[icons]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related icons returned (when they are included)"
+        },
+        {
+          "name": "limit[individualTesters]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related individualTesters returned (when they are included)"
+        }
+      ]
+    },
+    {
+      "name": "builds_get-instance",
+      "description": "Get instance. Required: id. Optional: fields[builds], fields[preReleaseVersions], fields[betaTesters] (plus 15 more). Returns array of BuildsGetInstanceItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/v1/builds/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "the id of the requested resource",
+          "required": true
+        },
+        {
+          "name": "fields[builds]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type builds"
+        },
+        {
+          "name": "fields[preReleaseVersions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type preReleaseVersions"
+        },
+        {
+          "name": "fields[betaTesters]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaTesters"
+        },
+        {
+          "name": "fields[betaGroups]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaGroups"
+        },
+        {
+          "name": "fields[betaBuildLocalizations]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaBuildLocalizations"
+        },
+        {
+          "name": "fields[appEncryptionDeclarations]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appEncryptionDeclarations"
+        },
+        {
+          "name": "fields[betaAppReviewSubmissions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type betaAppReviewSubmissions"
+        },
+        {
+          "name": "fields[apps]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type apps"
+        },
+        {
+          "name": "fields[buildBetaDetails]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type buildBetaDetails"
+        },
+        {
+          "name": "fields[appStoreVersions]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type appStoreVersions"
+        },
+        {
+          "name": "fields[buildIcons]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type buildIcons"
+        },
+        {
+          "name": "fields[buildBundles]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type buildBundles"
+        },
+        {
+          "name": "fields[buildUploads]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type buildUploads"
+        },
+        {
+          "name": "limit[betaBuildLocalizations]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related betaBuildLocalizations returned (when they are included)"
+        },
+        {
+          "name": "limit[betaGroups]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related betaGroups returned (when they are included)"
+        },
+        {
+          "name": "limit[buildBundles]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related buildBundles returned (when they are included)"
+        },
+        {
+          "name": "limit[icons]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related icons returned (when they are included)"
+        },
+        {
+          "name": "limit[individualTesters]",
+          "type": "int",
+          "location": "query",
+          "description": "maximum number of related individualTesters returned (when they are included)"
+        }
+      ]
+    },
+    {
+      "name": "customer-reviews_get-instance",
+      "description": "Get instance. Required: id. Optional: fields[customerReviews], fields[customerReviewResponses], fields[territories]. Returns array of CustomerReviewsGetInstanceItem.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/v1/customerReviews/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "the id of the requested resource",
+          "required": true
+        },
+        {
+          "name": "fields[customerReviews]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type customerReviews"
+        },
+        {
+          "name": "fields[customerReviewResponses]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type customerReviewResponses"
+        },
+        {
+          "name": "fields[territories]",
+          "type": "array",
+          "location": "query",
+          "description": "the fields to include for returned resources of type territories"
+        }
+      ]
+    },
+    {
+      "name": "sales-reports_get-collection",
+      "description": "Get collection. Required: filter[vendorNumber], filter[reportType], filter[reportSubType], filter[frequency]. Optional: filter[reportDate], filter[version].",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/v1/salesReports",
+      "params": [
+        {
+          "name": "filter[vendorNumber]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'vendorNumber'",
+          "required": true
+        },
+        {
+          "name": "filter[reportType]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'reportType'",
+          "required": true
+        },
+        {
+          "name": "filter[reportSubType]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'reportSubType'",
+          "required": true
+        },
+        {
+          "name": "filter[frequency]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'frequency'",
+          "required": true
+        },
+        {
+          "name": "filter[reportDate]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'reportDate'"
+        },
+        {
+          "name": "filter[version]",
+          "type": "array",
+          "location": "query",
+          "description": "filter by attribute 'version'"
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/a-gzip"
+        }
+      ]
+    }
+  ]
+}

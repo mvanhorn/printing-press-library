@@ -1,8 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/travel/ikon
 
-go 1.26.5
-
-toolchain go1.26.4
+go 1.26.6
 
 require (
 	github.com/gorilla/websocket v1.5.3

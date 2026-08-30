@@ -1,0 +1,12 @@
+{
+  "id": "review-list-settings-initial-handler",
+  "source": "direct-input",
+  "summary": "Verify AnyList initial list-settings writes with the exact Android handler.",
+  "evidence": {
+    "handler": "save-initial-list-settings",
+    "endpoint": "POST /data/list-settings/update",
+    "result": "A disposable list's settings record appeared on fresh GetUserData read-back. AnyList normalized the submitted fields and supplied category-group IDs; remove-list-settings then cleared the record.",
+    "cleanup": "The disposable list and settings were removed; cache was refreshed."
+  },
+  "validated_outcome": "Initial settings creation is evidence-backed; arbitrary general settings updates still require handler-specific probes."
+}

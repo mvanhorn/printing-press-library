@@ -4,9 +4,11 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/anylist/pb"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/store"
 
@@ -55,6 +57,13 @@ func newItemsListCmd(flags *rootFlags) *cobra.Command {
 
 			list, err := st.FindListByName(bodyListName)
 			if err != nil {
+				if errors.Is(err, store.ErrListNotFound) {
+					if flags.asJSON {
+						return printJSONWithFreshness(cmd.OutOrStdout(), []any{}, flags)
+					}
+					fmt.Fprintf(cmd.OutOrStdout(), "No items found in %q\n", bodyListName)
+					return nil
+				}
 				return err
 			}
 
@@ -86,20 +95,24 @@ func newItemsListCmd(flags *rootFlags) *cobra.Command {
 
 			if flags.asJSON {
 				type itemJSON struct {
-					ID       string `json:"id"`
-					Name     string `json:"name"`
-					Quantity string `json:"quantity,omitempty"`
-					Category string `json:"category,omitempty"`
-					Checked  bool   `json:"checked"`
+					ID          string            `json:"id"`
+					Name        string            `json:"name"`
+					Quantity    string            `json:"quantity,omitempty"`
+					Category    string            `json:"category,omitempty"`
+					PackageSize string            `json:"package_size,omitempty"`
+					Prices      []*pb.PBItemPrice `json:"prices,omitempty"`
+					Checked     bool              `json:"checked"`
 				}
 				out := make([]itemJSON, len(items))
 				for i, it := range items {
 					out[i] = itemJSON{
-						ID:       it.ID,
-						Name:     it.Name,
-						Quantity: it.Quantity,
-						Category: it.Category,
-						Checked:  it.Checked,
+						ID:          it.ID,
+						Name:        it.Name,
+						Quantity:    it.Quantity,
+						Category:    it.Category,
+						PackageSize: formatPackageSize(it.PackageSize),
+						Prices:      it.Prices,
+						Checked:     it.Checked,
 					}
 				}
 				return printJSONWithFreshness(cmd.OutOrStdout(), out, flags)

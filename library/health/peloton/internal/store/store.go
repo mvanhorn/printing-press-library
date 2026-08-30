@@ -1450,6 +1450,9 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 			}
 		}
 		if id == "" {
+			id = nestedContainerResourceID(resourceType, obj)
+		}
+		if id == "" {
 			skippedCount++
 			extractFailures++
 			continue
@@ -1557,6 +1560,45 @@ func (s *Store) SaveSyncState(resourceType, cursor string, count int) error {
 		resourceType, cursor, time.Now().UTC().Format(time.RFC3339), count,
 	)
 	return err
+}
+
+// SyncStateWrite is one row for SaveSyncStates.
+type SyncStateWrite struct {
+	ResourceType string
+	Cursor       string
+	Count        int
+}
+
+// SaveSyncStates atomically persists any number of sync_state rows in a
+// single transaction. --full's dependent-sync resumability tracks its
+// sweep cursor, failed-id backlog, and tier-alternation turn bit as three
+// independent rows (see dependentSyncPlan's field docs in
+// internal/cli/sync.go); writing them via separate SaveSyncState calls
+// left a window where a crash between the writes, or any individual write
+// failing, could leave the pieces permanently out of sync with each other
+// -- an offset committed without its backlog silently drops a failure
+// until the pass wraps around; a backlog committed without its offset
+// just repeats the same sweep window next call. Either every row is
+// written or none is.
+func (s *Store) SaveSyncStates(writes ...SyncStateWrite) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	now := time.Now().UTC().Format(time.RFC3339)
+	const upsert = `INSERT INTO sync_state (resource_type, last_cursor, last_synced_at, total_count)
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(resource_type) DO UPDATE SET last_cursor = excluded.last_cursor,
+		 last_synced_at = excluded.last_synced_at, total_count = excluded.total_count`
+	for _, w := range writes {
+		if _, err := tx.Exec(upsert, w.ResourceType, w.Cursor, now, w.Count); err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
 }
 
 func (s *Store) GetSyncState(resourceType string) (cursor string, lastSynced time.Time, count int, err error) {

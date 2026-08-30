@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "seatwifi-wifi-source",
+  "applied_at": "2026-08-22",
+  "base_run_id": "2026-05-02T22:09:06.820184Z",
+  "base_printing_press_version": "3.6.0",
+  "upstream_issue": "",
+  "files": [
+    "internal/seatwifi/seatwifi.go",
+    "internal/seatwifi/seatwifi_test.go",
+    "internal/cli/wifi.go",
+    "internal/cli/wifi_test.go",
+    "internal/cli/primary.go"
+  ],
+  "summary": "Add SeatWifi as a hand-written in-flight WiFi prediction source — the `wifi` command group — alongside cash-fare and award sources. Public JSON API, no auth, read-only. Live requests honor the caller context / command timeout (a default applies only when no deadline is set), bound HTTP body reads, and scrub ANSI/control sequences on the human output path, including ExpectedCompletion and error-body text printed to the terminal.",
+  "reason": "SeatWifi (https://seatwifi.com/for-developers) publishes per-flight WiFi provider predictions, airline fleet notes, Starlink rollout status, crowdsourced speed reports, and a search endpoint as a public JSON API with no API key. flight-goat already covers cash fares and Seats.aero award miles, but had no WiFi/Starlink enrichment. wifi fills that gap. It is hand-written (no OpenAPI spec imported into flight-goat), mirrors the seatsaero/award command pattern, registers in registerPrimaryCommands, and is read-only (mcp:read-only). A regen must preserve internal/seatwifi and internal/cli/wifi.go, including: no silent HTTP client timeout cap (context owns the deadline), a bounded response-body read with a clear error when exceeded, and terminal sanitization of untrusted details/explanations/fleet/rollout/ExpectedCompletion text on the human path plus non-200 and malformed-flight error bodies (JSON/machine success output stays raw).",
+  "validated_outcome": "go build ./...; go vet ./...; go test ./... all pass. Unit tests cover flight/airline/rollout/search JSON parse, HTTP 404 surfacing, empty-input rejection, speed-stats parse, CLI dry-run + required-arg validation, NewClient Timeout=0, caller deadlines longer than 30s preserved, default timeout when no deadline, canceled context, oversized success/error bodies, human-path ANSI/control scrubbing including single-airline ExpectedCompletion (JSON path preserves ESC), and scrubbed non-200 / malformed-flight error strings. Live smoke against seatwifi.com verified (wifi flight UA1234 / LA2479, wifi airline UA, wifi rollouts, wifi search united, wifi airlines). Auto-exposed via cobratree as MCP read-only tools."
+}

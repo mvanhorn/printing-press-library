@@ -4,11 +4,9 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
-	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/anylist"
 	"github.com/spf13/cobra"
 )
 
@@ -22,99 +20,66 @@ func newListsDeleteCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  anylist-pp-cli lists delete --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "lists.delete", "pp:method": "POST", "pp:path": "/data/shopping-lists/update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !stdinBody {
-				if !cmd.Flags().Changed("name") && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "name")
+			if stdinBody {
+				body, err := readStdinJSONMap()
+				if err != nil {
+					return err
 				}
+				bodyName = stringFromBody(body, "name")
 			}
-			c, err := flags.newClient()
+			if bodyName == "" && !cmd.Flags().Changed("name") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "name")
+			}
+			if dryRunOK(flags) {
+				return nil
+			}
+
+			ctx := cmd.Context()
+			cfg, st, err := openAuthedLocalStore(flags)
+			if err != nil {
+				return err
+			}
+			defer st.Close()
+
+			alClient := anylist.New(cfg)
+			userData, err := alClient.GetUserData(ctx)
+			if err != nil {
+				return err
+			}
+			list, err := findLiveShoppingListByName(userData, bodyName)
 			if err != nil {
 				return err
 			}
 
-			path := "/data/shopping-lists/update"
-			var body map[string]any
-			if stdinBody {
-				stdinData, err := io.ReadAll(os.Stdin)
-				if err != nil {
-					return fmt.Errorf("reading stdin: %w", err)
-				}
-				var jsonBody map[string]any
-				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
-					return fmt.Errorf("parsing stdin JSON: %w", err)
-				}
-				body = jsonBody
-			} else {
-				body = map[string]any{}
-				if bodyName != "" {
-					body["name"] = bodyName
-				}
+			if err := alClient.RemoveList(ctx, list.GetIdentifier()); err != nil {
+				return fmt.Errorf("deleting list %q: %w", list.GetName(), err)
 			}
-			data, statusCode, err := c.Post(path, body)
+
+			// AnyList can acknowledge an operation without applying it. Confirm the
+			// list is absent before changing the local cache or reporting success.
+			verifiedData, err := alClient.GetUserData(ctx)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return fmt.Errorf("verifying deletion of list %q: %w", list.GetName(), err)
 			}
-			if wantsHumanTable(cmd.OutOrStdout(), flags) {
-				// Check if response contains an array (directly or wrapped in "data")
-				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
-					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
-						fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
-					} else {
-						return nil
-					}
-				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
-					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
-						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
-							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
-						} else {
-							return nil
-						}
-					}
-				}
+			if _, found := findLiveShoppingListByID(verifiedData, list.GetIdentifier()); found {
+				return fmt.Errorf("delete verification failed: %q is still present", list.GetName())
 			}
-			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
-				if flags.quiet {
-					return nil
-				}
-				// Apply --compact and --select to the API response before wrapping.
-				// --select wins when both are set: explicit field choice trumps the
-				// generic high-gravity allow-list. Otherwise --compact still applies
-				// when --agent is on but the user did not name fields.
-				filtered := data
-				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
-				} else if flags.compact {
-					filtered = compactFields(filtered)
-				}
-				envelope := map[string]any{
-					"action":   "post",
-					"resource": "lists",
-					"path":     path,
-					"status":   statusCode,
-					"success":  statusCode >= 200 && statusCode < 300,
-				}
-				if flags.dryRun {
-					envelope["dry_run"] = true
-					envelope["status"] = 0
-					envelope["success"] = false
-				}
-				if len(filtered) > 0 {
-					var parsed any
-					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
-					}
-				}
-				envelopeJSON, err := json.Marshal(envelope)
-				if err != nil {
-					return err
-				}
-				return printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true)
+			if err := st.DeleteList(list.GetIdentifier()); err != nil {
+				return fmt.Errorf("removing deleted list from local cache: %w", err)
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+
+			if flags.quiet {
+				return nil
+			}
+			if flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"deleted": true,
+					"list":    list.GetName(),
+					"id":      list.GetIdentifier(),
+				}, flags)
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "Deleted list %q\n", list.GetName())
+			return nil
 		},
 	}
 	cmd.Flags().StringVar(&bodyName, "name", "", "List name to delete")

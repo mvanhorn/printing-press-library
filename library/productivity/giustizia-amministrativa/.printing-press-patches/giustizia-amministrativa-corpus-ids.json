@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-corpus-ids",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "corpus build accetta ora --ids, una lista di ECLI/idprovv separati da virgola: il corpus e' esattamente quella selezione, senza rifare una ricerca. Alternativo (e mutuamente esclusivo) rispetto ai criteri di ricerca; un id non risolvibile viene segnalato su stderr e gli altri vengono comunque scritti. Aggiunta inoltre la propagazione di res.Warnings in stats, massime e appeal-chain, che la perdevano. In aggiunta: i testi integrali gia' presenti nello store non vengono piu' riscaricati (flag --refresh per forzare), e la descrizione del comando dichiara ora cosa si ottiene rispetto a salvare i file a mano (manifest con provenienza, nomi deterministici, persistenza nello store).",
+  "reason": "corpus build accoppiava due cose distinte: scegliere i provvedimenti (con una ricerca propria) e scriverli su disco. Osservato dal vivo su Claude Desktop con la richiesta 'costruiscimi un corpus con le 8 sentenze piu' rilevanti sulla clausola sociale': l'agente ha fatto la cosa giusta dal punto di vista giuridico -- ha letto i testi integrali, ha scartato l'Adunanza Plenaria 4/2018 che citava il tema solo di sfuggita, ha ricostruito la genealogia per citazioni interne -- arrivando a una selezione curata di sentenze del Consiglio di Stato 2016-2019, cioe' proprio quelle che un corpus build di default (ordinato per sede con Roma prima, e per data decrescente) non avrebbe mai restituito. A quel punto pero' non aveva modo di dire 'scrivimi queste otto': ha scritto i file uno per uno con l'estensione filesystem, 23+ chiamate al posto di una, e con la nostra CLI usata solo per la ricerca. Su stats la propagazione mancante era la piu' insidiosa: dichiara una 'distribuzione per sede' calcolata su un campione che e' Roma al 100% per costruzione, presentando come dato sulla giurisprudenza quello che e' un artefatto dell'ordinamento del portale. La riprova del 2026-08-07, con --ids gia' disponibile, ha mostrato che l'agente continuava a scrivere i file a mano: la ragione non era (solo) la scopribilita' ma il fatto che avesse gia' i testi in contesto dopo la fase di verifica, mentre corpus build chiamava FullText incondizionatamente e quindi li avrebbe riscaricati tutti. Dal punto di vista dell'agente scrivere quello che gia' possedeva era la scelta razionale; il tool era davvero piu' costoso.",
+  "files": [
+    "internal/cli/corpus_build.go",
+    "internal/cli/stats.go",
+    "internal/cli/massime.go",
+    "internal/cli/appeal_chain.go"
+  ],
+  "validated_outcome": "corpus build --ids 'ECLI:IT:TARLAZ:2026:9344SENT, ECLI:IT:TARLAZ:2026:10017SENT' --out ... --front-matter: due .md piu' manifest.csv, front-matter con url. Un id inesistente nella lista produce 'Attenzione: ... non risolto, escluso dal corpus' e gli altri vengono scritti comunque. Guardie: --ids con criteri di ricerca, e nessuno dei due, danno errori espliciti. stats emette ora l'avviso di copertura sede. go build/vet/test verdi. Con i testi gia' nello store: corpus build --ids su 3 provvedimenti gia' letti -> {count:3, reused:3} in 0.039s e zero richieste al portale (prima: 3 download)."
+}

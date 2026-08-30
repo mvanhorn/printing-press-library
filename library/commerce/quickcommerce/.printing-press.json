@@ -1,0 +1,138 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-26T16:17:17.295736Z",
+  "printing_press_version": "4.31.1",
+  "api_name": "quickcommerce",
+  "display_name": "QuickCommerce API",
+  "cli_name": "quickcommerce-pp-cli",
+  "creator": {
+    "handle": "SomSamantray",
+    "name": "Som Samantray"
+  },
+  "owner": "somsamantray",
+  "printer": "SomSamantray",
+  "printer_name": "Som Samantray",
+  "spec_path": "quickcommerce.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:303e3bbf8f5edfac071efc7cd147eb28c64fe27d2477240e4aa4d5d917363166",
+  "run_id": "20260826-203128-ff75f5ec",
+  "category": "commerce",
+  "description": "Compare live Indian product prices, stock, and delivery ETAs from the terminal, then keep the history locally.",
+  "mcp_binary": "quickcommerce-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "auth_key_url": "https://quickcommerceapi.com/auth/signup",
+  "novel_features": [
+    {
+      "name": "Price and availability history",
+      "command": "history prices",
+      "description": "Query local observations to see price, stock, rating, and availability movement over time."
+    },
+    {
+      "name": "Observation diff",
+      "command": "history diff",
+      "description": "Show the field-level changes between the latest saved observations."
+    },
+    {
+      "name": "Fastest available delivery",
+      "command": "delivery fastest",
+      "description": "Rank currently available delivery options while preserving closed or unparseable platforms."
+    },
+    {
+      "name": "Credit-aware request planner",
+      "command": "requests plan",
+      "description": "Calculate fan-out credit cost and affordability before making paid platform requests."
+    },
+    {
+      "name": "Manual mirror ingestion",
+      "command": "mirror ingest",
+      "description": "Persist real QuickCommerce command responses and metadata into the local SQLite mirror."
+    },
+    {
+      "name": "Stale-observation report",
+      "command": "mirror stale",
+      "description": "Find saved product and ETA observations that are older than a chosen trust window."
+    },
+    {
+      "name": "Local platform/location coverage",
+      "command": "mirror coverage",
+      "description": "Report observed, missing, and stale platform coverage for a location."
+    },
+    {
+      "name": "Price-per-unit value view",
+      "command": "prices value",
+      "description": "Compare price per unit from explicit pack quantities without guessing missing units."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Price and availability history",
+      "command": "history prices",
+      "description": "Query local observations to see price, stock, rating, and availability movement over time."
+    },
+    {
+      "name": "Observation diff",
+      "command": "history diff",
+      "description": "Show the field-level changes between the latest saved observations."
+    },
+    {
+      "name": "Fastest available delivery",
+      "command": "delivery fastest",
+      "description": "Rank currently available delivery options while preserving closed or unparseable platforms."
+    },
+    {
+      "name": "Credit-aware request planner",
+      "command": "requests plan",
+      "description": "Calculate fan-out credit cost and affordability before making paid platform requests."
+    },
+    {
+      "name": "Manual mirror ingestion",
+      "command": "mirror ingest",
+      "description": "Persist real QuickCommerce command responses and metadata into the local SQLite mirror."
+    },
+    {
+      "name": "Stale-observation report",
+      "command": "mirror stale",
+      "description": "Find saved product and ETA observations that are older than a chosen trust window."
+    },
+    {
+      "name": "Local platform/location coverage",
+      "command": "mirror coverage",
+      "description": "Report observed, missing, and stale platform coverage for a location."
+    },
+    {
+      "name": "Price-per-unit value view",
+      "command": "prices value",
+      "description": "Compare price per unit from explicit pack quantities without guessing missing units."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 100,
+    "passed": 37,
+    "total": 37,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 91,
+      "grade": "A",
+      "total": 91
+    }
+  }
+}

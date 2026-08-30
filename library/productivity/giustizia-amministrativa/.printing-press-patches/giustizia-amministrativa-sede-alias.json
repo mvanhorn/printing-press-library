@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-sede-alias",
+  "applied_at": "2026-08-22",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "--sede accetta ora, oltre alla citta', il nome della regione (lazio, tar-sicilia), la sede staccata (sicilia-catania, lombardia-brescia) e il codice che compare nell'ECLI (TARLAZ, TARMI, CDS), inclusi i codici del portale pre-2026. Quando l'alias nomina una regione con due sedi, la ricerca aggiunge un avviso che dice quale sede resta fuori. TARBOL e TARABR sono esclusi di proposito: come abbreviazioni puntano a Bologna e all'Aquila.",
+  "reason": "La CLI emette ECLI:IT:TARLAZ:2026:14259SENT e poi rifiutava --sede TARLAZ: la grafia che stampiamo noi non era accettata in ingresso. Lo stesso valeva per 'tar_lazio' e per i nomi di regione, che sono il modo naturale di nominare un TAR. Un rifiuto costa un giro; peggio, spinge a riprovare con una grafia che il portale accetta senza filtrare nulla. La tabella dei codici e' costruita sui 31 codici ECLI misurati nello store, non su un elenco supposto.",
+  "files": [
+    "internal/gaclient/sedealias.go",
+    "internal/gaclient/sedealias_test.go",
+    "internal/gaclient/client.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "--sede TARLAZ e --sede tar_lazio -> ROMA; --sede 'TAR Sicilia' -> PALERMO con l'avviso che Catania resta fuori; --sede sicilia-catania -> CATANIA; --sede lombardia -> MILANO. --sede pippo resta un errore, con il messaggio esteso alle nuove grafie. Test su 12 grafie valide e 4 rifiutate."
+}

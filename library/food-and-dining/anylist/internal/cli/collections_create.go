@@ -14,7 +14,7 @@ import (
 
 func newCollectionsCreateCmd(flags *rootFlags) *cobra.Command {
 	var bodyName string
-	var stdinBody bool
+	var stdinBody, apply bool
 
 	cmd := &cobra.Command{
 		Use:         "create",
@@ -28,12 +28,16 @@ func newCollectionsCreateCmd(flags *rootFlags) *cobra.Command {
 					return err
 				}
 				bodyName = stringFromBody(body, "name")
+				apply = apply || boolFromBody(body, "apply")
 			}
 			if bodyName == "" && !cmd.Flags().Changed("name") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "name")
 			}
-			if dryRunOK(flags) {
-				return nil
+			if !apply || dryRunOK(flags) {
+				return collectionWritePreview(cmd, flags, "create recipe collection "+bodyName, apply, map[string]any{"name": bodyName})
+			}
+			if !recipeCollectionLiveWritesEnabled() {
+				return fmt.Errorf("recipe collection live writes are disabled until AnyList collection persistence is proven by fresh read-back")
 			}
 			ctx := cmd.Context()
 			cfg, st, err := openAuthedLocalStore(flags)
@@ -48,28 +52,33 @@ func newCollectionsCreateCmd(flags *rootFlags) *cobra.Command {
 			collection := &pb.PBRecipeCollection{
 				Identifier:         newRecipeID(),
 				Name:               bodyName,
-				Timestamp:          float64(time.Now().UnixMilli()),
+				Timestamp:          float64(time.Now().Unix()),
 				CollectionSettings: &pb.PBRecipeCollectionSettings{},
 			}
 			if err := anylist.New(cfg).SaveRecipeCollection(ctx, recipeDataID, collection); err != nil {
 				return err
 			}
-			if err := syncStoreFromLive(ctx, cfg, st); err != nil {
+			verifiedData, verified, err := verifyLiveRecipeCollection(ctx, cfg, collection)
+			if err != nil {
+				return err
+			}
+			if err := st.SyncFromUserData(verifiedData); err != nil {
 				return fmt.Errorf("refreshing data after creating collection: %w", err)
 			}
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 					"created":    true,
-					"collection": bodyName,
-					"id":         collection.Identifier,
+					"collection": verified.GetName(),
+					"id":         verified.GetIdentifier(),
 				}, flags)
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Created collection %q\n", bodyName)
+			fmt.Fprintf(cmd.OutOrStdout(), "Created collection %q\n", verified.GetName())
 			return nil
 		},
 	}
 	cmd.Flags().StringVarP(&bodyName, "name", "n", "", "Name for the new recipe collection to create")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.Flags().BoolVar(&apply, "apply", false, "Enable live mutation with fresh read-after-write verification")
 	_ = cmd.MarkFlagRequired("name")
 
 	return cmd

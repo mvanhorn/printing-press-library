@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "review-items-package-size-update",
+  "applied_at": "2026-08-16",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Expose the live-verified per-item package-size update and persist it in the local cache.",
+  "reason": "AnyList accepts package-size changes through the set-list-item-package-size protobuf handler when the complete current ListItem is supplied. Preserve that request shape, verify the package size by live item ID before syncing, and migrate existing caches with a JSON-backed package_size column so offline reads do not lose the metadata.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "tools-manifest.json",
+    "internal/anylist/client.go",
+    "internal/anylist/client_test.go",
+    "internal/cli/items_list.go",
+    "internal/cli/items_list_test.go",
+    "internal/cli/items_update.go",
+    "internal/cli/items_update_test.go",
+    "internal/cli/local_anylist.go",
+    "internal/store/store.go",
+    "internal/store/store_test.go"
+  ],
+  "validated_outcome": "Added migration-safe package_size persistence, package-size JSON/list output, full-item protobuf request coverage, and read-after-write verification. A disposable live marker item round-tripped package size through set-list-item-package-size and was deleted with its marker list; focused and full Go tests passed, with no production data changed."
+}

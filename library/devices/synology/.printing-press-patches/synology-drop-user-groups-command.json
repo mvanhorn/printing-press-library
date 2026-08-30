@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "synology-drop-user-groups-command",
+  "applied_at": "2026-08-24",
+  "base_run_id": "20260824-135140",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Drop the `user groups` command and its MCP tool; there is no account-to-groups endpoint on DSM 7.1.1.",
+  "reason": "`SYNO.Core.User.Group` implements only `join` on DSM 7.1.1 and answers `list` with error 103, so the generated command could never return anything. The reverse lookup is `group list` plus `group members`, both of which work, and shipping a permanently broken command is worse than not shipping it.",
+  "files": [
+    "spec.yaml"
+  ],
+  "validated_outcome": "Regeneration from the corrected spec omits the `user_groups` command and its MCP tool; `group list` plus `group members` cover the lookup against a live DS415+."
+}

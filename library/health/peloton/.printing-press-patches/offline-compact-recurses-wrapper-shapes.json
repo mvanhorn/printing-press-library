@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "offline-compact-recurses-wrapper-shapes",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "compactOfflineFields (internal/cli/offline.go) is compactFields' offline-scoped counterpart: it applies the same verbose-field blocklist recursively at every nesting level, not just the top level, plus two Peloton-specific bulky field names (achievement_templates, muscle_group_score) confirmed present in real workout_details payloads. offline output routinely wraps the real payload under a structural key (detail/history on offline_workout, result on any offline command that returns a caveat) rather than exposing fields at the top level, so the shared compactFields (helpers.go, unchanged, still used by every live single-fetch command) left --compact doing nothing for these shapes -- the wrapper keys themselves never matched the blocklist. Deliberately scoped to printOffline only: live commands' flat responses don't have this wrapping problem, and their nested objects (e.g. workouts show's \"ride\" object) are meaningful content --compact should leave intact, not blindly recurse into. Any future regen must keep printOffline calling compactOfflineFields (not compactFields) for --compact.",
+  "reason": "NEW ISSUE C from a fourth live post-fix verification sweep: --compact's own help text promises \"only key fields (id, name, status, timestamps)\" but for offline_workout returned the complete, unstripped detail+history payload -- achievement_templates, muscle_group_score, and the full nested \"ride\" object all survived, since compactObjectFields (the shared single-object path) is a shallow, top-level-only blocklist and the wrapper keys (\"detail\"/\"history\") never matched it. Presented three options to the user (recurse into offline's wrapper shapes / fix the documentation instead / redesign --compact broadly for all single objects); user chose the recommended scoped-recursion option.",
+  "files": [
+    "internal/cli/offline.go",
+    "internal/cli/offline_test.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. New test TestOfflineCompactRecursesIntoWrapperShapes confirms verbose fields (description, achievement_templates, nested comments) are stripped at every level while legitimate content survives. Live-verified against the user's real account: a real workout_details record confirmed to carry achievement_templates uncompacted (5556 bytes) had it correctly stripped under --compact (5040 bytes, achievement_templates absent)."
+}

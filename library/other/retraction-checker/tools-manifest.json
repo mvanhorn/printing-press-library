@@ -1,0 +1,92 @@
+{
+  "api_name": "retraction-checker",
+  "base_url": "https://api.crossref.org",
+  "description": "Check whether a paper is retracted, why, and what the current research says now — keyless, over Crossref and OpenAlex.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "works_get",
+      "description": "Get a single work by DOI. Required: doi. Optional: mailto. Returns the WorksGetResponse.",
+      "method": "GET",
+      "path": "/works/{doi}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "doi",
+          "type": "string",
+          "location": "path",
+          "description": "The DOI of the work (e.g. 10.1016/j.micpro.2020.103768)",
+          "required": true
+        },
+        {
+          "name": "mailto",
+          "type": "string",
+          "location": "query",
+          "description": "Contact email for the Crossref polite pool"
+        }
+      ]
+    },
+    {
+      "name": "works_search",
+      "description": "Search or filter scholarly works. Optional: query, filter, sort (plus 5 more). Returns the WorksSearchResponse.",
+      "method": "GET",
+      "path": "/works",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text query across title, author, and metadata"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Crossref filter expression. Use update-type:retraction to list retraction notices, from-update-date:2024-01-01 to bound by update date, or type:journal-article to scope by work type."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Field to sort by"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "rows",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results to return (max 1000)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Result offset for pagination"
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated fields to return (reduces payload size)"
+        },
+        {
+          "name": "mailto",
+          "type": "string",
+          "location": "query",
+          "description": "Contact email for the Crossref polite pool (better rate limits)"
+        }
+      ]
+    }
+  ]
+}

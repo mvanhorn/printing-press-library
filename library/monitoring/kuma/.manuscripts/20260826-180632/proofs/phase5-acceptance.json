@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "api_name": "kuma",
+  "run_id": "20260826-180632",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 8,
+  "tests_passed": 8,
+  "tests_skipped": 12,
+  "tests_unverified": 12,
+  "auth_context": {
+    "type": "username_password",
+    "api_key_available": true
+  },
+  "source_fingerprint": "9146e5946eec038372e5d714104d28a4172923506b231f7a378472309bd6c551",
+  "source_files": {
+    "cmd/kuma-pp-cli/main.go": "739b9b96463ca9d766d456fad0739f161d9a526b331ad85c190ad5b8e488add2",
+    "go.mod": "c9075f47cdefe4cefa945658083fcef0f251cc067193786bc98dd5c69689d83f",
+    "go.sum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "internal/cli/agent_context.go": "75cd86a1d3912b5901b3ec03e58c4b359ec23797f0c4889e7bfce14e1bd7c476",
+    "internal/cli/cli.go": "43f6831527f7d203c4a65fba3133971cbee12dacdba6be3dc43011cb0b72707a",
+    "internal/cli/cli_test.go": "688d3a04ddc4ee1f8d89244d34e5fcfae2cf9dae49cf862f8041c4856e780f52",
+    "internal/cli/commands.go": "029e6419e6fa96a14dcf81b2da59bcc39b1a0cf1833f17ecea1139dddbd71ff1",
+    "internal/cli/flags.go": "fb0b0f07de674ec2d9e3d1d7b6e44b531a07981a1417300556bca4b1467c2cf4",
+    "internal/client/client.go": "3fdf6efee0534d5be4d299beabd12515b61851631b4f16dfc39545bf6b6a00a2",
+    "internal/client/client_test.go": "08af62a455429440d333b89076e19f39d1ea7da64cbaff67654cc7f03524f06e",
+    "spec.yaml": "f8eba9bd390915d117ea289a8e0eeb9f20c1c8fa481682691fda2c36ffb75163"
+  }
+}

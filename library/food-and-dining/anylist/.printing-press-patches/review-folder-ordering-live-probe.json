@@ -1,0 +1,82 @@
+{
+  "schema_version": 2,
+  "id": "review-folder-ordering-live-probe",
+  "applied_at": "2026-08-25",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "task_id": "anylist-folder-ordering-live-probe-20260825",
+  "summary": "Live probe of set-ordered-folder-items with a real disposable fixture: create-new-folder persisted, move-folder-items placed two disposable list children, and the APK-equivalent ordering payload persisted the reversed order with fresh read-back verification. Every fixture was removed and verified absent.",
+  "reason": "Prior evidence was static-only or second-hand. This run built a fully disposable fixture (one folder, two lists — all created and confirmed by fresh read), matched the APK operation and generic sync transport, verified the requested reversal with a fresh user-data read-back, and removed every fixture with read-verified cleanup.",
+  "live_probe": {
+    "env_gate": "ANYLIST_FOLDER_ORDERING_PROBE=1 (internal/anylist/folder_ordering_probe_test.go); no live requests are made without it",
+    "endpoint": "POST /data/list-folders/update",
+    "handler": "set-ordered-folder-items",
+    "target_order": "reversed child order (maximally distinct from the baseline)",
+    "fixture": {
+      "folder": "disposable folder 'Inbox' created via create-new-folder (ListFolder payload + UpdatedParentFolderId=root) — PERSISTED, confirmed by fresh read",
+      "children": "disposable lists 'Pantry' and 'Closet' created via new-shopping-list and moved under the fixture folder via move-folder-items — both confirmed under the folder by fresh read"
+    },
+    "candidates": [
+      {
+        "id": "A-listFolder-complete-payload",
+        "shape": "APK-derived PBListFolderOperation with metadata(handler=set-ordered-folder-items) + listDataId + ordered folderItems + originalParentFolderId=<folder ID>; multipart part 'operations' — the exact typed SetOrderedFolderItems client operation",
+        "result": "HTTP 200; PERSISTED — fresh read-back shows the exact requested order"
+      },
+      {
+        "id": "B-listFolder-refreshed-timestamp",
+        "shape": "Full listFolder payload with refreshed timestamp",
+        "result": "HTTP 200; no change"
+      },
+      {
+        "id": "C-listFolder-part-name-list-folder-operations",
+        "shape": "Full listFolder payload sent as multipart part name 'list-folder-operations'",
+        "result": "HTTP 200; no change"
+      },
+      {
+        "id": "D-listFolder-plus-folderItems-plus-parent",
+        "shape": "A plus folderItems=requested order plus updatedParentFolderId=root",
+        "result": "HTTP 200; no change"
+      },
+      {
+        "id": "E-folderItems-with-parents",
+        "shape": "folderItems=requested order + originalParentFolderId=updatedParentFolderId=root (move-folder-items-like shape)",
+        "result": "HTTP 200; no change"
+      }
+    ],
+    "winner": "A-listFolder-complete-payload",
+    "note": "The APK-equivalent candidate persisted on the first attempt and fresh read-back showed the exact requested order; later candidates were not needed. The production ordering gate is enabled with fresh verification."
+  },
+  "cleanup": {
+    "lists": "'Pantry' and 'Closet' removed via remove-shopping-list and verified absent in fresh reads",
+    "folder": "Probe cleanup can acknowledge folder deletion without persistence; each leftover fixture was removed by an exact-ID disposable helper using delete-folder-items with child entries plus originalParentFolderId=parent, then verified absent in a fresh read",
+    "final_state": "no fixtures remain; no production folder was reordered at any point; a second fresh live read after the verified removal confirmed the fixture folder is absent"
+  },
+  "side_evidence": [
+    "create-new-folder PERSISTED a new folder on this server state (ListFolder payload + UpdatedParentFolderId=root); this is new live evidence distinct from the legacy save-list-folder HTTP-200/no-persistence probe that grounds review-folder-write-fail-closed. It is recorded here without changing that record's CLI gates (folder create/delete command gating is a separate slice).",
+    "move-folder-items PERSISTED ListType children into a folder; it was previously recorded only for FolderType children.",
+    "delete-folder-items requires originalParentFolderId for FolderType children: the list-item-verified folderItems-only shape was acknowledged without persisting for a folder child, and the same operation with originalParentFolderId persisted."
+  ],
+  "gate_state": "Production child ordering is live-supported: 'folders update --order --apply' uses the APK-equivalent set-ordered-folder-items payload and requires a fresh user-data read-back showing the exact requested child order.",
+  "unresolved_gaps": [],
+  "verification": [
+    "gofmt clean on all changed Go files",
+    "go test ./library/food-and-dining/anylist/internal/anylist ./library/food-and-dining/anylist/internal/cli — PASS (live probe skipped without the env var)",
+    "live probe run 2026-08-25: SUMMARY create_folder=persisted fixture_lists=2/2 fixture_moves=2/2 candidates_run=1 winner=A-listFolder-complete-payload; operations + folder ID in originalParentFolderId persisted and read back",
+    "live probe cleanup 2026-08-25: lists and folder removed and verified absent"
+  ],
+  "invariants_held": [
+    "No live write was attempted unless ANYLIST_FOLDER_ORDERING_PROBE was explicitly set",
+    "No production folder was reordered and none is left with test markers",
+    "Every fixture that was successfully created or moved was removed and verified absent",
+    "No secrets, tokens, or account identifiers are recorded in this file"
+  ],
+  "files": [
+    "internal/anylist/client.go",
+    "internal/anylist/client_test.go",
+    "internal/anylist/folder_ordering_probe_test.go",
+    "internal/cli/folders_update.go",
+    "internal/cli/folders_update_test.go",
+    "README.md",
+    "SKILL.md"
+  ]
+}

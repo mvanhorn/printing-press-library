@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "benzinga-news-quantified-command",
+  "applied_at": "2026-07-02",
+  "base_run_id": "20260627-034058-2c1f9c5c",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Add the news-quantified command for GET /api/v2/newsquantified (Quantitative News Analytics).",
+  "reason": "The NewsQuantified API spec (newsquantified-api.spec.yml) was captured in the generation run's research but no command was emitted for /api/v2/newsquantified, so the endpoint's per-ticker price-reaction/sentiment analytics were unreachable. A regen must keep emitting a command for this spec path.",
+  "files": [
+    "internal/cli/promoted_news-quantified.go",
+    "internal/cli/root.go",
+    "tools-manifest.json"
+  ],
+  "validated_outcome": "Live GET /api/v2/newsquantified?symbols=AAPL returns 200 with source:live analytics; go build/vet pass.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Generator should emit a command for the NewsQuantified spec (/api/v2/newsquantified) when its spec file is present in the run.",
+      "reason": "The spec was in the run's research/benzinga-openapi set but the endpoint was dropped during generation; this local command supersedes once the generator covers the spec path."
+    }
+  ]
+}

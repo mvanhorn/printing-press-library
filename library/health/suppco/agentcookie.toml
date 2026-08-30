@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "suppco-pp-cli"
+display_name = "Suppco"
+description = "Read-only SuppCo stack facts with a deterministic, provenance-bearing regimen snapshot export."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/suppco-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+SUPPCO_ACCESS_TOKEN = true

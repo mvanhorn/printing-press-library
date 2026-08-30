@@ -1,0 +1,91 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://flighty.com/airports",
+    "captured_at": "2026-08-27T21:45:00Z",
+    "entry_count": 6,
+    "api_entry_count": 0,
+    "noise_entry_count": 6,
+    "host_distribution": {
+      "flighty.com": 6
+    }
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.65,
+    "reasons": [
+      "no browser-only reachability signals observed"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "html_scrape",
+      "confidence": 0.55,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "flighty.com",
+          "path": "/airports",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "flighty.com",
+          "path": "/airports/tv",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "flighty.com",
+          "path": "/airports/denver-intl-den",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "flighty.com",
+          "path": "/airports/john-f-kennedy-jfk",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "flighty.com",
+          "path": "/airports/denver-intl-den/arrivals",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "flighty.com",
+          "path": "/airports/denver-intl-den/departures",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "HTML response observed"
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "none",
+        "confidence": 0.95
+      }
+    ]
+  },
+  "endpoint_clusters": []
+}

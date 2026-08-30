@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "openai-ads-greptile-p1-fixes",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-171540-a9bb0a03",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Mark dependent-resource fetch failures as sync failures, and key the local SQLite store by the effective Ads credential across every auth path (env var, credentials file, and explicit --config).",
+  "reason": "Two P1 review findings. (1) In the dependent fetch loop, a transport, timeout, or non-access HTTP error set outcome.reason but never rep.failure, so the aggregator reported a successful sync over an incomplete mirror; observed live when a 404 dependent still produced success:9 errored:0. (2) defaultDBPath returned one account-agnostic data.db, but every OpenAI Ads API key is scoped to exactly one ad account, so switching keys mixed campaigns, ads, and snapshot history across accounts. The scope suffix is derived from config.Load's effective credential rather than the environment variable alone, so tokens persisted by 'auth set-token' into the credentials file participate in scoping too.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/helpers.go",
+    "internal/cli/account_scope.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "A/B test with a forced-404 dependent: with the fix sync reports success:2 errored:1; reverted, the same run reports success:3 errored:0. Account scoping verified for env-only, credentials-file-only (0600), a second credentials file, OPENAI_ADS_CONFIG, explicit --config for two distinct accounts, env-overrides-file, env-overrides---config, and no-credential; a world-readable config yields data.db because config.Load discards untrusted credentials.",
+  "upstream_issue": "Both are generator-template issues, not specific to this API; filed for Printing Press retro."
+}

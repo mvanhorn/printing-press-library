@@ -1,0 +1,9 @@
+.raindrop-token
+.env
+*.db
+*.db-shm
+*.db-wal
+bin/
+/raindrop
+dist/
+coverage.out

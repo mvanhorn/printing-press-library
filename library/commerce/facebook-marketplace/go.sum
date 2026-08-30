@@ -7,8 +7,8 @@ github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkp
 github.com/dustin/go-humanize v1.0.1/go.mod h1:Mu1zIs6XwVuF/gI1OepvI0qD18qycQx+mFykh5fBlto=
 github.com/enetx/g v1.0.224 h1:H/uonguFE4qG8YCn5bSpZX5Wh+wTSb+jgf3I2ZM25XM=
 github.com/enetx/g v1.0.224/go.mod h1:lxhby3LjP8jOTGbxJ/PCd+2Zq1gYiSBbtL/llPhAg5c=
-github.com/enetx/http v1.0.28 h1:IaNSSDFlAVVdHnYhNIR9wAN7GY4TWL/kkvYC3jOaueY=
-github.com/enetx/http v1.0.28/go.mod h1:1f4mytfF/SfjATEJnynpwGS6aa1ALjb8DtmYgFVblY0=
+github.com/enetx/http v1.0.29 h1:B+NVXEN7vTAVYI+kZbx06Jqh/WwhHfUT8nG6OiRpQ78=
+github.com/enetx/http v1.0.29/go.mod h1:1f4mytfF/SfjATEJnynpwGS6aa1ALjb8DtmYgFVblY0=
 github.com/enetx/http2 v1.0.26 h1:wy3lYGVwnIUY4Q+gyPPQCJ1a+BMXD1B7Unpyc/Csrxc=
 github.com/enetx/http2 v1.0.26/go.mod h1:t54ex5HIS8V1+2j6cvEOv6umlrHsbUPFKQ54nYB58Nk=
 github.com/enetx/http3 v1.0.7 h1:daFhveKBtv8rRallCjaHErzzSHIrq07ovoSvVkvhcMM=

@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "review-recipe-photo-attachment",
+  "applied_at": "2026-08-16",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Add guarded recipe photo attach and clear commands using AnyList upload and save-recipe operations.",
+  "reason": "Browser capture confirms recipe photos use multipart POST /data/photos/upload followed by the existing save-recipe PBRecipeOperation with the complete recipe and PhotoIds. The CLI now validates image files offline, requires --apply for upload/save, clones the live recipe before changing PhotoIds, verifies attachment or removal by fresh recipe ID read-back, and deliberately reports cache_updated:false because the current recipe cache has no photo-ID column.",
+  "files": [
+    "internal/cli/recipes.go",
+    "internal/cli/recipes_photo.go",
+    "internal/cli/recipes_photo_test.go",
+    "README.md",
+    "SKILL.md",
+    "tools-manifest.json",
+    "internal/mcp/code_orch_data.go"
+  ],
+  "validated_outcome": "Focused CLI tests prove helper cloning, duplicate prevention, targeted/all clear planning, offline JSON previews, required-file safety, and command registration. MCP tests, JSON validation, gofmt, and git diff --check passed. No live AnyList writes were performed in this slice.",
+  "findings_addressed": [
+    "recipe-photo-attach",
+    "recipe-photo-clear",
+    "recipe-photo-explicit-apply-and-readback",
+    "recipe-photo-cache-limitation"
+  ]
+}

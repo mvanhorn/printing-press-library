@@ -1,0 +1,66 @@
+{
+  "api_name": "kuma",
+  "recommendation": "proceed",
+  "researched_at": "2026-08-26T18:00:00Z",
+  "novel_features": [
+    {
+      "name": "Incident context composite",
+      "command": "incident-context",
+      "description": "Combines monitor identity, recent heartbeat timeline, and current status into one redacted operator brief.",
+      "rationale": "No single Kuma call provides an incident-ready context packet.",
+      "example": "kuma-pp-cli incident-context --monitor 12 --json",
+      "why_it_matters": "Reduces alert investigation from several protocol calls to one deterministic read-only command.",
+      "group": "Incident investigation"
+    },
+    {
+      "name": "Complete-object retry safety gate",
+      "command": "set-retries",
+      "description": "Previews and, only with explicit --yes, applies a complete monitor edit while preserving unrelated fields and verifying readback.",
+      "rationale": "Kuma editMonitor is full replacement; a narrow patch risks silently clearing settings.",
+      "example": "kuma-pp-cli set-retries --monitor 12 --maxretries 3 --yes",
+      "why_it_matters": "Makes the dangerous replacement semantics visible and operator-gated.",
+      "group": "Safe mutations"
+    },
+    {
+      "name": "Socket.IO heartbeat normalization",
+      "command": "heartbeats",
+      "description": "Normalizes Kuma Socket.IO heartbeat records into a bounded time-window timeline with redacted output.",
+      "rationale": "Kuma exposes management data over Socket.IO, not a conventional REST resource.",
+      "example": "kuma-pp-cli heartbeats --monitor-id 12 --hours 3 --json",
+      "why_it_matters": "Provides an agent-friendly incident timeline without exposing credentials or raw protocol records.",
+      "group": "Incident investigation"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Incident context composite",
+      "command": "incident-context",
+      "description": "Combines monitor identity, recent heartbeat timeline, and current status into one redacted operator brief.",
+      "rationale": "No single Kuma call provides an incident-ready context packet.",
+      "example": "kuma-pp-cli incident-context --monitor 12 --json",
+      "why_it_matters": "Reduces alert investigation from several protocol calls to one deterministic read-only command.",
+      "group": "Incident investigation"
+    },
+    {
+      "name": "Complete-object retry safety gate",
+      "command": "set-retries",
+      "description": "Previews and, only with explicit --yes, applies a complete monitor edit while preserving unrelated fields and verifying readback.",
+      "rationale": "Kuma editMonitor is full replacement; a narrow patch risks silently clearing settings.",
+      "example": "kuma-pp-cli set-retries --monitor 12 --maxretries 3 --yes",
+      "why_it_matters": "Makes the dangerous replacement semantics visible and operator-gated.",
+      "group": "Safe mutations"
+    },
+    {
+      "name": "Socket.IO heartbeat normalization",
+      "command": "heartbeats",
+      "description": "Normalizes Kuma Socket.IO heartbeat records into a bounded time-window timeline with redacted output.",
+      "rationale": "Kuma exposes management data over Socket.IO, not a conventional REST resource.",
+      "example": "kuma-pp-cli heartbeats --monitor-id 12 --hours 3 --json",
+      "why_it_matters": "Provides an agent-friendly incident timeline without exposing credentials or raw protocol records.",
+      "group": "Incident investigation"
+    }
+  ],
+  "gaps": [
+    "Kuma v2 management API is Socket.IO rather than REST"
+  ]
+}

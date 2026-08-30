@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "quickcommerce-pp-mcp",
+  "display_name": "QuickCommerce API",
+  "version": "1.0.0",
+  "description": "Compare live Indian product prices, stock, and delivery ETAs from the terminal, then keep the history locally.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/quickcommerce-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/quickcommerce-pp-mcp",
+      "args": [],
+      "env": {
+        "PRINTING_PRESS_CLIENT_PROFILE": "${user_config.printing_press_client_profile}"
+      }
+    }
+  },
+  "user_config": {
+    "printing_press_client_profile": {
+      "type": "string",
+      "title": "Client profile",
+      "description": "Binds the MCP server to an existing tenant-gated Printing Press client profile.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

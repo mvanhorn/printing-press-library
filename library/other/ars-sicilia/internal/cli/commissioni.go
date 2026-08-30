@@ -10,7 +10,8 @@ import (
 func newCommissioniCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "commissioni",
-		Short:       "Lavori delle Commissioni: convocazioni (229) e sommari (230).",
+		Short:       "Lavori delle commissioni: convocazioni (229) e sommari (230).",
+		Long:        "Archivi grezzi dei lavori di commissione: convocazioni (229) e sommari (230). Per il quadro completo di una singola commissione, con pareri e DDL assegnati, usa il gruppo commissione (dossier).",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}

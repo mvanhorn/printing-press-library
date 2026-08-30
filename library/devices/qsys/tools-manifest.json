@@ -1,0 +1,179 @@
+{
+  "api_name": "qsys",
+  "base_url": "https://help.qsys.com",
+  "description": "Q-SYS specs, configuration, wiring, compatibility, and fault articles in one offline index - answering equipment-list questions no QSC website can take as input.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "qsys-pp-cli/0.1 (+https://github.com/mvanhorn/printing-press-library)"
+    },
+    {
+      "name": "Accept",
+      "value": "*/*"
+    }
+  ],
+  "tools": [
+    {
+      "name": "compat_by_product",
+      "description": "List the Q-SYS Designer versions and compatibility notes for a hardware product, per the compatibility matrix.",
+      "method": "GET",
+      "path": "/Content/Q-SYS_Compatibility/Hardware_Compatibility_Product.htm",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "compat_by_version",
+      "description": "List hardware support by Q-SYS Designer version: which hardware was added or removed in each release of the compatibility matrix.",
+      "method": "GET",
+      "path": "/Content/Q-SYS_Compatibility/Hardware_Compatibility_QDS_Version.htm",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "compat_deprecations",
+      "description": "List deprecated hardware and feature notices with the release in which each item was deprecated.",
+      "method": "GET",
+      "path": "/Content/Q-SYS_Compatibility/Deprecation_Notices.htm",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "compat_upgrade_path",
+      "description": "Show firmware and Q-SYS Designer upgrade path requirements, including the supported upgrade sequences.",
+      "method": "GET",
+      "path": "/Content/Q-SYS_Compatibility/upgrade_path_requirements.htm",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "networking_get",
+      "description": "Fetch a Q-SYS networking or connection guidance page. Required: topic.",
+      "method": "GET",
+      "path": "/Content/Networking/{topic}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "topic",
+          "type": "string",
+          "location": "path",
+          "description": "Networking topic file, e.g. Dante_Audio.htm or QoS.htm",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "page_get",
+      "description": "Fetch a Q-SYS Help documentation page as clean text. Required: topic.",
+      "method": "GET",
+      "path": "/Content/{topic}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "topic",
+          "type": "string",
+          "location": "path",
+          "description": "Help topic path under /Content, e.g. Networking/QoS.htm",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "page_index",
+      "description": "Fetch the Q-SYS Help sitemap listing every documentation page.",
+      "method": "GET",
+      "path": "/sitemap.xml",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "product_index",
+      "description": "Fetch the qsys.com sitemap listing every product page.",
+      "method": "GET",
+      "path": "/sitemap.xml",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "product_page",
+      "description": "Fetch a qsys.com product page as clean text. Required: family, slug.",
+      "method": "GET",
+      "path": "/products-solutions/{family}/{slug}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "family",
+          "type": "string",
+          "location": "path",
+          "description": "Product family, e.g. power-amplifiers, loudspeakers, q-sys",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Product slug, e.g. cx-q-series",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "product_resources",
+      "description": "List spec-sheet and manual PDF links for a product. Required: family, slug.",
+      "method": "GET",
+      "path": "/products-solutions/{family}/{slug}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "family",
+          "type": "string",
+          "location": "path",
+          "description": "Product family, e.g. power-amplifiers",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Product slug, e.g. cx-q-series",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "support_article",
+      "description": "Fetch a Q-SYS support article as clean text. Required: category, slug.",
+      "method": "GET",
+      "path": "/en_US/{category}/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "category",
+          "type": "string",
+          "location": "path",
+          "description": "Article category, e.g. faq, application-notes, awareness, troubleshooting, errorstatus-messages",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Article slug from the support sitemap",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "support_index",
+      "description": "Fetch the support.qsys.com sitemap listing every knowledge-base article.",
+      "method": "GET",
+      "path": "/sitemap.xml",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

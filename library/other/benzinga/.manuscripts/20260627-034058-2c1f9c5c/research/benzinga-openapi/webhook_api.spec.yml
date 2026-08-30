@@ -1,0 +1,114 @@
+openapi: 3.0.0
+info:
+  contact: {}
+  description: Test webhook delivery to verify your integration is working correctly
+  title: Webhook API
+  version: 1.0.0
+servers:
+  - url: https://api.benzinga.com
+paths:
+  /api/v1/webhook/test:
+    get:
+      summary: Test Webhook Delivery
+      description: This endpoint will send test data to your webhook endpoint so you may verify your integration
+      operationId: get-webhook-test
+      parameters:
+        - name: destination
+          in: query
+          required: true
+          description: The webhook endpoint URL where the test data will be sent
+          schema:
+            type: string
+            format: uri
+          example: https://your-endpoint.com/webhook
+        - name: version
+          in: query
+          required: true
+          description: API version, currently webhook/v1
+          schema:
+            type: string
+            enum:
+              - webhook/v1
+            default: webhook/v1
+        - name: kind
+          in: query
+          required: true
+          description: Identifies the message kind for the test payload
+          schema:
+            type: string
+            enum:
+              - News/v1
+              - Signals/v1
+              - Earnings/v1
+              - Ratings/v1
+              - Dividends/v1
+              - IPOs/v1
+              - Guidance/v1
+              - Splits/v1
+              - OptionActivity/v1
+              - Conference/v1
+              - Economics/v1
+              - Offerings/v1
+              - MA/v1
+              - Retail/v1
+              - FDA/v1
+              - WIIMs/v1
+              - SECInsiderTransaction/v1
+              - GovernmentTrade/v1
+            default: News/v1
+        - name: token
+          in: query
+          required: false
+          description: Specify token to have data transformed for production usage
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success - Test webhook delivery was sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        '400':
+          description: Invalid request - Inspect response body for details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid destination URL
+        '424':
+          description: Delivery error - System encountered an error delivering the test payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Failed to deliver test payload to destination
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+      security:
+        - ApiKeyAuth: []
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Key
+      description: Your Benzinga API key

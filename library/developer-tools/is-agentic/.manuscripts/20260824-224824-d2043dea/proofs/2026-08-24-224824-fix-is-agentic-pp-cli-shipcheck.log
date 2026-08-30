@@ -1,0 +1,160 @@
+
+=== verify ===
+Runtime Verification: /Users/apple/printing-press/.runstate/workspace-0b5cfea6/runs/20260824-224824-d2043dea/working/is-agentic-pp-cli/is-agentic-pp-cli
+Mode: live
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+resource-path:export           static       PASS   PASS     PASS     3/3
+agent-context                  write        PASS   PASS     PASS     3/3
+check                          read         PASS   PASS     PASS     3/3
+diff                           data-layer   PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+evidence                       write        PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feedback                       write        PASS   PASS     PASS     3/3
+history                        read         PASS   PASS     PASS     3/3
+issues                         write        PASS   PASS     PASS     3/3
+learnings                      read         PASS   PASS     FAIL     2/3
+playbook                       write        PASS   PASS     PASS     3/3
+portfolio                      write        PASS   PASS     PASS     3/3
+profile                        write        PASS   PASS     PASS     3/3
+recall                         read         PASS   PASS     PASS     3/3
+report                         read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+teach                          write        PASS   PASS     PASS     3/3
+teach-lookup                   write        PASS   PASS     PASS     3/3
+teach-pattern                  write        PASS   PASS     PASS     3/3
+teach-playbook                 write        PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       write        PASS   PASS     PASS     3/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS learnings confirm
+  PASS learnings forget
+  PASS learnings reject
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped)
+Pass Rate: 100% (31/31 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+OK: 6 narrative commands resolved and full examples passed
+
+=== dogfood ===
+dogfood: using spec /Users/apple/printing-press/.runstate/workspace-0b5cfea6/runs/20260824-224824-d2043dea/working/is-agentic-pp-cli/spec.json (bundled)
+dogfood: caller --spec=/Users/apple/printing-press/.runstate/workspace-0b5cfea6/runs/20260824-224824-d2043dea/research/openapi.json overridden by bundled /Users/apple/printing-press/.runstate/workspace-0b5cfea6/runs/20260824-224824-d2043dea/working/is-agentic-pp-cli/spec.json
+Dogfood Report: is-agentic-pp-cli
+================================
+
+Path Validity:     0/0 valid (N/A)
+
+Auth Protocol:     MATCH
+  Generated: Uses "unknown" prefix
+  Detail: no bot/bearer/basic scheme detected
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    2 dead (WARN)
+  - collectionItemsForOutput (defined, never called)
+  - successfulNoop (defined, never called)
+
+Data Pipeline:     PARTIAL
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 4
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    7/7 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: WARN
+  - 2 dead helper functions found
+  - defaultSyncResources empty: sync command is a runtime no-op; store-dependent novel commands have no advertised population path
+  - 1/7 novel features look reimplemented: evidence (evidence.go) — hand-rolled response: no API client call, no store access
+
+=== workflow-verify ===
+Workflow Verification: is-agentic-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== apify-audit ===
+Apify Actor Audit
+=================
+
+No Apify actor references found.
+
+Verdict: pass
+  - no Apify actor references found, skipping
+
+=== verify-skill ===
+=== is-agentic-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: is-agentic
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       8/10
+  Terminal UX          9/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          10/10
+  MCP Desc Quality     10/10
+  MCP Token Efficiency 7/10
+  MCP Remote Transport 10/10
+  MCP Tool Design      N/A
+  MCP Surface Strategy N/A
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              9/10
+  Vision               9/10
+  Workflows            10/10
+  Insight              10/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           N/A
+  Data Pipeline Integrity 7/10
+  Sync Correctness        10/10
+  Live API Verification   10/10
+  Type Fidelity           5/5
+  Dead Code               3/5
+
+  Total: 91/100 - Grade A
+  Note: omitted from denominator: mcp_tool_design, mcp_surface_strategy, auth_protocol
+
+Sample Output Probe (live command sample)
+  Binary refresh: fresh_fallback (same-name runnable binary is newer than Go sources)
+  Passed: 7/7  (100% pass rate, 0 skipped)
+
+Gaps:
+  - MCP: 2 tools (2 public, 0 auth-required) — readiness: full
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         3.553s
+  validate-narrative  PASS    0         213ms
+  dogfood           PASS    0         3.533s
+  workflow-verify   PASS    0         24ms
+  apify-audit       PASS    0         46ms
+  verify-skill      PASS    0         8.482s
+  scorecard         PASS    0         1.965s
+
+Verdict: PASS (7/7 legs passed)

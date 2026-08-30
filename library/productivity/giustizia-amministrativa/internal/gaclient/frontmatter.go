@@ -35,6 +35,16 @@ func FrontMatter(p Provvedimento) string {
 	addStr("data_deposito", p.DataDeposito)
 	addStr("formato", p.Formato)
 	addStr("url", p.URL)
+	if p.Meta != nil {
+		addStr("data_pubblicazione", p.Meta.DataPubblicazione)
+		addStr("oggetto", p.Meta.Oggetto)
+		addStr("presidente", p.Meta.Presidente)
+		addStr("estensore", p.Meta.Estensore)
+		addStr("urn", p.Meta.Urn)
+		if p.Meta.Omissis {
+			b.WriteString("omissis: true\n")
+		}
+	}
 	b.WriteString("---\n")
 	return b.String()
 }

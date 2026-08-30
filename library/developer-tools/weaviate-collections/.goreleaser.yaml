@@ -1,0 +1,51 @@
+version: 2
+project_name: weaviate-collections-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: weaviate-collections-pp-cli
+    main: ./cmd/weaviate-collections-pp-cli
+    binary: weaviate-collections-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/weaviate-collections/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: weaviate-collections-pp-mcp
+    main: ./cmd/weaviate-collections-pp-mcp
+    binary: weaviate-collections-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: weaviate-collections-pp-cli
+    repository:
+      owner: somsamantray
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Full collection-config control for Weaviate Cloud, plus schema history, drift diffing, and lint that no other Weaviate tool has."
+    install: |
+      bin.install "weaviate-collections-pp-cli"
+      bin.install "weaviate-collections-pp-mcp"

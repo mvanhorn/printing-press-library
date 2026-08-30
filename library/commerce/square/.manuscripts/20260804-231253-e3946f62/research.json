@@ -1,0 +1,243 @@
+{
+  "api_name": "square",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "Square MCP Server",
+      "url": "https://github.com/square/square-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 104,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Square Node.js SDK",
+      "url": "https://github.com/square/square-nodejs-sdk",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 116,
+      "last_updated": "",
+      "command_count": 334,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Square Python SDK",
+      "url": "https://github.com/square/square-python-sdk",
+      "language": "Python",
+      "install_method": "",
+      "stars": 113,
+      "last_updated": "",
+      "command_count": 336,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-05T03:28:50Z",
+  "novel_features": [
+    {
+      "name": "Daily close reconciliation",
+      "command": "reconcile close",
+      "description": "Explain the difference between sales, collected payments, refunds, disputes, and payouts for each location.",
+      "rationale": "Requires joining time-shifted commerce and settlement records that Square exposes through separate services.",
+      "example": "square-pp-cli reconcile close --since 24h --agent",
+      "why_it_matters": "Use this when an operator needs an explainable close instead of several unrelated API responses.",
+      "group": "Operational reconciliation"
+    },
+    {
+      "name": "Inventory drift",
+      "command": "inventory drift",
+      "description": "See which prices, variations, availability settings, and location counts changed since an earlier snapshot.",
+      "rationale": "Requires retained local snapshots across catalog and inventory resources.",
+      "example": "square-pp-cli inventory drift --since 7d --agent",
+      "why_it_matters": "Use this before opening or publishing a menu when current-state API calls cannot explain what changed.",
+      "group": "Operational reconciliation"
+    },
+    {
+      "name": "Customer timeline",
+      "command": "customer timeline",
+      "description": "Follow one customer's orders, payments, refunds, loyalty activity, invoices, and bookings in chronological order.",
+      "rationale": "Requires a local join across customer-linked records from several Square services.",
+      "example": "square-pp-cli customer timeline CUSTOMER_ABC123 --agent",
+      "why_it_matters": "Use this for customer-service investigations that otherwise require carrying IDs between services.",
+      "group": "Connected customer operations"
+    },
+    {
+      "name": "Webhook health",
+      "command": "webhook health",
+      "description": "Measure duplicate locally ingested webhook deliveries, ordering problems, delivery lag, gaps, and subscription changes.",
+      "rationale": "Requires recording real webhook receipts with webhook ingest and comparing retained subscription snapshots over time.",
+      "example": "square-pp-cli webhook health --since 24h --agent",
+      "why_it_matters": "Use this before releases or during incidents when a subscription listing cannot reveal delivery behavior.",
+      "group": "Integration confidence"
+    },
+    {
+      "name": "Weekly service review",
+      "command": "service review",
+      "description": "Review completed, unpaid, and missed appointments alongside staff and location utilization.",
+      "rationale": "Requires correlating bookings, invoices, payments, customers, team members, locations, and labor shifts.",
+      "example": "square-pp-cli service review --since 7d --agent",
+      "why_it_matters": "Use this for a service business's weekly operating review instead of assembling separate reports.",
+      "group": "Connected customer operations"
+    },
+    {
+      "name": "Request readiness check",
+      "command": "request check",
+      "description": "Validate a planned Square request, environment, API version, mutation policy, and idempotency before anything is sent.",
+      "rationale": "Combines the bundled API contract with local safety and environment policy in an offline check.",
+      "example": "square-pp-cli request check --method POST --path /v2/payments --body payment-request.json --agent",
+      "why_it_matters": "Use this before a risky sandbox or production call when schema validity alone is not enough.",
+      "group": "Integration confidence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Daily close reconciliation",
+      "command": "reconcile close",
+      "description": "Explain the difference between sales, collected payments, refunds, disputes, and payouts for each location.",
+      "rationale": "Requires joining time-shifted commerce and settlement records that Square exposes through separate services.",
+      "example": "square-pp-cli reconcile close --since 24h --agent",
+      "why_it_matters": "Use this when an operator needs an explainable close instead of several unrelated API responses.",
+      "group": "Operational reconciliation"
+    },
+    {
+      "name": "Inventory drift",
+      "command": "inventory drift",
+      "description": "See which prices, variations, availability settings, and location counts changed since an earlier snapshot.",
+      "rationale": "Requires retained local snapshots across catalog and inventory resources.",
+      "example": "square-pp-cli inventory drift --since 7d --agent",
+      "why_it_matters": "Use this before opening or publishing a menu when current-state API calls cannot explain what changed.",
+      "group": "Operational reconciliation"
+    },
+    {
+      "name": "Customer timeline",
+      "command": "customer timeline",
+      "description": "Follow one customer's orders, payments, refunds, loyalty activity, invoices, and bookings in chronological order.",
+      "rationale": "Requires a local join across customer-linked records from several Square services.",
+      "example": "square-pp-cli customer timeline CUSTOMER_ABC123 --agent",
+      "why_it_matters": "Use this for customer-service investigations that otherwise require carrying IDs between services.",
+      "group": "Connected customer operations"
+    },
+    {
+      "name": "Webhook health",
+      "command": "webhook health",
+      "description": "Measure duplicate locally ingested webhook deliveries, ordering problems, delivery lag, gaps, and subscription changes.",
+      "rationale": "Requires recording real webhook receipts with webhook ingest and comparing retained subscription snapshots over time.",
+      "example": "square-pp-cli webhook health --since 24h --agent",
+      "why_it_matters": "Use this before releases or during incidents when a subscription listing cannot reveal delivery behavior.",
+      "group": "Integration confidence"
+    },
+    {
+      "name": "Weekly service review",
+      "command": "service review",
+      "description": "Review completed, unpaid, and missed appointments alongside staff and location utilization.",
+      "rationale": "Requires correlating bookings, invoices, payments, customers, team members, locations, and labor shifts.",
+      "example": "square-pp-cli service review --since 7d --agent",
+      "why_it_matters": "Use this for a service business's weekly operating review instead of assembling separate reports.",
+      "group": "Connected customer operations"
+    },
+    {
+      "name": "Request readiness check",
+      "command": "request check",
+      "description": "Validate a planned Square request, environment, API version, mutation policy, and idempotency before anything is sent.",
+      "rationale": "Combines the bundled API contract with local safety and environment policy in an offline check.",
+      "example": "square-pp-cli request check --method POST --path /v2/payments --body payment-request.json --agent",
+      "why_it_matters": "Use this before a risky sandbox or production call when schema validity alone is not enough.",
+      "group": "Integration confidence"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SQUARE_ACCESS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Square",
+    "headline": "The current Square v2 API surface, plus local reconciliation and history the remote API cannot provide by itself.",
+    "value_prop": "Use one scriptable CLI for payments, orders, catalog, inventory, customers, bookings, staff, and developer operations. Sync selected resources locally, then run close reconciliation, inventory drift, customer timelines, webhook health checks, and service reviews with compact agent-ready output.",
+    "auth_narrative": "Use a Square sandbox token while learning or testing. Set SQUARE_ACCESS_TOKEN outside your shell history and set SQUARE_BASE_URL=https://connect.squareupsandbox.com for sandbox calls. Inspect mutation help and use --dry-run before explicitly approving any write. Production and sandbox tokens are not interchangeable.",
+    "quickstart": [
+      {
+        "command": "square-pp-cli doctor --dry-run",
+        "comment": "Check configuration and local prerequisites without credentials or network calls."
+      },
+      {
+        "command": "square-pp-cli sync --resources locations,catalog,inventory,customers,orders,payments,refunds,disputes,payouts,bookings,invoices,loyalty,team-members,events,webhooks-subscriptions --since 7d --max-pages 5",
+        "comment": "Build a bounded local operating snapshot after sandbox authentication is configured."
+      },
+      {
+        "command": "square-pp-cli reconcile close --since 24h --agent",
+        "comment": "Explain the latest gross-to-net settlement differences by location."
+      },
+      {
+        "command": "square-pp-cli inventory drift --since 7d --agent",
+        "comment": "Find catalog and stock changes since the earlier snapshot."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Square returns UNAUTHORIZED or an authentication error.",
+        "fix": "Confirm SQUARE_ACCESS_TOKEN is set for the selected environment; sandbox and production tokens cannot be mixed."
+      },
+      {
+        "symptom": "Square returns 429 RATE_LIMITED.",
+        "fix": "Reduce --max-pages or batch size and let the built-in exponential backoff complete before retrying."
+      },
+      {
+        "symptom": "A local compound command reports missing or stale data.",
+        "fix": "Run square-pp-cli sync --resources locations,catalog,inventory,customers,orders,payments,refunds,disputes,payouts,bookings,invoices,loyalty,team-members,events,webhooks-subscriptions --since 7d, then repeat the command."
+      },
+      {
+        "symptom": "A request works in one environment but fails in the other.",
+        "fix": "Check the configured Square environment, token, location IDs, and Square-Version together; each environment has separate data."
+      }
+    ],
+    "when_to_use": "Use this CLI for Square API automation, operator investigations, local history, and cross-resource analysis involving payments, orders, inventory, customers, bookings, or integrations. Prefer it when a repeatable command, offline search, or compact agent result is more useful than clicking through the Square Dashboard or writing a one-off SDK script.",
+    "anti_triggers": [
+      "Do not use this CLI to collect or handle raw card numbers; use Square's approved Web Payments or Mobile Payments SDKs.",
+      "Do not run production payment, refund, payout, or destructive mutations without explicit human approval and a reviewed request.",
+      "Do not use this CLI for Square Dashboard-only features that are absent from the public API.",
+      "Do not treat mock verification as proof that a production Square account or location is configured correctly."
+    ],
+    "recipes": [
+      {
+        "title": "Explain yesterday's close",
+        "command": "square-pp-cli reconcile close --since 24h --agent --select locations.location_name,locations.gross_sales,locations.gross_payments,locations.refunds,locations.net_collected,locations.payouts",
+        "explanation": "Return only the location and settlement fields an agent needs to explain a discrepancy."
+      },
+      {
+        "title": "Review stock drift",
+        "command": "square-pp-cli inventory drift --since 7d --agent",
+        "explanation": "Compare retained catalog and inventory snapshots across locations."
+      },
+      {
+        "title": "Trace a customer",
+        "command": "square-pp-cli customer timeline CUSTOMER_ABC123 --agent",
+        "explanation": "Assemble connected customer activity into one chronological record."
+      },
+      {
+        "title": "Check webhook delivery",
+        "command": "square-pp-cli webhook health --since 24h --agent",
+        "explanation": "Analyze real webhook receipts previously captured with webhook ingest, plus retained subscription drift."
+      },
+      {
+        "title": "Validate a payment request offline",
+        "command": "square-pp-cli request check --method POST --path /v2/payments --body payment-request.json --agent",
+        "explanation": "Check the method and path against the shipped API contract, then inspect JSON readability, environment, API version, explicit mutation approval, and idempotency before sending anything."
+      }
+    ],
+    "trigger_phrases": [
+      "reconcile my Square close",
+      "find Square inventory drift",
+      "trace this Square customer",
+      "check Square webhook health",
+      "review Square service operations",
+      "use the Square API",
+      "run the Square CLI"
+    ]
+  }
+}

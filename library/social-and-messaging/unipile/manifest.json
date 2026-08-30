@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "unipile-pp-mcp",
+  "display_name": "Unipile",
+  "version": "4.31.1",
+  "description": "Every Unipile endpoint as a typed command, plus a local mirror that makes cross-provider search possible and an invitation ledger that shows how much LinkedIn headroom you have left.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/unipile-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/unipile-pp-mcp",
+      "args": [],
+      "env": {
+        "UNIPILE_API_KEY": "${user_config.unipile_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "unipile_api_key": {
+      "type": "string",
+      "title": "UNIPILE_API_KEY",
+      "description": "Sets UNIPILE_API_KEY for the Unipile MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

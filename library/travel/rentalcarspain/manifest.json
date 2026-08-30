@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "rentalcarspain-pp-mcp",
+  "display_name": "Rental Car Spain",
+  "version": "0.1.0",
+  "description": "Watch Málaga car-rental prices the way you already do — DoYouSpain's cheapest supplier, cross-checked direct, always with full insurance — now in one command with local price history and drop alerts.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/rentalcarspain-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/rentalcarspain-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

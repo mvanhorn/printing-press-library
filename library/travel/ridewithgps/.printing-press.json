@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-17T16:43:13.269151Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "ridewithgps",
+  "display_name": "Ride with GPS",
+  "cli_name": "ridewithgps-pp-cli",
+  "creator": {
+    "handle": "stellato",
+    "name": "Greg Stellato"
+  },
+  "owner": "stellato",
+  "printer": "stellato",
+  "printer_name": "Greg Stellato",
+  "spec_path": "ridewithgps-openapi-enriched.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:4f46d7b2fada6770b62537cef819493b0d5b4d2f552826f1c52772e46431c201",
+  "run_id": "20260616-213832-c533c1eb",
+  "category": "travel",
+  "description": "Your whole Ride with GPS library, offline — bulk export, gear mileage, and ride analytics no other tool ships.",
+  "mcp_binary": "ridewithgps-pp-mcp",
+  "mcp_tool_count": 29,
+  "mcp_ready": "full",
+  "api_version": "v1",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "RIDEWITHGPS_API_KEY"
+  ],
+  "auth_additional_headers": [
+    {
+      "header": "x-rwgps-auth-token",
+      "in": "header",
+      "scheme": "rwgpsAuthToken",
+      "env_var": {
+        "name": "RIDEWITHGPS_AUTH_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Bulk export to your bike computer",
+      "command": "export",
+      "description": "Export many routes or trips to GPX, TCX, CSV, or KML files in one command — with cue sheets included, ready to side-load onto a Garmin, Wahoo, or Hammerhead. The bulk export Ride with GPS itself won't do."
+    },
+    {
+      "name": "Routes from an event",
+      "command": "event-routes",
+      "description": "List the routes attached to an event (group ride, gran fondo, brevet) and optionally export them straight to files for your bike computer."
+    },
+    {
+      "name": "Gear mileage \u0026 maintenance",
+      "command": "gear",
+      "description": "Per-bike accumulated mileage from your logged rides, plus maintenance-due flags against wear thresholds."
+    },
+    {
+      "name": "Training stats",
+      "command": "stats",
+      "description": "Time-windowed distance, elevation, and moving-time totals with activity-type breakdowns over your logged rides."
+    },
+    {
+      "name": "Personal records",
+      "command": "records",
+      "description": "All-time best efforts — longest ride, most climbing, fastest average speed, biggest power — from your trip metrics."
+    },
+    {
+      "name": "Route dedup",
+      "command": "dedup",
+      "description": "Find near-duplicate routes by distance and start/end geometry, and optionally delete the extras."
+    },
+    {
+      "name": "Library audit",
+      "command": "audit",
+      "description": "Flag routes that are stale, private, or incomplete (missing name, description, or distance) — catalog hygiene across your library."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "bestfoodtrucks-which-test-positional-args",
+  "applied_at": "2026-08-26",
+  "base_run_id": "20260826-125727-8281a074",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Fixed the generator-emitted TestWhichIndex_ExistsAndIsWellFormed check to stop treating a leaf command's positional argument value as a broken path segment.",
+  "reason": "The generated test's cleanFields logic collects every non-flag-prefixed token as part of the command path to resolve via root.Find, then fails whenever any token remains as 'remaining'. This is correct for commands invoked with only flags, but incorrectly fails any documented example with a bare positional argument (e.g. 'lot digest playa-district', 'truck schedule 11869') even when the command genuinely accepts that argument and is a real leaf command. Without this fix, the only way to satisfy the test was to add fake hardcoded literal-value subcommands (discovered and reverted during this same build) - a workaround for the test bug, not a real fix.",
+  "files": ["internal/cli/which_test.go"],
+  "validated_outcome": "go test ./... passes cleanly with generic parameterized commands (no hardcoded example-value subcommands); manually re-verified lot digest/truck schedule/market hotlist against arguments never used in any example or delegation prompt.",
+  "upstream_issue": null
+}

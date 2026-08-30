@@ -1,0 +1,68 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-29T15:27:38.094894Z",
+  "printing_press_version": "4.31.1",
+  "api_name": "fish-audio",
+  "display_name": "Fish Audio",
+  "cli_name": "fish-audio-pp-cli",
+  "printer": "jongouveia",
+  "printer_name": "Jon Gouveia",
+  "spec_path": "fish-audio-spec.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:d4a1807558f88032e2fd468179e50871b68e460bf672af4222857beaa07e82ad",
+  "run_id": "20260828-094138-3dcac761",
+  "category": "ai",
+  "description": "Fish Audio API: text-to-speech, speech-to-text, voice design, voice models (clones), and account credit.",
+  "mcp_binary": "fish-audio-pp-mcp",
+  "mcp_tool_count": 11,
+  "mcp_ready": "full",
+  "auth_type": "bearer_token",
+  "auth_preference": "BearerAuth",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Local render history",
+      "command": "render log",
+      "description": "See every past TTS render with its text, model, voice, byte count, and cost."
+    },
+    {
+      "name": "Grouped spend report",
+      "command": "render spend",
+      "description": "Total Fish Audio spend grouped by voice, model, or day for a side-by-side with your ElevenLabs invoice."
+    },
+    {
+      "name": "Skip identical re-renders",
+      "command": "tts render",
+      "description": "Hash the request and reuse a prior identical render instead of paying for it again."
+    },
+    {
+      "name": "Clone fidelity check",
+      "command": "voice verify",
+      "description": "Render a reference phrase with a cloned voice, transcribe it back, and report word-error-rate."
+    },
+    {
+      "name": "Pre-batch budget guard",
+      "command": "tts batch",
+      "description": "Estimate a batch's cost against your live API credit and refuse to start if it would overdraw."
+    },
+    {
+      "name": "Compare two renders",
+      "command": "render diff",
+      "description": "Show the cost, model, and byte deltas between two past renders."
+    }
+  ],
+  "creator": {
+    "handle": "jongouveia",
+    "name": "Jon Gouveia"
+  }
+}

@@ -1,0 +1,7 @@
+/build/
+/rapidapi
+/rapidapi-pp-cli
+/dogfood-results.json
+/workflow-verify-report.json
+/verify-report.json
+*.log

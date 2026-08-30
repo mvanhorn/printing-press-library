@@ -12,14 +12,9 @@ import (
 	"time"
 )
 
-// snapshotWriteMu serializes writes to the hand-authored snapshot tables
-// (cart_snapshots, price_snapshots). These tables live outside the generated
-// resources schema guarded by Store.writeMu, so this dedicated mutex prevents
-// concurrent snapshot writers (e.g. a compound workflow running basket diff and
-// price-watch at once) from interleaving transactions and tripping SQLITE_BUSY.
+// snapshotWriteMu serializes writes to the hand-authored snapshot tables.
 var snapshotWriteMu sync.Mutex
 
-// ensureCartSnapshotsTable creates cart_snapshots if it doesn't exist.
 func ensureCartSnapshotsTable(db *sql.DB) error {
 	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS cart_snapshots (
 		id        INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -29,7 +24,6 @@ func ensureCartSnapshotsTable(db *sql.DB) error {
 	return err
 }
 
-// ensurePriceSnapshotsTable creates price_snapshots if it doesn't exist.
 func ensurePriceSnapshotsTable(db *sql.DB) error {
 	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS price_snapshots (
 		id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -110,22 +104,6 @@ func LatestCartSnapshots(db *sql.DB, n int) ([]CartSnapshot, error) {
 	return scanCartSnapshots(rows)
 }
 
-// OlderCartSnapshots returns snapshots taken before a given snapshot ID, newest first.
-func OlderCartSnapshots(db *sql.DB, beforeID int64, n int) ([]CartSnapshot, error) {
-	if err := ensureCartSnapshotsTable(db); err != nil {
-		return nil, err
-	}
-	rows, err := db.Query(
-		`SELECT id, taken_at, items_json FROM cart_snapshots WHERE id < ? ORDER BY id DESC LIMIT ?`,
-		beforeID, n,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	return scanCartSnapshots(rows)
-}
-
 func scanCartSnapshots(rows *sql.Rows) ([]CartSnapshot, error) {
 	var out []CartSnapshot
 	for rows.Next() {
@@ -173,7 +151,7 @@ func SnapshotPrices(db *sql.DB, items []PriceSnapshot) error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer tx.Rollback() //nolint:errcheck
 	for _, item := range items {
 		takenAt := now
 		if !item.TakenAt.IsZero() {
@@ -191,7 +169,7 @@ func SnapshotPrices(db *sql.DB, items []PriceSnapshot) error {
 	return tx.Commit()
 }
 
-// PriceSnapshotWindow returns all price snapshots for the given product IDs within a time window.
+// PriceSnapshotWindow returns all price snapshots within a time window.
 // If productIDs is empty, returns snapshots for all products in the window.
 func PriceSnapshotWindow(db *sql.DB, since time.Time, productIDs []string) ([]PriceSnapshot, error) {
 	if err := ensurePriceSnapshotsTable(db); err != nil {
@@ -207,7 +185,6 @@ func PriceSnapshotWindow(db *sql.DB, since time.Time, productIDs []string) ([]Pr
 			sinceStr,
 		)
 	} else {
-		// Build a parameterized IN clause
 		placeholders := make([]byte, 0, len(productIDs)*3)
 		args := make([]any, 0, len(productIDs)+1)
 		args = append(args, sinceStr)
@@ -218,6 +195,7 @@ func PriceSnapshotWindow(db *sql.DB, since time.Time, productIDs []string) ([]Pr
 			placeholders = append(placeholders, '?')
 			args = append(args, pid)
 		}
+		// #nosec G201 -- placeholders contains only literal '?' and ',' bytes; no user data.
 		q := fmt.Sprintf(
 			`SELECT id, product_id, name, price_cents, unit_price, unit_label, pack_grams, taken_at
 			 FROM price_snapshots WHERE taken_at >= ? AND product_id IN (%s) ORDER BY product_id, taken_at`,
@@ -232,7 +210,7 @@ func PriceSnapshotWindow(db *sql.DB, since time.Time, productIDs []string) ([]Pr
 	return scanPriceSnapshots(rows)
 }
 
-// CountPriceSnapshots returns distinct products that have at least one snapshot.
+// CountPriceSnapshots returns the count of distinct products with at least one snapshot.
 func CountPriceSnapshots(db *sql.DB) (int, error) {
 	if err := ensurePriceSnapshotsTable(db); err != nil {
 		return 0, err

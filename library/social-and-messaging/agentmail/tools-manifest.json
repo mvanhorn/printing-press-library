@@ -1,0 +1,5182 @@
+{
+  "api_name": "agentmail",
+  "base_url": "https://api.agentmail.to",
+  "description": "AgentMail operations with local memory, safe sends, and fleet-wide insight.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "AGENTMAIL_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "AGENTMAIL_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "agent_sign-up",
+      "description": "Create a new agent organization with an inbox and API key. This endpoint is for signing up for the first time. If you've already signed up, you're all set — just use your existing API key. A 6-digit OTP is sent to the human's email for verification. This endpoint is idempotent. Calling it again with the same `human_email` will rotate the API key and resend the OTP if expired. The returned API key has limited permissions until the organization is verified via the verify endpoint. **CLI:** ```bash agentmail agent sign-up --human-email user@example.com --username my-agent ```. Required: human_email, username. Optional: referrer, source. Returns the new TypeAgentAgentSignupResponse.",
+      "method": "POST",
+      "path": "/v0/agent/sign-up",
+      "params": [
+        {
+          "name": "human_email",
+          "type": "string",
+          "location": "body",
+          "description": "Email address of the human who owns the agent. A 6-digit OTP will be sent to this address.",
+          "required": true
+        },
+        {
+          "name": "referrer",
+          "type": "string",
+          "location": "body",
+          "description": "The channel that drove this sign-up — where the agent or its developer discovered AgentMail (e.g. `agent.email`, a partner URL, a campaign tag). Answers 'where did this sign-up come from'. Max 2048 characters."
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "body",
+          "description": "The SDK, framework, or platform issuing this sign-up (e.g. `agentmail-python`, `agentmail-cli`, `agentmail-mcp`). Identifies the caller — answers 'who is signing up'. Max 2048 characters."
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "body",
+          "description": "Username for the auto-created inbox (e.g. 'my-agent' creates my-agent@agentmail.to).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agent_verify",
+      "description": "Verify an agent organization using the 6-digit OTP sent to the human's email during sign-up. On success, the organization is upgraded from `agent_unverified` to `agent_verified`, the send allowlist is removed, and free plan entitlements are applied. The OTP expires after 24 hours and allows a maximum of 10 attempts. If you run into any difficulties receiving the OTP code, you can also create an account on [console.agentmail.to](https://console.agentmail.to) using the human email address you provided to verify your account. **CLI:** ```bash agentmail agent verify --otp-code 123456 ```. Required: otp_code. Returns the new TypeAgentAgentVerifyResponse.",
+      "method": "POST",
+      "path": "/v0/agent/verify",
+      "params": [
+        {
+          "name": "otp_code",
+          "type": "string",
+          "location": "body",
+          "description": "6-digit verification code sent to the human's email address.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "api-keys_create",
+      "description": "**CLI:** ```bash agentmail api-keys create --name 'My Key' ```. Optional: name, permissions. Returns the new TypeApiKeysCreateApiKeyResponse.",
+      "method": "POST",
+      "path": "/v0/api-keys",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of api key."
+        },
+        {
+          "name": "permissions-api-key-create",
+          "wire_name": "permissions.api_key_create",
+          "type": "bool",
+          "location": "body",
+          "description": "Create API keys."
+        },
+        {
+          "name": "permissions-api-key-delete",
+          "wire_name": "permissions.api_key_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete API keys."
+        },
+        {
+          "name": "permissions-api-key-read",
+          "wire_name": "permissions.api_key_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read API keys."
+        },
+        {
+          "name": "permissions-api-key-update",
+          "wire_name": "permissions.api_key_update",
+          "type": "bool",
+          "location": "body",
+          "description": "Update API keys."
+        },
+        {
+          "name": "permissions-domain-create",
+          "wire_name": "permissions.domain_create",
+          "type": "bool",
+          "location": "body",
+          "description": "Create domains."
+        },
+        {
+          "name": "permissions-domain-delete",
+          "wire_name": "permissions.domain_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete domains."
+        },
+        {
+          "name": "permissions-domain-read",
+          "wire_name": "permissions.domain_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read domain details."
+        },
+        {
+          "name": "permissions-domain-update",
+          "wire_name": "permissions.domain_update",
+          "type": "bool",
+          "location": "body",
+          "description": "Update domains."
+        },
+        {
+          "name": "permissions-draft-create",
+          "wire_name": "permissions.draft_create",
+          "type": "bool",
+          "location": "body",
+          "description": "Create drafts."
+        },
+        {
+          "name": "permissions-draft-delete",
+          "wire_name": "permissions.draft_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete drafts."
+        },
+        {
+          "name": "permissions-draft-read",
+          "wire_name": "permissions.draft_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read drafts."
+        },
+        {
+          "name": "permissions-draft-send",
+          "wire_name": "permissions.draft_send",
+          "type": "bool",
+          "location": "body",
+          "description": "Send drafts."
+        },
+        {
+          "name": "permissions-draft-update",
+          "wire_name": "permissions.draft_update",
+          "type": "bool",
+          "location": "body",
+          "description": "Update drafts."
+        },
+        {
+          "name": "permissions-inbox-create",
+          "wire_name": "permissions.inbox_create",
+          "type": "bool",
+          "location": "body",
+          "description": "Create new inboxes."
+        },
+        {
+          "name": "permissions-inbox-delete",
+          "wire_name": "permissions.inbox_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete inboxes."
+        },
+        {
+          "name": "permissions-inbox-read",
+          "wire_name": "permissions.inbox_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read inbox details."
+        },
+        {
+          "name": "permissions-inbox-update",
+          "wire_name": "permissions.inbox_update",
+          "type": "bool",
+          "location": "body",
+          "description": "Update inbox settings."
+        },
+        {
+          "name": "permissions-label-blocked-read",
+          "wire_name": "permissions.label_blocked_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Access messages labeled blocked."
+        },
+        {
+          "name": "permissions-label-spam-read",
+          "wire_name": "permissions.label_spam_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Access messages labeled spam."
+        },
+        {
+          "name": "permissions-label-trash-read",
+          "wire_name": "permissions.label_trash_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Access messages labeled trash."
+        },
+        {
+          "name": "permissions-label-unauthenticated-read",
+          "wire_name": "permissions.label_unauthenticated_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Access messages labeled unauthenticated."
+        },
+        {
+          "name": "permissions-list-entry-create",
+          "wire_name": "permissions.list_entry_create",
+          "type": "bool",
+          "location": "body",
+          "description": "Create list entries."
+        },
+        {
+          "name": "permissions-list-entry-delete",
+          "wire_name": "permissions.list_entry_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete list entries."
+        },
+        {
+          "name": "permissions-list-entry-read",
+          "wire_name": "permissions.list_entry_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read list entries."
+        },
+        {
+          "name": "permissions-message-delete",
+          "wire_name": "permissions.message_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete messages. Also required to delete threads."
+        },
+        {
+          "name": "permissions-message-read",
+          "wire_name": "permissions.message_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read messages. Also required to read threads."
+        },
+        {
+          "name": "permissions-message-send",
+          "wire_name": "permissions.message_send",
+          "type": "bool",
+          "location": "body",
+          "description": "Send messages."
+        },
+        {
+          "name": "permissions-message-update",
+          "wire_name": "permissions.message_update",
+          "type": "bool",
+          "location": "body",
+          "description": "Update message labels. Also required to update threads."
+        },
+        {
+          "name": "permissions-metrics-read",
+          "wire_name": "permissions.metrics_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read metrics."
+        },
+        {
+          "name": "permissions-pod-create",
+          "wire_name": "permissions.pod_create",
+          "type": "bool",
+          "location": "body",
+          "description": "Create pods."
+        },
+        {
+          "name": "permissions-pod-delete",
+          "wire_name": "permissions.pod_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete pods."
+        },
+        {
+          "name": "permissions-pod-read",
+          "wire_name": "permissions.pod_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read pods."
+        },
+        {
+          "name": "permissions-webhook-create",
+          "wire_name": "permissions.webhook_create",
+          "type": "bool",
+          "location": "body",
+          "description": "Create webhooks."
+        },
+        {
+          "name": "permissions-webhook-delete",
+          "wire_name": "permissions.webhook_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete webhooks."
+        },
+        {
+          "name": "permissions-webhook-read",
+          "wire_name": "permissions.webhook_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read webhook configurations."
+        },
+        {
+          "name": "permissions-webhook-update",
+          "wire_name": "permissions.webhook_update",
+          "type": "bool",
+          "location": "body",
+          "description": "Update webhooks."
+        }
+      ]
+    },
+    {
+      "name": "api-keys_create-public-key",
+      "description": "Register a public P-256 JWK using an existing AgentMail bearer API key with `api_key_create`. Re-registering the same JWK creates a new credential ID; it does not replace or recover an earlier credential. The private key must never be sent to AgentMail. Required: public_key. Optional: expires_at, name, scope. Returns the new TypeApiKeysPublicKeyCredential.",
+      "method": "POST",
+      "path": "/v0/api-keys/public-keys",
+      "params": [
+        {
+          "name": "expires_at",
+          "type": "string",
+          "location": "body",
+          "description": "Future absolute expiry. Omit to inherit the registering bearer key's expiry. A child credential cannot outlive its creator."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Defaults to `AgentID key {first eight fingerprint characters}`."
+        },
+        {
+          "name": "public-key-crv",
+          "wire_name": "public_key.crv",
+          "type": "string",
+          "location": "body",
+          "description": "Crv",
+          "required": true
+        },
+        {
+          "name": "public-key-kty",
+          "wire_name": "public_key.kty",
+          "type": "string",
+          "location": "body",
+          "description": "Kty",
+          "required": true
+        },
+        {
+          "name": "public-key-x",
+          "wire_name": "public_key.x",
+          "type": "string",
+          "location": "body",
+          "description": "A 32-byte P-256 coordinate encoded as unpadded base64url.",
+          "required": true
+        },
+        {
+          "name": "public-key-y",
+          "wire_name": "public_key.y",
+          "type": "string",
+          "location": "body",
+          "description": "A 32-byte P-256 coordinate encoded as unpadded base64url.",
+          "required": true
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "location": "body",
+          "description": "Omit to inherit the registering bearer key's exact scope. An explicit scope must be the caller's scope or a live descendant."
+        }
+      ]
+    },
+    {
+      "name": "api-keys_delete",
+      "description": "**CLI:** ```bash agentmail api-keys delete --api-key-id \u003capi_key_id\u003e ```. Required: api_key_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/api-keys/{api_key_id}",
+      "params": [
+        {
+          "name": "api_key_id",
+          "type": "string",
+          "location": "path",
+          "description": "Api key id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "api-keys_list",
+      "description": "**CLI:** ```bash agentmail api-keys list ```. Optional: limit, page_token, ascending. Returns array of TypeApiKeysApiKey.",
+      "method": "GET",
+      "path": "/v0/api-keys",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        }
+      ]
+    },
+    {
+      "name": "api-keys_list-public-keys",
+      "description": "List only public-key credentials visible to the bearer caller's scope. Bearer credentials are never returned, even though both credential types share storage and pagination indexes. Requires `api_key_read`. Optional: limit, page_token, ascending. Returns array of TypeApiKeysPublicKeyCredential.",
+      "method": "GET",
+      "path": "/v0/api-keys/public-keys",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        }
+      ]
+    },
+    {
+      "name": "api-keys_revoke-all-agent-id-sign-in-keys",
+      "description": "Invalidate every current public-key credential in the caller's organization by advancing its AgentID key generation. The caller must be organization-scoped and either have `api_key_delete` or, for a verified self-serve agent organization, use an unrestricted unmanaged bearer credential. No request body is accepted. `Idempotency-Key` is required and must be a UUID. Reusing the same UUID returns the original permanent receipt without advancing the generation again. A new UUID performs a new generation advance. Required: Idempotency-Key.",
+      "method": "POST",
+      "path": "/v0/api-keys/public-keys/agentid-sign-in/revoke-all",
+      "params": [
+        {
+          "name": "Idempotency-Key",
+          "type": "string",
+          "location": "query",
+          "description": "Required UUID identifying this revoke-all operation permanently.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "api-keys_revoke-public-key",
+      "description": "Permanently revoke one public-key credential. This hard-deletes the credential; repeating the request returns not found. Requires `api_key_delete`. Required: api_key_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/api-keys/public-keys/{api_key_id}",
+      "params": [
+        {
+          "name": "api_key_id",
+          "type": "string",
+          "location": "path",
+          "description": "Public-key credential ID returned by registration.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "api-keys_update-public-key-name",
+      "description": "Rename the credential. All security-relevant fields are immutable. Requires `api_key_update`. Required: api_key_id, name. Returns the updated TypeApiKeysPublicKeyCredential.",
+      "method": "PATCH",
+      "path": "/v0/api-keys/public-keys/{api_key_id}",
+      "params": [
+        {
+          "name": "api_key_id",
+          "type": "string",
+          "location": "path",
+          "description": "Public-key credential ID returned by registration.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_create",
+      "description": "**CLI:** ```bash agentmail domains create --domain example.com ```. Required: domain. Optional: feedback_enabled, subdomains_enabled, tracking_enabled. Returns array of TypeDomainsVerificationRecord.",
+      "method": "POST",
+      "path": "/v0/domains",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the domain (e.g., `example.com`).",
+          "required": true
+        },
+        {
+          "name": "feedback_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Bounce and complaint notifications are sent to your inboxes."
+        },
+        {
+          "name": "subdomains_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow inboxes on any subdomain of this domain."
+        },
+        {
+          "name": "tracking_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Serve open tracking pixels from this domain."
+        }
+      ]
+    },
+    {
+      "name": "domains_delete",
+      "description": "**CLI:** ```bash agentmail domains delete --domain-id \u003cdomain_id\u003e ```. Required: domain_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/domains/{domain_id}",
+      "params": [
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "Domain id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_get",
+      "description": "**CLI:** ```bash agentmail domains get --domain-id \u003cdomain_id\u003e ```. Required: domain_id. Returns array of TypeDomainsVerificationRecord.",
+      "method": "GET",
+      "path": "/v0/domains/{domain_id}",
+      "params": [
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "Domain id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_list",
+      "description": "**CLI:** ```bash agentmail domains list ```. Optional: limit, page_token, ascending. Returns array of TypeDomainsDomainItem.",
+      "method": "GET",
+      "path": "/v0/domains",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        }
+      ]
+    },
+    {
+      "name": "domains_update",
+      "description": "**CLI:** ```bash agentmail domains update --domain-id \u003cdomain_id\u003e ```. Required: domain_id. Optional: feedback_enabled, subdomains_enabled, tracking_enabled. Returns array of TypeDomainsVerificationRecord.",
+      "method": "PATCH",
+      "path": "/v0/domains/{domain_id}",
+      "params": [
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "Domain id",
+          "required": true
+        },
+        {
+          "name": "feedback_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Bounce and complaint notifications are sent to your inboxes."
+        },
+        {
+          "name": "subdomains_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow inboxes on any subdomain of this domain."
+        },
+        {
+          "name": "tracking_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Serve open tracking pixels from this domain."
+        }
+      ]
+    },
+    {
+      "name": "domains_verify_verify",
+      "description": "**CLI:** ```bash agentmail domains verify --domain-id \u003cdomain_id\u003e ```. Required: domain_id.",
+      "method": "POST",
+      "path": "/v0/domains/{domain_id}/verify",
+      "params": [
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "Domain id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_zone-file_get",
+      "description": "**CLI:** ```bash agentmail domains get-zone-file --domain-id \u003cdomain_id\u003e ```. Required: domain_id.",
+      "method": "GET",
+      "path": "/v0/domains/{domain_id}/zone-file",
+      "params": [
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "Domain id",
+          "required": true
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/octet-stream"
+        }
+      ]
+    },
+    {
+      "name": "drafts_get",
+      "description": "**CLI:** ```bash agentmail drafts get --draft-id \u003cdraft_id\u003e ```. Required: draft_id. Returns the TypeDraftsDraft.",
+      "method": "GET",
+      "path": "/v0/drafts/{draft_id}",
+      "params": [
+        {
+          "name": "draft_id",
+          "type": "string",
+          "location": "path",
+          "description": "Draft id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "drafts_list",
+      "description": "**CLI:** ```bash agentmail drafts list ```. Optional: limit, page_token, labels (plus 3 more). Returns array of TypeDraftsDraftItem.",
+      "method": "GET",
+      "path": "/v0/drafts",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "labels",
+          "type": "array",
+          "location": "query",
+          "description": "Labels"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        }
+      ]
+    },
+    {
+      "name": "drafts_attachments_get",
+      "description": "**CLI:** ```bash agentmail drafts get-attachment --draft-id \u003cdraft_id\u003e --attachment-id \u003cattachment_id\u003e ```. Required: draft_id, attachment_id. Returns the TypeAttachmentsAttachmentResponse.",
+      "method": "GET",
+      "path": "/v0/drafts/{draft_id}/attachments/{attachment_id}",
+      "params": [
+        {
+          "name": "draft_id",
+          "type": "string",
+          "location": "path",
+          "description": "Draft id",
+          "required": true
+        },
+        {
+          "name": "attachment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Attachment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inboxes_create",
+      "description": "**CLI:** ```bash agentmail inboxes create --display-name 'My Agent' --username myagent --domain agentmail.to ```. Optional: client_id, display_name, domain (plus 2 more). Returns the new TypeInboxesInbox.",
+      "method": "POST",
+      "path": "/v0/inboxes",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "string",
+          "location": "body",
+          "description": "Client ID of inbox."
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "Display name: `Display Name \u003cusername@domain.com\u003e`."
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "Domain of address. Must be a verified domain, or any subdomain of a verified domain that has subdomains enabled (e.g., `bot.example.com`). Defaults to `agentmail.to`."
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Custom metadata to attach to the inbox."
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "body",
+          "description": "Username of address. Randomly generated if not specified."
+        }
+      ]
+    },
+    {
+      "name": "inboxes_delete",
+      "description": "**CLI:** ```bash agentmail inboxes delete --inbox-id \u003cinbox_id\u003e ```. Required: inbox_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/inboxes/{inbox_id}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inboxes_get",
+      "description": "**CLI:** ```bash agentmail inboxes get --inbox-id \u003cinbox_id\u003e ```. Required: inbox_id. Returns the TypeInboxesInbox.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inboxes_list",
+      "description": "**CLI:** ```bash agentmail inboxes list ```. Optional: limit, page_token, ascending. Returns array of TypeInboxesInbox.",
+      "method": "GET",
+      "path": "/v0/inboxes",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        }
+      ]
+    },
+    {
+      "name": "inboxes_update",
+      "description": "**CLI:** ```bash agentmail inboxes update --inbox-id \u003cinbox_id\u003e --display-name 'Updated Name' ```. Required: inbox_id. Optional: display_name, metadata. Returns the updated TypeInboxesInbox.",
+      "method": "PATCH",
+      "path": "/v0/inboxes/{inbox_id}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "Display name: `Display Name \u003cusername@domain.com\u003e`."
+        },
+        {
+          "name": "metadata",
+          "type": "string",
+          "location": "body",
+          "description": "Metadata to merge into the inbox's existing metadata. Keys you include are added or overwritten; keys you omit are left unchanged. To remove a single key, send it with a null value. To clear all metadata, send `metadata` as null. Sending an empty object is rejected; use null to clear. Each update must include at least one of `display_name` or `metadata`."
+        }
+      ]
+    },
+    {
+      "name": "inboxes_api-keys_create",
+      "description": "**CLI:** ```bash agentmail inboxes:api-keys create --inbox-id \u003cinbox_id\u003e --name 'My Key' ```. Required: inbox_id. Optional: name, permissions. Returns the new TypeApiKeysCreateApiKeyResponse.",
+      "method": "POST",
+      "path": "/v0/inboxes/{inbox_id}/api-keys",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of api key."
+        },
+        {
+          "name": "permissions-api-key-create",
+          "wire_name": "permissions.api_key_create",
+          "type": "bool",
+          "location": "body",
+          "description": "Create API keys."
+        },
+        {
+          "name": "permissions-api-key-delete",
+          "wire_name": "permissions.api_key_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete API keys."
+        },
+        {
+          "name": "permissions-api-key-read",
+          "wire_name": "permissions.api_key_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read API keys."
+        },
+        {
+          "name": "permissions-api-key-update",
+          "wire_name": "permissions.api_key_update",
+          "type": "bool",
+          "location": "body",
+          "description": "Update API keys."
+        },
+        {
+          "name": "permissions-domain-create",
+          "wire_name": "permissions.domain_create",
+          "type": "bool",
+          "location": "body",
+          "description": "Create domains."
+        },
+        {
+          "name": "permissions-domain-delete",
+          "wire_name": "permissions.domain_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete domains."
+        },
+        {
+          "name": "permissions-domain-read",
+          "wire_name": "permissions.domain_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read domain details."
+        },
+        {
+          "name": "permissions-domain-update",
+          "wire_name": "permissions.domain_update",
+          "type": "bool",
+          "location": "body",
+          "description": "Update domains."
+        },
+        {
+          "name": "permissions-draft-create",
+          "wire_name": "permissions.draft_create",
+          "type": "bool",
+          "location": "body",
+          "description": "Create drafts."
+        },
+        {
+          "name": "permissions-draft-delete",
+          "wire_name": "permissions.draft_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete drafts."
+        },
+        {
+          "name": "permissions-draft-read",
+          "wire_name": "permissions.draft_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read drafts."
+        },
+        {
+          "name": "permissions-draft-send",
+          "wire_name": "permissions.draft_send",
+          "type": "bool",
+          "location": "body",
+          "description": "Send drafts."
+        },
+        {
+          "name": "permissions-draft-update",
+          "wire_name": "permissions.draft_update",
+          "type": "bool",
+          "location": "body",
+          "description": "Update drafts."
+        },
+        {
+          "name": "permissions-inbox-create",
+          "wire_name": "permissions.inbox_create",
+          "type": "bool",
+          "location": "body",
+          "description": "Create new inboxes."
+        },
+        {
+          "name": "permissions-inbox-delete",
+          "wire_name": "permissions.inbox_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete inboxes."
+        },
+        {
+          "name": "permissions-inbox-read",
+          "wire_name": "permissions.inbox_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read inbox details."
+        },
+        {
+          "name": "permissions-inbox-update",
+          "wire_name": "permissions.inbox_update",
+          "type": "bool",
+          "location": "body",
+          "description": "Update inbox settings."
+        },
+        {
+          "name": "permissions-label-blocked-read",
+          "wire_name": "permissions.label_blocked_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Access messages labeled blocked."
+        },
+        {
+          "name": "permissions-label-spam-read",
+          "wire_name": "permissions.label_spam_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Access messages labeled spam."
+        },
+        {
+          "name": "permissions-label-trash-read",
+          "wire_name": "permissions.label_trash_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Access messages labeled trash."
+        },
+        {
+          "name": "permissions-label-unauthenticated-read",
+          "wire_name": "permissions.label_unauthenticated_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Access messages labeled unauthenticated."
+        },
+        {
+          "name": "permissions-list-entry-create",
+          "wire_name": "permissions.list_entry_create",
+          "type": "bool",
+          "location": "body",
+          "description": "Create list entries."
+        },
+        {
+          "name": "permissions-list-entry-delete",
+          "wire_name": "permissions.list_entry_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete list entries."
+        },
+        {
+          "name": "permissions-list-entry-read",
+          "wire_name": "permissions.list_entry_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read list entries."
+        },
+        {
+          "name": "permissions-message-delete",
+          "wire_name": "permissions.message_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete messages. Also required to delete threads."
+        },
+        {
+          "name": "permissions-message-read",
+          "wire_name": "permissions.message_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read messages. Also required to read threads."
+        },
+        {
+          "name": "permissions-message-send",
+          "wire_name": "permissions.message_send",
+          "type": "bool",
+          "location": "body",
+          "description": "Send messages."
+        },
+        {
+          "name": "permissions-message-update",
+          "wire_name": "permissions.message_update",
+          "type": "bool",
+          "location": "body",
+          "description": "Update message labels. Also required to update threads."
+        },
+        {
+          "name": "permissions-metrics-read",
+          "wire_name": "permissions.metrics_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read metrics."
+        },
+        {
+          "name": "permissions-pod-create",
+          "wire_name": "permissions.pod_create",
+          "type": "bool",
+          "location": "body",
+          "description": "Create pods."
+        },
+        {
+          "name": "permissions-pod-delete",
+          "wire_name": "permissions.pod_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete pods."
+        },
+        {
+          "name": "permissions-pod-read",
+          "wire_name": "permissions.pod_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read pods."
+        },
+        {
+          "name": "permissions-webhook-create",
+          "wire_name": "permissions.webhook_create",
+          "type": "bool",
+          "location": "body",
+          "description": "Create webhooks."
+        },
+        {
+          "name": "permissions-webhook-delete",
+          "wire_name": "permissions.webhook_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete webhooks."
+        },
+        {
+          "name": "permissions-webhook-read",
+          "wire_name": "permissions.webhook_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read webhook configurations."
+        },
+        {
+          "name": "permissions-webhook-update",
+          "wire_name": "permissions.webhook_update",
+          "type": "bool",
+          "location": "body",
+          "description": "Update webhooks."
+        }
+      ]
+    },
+    {
+      "name": "inboxes_api-keys_delete",
+      "description": "**CLI:** ```bash agentmail inboxes:api-keys delete --inbox-id \u003cinbox_id\u003e --api-key-id \u003capi_key_id\u003e ```. Required: inbox_id, api_key_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/inboxes/{inbox_id}/api-keys/{api_key_id}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "api_key_id",
+          "type": "string",
+          "location": "path",
+          "description": "Api key id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inboxes_api-keys_list",
+      "description": "**CLI:** ```bash agentmail inboxes:api-keys list --inbox-id \u003cinbox_id\u003e ```. Required: inbox_id. Optional: limit, page_token. Returns array of TypeApiKeysApiKey.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}/api-keys",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        }
+      ]
+    },
+    {
+      "name": "inboxes_drafts_create",
+      "description": "Create a draft. Supply `in_reply_to` to create a reply draft (with `reply_all` to address the whole thread), whose recipients, subject, and threading are derived from the referenced message, or `forward_of` to create a forward draft, which derives the subject, threading, and forwarded content from the source but keeps recipients caller-supplied. **CLI:** ```bash agentmail inboxes:drafts create --inbox-id \u003cinbox_id\u003e --to recipient@example.com --subject 'Draft subject' --text 'Draft body' ```. Required: inbox_id. Optional: attachments, bcc, cc (plus 11 more). Returns the new TypeDraftsDraft.",
+      "method": "POST",
+      "path": "/v0/inboxes/{inbox_id}/drafts",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "Attachments to include in draft."
+        },
+        {
+          "name": "bcc",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Addresses of BCC recipients. In format `username@domain.com` or `Display Name \u003cusername@domain.com\u003e`."
+        },
+        {
+          "name": "cc",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Addresses of CC recipients. In format `username@domain.com` or `Display Name \u003cusername@domain.com\u003e`."
+        },
+        {
+          "name": "client_id",
+          "type": "string",
+          "location": "body",
+          "description": "Client ID of draft."
+        },
+        {
+          "name": "forward_of",
+          "type": "string",
+          "location": "body",
+          "description": "ID of message being forwarded."
+        },
+        {
+          "name": "html",
+          "type": "string",
+          "location": "body",
+          "description": "HTML body of draft."
+        },
+        {
+          "name": "in_reply_to",
+          "type": "string",
+          "location": "body",
+          "description": "ID of message being replied to."
+        },
+        {
+          "name": "labels",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Labels of draft."
+        },
+        {
+          "name": "reply_all",
+          "type": "bool",
+          "location": "body",
+          "description": "Reply to all recipients of the original message."
+        },
+        {
+          "name": "reply_to",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Reply-to addresses. In format `username@domain.com` or `Display Name \u003cusername@domain.com\u003e`."
+        },
+        {
+          "name": "send_at",
+          "type": "string",
+          "location": "body",
+          "description": "Time at which to schedule send draft."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject of draft."
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Plain text body of draft."
+        },
+        {
+          "name": "to",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Addresses of recipients. In format `username@domain.com` or `Display Name \u003cusername@domain.com\u003e`."
+        }
+      ]
+    },
+    {
+      "name": "inboxes_drafts_delete",
+      "description": "**CLI:** ```bash agentmail inboxes:drafts delete --inbox-id \u003cinbox_id\u003e --draft-id \u003cdraft_id\u003e ```. Required: inbox_id, draft_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/inboxes/{inbox_id}/drafts/{draft_id}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "draft_id",
+          "type": "string",
+          "location": "path",
+          "description": "Draft id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inboxes_drafts_get",
+      "description": "**CLI:** ```bash agentmail inboxes:drafts get --inbox-id \u003cinbox_id\u003e --draft-id \u003cdraft_id\u003e ```. Required: inbox_id, draft_id. Returns the TypeDraftsDraft.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}/drafts/{draft_id}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "draft_id",
+          "type": "string",
+          "location": "path",
+          "description": "Draft id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inboxes_drafts_get-attachment",
+      "description": "**CLI:** ```bash agentmail inboxes:drafts get-attachment --inbox-id \u003cinbox_id\u003e --draft-id \u003cdraft_id\u003e --attachment-id \u003cattachment_id\u003e ```. Required: inbox_id, draft_id, attachment_id. Returns the TypeAttachmentsAttachmentResponse.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}/drafts/{draft_id}/attachments/{attachment_id}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "draft_id",
+          "type": "string",
+          "location": "path",
+          "description": "Draft id",
+          "required": true
+        },
+        {
+          "name": "attachment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Attachment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inboxes_drafts_list",
+      "description": "**CLI:** ```bash agentmail inboxes:drafts list --inbox-id \u003cinbox_id\u003e ```. Required: inbox_id. Optional: limit, page_token, labels (plus 3 more). Returns array of TypeDraftsDraftItem.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}/drafts",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "labels",
+          "type": "array",
+          "location": "query",
+          "description": "Labels"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        }
+      ]
+    },
+    {
+      "name": "inboxes_drafts_send",
+      "description": "**CLI:** ```bash agentmail inboxes:drafts send --inbox-id \u003cinbox_id\u003e --draft-id \u003cdraft_id\u003e ```. Required: inbox_id, draft_id. Optional: add_labels, remove_labels. Returns the new TypeMessagesSendMessageResponse.",
+      "method": "POST",
+      "path": "/v0/inboxes/{inbox_id}/drafts/{draft_id}/send",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "draft_id",
+          "type": "string",
+          "location": "path",
+          "description": "Draft id",
+          "required": true
+        },
+        {
+          "name": "add_labels",
+          "type": "string",
+          "location": "body",
+          "description": "Label or labels to add to message."
+        },
+        {
+          "name": "remove_labels",
+          "type": "string",
+          "location": "body",
+          "description": "Label or labels to remove from message."
+        }
+      ]
+    },
+    {
+      "name": "inboxes_drafts_update",
+      "description": "Edit fields on an existing draft. Passing `null` clears a field (or `[]` for a recipient field); `send_at: null` un-schedules a scheduled draft. A draft that is already being sent cannot be edited. **CLI:** ```bash agentmail inboxes:drafts update --inbox-id \u003cinbox_id\u003e --draft-id \u003cdraft_id\u003e --subject 'Updated subject' ```. Required: inbox_id, draft_id. Optional: add_attachments, add_labels, bcc (plus 9 more). Returns the updated TypeDraftsDraft.",
+      "method": "PATCH",
+      "path": "/v0/inboxes/{inbox_id}/drafts/{draft_id}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "draft_id",
+          "type": "string",
+          "location": "path",
+          "description": "Draft id",
+          "required": true
+        },
+        {
+          "name": "add_attachments",
+          "type": "array",
+          "location": "body",
+          "description": "Attachments to add to the draft."
+        },
+        {
+          "name": "add_labels",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Label or labels to add to the draft."
+        },
+        {
+          "name": "bcc",
+          "type": "string",
+          "location": "body",
+          "description": "Bcc"
+        },
+        {
+          "name": "cc",
+          "type": "string",
+          "location": "body",
+          "description": "Cc"
+        },
+        {
+          "name": "html",
+          "type": "string",
+          "location": "body",
+          "description": "Html"
+        },
+        {
+          "name": "remove_attachments",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "IDs of attachments to remove from the draft."
+        },
+        {
+          "name": "remove_labels",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Label or labels to remove from the draft."
+        },
+        {
+          "name": "reply_to",
+          "type": "string",
+          "location": "body",
+          "description": "Reply to"
+        },
+        {
+          "name": "send_at",
+          "type": "string",
+          "location": "body",
+          "description": "Send at"
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject"
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Text"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "body",
+          "description": "To"
+        }
+      ]
+    },
+    {
+      "name": "inboxes_events_list",
+      "description": "List label change events for an inbox. Returns events in reverse chronological order by default. Use for IMAP UID projection or audit logging. **CLI:** ```bash agentmail inboxes:events list --inbox-id \u003cinbox_id\u003e ```. Required: inbox_id. Optional: limit, page_token, ascending.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}/events",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        }
+      ]
+    },
+    {
+      "name": "inboxes_lists_create",
+      "description": "**CLI:** ```bash agentmail inboxes:lists create --inbox-id \u003cinbox_id\u003e --direction \u003cdirection\u003e --type \u003ctype\u003e --entry user@example.com ```. Required: inbox_id, direction (default: send), type (default: allow), entry. Optional: reason. Returns the new TypeListsPodListEntry.",
+      "method": "POST",
+      "path": "/v0/inboxes/{inbox_id}/lists/{direction}/{type}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "path",
+          "description": "Direction",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "entry",
+          "type": "string",
+          "location": "body",
+          "description": "Email address or domain to add.",
+          "required": true
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "body",
+          "description": "Reason for adding the entry."
+        }
+      ]
+    },
+    {
+      "name": "inboxes_lists_delete",
+      "description": "**CLI:** ```bash agentmail inboxes:lists delete --inbox-id \u003cinbox_id\u003e --direction \u003cdirection\u003e --type \u003ctype\u003e --entry \u003centry\u003e ```. Required: inbox_id, direction (default: send), type (default: allow), entry. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/inboxes/{inbox_id}/lists/{direction}/{type}/{entry}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "path",
+          "description": "Direction",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "entry",
+          "type": "string",
+          "location": "path",
+          "description": "Email address or domain.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inboxes_lists_get",
+      "description": "**CLI:** ```bash agentmail inboxes:lists get --inbox-id \u003cinbox_id\u003e --direction \u003cdirection\u003e --type \u003ctype\u003e --entry \u003centry\u003e ```. Required: inbox_id, direction (default: send), type (default: allow), entry. Returns the TypeListsPodListEntry.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}/lists/{direction}/{type}/{entry}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "path",
+          "description": "Direction",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "entry",
+          "type": "string",
+          "location": "path",
+          "description": "Email address or domain.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inboxes_lists_list",
+      "description": "**CLI:** ```bash agentmail inboxes:lists list --inbox-id \u003cinbox_id\u003e --direction \u003cdirection\u003e --type \u003ctype\u003e ```. Required: inbox_id, direction (default: send), type (default: allow). Optional: limit, page_token. Returns array of TypeListsPodListEntry.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}/lists/{direction}/{type}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "path",
+          "description": "Direction",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        }
+      ]
+    },
+    {
+      "name": "inboxes_messages_batch-get",
+      "description": "Fetch metadata for up to 500 messages in one request. Missing or restricted IDs are silently omitted; compare `count` against `limit` to detect misses. **CLI:** ```bash agentmail inboxes:messages batch-get --inbox-id \u003cinbox_id\u003e --message-id \u003cid1\u003e --message-id \u003cid2\u003e ```. Required: inbox_id, message_ids. Returns array of TypeMessagesMessage.",
+      "method": "POST",
+      "path": "/v0/inboxes/{inbox_id}/messages/batch-get",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "message_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "IDs of messages to fetch. Maximum 500 ids per request. Duplicates are rejected with a validation error. IDs not found in the inbox (including cross-inbox or permission-restricted) are silently omitted from the response; callers detect misses by comparing `count` against `limit`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inboxes_messages_batch-update",
+      "description": "Apply one label change to up to 50 messages in a single request. The same add_labels and remove_labels apply to every message id, and at least one of them must be provided. The update is atomic: either all resolved messages are updated or none are. Missing or restricted ids are silently excluded; compare `count` against `limit` to detect exclusions. **CLI:** ```bash agentmail inboxes:messages batch-update --inbox-id \u003cinbox_id\u003e --message-id \u003cid1\u003e --message-id \u003cid2\u003e --add-label read --remove-label unread ```. Required: inbox_id, message_ids. Optional: add_labels, remove_labels. Returns array of TypeMessagesUpdateMessageResponse.",
+      "method": "POST",
+      "path": "/v0/inboxes/{inbox_id}/messages/batch-update",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "add_labels",
+          "type": "string",
+          "location": "body",
+          "description": "Label or labels to add to every message."
+        },
+        {
+          "name": "message_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "IDs of messages to update. Maximum 50 ids per request. Duplicates are rejected with a validation error. IDs not found in the inbox (including cross-inbox or permission-restricted) are silently excluded from the update; callers detect exclusions by comparing `count` against `limit`.",
+          "required": true
+        },
+        {
+          "name": "remove_labels",
+          "type": "string",
+          "location": "body",
+          "description": "Label or labels to remove from every message."
+        }
+      ]
+    },
+    {
+      "name": "inboxes_messages_delete",
+      "description": "Permanently deletes a message. **CLI:** ```bash agentmail inboxes:messages delete --inbox-id \u003cinbox_id\u003e --message-id \u003cmessage_id\u003e ```. Required: inbox_id, message_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/inboxes/{inbox_id}/messages/{message_id}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inboxes_messages_forward",
+      "description": "**CLI:** ```bash agentmail inboxes:messages forward --inbox-id \u003cinbox_id\u003e --message-id \u003cmessage_id\u003e --to recipient@example.com ```. Required: inbox_id, message_id. Optional: attachments, bcc, cc (plus 8 more). Returns the new TypeMessagesSendMessageResponse.",
+      "method": "POST",
+      "path": "/v0/inboxes/{inbox_id}/messages/{message_id}/forward",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "Attachments to include in message."
+        },
+        {
+          "name": "bcc",
+          "type": "string",
+          "location": "body",
+          "description": "BCC recipient address or addresses."
+        },
+        {
+          "name": "cc",
+          "type": "string",
+          "location": "body",
+          "description": "CC recipient address or addresses."
+        },
+        {
+          "name": "headers",
+          "type": "object",
+          "location": "body",
+          "description": "Headers to include in message."
+        },
+        {
+          "name": "html",
+          "type": "string",
+          "location": "body",
+          "description": "HTML body of message."
+        },
+        {
+          "name": "labels",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Labels of message."
+        },
+        {
+          "name": "reply_to",
+          "type": "string",
+          "location": "body",
+          "description": "Reply-to address or addresses."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject of message."
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Plain text body of message."
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "body",
+          "description": "Recipient address or addresses."
+        },
+        {
+          "name": "track_opens",
+          "type": "bool",
+          "location": "body",
+          "description": "Track when this message is first opened."
+        }
+      ]
+    },
+    {
+      "name": "inboxes_messages_get",
+      "description": "**CLI:** ```bash agentmail inboxes:messages get --inbox-id \u003cinbox_id\u003e --message-id \u003cmessage_id\u003e ```. Required: inbox_id, message_id. Returns the TypeMessagesMessage.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}/messages/{message_id}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inboxes_messages_get-attachment",
+      "description": "**CLI:** ```bash agentmail inboxes:messages get-attachment --inbox-id \u003cinbox_id\u003e --message-id \u003cmessage_id\u003e --attachment-id \u003cattachment_id\u003e ```. Required: inbox_id, message_id, attachment_id. Returns the TypeAttachmentsAttachmentResponse.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}/messages/{message_id}/attachments/{attachment_id}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        },
+        {
+          "name": "attachment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Attachment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inboxes_messages_get-raw",
+      "description": "**CLI:** ```bash agentmail inboxes:messages get-raw --inbox-id \u003cinbox_id\u003e --message-id \u003cmessage_id\u003e ```. Required: inbox_id, message_id. Returns the TypeMessagesRawMessageResponse.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}/messages/{message_id}/raw",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inboxes_messages_list",
+      "description": "Lists messages in the inbox, most recent first. Pass `from`, `to`, or `subject` to filter by substring. Filtered requests are served by search, which caps `limit` at 100. For relevance-ranked full-text search across sender, recipients, subject, and message body, use `Search Messages`. **CLI:** ```bash agentmail inboxes:messages list --inbox-id \u003cinbox_id\u003e ```. Required: inbox_id. Optional: limit, page_token, labels (plus 10 more). Returns array of TypeMessagesMessageItem.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}/messages",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "labels",
+          "type": "array",
+          "location": "query",
+          "description": "Labels"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        },
+        {
+          "name": "include_spam",
+          "type": "bool",
+          "location": "query",
+          "description": "Include spam"
+        },
+        {
+          "name": "include_blocked",
+          "type": "bool",
+          "location": "query",
+          "description": "Include blocked"
+        },
+        {
+          "name": "include_unauthenticated",
+          "type": "bool",
+          "location": "query",
+          "description": "Include unauthenticated"
+        },
+        {
+          "name": "include_trash",
+          "type": "bool",
+          "location": "query",
+          "description": "Include trash"
+        },
+        {
+          "name": "from",
+          "type": "array",
+          "location": "query",
+          "description": "Filter to messages whose sender contains this value (substring match). Repeatable; all values must match."
+        },
+        {
+          "name": "to",
+          "type": "array",
+          "location": "query",
+          "description": "Filter to messages whose recipients (to, cc, or bcc) contain this value (substring match). Repeatable; all values must match."
+        },
+        {
+          "name": "subject",
+          "type": "array",
+          "location": "query",
+          "description": "Filter to messages whose subject contains this value (substring match). Repeatable; all values must match."
+        }
+      ]
+    },
+    {
+      "name": "inboxes_messages_reply",
+      "description": "**CLI:** ```bash agentmail inboxes:messages reply --inbox-id \u003cinbox_id\u003e --message-id \u003cmessage_id\u003e --text 'Reply text' ```. Required: inbox_id, message_id. Optional: attachments, bcc, cc (plus 8 more). Returns the new TypeMessagesSendMessageResponse.",
+      "method": "POST",
+      "path": "/v0/inboxes/{inbox_id}/messages/{message_id}/reply",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "Attachments to include in message."
+        },
+        {
+          "name": "bcc",
+          "type": "string",
+          "location": "body",
+          "description": "BCC recipient address or addresses."
+        },
+        {
+          "name": "cc",
+          "type": "string",
+          "location": "body",
+          "description": "CC recipient address or addresses."
+        },
+        {
+          "name": "headers",
+          "type": "object",
+          "location": "body",
+          "description": "Headers to include in message."
+        },
+        {
+          "name": "html",
+          "type": "string",
+          "location": "body",
+          "description": "HTML body of message."
+        },
+        {
+          "name": "labels",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Labels of message."
+        },
+        {
+          "name": "reply_all",
+          "type": "bool",
+          "location": "body",
+          "description": "Reply to all recipients of the original message."
+        },
+        {
+          "name": "reply_to",
+          "type": "string",
+          "location": "body",
+          "description": "Reply-to address or addresses."
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Plain text body of message."
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "body",
+          "description": "Recipient address or addresses."
+        },
+        {
+          "name": "track_opens",
+          "type": "bool",
+          "location": "body",
+          "description": "Track when this message is first opened."
+        }
+      ]
+    },
+    {
+      "name": "inboxes_messages_reply-all",
+      "description": "**CLI:** ```bash agentmail inboxes:messages reply-all --inbox-id \u003cinbox_id\u003e --message-id \u003cmessage_id\u003e --text 'Reply text' ```. Required: inbox_id, message_id. Optional: attachments, headers, html (plus 4 more). Returns the new TypeMessagesSendMessageResponse.",
+      "method": "POST",
+      "path": "/v0/inboxes/{inbox_id}/messages/{message_id}/reply-all",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "Attachments to include in message."
+        },
+        {
+          "name": "headers",
+          "type": "object",
+          "location": "body",
+          "description": "Headers to include in message."
+        },
+        {
+          "name": "html",
+          "type": "string",
+          "location": "body",
+          "description": "HTML body of message."
+        },
+        {
+          "name": "labels",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Labels of message."
+        },
+        {
+          "name": "reply_to",
+          "type": "string",
+          "location": "body",
+          "description": "Reply-to address or addresses."
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Plain text body of message."
+        },
+        {
+          "name": "track_opens",
+          "type": "bool",
+          "location": "body",
+          "description": "Track when this message is first opened."
+        }
+      ]
+    },
+    {
+      "name": "inboxes_messages_search",
+      "description": "Full-text search across messages in the inbox, ranked by relevance. The query is matched against the sender, recipients, and subject (substring) and the message body (tokenized full text). Spam, trash, blocked, and unauthenticated messages are always excluded. `limit` cannot exceed 100. Required: inbox_id, query. Optional: limit, page_token, before (plus 1 more). Returns array of TypeMessagesSearchMessageItem.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}/messages/search",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search query",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        }
+      ]
+    },
+    {
+      "name": "inboxes_messages_send",
+      "description": "**CLI:** ```bash agentmail inboxes:messages send --inbox-id \u003cinbox_id\u003e --to recipient@example.com --subject 'Hello' --text 'Body' ```. Required: inbox_id. Optional: attachments, bcc, cc (plus 8 more). Returns the new TypeMessagesSendMessageResponse.",
+      "method": "POST",
+      "path": "/v0/inboxes/{inbox_id}/messages/send",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "Attachments to include in message."
+        },
+        {
+          "name": "bcc",
+          "type": "string",
+          "location": "body",
+          "description": "BCC recipient address or addresses."
+        },
+        {
+          "name": "cc",
+          "type": "string",
+          "location": "body",
+          "description": "CC recipient address or addresses."
+        },
+        {
+          "name": "headers",
+          "type": "object",
+          "location": "body",
+          "description": "Headers to include in message."
+        },
+        {
+          "name": "html",
+          "type": "string",
+          "location": "body",
+          "description": "HTML body of message."
+        },
+        {
+          "name": "labels",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Labels of message."
+        },
+        {
+          "name": "reply_to",
+          "type": "string",
+          "location": "body",
+          "description": "Reply-to address or addresses."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject of message."
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Plain text body of message."
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "body",
+          "description": "Recipient address or addresses."
+        },
+        {
+          "name": "track_opens",
+          "type": "bool",
+          "location": "body",
+          "description": "Track when this message is first opened."
+        }
+      ]
+    },
+    {
+      "name": "inboxes_messages_update",
+      "description": "**CLI:** ```bash agentmail inboxes:messages update --inbox-id \u003cinbox_id\u003e --message-id \u003cmessage_id\u003e --add-label read --remove-label unread ```. Required: inbox_id, message_id. Optional: add_labels, remove_labels. Returns array of string.",
+      "method": "PATCH",
+      "path": "/v0/inboxes/{inbox_id}/messages/{message_id}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        },
+        {
+          "name": "add_labels",
+          "type": "string",
+          "location": "body",
+          "description": "Label or labels to add to message."
+        },
+        {
+          "name": "remove_labels",
+          "type": "string",
+          "location": "body",
+          "description": "Label or labels to remove from message."
+        }
+      ]
+    },
+    {
+      "name": "inboxes_metrics_query-events",
+      "description": "Counts of email events (sent, delivered, bounced, etc.) over time for the inbox. Defaults to the last 24 hours; `start` must be within the last 90 days, and a future `end` is clamped to now. Omit `period` for individual event counts, or set it to sum counts into buckets of that many seconds. **CLI:** ```bash agentmail inboxes:metrics query --inbox-id \u003cinbox_id\u003e ```. Required: inbox_id. Optional: event_types, start, end (plus 3 more). Returns the TypeMetricsQueryMetricsResponse.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}/metrics/events",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "event_types",
+          "type": "array",
+          "location": "query",
+          "description": "Event types"
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Start"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "End"
+        },
+        {
+          "name": "period",
+          "type": "int",
+          "location": "query",
+          "description": "Period"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "descending",
+          "type": "bool",
+          "location": "query",
+          "description": "Descending"
+        }
+      ]
+    },
+    {
+      "name": "inboxes_metrics_query-usage",
+      "description": "Cumulative usage series for the inbox. Each point is the running total of the usage type at that timestamp, not the change within the bucket. Inbox-scoped queries carry `storage_bytes`, `message_count`, and `thread_count`; requested types that don't apply to the scope are ignored. Defaults to the last 24 hours; `start` must be within the last 90 days, and a future `end` is clamped to now. The range divided by `period` must not exceed 1000 buckets. Required: inbox_id. Optional: usage_types, start, end (plus 3 more). Returns the TypeMetricsQueryUsageResponse.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}/metrics/usage",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "usage_types",
+          "type": "array",
+          "location": "query",
+          "description": "Usage types"
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Start"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "End"
+        },
+        {
+          "name": "period",
+          "type": "int",
+          "location": "query",
+          "description": "Period"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "descending",
+          "type": "bool",
+          "location": "query",
+          "description": "Descending"
+        }
+      ]
+    },
+    {
+      "name": "inboxes_threads_delete",
+      "description": "Permanently deletes a thread and all of its messages. **CLI:** ```bash agentmail inboxes:threads delete --inbox-id \u003cinbox_id\u003e --thread-id \u003cthread_id\u003e ```. Required: inbox_id, thread_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/inboxes/{inbox_id}/threads/{thread_id}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "thread_id",
+          "type": "string",
+          "location": "path",
+          "description": "Thread id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inboxes_threads_get",
+      "description": "**CLI:** ```bash agentmail inboxes:threads get --inbox-id \u003cinbox_id\u003e --thread-id \u003cthread_id\u003e ```. Required: inbox_id, thread_id. Returns the TypeThreadsThread.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}/threads/{thread_id}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "thread_id",
+          "type": "string",
+          "location": "path",
+          "description": "Thread id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inboxes_threads_get-attachment",
+      "description": "**CLI:** ```bash agentmail inboxes:threads get-attachment --inbox-id \u003cinbox_id\u003e --thread-id \u003cthread_id\u003e --attachment-id \u003cattachment_id\u003e ```. Required: inbox_id, thread_id, attachment_id. Returns the TypeAttachmentsAttachmentResponse.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}/threads/{thread_id}/attachments/{attachment_id}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "thread_id",
+          "type": "string",
+          "location": "path",
+          "description": "Thread id",
+          "required": true
+        },
+        {
+          "name": "attachment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Attachment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inboxes_threads_list",
+      "description": "Lists threads in the inbox, most recent first. Pass `senders`, `recipients`, or `subject` to filter by substring. Filtered requests are served by search, which caps `limit` at 100. For relevance-ranked full-text search, use `Search Threads`. **CLI:** ```bash agentmail inboxes:threads list --inbox-id \u003cinbox_id\u003e ```. Required: inbox_id. Optional: limit, page_token, labels (plus 10 more). Returns array of TypeThreadsThreadItem.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}/threads",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "labels",
+          "type": "array",
+          "location": "query",
+          "description": "Labels"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        },
+        {
+          "name": "include_spam",
+          "type": "bool",
+          "location": "query",
+          "description": "Include spam"
+        },
+        {
+          "name": "include_blocked",
+          "type": "bool",
+          "location": "query",
+          "description": "Include blocked"
+        },
+        {
+          "name": "include_unauthenticated",
+          "type": "bool",
+          "location": "query",
+          "description": "Include unauthenticated"
+        },
+        {
+          "name": "include_trash",
+          "type": "bool",
+          "location": "query",
+          "description": "Include trash"
+        },
+        {
+          "name": "senders",
+          "type": "array",
+          "location": "query",
+          "description": "Filter to threads whose senders contain this value (substring match)."
+        },
+        {
+          "name": "recipients",
+          "type": "array",
+          "location": "query",
+          "description": "Filter to threads whose recipients contain this value (substring match)."
+        },
+        {
+          "name": "subject",
+          "type": "array",
+          "location": "query",
+          "description": "Filter to threads whose subject contains this value (substring match)."
+        }
+      ]
+    },
+    {
+      "name": "inboxes_threads_search",
+      "description": "Full-text search across threads in the inbox, ranked by relevance. The query is matched against senders, recipients, and subject (substring) and the message body (tokenized full text). Spam, trash, blocked, and unauthenticated threads are always excluded. `limit` cannot exceed 100. Required: inbox_id, query. Optional: limit, page_token, before (plus 1 more). Returns array of TypeThreadsSearchThreadItem.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}/threads/search",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search query",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        }
+      ]
+    },
+    {
+      "name": "inboxes_threads_update",
+      "description": "Updates thread labels. Cannot add or remove system labels (sent, received, bounced, etc.). Rejects requests with a `422` for threads with 100 or more messages. Required: inbox_id, thread_id. Optional: add_labels, remove_labels. Returns array of string.",
+      "method": "PATCH",
+      "path": "/v0/inboxes/{inbox_id}/threads/{thread_id}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "thread_id",
+          "type": "string",
+          "location": "path",
+          "description": "Thread id",
+          "required": true
+        },
+        {
+          "name": "add_labels",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Labels to add to thread. Cannot be system labels."
+        },
+        {
+          "name": "remove_labels",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Labels to remove from thread."
+        }
+      ]
+    },
+    {
+      "name": "inboxes_webhooks_create",
+      "description": "Create a webhook scoped to this inbox. **CLI:** ```bash agentmail inboxes:webhooks create --inbox-id \u003cinbox_id\u003e --url https://example.com/webhook --event-type message.received ```. Required: inbox_id, event_types, url. Optional: client_id, headers. Returns the new TypeWebhooksWebhook.",
+      "method": "POST",
+      "path": "/v0/inboxes/{inbox_id}/webhooks",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "client_id",
+          "type": "string",
+          "location": "body",
+          "description": "Client ID of webhook."
+        },
+        {
+          "name": "event_types",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Full list of event types this webhook should receive.",
+          "required": true
+        },
+        {
+          "name": "headers",
+          "type": "object",
+          "location": "body",
+          "description": "Custom HTTP headers to include with every delivery to this webhook."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "URL of webhook endpoint.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inboxes_webhooks_delete",
+      "description": "**CLI:** ```bash agentmail inboxes:webhooks delete --inbox-id \u003cinbox_id\u003e --webhook-id \u003cwebhook_id\u003e ```. Required: inbox_id, webhook_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/inboxes/{inbox_id}/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inboxes_webhooks_get",
+      "description": "**CLI:** ```bash agentmail inboxes:webhooks get --inbox-id \u003cinbox_id\u003e --webhook-id \u003cwebhook_id\u003e ```. Required: inbox_id, webhook_id. Returns the TypeWebhooksWebhook.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inboxes_webhooks_get-headers",
+      "description": "List the names of custom HTTP headers included with deliveries to this inbox-scoped webhook. Header values are write-only and are never returned. Required: inbox_id, webhook_id. Returns array of string.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}/webhooks/{webhook_id}/headers",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inboxes_webhooks_list",
+      "description": "**CLI:** ```bash agentmail inboxes:webhooks list --inbox-id \u003cinbox_id\u003e ```. Required: inbox_id. Optional: limit, page_token, ascending. Returns array of TypeWebhooksWebhook.",
+      "method": "GET",
+      "path": "/v0/inboxes/{inbox_id}/webhooks",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        }
+      ]
+    },
+    {
+      "name": "inboxes_webhooks_update",
+      "description": "**CLI:** ```bash agentmail inboxes:webhooks update --inbox-id \u003cinbox_id\u003e --webhook-id \u003cwebhook_id\u003e --event-type message.received ```. Required: inbox_id, webhook_id. Optional: event_types. Returns the updated TypeWebhooksWebhook.",
+      "method": "PATCH",
+      "path": "/v0/inboxes/{inbox_id}/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        },
+        {
+          "name": "event_types",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "When you send a non-empty list, it replaces the webhook's subscribed event types in full..."
+        }
+      ]
+    },
+    {
+      "name": "inboxes_webhooks_update-headers",
+      "description": "Atomically set, replace, or remove custom HTTP headers included with deliveries to this inbox-scoped webhook. Header values remain write-only. Required: inbox_id, webhook_id. Optional: headers, remove_headers. Returns the updated WebhooksUpdateHeadersResponse.",
+      "method": "PATCH",
+      "path": "/v0/inboxes/{inbox_id}/webhooks/{webhook_id}/headers",
+      "params": [
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        },
+        {
+          "name": "headers",
+          "type": "object",
+          "location": "body",
+          "description": "Custom HTTP headers to include with every delivery to this webhook."
+        },
+        {
+          "name": "remove_headers",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Names of custom delivery headers to remove."
+        }
+      ]
+    },
+    {
+      "name": "lists_create",
+      "description": "**CLI:** ```bash agentmail lists create --direction \u003cdirection\u003e --type \u003ctype\u003e --entry user@example.com ```. Required: direction (default: send), type (default: allow), entry. Optional: reason. Returns the new TypeListsListEntry.",
+      "method": "POST",
+      "path": "/v0/lists/{direction}/{type}",
+      "params": [
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "path",
+          "description": "Direction",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "entry",
+          "type": "string",
+          "location": "body",
+          "description": "Email address or domain to add.",
+          "required": true
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "body",
+          "description": "Reason for adding the entry."
+        }
+      ]
+    },
+    {
+      "name": "lists_delete",
+      "description": "**CLI:** ```bash agentmail lists delete --direction \u003cdirection\u003e --type \u003ctype\u003e --entry \u003centry\u003e ```. Required: direction (default: send), type (default: allow), entry. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/lists/{direction}/{type}/{entry}",
+      "params": [
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "path",
+          "description": "Direction",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "entry",
+          "type": "string",
+          "location": "path",
+          "description": "Email address or domain.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_get",
+      "description": "**CLI:** ```bash agentmail lists get --direction \u003cdirection\u003e --type \u003ctype\u003e --entry \u003centry\u003e ```. Required: direction (default: send), type (default: allow), entry. Returns the TypeListsListEntry.",
+      "method": "GET",
+      "path": "/v0/lists/{direction}/{type}/{entry}",
+      "params": [
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "path",
+          "description": "Direction",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "entry",
+          "type": "string",
+          "location": "path",
+          "description": "Email address or domain.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_list",
+      "description": "**CLI:** ```bash agentmail lists list --direction \u003cdirection\u003e --type \u003ctype\u003e ```. Required: direction (default: send), type (default: allow). Optional: limit, page_token. Returns array of TypeListsListEntry.",
+      "method": "GET",
+      "path": "/v0/lists/{direction}/{type}",
+      "params": [
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "path",
+          "description": "Direction",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        }
+      ]
+    },
+    {
+      "name": "metrics_query-events",
+      "description": "Counts of email events (sent, delivered, bounced, etc.) over time for the organization. Defaults to the last 24 hours; `start` must be within the last 90 days, and a future `end` is clamped to now. Omit `period` for individual event counts, or set it to sum counts into buckets of that many seconds. **CLI:** ```bash agentmail metrics list ```. Optional: event_types, start, end (plus 3 more). Returns the TypeMetricsQueryMetricsResponse.",
+      "method": "GET",
+      "path": "/v0/metrics/events",
+      "params": [
+        {
+          "name": "event_types",
+          "type": "array",
+          "location": "query",
+          "description": "Event types"
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Start"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "End"
+        },
+        {
+          "name": "period",
+          "type": "int",
+          "location": "query",
+          "description": "Period"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "descending",
+          "type": "bool",
+          "location": "query",
+          "description": "Descending"
+        }
+      ]
+    },
+    {
+      "name": "metrics_query-usage",
+      "description": "Cumulative usage series for the organization. Each point is the running total of the usage type at that timestamp, not the change within the bucket. Defaults to the last 24 hours; `start` must be within the last 90 days, and a future `end` is clamped to now. The range divided by `period` must not exceed 1000 buckets. Optional: usage_types, start, end (plus 3 more). Returns the TypeMetricsQueryUsageResponse.",
+      "method": "GET",
+      "path": "/v0/metrics/usage",
+      "params": [
+        {
+          "name": "usage_types",
+          "type": "array",
+          "location": "query",
+          "description": "Usage types"
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Start"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "End"
+        },
+        {
+          "name": "period",
+          "type": "int",
+          "location": "query",
+          "description": "Period"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "descending",
+          "type": "bool",
+          "location": "query",
+          "description": "Descending"
+        }
+      ]
+    },
+    {
+      "name": "organizations_get",
+      "description": "Returns the organization for the authenticated API key (usage limits, counts, and billing metadata). **CLI:** ```bash agentmail organizations get ```.",
+      "method": "GET",
+      "path": "/v0/organizations",
+      "params": []
+    },
+    {
+      "name": "pods_create",
+      "description": "**CLI:** ```bash agentmail pods create --client-id my-pod ```. Optional: client_id, name. Returns the new TypePodsPod.",
+      "method": "POST",
+      "path": "/v0/pods",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "string",
+          "location": "body",
+          "description": "Client ID of pod."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of pod."
+        }
+      ]
+    },
+    {
+      "name": "pods_delete",
+      "description": "**CLI:** ```bash agentmail pods delete --pod-id \u003cpod_id\u003e ```. Required: pod_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/pods/{pod_id}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pods_get",
+      "description": "**CLI:** ```bash agentmail pods get --pod-id \u003cpod_id\u003e ```. Required: pod_id. Returns the TypePodsPod.",
+      "method": "GET",
+      "path": "/v0/pods/{pod_id}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pods_list",
+      "description": "**CLI:** ```bash agentmail pods list ```. Optional: limit, page_token, ascending. Returns array of TypePodsPod.",
+      "method": "GET",
+      "path": "/v0/pods",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        }
+      ]
+    },
+    {
+      "name": "pods_api-keys_create",
+      "description": "**CLI:** ```bash agentmail pods:api-keys create --pod-id \u003cpod_id\u003e --name 'My Key' ```. Required: pod_id. Optional: name, permissions. Returns the new TypeApiKeysCreateApiKeyResponse.",
+      "method": "POST",
+      "path": "/v0/pods/{pod_id}/api-keys",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of api key."
+        },
+        {
+          "name": "permissions-api-key-create",
+          "wire_name": "permissions.api_key_create",
+          "type": "bool",
+          "location": "body",
+          "description": "Create API keys."
+        },
+        {
+          "name": "permissions-api-key-delete",
+          "wire_name": "permissions.api_key_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete API keys."
+        },
+        {
+          "name": "permissions-api-key-read",
+          "wire_name": "permissions.api_key_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read API keys."
+        },
+        {
+          "name": "permissions-api-key-update",
+          "wire_name": "permissions.api_key_update",
+          "type": "bool",
+          "location": "body",
+          "description": "Update API keys."
+        },
+        {
+          "name": "permissions-domain-create",
+          "wire_name": "permissions.domain_create",
+          "type": "bool",
+          "location": "body",
+          "description": "Create domains."
+        },
+        {
+          "name": "permissions-domain-delete",
+          "wire_name": "permissions.domain_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete domains."
+        },
+        {
+          "name": "permissions-domain-read",
+          "wire_name": "permissions.domain_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read domain details."
+        },
+        {
+          "name": "permissions-domain-update",
+          "wire_name": "permissions.domain_update",
+          "type": "bool",
+          "location": "body",
+          "description": "Update domains."
+        },
+        {
+          "name": "permissions-draft-create",
+          "wire_name": "permissions.draft_create",
+          "type": "bool",
+          "location": "body",
+          "description": "Create drafts."
+        },
+        {
+          "name": "permissions-draft-delete",
+          "wire_name": "permissions.draft_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete drafts."
+        },
+        {
+          "name": "permissions-draft-read",
+          "wire_name": "permissions.draft_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read drafts."
+        },
+        {
+          "name": "permissions-draft-send",
+          "wire_name": "permissions.draft_send",
+          "type": "bool",
+          "location": "body",
+          "description": "Send drafts."
+        },
+        {
+          "name": "permissions-draft-update",
+          "wire_name": "permissions.draft_update",
+          "type": "bool",
+          "location": "body",
+          "description": "Update drafts."
+        },
+        {
+          "name": "permissions-inbox-create",
+          "wire_name": "permissions.inbox_create",
+          "type": "bool",
+          "location": "body",
+          "description": "Create new inboxes."
+        },
+        {
+          "name": "permissions-inbox-delete",
+          "wire_name": "permissions.inbox_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete inboxes."
+        },
+        {
+          "name": "permissions-inbox-read",
+          "wire_name": "permissions.inbox_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read inbox details."
+        },
+        {
+          "name": "permissions-inbox-update",
+          "wire_name": "permissions.inbox_update",
+          "type": "bool",
+          "location": "body",
+          "description": "Update inbox settings."
+        },
+        {
+          "name": "permissions-label-blocked-read",
+          "wire_name": "permissions.label_blocked_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Access messages labeled blocked."
+        },
+        {
+          "name": "permissions-label-spam-read",
+          "wire_name": "permissions.label_spam_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Access messages labeled spam."
+        },
+        {
+          "name": "permissions-label-trash-read",
+          "wire_name": "permissions.label_trash_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Access messages labeled trash."
+        },
+        {
+          "name": "permissions-label-unauthenticated-read",
+          "wire_name": "permissions.label_unauthenticated_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Access messages labeled unauthenticated."
+        },
+        {
+          "name": "permissions-list-entry-create",
+          "wire_name": "permissions.list_entry_create",
+          "type": "bool",
+          "location": "body",
+          "description": "Create list entries."
+        },
+        {
+          "name": "permissions-list-entry-delete",
+          "wire_name": "permissions.list_entry_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete list entries."
+        },
+        {
+          "name": "permissions-list-entry-read",
+          "wire_name": "permissions.list_entry_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read list entries."
+        },
+        {
+          "name": "permissions-message-delete",
+          "wire_name": "permissions.message_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete messages. Also required to delete threads."
+        },
+        {
+          "name": "permissions-message-read",
+          "wire_name": "permissions.message_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read messages. Also required to read threads."
+        },
+        {
+          "name": "permissions-message-send",
+          "wire_name": "permissions.message_send",
+          "type": "bool",
+          "location": "body",
+          "description": "Send messages."
+        },
+        {
+          "name": "permissions-message-update",
+          "wire_name": "permissions.message_update",
+          "type": "bool",
+          "location": "body",
+          "description": "Update message labels. Also required to update threads."
+        },
+        {
+          "name": "permissions-metrics-read",
+          "wire_name": "permissions.metrics_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read metrics."
+        },
+        {
+          "name": "permissions-pod-create",
+          "wire_name": "permissions.pod_create",
+          "type": "bool",
+          "location": "body",
+          "description": "Create pods."
+        },
+        {
+          "name": "permissions-pod-delete",
+          "wire_name": "permissions.pod_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete pods."
+        },
+        {
+          "name": "permissions-pod-read",
+          "wire_name": "permissions.pod_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read pods."
+        },
+        {
+          "name": "permissions-webhook-create",
+          "wire_name": "permissions.webhook_create",
+          "type": "bool",
+          "location": "body",
+          "description": "Create webhooks."
+        },
+        {
+          "name": "permissions-webhook-delete",
+          "wire_name": "permissions.webhook_delete",
+          "type": "bool",
+          "location": "body",
+          "description": "Delete webhooks."
+        },
+        {
+          "name": "permissions-webhook-read",
+          "wire_name": "permissions.webhook_read",
+          "type": "bool",
+          "location": "body",
+          "description": "Read webhook configurations."
+        },
+        {
+          "name": "permissions-webhook-update",
+          "wire_name": "permissions.webhook_update",
+          "type": "bool",
+          "location": "body",
+          "description": "Update webhooks."
+        }
+      ]
+    },
+    {
+      "name": "pods_api-keys_delete",
+      "description": "**CLI:** ```bash agentmail pods:api-keys delete --pod-id \u003cpod_id\u003e --api-key-id \u003capi_key_id\u003e ```. Required: pod_id, api_key_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/pods/{pod_id}/api-keys/{api_key_id}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "api_key_id",
+          "type": "string",
+          "location": "path",
+          "description": "Api key id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pods_api-keys_list",
+      "description": "**CLI:** ```bash agentmail pods:api-keys list --pod-id \u003cpod_id\u003e ```. Required: pod_id. Optional: limit, page_token. Returns array of TypeApiKeysApiKey.",
+      "method": "GET",
+      "path": "/v0/pods/{pod_id}/api-keys",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        }
+      ]
+    },
+    {
+      "name": "pods_domains_create",
+      "description": "**CLI:** ```bash agentmail pods:domains create --pod-id \u003cpod_id\u003e --domain example.com ```. Required: pod_id, domain. Optional: feedback_enabled, subdomains_enabled, tracking_enabled. Returns array of TypeDomainsVerificationRecord.",
+      "method": "POST",
+      "path": "/v0/pods/{pod_id}/domains",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the domain (e.g., `example.com`).",
+          "required": true
+        },
+        {
+          "name": "feedback_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Bounce and complaint notifications are sent to your inboxes."
+        },
+        {
+          "name": "subdomains_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow inboxes on any subdomain of this domain."
+        },
+        {
+          "name": "tracking_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Serve open tracking pixels from this domain."
+        }
+      ]
+    },
+    {
+      "name": "pods_domains_delete",
+      "description": "**CLI:** ```bash agentmail pods:domains delete --pod-id \u003cpod_id\u003e --domain-id \u003cdomain_id\u003e ```. Required: pod_id, domain_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/pods/{pod_id}/domains/{domain_id}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "Domain id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pods_domains_get",
+      "description": "**CLI:** ```bash agentmail pods:domains get --pod-id \u003cpod_id\u003e --domain-id \u003cdomain_id\u003e ```. Required: pod_id, domain_id. Returns array of TypeDomainsVerificationRecord.",
+      "method": "GET",
+      "path": "/v0/pods/{pod_id}/domains/{domain_id}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "Domain id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pods_domains_get-zone-file",
+      "description": "**CLI:** ```bash agentmail pods:domains get-zone-file --pod-id \u003cpod_id\u003e --domain-id \u003cdomain_id\u003e ```. Required: pod_id, domain_id.",
+      "method": "GET",
+      "path": "/v0/pods/{pod_id}/domains/{domain_id}/zone-file",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "Domain id",
+          "required": true
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/octet-stream"
+        }
+      ]
+    },
+    {
+      "name": "pods_domains_list",
+      "description": "**CLI:** ```bash agentmail pods:domains list --pod-id \u003cpod_id\u003e ```. Required: pod_id. Optional: limit, page_token, ascending. Returns array of TypeDomainsDomainItem.",
+      "method": "GET",
+      "path": "/v0/pods/{pod_id}/domains",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        }
+      ]
+    },
+    {
+      "name": "pods_domains_update",
+      "description": "**CLI:** ```bash agentmail pods:domains update --pod-id \u003cpod_id\u003e --domain-id \u003cdomain_id\u003e ```. Required: pod_id, domain_id. Optional: feedback_enabled, subdomains_enabled, tracking_enabled. Returns array of TypeDomainsVerificationRecord.",
+      "method": "PATCH",
+      "path": "/v0/pods/{pod_id}/domains/{domain_id}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "Domain id",
+          "required": true
+        },
+        {
+          "name": "feedback_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Bounce and complaint notifications are sent to your inboxes."
+        },
+        {
+          "name": "subdomains_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow inboxes on any subdomain of this domain."
+        },
+        {
+          "name": "tracking_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Serve open tracking pixels from this domain."
+        }
+      ]
+    },
+    {
+      "name": "pods_domains_verify",
+      "description": "**CLI:** ```bash agentmail pods:domains verify --pod-id \u003cpod_id\u003e --domain-id \u003cdomain_id\u003e ```. Required: pod_id, domain_id.",
+      "method": "POST",
+      "path": "/v0/pods/{pod_id}/domains/{domain_id}/verify",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "Domain id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pods_drafts_get",
+      "description": "**CLI:** ```bash agentmail pods:drafts get --pod-id \u003cpod_id\u003e --draft-id \u003cdraft_id\u003e ```. Required: pod_id, draft_id. Returns the TypeDraftsDraft.",
+      "method": "GET",
+      "path": "/v0/pods/{pod_id}/drafts/{draft_id}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "draft_id",
+          "type": "string",
+          "location": "path",
+          "description": "Draft id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pods_drafts_get-attachment",
+      "description": "**CLI:** ```bash agentmail pods:drafts get-attachment --pod-id \u003cpod_id\u003e --draft-id \u003cdraft_id\u003e --attachment-id \u003cattachment_id\u003e ```. Required: pod_id, draft_id, attachment_id. Returns the TypeAttachmentsAttachmentResponse.",
+      "method": "GET",
+      "path": "/v0/pods/{pod_id}/drafts/{draft_id}/attachments/{attachment_id}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "draft_id",
+          "type": "string",
+          "location": "path",
+          "description": "Draft id",
+          "required": true
+        },
+        {
+          "name": "attachment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Attachment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pods_drafts_list",
+      "description": "**CLI:** ```bash agentmail pods:drafts list --pod-id \u003cpod_id\u003e ```. Required: pod_id. Optional: limit, page_token, labels (plus 3 more). Returns array of TypeDraftsDraftItem.",
+      "method": "GET",
+      "path": "/v0/pods/{pod_id}/drafts",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "labels",
+          "type": "array",
+          "location": "query",
+          "description": "Labels"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        }
+      ]
+    },
+    {
+      "name": "pods_inboxes_create",
+      "description": "**CLI:** ```bash agentmail pods:inboxes create --pod-id \u003cpod_id\u003e --username myagent --domain example.com ```. Required: pod_id. Optional: client_id, display_name, domain (plus 2 more). Returns the new TypeInboxesInbox.",
+      "method": "POST",
+      "path": "/v0/pods/{pod_id}/inboxes",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "client_id",
+          "type": "string",
+          "location": "body",
+          "description": "Client ID of inbox."
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "Display name: `Display Name \u003cusername@domain.com\u003e`."
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "Domain of address. Must be a verified domain, or any subdomain of a verified domain that has subdomains enabled (e.g., `bot.example.com`). Defaults to `agentmail.to`."
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Custom metadata to attach to the inbox."
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "body",
+          "description": "Username of address. Randomly generated if not specified."
+        }
+      ]
+    },
+    {
+      "name": "pods_inboxes_delete",
+      "description": "**CLI:** ```bash agentmail pods:inboxes delete --pod-id \u003cpod_id\u003e --inbox-id \u003cinbox_id\u003e ```. Required: pod_id, inbox_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/pods/{pod_id}/inboxes/{inbox_id}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pods_inboxes_get",
+      "description": "**CLI:** ```bash agentmail pods:inboxes get --pod-id \u003cpod_id\u003e --inbox-id \u003cinbox_id\u003e ```. Required: pod_id, inbox_id. Returns the TypeInboxesInbox.",
+      "method": "GET",
+      "path": "/v0/pods/{pod_id}/inboxes/{inbox_id}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pods_inboxes_list",
+      "description": "**CLI:** ```bash agentmail pods:inboxes list --pod-id \u003cpod_id\u003e ```. Required: pod_id. Optional: limit, page_token, ascending. Returns array of TypeInboxesInbox.",
+      "method": "GET",
+      "path": "/v0/pods/{pod_id}/inboxes",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        }
+      ]
+    },
+    {
+      "name": "pods_inboxes_update",
+      "description": "**CLI:** ```bash agentmail pods:inboxes update --pod-id \u003cpod_id\u003e --inbox-id \u003cinbox_id\u003e ```. Required: pod_id, inbox_id. Optional: display_name, metadata. Returns the updated TypeInboxesInbox.",
+      "method": "PATCH",
+      "path": "/v0/pods/{pod_id}/inboxes/{inbox_id}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "inbox_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inbox id",
+          "required": true
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "Display name: `Display Name \u003cusername@domain.com\u003e`."
+        },
+        {
+          "name": "metadata",
+          "type": "string",
+          "location": "body",
+          "description": "Metadata to merge into the inbox's existing metadata. Keys you include are added or overwritten; keys you omit are left unchanged. To remove a single key, send it with a null value. To clear all metadata, send `metadata` as null. Sending an empty object is rejected; use null to clear. Each update must include at least one of `display_name` or `metadata`."
+        }
+      ]
+    },
+    {
+      "name": "pods_lists_create",
+      "description": "**CLI:** ```bash agentmail pods:lists create --pod-id \u003cpod_id\u003e --direction \u003cdirection\u003e --type \u003ctype\u003e --entry user@example.com ```. Required: pod_id, direction (default: send), type (default: allow), entry. Optional: reason. Returns the new TypeListsPodListEntry.",
+      "method": "POST",
+      "path": "/v0/pods/{pod_id}/lists/{direction}/{type}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "path",
+          "description": "Direction",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "entry",
+          "type": "string",
+          "location": "body",
+          "description": "Email address or domain to add.",
+          "required": true
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "body",
+          "description": "Reason for adding the entry."
+        }
+      ]
+    },
+    {
+      "name": "pods_lists_delete",
+      "description": "**CLI:** ```bash agentmail pods:lists delete --pod-id \u003cpod_id\u003e --direction \u003cdirection\u003e --type \u003ctype\u003e --entry \u003centry\u003e ```. Required: pod_id, direction (default: send), type (default: allow), entry. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/pods/{pod_id}/lists/{direction}/{type}/{entry}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "path",
+          "description": "Direction",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "entry",
+          "type": "string",
+          "location": "path",
+          "description": "Email address or domain.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pods_lists_get",
+      "description": "**CLI:** ```bash agentmail pods:lists get --pod-id \u003cpod_id\u003e --direction \u003cdirection\u003e --type \u003ctype\u003e --entry \u003centry\u003e ```. Required: pod_id, direction (default: send), type (default: allow), entry. Returns the TypeListsPodListEntry.",
+      "method": "GET",
+      "path": "/v0/pods/{pod_id}/lists/{direction}/{type}/{entry}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "path",
+          "description": "Direction",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "entry",
+          "type": "string",
+          "location": "path",
+          "description": "Email address or domain.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pods_lists_list",
+      "description": "**CLI:** ```bash agentmail pods:lists list --pod-id \u003cpod_id\u003e --direction \u003cdirection\u003e --type \u003ctype\u003e ```. Required: pod_id, direction (default: send), type (default: allow). Optional: limit, page_token. Returns array of TypeListsPodListEntry.",
+      "method": "GET",
+      "path": "/v0/pods/{pod_id}/lists/{direction}/{type}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "path",
+          "description": "Direction",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        }
+      ]
+    },
+    {
+      "name": "pods_metrics_query-events",
+      "description": "Counts of email events (sent, delivered, bounced, etc.) over time for the pod. Defaults to the last 24 hours; `start` must be within the last 90 days, and a future `end` is clamped to now. Omit `period` for individual event counts, or set it to sum counts into buckets of that many seconds. **CLI:** ```bash agentmail pods:metrics query --pod-id \u003cpod_id\u003e ```. Required: pod_id. Optional: event_types, start, end (plus 3 more). Returns the TypeMetricsQueryMetricsResponse.",
+      "method": "GET",
+      "path": "/v0/pods/{pod_id}/metrics/events",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "event_types",
+          "type": "array",
+          "location": "query",
+          "description": "Event types"
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Start"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "End"
+        },
+        {
+          "name": "period",
+          "type": "int",
+          "location": "query",
+          "description": "Period"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "descending",
+          "type": "bool",
+          "location": "query",
+          "description": "Descending"
+        }
+      ]
+    },
+    {
+      "name": "pods_metrics_query-usage",
+      "description": "Cumulative usage series for the pod. Each point is the running total of the usage type at that timestamp, not the change within the bucket. Pod-scoped queries carry every usage type except `pod_count`; requested types that don't apply to the scope are ignored. Defaults to the last 24 hours; `start` must be within the last 90 days, and a future `end` is clamped to now. The range divided by `period` must not exceed 1000 buckets. Required: pod_id. Optional: usage_types, start, end (plus 3 more). Returns the TypeMetricsQueryUsageResponse.",
+      "method": "GET",
+      "path": "/v0/pods/{pod_id}/metrics/usage",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "usage_types",
+          "type": "array",
+          "location": "query",
+          "description": "Usage types"
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Start"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "End"
+        },
+        {
+          "name": "period",
+          "type": "int",
+          "location": "query",
+          "description": "Period"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "descending",
+          "type": "bool",
+          "location": "query",
+          "description": "Descending"
+        }
+      ]
+    },
+    {
+      "name": "pods_threads_delete",
+      "description": "Permanently deletes a thread and all of its messages. **CLI:** ```bash agentmail pods:threads delete --pod-id \u003cpod_id\u003e --thread-id \u003cthread_id\u003e ```. Required: pod_id, thread_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/pods/{pod_id}/threads/{thread_id}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "thread_id",
+          "type": "string",
+          "location": "path",
+          "description": "Thread id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pods_threads_get",
+      "description": "**CLI:** ```bash agentmail pods:threads get --pod-id \u003cpod_id\u003e --thread-id \u003cthread_id\u003e ```. Required: pod_id, thread_id. Returns the TypeThreadsThread.",
+      "method": "GET",
+      "path": "/v0/pods/{pod_id}/threads/{thread_id}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "thread_id",
+          "type": "string",
+          "location": "path",
+          "description": "Thread id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pods_threads_get-attachment",
+      "description": "**CLI:** ```bash agentmail pods:threads get-attachment --pod-id \u003cpod_id\u003e --thread-id \u003cthread_id\u003e --attachment-id \u003cattachment_id\u003e ```. Required: pod_id, thread_id, attachment_id. Returns the TypeAttachmentsAttachmentResponse.",
+      "method": "GET",
+      "path": "/v0/pods/{pod_id}/threads/{thread_id}/attachments/{attachment_id}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "thread_id",
+          "type": "string",
+          "location": "path",
+          "description": "Thread id",
+          "required": true
+        },
+        {
+          "name": "attachment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Attachment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pods_threads_list",
+      "description": "Lists threads in the pod, most recent first. Pass `senders`, `recipients`, or `subject` to filter by substring. Filtered requests are served by search, which caps `limit` at 100. For relevance-ranked full-text search, use `Search Threads`. **CLI:** ```bash agentmail pods:threads list --pod-id \u003cpod_id\u003e ```. Required: pod_id. Optional: limit, page_token, labels (plus 10 more). Returns array of TypeThreadsThreadItem.",
+      "method": "GET",
+      "path": "/v0/pods/{pod_id}/threads",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "labels",
+          "type": "array",
+          "location": "query",
+          "description": "Labels"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        },
+        {
+          "name": "include_spam",
+          "type": "bool",
+          "location": "query",
+          "description": "Include spam"
+        },
+        {
+          "name": "include_blocked",
+          "type": "bool",
+          "location": "query",
+          "description": "Include blocked"
+        },
+        {
+          "name": "include_unauthenticated",
+          "type": "bool",
+          "location": "query",
+          "description": "Include unauthenticated"
+        },
+        {
+          "name": "include_trash",
+          "type": "bool",
+          "location": "query",
+          "description": "Include trash"
+        },
+        {
+          "name": "senders",
+          "type": "array",
+          "location": "query",
+          "description": "Filter to threads whose senders contain this value (substring match)."
+        },
+        {
+          "name": "recipients",
+          "type": "array",
+          "location": "query",
+          "description": "Filter to threads whose recipients contain this value (substring match)."
+        },
+        {
+          "name": "subject",
+          "type": "array",
+          "location": "query",
+          "description": "Filter to threads whose subject contains this value (substring match)."
+        }
+      ]
+    },
+    {
+      "name": "pods_threads_search",
+      "description": "Full-text search across threads in the pod, ranked by relevance. The query is matched against senders, recipients, and subject (substring) and the message body (tokenized full text). Spam, trash, blocked, and unauthenticated threads are always excluded. `limit` cannot exceed 100. Required: pod_id, query. Optional: limit, page_token, before (plus 1 more). Returns array of TypeThreadsSearchThreadItem.",
+      "method": "GET",
+      "path": "/v0/pods/{pod_id}/threads/search",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search query",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        }
+      ]
+    },
+    {
+      "name": "pods_threads_update",
+      "description": "Updates thread labels. Cannot add or remove system labels (sent, received, bounced, etc.). Rejects requests with a `422` for threads with 100 or more messages. Required: pod_id, thread_id. Optional: add_labels, remove_labels. Returns array of string.",
+      "method": "PATCH",
+      "path": "/v0/pods/{pod_id}/threads/{thread_id}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "thread_id",
+          "type": "string",
+          "location": "path",
+          "description": "Thread id",
+          "required": true
+        },
+        {
+          "name": "add_labels",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Labels to add to thread. Cannot be system labels."
+        },
+        {
+          "name": "remove_labels",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Labels to remove from thread."
+        }
+      ]
+    },
+    {
+      "name": "pods_webhooks_create",
+      "description": "Create a webhook scoped to this pod. **CLI:** ```bash agentmail pods:webhooks create --pod-id \u003cpod_id\u003e --url https://example.com/webhook --event-type message.received ```. Required: pod_id, event_types, url. Optional: client_id, headers, inbox_ids. Returns the new TypeWebhooksWebhook.",
+      "method": "POST",
+      "path": "/v0/pods/{pod_id}/webhooks",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "client_id",
+          "type": "string",
+          "location": "body",
+          "description": "Client ID of webhook."
+        },
+        {
+          "name": "event_types",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Full list of event types this webhook should receive.",
+          "required": true
+        },
+        {
+          "name": "headers",
+          "type": "object",
+          "location": "body",
+          "description": "Custom HTTP headers to include with every delivery to this webhook."
+        },
+        {
+          "name": "inbox_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Inboxes for which to send events. Maximum 10 per webhook."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "URL of webhook endpoint.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pods_webhooks_delete",
+      "description": "**CLI:** ```bash agentmail pods:webhooks delete --pod-id \u003cpod_id\u003e --webhook-id \u003cwebhook_id\u003e ```. Required: pod_id, webhook_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/pods/{pod_id}/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pods_webhooks_get",
+      "description": "**CLI:** ```bash agentmail pods:webhooks get --pod-id \u003cpod_id\u003e --webhook-id \u003cwebhook_id\u003e ```. Required: pod_id, webhook_id. Returns the TypeWebhooksWebhook.",
+      "method": "GET",
+      "path": "/v0/pods/{pod_id}/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pods_webhooks_get-headers",
+      "description": "List the names of custom HTTP headers included with deliveries to this pod-scoped webhook. Header values are write-only and are never returned. Required: pod_id, webhook_id. Returns array of string.",
+      "method": "GET",
+      "path": "/v0/pods/{pod_id}/webhooks/{webhook_id}/headers",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pods_webhooks_list",
+      "description": "**CLI:** ```bash agentmail pods:webhooks list --pod-id \u003cpod_id\u003e ```. Required: pod_id. Optional: limit, page_token, ascending. Returns array of TypeWebhooksWebhook.",
+      "method": "GET",
+      "path": "/v0/pods/{pod_id}/webhooks",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        }
+      ]
+    },
+    {
+      "name": "pods_webhooks_update",
+      "description": "**CLI:** ```bash agentmail pods:webhooks update --pod-id \u003cpod_id\u003e --webhook-id \u003cwebhook_id\u003e --add-inbox-id \u003cinbox_id\u003e ```. Required: pod_id, webhook_id. Optional: add_inbox_ids, event_types, remove_inbox_ids. Returns the updated TypeWebhooksWebhook.",
+      "method": "PATCH",
+      "path": "/v0/pods/{pod_id}/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        },
+        {
+          "name": "add_inbox_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Inbox IDs to subscribe to the webhook."
+        },
+        {
+          "name": "event_types",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "When you send a non-empty list, it replaces the webhook's subscribed event types in full..."
+        },
+        {
+          "name": "remove_inbox_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Inbox IDs to unsubscribe from the webhook."
+        }
+      ]
+    },
+    {
+      "name": "pods_webhooks_update-headers",
+      "description": "Atomically set, replace, or remove custom HTTP headers included with deliveries to this pod-scoped webhook. Header values remain write-only. Required: pod_id, webhook_id. Optional: headers, remove_headers. Returns the updated WebhooksUpdateHeadersResponse.",
+      "method": "PATCH",
+      "path": "/v0/pods/{pod_id}/webhooks/{webhook_id}/headers",
+      "params": [
+        {
+          "name": "pod_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pod id",
+          "required": true
+        },
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        },
+        {
+          "name": "headers",
+          "type": "object",
+          "location": "body",
+          "description": "Custom HTTP headers to include with every delivery to this webhook."
+        },
+        {
+          "name": "remove_headers",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Names of custom delivery headers to remove."
+        }
+      ]
+    },
+    {
+      "name": "reference-auth_me",
+      "description": "Returns the identity and scope of the authenticated credential. Useful when a client holds a pod-scoped or inbox-scoped API key and needs to discover the parent organization, pod, or inbox without prior knowledge. **CLI:** ```bash agentmail auth me ```.",
+      "method": "GET",
+      "path": "/v0/auth/me",
+      "params": []
+    },
+    {
+      "name": "threads_delete",
+      "description": "Permanently deletes a thread and all of its messages. **CLI:** ```bash agentmail threads delete --thread-id \u003cthread_id\u003e ```. Required: thread_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/threads/{thread_id}",
+      "params": [
+        {
+          "name": "thread_id",
+          "type": "string",
+          "location": "path",
+          "description": "Thread id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "threads_get",
+      "description": "**CLI:** ```bash agentmail threads get --thread-id \u003cthread_id\u003e ```. Required: thread_id. Returns the TypeThreadsThread.",
+      "method": "GET",
+      "path": "/v0/threads/{thread_id}",
+      "params": [
+        {
+          "name": "thread_id",
+          "type": "string",
+          "location": "path",
+          "description": "Thread id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "threads_list",
+      "description": "Lists threads, most recent first. Pass `senders`, `recipients`, or `subject` to filter by substring. Filtered requests are served by search, which caps `limit` at 100. For relevance-ranked full-text search across senders, recipients, subject, and message body, use `Search Threads`. **CLI:** ```bash agentmail threads list ```. Optional: limit, page_token, labels (plus 10 more). Returns array of TypeThreadsThreadItem.",
+      "method": "GET",
+      "path": "/v0/threads",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "labels",
+          "type": "array",
+          "location": "query",
+          "description": "Labels"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        },
+        {
+          "name": "include_spam",
+          "type": "bool",
+          "location": "query",
+          "description": "Include spam"
+        },
+        {
+          "name": "include_blocked",
+          "type": "bool",
+          "location": "query",
+          "description": "Include blocked"
+        },
+        {
+          "name": "include_unauthenticated",
+          "type": "bool",
+          "location": "query",
+          "description": "Include unauthenticated"
+        },
+        {
+          "name": "include_trash",
+          "type": "bool",
+          "location": "query",
+          "description": "Include trash"
+        },
+        {
+          "name": "senders",
+          "type": "array",
+          "location": "query",
+          "description": "Filter to threads whose senders contain this value (substring match)."
+        },
+        {
+          "name": "recipients",
+          "type": "array",
+          "location": "query",
+          "description": "Filter to threads whose recipients contain this value (substring match)."
+        },
+        {
+          "name": "subject",
+          "type": "array",
+          "location": "query",
+          "description": "Filter to threads whose subject contains this value (substring match)."
+        }
+      ]
+    },
+    {
+      "name": "threads_search",
+      "description": "Full-text search across threads in the organization, ranked by relevance. The query is matched against senders, recipients, and subject (substring) and the message body (tokenized full text). Spam, trash, blocked, and unauthenticated threads are always excluded. `limit` cannot exceed 100. Required: query. Optional: limit, page_token, before (plus 1 more). Returns array of TypeThreadsSearchThreadItem.",
+      "method": "GET",
+      "path": "/v0/threads/search",
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search query",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        }
+      ]
+    },
+    {
+      "name": "threads_update",
+      "description": "Updates thread labels. Cannot add or remove system labels (sent, received, bounced, etc.). Rejects requests with a `422` for threads with 100 or more messages. Required: thread_id. Optional: add_labels, remove_labels. Returns array of string.",
+      "method": "PATCH",
+      "path": "/v0/threads/{thread_id}",
+      "params": [
+        {
+          "name": "thread_id",
+          "type": "string",
+          "location": "path",
+          "description": "Thread id",
+          "required": true
+        },
+        {
+          "name": "add_labels",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Labels to add to thread. Cannot be system labels."
+        },
+        {
+          "name": "remove_labels",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Labels to remove from thread."
+        }
+      ]
+    },
+    {
+      "name": "threads_attachments_get",
+      "description": "**CLI:** ```bash agentmail threads get-attachment --thread-id \u003cthread_id\u003e --attachment-id \u003cattachment_id\u003e ```. Required: thread_id, attachment_id. Returns the TypeAttachmentsAttachmentResponse.",
+      "method": "GET",
+      "path": "/v0/threads/{thread_id}/attachments/{attachment_id}",
+      "params": [
+        {
+          "name": "thread_id",
+          "type": "string",
+          "location": "path",
+          "description": "Thread id",
+          "required": true
+        },
+        {
+          "name": "attachment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Attachment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_create",
+      "description": "**CLI:** ```bash agentmail webhooks create --url https://example.com/webhook --event-type message.received ```. Required: event_types, url. Optional: client_id, headers, inbox_ids (plus 1 more). Returns the new TypeWebhooksWebhook.",
+      "method": "POST",
+      "path": "/v0/webhooks",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "string",
+          "location": "body",
+          "description": "Client ID of webhook."
+        },
+        {
+          "name": "event_types",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Full list of event types this webhook should receive.",
+          "required": true
+        },
+        {
+          "name": "headers",
+          "type": "object",
+          "location": "body",
+          "description": "Custom HTTP headers to include with every delivery to this webhook."
+        },
+        {
+          "name": "inbox_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Inboxes for which to send events. Maximum 10 per webhook."
+        },
+        {
+          "name": "pod_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Pods for which to send events. Maximum 10 per webhook."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "URL of webhook endpoint.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_delete",
+      "description": "**CLI:** ```bash agentmail webhooks delete --webhook-id \u003cwebhook_id\u003e ```. Required: webhook_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v0/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_get",
+      "description": "**CLI:** ```bash agentmail webhooks get --webhook-id \u003cwebhook_id\u003e ```. Required: webhook_id. Returns the TypeWebhooksWebhook.",
+      "method": "GET",
+      "path": "/v0/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_list",
+      "description": "**CLI:** ```bash agentmail webhooks list ```. Optional: limit, page_token, ascending. Returns array of TypeWebhooksWebhook.",
+      "method": "GET",
+      "path": "/v0/webhooks",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        }
+      ]
+    },
+    {
+      "name": "webhooks_update",
+      "description": "Update inbox or pod subscriptions, or replace the webhook's `event_types` in full when you pass a non-empty `event_types` array (see request field docs). Inbox and pod changes use add/remove lists. **CLI:** ```bash agentmail webhooks update --webhook-id \u003cwebhook_id\u003e --add-inbox-id \u003cinbox_id\u003e ```. Required: webhook_id. Optional: add_inbox_ids, add_pod_ids, event_types (plus 2 more). Returns the updated TypeWebhooksWebhook.",
+      "method": "PATCH",
+      "path": "/v0/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        },
+        {
+          "name": "add_inbox_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Inbox IDs to subscribe to the webhook."
+        },
+        {
+          "name": "add_pod_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Pod IDs to subscribe to the webhook."
+        },
+        {
+          "name": "event_types",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "When you send a non-empty list, it replaces the webhook's subscribed event types in full..."
+        },
+        {
+          "name": "remove_inbox_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Inbox IDs to unsubscribe from the webhook."
+        },
+        {
+          "name": "remove_pod_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Pod IDs to unsubscribe from the webhook."
+        }
+      ]
+    },
+    {
+      "name": "webhooks_headers_get",
+      "description": "List the names of custom HTTP headers included with deliveries to this webhook. Header values are write-only and are never returned. Required: webhook_id. Returns array of string.",
+      "method": "GET",
+      "path": "/v0/webhooks/{webhook_id}/headers",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_headers_update",
+      "description": "Atomically set, replace, or remove custom HTTP headers included with deliveries to this webhook. Header values remain write-only. Required: webhook_id. Optional: headers, remove_headers. Returns the updated HeadersUpdateResponse.",
+      "method": "PATCH",
+      "path": "/v0/webhooks/{webhook_id}/headers",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        },
+        {
+          "name": "headers",
+          "type": "object",
+          "location": "body",
+          "description": "Custom HTTP headers to include with every delivery to this webhook."
+        },
+        {
+          "name": "remove_headers",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Names of custom delivery headers to remove."
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Triage queue",
+      "command": "triage queue",
+      "description": "Rank unresolved inbound conversations across inboxes with age, direction, labels, and pending drafts."
+    },
+    {
+      "name": "Send check",
+      "command": "send check",
+      "description": "Review a draft for deterministic recipient, attachment, schedule, duplicate, and idempotency risks before sending."
+    },
+    {
+      "name": "Thread rollup",
+      "command": "thread rollup",
+      "description": "Render compact conversation handoff context with participants, counts, latest direction, age, labels, and extracted reply content."
+    },
+    {
+      "name": "Fleet health",
+      "command": "fleet health",
+      "description": "Report inbox, domain, webhook, list, metrics, API-key, pod, and organization readiness findings."
+    },
+    {
+      "name": "Schedule audit",
+      "command": "schedule audit",
+      "description": "Find scheduled drafts that are overdue, orphaned, duplicated, or missing review state."
+    },
+    {
+      "name": "Delivery reconcile",
+      "command": "delivery reconcile",
+      "description": "Reconcile outbound messages with status, thread placement, timestamps, and later inbound activity."
+    }
+  ]
+}

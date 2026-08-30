@@ -5,8 +5,11 @@ package cli
 
 import (
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/anylist"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/anylist/pb"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/store"
 
@@ -19,6 +22,13 @@ func newItemsAddCmd(flags *rootFlags) *cobra.Command {
 	var bodyQuantity string
 	var bodyNotes string
 	var bodyCategory string
+	var bodyStore string
+	var bodyBarcode string
+	var bodyPackageSize string
+	var bodyPrice float64
+	var bodyPriceStore string
+	var bodyPriceDetails string
+	var apply bool
 
 	cmd := &cobra.Command{
 		Use:         "add",
@@ -31,6 +41,37 @@ func newItemsAddCmd(flags *rootFlags) *cobra.Command {
 			}
 			if !cmd.Flags().Changed("item") && !flags.dryRun {
 				return fmt.Errorf("required flag \"item\" not set")
+			}
+			priceRequested := cmd.Flags().Changed("price")
+			priceFieldsRequested := priceRequested || cmd.Flags().Changed("price-store") || cmd.Flags().Changed("price-details")
+			if priceFieldsRequested && !priceRequested {
+				return fmt.Errorf("--price is required when specifying --price-store or --price-details")
+			}
+			if priceRequested && bodyPrice < 0 {
+				return fmt.Errorf("price must not be negative")
+			}
+			metadataRequested := bodyCategory != "" || bodyStore != "" || priceRequested
+			if !apply || flags.dryRun {
+				preview := map[string]any{
+					"dry_run":       true,
+					"list":          bodyListName,
+					"item":          bodyName,
+					"quantity":      bodyQuantity,
+					"notes":         bodyNotes,
+					"category":      bodyCategory,
+					"store":         bodyStore,
+					"barcode":       bodyBarcode,
+					"package_size":  bodyPackageSize,
+					"price":         bodyPrice,
+					"price_store":   bodyPriceStore,
+					"price_details": bodyPriceDetails,
+					"apply":         apply,
+				}
+				if flags.asJSON {
+					return printJSONFiltered(cmd.OutOrStdout(), preview, flags)
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "Dry run: would add %q to %q (pass --apply to write)\n", bodyName, bodyListName)
+				return nil
 			}
 			if dryRunOK(flags) {
 				return nil
@@ -58,16 +99,172 @@ func newItemsAddCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			alClient := anylist.New(cfg)
-			if err := alClient.AddItem(ctx, list.ID, bodyName, bodyQuantity, bodyNotes, bodyCategory); err != nil {
+			var freshData *pb.PBUserDataResponse
+			if metadataRequested {
+				freshData, err = alClient.GetUserData(ctx)
+				if err != nil {
+					return fmt.Errorf("reading metadata references before item add: %w", err)
+				}
+			}
+			var expectedCategoryID, expectedCategoryName, expectedStoreID string
+			var expectedPrice *pb.PBItemPrice
+			if metadataRequested {
+				// Resolve catalog references before creating an item so an invalid
+				// follow-up cannot leave a partial add.
+				if bodyCategory != "" {
+					category, resolveErr := resolveLiveCategoryRecord(freshData, list.ID, bodyCategory)
+					if resolveErr != nil {
+						return fmt.Errorf("metadata preflight failed; item was not changed: %w", resolveErr)
+					}
+					expectedCategoryID, resolveErr = resolveLiveCategory(freshData, list.ID, bodyCategory)
+					if resolveErr != nil {
+						return fmt.Errorf("metadata preflight failed; item was not changed: %w", resolveErr)
+					}
+					expectedCategoryName = category.GetName()
+					if expectedCategoryID == "other" {
+						expectedCategoryName = "other"
+					}
+				}
+				if bodyStore != "" {
+					expectedStoreID, err = resolveLiveStore(freshData, list.ID, bodyStore)
+					if err != nil {
+						return fmt.Errorf("metadata preflight failed; item was not changed: %w", err)
+					}
+				}
+				if priceRequested {
+					expectedPrice = &pb.PBItemPrice{Amount: bodyPrice, StoreId: strings.TrimSpace(bodyPriceStore), Details: bodyPriceDetails, Date: time.Now().Format("2006-01-02")}
+				}
+			}
+			itemID, err := alClient.AddItemWithOptionsAndID(ctx, list.ID, bodyName, anylist.ItemAddOptions{
+				Quantity: bodyQuantity, Details: bodyNotes, ProductUpc: bodyBarcode, PackageSize: bodyPackageSize,
+			})
+			if err != nil {
 				return fmt.Errorf("adding item: %w", err)
+			}
+			expectedBase := map[string]string{"name": bodyName}
+			if bodyQuantity != "" {
+				expectedBase["quantity"] = bodyQuantity
+			}
+			if bodyNotes != "" {
+				expectedBase["details"] = bodyNotes
+			}
+			if bodyBarcode != "" {
+				expectedBase["product_upc"] = bodyBarcode
+			}
+			if bodyPackageSize != "" {
+				expectedBase["package_size"] = bodyPackageSize
+			}
+
+			if !metadataRequested {
+				liveData, err := alClient.GetUserData(ctx)
+				if err != nil {
+					return fmt.Errorf("item %q (ID %s) was added but fresh read-back failed: %w", bodyName, itemID, err)
+				}
+				_, found := findLiveItemByID(liveData, list.ID, itemID)
+				if !found {
+					return fmt.Errorf("item %q (ID %s) was added but was not found in fresh read-back", bodyName, itemID)
+				}
+				if err := st.SyncFromUserData(liveData); err != nil {
+					return fmt.Errorf("item %q (ID %s) was added but cache sync failed: %w", bodyName, itemID, err)
+				}
+				cachedItem, err := st.FindItemByID(list.ID, itemID)
+				if err != nil {
+					return fmt.Errorf("item %q (ID %s) was added but cached read-back failed: %w", bodyName, itemID, err)
+				}
+				if err := verifyItemUpdate(cachedItem, expectedBase); err != nil {
+					return fmt.Errorf("item %q (ID %s) was added but verification failed: %w", bodyName, itemID, err)
+				}
+				if flags.asJSON {
+					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"added":        true,
+						"verified":     true,
+						"item":         bodyName,
+						"item_id":      itemID,
+						"list":         list.Name,
+						"list_id":      list.ID,
+						"barcode":      bodyBarcode,
+						"package_size": bodyPackageSize,
+					}, flags)
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "Added %q to %q\n", bodyName, list.Name)
+				return nil
+			}
+
+			liveData, err := alClient.GetUserData(ctx)
+			if err != nil {
+				return fmt.Errorf("item %q (ID %s) was added but metadata could not be applied because fresh read-back failed; use items update to finish metadata: %w", bodyName, itemID, err)
+			}
+			liveItem, found := findLiveItemByID(liveData, list.ID, itemID)
+			if !found {
+				return fmt.Errorf("item %q (ID %s) was added but was not found in fresh read-back; metadata was not applied", bodyName, itemID)
+			}
+			metadataFailure := func(label string, cause error) error {
+				return fmt.Errorf("item %q (ID %s) was added but %s failed; metadata may be partial; rerun items update to reconcile it: %w", bodyName, itemID, label, cause)
+			}
+			if bodyCategory != "" {
+				if err := alClient.UpdateItemCategoryAssignment(ctx, list.ID, liveItem, liveItem.GetCategoryMatchId(), expectedCategoryID, expectedCategoryName); err != nil {
+					return metadataFailure("category metadata", err)
+				}
+			}
+			if expectedStoreID != "" {
+				if err := alClient.AddItemStoreID(ctx, list.ID, itemID, expectedStoreID); err != nil {
+					return metadataFailure("store metadata", err)
+				}
+			}
+			if expectedPrice != nil {
+				if err := alClient.SaveItemPrice(ctx, list.ID, itemID, expectedPrice); err != nil {
+					return metadataFailure("price metadata", err)
+				}
+			}
+			verifiedData, err := alClient.GetUserData(ctx)
+			if err != nil {
+				return metadataFailure("metadata read-back", err)
+			}
+			verifiedItem, found := findLiveItemByID(verifiedData, list.ID, itemID)
+			if !found {
+				return metadataFailure("metadata read-back", fmt.Errorf("item is no longer present"))
+			}
+			if err := verifyLiveItemMetadata(verifiedItem, expectedCategoryID, bodyCategory != "", expectedStoreID, ""); err != nil {
+				return metadataFailure("metadata verification", err)
+			}
+			if expectedPrice != nil {
+				if err := verifyLiveItemPrice(verifiedItem, expectedPrice, false); err != nil {
+					return metadataFailure("price verification", err)
+				}
+			}
+			if err := st.SyncFromUserData(verifiedData); err != nil {
+				return metadataFailure("cache sync", err)
+			}
+			cachedItem, err := st.FindItemByID(list.ID, itemID)
+			if err != nil {
+				return metadataFailure("cached item read-back", err)
+			}
+			if err := verifyCachedItemMetadata(cachedItem, expectedCategoryID, bodyCategory != "", expectedStoreID, ""); err != nil {
+				return metadataFailure("cached metadata verification", err)
+			}
+			if expectedPrice != nil {
+				if err := verifyCachedItemPrice(cachedItem, expectedPrice, false); err != nil {
+					return metadataFailure("cached price verification", err)
+				}
+			}
+			if err := verifyItemUpdate(cachedItem, expectedBase); err != nil {
+				return metadataFailure("base-field verification", err)
 			}
 
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-					"added":   true,
-					"item":    bodyName,
-					"list":    list.Name,
-					"list_id": list.ID,
+					"added":        true,
+					"verified":     true,
+					"metadata":     true,
+					"item_id":      itemID,
+					"item":         bodyName,
+					"list":         list.Name,
+					"list_id":      list.ID,
+					"barcode":      bodyBarcode,
+					"package_size": bodyPackageSize,
+					"price":        bodyPrice,
+					"price_store":  bodyPriceStore,
+					"store":        bodyStore,
 				}, flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Added %q to %q\n", bodyName, list.Name)
@@ -80,6 +277,14 @@ func newItemsAddCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyQuantity, "quantity", "", "Quantity (e.g. '2', '1 lb', 'a dozen')")
 	cmd.Flags().StringVar(&bodyNotes, "notes", "", "Item notes or details")
 	cmd.Flags().StringVar(&bodyCategory, "category", "", "Category to assign")
+	cmd.Flags().StringVar(&bodyStore, "store", "", "Store name or ID to assign after add (requires --apply)")
+	cmd.Flags().StringVar(&bodyBarcode, "barcode", "", "UPC/EAN barcode; AnyList can resolve product metadata from it")
+	cmd.Flags().StringVar(&bodyBarcode, "upc", "", "Alias for --barcode")
+	cmd.Flags().StringVar(&bodyPackageSize, "package-size", "", "Package size (for example, '16 oz' or '12 count')")
+	cmd.Flags().Float64Var(&bodyPrice, "price", 0, "Store price for this item")
+	cmd.Flags().StringVar(&bodyPriceStore, "price-store", "", "AnyList store ID associated with --price")
+	cmd.Flags().StringVar(&bodyPriceDetails, "price-details", "", "Optional details for --price")
+	cmd.Flags().BoolVar(&apply, "apply", false, "Enable category/store/price follow-up writes with fresh read-after-write verification")
 
 	return cmd
 }

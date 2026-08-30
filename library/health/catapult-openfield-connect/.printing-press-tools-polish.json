@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-08-06T14:03:24.561181Z",
+  "cli_dir": "\u003ccli-dir\u003e/catapult-openfield-connect-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Brief but precise for a framework subcommand (platform client profile listing, local-only read); file is DO-NOT-EDIT generated — richer default Short is a generator-template retro candidate"
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Accurate Short for the learn-loop learnings list subcommand; teach.go is DO-NOT-EDIT generated framework code, so any wording lift belongs in the generator template"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-08-06T13:52:04.041067Z"
+  },
+  "progress": {
+    "last_processed_finding_id": "thin-mcp-description:venues_list"
+  }
+}

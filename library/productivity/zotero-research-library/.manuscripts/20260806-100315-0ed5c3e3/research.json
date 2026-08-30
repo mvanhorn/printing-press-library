@@ -1,0 +1,203 @@
+{
+  "api_name": "zotero-research-library",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "pyzotero",
+      "url": "https://github.com/urschrei/pyzotero",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-06T15:20:00Z",
+  "novel_features": [
+    {
+      "name": "Offline research-grounding search",
+      "command": "ground",
+      "description": "Ranked full-text search over your synced library — title, abstract, creators, tags, and attachment full text — answered offline in under a second, with snippets and citation-ready metadata.",
+      "rationale": "Pairs SQLite FTS5 with version-based incremental sync; no other Zotero tool has both, so every grounding query costs the network and the rate limit.",
+      "example": "zotero-research-library-pp-cli ground \"hamstring injury prevention\" --limit 10 --agent",
+      "why_it_matters": "Reach for this when asked what the user's own library says about a topic.",
+      "group": "Research grounding that compounds"
+    },
+    {
+      "name": "Recently-added triage",
+      "command": "items recent",
+      "description": "What landed in the library recently, sorted by dateAdded from the local cache, with a --days cutoff and pipeable keys.",
+      "rationale": "Pure local ORDER BY over the synced cache; pairs with export for dropping fresh citations into a manuscript.",
+      "example": "zotero-research-library-pp-cli items recent --days 7 --agent",
+      "why_it_matters": "Use for weekly triage of new additions.",
+      "group": "Research grounding that compounds"
+    },
+    {
+      "name": "Citekey bridge",
+      "command": "cite",
+      "description": "Resolves a Better BibTeX citekey to its item from the local cache and exports citekey-faithful BibTeX; sync backfills citekeys via the desktop's local JSON-RPC when available.",
+      "rationale": "The Web API cannot know Better BibTeX citekeys; only a local bridge closes the gap between API exports and the citekeys manuscripts already use.",
+      "example": "zotero-research-library-pp-cli cite smithHamstring2024 --format bibtex",
+      "why_it_matters": "Use when a manuscript needs a citation by its Better BibTeX citekey.",
+      "group": "Manuscript plumbing"
+    },
+    {
+      "name": "Cached collection tree",
+      "command": "collections tree",
+      "description": "Renders the full collection hierarchy with per-node item counts in one command — a shape the flat API cannot return in one call.",
+      "rationale": "Recursive assembly over the local collections table plus the item-collection join; the live API requires N+1 requests for the same view.",
+      "example": "zotero-research-library-pp-cli collections tree --counts --agent",
+      "why_it_matters": "Use for a hierarchical overview of how the library is organized.",
+      "group": "Research grounding that compounds"
+    },
+    {
+      "name": "Cache health and offline reindex",
+      "command": "cache status",
+      "description": "Sync cursors, row and FTS counts, and last-sync age from the local cache; 'cache reindex' rebuilds the FTS index from base tables with zero network.",
+      "rationale": "The FTS index is rebuildable locally; without this the only corruption remedy is a full network resync.",
+      "example": "zotero-research-library-pp-cli cache status --agent",
+      "why_it_matters": "Use to check cache freshness offline before trusting search results.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Offline research-grounding search",
+      "command": "ground",
+      "description": "Ranked full-text search over your synced library — title, abstract, creators, tags, and attachment full text — answered offline in under a second, with snippets and citation-ready metadata.",
+      "rationale": "Pairs SQLite FTS5 with version-based incremental sync; no other Zotero tool has both, so every grounding query costs the network and the rate limit.",
+      "example": "zotero-research-library-pp-cli ground \"hamstring injury prevention\" --limit 10 --agent",
+      "why_it_matters": "Reach for this when asked what the user's own library says about a topic.",
+      "group": "Research grounding that compounds"
+    },
+    {
+      "name": "Recently-added triage",
+      "command": "items recent",
+      "description": "What landed in the library recently, sorted by dateAdded from the local cache, with a --days cutoff and pipeable keys.",
+      "rationale": "Pure local ORDER BY over the synced cache; pairs with export for dropping fresh citations into a manuscript.",
+      "example": "zotero-research-library-pp-cli items recent --days 7 --agent",
+      "why_it_matters": "Use for weekly triage of new additions.",
+      "group": "Research grounding that compounds"
+    },
+    {
+      "name": "Citekey bridge",
+      "command": "cite",
+      "description": "Resolves a Better BibTeX citekey to its item from the local cache and exports citekey-faithful BibTeX; sync backfills citekeys via the desktop's local JSON-RPC when available.",
+      "rationale": "The Web API cannot know Better BibTeX citekeys; only a local bridge closes the gap between API exports and the citekeys manuscripts already use.",
+      "example": "zotero-research-library-pp-cli cite smithHamstring2024 --format bibtex",
+      "why_it_matters": "Use when a manuscript needs a citation by its Better BibTeX citekey.",
+      "group": "Manuscript plumbing"
+    },
+    {
+      "name": "Cached collection tree",
+      "command": "collections tree",
+      "description": "Renders the full collection hierarchy with per-node item counts in one command — a shape the flat API cannot return in one call.",
+      "rationale": "Recursive assembly over the local collections table plus the item-collection join; the live API requires N+1 requests for the same view.",
+      "example": "zotero-research-library-pp-cli collections tree --counts --agent",
+      "why_it_matters": "Use for a hierarchical overview of how the library is organized.",
+      "group": "Research grounding that compounds"
+    },
+    {
+      "name": "Cache health and offline reindex",
+      "command": "cache status",
+      "description": "Sync cursors, row and FTS counts, and last-sync age from the local cache; 'cache reindex' rebuilds the FTS index from base tables with zero network.",
+      "rationale": "The FTS index is rebuildable locally; without this the only corruption remedy is a full network resync.",
+      "example": "zotero-research-library-pp-cli cache status --agent",
+      "why_it_matters": "Use to check cache freshness offline before trusting search results.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "ZOTERO_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Zotero",
+    "headline": "Your entire Zotero research library, searchable offline — version-based incremental sync into SQLite with full-text search no other Zotero tool has.",
+    "value_prop": "zotero-research-library-pp-cli mirrors your library into a local SQLite cache using the API's version cursors, then answers research-grounding questions offline: ranked full-text search with snippets, collection trees, recent-additions triage, and Better BibTeX citekey lookups. What the Web API meters at 100 items a page, your cache answers in milliseconds.",
+    "auth_narrative": "Create an API key at zotero.org/settings/keys and set ZOTERO_API_KEY (or run auth set-token). The CLI resolves your numeric userID automatically via /keys/current and stores the library-prefixed base URL in config — you never need to look up your user ID.",
+    "quickstart": [
+      {
+        "command": "zotero-research-library-pp-cli doctor --dry-run",
+        "comment": "Verify config shape without touching the API"
+      },
+      {
+        "command": "zotero-research-library-pp-cli sync --full",
+        "comment": "First full mirror of items, collections, tags, and full text"
+      },
+      {
+        "command": "zotero-research-library-pp-cli ground \"velocity based training\" --limit 10",
+        "comment": "The grounding ritual: what does my library say about this?"
+      },
+      {
+        "command": "zotero-research-library-pp-cli items recent --days 7 --agent",
+        "comment": "What did I add this week"
+      },
+      {
+        "command": "zotero-research-library-pp-cli collections tree --counts",
+        "comment": "The library's shape at a glance"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "403 Forbidden on every call",
+        "fix": "Key lacks library access — regenerate at zotero.org/settings/keys with 'Allow library access' checked"
+      },
+      {
+        "symptom": "ground returns nothing",
+        "fix": "The cache is empty — run 'sync --full' first; check 'cache status' for cursors and row counts"
+      },
+      {
+        "symptom": "cite finds no citekeys",
+        "fix": "Citekeys come from the Better BibTeX plugin via the desktop app — open Zotero desktop and re-run 'sync'"
+      }
+    ],
+    "when_to_use": "Use this CLI whenever a task needs the user's own research library: grounding answers in their curated corpus, finding citations, browsing collections, or exporting BibTeX. It is the substrate for research-grounding workflows — search the local cache first, fall back to live API or open web only when the cache misses.",
+    "anti_triggers": [
+      "Do not use this CLI to create, modify, or delete items in Zotero — it is read-only against the API",
+      "Do not use it for PDF download or attachment file retrieval; it indexes extracted text only",
+      "Do not use it for open-web literature search — it covers the user's own library"
+    ],
+    "recipes": [
+      {
+        "title": "Research-grounding query",
+        "command": "zotero-research-library-pp-cli ground \"return to play criteria\" --limit 10 --agent --select key,title,creators,date,DOI",
+        "explanation": "Offline ranked search with citation-ready fields; the first step of the grounding workflow."
+      },
+      {
+        "title": "Full-text deep search",
+        "command": "zotero-research-library-pp-cli ground \"nordic hamstring\" --fulltext --agent",
+        "explanation": "Extends the search into attachment full text and resolves hits to their parent papers."
+      },
+      {
+        "title": "Weekly additions to BibTeX",
+        "command": "zotero-research-library-pp-cli items recent --days 7 --agent --select key,title",
+        "explanation": "Fresh additions ready to pipe into an export."
+      },
+      {
+        "title": "Scope a search to a collection",
+        "command": "zotero-research-library-pp-cli ground \"acl injury\" --collection HAMSTRING --limit 5",
+        "explanation": "Collection-scoped grounding using the local join table."
+      },
+      {
+        "title": "Live server-side search fallback",
+        "command": "zotero-research-library-pp-cli items list --q \"tendon\" --qmode everything --limit 10 --json",
+        "explanation": "When you need unsynced server state, the generated endpoint carries the API's full search grammar."
+      }
+    ],
+    "trigger_phrases": [
+      "search my Zotero library",
+      "what does my library say about",
+      "find papers about",
+      "sync my Zotero library",
+      "what did I add to Zotero this week",
+      "get the citation for",
+      "use zotero-research-library",
+      "run zotero cli"
+    ]
+  }
+}

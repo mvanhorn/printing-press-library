@@ -8,6 +8,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -491,10 +492,19 @@ command lists the long routes and exits with a helpful message.`,
 				Source        string `json:"price_source,omitempty"`
 			}
 			results := make([]row, 0, len(seen))
+			rateLimited := false
 			for dest, dur := range seen {
 				r := row{
 					Destination:   dest,
 					DurationHours: fmt.Sprintf("%dh%02dm", dur/60, dur%60),
+				}
+				// PATCH(review-2026-08-01): once Google rate-limits, skip the
+				// remaining price lookups (each would re-run the ~19s retry
+				// ladder against the same blocked IP) — mirror the batch
+				// runner's stop-on-429. Route rows still render, priceless.
+				if rateLimited {
+					results = append(results, r)
+					continue
 				}
 				// Best-effort native Google Flights dates query. Time-boxed
 				// per destination so a slow Google response can't tank the
@@ -508,6 +518,10 @@ command lists the long routes and exits with a helpful message.`,
 					Currency:    currencyCode,
 				})
 				cancel()
+				if err != nil && errors.Is(err, gflights.ErrRateLimited) {
+					rateLimited = true
+					fmt.Fprintln(cmd.ErrOrStderr(), "google flights rate limited (HTTP 429); skipping price lookups for the remaining destinations")
+				}
 				if err == nil && dr != nil && len(dr.Dates) > 0 {
 					cheapest := dr.Dates[0]
 					for _, dp := range dr.Dates[1:] {
@@ -773,7 +787,10 @@ Requires 'fli' (pipx install flights) for pricing.`,
 				Currency:      currencyCode,
 			})
 			if err != nil {
-				return fmt.Errorf("google flights search failed: %w", err)
+				// PATCH(review-2026-07-31): route through the shared Google
+				// classifier so a 429 here exits 7 with the pacing hint,
+				// matching the flights/dates contract.
+				return classifyGoogleFlightsErr(fmt.Errorf("google flights search failed: %w", err))
 			}
 
 			c, err := flags.newClient()
@@ -1138,7 +1155,10 @@ price is below the threshold.`,
 				Currency:      currencyCode,
 			})
 			if err != nil {
-				return fmt.Errorf("google flights search failed: %w", err)
+				// PATCH(review-2026-07-31): route through the shared Google
+				// classifier so a 429 here exits 7 with the pacing hint,
+				// matching the flights/dates contract.
+				return classifyGoogleFlightsErr(fmt.Errorf("google flights search failed: %w", err))
 			}
 			out, err := json.MarshalIndent(result, "", "  ")
 			if err != nil {

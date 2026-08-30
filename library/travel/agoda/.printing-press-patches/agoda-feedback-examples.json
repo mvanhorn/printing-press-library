@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "agoda-feedback-examples",
+  "applied_at": "2026-08-26",
+  "base_run_id": "20260826-175510-45b00483",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Added an Examples block to the generated feedback parent command.",
+  "reason": "Live dogfood's help check requires an Examples section on every command. The generator emits one for 'feedback list' but not for the 'feedback' parent, so the CLI failed its own dogfood help check until the parent gained one.",
+  "files": ["internal/cli/feedback.go"],
+  "markers": ["agoda-pp-cli feedback --stdin < notes.txt"],
+  "validated_outcome": "Full live dogfood went from 3 failures to 107/107 passing; 'agoda-pp-cli feedback --help' now renders an Examples section."
+}

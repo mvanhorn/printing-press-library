@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-mcp-diagnostics",
+  "applied_at": "2026-08-02",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "I tool MCP invocano la CLI con --envelope e riportano nel payload, come campo `avvisi`, le righe hint:/warning: che la CLI scrive su stderr. Copre entrambi i percorsi: i tool tipizzati di tools.go e quelli generati dall'albero cobra (shellOutToCLI).",
+  "reason": "cobratree.RunCLICommand legge stderr SOLO quando il comando esce con errore: su un comando riuscito ritorna stdout e scarta stderr. Tutti gli hint della CLI — troncamento, pertinenza, ambiguità di legge cronologia, campi ignoti di --select, store vuoto — sono quindi invisibili a un client MCP. È il caso peggiore in cui possa capitare, perché lì il consumatore è sempre una macchina: non può leggere un avviso a schermo e correggere il tiro, e una finestra troncata gli arriva indistinguibile da un archivio che non contiene il documento. È esattamente l'errore che una gap analysis ha commesso sui resoconti del novembre 2019.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/shellout_test.go"
+  ],
+  "validated_outcome": "Chiamate JSON-RPC reali su entrambi i percorsi. Tipizzato (tools.go): ddl_cerca {legisl:18, limit:2} -> troncato=true e avvisi con l'hint di troncamento; prima era un array nudo. Walker (shellOutToCLI): legge_cronologia {args:'18 26'} senza --anno -> avvisi con 'uso la L.R. 26 promulgata il 7.10.2024', l'avviso di ambiguita' che decide se la cronologia e' quella giusta; ddl_stralci {args:'18 1188'} -> avvisi con 'nessuno stralcio dichiarato'. Il payload resta sempre JSON valido: gli avvisi entrano come campo, mai accodati al testo. Un oggetto riceve `avvisi`, un array viene avvolto in {risultati, avvisi}, uno stdout non-JSON o gia' provvisto di `avvisi` torna intatto. Le barre di avanzamento (analytics, riscritte con \\r) restano fuori: la discriminante e' il prefisso hint:/warning: con cui la CLI marca cio' che e' destinato a chi legge il risultato.",
+  "notes": "Sostituisce l'idea iniziale di risolvere il problema col solo --envelope, che copriva le sole ricerche: qui la diagnostica arriva su OGNI comando. Resta upstream la forma giusta della risposta MCP (issue cli-printing-press#3941): il fix qui e' una patch a due file generati, che il reprint riapplichera' dal ledger, ma la convenzione -- content block separato, structured content o campo dedicato -- va decisa nel generatore."
+}

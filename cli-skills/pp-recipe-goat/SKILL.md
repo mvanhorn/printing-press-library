@@ -34,7 +34,7 @@ This skill drives the `recipe-goat-pp-cli` binary. **You must verify the CLI is 
 2. Verify: `recipe-goat-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/food-and-dining/recipe-goat/cmd/recipe-goat-pp-cli@latest
@@ -51,6 +51,80 @@ Do not activate this CLI for requests that require creating, updating, deleting,
 This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It does not require a resident browser process for normal API calls.
 
 ## Command Reference
+
+**goat** — Cross-site recipe ranker
+
+- `recipe-goat-pp-cli goat <query>` — Fetch candidates across curated recipe sites, then rank by query relevance, rating, review volume, recency, and site trust
+
+**search** — Recipe title search across curated sites
+
+- `recipe-goat-pp-cli search <query>` — Search recipe titles across curated sites without fetching the full recipe; use `--site`, `--kid-friendly`, `--in-season`, and `--limit` to narrow results
+
+**recipe** — Fetch, open, and inspect recipes
+
+- `recipe-goat-pp-cli recipe get <url>` — Fetch and render a recipe from its source URL, with optional serving scaling, unit conversion, Markdown/plain output, and USDA nutrition backfill
+- `recipe-goat-pp-cli recipe open <id>` — Open a saved recipe in the default browser
+- `recipe-goat-pp-cli recipe reviews <id>` — Show the review-modification digest placeholder for a saved recipe
+- `recipe-goat-pp-cli recipe cost <id>` — Estimate per-serving cost for a saved recipe
+
+**trending** — Top recipes on curated recipe sites
+
+- `recipe-goat-pp-cli trending` — Show recipes currently featured on each site's homepage; use `--site` and `--limit` to scope the fan-out
+
+**sub** — Culinary substitutions
+
+- `recipe-goat-pp-cli sub <ingredient>` — Look up substitutions for an ingredient, optionally filtered by context or vegan-friendly suggestions
+
+**trust** — Site trust scores for the ranker
+
+- `recipe-goat-pp-cli trust list` — List built-in per-site trust scores
+- `recipe-goat-pp-cli trust set <site> <delta>` — Save a local per-site trust adjustment for ranker experimentation
+
+**save** — Local cookbook capture
+
+- `recipe-goat-pp-cli save [url]` — Fetch and save one recipe URL, or read URLs from stdin with `--stdin`; attach local tags with `--tags`
+
+**cookbook** — Local cookbook search, tags, and pantry match
+
+- `recipe-goat-pp-cli cookbook list` — List saved recipes, optionally filtered by tag, site, or author
+- `recipe-goat-pp-cli cookbook search <query>` — Full-text search saved recipes by title and ingredients, with include/exclude ingredient filters
+- `recipe-goat-pp-cli cookbook match` — Find saved recipes you can make from pantry ingredients supplied with `--have`
+- `recipe-goat-pp-cli cookbook tag <id> <tag>[,<tag>]` — Attach one or more tags to a saved recipe
+- `recipe-goat-pp-cli cookbook untag <id> <tag>` — Remove a tag from a saved recipe
+- `recipe-goat-pp-cli cookbook remove <id>` — Remove a recipe from the local cookbook
+
+**tonight** — Dinner picker from the local cookbook
+
+- `recipe-goat-pp-cli tonight` — Pick dinner from saved recipes by max time, recency, dietary filters, tag, and result limit
+
+**meal-plan** — Meal planning and shopping lists
+
+- `recipe-goat-pp-cli meal-plan set <date> <meal> <recipe-id>` — Plan a saved recipe for a specific date and meal slot
+- `recipe-goat-pp-cli meal-plan show` — Show planned meals over a date range or current week
+- `recipe-goat-pp-cli meal-plan remove <date> <meal>` — Clear a planned meal slot
+- `recipe-goat-pp-cli meal-plan shopping-list` — Aggregate ingredients across planned meals, optionally grouped by aisle or exported as Markdown, text, or CSV
+
+**cook** — Cooking session log
+
+- `recipe-goat-pp-cli cook log <recipe-id>` — Log a cooking session with rating, notes, and optional date
+- `recipe-goat-pp-cli cook history` — List past cooking sessions, optionally filtered by recipe or time window
+
+**sync** — Local SQLite sync for API-backed resources
+
+- `recipe-goat-pp-cli sync` — Sync API data to local SQLite for offline search and analysis, with resource, checkpoint, pagination, and concurrency controls
+
+**export** — Data export
+
+- `recipe-goat-pp-cli export <resource> [id]` — Export API data as JSONL or JSON for backup, migration, or analysis
+
+**import** — JSONL import
+
+- `recipe-goat-pp-cli import <resource>` — Import records from JSONL by issuing API create/upsert calls; use `--dry-run` to preview without sending
+
+**workflow** — Compound data workflows
+
+- `recipe-goat-pp-cli workflow archive` — Sync all supported resources to the local store for offline access and search
+- `recipe-goat-pp-cli workflow status` — Show local archive status and sync state
 
 **foods** — USDA FoodData Central — ingredient nutrition lookups
 

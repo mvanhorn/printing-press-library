@@ -3,6 +3,7 @@
 Read-only Peloton workout, class, and structural-provider facts in a private local store.
 
 Created by [@itsmefelix-](https://github.com/itsmefelix-) (Felix Banuchi).
+Contributors: [@jrmii](https://github.com/jrmii) (Jim Martin), [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 
@@ -33,7 +34,7 @@ npx -y @mvanhorn/printing-press-library install peloton --agent claude-code --ag
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/health/peloton/cmd/peloton-pp-cli@latest
@@ -83,7 +84,7 @@ Restart the OpenClaw session or gateway if the newly installed skill is not visi
 
 This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
 
-The bundle reuses your local OAuth2 refresh-token credentials — configure them first if you haven't:
+Peloton has no OAuth provisioning service — the bundle just needs your Peloton login. Set it first if you haven't:
 
 ```bash
 export PELOTON_OAUTH_USERNAME="your-username"
@@ -117,7 +118,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
       "command": "peloton-pp-mcp",
       "env": {
         "PELOTON_USER_ID": "<user_id>",
-        "PELOTON_OAUTH_USERNAME": "<your-key>"
+        "PELOTON_OAUTH_USERNAME": "<your-peloton-email-or-username>",
+        "PELOTON_OAUTH_PASSWORD": "<your-peloton-password>"
       }
     }
   }
@@ -132,13 +134,13 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 See [Install](#install) above.
 
-### 2. Set Up OAuth2 Refresh Credentials
+### 2. Set Your Peloton Login
 
-This CLI uses OAuth2 with refresh-token rotation. Provide the client credentials and refresh token; access tokens are refreshed automatically.
+Peloton has no OAuth provisioning service — this CLI just needs your Peloton login. The first live command logs in automatically and persists the result; later commands reuse or refresh it.
 
 ```bash
-export PELOTON_OAUTH_USERNAME="your-username"
-export PELOTON_OAUTH_PASSWORD="your-password"
+export PELOTON_OAUTH_USERNAME="your-peloton-email-or-username"
+export PELOTON_OAUTH_PASSWORD="your-peloton-password"
 ```
 
 ### 3. Verify Setup
@@ -165,10 +167,10 @@ This CLI separates local files into four path kinds:
 
 | Kind | Contents |
 |------|----------|
-| `config` | User-editable settings such as `config.toml` and saved profiles |
-| `data` | Durable local data: `credentials.toml`, `data.db`, cookies, browser-session proof files, and other auth sidecars |
-| `state` | Runtime state such as persisted queries, jobs, and `teach.log` |
-| `cache` | Regenerable HTTP/cache files |
+| `config` | User-editable settings such as `config.toml`, saved profiles, and the managed auth bundle (`oauth-token.json`) |
+| `data` | Durable local data: `data.db` (the local sync/offline store) and `feedback.jsonl` |
+| `state` | Resolved but not currently used by this CLI |
+| `cache` | Regenerable HTTP response cache |
 
 Each kind resolves independently. The ladder is:
 
@@ -206,7 +208,7 @@ Precedence matters in fleets: an ambient per-kind variable such as `PELOTON_DATA
 
 Relocation is one-way. Unsetting `PELOTON_HOME` does not move files back to platform defaults, and `doctor` cannot find credentials left under a former root. Move the files manually before unsetting relocation variables.
 
-Existing installs keep working because the platform-default rung matches the legacy layout. On the first auth write, stored secrets leave `config.toml` and are consolidated into `credentials.toml` under the data directory. Run `peloton-pp-cli doctor --fail-on warn` to check path and credential-location warnings in automation.
+Existing installs keep working because the platform-default rung matches the legacy layout. Peloton's managed auth persists to `oauth-token.json` under the config directory automatically (see [Set Your Peloton Login](#2-set-your-peloton-login) above) — not `credentials.toml` under the data directory; that generic credentials-file mechanism exists in the underlying framework but this CLI's real login flow never writes to it. Run `peloton-pp-cli doctor --fail-on warn` to check path and credential-location warnings in automation.
 
 ## Commands
 
@@ -216,15 +218,44 @@ Current account/profile fact; no implicit account expansion.
 
 - **`peloton-pp-cli account`** - Show the current profile fact.
 
+### auth
+
+Manage Peloton credentials. No OAuth provisioning service is involved; this wraps the automatic-login lifecycle (see [Set Your Peloton Login](#2-set-your-peloton-login) above).
+
+- **`peloton-pp-cli auth setup`** - Show how to supply your Peloton login for automatic sign-in.
+- **`peloton-pp-cli auth status`** - Show whether a bearer token and/or session cookie are currently available.
+- **`peloton-pp-cli auth logout`** - Remove persisted Peloton credentials.
+
 ### classes
 
 Read-only catalog, class detail, planned structure, and provider filter vocabulary.
 
 - **`peloton-pp-cli classes catalog`** - List a caller-scoped archived class catalog page.
 - **`peloton-pp-cli classes filters`** - Show provider class/filter vocabulary and embedded instructor metadata.
-- **`peloton-pp-cli classes search`** - Search the caller-scoped catalog by factual provider filters; U4 adds offline structural predicates.
+- **`peloton-pp-cli classes search`** - Search the caller-scoped catalog by factual provider filters.
 - **`peloton-pp-cli classes show`** - Show class metadata and supported planned structure.
 - **`peloton-pp-cli classes structure`** - Inspect ordered provider segments and target ranges without coaching labels.
+
+### doctor
+
+Check configuration, credential, and API-connectivity health.
+
+- **`peloton-pp-cli doctor`** - Report auth state, credential location, API reachability, and local sync cache freshness.
+
+### offline
+
+Inspect locally synced provider facts with no network access.
+
+- **`peloton-pp-cli offline history`** - List locally stored recorded workout facts.
+- **`peloton-pp-cli offline workout <workout_id>`** - Show a locally stored workout detail and its recorded history fact.
+- **`peloton-pp-cli offline performance <workout_id>`** - Show locally stored recorded performance samples for one workout.
+- **`peloton-pp-cli offline intervals <workout_id>`** - Show the stored class segments associated with a recorded workout, when available.
+- **`peloton-pp-cli offline classes search`** - Search local class facts by stored fields and structural predicates.
+- **`peloton-pp-cli offline classes show <ride_id>`** - Show one locally stored class fact.
+- **`peloton-pp-cli offline classes structure <ride_id>`** - Show ordered stored class segments and target fields.
+- **`peloton-pp-cli offline classes filters`** - Show locally stored provider filter vocabulary.
+- **`peloton-pp-cli offline strength <workout_id>`** - Show stored movement-tracker fields for one workout.
+- **`peloton-pp-cli offline repeat <first_workout_id> <second_workout_id>`** - Compare two recorded workouts, only when their stored class identifiers match.
 
 ### strength
 
@@ -232,11 +263,20 @@ Provider-supplied performed movement facts present only in workout detail payloa
 
 - **`peloton-pp-cli strength <workout_id>`** - Inspect provider workout detail containing movement_tracker_data when present; no template fallback.
 
+### sync
+
+Sync API data to local SQLite for offline search and analysis.
+
+- **`peloton-pp-cli sync`** - Sync the default resources (`workouts`, `classes`). Naming `workouts` also cascades into per-workout `performance` samples and `workout_details` payloads (no bulk endpoint exists for those; one request per workout each), which back `offline workout`/`intervals`/`repeat`/`strength`.
+- **`peloton-pp-cli sync --resources <list>`** - Sync specific resources: `workouts`, `classes`, `performance`, or `workout_details` (`strength` is accepted as an alias for `workout_details`).
+- **`peloton-pp-cli sync --resources performance --full --max-parents <n>`** - Bound and resume a per-workout dependent backfill (performance/workout_details have no bulk endpoint). Default (no `--full`) only fetches workouts missing a record, so repeated calls drain a large backlog for free; `--full` redoes everything (e.g. to backfill a fix) and resumes across calls via a persisted offset; `--max-parents` caps how much happens per call.
+- **`peloton-pp-cli sync --resources performance --stale-before <timestamp|duration> --max-parents <n>`** - Targeted alternative to `--full`: refetch only records last fetched before the given cutoff (RFC3339 timestamp or a `--since`-style duration like `7d`), skipping already-correct records instead of walking the whole backlog.
+
 ### workouts
 
 Read-only recorded workout history, detail, and recorded performance facts.
 
-- **`peloton-pp-cli workouts list`** - List workout history in newest-first pages; user_id is supplied by the caller until U3 links the profile fact.
+- **`peloton-pp-cli workouts list`** - List workout history in newest-first pages; `user_id` must be supplied explicitly (no account-linking shortcut yet).
 - **`peloton-pp-cli workouts performance`** - Show recorded performance samples and summaries for one workout.
 - **`peloton-pp-cli workouts show`** - Show a recorded workout detail payload.
 
@@ -302,8 +342,8 @@ Environment variables:
 | Name | Kind | Required | Description |
 | --- | --- | --- | --- |
 | `PELOTON_USER_ID` | endpoint | Yes |  |
-| `PELOTON_OAUTH_USERNAME` | auth_flow_input | No | Set during initial auth setup. |
-| `PELOTON_OAUTH_PASSWORD` | auth_flow_input | No | Set during initial auth setup. |
+| `PELOTON_OAUTH_USERNAME` | auth_flow_input | No | Your Peloton login email or username, used to log in automatically. Not needed if a session from a prior login is already persisted. |
+| `PELOTON_OAUTH_PASSWORD` | auth_flow_input | No | Your Peloton account password, used to log in automatically. Not needed if a session from a prior login is already persisted. |
 
 ### agentcookie (optional)
 
@@ -311,8 +351,9 @@ If you use agentcookie to sync secrets across machines, this CLI auto-adopts age
 
 ## Troubleshooting
 **Authentication errors (exit code 4)**
-- Run `peloton-pp-cli doctor` to check credentials
+- Run `peloton-pp-cli doctor` to check credentials — it distinguishes "no credentials anywhere" from "bootstrap env vars unset but a persisted session already works"
 - Verify the environment variable is set: `echo $PELOTON_OAUTH_USERNAME`
+- If env vars aren't set and `doctor` also reports no persisted session, export `PELOTON_OAUTH_USERNAME`/`PELOTON_OAUTH_PASSWORD` once (see [Set Your Peloton Login](#2-set-your-peloton-login) above) and retry
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items

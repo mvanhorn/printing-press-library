@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "id": "fix-example-command-name-underscores",
+  "applied_at": "2026-08-19",
+  "base_run_id": "20260812-144651-60addfc5",
+  "base_printing_press_version": "unstamped (pre-4.28.0, no .printing-press.json in this tree)",
+  "summary": "Fixed a generator bug in three generated command files: their Example field used the spec's YAML resource-group key (underscore_case, e.g. 'expense_types list', 'available_expenses list/move') instead of the actual rendered Cobra command name (hyphen-case, e.g. 'expense-types list', 'available-expenses list/move'). This silently broke the publish live gate's 'happy_path' example-resolution for these two commands (they showed 'missing runnable example' since the harness tries to resolve the literal Example string against the real command tree, and the underscored form matches nothing) -- this was the actual root cause, not a harness sampling limitation as first assumed. Fixing it resolved both remaining live-gate failures completely: --level full went from 2 failures to 0/303, and phase5-acceptance.json's status flipped from fail to pass.",
+  "reason": "Discovered while investigating why 'available-expenses list' and 'expense-types list' kept showing 'missing runnable example' in the publish Step 4.5 live gate even after two full rounds of unrelated fixes and a fresh research.json. Comparing against promoted_payment-types.go (whose Example correctly used the hyphenated 'payment-types', and which passed cleanly) surfaced the underscore/hyphen mismatch immediately. This is very likely a systemic generator-template bug (worth a /printing-press-retro filing) rather than something specific to Concur's spec -- the generator appears to sometimes render the Example string from the spec's YAML map key rather than from the Cobra command tree it just built.",
+  "files": [
+    "internal/cli/expense_types_list.go",
+    "internal/cli/available_expenses_list.go",
+    "internal/cli/available_expenses_move.go"
+  ],
+  "changes": [
+    {
+      "file": "internal/cli/expense_types_list.go",
+      "description": "Example: \"concur-pp-cli expense_types list\" -> \"concur-pp-cli expense-types list\"."
+    },
+    {
+      "file": "internal/cli/available_expenses_list.go",
+      "description": "Example: \"concur-pp-cli available_expenses list --user-id ...\" -> \"concur-pp-cli available-expenses list --user-id ...\"."
+    },
+    {
+      "file": "internal/cli/available_expenses_move.go",
+      "description": "Example: \"concur-pp-cli available_expenses move --user-id ... --to-report ...\" -> \"concur-pp-cli available-expenses move --user-id ... --to-report ...\"."
+    }
+  ],
+  "validated_outcome": "go build, go vet ./..., and go test ./... all clean. Re-ran the full publish Step 4.5 live gate (--level full, --research-dir pointed at the restored research.json): 303 tests, 0 failures, exit 0. phase5-acceptance.json status flipped from fail (147 passed / 2 failed / 154 skipped) to pass (147 passed / 0 failed / 156 skipped) on the exact same source tree otherwise. Searched all of internal/cli/*.go for the same underscore-vs-hyphen Example pattern after fixing these three; no further instances found.",
+  "upstream_issue": null
+}

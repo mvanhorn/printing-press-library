@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "catapult-openfield-connect-pp-cli"
+display_name = "Catapult OpenField"
+description = "Every Catapult GPS metric — ACWR, velocity benchmarks, load reports — from one command, with a local SQLite mirror for offline analysis."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/catapult-openfield-connect-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+CATAPULT_TOKEN = true

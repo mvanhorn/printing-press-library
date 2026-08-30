@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "dependent-empty-parent-not-success",
+  "applied_at": "2026-08-19",
+  "base_run_id": "20260815-214721-c558e557",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Stop the dependent-resource sync path from reporting failed or zero-coverage runs as success: check the parent-table query error before the empty-result case, downgrade an empty parent table to a warning with a structured event, and record per-parent fetch failures so a partially-walked corpus is not checkpointed as a clean sync.",
+  "reason": "syncDependentResource gated on `if err != nil || len(parentRows) == 0` and tested the empty case first, so a dependentParentRows failure (which returns nil, err) fell into the empty branch and returned syncResult{} with no Err \u2014 a database error surfaced as a successful sync of zero records. The same branch also made a legitimately empty parent table look like success. That matters for this CLI specifically: articles reach the store only by walking the 62 sections, so `sync --resources articles` against a store that has never synced sections printed a clean sync_summary with total_records 0, exit 0, and no warning. That is the same silent-no-op failure mode this CLI was patched to fix upstream (Zendesk ignoring an unsupported section_id param), and it is worse in an agent context where the caller has nothing to detect. The fix reorders the error check and returns Warn plus a {\"event\":\"sync_warning\",\"reason\":\"dependent_parent_table_empty\"} line naming the parent to sync first. Generated code, so it lives here to survive regen-merge. A third path had the same shape: on a non-access-denial GET error, syncOneParent set outcome.reason=\"fetch_error\" and emitted a sync_error line but never assigned rep.failure, so the aggregator counted the parent as successful and called SaveSyncState over a partial corpus. Because articles are reachable only by walking every section, one transient 500 on one of the 62 sections silently truncated the store and then checkpointed that truncation. rep.failure is now set on that path.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "go build, go vet and go test ./... pass. `sync --resources articles` against an empty store emits the dependent_parent_table_empty sync_warning, reports success:0/warned:1 and exits 1 instead of exiting 0 silently. A simulated upstream failure on a seeded section now returns a non-nil Err/Warn instead of a clean success. Both behaviours are mutation-tested in internal/cli/articles_pagination_test.go: reverting either fix fails a test. Plain `sync` is unaffected: 3 resources, 33,089 unique articles, 0 warnings."
+}

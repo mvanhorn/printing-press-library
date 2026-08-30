@@ -1,0 +1,51 @@
+version: 2
+project_name: ashby-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: ashby-pp-cli
+    main: ./cmd/ashby-pp-cli
+    binary: ashby-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/job-boards/ashby/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: ashby-pp-mcp
+    main: ./cmd/ashby-pp-mcp
+    binary: ashby-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: ashby-pp-cli
+    repository:
+      owner: klubieniecki
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Unauthenticated, read-only access to currently published postings on a named Ashby job board."
+    install: |
+      bin.install "ashby-pp-cli"
+      bin.install "ashby-pp-mcp"

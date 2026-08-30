@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/fish-audio-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260828-094138-3dcac761",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

@@ -1,0 +1,104 @@
+# RapidAPI Hub Website - GraphQL BFF Operation Catalog (extracted from JS bundle 6944)
+# Endpoint: POST https://rapidapi.com/gateway/graphql
+# Headers: Content-Type: application/json, x-csrf-token: <from GET /gateway/csrf>, rapid-client: default-auth-v2-dashboard-service
+# Auth: session cookies (logged-in browser session)
+
+## Public marketplace operations (validated live)
+- query GetTopCategories($limit: Int) -> categories: categoryEntities(...) { name slugifiedName type }
+- query GetCollectionsCollapsed($page: Int, $limit: Int) -> collections: collapsedCollections(...) { id title slugifiedKey weight thumbnail shortDescription }
+- query getCollectionBySlug($slug: String!) -> collection: collectionBySlugifiedKeyV3(...) { id title thumbnail shortDescription longDescription slugifiedKey collectionType apis { Api | CollectionSpotlight } }
+- query getCategoriesByCtx($limit: Int) -> categoriesByCtx { id name weight thumbnail shortDescription slugifiedName color }
+- query getCategories($where, $orderBy, $pagination) -> categoriesV2 { nodes { id name weight slugifiedName thumbnail shortDescription } }
+- query searchApis($searchApiWhereInput: SearchApiWhereInput!, $paginationInput: PaginationInput, $searchApiOrderByInput: SearchApiOrderByInput) -> products: searchApis { nodes { id thumbnail name description slugifiedName pricing updatedAt categoryName isSavedApi title visibility apiCategory score version user } facets pageInfo total }
+- query getApiBySlugAndOwner($apiOwnerSlug, $apiSlug, $withEndpoints) -> apiBySlugifiedNameAndOwnerName(slugifiedName: $apiSlug, ownerName: $apiOwnerSlug) { full detail }
+- query getApiById($apiId: ID!) -> api(id: $apiId) { id name slugifiedName owner }
+- query getApisByIds($ids: [ID]!) -> items
+- query getUserProfile($username: String!) -> userProfile: userByUsername { id thumbnail name username bio company location createdAt publishedApisList }
+- query getHubMetrics($where: MetricsInput!) -> publicMetrics { publicApis users activeApiConsumers totalApiTraffic }
+- query getApiVersionPlayground($apiVersionId: ID!) -> apiVersion { id name apiVersionType }
+
+## Authenticated operations (validated live)
+- query activeUser -> activeUser { name id mashapeId email username entity thumbnail billingType paymentProvider verified organizations } tenant { id }
+- query getUserSavedApis -> userSavedApis: getUserSavedApis { api { ApiInfo } }
+- query getApiSubscriptions($input: GetSubscriptionInput) -> getApiSubscriptions { count rows { ApiSubscriptionInfo } }
+- query getCtxSubscribedApis -> getApiSubscriptions(input: { statuses: [], limit: -1 }) { rows { api { id name title } } }
+- query getNotifications($userId: Int, $limit: Int, $offset: Int) -> newNotificationsByUserId { id type createdAt isRead title body callToAction image }
+- query getWorkspaceData($fromDate: DateTime, $toDate: DateTime) -> workspaceData { ownedApis subscribedApis invitedApis }
+- query getOrgVirtualApiSubscriptions($input) -> getOrgVirtualApiSubscriptions { count rows }
+- query getUsagesForSubscription -> getUsagesAndParentUsageForSubscriptionByBuckets { usage period parentUsage }
+
+## Auth/user operations (from bundle)
+- mutation favoriteApi($productId: String!, $status: Int!) -> rateApi(input: { apiId, rating })
+- mutation rateApi($productId: String!, $rating: Int!) -> rateApi(input: { apiId, rating })
+- mutation createApiFollowers / deleteApiFollowers
+- mutation postCommentV3 / updateCommentV2 / deleteCommentV2
+- mutation postIssueV3 / updateIssueV2 / deleteIssueV2
+- query getIssuesByApiIdV2 / getIssueByIdV2 / getIssuesByApiIdsV2
+- query messageThreadsPaginated / mutation postMessage / updateThreadEntityStatus
+- mutation CreateOrganization / updateOrganization / deleteOrganization / duplicateNameCheck
+- mutation createTeam / DeleteTeam / createUserInvites / deleteUserInvites / findUsersInOrganization
+- query organizations / organization / teams / paginatedTeamUsersByOrganizationIdV2
+- mutation createProject / updateProject / deleteProject / createProjectAllowedAPIs / updateProjectAllowedAPIs
+- query getEntityProjects / getActiveUserAndContext / getApplicationAuthorizations
+- mutation CreateApplicationAuthorization / updateApplicationAuthorization / deleteAuthorization
+- query applicationAuthorizations / entitiesRoles / roles / upsertEntityRoles
+- mutation updateUser / updateUserEmail / updateUserPassword / verifyEmailCode
+- query getUserAttributes / updateUserAttributeItem / upsertUserAttributes
+- mutation deleteUser / deleteAll2faData / regenerateRecoveryCodes / phoneAuthSetup / applicationAuthSetup
+- query getRecoveryCodes / isTwoFactorEnabledByType / getPhoneNumbers
+- mutation createApiSubscription / deleteApiSubscription / createRapidReason
+- query apiBillingPlans / getApiSubscriber / getApiBillingItemEndpoints / getApiSubscription
+- query getInvoice / getPaymentProviderCustomer / getPaymentProviderPaymentMethod / getConnectedAccount
+- mutation payInvoice / updateDefaultPaymentMethod / attachPaymentMethod / createConnectedAccount / createConnectedAccountLink
+- query getConsumerApiTransactions / getAdminApiTransactions / getApiTransactionDetails / getTransactionsMonthlySummary
+- mutation updateTransaction / updateTransactions / refundTransaction
+- query apiTrafficAnalytics / apiTrafficAnalyticsFacets / apiTrafficAnalyticsLogs / apiTrafficAnalyticsSummary
+- query consumerAnalytics / consumerAnalyticsEngagements / consumerAnalyticsFinancial / consumerAnalyticsHealth
+- query providerAnalyticsEngagements / providerAnalyticsGrowth / providerAnalyticsHealth / providerAnalyticsMetrics
+- query topByConsumer / topByProvider / topApiCallsByProvider / topConsumersCallsByProvider / topApiRevenueByProvider
+- query getRequestLogPayload
+- mutation CreateTutorial / UpdateTutorial / DeleteTutorial / query tutorials
+- query announcements / createApiSpotlight / updateApiSpotlight / deleteSpotlight
+- query getAuditByOwnerId / getSeoData / getTagsList / getApiExtensions
+- query getEntity / getEntityProfile / updateEntityProfileByType
+- query getHubMetrics / getWorkspaceData / getNotifications / markNewNotificationAsRead
+- mutation GenerateResetPasswordToken / resetUserPassword / validateResetPasswordToken / validateEmail
+- query searchUsers / checkIfEmailsAlreadyInvited / inviteUsersToTeams / getWorkflowsByRequestee
+- mutation createSignupApprovalWorkflow / createWorkflow / updateWorkflows
+- mutation createNacApplicationRegistration / getNacApplicationRegistrationsByOrganizationId / getNacCsps
+- mutation createCertificate / deleteCertificates / getCertificates
+- mutation createConnectedAccountDashboardLink / deletePayoutInfo / updateBillingDetails / createBillingDetails / calculateTax
+- query getPlaygroundGateways / getPrivateApisJwt / GetGateways / getUserInviteByToken
+
+## Input shapes (validated)
+- SearchApiWhereInput: { term, categoryNames: [String], tags: [String], privateApisJwt, contextId, contextType }
+- SearchApiOrderByInput: { sortingFields: [{ by: "ASC"|"DESC", fieldName: "ByRelevance"|"ByAlphabetical"|"ByUpdatedAt"|"installsAllTime" }] }
+- PaginationInput: { first, last, after, before }  (relay-style, NOT limit/offset)
+- MetricsInput: { fromDate: DateTime!, toDate: DateTime! }
+- GetSubscriptionInput: { statuses: [String], limit: Int }
+- ApiInfo fragment: __typename id name title description visibility slugifiedName pricing updatedAt category thumbnail isSavedApi categoryId apiCategory { name color } score { popularityScore avgLatency avgServiceLevel avgSuccessRate }
+- EndpointInfo fragment: id isGraphQL route method name description apiversion group index
+- BillingPlanInfo fragment: id name recommended visibility allowedPlanDevelopers
+- BillingPlanVersionInfo: id name period option price currency current billingPlanId pricing localePrice
+- ApiSubscriptionInfo: id status userId parentId billingPlanVersionId apiId apiVersionId stripeId createdAt canceledAt mashapeId billingPlanVersion { billinglimits }
+- notification fragment: id type createdAt isRead title body callToAction image any
+- Gateway fragment: id dns type status version isDefault lastActive serviceStatus
+- ApplicationAuthorization: id key name status updatedAt grantType applicationId authorizationType authorizationValues gateways
+
+## REST endpoints (non-GraphQL)
+- GET /gateway/csrf -> { csrfToken } (CSRF token bootstrap)
+- POST /authentication/login { email, password, recaptcha }
+- POST /authentication/logout
+- POST /authentication/google/oneTapLogin { token, brand }
+- POST /authentication/sign-up-verification-approval
+- GET /gateway/invite/:token/action/accept
+- POST /gateway/access-control
+- GET /authentication/logout
+- Next.js RSC prefetches: GET /<route>?_rsc=<hash> (HTML/SSR surfaces)
+- Playground pages: /<owner>/api/<api-slug>/playground (SSR HTML)
+
+## Header patterns
+- rapid-client: default-auth-v2-dashboard-service (dashboard)
+- x-rapid-role: admin (admin operations, e.g. getApiById admin variant)
+- x-csrf-token: <csrfToken>
+- Session: rapidapi-context-id cookie + rapidapi-context localStorage

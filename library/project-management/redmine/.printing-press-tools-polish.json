@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-08-27T01:24:48.644746888Z",
+  "cli_dir": "\u003ccli-dir\u003e/redmine-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (platform client registration surface); Short is brief but precise for a profile-listing command with no meaningful filters to name"
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (self-learning loop surface); command already has a rich Example block covering --agent, --query, --warnings, so the Short stays terse by design"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "tracks-resolve-owns-title-ranking",
+  "applied_at": "2026-08-13",
+  "base_run_id": "20260707-145126",
+  "base_printing_press_version": "4.27.1",
+  "summary": "tracks resolve turns artist + title into exactly one track URI, because Spotify's /search ranks by relevance rather than title exactness and the CLI, not the caller, should own that re-ranking.",
+  "reason": "Spotify offers no resolve endpoint: /search returns a ranked page in which a live cut, a remaster, or a cover regularly outranks the studio recording that was asked for. Every workflow ending in 'add these songs to a playlist' therefore had to run one search per title and re-rank by hand in jq. The ranking encoded here (exact title, then decoration-normalized title, then prefix, then substring; a track credited to the requested artist always outranks one that is not) is the durable part — a regen must keep the CLI answering with one URI and a match_kind that says how confident the match was, and must keep reading titles from stdin so a whole tracklist resolves in one invocation. Batch resolution is paced by the client's default rate limit, so a full tracklist spends seconds inside one invocation; a progress counter goes to stderr under the same TTY gate the CLI already uses for provenance, keeping agent pipes clean while a human sees the run is alive.",
+  "files": [
+    "internal/cli/transcendence_tracks_resolve.go",
+    "internal/cli/transcendence_tracks_resolve_test.go",
+    "internal/cli/tracks.go"
+  ],
+  "validated_outcome": "Live against Spotify: a four-line setlist on stdin resolved three exact matches and reported the fourth as match_kind \"none\" with candidates 0, in one invocation."
+}

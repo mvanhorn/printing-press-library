@@ -26,20 +26,19 @@ func newProjectsListCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  plane-pp-cli projects list",
 		Annotations: map[string]string{"pp:endpoint": "projects.list", "pp:method": "GET", "pp:path": "/projects/", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/projects/"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/projects/"
 			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "projects", path, map[string]string{
-				"cursor":         fmt.Sprintf("%v", flagCursor),
-				"expand":         fmt.Sprintf("%v", flagExpand),
-				"fields":         fmt.Sprintf("%v", flagFields),
-				"order_by":       fmt.Sprintf("%v", flagOrderBy),
-				"per_page":       fmt.Sprintf("%v", flagPerPage),
-				"updated_at__gt": fmt.Sprintf("%v", flagUpdatedAtGt),
-			}, nil, flagAll, "cursor", "cursor", "per_page", "next_cursor", "", cmd.ErrOrStderr())
+				"cursor":         formatCLIParamValue(flagCursor),
+				"expand":         formatCLIParamValue(flagExpand),
+				"fields":         formatCLIParamValue(flagFields),
+				"order_by":       formatCLIParamValue(flagOrderBy),
+				"per_page":       formatCLIParamValue(flagPerPage),
+				"updated_at__gt": formatCLIParamValue(flagUpdatedAtGt),
+			}, nil, flagAll, "cursor", "cursor", "per_page", 100, "next_cursor", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -84,7 +83,7 @@ func newProjectsListCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Pagination cursor for getting next set of results")

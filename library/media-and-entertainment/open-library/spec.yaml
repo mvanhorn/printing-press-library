@@ -1,0 +1,32 @@
+openapi: 3.1.0
+info:
+  title: Open Library Public Metadata Plan
+  version: 0.1.0
+  description: >
+    Plan-driven first print for read-only Open Library book, author, edition,
+    work, ISBN, and subject metadata workflows.
+servers:
+  - url: https://openlibrary.org
+    description: Open Library public JSON APIs
+paths:
+  /search.json:
+    get:
+      summary: Search Open Library book and work records
+  /isbn/{isbn}.json:
+    get:
+      summary: Resolve an ISBN to an edition JSON record
+  /authors/{authorId}.json:
+    get:
+      summary: Fetch an Open Library author record
+  /authors/{authorId}/works.json:
+    get:
+      summary: Fetch bounded works for an author
+  /works/{workId}.json:
+    get:
+      summary: Fetch an Open Library work record
+  /works/{workId}/editions.json:
+    get:
+      summary: Fetch bounded editions for a work
+  /subjects/{subject}.json:
+    get:
+      summary: Fetch works and optional facets for a subject

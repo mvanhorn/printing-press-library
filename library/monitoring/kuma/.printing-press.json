@@ -1,0 +1,81 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-26T18:06:32.410217Z",
+  "printing_press_version": "4.31.1",
+  "api_name": "kuma",
+  "display_name": "Uptime Kuma Operator",
+  "cli_name": "kuma-pp-cli",
+  "creator": {
+    "handle": "keithah",
+    "name": "Keith"
+  },
+  "owner": "keithah",
+  "printer": "keithah",
+  "spec_path": "spec.yaml",
+  "spec_format": "openapi3",
+  "spec_source": "docs",
+  "spec_checksum": "sha256:f8eba9bd390915d117ea289a8e0eeb9f20c1c8fa481682691fda2c36ffb75163",
+  "run_id": "20260826-180632",
+  "category": "monitoring",
+  "description": "Inspect Uptime Kuma v2 monitors, heartbeats, and incident context; retry changes are explicitly gated.",
+  "api_version": "2.0.0",
+  "auth_type": "username_password",
+  "auth_preference": "basicAuth",
+  "auth_env_vars": [
+    "UPTIME_KUMA_URL",
+    "UPTIME_KUMA_USERNAME",
+    "UPTIME_KUMA_PASSWORD"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "UPTIME_KUMA_URL",
+      "kind": "config",
+      "required": true,
+      "sensitive": false
+    },
+    {
+      "name": "UPTIME_KUMA_USERNAME",
+      "kind": "credential",
+      "required": true,
+      "sensitive": true
+    },
+    {
+      "name": "UPTIME_KUMA_PASSWORD",
+      "kind": "credential",
+      "required": true,
+      "sensitive": true
+    }
+  ],
+  "printer_name": "Keith",
+  "catalog_entry": "library/monitoring/kuma",
+  "catalog_description": "Inspect Uptime Kuma v2 monitors, heartbeats, and incident context; retry changes are explicitly gated.",
+  "novel_features": [
+    {
+      "name": "Incident context composite",
+      "command": "incident-context",
+      "description": "Combines monitor identity, recent heartbeat timeline, and current status into one redacted operator brief.",
+      "rationale": "No single Kuma call provides an incident-ready context packet.",
+      "example": "kuma-pp-cli incident-context --monitor 12 --json",
+      "why_it_matters": "Reduces alert investigation from several protocol calls to one deterministic read-only command.",
+      "group": "Incident investigation"
+    },
+    {
+      "name": "Complete-object retry safety gate",
+      "command": "set-retries",
+      "description": "Previews and, only with explicit --yes, applies a complete monitor edit while preserving unrelated fields and verifying readback.",
+      "rationale": "Kuma editMonitor is full replacement; a narrow patch risks silently clearing settings.",
+      "example": "kuma-pp-cli set-retries --monitor 12 --maxretries 3 --yes",
+      "why_it_matters": "Makes the dangerous replacement semantics visible and operator-gated.",
+      "group": "Safe mutations"
+    },
+    {
+      "name": "Socket.IO heartbeat normalization",
+      "command": "heartbeats",
+      "description": "Normalizes Kuma Socket.IO heartbeat records into a bounded time-window timeline with redacted output.",
+      "rationale": "Kuma exposes management data over Socket.IO, not a conventional REST resource.",
+      "example": "kuma-pp-cli heartbeats --monitor-id 12 --hours 3 --json",
+      "why_it_matters": "Provides an agent-friendly incident timeline without exposing credentials or raw protocol records.",
+      "group": "Incident investigation"
+    }
+  ]
+}

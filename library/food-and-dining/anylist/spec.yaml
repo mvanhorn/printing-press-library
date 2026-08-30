@@ -126,6 +126,49 @@ resources:
           type: object
           item: OperationResult
 
+      rename:
+        method: POST
+        path: /data/shopping-lists/update
+        description: "Preview or rename a shopping list; --apply and fresh stable-ID verification are required"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Current list name"
+          - name: new_name
+            flag_name: new-name
+            type: string
+            required: true
+            description: "New list name"
+          - name: apply
+            type: bool
+            required: false
+            description: "Apply the rename; preview is the default"
+        response:
+          type: object
+          item: ShoppingList
+
+      sharing-add:
+        method: POST
+        path: /data/shopping-lists/share-list
+        description: "Preview or invite an exact email to a shopping list; --apply and fresh read-back are required"
+        body:
+          - name: list
+            type: string
+            required: true
+            description: "List ID or exact list name"
+          - name: email
+            type: string
+            required: true
+            description: "Email address to invite"
+          - name: apply
+            type: bool
+            required: false
+            description: "Apply the invite; preview is the default"
+        response:
+          type: object
+          item: OperationResult
+
       settings:
         method: POST
         path: /data/list-settings/update
@@ -566,7 +609,7 @@ resources:
       add-to-list:
         method: POST
         path: /data/shopping-lists/update
-        description: "Add recipe ingredients to a shopping list, merging quantities for duplicates"
+        description: "Preview recipe ingredients; live bulk writes are disabled"
         body:
           - name: recipe
             type: string
@@ -584,16 +627,6 @@ resources:
             required: false
             default: 0
             description: "Scale to this many servings before adding (0 = use recipe default)"
-          - name: merge
-            type: bool
-            required: false
-            default: true
-            description: "Sum quantities for ingredients already on the list"
-          - name: dedup
-            type: bool
-            required: false
-            default: true
-            description: "Skip ingredients already on the list (when --merge=false)"
         response:
           type: object
           item: OperationResult
@@ -621,7 +654,7 @@ resources:
       batch-add:
         method: POST
         path: /data/shopping-lists/update
-        description: "Add ingredients from multiple recipes to a list at once"
+        description: "Deprecated bulk recipe-to-list path; live writes fail closed"
         body:
           - name: list_name
             flag_name: list
@@ -634,11 +667,6 @@ resources:
             required: true
             positional: false
             description: "Comma-separated list of recipe names"
-          - name: merge
-            type: bool
-            required: false
-            default: true
-            description: "Sum quantities for duplicate ingredients"
         response:
           type: object
           item: OperationResult
@@ -776,6 +804,12 @@ resources:
             type: string
             required: false
             description: "Optional event details/notes"
+          - name: scale_factor
+            flag_name: scale-factor
+            type: number
+            required: false
+            default: 1.0
+            description: "Positive finite recipe-serving scale factor; requires a recipe"
         response:
           type: object
           item: MealEvent
@@ -794,6 +828,46 @@ resources:
         response:
           type: object
           item: OperationResult
+
+      update:
+        method: POST
+        path: /data/meal-planning-calendar/update
+        description: "Update a meal plan event; omitted fields are preserved"
+        body:
+          - name: event_id
+            flag_name: event-id
+            type: string
+            required: true
+            positional: true
+            description: "Event ID to update"
+          - name: date
+            type: string
+            required: false
+            description: "Event date (YYYY-MM-DD)"
+          - name: recipe
+            type: string
+            required: false
+            description: "Recipe name to associate"
+          - name: title
+            type: string
+            required: false
+            description: "Event title"
+          - name: label
+            type: string
+            required: false
+            description: "Meal label"
+          - name: details
+            type: string
+            required: false
+            description: "Optional event details/notes"
+          - name: scale_factor
+            flag_name: scale-factor
+            type: number
+            required: false
+            description: "Positive finite recipe-serving scale factor; omitted preserves the existing value"
+        response:
+          type: object
+          item: MealEvent
 
       add-to-list:
         method: POST
@@ -878,7 +952,7 @@ resources:
           item: Store
 
   favorites:
-    description: "View favorite items"
+    description: "Manage favorite items with explicit apply gates and fresh read-after-write verification"
     endpoints:
       list:
         method: POST
@@ -888,9 +962,23 @@ resources:
         response:
           type: array
           item: ListItem
+      add:
+        method: POST
+        path: /data/starter-lists/update
+        description: "Preview or add an item to a favorite list; --apply and fresh read-back verification are required"
+        body: []
+        response:
+          type: object
+      remove:
+        method: POST
+        path: /data/starter-lists/update
+        description: "Preview or remove an item from a favorite list; --apply and fresh read-back verification are required"
+        body: []
+        response:
+          type: object
 
   starters:
-    description: "Manage starter list items (template items for new lists)"
+    description: "Manage starter list items with explicit apply gates and fresh read-after-write verification"
     endpoints:
       list:
         method: POST
@@ -900,9 +988,23 @@ resources:
         response:
           type: array
           item: ListItem
+      add:
+        method: POST
+        path: /data/starter-lists/update
+        description: "Preview or add an item to a starter list; --apply and fresh read-back verification are required"
+        body: []
+        response:
+          type: object
+      remove:
+        method: POST
+        path: /data/starter-lists/update
+        description: "Preview or remove an item from a starter list; --apply and fresh read-back verification are required"
+        body: []
+        response:
+          type: object
 
   folders:
-    description: "Organize shopping lists into folders"
+    description: "View and safely organize shopping lists into folders; create/delete, rename, parent movement, and child ordering are verified"
     endpoints:
       list:
         method: POST
@@ -940,6 +1042,36 @@ resources:
         response:
           type: object
           item: OperationResult
+
+      update:
+        method: POST
+        path: /data/list-folders/update
+        description: "Preview or rename/move/reorder a folder; --apply and fresh read-after-write verification are required"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Current folder name"
+          - name: new_name
+            flag_name: new-name
+            type: string
+            required: false
+            description: "New folder name"
+          - name: parent
+            type: string
+            required: false
+            description: "Parent folder name or ID"
+          - name: order
+            type: string
+            required: false
+            description: "Comma-separated child folder/list names or IDs in desired order"
+          - name: apply
+            type: bool
+            required: false
+            description: "Apply the change; preview is the default"
+        response:
+          type: object
+          item: ListFolder
 
 types:
   AuthTokens:

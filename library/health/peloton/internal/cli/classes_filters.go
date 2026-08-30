@@ -51,6 +51,14 @@ func newClassesFiltersCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			if prov.Source == "live" {
+				// See cacheClassesFilters's doc comment: this endpoint
+				// returns one global filter-vocabulary object, not a list
+				// the generic write-through cache above (registered under
+				// "classes") can extract items from, so `offline classes
+				// filters` never had anything to read without this.
+				cacheClassesFilters(cmd.Context(), data)
+			}
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -95,7 +103,7 @@ func newClassesFiltersCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().BoolVar(&flagIncludeIconImages, "include-icon-images", true, "Include provider icon image references.")
+	cmd.Flags().BoolVar(&flagIncludeIconImages, "include-icon-images", true, "Include provider icon image references. Caveat: Peloton's API does not omit display_image_url when this is false (upstream API behavior, not a client-side gap).")
 	cmd.Flags().StringVar(&flagLibraryType, "library-type", "on_demand", "Provider library type.")
 	cmd.Flags().StringVar(&flagBrowseCategory, "browse-category", "", "Provider browse category.")
 

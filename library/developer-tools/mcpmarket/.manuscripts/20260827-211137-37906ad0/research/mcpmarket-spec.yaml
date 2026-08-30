@@ -1,0 +1,130 @@
+name: mcpmarket
+description: "Search, browse, and track the 45,000+ MCP server, client, and Agent Skill catalog on MCP Market — offline-searchable, diffable across syncs, and agent-native."
+version: "0.1.0"
+base_url: "https://mcpmarket.com"
+http_transport: browser-chrome
+category: developer-tools
+
+auth:
+  type: none
+
+learn:
+  entity_lookup_seeds:
+    server:
+      - canonical: Firecrawl
+        aliases: [firecrawl]
+      - canonical: GitHub
+        aliases: [github, github mcp]
+      - canonical: ElevenLabs
+        aliases: [elevenlabs, eleven labs]
+      - canonical: Superpowers
+        aliases: [superpowers]
+      - canonical: Context7
+        aliases: [context7, context 7]
+    client:
+      - canonical: Zed
+        aliases: [zed]
+      - canonical: Cline
+        aliases: [cline]
+      - canonical: Cherry Studio
+        aliases: [cherry studio]
+  synonyms:
+    "mcp server": "server"
+    "mcp servers": "server"
+    "agent skill": "skill"
+    "agent skills": "skill"
+
+resources:
+  server:
+    description: "MCP servers listed on MCP Market"
+    endpoints:
+      get:
+        method: GET
+        path: "/server/{slug}"
+        description: "Get details for one MCP server"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Server slug, e.g. firecrawl"
+        response_format: html
+        html_extract:
+          mode: embedded-json
+          script_selector: 'script[type="application/ld+json"]'
+      similar:
+        method: GET
+        path: "/api/similar-tools"
+        description: "Related/similar servers or skills"
+        params:
+          - name: slug
+            type: string
+            required: true
+          - name: category
+            type: string
+            required: true
+          - name: type
+            type: string
+            required: true
+            default: server
+            description: "server or skill"
+        response_format: json
+        response:
+          type: array
+
+  mcpclient:
+    description: "MCP clients (apps like Zed, Cline, Cherry Studio) listed on MCP Market"
+    endpoints:
+      get:
+        method: GET
+        path: "/client/{slug}"
+        description: "Get details for one MCP client"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Client slug, e.g. zed"
+        response_format: html
+        html_extract:
+          mode: embedded-json
+          script_selector: 'script[type="application/ld+json"]'
+
+  skill:
+    description: "Agent Skills listed on MCP Market"
+    endpoints:
+      get:
+        method: GET
+        path: "/tools/skills/{slug}"
+        description: "Get details for one Agent Skill"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Skill slug"
+        response_format: html
+        html_extract:
+          mode: embedded-json
+          script_selector: 'script[type="application/ld+json"]'
+
+  category:
+    description: "Catalog categories"
+    endpoints:
+      list:
+        method: GET
+        path: "/categories"
+        description: "List all catalog categories"
+        response_format: html
+        response:
+          type: array
+        html_extract:
+          mode: links
+          link_prefixes: ["/categories"]
+
+cache:
+  enabled: true
+  stale_after: 24h
+
+mcp:
+  transport: [stdio, http]

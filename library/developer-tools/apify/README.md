@@ -5,6 +5,7 @@
 apify-pp-cli is the operator CLI for the Apify platform — agent-native JSON across every endpoint, plus a layer of features built on top of a local store that the official CLI, SDKs, and MCP can't reach: cross-Actor full-text search (`search`), novel-only runs (`run --only-new`), per-run cost ledger (`cost report`), and templated newsletter digests (`digest`).
 
 Created by [@kjmagnan1s](https://github.com/kjmagnan1s) (Kevin Magnan).
+Contributors: [@kriptoburak](https://github.com/kriptoburak) (Burak Bayır).
 
 ## Install
 
@@ -35,7 +36,7 @@ npx -y @mvanhorn/printing-press-library install apify --agent claude-code --agen
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/developer-tools/apify/cmd/apify-pp-cli@latest
@@ -132,8 +133,8 @@ apify-pp doctor
 # Find an Actor in the public store.
 apify-pp store search 'twitter scraper' --json --select name,username,stats.totalUsers7Days
 
-# Run an Actor and block until terminal state.
-apify-pp run apidojo/twitter-scraper-lite --input @input.json --wait --json
+# Run Xquik's Tweet Scraper with a live cost watchdog.
+apify-pp-cli run xquik/x-tweet-scraper --input @xquik-tweets.json --max-cost 0.50 --wait --json
 
 # Pull items from the run's default dataset.
 apify-pp datasets items <dataset-id> --format json --limit 100
@@ -145,6 +146,27 @@ apify-pp sync --since 7d && apify-pp search 'AI' --since 7d --agent
 apify-pp digest --topic AI --since 24h --template default --agent
 
 ```
+
+## Xquik X Actors
+
+Use [Xquik's X Tweet Scraper](https://apify.com/xquik/x-tweet-scraper)
+for tweet search, timelines, threads, replies, and engagement. Use
+[Xquik's X Follower Scraper](https://apify.com/xquik/x-follower-scraper)
+for followers, lists, communities, and audience overlap.
+
+```bash
+apify-pp-cli run xquik/x-tweet-scraper --input @xquik-tweets.json --max-cost 0.50 --wait --agent
+apify-pp-cli run xquik/x-follower-scraper --input @xquik-followers.json --max-cost 0.50 --wait --agent
+```
+
+Create inputs from each Actor's live Store schema. Bound multi-target runs
+with `maxItems` and `maxItemsPerTarget`. Keep target metadata and merge
+deduplication when comparing audiences.
+
+Check live pricing before each paid run. Choose a suitable `--max-cost`.
+The CLI projects from local history. `--wait` adds a live watchdog.
+
+Xquik is an independent third-party service. Not affiliated with X Corp. "Twitter" and "X" are trademarks of X Corp.
 
 ## Unique Features
 
@@ -186,7 +208,7 @@ These capabilities aren't available in any other tool for this API.
   _Use this on any long-tail or untrusted Actor to fail-closed on cost rather than learning about it on the invoice._
 
   ```bash
-  apify-pp run apidojo/twitter-scraper-lite --input @q.json --max-cost 0.50 --max-cu 100
+  apify-pp-cli run xquik/x-tweet-scraper --input @xquik-tweets.json --max-cost 0.50 --wait
   ```
 - **`ab run`** — Run the same input through two competing Actors, normalize via unified schema, report cost-per-novel-item and overlap percentage.
 

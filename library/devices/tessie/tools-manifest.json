@@ -1,0 +1,131 @@
+{
+  "api_name": "tessie",
+  "base_url": "https://api.tessie.com",
+  "description": "Live Tesla vehicle data and commands from the terminal via the Tessie API",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {TESSIE_API_TOKEN}",
+    "env_vars": [
+      "TESSIE_API_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "TESSIE_API_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "commands_send",
+      "description": "Send a vehicle command (honk, flash_lights, start_climate, etc.). Required: vin, command.",
+      "method": "POST",
+      "path": "/{vin}/command/{command}",
+      "params": [
+        {
+          "name": "vin",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle identification number (VIN)",
+          "required": true
+        },
+        {
+          "name": "command",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle command name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicle_battery",
+      "description": "Get the current battery state of a vehicle: charge level percent, estimated driving range, and charging status. Required: vin.",
+      "method": "GET",
+      "path": "/{vin}/battery",
+      "params": [
+        {
+          "name": "vin",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle identification number (VIN)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicle_location",
+      "description": "Get the vehicle geolocation metadata: latitude, longitude, street address, and any saved location associated with the car. Required: vin.",
+      "method": "GET",
+      "path": "/{vin}/location",
+      "params": [
+        {
+          "name": "vin",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle identification number (VIN)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicle_state",
+      "description": "Get the latest full state object of a vehicle: model, lock status, odometer, sentry mode, charge, and climate details. Required: vin. Optional: cache.",
+      "method": "GET",
+      "path": "/{vin}/state",
+      "params": [
+        {
+          "name": "vin",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle identification number (VIN)",
+          "required": true
+        },
+        {
+          "name": "cache",
+          "wire_name": "use_cache",
+          "type": "bool",
+          "location": "query",
+          "description": "Use cached state (legacy S/X only; default true)"
+        }
+      ]
+    },
+    {
+      "name": "vehicle_wake",
+      "description": "Wake a sleeping vehicle so subsequent commands can reach it. Returns once the car is awake or after a timeout. Required: vin.",
+      "method": "POST",
+      "path": "/{vin}/wake",
+      "params": [
+        {
+          "name": "vin",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle identification number (VIN)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_list",
+      "description": "List all vehicles with their latest state. Optional: active.",
+      "method": "GET",
+      "path": "/vehicles",
+      "params": [
+        {
+          "name": "active",
+          "wire_name": "only_active",
+          "type": "bool",
+          "location": "query",
+          "description": "Only show active vehicles"
+        }
+      ]
+    }
+  ]
+}

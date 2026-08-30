@@ -12,11 +12,17 @@ import (
 // appealResourceURL is the Liferay resource-phase endpoint that reports whether
 // a first-instance (TAR) ruling was appealed. It returns clean JSON (a Spring
 // Data Page) and does not require the p_auth handshake.
-const appealResourceURL = BaseURL + formPath +
-	"?p_p_id=" + portletID +
-	"&p_p_lifecycle=2&p_p_state=normal&p_p_mode=view" +
-	"&p_p_resource_id=%2Fverifica_appello&p_p_cacheability=cacheLevelPage" +
-	"&" + portletPrefix + "_cmd=verifica-appello"
+// The portlet id is the one the handshake read from the page, so an instance
+// rename on the portal side does not strand this endpoint either.
+func (c *Client) appealResourceURL() string {
+	ns := c.portletNS()
+	portlet := strings.TrimPrefix(ns, "_")
+	return BaseURL + formPath +
+		"?p_p_id=" + portlet +
+		"&p_p_lifecycle=2&p_p_state=normal&p_p_mode=view" +
+		"&p_p_resource_id=%2Fverifica_appello&p_p_cacheability=cacheLevelPage" +
+		"&" + ns + "_cmd=verifica-appello"
+}
 
 // appealPage is the envelope returned by /verifica_appello.
 type appealPage struct {
@@ -47,13 +53,21 @@ func (c *Client) VerificaAppello(ctx context.Context, p Provvedimento) ([]json.R
 	if p.Anno == 0 {
 		numProvv = fmt.Sprintf("%d", p.Numero)
 	}
+	// A provvedimento read from the local store reaches here without any
+	// prior request, so the portlet id would be the hardcoded fallback. One
+	// handshake makes it the page's own; if it fails, the fallback still works
+	// for as long as the portal keeps the current instance.
+	if c.token() == "" {
+		_ = c.handshake(ctx)
+	}
+	ns := c.portletNS()
 	v := url.Values{}
-	v.Set(portletPrefix+"_va_nrg", p.Nrg)
-	v.Set(portletPrefix+"_va_numProvvedimento", numProvv)
-	v.Set(portletPrefix+"_va_tipoProvvedimento", TipoProvvFromNomeFile(p.NomeFile))
-	v.Set(portletPrefix+"_va_schema", p.Schema)
+	v.Set(ns+"_va_nrg", p.Nrg)
+	v.Set(ns+"_va_numProvvedimento", numProvv)
+	v.Set(ns+"_va_tipoProvvedimento", TipoProvvFromNomeFile(p.NomeFile))
+	v.Set(ns+"_va_schema", p.Schema)
 
-	body, status, err := c.get(ctx, appealResourceURL+"&"+v.Encode())
+	body, status, err := c.get(ctx, c.appealResourceURL()+"&"+v.Encode())
 	if err != nil {
 		return nil, 0, err
 	}

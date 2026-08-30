@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "mcp-search-schema-and-sql-row-cap",
+  "applied_at": "2026-08-22",
+  "base_run_id": "20260627-034058-2c1f9c5c",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Advertise local search as alphanumeric implicit-AND tokens, and hard-cap MCP sql rows before buffering.",
+  "reason": "ftsMatchQuery strips non-alphanumeric input and quotes every leftover token, so AND/OR/NOT and quoted phrases are literals, not FTS5 operators. Advertising operator syntax makes agents exclude the wrong documents. handleSQL collected every row before bound.JSON, so an unbounded SELECT could exhaust memory; a 500-row cap with truncated/limit in the envelope keeps the read-only gate and bounds the buffer.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go",
+    "internal/store/fts_match_query_test.go",
+    "internal/cli/search.go",
+    "internal/cli/analytics.go",
+    "internal/cli/agent_context.go"
+  ],
+  "validated_outcome": "go test ./internal/store ./internal/mcp covers tokenization (NOT/OR/quotes become required literals) and a 600-row WITH RECURSIVE SELECT returning 500 rows with truncated=true and limit=500."
+}

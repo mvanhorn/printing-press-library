@@ -56,3 +56,31 @@ func TestNovelGateBehavior(t *testing.T) {
 		t.Fatal("gate is missing --min-level or --no-regress")
 	}
 }
+
+// TestGateThresholdSourceGuards enforces the mismatched-threshold refusals:
+// a threshold flag must match the active scanner's scale or gate exits 2 as a
+// usage error rather than silently reinterpreting the value.
+func TestGateThresholdSourceGuards(t *testing.T) {
+	home := seedStore(t)
+	t.Run("--min-level with is-agentic is a usage error", func(t *testing.T) {
+		_, _, err := runCLI(t, home, "gate", testURL, "--min-level", "3", "--source", "is-agentic", "--agent", "--data-source", "local")
+		if err == nil || ExitCode(err) != 2 {
+			t.Fatalf("want usage error exit 2, got %v", err)
+		}
+	})
+	t.Run("--min-score with isitagentready is a usage error", func(t *testing.T) {
+		_, _, err := runCLI(t, home, "gate", testURL, "--min-score", "70", "--agent", "--data-source", "local")
+		if err == nil || ExitCode(err) != 2 {
+			t.Fatalf("want usage error exit 2, got %v", err)
+		}
+	})
+	t.Run("--min-score with is-agentic is allowed", func(t *testing.T) {
+		// With an empty store in local mode this runs past the guard and hits a
+		// missing-scan notFound, NOT a usage error. That proves the guard did not
+		// fire (exit 3, not 2).
+		_, _, err := runCLI(t, home, "gate", testURL, "--min-score", "70", "--source", "is-agentic", "--agent", "--data-source", "local")
+		if err == nil || ExitCode(err) != 3 {
+			t.Fatalf("want notFound exit 3 (guard should not fire), got %v", err)
+		}
+	})
+}

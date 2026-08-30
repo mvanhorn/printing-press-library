@@ -1,0 +1,189 @@
+{
+  "api_name": "travelclick",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [
+    "Auth token must be captured manually from browser DevTools -- the OAuth2 client_credentials token-mint endpoint was not isolated during discovery (fires before any capture hook attaches). See auth_narrative.",
+    "Travel-agency code validation path is unconfirmed -- only corporate and group-attendee code paths were verified live; the guessed travel-agency path segment returned UNSUPPORTED_CODE_TYPE and was not implemented.",
+    "The successful (valid-code) response shape for codes validate-* is unconfirmed -- only the invalid/404 error shape was observed live since no real valid code was available to test."
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-20T23:45:00Z",
+  "novel_features": [
+    {
+      "name": "Multi-hotel rate compare",
+      "command": "rates compare",
+      "description": "Check several boutique hotels for the same dates in one call, ranked by lowest fee-inclusive total.",
+      "rationale": "Each TravelClick hotel's widget only knows about itself -- comparing properties today means opening one browser tab per hotel.",
+      "example": "travelclick-pp-cli rates compare --hotels 102306,\u003cid2\u003e,\u003cid3\u003e --check-in 2026-09-15 --check-out 2026-09-18",
+      "why_it_matters": "Reach for this when the user names more than one property for the same trip instead of calling 'rates search' repeatedly.",
+      "group": "Cross-hotel local queries"
+    },
+    {
+      "name": "Cheapest night across saved hotels",
+      "command": "rates cheapest-night",
+      "description": "Scan several hotels' calendars at once and return the single best hotel+date combination.",
+      "rationale": "No widget or competitor offers a cross-property calendar since each hotel's booking page only exposes its own.",
+      "example": "travelclick-pp-cli rates cheapest-night --hotels made-nyc,\u003calias2\u003e --from 2026-09-01 --to 2026-10-31",
+      "why_it_matters": "Reach for this when the user is flexible on both hotel and date, not just date.",
+      "group": "Cross-hotel local queries"
+    },
+    {
+      "name": "Saved hotel aliases",
+      "command": "hotels alias",
+      "description": "Give a memorable name to a TravelClick hotel ID instead of memorizing a 6-digit number.",
+      "rationale": "Hotel IDs only exist as an opaque query-string value on the booking URL; nothing else names them.",
+      "example": "travelclick-pp-cli hotels alias add made-nyc 102306",
+      "why_it_matters": "Reach for this before repeated lookups against the same property so later commands can take the alias instead of the raw ID.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Rate-snapshot price-drift history",
+      "command": "analytics price-drift",
+      "description": "Track how a hotel's rates move over time from your own saved search history.",
+      "rationale": "Neither the widget nor any CRS surface exposes historical pricing -- it only exists if you capture it yourself.",
+      "example": "travelclick-pp-cli analytics price-drift --hotel 102306",
+      "why_it_matters": "Reach for this after the user has run a few 'rates search --save' calls and wants to know if a rate went up or down.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Rate-code check across saved hotels",
+      "command": "codes check-all",
+      "description": "Test one corporate or group code against every saved hotel at once.",
+      "rationale": "A client or event code is often valid chain- or event-wide, but the widget only lets you test one hotel at a time.",
+      "example": "travelclick-pp-cli codes check-all ACME2026 --type corporate --hotels made-nyc,\u003calias2\u003e",
+      "why_it_matters": "Reach for this when the user has a code but isn't sure which of their saved hotels honors it.",
+      "group": "Cross-hotel local queries"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Multi-hotel rate compare",
+      "command": "rates compare",
+      "description": "Check several boutique hotels for the same dates in one call, ranked by lowest fee-inclusive total.",
+      "rationale": "Each TravelClick hotel's widget only knows about itself -- comparing properties today means opening one browser tab per hotel.",
+      "example": "travelclick-pp-cli rates compare --hotels 102306,\u003cid2\u003e,\u003cid3\u003e --check-in 2026-09-15 --check-out 2026-09-18",
+      "why_it_matters": "Reach for this when the user names more than one property for the same trip instead of calling 'rates search' repeatedly.",
+      "group": "Cross-hotel local queries"
+    },
+    {
+      "name": "Cheapest night across saved hotels",
+      "command": "rates cheapest-night",
+      "description": "Scan several hotels' calendars at once and return the single best hotel+date combination.",
+      "rationale": "No widget or competitor offers a cross-property calendar since each hotel's booking page only exposes its own.",
+      "example": "travelclick-pp-cli rates cheapest-night --hotels made-nyc,\u003calias2\u003e --from 2026-09-01 --to 2026-10-31",
+      "why_it_matters": "Reach for this when the user is flexible on both hotel and date, not just date.",
+      "group": "Cross-hotel local queries"
+    },
+    {
+      "name": "Saved hotel aliases",
+      "command": "hotels alias",
+      "description": "Give a memorable name to a TravelClick hotel ID instead of memorizing a 6-digit number.",
+      "rationale": "Hotel IDs only exist as an opaque query-string value on the booking URL; nothing else names them.",
+      "example": "travelclick-pp-cli hotels alias add made-nyc 102306",
+      "why_it_matters": "Reach for this before repeated lookups against the same property so later commands can take the alias instead of the raw ID.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Rate-snapshot price-drift history",
+      "command": "analytics price-drift",
+      "description": "Track how a hotel's rates move over time from your own saved search history.",
+      "rationale": "Neither the widget nor any CRS surface exposes historical pricing -- it only exists if you capture it yourself.",
+      "example": "travelclick-pp-cli analytics price-drift --hotel 102306",
+      "why_it_matters": "Reach for this after the user has run a few 'rates search --save' calls and wants to know if a rate went up or down.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Rate-code check across saved hotels",
+      "command": "codes check-all",
+      "description": "Test one corporate or group code against every saved hotel at once.",
+      "rationale": "A client or event code is often valid chain- or event-wide, but the widget only lets you test one hotel at a time.",
+      "example": "travelclick-pp-cli codes check-all ACME2026 --type corporate --hotels made-nyc,\u003calias2\u003e",
+      "why_it_matters": "Reach for this when the user has a code but isn't sure which of their saved hotels honors it.",
+      "group": "Cross-hotel local queries"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "TRAVELCLICK_TOKEN"
+  },
+  "narrative": {
+    "display_name": "TravelClick",
+    "headline": "Search any TravelClick-powered hotel's own rates directly -- room types, rate plans, fee-inclusive pricing, and the cheapest night to book -- without opening a browser tab per property.",
+    "value_prop": "TravelClick/iHotelier powers the direct-booking widget for thousands of independent and boutique hotels. This CLI calls the same JSON API the widget itself uses to search availability, scan a date range for the lowest rate, validate corporate/group codes, and compare several hotels side by side. Search and info only -- no reservation, no guest PII, no payment data ever touches it.",
+    "auth_narrative": "TravelClick's widget mints a short-lived (~1 hour) OAuth2 client_credentials Bearer token client-side during page load. The exact token-mint endpoint was not isolated during discovery (it fires before any capture hook can attach), so this CLI cannot mint its own token yet -- capture one manually: open the hotel's booking page in Chrome, open DevTools' Network tab, filter for api.travelclick.com, click any request, and copy the Authorization header's value (everything after 'Bearer ') into TRAVELCLICK_TOKEN. Re-capture roughly every hour.",
+    "quickstart": [
+      {
+        "command": "travelclick-pp-cli doctor --dry-run",
+        "comment": "Health check that works without a token."
+      },
+      {
+        "command": "travelclick-pp-cli hotel 102306",
+        "comment": "Look up Made Hotel NYC's profile, policies, and fees once TRAVELCLICK_TOKEN is set."
+      },
+      {
+        "command": "travelclick-pp-cli rates search 102306 --check-in 2026-09-15 --check-out 2026-09-18",
+        "comment": "Search room types and rate plans for specific dates."
+      },
+      {
+        "command": "travelclick-pp-cli rates calendar 102306 --from 2026-09-01 --to 2026-10-31",
+        "comment": "Scan two months for the cheapest night before committing to dates."
+      },
+      {
+        "command": "travelclick-pp-cli hotels alias add made-nyc 102306",
+        "comment": "Save a memorable name for the hotel ID."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 or a JWT validation error",
+        "fix": "TRAVELCLICK_TOKEN has expired (~1 hour TTL) -- re-capture it from DevTools per the auth instructions above."
+      },
+      {
+        "symptom": "codes validate-corporate returns INVALID_CORP_ID",
+        "fix": "The code isn't recognized by this specific hotel -- corporate/group codes are hotel-specific, not chain-wide. Try 'codes check-all' across your saved hotels instead."
+      },
+      {
+        "symptom": "rates calendar returns fewer days than requested",
+        "fix": "TravelClick truncates a multi-room calendar scan to roughly 60 days -- split a longer range into two calls."
+      }
+    ],
+    "when_to_use": "Use this CLI when checking a specific independent or boutique hotel's own direct rates -- price-matching against an OTA, finding the cheapest date for a stay, validating a corporate or event code, or comparing a handful of TravelClick-powered properties for the same trip.",
+    "anti_triggers": [
+      "Do not use this CLI to make or modify a reservation -- it is search/info only and has no booking command by design.",
+      "Do not use this CLI for hotels that don't use TravelClick/iHotelier as their booking engine -- check that the hotel's booking URL is bookings.travelclick.com first.",
+      "Do not use this CLI to look up a guest's existing reservation, loyalty account, or payment details -- those require guest login and are out of scope."
+    ],
+    "recipes": [
+      {
+        "title": "Cheapest room+rate for a stay",
+        "command": "travelclick-pp-cli rates search 102306 --check-in 2026-09-15 --check-out 2026-09-18 --agent --select roomStays.roomTypes.roomTypeName,roomStays.roomTypes.averageRates.rate,roomStays.roomTypes.averageRates.rateExternalCode",
+        "explanation": "Narrows the deeply-nested avail response to just room name, rate, and rate code per plan instead of the full policy/amenity/image payload."
+      },
+      {
+        "title": "Find the cheapest night in a month",
+        "command": "travelclick-pp-cli rates calendar 102306 --from 2026-09-01 --to 2026-09-30 --json",
+        "explanation": "Returns the lowest rate for every day in the range so you can sort for the minimum."
+      },
+      {
+        "title": "Check a corporate code before searching",
+        "command": "travelclick-pp-cli codes validate-corporate 102306 ACME2026",
+        "explanation": "Confirms a rate-access code is live for this hotel before building a search around it."
+      },
+      {
+        "title": "Compare three boutique hotels for the same weekend",
+        "command": "travelclick-pp-cli rates compare --hotels 102306,\u003cid2\u003e,\u003cid3\u003e --check-in 2026-09-15 --check-out 2026-09-18",
+        "explanation": "Fans out the search across hotels and ranks them by lowest fee-inclusive total."
+      }
+    ],
+    "trigger_phrases": [
+      "check travelclick rates",
+      "search made hotel availability",
+      "find the cheapest night at this hotel",
+      "validate this corporate hotel code",
+      "compare these boutique hotels",
+      "use travelclick",
+      "run travelclick"
+    ]
+  }
+}

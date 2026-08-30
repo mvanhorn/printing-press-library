@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "risk-phase-factor-always-explicit",
+  "applied_at": "2026-07-11",
+  "base_run_id": "20260623-164233-df565e8d",
+  "base_printing_press_version": "4.25.0",
+  "summary": "scoreRisk's explainable output must contain a phase factor entry for every trial — Phase 2 and unknown/unposted phases included — never only for the phases that happen to match a switch case.",
+  "reason": "The generated phase-attrition switch omitted PHASE2 and unknown phases, so the phase signal silently vanished from the auditable factor list for the most common attrition point in drug development; a reviewer could not tell whether phase was considered. Guarded by TestScoreRiskPhaseFactorAlwaysPresent.",
+  "files": ["internal/cli/risk.go", "internal/cli/risk_test.go"],
+  "validated_outcome": "go test ./internal/cli/ passes with explicit phase-factor assertions for EARLY_PHASE1, PHASE1, PHASE2, PHASE3, unknown enum, and no phases posted."
+}

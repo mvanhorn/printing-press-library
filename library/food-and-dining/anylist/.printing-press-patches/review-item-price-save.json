@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "id": "review-item-price-save",
+  "applied_at": "2026-08-16",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Add guarded item price save/clear with captured AnyList protobuf operation, per-store clearing, and cache persistence.",
+  "reason": "Browser capture confirms POST /data/shopping-lists/update as multipart operations with one PBListOperation using handler save-item-price and ItemPrice field 16. Price edits carry amount/store/details/date; clear carries zero amount and the current date. The CLI now previews offline, requires --apply, performs fresh live read-back verification, persists prices through a migration-safe cache column, and clears every live store-specific price when no price_store is supplied instead of silently leaving other stores behind.",
+  "files": [
+    "internal/anylist/client.go",
+    "internal/anylist/item_metadata_test.go",
+    "internal/cli/items_update.go",
+    "internal/cli/item_metadata.go",
+    "internal/cli/item_metadata_test.go",
+    "internal/cli/items_list.go",
+    "internal/cli/local_anylist.go",
+    "internal/store/store.go",
+    "internal/store/store_test.go",
+    "README.md",
+    "SKILL.md",
+    "tools-manifest.json",
+    "internal/mcp/code_orch_data.go"
+  ],
+  "validated_outcome": "Focused client tests prove save-item-price, ItemPrice field 16, multipart operations, and clear representation. Store tests prove migration-safe prices persistence; CLI tests prove targeted and all-store clear planning plus read-back verification. No live writes were performed in this correction; parent disposable testing covered the exact store-specific save/clear path.",
+  "findings_addressed": [
+    "item-price-save",
+    "item-price-clear",
+    "item-price-cache-persistence",
+    "item-price-explicit-apply-and-readback"
+  ]
+}

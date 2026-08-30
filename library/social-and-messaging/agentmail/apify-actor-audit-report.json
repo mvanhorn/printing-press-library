@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/agentmail-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260826-200935-47af5c80",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

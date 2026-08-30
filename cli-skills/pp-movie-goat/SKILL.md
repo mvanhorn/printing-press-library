@@ -34,7 +34,7 @@ This skill drives the `movie-goat-pp-cli` binary. **You must verify the CLI is i
 2. Verify: `movie-goat-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/cmd/movie-goat-pp-cli@latest
@@ -122,6 +122,13 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ## Command Reference
+
+**auth** — Manage TMDB_API_KEY and OMDB_API_KEY credentials
+
+- `movie-goat-pp-cli auth status` — Show authentication status for both the TMDb and OMDb credentials
+- `movie-goat-pp-cli auth set-token` — Save the TMDb API token to the config file
+- `movie-goat-pp-cli auth set-omdb-token` — Save the optional OMDb API token to the config file
+- `movie-goat-pp-cli auth logout` — Clear stored credentials
 
 **discover** — Discover movies and TV shows with rich filters
 
@@ -214,6 +221,16 @@ movie-goat-pp-cli versus 27205 87108 --region US --agent
 
 Aligned compare card for Inception vs. Tenet; ratings, runtime, cast overlap, providers.
 
+### Store both API keys without touching the shell environment
+
+```bash
+movie-goat-pp-cli auth set-token YOUR_TMDB_API_KEY
+movie-goat-pp-cli auth set-omdb-token YOUR_OMDB_API_KEY
+movie-goat-pp-cli auth status --agent
+```
+
+Writes both credentials to `~/.config/movie-goat-pp-cli/config.toml` (mode `0600`) so every agent and shell on the machine sees them, not just the one that exported an environment variable. `auth status` reports `authenticated`, `omdb_configured`, and `omdb_source` so an agent can tell whether the IMDb / RT / Metacritic columns will be populated before it runs `ratings`.
+
 ### Pin the original, not the remake
 
 ```bash
@@ -305,7 +322,18 @@ Ordered watchlist with total runtime and break suggestions.
 
 ## Auth Setup
 
-TMDb v3 API key (free, https://www.themoviedb.org/settings/api) is required and goes in `TMDB_API_KEY` — used as a query parameter, not a Bearer header. OMDb key (free, http://www.omdbapi.com/apikey.aspx) is optional and goes in `OMDB_API_KEY`; without it, `ratings` and `versus` show TMDb-only and gracefully omit the IMDb/RT/Metacritic columns.
+Movie Goat uses two API keys, and each can live in the config file or the environment.
+
+| Key | Required | Save to config | Environment variable |
+|---|---|---|---|
+| TMDb v3 (free, https://www.themoviedb.org/settings/api) | yes | `movie-goat-pp-cli auth set-token <token>` | `TMDB_API_KEY` |
+| OMDb (free, http://www.omdbapi.com/apikey.aspx) | no | `movie-goat-pp-cli auth set-omdb-token <token>` | `OMDB_API_KEY` |
+
+Both keys are stored in `~/.config/movie-goat-pp-cli/config.toml` (mode `0600`) as `api_key` and `omdb_api_key`. The environment variable wins over the saved value for either key, so an existing environment-based setup keeps working unchanged.
+
+The TMDb key is sent as a query parameter, not a Bearer header. Without an OMDb key, `ratings`, `versus`, and `career` show TMDb-only and gracefully omit the IMDb / RT / Metacritic columns.
+
+`movie-goat-pp-cli auth status` reports both credentials and where each resolved from; `movie-goat-pp-cli auth logout` clears both from the config file.
 
 Run `movie-goat-pp-cli doctor` to verify setup.
 

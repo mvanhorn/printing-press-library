@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "bibtex-field-values-and-cite-keys-must-be-normalized",
+  "applied_at": "2026-08-26",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Anything the BibTeX export interpolates into a braced field value (title, each author name before joining, journal) must be normalized first, and the citation key must be a whitelist of ASCII letters, digits, '-' and '_' derived from the DOI with a refN fallback and per-render uniqueness — a raw value or a raw DOI silently corrupts the whole export, not just its own entry.",
+  "reason": "OpenAlex titles, author names and source names are free text: a brace terminates the field early and every subsequent entry is swallowed, a stray backslash starts a bogus LaTeX control sequence, and '&', '%', '$', '#', '_' are LaTeX specials. Braces and backslashes are dropped rather than escaped because a literal brace has no reliable representation inside a braced field value and is bad OpenAlex data, not content. Separately, the key was a two-character replace over the DOI, so a real production DOI (10.1016/s2213-8587(21)00051-6) produced '10_1016_s2213-8587(21)00051-6' — parentheses that break BibTeX parsing and Zotero import. Distinct DOIs can also normalize onto one key, and duplicate keys are an import error, so collisions are disambiguated in appearance order.",
+  "files": [
+    "internal/cli/analytics_works.go",
+    "internal/cli/bibtex_escape_test.go"
+  ],
+  "validated_outcome": "Tests pin a braced name, a backslashed name, '&'/'%'/'$'/'#'/'_' escaping, newline/CR/tab folding to a single space with runs collapsed and trimmed, typographic quotes left untouched as source data, the parenthesised production DOI yielding a legal key, an all-illegal DOI falling back to refN, and three colliding DOIs rendering as key, key_2, key_3. go build/vet/test green."
+}

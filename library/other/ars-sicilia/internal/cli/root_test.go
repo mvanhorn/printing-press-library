@@ -180,6 +180,37 @@ func TestFilterFields(t *testing.T) {
 			fields: "id",
 			want:   `{}`,
 		},
+		{
+			// Mixed selector: one name matches at top level, the others only
+			// inside the array. This is the `legge cronologia` shape
+			// ({titolo, eventi:[{data,fase,titolo}]} with --select
+			// data,fase,titolo). Before the fix the single root hit set
+			// matchedAny, the envelope fallback was skipped, and the whole
+			// array was dropped: 27 events vanished with no error.
+			name:   "mixed selector keeps root match and filtered array",
+			input:  `{"titolo":"L","numero":26,"eventi":[{"data":"d1","fase":"f1","titolo":"t1","url":"u"}]}`,
+			fields: "data,fase,titolo",
+			want:   `{"titolo":"L","eventi":[{"data":"d1","fase":"f1","titolo":"t1"}]}`,
+		},
+		{
+			// An array is opened only when it answers the names that went
+			// unresolved. Here `zzz` is a typo and `titolo` already matched at
+			// root, so `eventi` must stay out even though its rows do have a
+			// `titolo` — otherwise every typo would graft the array on.
+			name:   "mixed selector with unknown name leaves array out",
+			input:  `{"titolo":"L","eventi":[{"data":"d1","titolo":"t1"}]}`,
+			fields: "titolo,zzz",
+			want:   `{"titolo":"L"}`,
+		},
+		{
+			// Sibling scalars the caller did not ask for stay out: unlike the
+			// no-match envelope fallback, a mixed selector means the caller
+			// did name the fields they wanted.
+			name:   "mixed selector drops unrequested scalar siblings",
+			input:  `{"titolo":"L","legisl":18,"eventi":[{"data":"d1"}]}`,
+			fields: "titolo,data",
+			want:   `{"titolo":"L","eventi":[{"data":"d1"}]}`,
+		},
 	}
 	for _, tc := range cases {
 		tc := tc
@@ -202,5 +233,69 @@ func TestFilterFields(t *testing.T) {
 					tc.input, tc.fields, string(gotBytes), string(wantBytes))
 			}
 		})
+	}
+}
+
+// La lettura permissiva degli argomenti numerici (Sscanf "%d") leggeva le cifre
+// iniziali e scartava la coda senza errore: `ddl stralci 18 1030/A` diventava
+// 1030 in silenzio e rispondeva come se fosse stato chiesto quello. La forma
+// con la barra non è un errore di battitura — è come sommari e stampa citano il
+// testo emendato — quindi va riconosciuta e detta, non ignorata.
+func TestAtoiArgRifiutaLaCoda(t *testing.T) {
+	cases := []struct {
+		in      string
+		want    int
+		wantErr bool
+	}{
+		{"1030", 1030, false},
+		{" 18 ", 18, false},
+		{"1030/A", 0, true},
+		{"1030 / a", 0, true},
+		{"18abc", 0, true},
+		{"pippo", 0, true},
+		{"", 0, true},
+	}
+	for _, c := range cases {
+		got, err := atoiArg(c.in, "numero")
+		if (err != nil) != c.wantErr {
+			t.Errorf("atoiArg(%q) err = %v, wantErr %v", c.in, err, c.wantErr)
+			continue
+		}
+		if got != c.want {
+			t.Errorf("atoiArg(%q) = %d, want %d", c.in, got, c.want)
+		}
+	}
+}
+
+// Il suffisso del portale si distingue da un argomento semplicemente sbagliato:
+// sul primo si può dire qual è il numero base, sul secondo no.
+func TestNumeroConSuffisso(t *testing.T) {
+	cases := []struct {
+		in       string
+		base     int
+		suffisso string
+		ok       bool
+	}{
+		{"1030/A", 1030, "/A", true},
+		{"738/a", 738, "/A", true},
+		{"6030 / A", 6030, "/A", true},
+		// Solo «/A»: sui riferimenti del portale è l'unica variante scritta dopo
+		// la barra, e accettarne altre vorrebbe dire dichiararle emendate senza
+		// saperlo — oltre che contraddire il messaggio d'errore, che la misura
+		// la dichiara.
+		{"738/B", 0, "", false},
+		{"6030/IV", 0, "", false},
+		{"1030/XYZ", 0, "", false},
+		{"1030", 0, "", false},
+		{"/A", 0, "", false},
+		{"1030/", 0, "", false},
+		{"1030/A/B", 0, "", false},
+		{"0/A", 0, "", false},
+	}
+	for _, c := range cases {
+		base, suf, ok := numeroConSuffisso(c.in)
+		if ok != c.ok || base != c.base || suf != c.suffisso {
+			t.Errorf("numeroConSuffisso(%q) = (%d, %q, %v), want (%d, %q, %v)", c.in, base, suf, ok, c.base, c.suffisso, c.ok)
+		}
 	}
 }

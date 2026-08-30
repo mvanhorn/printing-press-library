@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "sprocket",
+  "run_id": "20260617-211906-50f83ca4",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 122,
+  "tests_passed": 122,
+  "tests_skipped": 55,
+  "auth_context": {
+    "type": "bearer_token"
+  }
+}

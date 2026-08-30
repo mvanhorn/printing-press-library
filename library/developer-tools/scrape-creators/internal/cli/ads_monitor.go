@@ -146,6 +146,13 @@ func newNovelAdsMonitorCmd(flags *rootFlags) *cobra.Command {
 				results = append(results, res)
 			}
 
+			// A run where every network failed writes no snapshot: there is no
+			// new baseline to record, and erroring out beats presenting an
+			// empty diff as a genuine "no ads" answer.
+			if err := allSourcesFailedErr("ads monitor", len(adNetworks), failures); err != nil {
+				return err
+			}
+
 			if err := store.InsertAdSnapshotBatch(ctx, db.DB(), brand, storedIDs, time.Now()); err != nil {
 				return err
 			}

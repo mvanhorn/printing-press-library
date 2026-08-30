@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "rapidapi-auth-model",
+  "applied_at": "2026-08-28",
+  "base_run_id": "20260828-090622-dd9c3930",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Cookie+CSRF+cf_clearance auth model: auto-fetched session-bound CSRF, cookie jar persistence, clearance support, auth login --cookie/--clearance.",
+  "reason": "The hub requires session-bound CSRF (fetched with the session cookie) and rejects session cookies on graphql calls (419); cf_clearance needed for gated networks.",
+  "files": ["internal/client/client.go", "internal/config/config.go", "internal/cli/auth_chrome.go"],
+  "validated_outcome": "Public + subscription commands work live; auth-only commands documented as browser-session-bound."
+}

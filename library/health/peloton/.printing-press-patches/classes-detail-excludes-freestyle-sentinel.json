@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "classes-detail-excludes-freestyle-sentinel",
+  "applied_at": "2026-08-20",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "planClassDetailSync (internal/cli/sync.go) filters db.DistinctWorkoutRideIDs()'s result through pelotonNoClassRideID (the same all-zeros freestyle/non-class sentinel offline.go's workoutDetailRideID already excludes for offline_repeat/offline_intervals -- see freestyle-sentinel-ride-id.json) before treating the remaining ids as classes_detail's parent set. There is no GET /api/ride/<sentinel>/details endpoint and never will be, since the sentinel doesn't identify a real class. Any future parent-id source for a classes-keyed dependent that reads from workouts' ride association must apply the same exclusion, or it regresses to the same permanent-failure/permanent-pending state this patch fixes.",
+  "reason": "Round-13 live verification NEW E, found immediately after round-12's NEW D diagnostic fix started surfacing real error text: classes_detail's sync_anomaly events consistently showed exactly one per_parent_fetch_failed per batch, with sample_error identifying the failing id as 00000000000000000000000000000000 -- Peloton's freestyle sentinel, ~84 workouts on the reporting account. This has two consequences the report called out: (1) one wasted API call and one anomaly event on every single classes_detail invocation, forever; (2) because this dependent's pending check is content-based (does the record carry segments), the sentinel can never satisfy it and never fetch successfully, so it stays permanently pending -- the pending count would never reach zero even after every real class is caught up.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/sync_class_detail_test.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. TestPlanClassDetailSync_ExcludesFreestyleSentinelRideID seeds a mix of a real class and the sentinel across two workouts and asserts only the real class appears in the plan. TestPlanClassDetailSync_AllFreestyleWorkoutsReportsParentTableEmpty covers the edge case where every synced workout is freestyle -- the post-exclusion candidate set is empty, which must report parentTableEmpty rather than an error or a false caught-up success."
+}

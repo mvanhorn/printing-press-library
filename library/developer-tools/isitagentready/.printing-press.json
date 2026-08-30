@@ -17,7 +17,7 @@
   "spec_checksum": "sha256:e2417feeec64ff103065735945cda29ac932e1fc77203383be67fa7ce551030c",
   "run_id": "20260622-061602-6c74c750",
   "category": "developer-tools",
-  "description": "The terminal scanner for AI-agent readiness: every check the web tool runs, plus copy-paste fixes, CI gating, scan history, and a local store the web UI has no answer for.",
+  "description": "Two agent-readiness scanners in one terminal: every check isitagentready.com and is-agentic.com run, plus copy-paste fixes, CI gating, scan history, and a local store neither web UI has an answer for.",
   "mcp_binary": "isitagentready-pp-mcp",
   "mcp_tool_count": 1,
   "mcp_public_tool_count": 1,
@@ -25,6 +25,11 @@
   "api_version": "0.1.0",
   "auth_type": "none",
   "novel_features": [
+    {
+      "name": "Cross-scanner verdict comparison",
+      "command": "crossref",
+      "description": "Show isitagentready.com's Level 0-5 and is-agentic.com's score 0-100 side by side for one URL, each in its own native scale and never merged, plus an agreement verdict on the four checks that genuinely measure the same thing."
+    },
     {
       "name": "CI readiness gate",
       "command": "gate",

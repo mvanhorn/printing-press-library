@@ -1,0 +1,49 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-27T00:22:27.672691Z",
+  "printing_press_version": "4.31.1",
+  "api_name": "bestfoodtrucks",
+  "cli_name": "bestfoodtrucks-pp-cli",
+  "printer": "enlewof",
+  "printer_name": "Allen Lew",
+  "run_id": "20260826-125727-8281a074",
+  "category": "food-and-dining",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Digest",
+      "command": "lot digest",
+      "description": "Turns a lot's upcoming schedule into ready-to-paste announcement text instead of raw structured data."
+    },
+    {
+      "name": "Cuisine Alert",
+      "command": "trucks find",
+      "description": "Finds every upcoming shift at a lot matching a cuisine, without opening each shift page one at a time."
+    },
+    {
+      "name": "Truck Schedule",
+      "command": "truck schedule",
+      "description": "Shows every lot a specific truck visits, past and future — a view the Best Food Trucks website itself never built."
+    },
+    {
+      "name": "Market Hotlist",
+      "command": "market hotlist",
+      "description": "Ranks trucks operating in a city by review signal, a cross-truck aggregate the site never computes."
+    },
+    {
+      "name": "Route Planner",
+      "command": "lots digest",
+      "description": "Combines multiple lots' schedules into one view in a single command instead of visiting each lot's page separately."
+    }
+  ]
+}

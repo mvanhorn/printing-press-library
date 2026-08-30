@@ -9,6 +9,8 @@ docs/gap-analysis-*/
 # Idee future e annotazioni di lavoro
 docs/future-ideas.md
 docs/evaluation*.md
+docs/flussi-di-ricerca-ars.md
+LOG.md
 
 # Piani di lavoro temporanei
 tasks/
@@ -17,3 +19,25 @@ tasks/
 *.db
 tmp/
 bin/
+
+# --- Tracciati qui, ma da NON pubblicare -------------------------------------
+# Questi file stanno nel repo (ci serve la storia) e nel repo pubblicato non ci
+# sono mai stati: al publish vanno tolti dallo staged a mano, come le voci
+# ignorate qui sopra. Non si possono elencare come ignore senza smettere di
+# tracciare i nuovi, quindi restano scritti come promemoria.
+#
+#   docs/news-agent/                     (report delle run di gap analysis)
+#   docs/interno/                        (note interne)
+#   docs/bd-migration/RESUME.md          (appunti di lavoro sulla migrazione /bd/)
+#   docs/bd-migration/bd_client.py       (prototipo Python)
+#   docs/bd-migration/bdproto.go.txt     (prototipo Go)
+#   docs/bd-migration/lettera-ars-segretariato.txt  (corrispondenza)
+#
+# Di docs/bd-migration/ si pubblica solo API_DOCUMENTATION.md.
+#
+# docs/anagrafiche-www-ars.md INVECE SI PUBBLICA, ed e' nel catalogo dal
+# 17/08/2026 (PR #1719). Era in questo elenco come "lavoro futuro", ma dal
+# 16/08 la CLI legge davvero www.ars.sicilia.it con i comandi `gruppi`:
+# quel documento ne e' la mappa dei selettori, cioe' il perche' di quel
+# codice, ed e' lo stesso genere di isis-query-syntax.md.
+# Controllo prima del commit di publish: `git diff --cached --stat`.

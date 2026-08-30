@@ -1,0 +1,187 @@
+{
+  "api_name": "bestfoodtrucks",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-26T20:15:00Z",
+  "novel_features": [
+    {
+      "name": "Digest",
+      "command": "lot digest",
+      "description": "Turns a lot's upcoming schedule into ready-to-paste announcement text instead of raw structured data.",
+      "rationale": "Office coordinators currently hand-copy truck names and times from the website into Slack every week; this produces that exact text block in one command.",
+      "example": "bestfoodtrucks-pp-cli lot digest playa-district",
+      "why_it_matters": "Reach for this when the task is 'summarize this week's schedule for humans,' not 'give me structured data.'",
+      "group": "Cross-schedule synthesis"
+    },
+    {
+      "name": "Cuisine Alert",
+      "command": "trucks find",
+      "description": "Finds every upcoming shift at a lot matching a cuisine, without opening each shift page one at a time.",
+      "rationale": "The API only exposes cuisine tags nested one shift at a time under that shift's menu; no query filters the schedule by cuisine directly.",
+      "example": "bestfoodtrucks-pp-cli trucks find --cuisine Thai --lot playa-district --json",
+      "why_it_matters": "Use this when a user names a cuisine and a lot rather than a specific date — it walks the whole visible schedule window for you.",
+      "group": "Cross-schedule synthesis"
+    },
+    {
+      "name": "Truck Schedule",
+      "command": "truck schedule",
+      "description": "Shows every lot a specific truck visits, past and future — a view the Best Food Trucks website itself never built.",
+      "rationale": "bestfoodtrucks.com is entirely lot-centric; there is no page anywhere on the site that lists everywhere a given truck goes.",
+      "example": "bestfoodtrucks-pp-cli truck schedule 11869 --json --select locations.records.startTime,locations.records.lot.name",
+      "why_it_matters": "Use this to answer 'when does my favorite truck come back' or 'what other lots does this truck serve' — impossible from the live site's own navigation.",
+      "group": "Truck-centric views the website never built"
+    },
+    {
+      "name": "Market Hotlist",
+      "command": "market hotlist",
+      "description": "Ranks trucks operating in a city by review signal, a cross-truck aggregate the site never computes.",
+      "rationale": "Rating data is scoped per shift/order in the API; nothing on the live site ranks trucks against each other within a market.",
+      "example": "bestfoodtrucks-pp-cli market hotlist los-angeles --limit 10",
+      "why_it_matters": "Use this for 'what's the best-rated truck in this city' rather than checking trucks one at a time.",
+      "group": "Truck-centric views the website never built"
+    },
+    {
+      "name": "Route Planner",
+      "command": "lots digest",
+      "description": "Combines multiple lots' schedules into one view in a single command instead of visiting each lot's page separately.",
+      "rationale": "The website requires navigating to each lot's URL individually; there is no multi-lot combined schedule view.",
+      "example": "bestfoodtrucks-pp-cli lots digest --lots playa-district,at-t-los-angeles --json",
+      "why_it_matters": "Use this when a user tracks more than one regular lot (e.g., office campus plus a nearby favorite) and wants one combined answer.",
+      "group": "Cross-schedule synthesis"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Digest",
+      "command": "lot digest",
+      "description": "Turns a lot's upcoming schedule into ready-to-paste announcement text instead of raw structured data.",
+      "rationale": "Office coordinators currently hand-copy truck names and times from the website into Slack every week; this produces that exact text block in one command.",
+      "example": "bestfoodtrucks-pp-cli lot digest playa-district",
+      "why_it_matters": "Reach for this when the task is 'summarize this week's schedule for humans,' not 'give me structured data.'",
+      "group": "Cross-schedule synthesis"
+    },
+    {
+      "name": "Cuisine Alert",
+      "command": "trucks find",
+      "description": "Finds every upcoming shift at a lot matching a cuisine, without opening each shift page one at a time.",
+      "rationale": "The API only exposes cuisine tags nested one shift at a time under that shift's menu; no query filters the schedule by cuisine directly.",
+      "example": "bestfoodtrucks-pp-cli trucks find --cuisine Thai --lot playa-district --json",
+      "why_it_matters": "Use this when a user names a cuisine and a lot rather than a specific date — it walks the whole visible schedule window for you.",
+      "group": "Cross-schedule synthesis"
+    },
+    {
+      "name": "Truck Schedule",
+      "command": "truck schedule",
+      "description": "Shows every lot a specific truck visits, past and future — a view the Best Food Trucks website itself never built.",
+      "rationale": "bestfoodtrucks.com is entirely lot-centric; there is no page anywhere on the site that lists everywhere a given truck goes.",
+      "example": "bestfoodtrucks-pp-cli truck schedule 11869 --json --select locations.records.startTime,locations.records.lot.name",
+      "why_it_matters": "Use this to answer 'when does my favorite truck come back' or 'what other lots does this truck serve' — impossible from the live site's own navigation.",
+      "group": "Truck-centric views the website never built"
+    },
+    {
+      "name": "Market Hotlist",
+      "command": "market hotlist",
+      "description": "Ranks trucks operating in a city by review signal, a cross-truck aggregate the site never computes.",
+      "rationale": "Rating data is scoped per shift/order in the API; nothing on the live site ranks trucks against each other within a market.",
+      "example": "bestfoodtrucks-pp-cli market hotlist los-angeles --limit 10",
+      "why_it_matters": "Use this for 'what's the best-rated truck in this city' rather than checking trucks one at a time.",
+      "group": "Truck-centric views the website never built"
+    },
+    {
+      "name": "Route Planner",
+      "command": "lots digest",
+      "description": "Combines multiple lots' schedules into one view in a single command instead of visiting each lot's page separately.",
+      "rationale": "The website requires navigating to each lot's URL individually; there is no multi-lot combined schedule view.",
+      "example": "bestfoodtrucks-pp-cli lots digest --lots playa-district,at-t-los-angeles --json",
+      "why_it_matters": "Use this when a user tracks more than one regular lot (e.g., office campus plus a nearby favorite) and wants one combined answer.",
+      "group": "Cross-schedule synthesis"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Best Food Trucks",
+    "headline": "The only Best Food Trucks client that can tell you where a truck goes, not just what's parked outside today.",
+    "value_prop": "Best Food Trucks has no public API, no SDK, and no way to ask 'where else does this truck park' or 'summarize this week for my team.' This CLI talks directly to the same GraphQL backend the website and mobile apps use, then adds schedule digests, cuisine search, truck-centric reverse lookup, and cross-lot views the live site was never built to answer.",
+    "quickstart": [
+      {
+        "command": "bestfoodtrucks-pp-cli doctor --dry-run",
+        "comment": "Confirms the CLI can reach the API. No login or API key needed — the read surface is fully anonymous."
+      },
+      {
+        "command": "bestfoodtrucks-pp-cli lot schedule playa-district",
+        "comment": "See the full upcoming schedule for a specific lot by its URL slug."
+      },
+      {
+        "command": "bestfoodtrucks-pp-cli lot digest playa-district",
+        "comment": "Get the same schedule as ready-to-paste announcement text."
+      },
+      {
+        "command": "bestfoodtrucks-pp-cli shift get 179609",
+        "comment": "Look up a specific scheduled truck visit's full menu, prices, and hours."
+      },
+      {
+        "command": "bestfoodtrucks-pp-cli truck schedule 11869",
+        "comment": "Reverse-lookup: see every lot a specific truck visits, a view the website itself never shows."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "lot get returns 'not found' for a slug you copied from a URL",
+        "fix": "Use market list \u003ccity\u003e to find the correct seoName slug — some lots have display names that differ from their URL slug."
+      },
+      {
+        "symptom": "shift get returns an empty menu",
+        "fix": "The shift may not have started publishing its menu yet (workStatusHuman: 'Not Started'); menus typically populate closer to the shift's start time."
+      },
+      {
+        "symptom": "market hotlist returns no ranking",
+        "fix": "The market has zero trucks on record, or every truck lookup in the fan-out failed — check the fetch_failures field in --json output for per-truck error detail."
+      }
+    ],
+    "when_to_use": "Use this CLI for anonymous, read-only lookups of Best Food Trucks lot schedules, truck rotations, and menu data — checking what's at a specific office campus or lot, tracking a favorite truck's schedule across lots, or summarizing a week's schedule for a team. It is the right tool whenever a task needs structured or human-readable schedule/menu data faster than clicking through the bot-protected website by hand.",
+    "anti_triggers": [
+      "Do not use this CLI to place real food orders or complete checkout — order-ahead requires a customer login and payment method, which this CLI does not automate.",
+      "Do not use this CLI to manage a customer's 'subscribe to lot schedule' notification preferences — that also requires a logged-in customer session not exercised by this build.",
+      "Do not use this CLI as a general nationwide food-truck search engine beyond lots/trucks/markets already known to Best Food Trucks — it only knows what Best Food Trucks itself tracks."
+    ],
+    "recipes": [
+      {
+        "title": "What's at my office today",
+        "command": "bestfoodtrucks-pp-cli lot schedule playa-district --json --select locationSchedule.dateAlias,locationSchedule.locations.truck.name",
+        "explanation": "Pulls just today/tomorrow's truck name from the full schedule payload, instead of parsing the whole nested response by hand."
+      },
+      {
+        "title": "Paste this week's schedule into Slack",
+        "command": "bestfoodtrucks-pp-cli lot digest playa-district",
+        "explanation": "Produces the announcement text directly — no manual copy-paste from the website required."
+      },
+      {
+        "title": "Find every Thai truck coming to my lot",
+        "command": "bestfoodtrucks-pp-cli trucks find --cuisine Thai --lot playa-district --json",
+        "explanation": "Walks the visible schedule window and filters by cuisine tag, something no single API call does server-side."
+      },
+      {
+        "title": "Track a favorite truck across every lot it visits",
+        "command": "bestfoodtrucks-pp-cli truck schedule 11869 --agent --select locations.records.startTime,locations.records.lot.name",
+        "explanation": "Reverse lookup with --select narrows a potentially large history-plus-future list down to just the two fields an agent needs to answer 'when and where.'"
+      },
+      {
+        "title": "Combine two lots you care about into one view",
+        "command": "bestfoodtrucks-pp-cli lots digest --lots playa-district,at-t-los-angeles",
+        "explanation": "One command instead of visiting two separate lot pages and manually merging the results."
+      }
+    ],
+    "trigger_phrases": [
+      "what food truck is at my office today",
+      "check the food truck schedule",
+      "when does my favorite food truck come back",
+      "best food trucks in Los Angeles",
+      "food truck menu and prices",
+      "use bestfoodtrucks",
+      "run bestfoodtrucks"
+    ]
+  }
+}

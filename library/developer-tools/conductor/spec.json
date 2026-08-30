@@ -1,0 +1,1543 @@
+{
+  "openapi": "3.0.3",
+  "info": { "title": "Roundhouse public API", "version": "0.0.1" },
+  "servers": [{ "url": "https://api.conductor.build" }],
+  "components": {
+    "securitySchemes": { "bearerAuth": { "type": "http", "scheme": "bearer" } },
+    "schemas": {
+      "StructuredError": {
+        "type": "object",
+        "properties": {
+          "code": { "type": "string" },
+          "userMessage": { "type": "string" },
+          "debugMessage": { "type": "string" },
+          "retryable": { "type": "boolean" },
+          "source": {
+            "anyOf": [
+              { "type": "string", "const": "ui" },
+              { "type": "string", "const": "sidecar" },
+              { "type": "string", "const": "git" },
+              { "type": "string", "const": "agent" },
+              { "type": "string", "const": "network" },
+              { "type": "string", "const": "db" }
+            ]
+          },
+          "details": {
+            "type": "object",
+            "propertyNames": { "type": "string" },
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "anyOf": [
+                    { "type": "string" },
+                    { "type": "number" },
+                    { "type": "boolean" }
+                  ]
+                },
+                { "type": "null" }
+              ]
+            }
+          },
+          "stack": { "type": "string" },
+          "underlying": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/StructuredError" }
+          }
+        },
+        "required": ["userMessage"],
+        "additionalProperties": false
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Invalid request.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/StructuredError" }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Missing or invalid bearer token.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/StructuredError" }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/StructuredError" }
+          }
+        }
+      },
+      "Error": {
+        "description": "Error response.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/StructuredError" }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/v0/projects": {
+      "get": {
+        "operationId": "projects.list",
+        "summary": "List projects.",
+        "tags": ["Workspaces"],
+        "parameters": [
+          {
+            "schema": { "type": "integer", "minimum": 1 },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": { "type": "integer", "minimum": 0 },
+            "in": "query",
+            "name": "offset",
+            "required": false
+          }
+        ],
+        "security": [{ "bearerAuth": [] }],
+        "x-conductor-stability": "experimental",
+        "x-conductor-since": "2026-06-24",
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "name": { "type": "string" },
+                          "gitRemote": { "type": "string" }
+                        },
+                        "required": ["id", "name", "gitRemote"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "offset": { "type": "number" },
+                    "hasMore": { "type": "boolean" }
+                  },
+                  "required": ["data", "offset", "hasMore"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v0/projects/{projectId}": {
+      "get": {
+        "operationId": "project.get",
+        "summary": "Get a project.",
+        "tags": ["Workspaces"],
+        "security": [{ "bearerAuth": [] }],
+        "x-conductor-stability": "experimental",
+        "x-conductor-since": "2026-06-24",
+        "parameters": [
+          {
+            "schema": { "type": "string" },
+            "in": "path",
+            "name": "projectId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "name": { "type": "string" },
+                    "gitRemote": { "type": "string" }
+                  },
+                  "required": ["id", "name", "gitRemote"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v0/projects/{projectId}/workspaces": {
+      "get": {
+        "operationId": "project.workspaces.list",
+        "summary": "List project workspaces.",
+        "tags": ["Workspaces"],
+        "parameters": [
+          {
+            "schema": { "type": "integer", "minimum": 1 },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": { "type": "integer", "minimum": 0 },
+            "in": "query",
+            "name": "offset",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "prod",
+                "alpha",
+                "alpha-chromium",
+                "beta",
+                "patch",
+                "dev"
+              ]
+            },
+            "in": "query",
+            "name": "channel",
+            "required": false,
+            "description": "Desktop-app channel the returned deepLink should open. Defaults to the deployment's primary channel."
+          },
+          {
+            "schema": { "type": "string" },
+            "in": "path",
+            "name": "projectId",
+            "required": true
+          }
+        ],
+        "security": [{ "bearerAuth": [] }],
+        "x-conductor-stability": "experimental",
+        "x-conductor-since": "2026-06-24",
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "name": { "type": "string" },
+                          "createdAt": { "type": "string" },
+                          "deepLink": { "type": "string" },
+                          "creatorId": { "type": "string" },
+                          "lastActivityAt": { "type": "string" }
+                        },
+                        "required": ["id", "name", "createdAt", "deepLink"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "offset": { "type": "number" },
+                    "hasMore": { "type": "boolean" }
+                  },
+                  "required": ["data", "offset", "hasMore"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v0/workspaces": {
+      "post": {
+        "operationId": "workspace.create",
+        "summary": "Create a workspace.",
+        "tags": ["Workspaces"],
+        "description": "Creates a cloud workspace and first session, and returns a deep link that opens the workspace in the Conductor desktop app. Pass either projectId or repositoryUrl. With an organization API key, the workspace launches on the organization's machine; the machine must include the repository. Accepted model ids by agent — claude: fable-5, opus-5-1m, opus-4-8-1m, opus-4-8, opus-4-7-1m, opus-4-7, opus-1m, opus, opus-4-6-1m, sonnet-5-1m, sonnet-4-6-1m, sonnet, haiku; codex: gpt-5.5, gpt-5.4, gpt-5.6-sol, gpt-5.6-terra, gpt-5.6-luna, gpt-5.3-codex-spark, gpt-5.3-codex, gpt-5.2-codex; cursor: auto, composer-2.5, grok-4.5. Accepted effort levels by agent — claude: low, medium, high, xhigh, max; codex: none, low, medium, high, xhigh, max, ultra; codex max requires a GPT-5.6 model, and ultra requires GPT-5.6 Sol or Terra. Omit effort to use the agent's default — claude: high; codex: high.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "projectId": { "type": "string" },
+                      "repositoryUrl": { "not": {} },
+                      "branch": { "type": "string" },
+                      "name": { "type": "string", "minLength": 1 },
+                      "sessionName": { "type": "string", "minLength": 1 },
+                      "agent": {
+                        "anyOf": [
+                          { "type": "string", "enum": ["claude"] },
+                          { "type": "string", "enum": ["codex"] },
+                          { "type": "string", "enum": ["cursor"] },
+                          { "type": "string", "enum": ["acp"] }
+                        ]
+                      },
+                      "model": {
+                        "anyOf": [
+                          { "type": "string", "enum": ["fable-5"] },
+                          { "type": "string", "enum": ["opus-5-1m"] },
+                          { "type": "string", "enum": ["opus-4-8-1m"] },
+                          { "type": "string", "enum": ["opus-4-8"] },
+                          { "type": "string", "enum": ["opus-4-7-1m"] },
+                          { "type": "string", "enum": ["opus-4-7"] },
+                          { "type": "string", "enum": ["opus-1m"] },
+                          { "type": "string", "enum": ["opus"] },
+                          { "type": "string", "enum": ["opus-4-6-1m"] },
+                          { "type": "string", "enum": ["sonnet-5-1m"] },
+                          { "type": "string", "enum": ["sonnet-4-6-1m"] },
+                          { "type": "string", "enum": ["sonnet"] },
+                          { "type": "string", "enum": ["haiku"] },
+                          { "type": "string", "enum": ["gpt-5.5"] },
+                          { "type": "string", "enum": ["gpt-5.4"] },
+                          { "type": "string", "enum": ["gpt-5.6-sol"] },
+                          { "type": "string", "enum": ["gpt-5.6-terra"] },
+                          { "type": "string", "enum": ["gpt-5.6-luna"] },
+                          { "type": "string", "enum": ["gpt-5.3-codex-spark"] },
+                          { "type": "string", "enum": ["gpt-5.3-codex"] },
+                          { "type": "string", "enum": ["gpt-5.2-codex"] },
+                          { "type": "string", "enum": ["auto"] },
+                          { "type": "string", "enum": ["composer-2.5"] },
+                          { "type": "string", "enum": ["grok-4.5"] }
+                        ]
+                      },
+                      "effort": {
+                        "anyOf": [
+                          { "type": "string", "enum": ["none"] },
+                          { "type": "string", "enum": ["low"] },
+                          { "type": "string", "enum": ["medium"] },
+                          { "type": "string", "enum": ["high"] },
+                          { "type": "string", "enum": ["xhigh"] },
+                          { "type": "string", "enum": ["max"] },
+                          { "type": "string", "enum": ["ultra"] }
+                        ]
+                      },
+                      "env": {
+                        "type": "object",
+                        "propertyNames": { "type": "string" },
+                        "additionalProperties": { "type": "string" }
+                      }
+                    },
+                    "required": ["projectId"],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "projectId": { "not": {} },
+                      "repositoryUrl": { "type": "string", "format": "uri" },
+                      "branch": { "type": "string" },
+                      "name": { "type": "string", "minLength": 1 },
+                      "sessionName": { "type": "string", "minLength": 1 },
+                      "agent": {
+                        "anyOf": [
+                          { "type": "string", "enum": ["claude"] },
+                          { "type": "string", "enum": ["codex"] },
+                          { "type": "string", "enum": ["cursor"] },
+                          { "type": "string", "enum": ["acp"] }
+                        ]
+                      },
+                      "model": {
+                        "anyOf": [
+                          { "type": "string", "enum": ["fable-5"] },
+                          { "type": "string", "enum": ["opus-5-1m"] },
+                          { "type": "string", "enum": ["opus-4-8-1m"] },
+                          { "type": "string", "enum": ["opus-4-8"] },
+                          { "type": "string", "enum": ["opus-4-7-1m"] },
+                          { "type": "string", "enum": ["opus-4-7"] },
+                          { "type": "string", "enum": ["opus-1m"] },
+                          { "type": "string", "enum": ["opus"] },
+                          { "type": "string", "enum": ["opus-4-6-1m"] },
+                          { "type": "string", "enum": ["sonnet-5-1m"] },
+                          { "type": "string", "enum": ["sonnet-4-6-1m"] },
+                          { "type": "string", "enum": ["sonnet"] },
+                          { "type": "string", "enum": ["haiku"] },
+                          { "type": "string", "enum": ["gpt-5.5"] },
+                          { "type": "string", "enum": ["gpt-5.4"] },
+                          { "type": "string", "enum": ["gpt-5.6-sol"] },
+                          { "type": "string", "enum": ["gpt-5.6-terra"] },
+                          { "type": "string", "enum": ["gpt-5.6-luna"] },
+                          { "type": "string", "enum": ["gpt-5.3-codex-spark"] },
+                          { "type": "string", "enum": ["gpt-5.3-codex"] },
+                          { "type": "string", "enum": ["gpt-5.2-codex"] },
+                          { "type": "string", "enum": ["auto"] },
+                          { "type": "string", "enum": ["composer-2.5"] },
+                          { "type": "string", "enum": ["grok-4.5"] }
+                        ]
+                      },
+                      "effort": {
+                        "anyOf": [
+                          { "type": "string", "enum": ["none"] },
+                          { "type": "string", "enum": ["low"] },
+                          { "type": "string", "enum": ["medium"] },
+                          { "type": "string", "enum": ["high"] },
+                          { "type": "string", "enum": ["xhigh"] },
+                          { "type": "string", "enum": ["max"] },
+                          { "type": "string", "enum": ["ultra"] }
+                        ]
+                      },
+                      "env": {
+                        "type": "object",
+                        "propertyNames": { "type": "string" },
+                        "additionalProperties": { "type": "string" }
+                      }
+                    },
+                    "required": ["repositoryUrl"],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "prod",
+                "alpha",
+                "alpha-chromium",
+                "beta",
+                "patch",
+                "dev"
+              ]
+            },
+            "in": "query",
+            "name": "channel",
+            "required": false,
+            "description": "Desktop-app channel the returned deepLink should open. Defaults to the deployment's primary channel."
+          }
+        ],
+        "security": [{ "bearerAuth": [] }],
+        "x-conductor-stability": "experimental",
+        "x-conductor-since": "2026-06-24",
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "workspaceId": { "type": "string" },
+                    "sessionId": { "type": "string" },
+                    "deepLink": { "type": "string" }
+                  },
+                  "required": ["workspaceId", "sessionId", "deepLink"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v0/workspaces/{workspaceId}": {
+      "get": {
+        "operationId": "workspace.get",
+        "summary": "Get a workspace.",
+        "tags": ["Workspaces"],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "prod",
+                "alpha",
+                "alpha-chromium",
+                "beta",
+                "patch",
+                "dev"
+              ]
+            },
+            "in": "query",
+            "name": "channel",
+            "required": false,
+            "description": "Desktop-app channel the returned deepLink should open. Defaults to the deployment's primary channel."
+          },
+          {
+            "schema": { "type": "string" },
+            "in": "path",
+            "name": "workspaceId",
+            "required": true
+          }
+        ],
+        "security": [{ "bearerAuth": [] }],
+        "x-conductor-stability": "experimental",
+        "x-conductor-since": "2026-06-24",
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "name": { "type": "string" },
+                    "createdAt": { "type": "string" },
+                    "deepLink": { "type": "string" },
+                    "creatorId": { "type": "string" },
+                    "lastActivityAt": { "type": "string" }
+                  },
+                  "required": ["id", "name", "createdAt", "deepLink"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v0/workspaces/{workspaceId}/rename": {
+      "post": {
+        "operationId": "workspace.rename",
+        "summary": "Rename a workspace.",
+        "tags": ["Workspaces"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "name": { "type": "string", "minLength": 1 } },
+                "required": ["name"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "prod",
+                "alpha",
+                "alpha-chromium",
+                "beta",
+                "patch",
+                "dev"
+              ]
+            },
+            "in": "query",
+            "name": "channel",
+            "required": false,
+            "description": "Desktop-app channel the returned deepLink should open. Defaults to the deployment's primary channel."
+          },
+          {
+            "schema": { "type": "string" },
+            "in": "path",
+            "name": "workspaceId",
+            "required": true
+          }
+        ],
+        "security": [{ "bearerAuth": [] }],
+        "x-conductor-stability": "experimental",
+        "x-conductor-since": "2026-06-24",
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "name": { "type": "string" },
+                    "createdAt": { "type": "string" },
+                    "deepLink": { "type": "string" },
+                    "creatorId": { "type": "string" },
+                    "lastActivityAt": { "type": "string" }
+                  },
+                  "required": ["id", "name", "createdAt", "deepLink"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v0/workspaces/{workspaceId}/archive": {
+      "post": {
+        "operationId": "workspace.archive",
+        "summary": "Archive a workspace.",
+        "tags": ["Workspaces"],
+        "description": "Stop the workspace and hide it in the app. Idempotent; the workspace can be restored later.",
+        "security": [{ "bearerAuth": [] }],
+        "x-conductor-stability": "experimental",
+        "x-conductor-since": "2026-06-24",
+        "parameters": [
+          {
+            "schema": { "type": "string" },
+            "in": "path",
+            "name": "workspaceId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "workspaceId": { "type": "string" },
+                    "status": { "type": "string", "enum": ["archived"] }
+                  },
+                  "required": ["workspaceId", "status"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v0/workspaces/{workspaceId}/sleep": {
+      "post": {
+        "operationId": "workspace.sleep",
+        "summary": "Put a workspace to sleep.",
+        "tags": ["Workspaces"],
+        "description": "Put the workspace to sleep. Idempotent for sleeping workspaces.",
+        "security": [{ "bearerAuth": [] }],
+        "x-conductor-stability": "experimental",
+        "x-conductor-since": "2026-07-31",
+        "parameters": [
+          {
+            "schema": { "type": "string" },
+            "in": "path",
+            "name": "workspaceId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "workspaceId": { "type": "string" },
+                    "status": {
+                      "anyOf": [
+                        { "type": "string", "enum": ["sleeping"] },
+                        { "type": "string", "enum": ["archived"] }
+                      ]
+                    }
+                  },
+                  "required": ["workspaceId", "status"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v0/workspaces/{workspaceId}/sessions": {
+      "get": {
+        "operationId": "workspace.sessions.list",
+        "summary": "List workspace sessions.",
+        "tags": ["Workspaces"],
+        "parameters": [
+          {
+            "schema": { "type": "integer", "minimum": 1 },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": { "type": "integer", "minimum": 0 },
+            "in": "query",
+            "name": "offset",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "prod",
+                "alpha",
+                "alpha-chromium",
+                "beta",
+                "patch",
+                "dev"
+              ]
+            },
+            "in": "query",
+            "name": "channel",
+            "required": false,
+            "description": "Desktop-app channel the returned deepLink should open. Defaults to the deployment's primary channel."
+          },
+          {
+            "schema": { "type": "string" },
+            "in": "path",
+            "name": "workspaceId",
+            "required": true
+          }
+        ],
+        "security": [{ "bearerAuth": [] }],
+        "x-conductor-stability": "experimental",
+        "x-conductor-since": "2026-06-24",
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "deepLink": { "type": "string" },
+                          "name": { "type": "string" },
+                          "model": { "type": "string" },
+                          "resolvedModel": { "type": "string" },
+                          "effort": { "type": "string" },
+                          "fastMode": { "type": "boolean" },
+                          "archivedAt": { "type": "string" }
+                        },
+                        "required": ["id", "deepLink"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "offset": { "type": "number" },
+                    "hasMore": { "type": "boolean" }
+                  },
+                  "required": ["data", "offset", "hasMore"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v0/sessions": {
+      "post": {
+        "operationId": "session.create",
+        "summary": "Create a session.",
+        "tags": ["Workspaces"],
+        "description": "Creates a session in an existing workspace. If the workspace is still initializing, the session is accepted immediately and initialized in the workspace when its first message is delivered. Accepted model ids by agent — claude: fable-5, opus-5-1m, opus-4-8-1m, opus-4-8, opus-4-7-1m, opus-4-7, opus-1m, opus, opus-4-6-1m, sonnet-5-1m, sonnet-4-6-1m, sonnet, haiku; codex: gpt-5.5, gpt-5.4, gpt-5.6-sol, gpt-5.6-terra, gpt-5.6-luna, gpt-5.3-codex-spark, gpt-5.3-codex, gpt-5.2-codex; cursor: auto, composer-2.5, grok-4.5. Accepted effort levels by agent — claude: low, medium, high, xhigh, max; codex: none, low, medium, high, xhigh, max, ultra; codex max requires a GPT-5.6 model, and ultra requires GPT-5.6 Sol or Terra. Omit effort to use the agent's default — claude: high; codex: high. Models accepting fastMode by agent — claude: opus-5-1m, opus-4-8-1m, opus-4-8, opus-4-7-1m, opus-4-7, opus-1m, opus, opus-4-6-1m; codex: gpt-5.5, gpt-5.4, gpt-5.6-sol, gpt-5.6-terra, gpt-5.6-luna, gpt-5.3-codex-spark, gpt-5.3-codex, gpt-5.2-codex; cursor: auto, composer-2.5, grok-4.5. Omit fastMode (or send false) for other models.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "workspaceId": { "type": "string" },
+                  "sessionId": { "type": "string" },
+                  "name": { "type": "string" },
+                  "agent": {
+                    "anyOf": [
+                      { "type": "string", "enum": ["claude"] },
+                      { "type": "string", "enum": ["codex"] },
+                      { "type": "string", "enum": ["cursor"] },
+                      { "type": "string", "enum": ["acp"] }
+                    ]
+                  },
+                  "model": {
+                    "anyOf": [
+                      { "type": "string", "enum": ["fable-5"] },
+                      { "type": "string", "enum": ["opus-5-1m"] },
+                      { "type": "string", "enum": ["opus-4-8-1m"] },
+                      { "type": "string", "enum": ["opus-4-8"] },
+                      { "type": "string", "enum": ["opus-4-7-1m"] },
+                      { "type": "string", "enum": ["opus-4-7"] },
+                      { "type": "string", "enum": ["opus-1m"] },
+                      { "type": "string", "enum": ["opus"] },
+                      { "type": "string", "enum": ["opus-4-6-1m"] },
+                      { "type": "string", "enum": ["sonnet-5-1m"] },
+                      { "type": "string", "enum": ["sonnet-4-6-1m"] },
+                      { "type": "string", "enum": ["sonnet"] },
+                      { "type": "string", "enum": ["haiku"] },
+                      { "type": "string", "enum": ["gpt-5.5"] },
+                      { "type": "string", "enum": ["gpt-5.4"] },
+                      { "type": "string", "enum": ["gpt-5.6-sol"] },
+                      { "type": "string", "enum": ["gpt-5.6-terra"] },
+                      { "type": "string", "enum": ["gpt-5.6-luna"] },
+                      { "type": "string", "enum": ["gpt-5.3-codex-spark"] },
+                      { "type": "string", "enum": ["gpt-5.3-codex"] },
+                      { "type": "string", "enum": ["gpt-5.2-codex"] },
+                      { "type": "string", "enum": ["auto"] },
+                      { "type": "string", "enum": ["composer-2.5"] },
+                      { "type": "string", "enum": ["grok-4.5"] }
+                    ]
+                  },
+                  "effort": {
+                    "anyOf": [
+                      { "type": "string", "enum": ["none"] },
+                      { "type": "string", "enum": ["low"] },
+                      { "type": "string", "enum": ["medium"] },
+                      { "type": "string", "enum": ["high"] },
+                      { "type": "string", "enum": ["xhigh"] },
+                      { "type": "string", "enum": ["max"] },
+                      { "type": "string", "enum": ["ultra"] }
+                    ]
+                  },
+                  "fastMode": { "type": "boolean" }
+                },
+                "required": ["workspaceId", "agent"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "prod",
+                "alpha",
+                "alpha-chromium",
+                "beta",
+                "patch",
+                "dev"
+              ]
+            },
+            "in": "query",
+            "name": "channel",
+            "required": false,
+            "description": "Desktop-app channel the returned deepLink should open. Defaults to the deployment's primary channel."
+          }
+        ],
+        "security": [{ "bearerAuth": [] }],
+        "x-conductor-stability": "experimental",
+        "x-conductor-since": "2026-06-24",
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "deepLink": { "type": "string" },
+                    "name": { "type": "string" },
+                    "model": { "type": "string" },
+                    "resolvedModel": { "type": "string" },
+                    "effort": { "type": "string" },
+                    "fastMode": { "type": "boolean" },
+                    "archivedAt": { "type": "string" }
+                  },
+                  "required": ["id", "deepLink"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v0/sessions/{sessionId}": {
+      "get": {
+        "operationId": "session.get",
+        "summary": "Get a session.",
+        "tags": ["Workspaces"],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "prod",
+                "alpha",
+                "alpha-chromium",
+                "beta",
+                "patch",
+                "dev"
+              ]
+            },
+            "in": "query",
+            "name": "channel",
+            "required": false,
+            "description": "Desktop-app channel the returned deepLink should open. Defaults to the deployment's primary channel."
+          },
+          {
+            "schema": { "type": "string" },
+            "in": "path",
+            "name": "sessionId",
+            "required": true
+          }
+        ],
+        "security": [{ "bearerAuth": [] }],
+        "x-conductor-stability": "experimental",
+        "x-conductor-since": "2026-06-24",
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "deepLink": { "type": "string" },
+                    "name": { "type": "string" },
+                    "model": { "type": "string" },
+                    "resolvedModel": { "type": "string" },
+                    "effort": { "type": "string" },
+                    "fastMode": { "type": "boolean" },
+                    "archivedAt": { "type": "string" }
+                  },
+                  "required": ["id", "deepLink"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v0/sessions/{sessionId}/rename": {
+      "post": {
+        "operationId": "session.rename",
+        "summary": "Rename a session.",
+        "tags": ["Workspaces"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "name": { "type": "string", "minLength": 1 } },
+                "required": ["name"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "prod",
+                "alpha",
+                "alpha-chromium",
+                "beta",
+                "patch",
+                "dev"
+              ]
+            },
+            "in": "query",
+            "name": "channel",
+            "required": false,
+            "description": "Desktop-app channel the returned deepLink should open. Defaults to the deployment's primary channel."
+          },
+          {
+            "schema": { "type": "string" },
+            "in": "path",
+            "name": "sessionId",
+            "required": true
+          }
+        ],
+        "security": [{ "bearerAuth": [] }],
+        "x-conductor-stability": "experimental",
+        "x-conductor-since": "2026-06-24",
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "deepLink": { "type": "string" },
+                    "name": { "type": "string" },
+                    "model": { "type": "string" },
+                    "resolvedModel": { "type": "string" },
+                    "effort": { "type": "string" },
+                    "fastMode": { "type": "boolean" },
+                    "archivedAt": { "type": "string" }
+                  },
+                  "required": ["id", "deepLink"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v0/sessions/{sessionId}/archive": {
+      "post": {
+        "operationId": "session.archive",
+        "summary": "Archive a session.",
+        "tags": ["Workspaces"],
+        "description": "Archive a session, like closing its chat tab: it leaves session lists, its running agent is stopped, and its queued messages are dropped. Sending a new message to an archived session reopens it. Idempotent; the session remains readable by id.",
+        "security": [{ "bearerAuth": [] }],
+        "x-conductor-stability": "experimental",
+        "x-conductor-since": "2026-06-24",
+        "parameters": [
+          {
+            "schema": { "type": "string" },
+            "in": "path",
+            "name": "sessionId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "workspaceId": { "type": "string" },
+                    "sessionId": { "type": "string" },
+                    "status": { "type": "string", "enum": ["archived"] },
+                    "canceledQueuedMessages": { "type": "number" }
+                  },
+                  "required": [
+                    "workspaceId",
+                    "sessionId",
+                    "status",
+                    "canceledQueuedMessages"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v0/sessions/{sessionId}/messages": {
+      "get": {
+        "operationId": "session.messages.list",
+        "summary": "List session messages.",
+        "tags": ["Workspaces"],
+        "description": "List a session's transcript messages. Page with limit/offset, or pass after=<messageId> to fetch only messages after a known message (ascending sessionIndex order) for incremental polling. after and offset cannot be combined.",
+        "parameters": [
+          {
+            "schema": { "type": "integer", "minimum": 1 },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": { "type": "integer", "minimum": 0 },
+            "in": "query",
+            "name": "offset",
+            "required": false
+          },
+          {
+            "schema": { "type": "string" },
+            "in": "query",
+            "name": "after",
+            "required": false,
+            "description": "Return only messages after this message id (exclusive), in ascending sessionIndex order. Cannot be combined with offset."
+          },
+          {
+            "schema": { "type": "string" },
+            "in": "path",
+            "name": "sessionId",
+            "required": true
+          }
+        ],
+        "security": [{ "bearerAuth": [] }],
+        "x-conductor-stability": "experimental",
+        "x-conductor-since": "2026-06-24",
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "sessionId": { "type": "string" },
+                          "sessionIndex": { "type": "number" },
+                          "type": { "type": "string" },
+                          "content": {},
+                          "receivedAt": { "type": "string" }
+                        },
+                        "required": [
+                          "id",
+                          "sessionId",
+                          "sessionIndex",
+                          "type",
+                          "content",
+                          "receivedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "offset": { "type": "number" },
+                    "hasMore": { "type": "boolean" }
+                  },
+                  "required": ["data", "offset", "hasMore"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "post": {
+        "operationId": "message.create",
+        "summary": "Create a message.",
+        "tags": ["Workspaces"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "messageId": { "type": "string" },
+                  "message": { "type": "string", "minLength": 1 }
+                },
+                "required": ["message"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "x-conductor-stability": "experimental",
+        "x-conductor-since": "2026-06-24",
+        "parameters": [
+          {
+            "schema": { "type": "string" },
+            "in": "path",
+            "name": "sessionId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "messageId": { "type": "string" },
+                    "state": {
+                      "anyOf": [
+                        { "type": "string", "enum": ["queued"] },
+                        { "type": "string", "enum": ["sent"] }
+                      ]
+                    }
+                  },
+                  "required": ["messageId", "state"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v0/messages/{messageId}": {
+      "get": {
+        "operationId": "message.get",
+        "summary": "Get a message.",
+        "tags": ["Workspaces"],
+        "security": [{ "bearerAuth": [] }],
+        "x-conductor-stability": "experimental",
+        "x-conductor-since": "2026-06-24",
+        "parameters": [
+          {
+            "schema": { "type": "string" },
+            "in": "path",
+            "name": "messageId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "sessionId": { "type": "string" },
+                    "sessionIndex": { "type": "number" },
+                    "type": { "type": "string" },
+                    "content": {},
+                    "receivedAt": { "type": "string" }
+                  },
+                  "required": [
+                    "id",
+                    "sessionId",
+                    "sessionIndex",
+                    "type",
+                    "content",
+                    "receivedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v0/workspaces/{workspaceId}/status": {
+      "get": {
+        "operationId": "workspace.status.get",
+        "summary": "Get workspace status.",
+        "tags": ["Workspaces"],
+        "security": [{ "bearerAuth": [] }],
+        "x-conductor-stability": "experimental",
+        "x-conductor-since": "2026-06-24",
+        "parameters": [
+          {
+            "schema": { "type": "string" },
+            "in": "path",
+            "name": "workspaceId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "workspaceId": { "type": "string" },
+                    "status": {
+                      "anyOf": [
+                        { "type": "string", "enum": ["initializing"] },
+                        { "type": "string", "enum": ["ready"] },
+                        { "type": "string", "enum": ["sleeping"] },
+                        { "type": "string", "enum": ["archived"] },
+                        { "type": "string", "enum": ["deleted"] },
+                        { "type": "string", "enum": ["updating"] }
+                      ]
+                    },
+                    "lifecycleStep": {
+                      "anyOf": [
+                        { "type": "string", "enum": ["building_snapshot"] },
+                        { "type": "string", "enum": ["preparing"] },
+                        { "type": "string", "enum": ["setting_up"] },
+                        { "type": "string", "enum": ["updating"] }
+                      ]
+                    },
+                    "updatedAt": { "type": "string" },
+                    "errorMessage": { "type": "string" }
+                  },
+                  "required": ["workspaceId", "status", "updatedAt"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v0/sessions/{sessionId}/status": {
+      "get": {
+        "operationId": "session.status.get",
+        "summary": "Get session status.",
+        "tags": ["Workspaces"],
+        "security": [{ "bearerAuth": [] }],
+        "x-conductor-stability": "experimental",
+        "x-conductor-since": "2026-06-24",
+        "parameters": [
+          {
+            "schema": { "type": "string" },
+            "in": "path",
+            "name": "sessionId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "workspaceId": { "type": "string" },
+                    "sessionId": { "type": "string" },
+                    "status": {
+                      "anyOf": [
+                        { "type": "string", "enum": ["idle"] },
+                        { "type": "string", "enum": ["working"] },
+                        { "type": "string", "enum": ["error"] }
+                      ]
+                    },
+                    "updatedAt": { "type": "string" },
+                    "errorMessage": { "type": "string" },
+                    "lastError": { "type": "string" },
+                    "lastErrorAt": { "type": "string" }
+                  },
+                  "required": [
+                    "workspaceId",
+                    "sessionId",
+                    "status",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v0/sessions/{sessionId}/cancel": {
+      "post": {
+        "operationId": "session.cancel",
+        "summary": "Cancel a running session.",
+        "tags": ["Workspaces"],
+        "description": "Stop the agent's in-progress turn and drop any not-yet-delivered queued messages for the session. Idempotent: a no-op when the agent is already idle. Preserves the workspace and session history. Cancellation completes asynchronously — poll the session status endpoint until idle to confirm.",
+        "security": [{ "bearerAuth": [] }],
+        "x-conductor-stability": "experimental",
+        "x-conductor-since": "2026-06-24",
+        "parameters": [
+          {
+            "schema": { "type": "string" },
+            "in": "path",
+            "name": "sessionId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "workspaceId": { "type": "string" },
+                    "sessionId": { "type": "string" },
+                    "status": {
+                      "anyOf": [
+                        { "type": "string", "enum": ["idle"] },
+                        { "type": "string", "enum": ["working"] },
+                        { "type": "string", "enum": ["error"] }
+                      ]
+                    },
+                    "canceledQueuedMessages": { "type": "number" }
+                  },
+                  "required": [
+                    "workspaceId",
+                    "sessionId",
+                    "status",
+                    "canceledQueuedMessages"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v0/sql": {
+      "post": {
+        "operationId": "sql.query",
+        "summary": "Run a read-only SQL query over session transcripts.",
+        "tags": ["Workspaces"],
+        "description": "Runs a single read-only SQL SELECT statement over your organization's session transcripts and returns the matching rows.\n\nQueries may ONLY read from the view session_transcripts_view; every other table, view, and function is off-limits. Query it like a table, e.g. SELECT ... FROM session_transcripts_view. Its columns are:\n\n- session_id (text): ID of the session (chat).\n- workspace_id (text): ID of the workspace the session belongs to.\n- transcript (text): concise plain-text transcript of the session's conversation.\n- session_title (text, nullable): title of the session.\n- agent_type (text, nullable): agent that ran the session, e.g. 'claude' or 'codex'.\n- model (text, nullable): model the session used.\n- workspace_name (text, nullable): display name of the workspace.\n- workspace_state (text): workspace lifecycle state, e.g. 'ready' or 'archived'.\n- repo_url (text): git remote URL of the workspace's repository.\n- session_created_at (timestamptz): when the session was created.\n- transcript_updated_at (timestamptz): when the transcript last changed.\n\nLimits: at most 500 rows are returned (the response sets truncated: true when the query matched more), statements time out after 5 seconds, and the query text may be at most 10000 characters. The statement must be a single query: semicolon-chained statements, writes, U& Unicode-escape syntax, and queries containing the text set_config anywhere (even inside a search string) are rejected. Errors come back as 400s carrying the Postgres error message.\n\nExample queries:\n\n- Search transcripts: SELECT session_id, session_title, workspace_name FROM session_transcripts_view WHERE transcript ILIKE '%database migration%' ORDER BY transcript_updated_at DESC LIMIT 20\n- Recent sessions in live workspaces: SELECT session_title, workspace_name, transcript_updated_at FROM session_transcripts_view WHERE workspace_state = 'ready' ORDER BY transcript_updated_at DESC LIMIT 50",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "query": { "type": "string", "minLength": 1 } },
+                "required": ["query"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "x-conductor-stability": "experimental",
+        "x-conductor-since": "2026-07-01",
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "propertyNames": { "type": "string" },
+                        "additionalProperties": {}
+                      }
+                    },
+                    "rowCount": { "type": "number" },
+                    "truncated": { "type": "boolean" }
+                  },
+                  "required": ["rows", "rowCount", "truncated"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/me": {
+      "get": {
+        "operationId": "me.get",
+        "summary": "Get authenticated identity.",
+        "tags": ["Identity"],
+        "security": [{ "bearerAuth": [] }],
+        "x-conductor-stability": "experimental",
+        "x-conductor-since": "2026-06-24",
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userId": { "type": "string" },
+                    "email": { "type": "string" },
+                    "organizationId": { "type": "string" },
+                    "workspaceId": { "type": "string" },
+                    "authMethod": {
+                      "anyOf": [
+                        { "type": "string", "enum": ["api-key"] },
+                        { "type": "string", "enum": ["access-jwt"] },
+                        { "type": "string", "enum": ["legacy-api-token"] }
+                      ]
+                    },
+                    "apiKey": {
+                      "type": "object",
+                      "properties": { "id": { "type": "string" } },
+                      "required": ["id"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["userId", "authMethod"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

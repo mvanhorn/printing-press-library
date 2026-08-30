@@ -1,0 +1,122 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-29T06:32:20.176233Z",
+  "printing_press_version": "4.31.1",
+  "api_name": "groq",
+  "display_name": "Groq Cloud",
+  "cli_name": "groq-pp-cli",
+  "creator": {
+    "handle": "SomSamantray",
+    "name": "Som Samantray"
+  },
+  "owner": "somsamantray",
+  "printer": "SomSamantray",
+  "printer_name": "Som Samantray",
+  "spec_path": "spec.json",
+  "spec_format": "openapi3",
+  "spec_source": "official",
+  "spec_checksum": "sha256:6cd789234dee00f21e61b486e8b6964e10ed87ee74f8c0898c1c31d63e31a038",
+  "run_id": "20260829-110906-2137b57d",
+  "category": "ai",
+  "description": "Every Groq endpoint in your terminal, plus a local ledger that tracks token cost and rate-limit budget.",
+  "mcp_binary": "groq-pp-mcp",
+  "mcp_tool_count": 23,
+  "mcp_ready": "full",
+  "api_version": "2.1",
+  "auth_type": "bearer_token",
+  "auth_preference": "api_key",
+  "auth_env_vars": [
+    "GROQ_API_KEY"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "auth_key_url": "https://console.groq.com/keys",
+  "auth_title": "Groq API key",
+  "auth_description": "Groq API key (create one at console.groq.com/keys).",
+  "novel_features": [
+    {
+      "name": "Rate-limit budget",
+      "command": "rate-limits",
+      "description": "See remaining per-model request/token budget from every API call, with reset windows."
+    },
+    {
+      "name": "Cost ledger analytics",
+      "command": "costs",
+      "description": "Aggregate token and dollar spend from your local completion history, grouped by model or day."
+    },
+    {
+      "name": "Multi-model prompt runner",
+      "command": "compare",
+      "description": "Run one prompt across several models and rank them by latency, tokens/sec, usage, and cost."
+    },
+    {
+      "name": "Batch request pre-flight",
+      "command": "batch validate",
+      "description": "Validate every line of a .jsonl batch request file against the endpoint schema and estimate tokens/cost before uploading."
+    },
+    {
+      "name": "Batch results diagnosis",
+      "command": "batch diagnose",
+      "description": "Tabulate a completed batch's per-line status codes and errors, highlighting retry-worthy failures."
+    },
+    {
+      "name": "Paced bulk audio runner",
+      "command": "audio batch",
+      "description": "Transcribe, translate, or synthesize speech over many audio files with rate-limit-aware pacing and a results manifest."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Rate-limit budget",
+      "command": "rate-limits",
+      "description": "See remaining per-model request/token budget from every API call, with reset windows."
+    },
+    {
+      "name": "Cost ledger analytics",
+      "command": "costs",
+      "description": "Aggregate token and dollar spend from your local completion history, grouped by model or day."
+    },
+    {
+      "name": "Multi-model prompt runner",
+      "command": "compare",
+      "description": "Run one prompt across several models and rank them by latency, tokens/sec, usage, and cost."
+    },
+    {
+      "name": "Batch request pre-flight",
+      "command": "batch validate",
+      "description": "Validate every line of a .jsonl batch request file against the endpoint schema and estimate tokens/cost before uploading."
+    },
+    {
+      "name": "Batch results diagnosis",
+      "command": "batch diagnose",
+      "description": "Tabulate a completed batch's per-line status codes and errors, highlighting retry-worthy failures."
+    },
+    {
+      "name": "Paced bulk audio runner",
+      "command": "audio batch",
+      "description": "Transcribe, translate, or synthesize speech over many audio files with rate-limit-aware pacing and a results manifest."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 98.07692307692307,
+    "passed": 51,
+    "total": 52,
+    "failed": 1,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 94,
+      "grade": "A",
+      "total": 94
+    }
+  }
+}

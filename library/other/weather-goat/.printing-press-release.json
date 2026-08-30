@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "weather-goat",
   "cli_name": "weather-goat-pp-cli",
-  "version": "2026.7.3",
-  "released_at": "2026-07-17T02:06:03Z",
-  "source_commit": "81af5eb6ce846635d369191502e5d693e785ab5c",
+  "version": "2026.8.1",
+  "released_at": "2026-08-17T07:57:07Z",
+  "source_commit": "40363ac0936c4f406625f8399d8ad9b57673170e",
   "printing_press_version": "1.3.3-0.20260411222622-065697576de1+dirty",
   "run_id": "20260411-153728",
   "changes": [
     {
-      "title": "fix(registry): use canonical GOAT catalog labels",
-      "pr": 1529,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1529",
-      "commit": "81af5eb6ce846635d369191502e5d693e785ab5c"
+      "title": "fix(catalog): align Go fallback docs with toolchain floor",
+      "pr": 1735,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1735",
+      "commit": "40363ac0936c4f406625f8399d8ad9b57673170e"
     }
   ]
 }

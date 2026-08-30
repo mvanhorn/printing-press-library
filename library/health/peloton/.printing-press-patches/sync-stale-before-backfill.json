@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "sync-stale-before-backfill",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "New sync flag --stale-before <RFC3339 timestamp | --since-style duration> (parseStaleBefore, internal/cli/sync.go) extends planDependentSync's default (non-full) resumability rule from a pure presence check into a freshness check: a parent counts as pending if it has no dependentResource record at all (unchanged prior behavior) OR its existing record's fetched_at predates staleBefore. This makes an existing-but-wrong-shaped record reachable (e.g. backfilling the every_n=1 fix, performance-sync-every-n-default.json, across records synced before that fix landed) without --full's cost of redoing every already-correct record. Once a stale record is refetched, its fetched_at moves to \"now\" and it naturally falls out of the pending set on the next call -- resumable via the exact same presence/freshness-based mechanism as the existing default mode, no separate cursor needed. Ignored when --full is set (which already treats every parent as pending regardless of freshness). Store.ExistingProviderFactIDs (bool presence set) was replaced with Store.ExistingProviderFactFetchedAt (returns fetched_at per id) to support the freshness comparison; it had exactly one caller.",
+  "reason": "NEW ISSUE E from a fourth live post-fix verification sweep, explicitly flagged as \"the practical remainder\" of the prior round's bounded-sync fix: the mechanism for resuming a large dependent sync was fixed, but it only knew \"does a record exist,\" not \"is it correct,\" so the every_n=1 fix couldn't reach already-synced-but-still-downsampled records without --full, which wastes calls walking past every already-correct record first. Presented three options to the user (fetched_at cutoff flag / payload-shape staleness predicate / reorder --full oldest-first); user chose the recommended fetched_at cutoff, matching the concrete scenario since the every_n fix's deployment time is precisely knowable.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/sync_dependent_plan_test.go",
+    "internal/cli/sync_performance_test.go",
+    "internal/store/peloton.go",
+    "SKILL.md",
+    "README.md",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. New tests TestParseStaleBefore (RFC3339 and duration forms) and TestPlanDependentSync_StaleBeforeRefetchesOldRecordsWithoutFull (stale/fresh/missing three-way classification). Live-verified end-to-end against the user's real account with a scoped temp db: backdated 2 of 5 real performance records' fetched_at, ran sync --resources performance --stale-before <cutoff>, confirmed exactly those 2 were refetched and the other 3 untouched; re-running the identical command afterward correctly reported already_up_to_date (0 records, no wasted API calls), confirming idempotency."
+}

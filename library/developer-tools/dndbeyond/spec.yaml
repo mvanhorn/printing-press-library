@@ -1,0 +1,90 @@
+name: dndbeyond
+display_name: D&D Beyond
+description: Read-only access to D&D Beyond's public SRD and rules pages.
+cli_description: Read public D&D Beyond rules pages from the terminal.
+version: "0.1.0"
+base_url: https://www.dndbeyond.com
+website_url: https://www.dndbeyond.com
+category: developer-tools
+spec_source: docs
+http_transport: browser-http
+
+auth:
+  type: none
+  description: This first print intentionally uses only public, unauthenticated pages.
+
+config:
+  format: toml
+  path: "~/.config/dndbeyond/config.toml"
+
+resources:
+  pages:
+    description: Public D&D Beyond rules and reference pages.
+    endpoints:
+      srd:
+        method: GET
+        path: /srd
+        description: Read the public System Reference Document landing page.
+        response:
+          type: object
+        response_format: html
+        html_extract:
+          mode: page
+
+      basic_rules:
+        method: GET
+        path: /sources/dnd/br-2024
+        description: Read the public D&D Beyond Basic Rules landing page.
+        response:
+          type: object
+        response_format: html
+        html_extract:
+          mode: page
+
+      rules_glossary:
+        method: GET
+        path: /sources/dnd/br-2024/rules-glossary
+        description: Read the public 2024 rules glossary page.
+        response:
+          type: object
+        response_format: html
+        html_extract:
+          mode: page
+
+      section:
+        method: GET
+        path: /sources/dnd/br-2024/{section}
+        description: Read a public Basic Rules section by its documented URL slug.
+        params:
+          - name: section
+            type: string
+            required: true
+            positional: true
+            description: URL slug such as playing-the-game or character-classes.
+        response:
+          type: object
+        response_format: html
+        html_extract:
+          mode: page
+
+      search:
+        method: GET
+        path: /search
+        description: Search D&D Beyond's public site search page.
+        params:
+          - name: q
+            type: string
+            flag_name: query
+            description: Search term.
+        response:
+          type: object
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes:
+            - /sources/
+            - /classes
+            - /species
+            - /spells
+            - /monsters
+          limit: 50

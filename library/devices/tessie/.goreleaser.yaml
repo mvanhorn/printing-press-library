@@ -1,0 +1,51 @@
+version: 2
+project_name: tessie-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: tessie-pp-cli
+    main: ./cmd/tessie-pp-cli
+    binary: tessie-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X tessie-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: tessie-pp-mcp
+    main: ./cmd/tessie-pp-mcp
+    binary: tessie-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: tessie-pp-cli
+    repository:
+      owner: keithah
+      name: homebrew-tap
+    homepage: "https://github.com/keithah/tessie-pp-cli"
+    description: "Live Tesla vehicle data and commands from the terminal via the Tessie API"
+    install: |
+      bin.install "tessie-pp-cli"
+      bin.install "tessie-pp-mcp"

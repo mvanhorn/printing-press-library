@@ -1,0 +1,30 @@
+{
+  "id": "review-list-settings-live-handlers",
+  "source": "live-disposable-probe",
+  "recorded_at": "2026-08-23",
+  "summary": "Exact AnyList list-settings handlers were probed against disposable lists. Each returned HTTP success and the changed field persisted on a fresh user-data read-back.",
+  "endpoint": "POST /data/list-settings/update",
+  "disposable_fixture": {
+    "list_name": "Sunday Supper",
+    "cleanup": "The list was deleted in a deferred cleanup path and deletion completed successfully; no fixture remains."
+  },
+  "handlers": {
+    "set-should-hide-categories": "PBListSettings.shouldHideCategories",
+    "set-favorites-autocomplete-enabled": "PBListSettings.favoritesAutocompleteEnabled",
+    "set-generic-grocery-autocomplete-enabled": "PBListSettings.genericGroceryAutocompleteEnabled",
+    "set-recent-items-autocomplete-enabled": "PBListSettings.recentItemsAutocompleteEnabled",
+    "set-should-hide-completed-items": "PBListSettings.shouldHideCompletedItems",
+    "set-should-hide-prices": "PBListSettings.shouldHidePrices",
+    "set-should-hide-store-names": "PBListSettings.shouldHideStoreNames",
+    "set-location-notifications-enabled": "PBListSettings.locationNotificationsEnabled",
+    "set-should-remember-item-categories": "PBListSettings.shouldRememberItemCategories",
+    "set-should-hide-running-total-bar": "PBListSettings.shouldHideRunningTotals",
+    "set-should-show-shared-list-category-order-hint-banner": "PBListSettings.shouldShowSharedListCategoryOrderHintBanner"
+  },
+  "verification": "Each boolean was toggled from false to true, then fresh GetUserData read back true for the same stable list ID. The initial settings record and every mutation used the typed protobuf client; no HTTP-200-only result was treated as persistence.",
+  "limitations": [
+    "This record proves only the eleven named boolean handlers; other strings in the Android client remain unverified.",
+    "The disposable fixture names are recorded for human audit, but stable IDs and account credentials are intentionally omitted."
+  ],
+  "validated_outcome": "These eleven handlers are eligible for a preview-first, apply-gated CLI slice with fresh read-after-write verification."
+}

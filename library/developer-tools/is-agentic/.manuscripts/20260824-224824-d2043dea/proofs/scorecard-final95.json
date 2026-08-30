@@ -1,0 +1,50 @@
+{
+  "scorecard": {
+    "api_name": "is-agentic",
+    "steinberger": {
+      "output_modes": 10,
+      "auth": 10,
+      "error_handling": 8,
+      "terminal_ux": 9,
+      "readme": 10,
+      "doctor": 10,
+      "agent_native": 10,
+      "mcp_quality": 9,
+      "mcp_description_quality": 10,
+      "mcp_token_efficiency": 7,
+      "mcp_remote_transport": 10,
+      "mcp_tool_design": 0,
+      "mcp_surface_strategy": 0,
+      "local_cache": 10,
+      "cache_freshness": 5,
+      "breadth": 9,
+      "vision": 9,
+      "workflows": 10,
+      "insight": 10,
+      "agent_workflow_readiness": 9,
+      "path_validity": 10,
+      "auth_protocol": 0,
+      "data_pipeline_integrity": 10,
+      "sync_correctness": 10,
+      "type_fidelity": 5,
+      "dead_code": 5,
+      "live_api_verification": 0,
+      "total": 95,
+      "percentage": 95
+    },
+    "competitor_scores": null,
+    "overall_grade": "A (1 of 24 dimensions unverified: live_api_verification)",
+    "gap_report": [
+      "MCP: 2 tools (2 public, 0 auth-required) — readiness: full"
+    ],
+    "unscored_dimensions": [
+      "mcp_tool_design",
+      "mcp_surface_strategy",
+      "auth_protocol",
+      "live_api_verification"
+    ],
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

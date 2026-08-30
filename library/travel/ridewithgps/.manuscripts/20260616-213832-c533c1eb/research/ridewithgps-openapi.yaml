@@ -1,0 +1,2941 @@
+---
+openapi: 3.0.1
+info:
+  title: Ride with GPS API v1
+  version: v1
+  description: External API for Ride with GPS - routes, trips, users, and more. For
+    questions or support, contact developers@ridewithgps.com
+  contact:
+    name: RideWithGPS API Support
+    email: developers@ridewithgps.com
+    url: https://ridewithgps.com/api
+paths:
+  "/api/v1/users/current":
+    get:
+      summary: Returns the current user
+      tags:
+      - Users
+      description: Returns information about the currently authenticated user
+      operationId: getCurrentUser
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      responses:
+        '200':
+          description: Current user information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      email:
+                        type: string
+                      name:
+                        type: string
+                    "$ref": "#/components/schemas/UserSummary"
+                required:
+                - user
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      security:
+      - basic_auth: []
+  "/api/v1/auth_tokens":
+    post:
+      summary: Creates an authentication token
+      tags:
+      - Authentication Tokens
+      description: 'Creates a new authentication token for API access using user credentials.
+
+        '
+      operationId: createAuthToken
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      responses:
+        '201':
+          description: Authentication token created
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  auth_token:
+                    "$ref": "#/components/schemas/AuthToken"
+                required:
+                - auth_token
+        '400':
+          description: Bad request - invalid parameters
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Unauthorized - invalid credentials or API key
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      format: email
+                      description: User email address
+                    password:
+                      type: string
+                      description: User password
+                  required:
+                  - email
+                  - password
+              required:
+              - user
+        description: User credentials
+  "/api/v1/members.json":
+    get:
+      summary: Returns a list of club members
+      tags:
+      - Club Members
+      description: |
+        Returns a paginated list of members for the authenticated organization account.
+
+        This endpoint is only available to organization accounts.
+
+        Supports filtering by `name` and `email`.
+      operationId: listClubMembers
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      - "$ref": "#/components/parameters/page"
+      - "$ref": "#/components/parameters/page_size"
+      - "$ref": "#/components/parameters/filter_name"
+      - "$ref": "#/components/parameters/email"
+      responses:
+        '200':
+          description: Members found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  members:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/ClubMember"
+                  meta:
+                    type: object
+                    properties:
+                      pagination:
+                        "$ref": "#/components/schemas/PaginationMeta"
+                    required:
+                    - pagination
+                required:
+                - members
+                - meta
+        '403':
+          description: Forbidden - Not an organization account
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/members/{id}.json":
+    parameters:
+    - name: id
+      in: path
+      description: Club Member ID
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Returns the specified club member
+      tags:
+      - Club Members
+      description: Returns detailed information about a specific club member
+      operationId: getClubMember
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      responses:
+        '200':
+          description: Member found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  member:
+                    "$ref": "#/components/schemas/ClubMember"
+                required:
+                - member
+        '404':
+          description: Member not found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+    put:
+      summary: Updates the specified club member
+      tags:
+      - Club Members
+      description: |
+        Updates a club member's permissions and status.
+
+        Available attributes:
+        - `active`: Whether the member is active
+        - `admin`: Whether the member is an admin (grants all permissions)
+        - `manages_routes`: Permission to manage routes
+        - `manages_members`: Permission to manage members
+        - `manages_billing`: Permission to manage billing
+      operationId: updateClubMember
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      responses:
+        '200':
+          description: Member updated
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  member:
+                    "$ref": "#/components/schemas/ClubMember"
+                required:
+                - member
+        '422':
+          description: Validation error
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '404':
+          description: Member not found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                member:
+                  type: object
+                  properties:
+                    active:
+                      type: boolean
+                    admin:
+                      type: boolean
+                    manages_routes:
+                      type: boolean
+                    manages_members:
+                      type: boolean
+                    manages_billing:
+                      type: boolean
+  "/api/v1/collections.json":
+    get:
+      summary: Returns a list of collections
+      tags:
+      - Collections
+      description: |
+        Returns a paginated list of collections for the authenticated user.
+
+        Supports filtering by `name` and `visibility`.
+      operationId: listCollections
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      - "$ref": "#/components/parameters/page"
+      - "$ref": "#/components/parameters/page_size"
+      - "$ref": "#/components/parameters/filter_name"
+      - "$ref": "#/components/parameters/visibility"
+      responses:
+        '200':
+          description: Collections found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  collections:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/CollectionSummary"
+                required:
+                - collections
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/collections/{id}.json":
+    parameters:
+    - name: id
+      in: path
+      description: Collection ID
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Returns the specified collection
+      tags:
+      - Collections
+      description: Returns detailed information about a specific collection
+      operationId: getCollection
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      - "$ref": "#/components/parameters/privacy_code"
+      responses:
+        '200':
+          description: Collection found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  collection:
+                    "$ref": "#/components/schemas/Collection"
+                required:
+                - collection
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '403':
+          description: Forbidden - Collection not visible to user
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '404':
+          description: Not Found - Collection not found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/collections/pinned.json":
+    get:
+      summary: Returns the user's pinned collection
+      tags:
+      - Collections
+      description: Returns the authenticated user's pinned collection
+      operationId: getPinnedCollection
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      responses:
+        '200':
+          description: Pinned collection found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  collection:
+                    "$ref": "#/components/schemas/Collection"
+                required:
+                - collection
+        '404':
+          description: Pinned collection not found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/events.json":
+    get:
+      summary: Returns a list of events
+      tags:
+      - Events
+      description: |
+        Returns a paginated list of events accessible to the authenticated user.
+
+        Supports filtering by `name` and `visibility`.
+      operationId: listEvents
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      - "$ref": "#/components/parameters/page"
+      - "$ref": "#/components/parameters/page_size"
+      - "$ref": "#/components/parameters/filter_name"
+      - "$ref": "#/components/parameters/visibility"
+      responses:
+        '200':
+          description: Events found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/EventSummary"
+                  meta:
+                    type: object
+                    properties:
+                      pagination:
+                        "$ref": "#/components/schemas/PaginationMeta"
+                    required:
+                    - pagination
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+    post:
+      summary: Creates an event
+      tags:
+      - Events
+      description: |
+        Creates a new event for the authenticated user.
+
+        **Note**: The `organizers`, `logo`, and `banner` fields are supported only for organization-owned events. They are not supported for user-owned events.
+
+        **Multipart uploads**: To upload logo and banner images, send a request with `Content-Type: multipart/form-data` using the following fields:
+        - `event[name]` - Event name
+        - `event[description]` - Event description
+        - `event[logo]` - Logo image (binary)
+        - `event[banner]` - Banner image (binary)
+        - etc.
+      operationId: createEvent
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      responses:
+        '201':
+          description: Event created
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  event:
+                    "$ref": "#/components/schemas/Event"
+        '422':
+          description: Validation error
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/EventPayload"
+        required: true
+  "/api/v1/events/{id}.json":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Returns the specified event
+      tags:
+      - Events
+      description: 'Returns detailed information about a specific event
+
+        '
+      operationId: getEvent
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      - "$ref": "#/components/parameters/privacy_code"
+      responses:
+        '200':
+          description: Event found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  event:
+                    "$ref": "#/components/schemas/Event"
+        '404':
+          description: " Not Found - Event not found"
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '403':
+          description: Forbidden - Event not visible to user
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+    put:
+      summary: Updates the specified event
+      tags:
+      - Events
+      description: |
+        Updates an existing event owned by the authenticated user.
+
+        **Note**: The `organizers`, `logo`, and `banner` fields are supported only for organization-owned events. They are not supported for user-owned events.
+
+        **Multipart uploads**: To upload logo and banner images, send a request with `Content-Type: multipart/form-data` using the following fields:
+        - `event[name]` - Event name
+        - `event[description]` - Event description
+        - `event[logo]` - Logo image (binary)
+        - `event[banner]` - Banner image (binary)
+        - etc.
+      operationId: updateEvent
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      responses:
+        '200':
+          description: Event updated
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  event:
+                    "$ref": "#/components/schemas/Event"
+        '404':
+          description: Event not found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/EventPayload"
+        required: true
+    delete:
+      summary: Deletes the specified event
+      tags:
+      - Events
+      description: Deletes an event owned by the authenticated user
+      operationId: deleteEvent
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      responses:
+        '204':
+          description: Event deleted successfully
+        '404':
+          description: Event not found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+  "/api/v1/points_of_interest.json":
+    get:
+      summary: Returns a list of points of interest
+      tags:
+      - Points of Interest
+      description: |
+        Returns a paginated list of points of interest for the authenticated organization.
+
+        **Note**: This endpoint is available for organizations only.
+      operationId: listPointsOfInterest
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      - "$ref": "#/components/parameters/page"
+      - "$ref": "#/components/parameters/page_size"
+      responses:
+        '200':
+          description: Points of interest found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  points_of_interest:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/PointOfInterestSummary"
+                  meta:
+                    type: object
+                    properties:
+                      pagination:
+                        "$ref": "#/components/schemas/PaginationMeta"
+                    required:
+                    - pagination
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+    post:
+      summary: Creates a point of interest
+      tags:
+      - Points of Interest
+      description: |
+        Create a new point of interest in the authenticated organization's library.
+
+        **Note**: This endpoint is available for organizations only.
+      operationId: createPointOfInterest
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      responses:
+        '200':
+          description: Point of interest created
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  point_of_interest:
+                    "$ref": "#/components/schemas/PointOfInterestSummary"
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/PointOfInterestPayload"
+        required: true
+  "/api/v1/points_of_interest/{id}.json":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Returns the specified point of interest
+      tags:
+      - Points of Interest
+      description: |
+        Returns detailed information about a specific point of interest.
+
+        **Note**: This endpoint is available for organizations only.
+      operationId: getPointOfInterest
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      responses:
+        '200':
+          description: Point of interest found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  point_of_interest:
+                    "$ref": "#/components/schemas/PointOfInterest"
+        '404':
+          description: Point of interest not found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+    put:
+      summary: Updates the specified point of interest
+      tags:
+      - Points of Interest
+      description: |
+        Updates an existing point of interest in the authenticated organization's library.
+
+        **Note**: This endpoint is available for organizations only.
+      operationId: updatePointOfInterest
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      responses:
+        '200':
+          description: Point of interest updated
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  point_of_interest:
+                    "$ref": "#/components/schemas/PointOfInterest"
+        '404':
+          description: Point of interest not found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '422':
+          description: Validation error
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/PointOfInterestPayload"
+        required: true
+    delete:
+      summary: Deletes the specified point of interest
+      tags:
+      - Points of Interest
+      description: |
+        Deletes a point of interest owned by the authenticated organization.
+
+        **Note**: This endpoint is available for organizations only.
+      operationId: deletePointOfInterest
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      responses:
+        '204':
+          description: Point of interest deleted successfully
+        '404':
+          description: Point of interest not found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+  "/api/v1/points_of_interest/{id}/routes/{route_id}.json":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    - name: route_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    post:
+      summary: Associates a point of interest with a route
+      tags:
+      - Points of Interest
+      description: |
+        Associates a point of interest with a specific route
+
+        **Note**: This endpoint is available for organizations only.
+      operationId: associatePointOfInterestWithRoute
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      responses:
+        '404':
+          description: POI or route not found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+    delete:
+      summary: Disassociates a point of interest from a route
+      tags:
+      - Points of Interest
+      description: |
+        Removes the association between a point of interest and a specific route
+
+        **Note**: This endpoint is available for organizations only.
+      operationId: disassociatePointOfInterestFromRoute
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      responses:
+        '204':
+          description: POI disassociated from route successfully
+        '404':
+          description: POI or route not found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+  "/api/v1/routes.json":
+    get:
+      summary: Returns a list of routes
+      tags:
+      - Routes
+      description: |
+        Returns a paginated list of routes for the authenticated user.
+
+        Supports filtering by `name`, `visibility`, `distance_min`, `distance_max`, `elevation_gain_min`, `elevation_gain_max` and `archived` status.
+      operationId: listRoutes
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      - "$ref": "#/components/parameters/page"
+      - "$ref": "#/components/parameters/page_size"
+      - "$ref": "#/components/parameters/filter_name"
+      - "$ref": "#/components/parameters/visibility"
+      - "$ref": "#/components/parameters/distance_min"
+      - "$ref": "#/components/parameters/distance_max"
+      - "$ref": "#/components/parameters/elevation_gain_min"
+      - "$ref": "#/components/parameters/elevation_gain_max"
+      - "$ref": "#/components/parameters/archived"
+      responses:
+        '200':
+          description: Routes found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  routes:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/RouteSummary"
+                  meta:
+                    type: object
+                    properties:
+                      pagination:
+                        "$ref": "#/components/schemas/PaginationMeta"
+                    required:
+                    - pagination
+                required:
+                - routes
+                - meta
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/routes/{id}.json":
+    parameters:
+    - name: id
+      in: path
+      description: Route ID
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Returns the specified route
+      tags:
+      - Routes
+      description: Returns detailed information about a specific route
+      operationId: getRoute
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      - "$ref": "#/components/parameters/privacy_code"
+      responses:
+        '200':
+          description: Route found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  route:
+                    "$ref": "#/components/schemas/Route"
+                required:
+                - route
+        '403':
+          description: Forbidden - Route not visible to user
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '404':
+          description: not Found - Route not found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+    delete:
+      summary: Deletes the specified route
+      tags:
+      - Routes
+      description: Deletes a route owned by the authenticated user
+      operationId: deleteRoute
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      responses:
+        '204':
+          description: Route deleted successfully
+        '403':
+          description: Forbidden - cannot delete route owned by another user
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+        '404':
+          description: Route not found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+  "/api/v1/routes/{id}/polyline.json":
+    parameters:
+    - name: id
+      in: path
+      description: Route ID
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Returns the polyline for the specified route
+      tags:
+      - Routes
+      description: |
+        Returns an encoded polyline string for the specified route.
+
+        The polyline is a simplified representation of the route geometry, suitable for displaying on a map.
+      operationId: getRoutePolyline
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      - "$ref": "#/components/parameters/privacy_code"
+      responses:
+        '200':
+          description: Polyline found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  polyline:
+                    "$ref": "#/components/schemas/Polyline"
+                required:
+                - polyline
+        '403':
+          description: Forbidden - Route not visible to user
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '404':
+          description: Not Found - Route not found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/sync.json":
+    get:
+      summary: Returns items for sync
+      tags:
+      - Sync
+      description: |
+        Returns a list of items (routes and/or trips) that the user has interacted with since the given datetime.
+
+        The sync endpoint is convenient to maintain a remote copy of a user's library of trips and/or routes.
+
+        ### Actions
+
+        Items can have the following actions:
+        * `created` - The user created the item
+        * `updated` - The user updated the item
+        * `deleted` - The user deleted the item
+        * `added` - The user added the item to the specified collection (e.g., pinned)
+        * `removed` - The user removed the item from the specified collection
+
+        For `added` and `removed` actions, `collection` is the target collection where the action was taken. It is currently always the collection of pinned items for the authenticated user, but we might expose other collections in the future.
+
+        ### Sync Workflow
+
+        This endpoint is optimized for performance (we use a similar setup for syncing our own mobile apps), and can return the entire library for the user by using a `since` value well in the past (for example `1970-01-01`).
+
+        The following workflow is suitable to maintain your copy of a user's library:
+
+        1. When the user finalizes the OAuth workflow, get the current content of their library at `GET https://ridewithgps.com/api/v1/sync.json?since=1970-01-01`
+        2. Download and integrate in your system every item in the response and store the value of the `meta.rwgps_datetime` key in the response
+        3. Upon reception of a webhook for the user, get and integrate the items that have changed from a new sync request at `GET https://ridewithgps.com/api/v1/sync.json?since=[rwgps_datetime]`. Store the new value of `meta.rwgps_datetime` for the next sync request.
+
+        Doing a sync request on webhook reception instead of processing the items in the body of the webhook leads to the same result and provides a recovery mechanism for previous webhooks that might have failed because of network or systems availability issues.
+      operationId: getSyncInfo
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      - name: since
+        in: query
+        required: true
+        description: ISO 8601 datetime string for last sync. Use 1970-01-01 for initial
+          sync to get entire library.
+        schema:
+          type: string
+      - name: assets
+        in: query
+        type: string
+        required: false
+        description: Comma-separated list of asset types to return (routes, trips).
+          Defaults to your API client setting.
+        schema:
+          type: string
+          enum:
+          - routes
+          - trips
+          - routes,trips
+      responses:
+        '200':
+          description: Sync information retrieved
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        item_type:
+                          type: string
+                          enum:
+                          - route
+                          - trip
+                          description: Type of item
+                        item_id:
+                          type: integer
+                          description: ID of the item
+                        item_user_id:
+                          type: integer
+                          description: ID of the user who owns the item. It will be
+                            the ID of the authenticated user for created, updated
+                            and deleted actions. It might point to another user for
+                            added and removed actions, when the authenticated user
+                            pins an item from another user.
+                        item_url:
+                          type: string
+                          description: API URL for the item
+                        action:
+                          type: string
+                          enum:
+                          - created
+                          - updated
+                          - deleted
+                          - added
+                          - removed
+                          description: Action performed on the item
+                        datetime:
+                          type: string
+                          format: datetime
+                          description: When the action occurred
+                        collection:
+                          type: object
+                          nullable: true
+                          properties:
+                            id:
+                              type: integer
+                            type:
+                              type: string
+                            name:
+                              type: string
+                            url:
+                              type: string
+                          description: Collection context for added/removed actions
+                            (null for other actions)
+                      required:
+                      - item_type
+                      - item_id
+                      - item_user_id
+                      - item_url
+                      - action
+                      - datetime
+                    description: Array of sync items representing changes since the
+                      specified datetime
+                  meta:
+                    type: object
+                    properties:
+                      rwgps_datetime:
+                        type: string
+                        format: datetime
+                        description: Current server timestamp - use this value for
+                          the next sync request
+                      next_sync_url:
+                        type: string
+                        description: Pre-formatted URL for the next sync request with
+                          proper datetime
+                    required:
+                    - rwgps_datetime
+                    - next_sync_url
+                required:
+                - items
+                - meta
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/trips.json":
+    get:
+      summary: Returns a list of trips
+      tags:
+      - Trips
+      description: |
+        Returns a paginated list of trips for the authenticated user.
+
+        Supports filtering by `name`, `visibility`, `distance_min`, `distance_max`, `elevation_gain_min`, `elevation_gain_max` and `stationary`.
+      operationId: listTrips
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      - "$ref": "#/components/parameters/page"
+      - "$ref": "#/components/parameters/page_size"
+      - "$ref": "#/components/parameters/filter_name"
+      - "$ref": "#/components/parameters/visibility"
+      - "$ref": "#/components/parameters/distance_min"
+      - "$ref": "#/components/parameters/distance_max"
+      - "$ref": "#/components/parameters/elevation_gain_min"
+      - "$ref": "#/components/parameters/elevation_gain_max"
+      - "$ref": "#/components/parameters/stationary"
+      responses:
+        '200':
+          description: Trips found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trips:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/TripSummary"
+                  meta:
+                    type: object
+                    properties:
+                      pagination:
+                        "$ref": "#/components/schemas/PaginationMeta"
+                    required:
+                    - pagination
+                required:
+                - trips
+                - meta
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/trips/{id}.json":
+    parameters:
+    - name: id
+      in: path
+      description: Trip ID
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Returns the specified trip
+      tags:
+      - Trips
+      description: Returns detailed information about a specific trip
+      operationId: getTrip
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      - "$ref": "#/components/parameters/privacy_code"
+      responses:
+        '200':
+          description: Trip found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trip:
+                    "$ref": "#/components/schemas/Trip"
+                required:
+                - trip
+        '403':
+          description: Forbidden - Trip not visible to user
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '404':
+          description: Not Found - Trip not found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+    delete:
+      summary: Deletes the specified trip
+      tags:
+      - Trips
+      description: Deletes a trip owned by the authenticated user
+      operationId: deleteTrip
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      responses:
+        '204':
+          description: Trip deleted successfully
+        '403':
+          description: Forbidden - cannot delete trip owned by another user
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+        '404':
+          description: Trip not found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+  "/api/v1/trips/{id}/polyline.json":
+    parameters:
+    - name: id
+      in: path
+      description: Trip ID
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Returns the polyline for the specified trip
+      tags:
+      - Trips
+      description: |
+        Returns an encoded polyline string for the specified trip.
+
+        The polyline is a simplified representation of the trip geometry, suitable for displaying on a map.
+      operationId: getTripPolyline
+      parameters:
+      - "$ref": "#/components/parameters/api_key"
+      - "$ref": "#/components/parameters/auth_token"
+      - "$ref": "#/components/parameters/privacy_code"
+      responses:
+        '200':
+          description: Polyline found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  polyline:
+                    "$ref": "#/components/schemas/Polyline"
+                required:
+                - polyline
+        '403':
+          description: Forbidden - Trip not visible to user
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '404':
+          description: Not Found - Trip not found
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Unauthorized
+          headers:
+            x-rwgps-datetime:
+              schema:
+                type: string
+              description: Server timestamp in UTC
+            x-request-id:
+              schema:
+                type: string
+              description: Unique identifier for the request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+servers:
+- url: https://ridewithgps.com
+  description: API Server
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+          description: Array of error messages
+      required:
+      - errors
+    PaginationMeta:
+      type: object
+      properties:
+        record_count:
+          type: integer
+          description: Total number of records
+        page_count:
+          type: integer
+          description: Total number of pages
+        page_size:
+          type: integer
+          description: Number of records per page
+        next_page_url:
+          type: string
+          nullable: true
+          description: URL for the next page (null if last page)
+      required:
+      - record_count
+      - page_count
+      - page_size
+    UserSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        display_name:
+          type: string
+        email:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    AuthToken:
+      type: object
+      properties:
+        auth_token:
+          type: string
+        api_key:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        user:
+          "$ref": "#/components/schemas/User"
+    Photo:
+      type: object
+      properties:
+        id:
+          type: integer
+        url:
+          type: string
+        highlighted:
+          type: boolean
+        caption:
+          type: string
+          nullable: true
+        lat:
+          type: number
+          format: double
+          nullable: true
+        lng:
+          type: number
+          format: double
+          nullable: true
+        elevation:
+          type: integer
+          nullable: true
+        location:
+          type: string
+          nullable: true
+        locality:
+          type: string
+          nullable: true
+        administrative_area:
+          type: string
+          nullable: true
+        country_code:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+    PointOfInterestSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        type:
+          type: string
+        type_id:
+          type: integer
+        type_name:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        url:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+    PointOfInterest:
+      allOf:
+      - "$ref": "#/components/schemas/PointOfInterestSummary"
+      - type: object
+        properties:
+          tag_names:
+            type: array
+            items:
+              type: string
+    PointOfInterestPayload:
+      type: object
+      properties:
+        event:
+          type: object
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+              nullable: true
+            poi_type:
+              type: string
+            url:
+              type: string
+              nullable: true
+            lat:
+              type: number
+              description: Latitude
+            lng:
+              type: number
+              description: Longitude
+      required:
+      - point_of_interest
+    Gear:
+      type: object
+      properties:
+        id:
+          type: integer
+        make:
+          type: string
+          nullable: true
+        model:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        exclude_from_totals:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+    EventParticipant:
+      type: object
+      properties:
+        user:
+          "$ref": "#/components/schemas/User"
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CoursePoint:
+      type: object
+      properties:
+        x:
+          type: number
+          description: Longitude
+        "y":
+          type: number
+          description: Latitude
+        d:
+          type: number
+          description: Distance from start in meters
+        i:
+          type: integer
+          description: Cue track index
+        t:
+          type: string
+          description: Type of cue
+        "n":
+          type: string
+          description: Cue text
+        _e:
+          type: boolean
+          description: User edited cue
+    TrackPointRoute:
+      type: object
+      properties:
+        x:
+          type: number
+          description: Longitude
+        "y":
+          type: number
+          description: Latitude
+        d:
+          type: number
+          description: Distance from start in meters
+        e:
+          type: number
+          description: Elevation in meters
+        S:
+          type: integer
+          description: Surface type
+        R:
+          type: integer
+          description: Highway tag
+    TrackPointTrip:
+      type: object
+      properties:
+        x:
+          type: number
+          description: Longitude
+        "y":
+          type: number
+          description: Latitude
+        d:
+          type: number
+          description: Distance from start in meters
+        e:
+          type: integer
+          description: Elevation in meters
+        t:
+          type: integer
+          description: Unix epoch time in seconds
+        s:
+          type: number
+          description: Speed in kilometers per hour
+        T:
+          type: integer
+          description: Temperature in degrees celsius
+        h:
+          type: integer
+          description: Heart rate in beats per minute
+        c:
+          type: integer
+          description: Cadence in rounds per minute
+        p:
+          type: integer
+          description: Power output in watts
+        pb:
+          type: integer
+          description: Power balance percent L/R
+        lap:
+          type: boolean
+          description: Start of lap
+        k:
+          type: boolean
+          description: Exclude from metrics
+        m:
+          type: boolean
+          description: User modified
+    RouteSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        url:
+          type: string
+        html_url:
+          type: string
+        visibility:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        locality:
+          type: string
+          nullable: true
+        administrative_area:
+          type: string
+          nullable: true
+        country_code:
+          type: string
+          nullable: true
+        distance:
+          type: number
+          description: Distance in meters
+        elevation_gain:
+          type: number
+          description: Elevation gain in meters
+        elevation_loss:
+          type: number
+          description: Elevation loss in meters
+        first_lat:
+          type: number
+        first_lng:
+          type: number
+        last_lat:
+          type: number
+        last_lng:
+          type: number
+        sw_lat:
+          type: number
+          description: Southwest bounding box latitude
+        sw_lng:
+          type: number
+          description: Southwest bounding box longitude
+        ne_lat:
+          type: number
+          description: Northeast bounding box latitude
+        ne_lng:
+          type: number
+          description: Northeast bounding box longitude
+        track_type:
+          type: string
+          nullable: true
+        terrain:
+          type: string
+          nullable: true
+        difficulty:
+          type: string
+          nullable: true
+        unpaved_pct:
+          type: number
+          nullable: true
+        surface:
+          type: string
+          nullable: true
+        archived:
+          type: boolean
+          nullable: true
+          example: false
+          description: null for non owned routes
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Route:
+      allOf:
+      - "$ref": "#/components/schemas/RouteSummary"
+      - type: object
+        properties:
+          activity_types:
+            type: array
+            description: Activity types for this route. See Activity Types reference.
+            items:
+              type: string
+              enum:
+              - cycling:generic
+              - cycling:road
+              - cycling:gravel
+              - cycling:mountain
+              - cycling:commute
+              - walking:generic
+              - walking:hiking
+              - running:generic
+              - driving:generic
+              - motorcycling:generic
+              - swimming:generic
+              - snow:generic
+          track_points:
+            type: array
+            items:
+              "$ref": "#/components/schemas/TrackPointRoute"
+          course_points:
+            type: array
+            items:
+              "$ref": "#/components/schemas/CoursePoint"
+          points_of_interest:
+            type: array
+            items:
+              "$ref": "#/components/schemas/PointOfInterest"
+          photos:
+            type: array
+            items:
+              "$ref": "#/components/schemas/Photo"
+          collections:
+            type: array
+            items:
+              "$ref": "#/components/schemas/CollectionSummary"
+    TripSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        url:
+          type: string
+        web_url:
+          type: string
+        visibility:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        departed_at:
+          type: string
+          format: date-time
+          nullable: true
+        time_zone:
+          type: string
+          nullable: true
+        locality:
+          type: string
+          nullable: true
+        administrative_area:
+          type: string
+          nullable: true
+        country_code:
+          type: string
+          nullable: true
+        activity_type:
+          type: string
+          nullable: true
+        fit_sport:
+          type: integer
+          nullable: true
+        fit_sub_sport:
+          type: integer
+          nullable: true
+        stationary:
+          type: boolean
+        distance:
+          type: number
+          description: Distance in meters
+        duration:
+          type: number
+          description: Duration in seconds
+        moving_time:
+          type: number
+          description: Moving time in seconds
+        elevation_gain:
+          type: number
+          description: Elevation gain in meters
+        elevation_loss:
+          type: number
+          description: Elevation loss in meters
+        first_lat:
+          type: number
+          nullable: true
+        first_lng:
+          type: number
+          nullable: true
+        last_lat:
+          type: number
+          nullable: true
+        last_lng:
+          type: number
+          nullable: true
+        sw_lat:
+          type: number
+          nullable: true
+        sw_lng:
+          type: number
+          nullable: true
+        ne_lat:
+          type: number
+          nullable: true
+        ne_lng:
+          type: number
+          nullable: true
+        track_type:
+          type: string
+          nullable: true
+        terrain:
+          type: string
+          nullable: true
+        difficulty:
+          type: string
+          nullable: true
+        avg_speed:
+          type: number
+          nullable: true
+        max_speed:
+          type: number
+          nullable: true
+        avg_cad:
+          type: number
+          nullable: true
+        min_cad:
+          type: number
+          nullable: true
+        max_cad:
+          type: number
+          nullable: true
+        avg_hr:
+          type: number
+          nullable: true
+        min_hr:
+          type: number
+          nullable: true
+        max_hr:
+          type: number
+          nullable: true
+        avg_watts:
+          type: number
+          nullable: true
+        min_watts:
+          type: number
+          nullable: true
+        max_watts:
+          type: number
+          nullable: true
+        calories:
+          type: number
+          nullable: true
+        device:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Trip:
+      allOf:
+      - "$ref": "#/components/schemas/TripSummary"
+      - type: object
+        properties:
+          track_points:
+            type: array
+            items:
+              "$ref": "#/components/schemas/TrackPointTrip"
+          gear:
+            "$ref": "#/components/schemas/Gear"
+            nullable: true
+          photos:
+            type: array
+            items:
+              "$ref": "#/components/schemas/Photo"
+          collections:
+            type: array
+            items:
+              "$ref": "#/components/schemas/CollectionSummary"
+    EventSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        url:
+          type: string
+        html_url:
+          type: string
+        visibility:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        logo_url:
+          type: string
+          nullable: true
+        banner_url:
+          type: string
+          nullable: true
+        location:
+          type: string
+          nullable: true
+        lat:
+          type: number
+          description: Latitude
+          nullable: true
+        lng:
+          type: number
+          description: Longitude
+          nullable: true
+        time_zone:
+          type: string
+        start_date:
+          type: string
+          format: date
+        start_time:
+          type: string
+          example: '09:00'
+        end_date:
+          type: string
+          format: date
+        end_time:
+          type: string
+          example: '15:00'
+        all_day:
+          type: boolean
+          example: false
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Event:
+      allOf:
+      - "$ref": "#/components/schemas/EventSummary"
+      - type: object
+        properties:
+          organizers:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                created_at:
+                  type: string
+                  format: date-time
+                updated_at:
+                  type: string
+                  format: date-time
+          photos:
+            type: array
+            items:
+              "$ref": "#/components/schemas/Photo"
+    EventPayload:
+      type: object
+      properties:
+        event:
+          type: object
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+              nullable: true
+            visibility:
+              type: string
+            location:
+              type: string
+            lat:
+              type: number
+              description: Latitude
+            lng:
+              type: number
+              description: Longitude
+            time_zone:
+              type: string
+              nullable: true
+            start_date:
+              type: string
+              format: date
+            start_time:
+              type: string
+              example: '09:00'
+            end_date:
+              type: string
+              format: date
+            end_time:
+              type: string
+              example: '15:00'
+            logo:
+              type: string
+              format: binary
+              nullable: true
+            banner:
+              type: string
+              format: binary
+              nullable: true
+            organizers:
+              type: array
+              items:
+                "$ref": "#/components/schemas/User"
+      required:
+      - event
+    CollectionSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        url:
+          type: string
+        html_url:
+          type: string
+        visibility:
+          type: string
+        name:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        cover:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Collection:
+      allOf:
+      - "$ref": "#/components/schemas/CollectionSummary"
+      - type: object
+        properties:
+          routes:
+            type: array
+            items:
+              "$ref": "#/components/schemas/RouteSummary"
+          trips:
+            type: array
+            items:
+              "$ref": "#/components/schemas/TripSummary"
+    Polyline:
+      type: object
+      properties:
+        parent_type:
+          type: string
+          description: Type of parent object (route or trip)
+          example: route
+        parent_id:
+          type: integer
+          description: ID of the parent object
+        data:
+          type: string
+          nullable: true
+          description: Encoded polyline string in XY format
+      required:
+      - parent_type
+      - parent_id
+      - data
+    ClubMember:
+      type: object
+      properties:
+        id:
+          type: integer
+        url:
+          type: string
+        active:
+          type: boolean
+        admin:
+          type: boolean
+        manages_routes:
+          type: boolean
+        manages_members:
+          type: boolean
+        manages_billing:
+          type: boolean
+        approved_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        user:
+          "$ref": "#/components/schemas/User"
+      required:
+      - id
+      - active
+      - admin
+      - manages_routes
+      - manages_members
+      - manages_billing
+  parameters:
+    page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Page number for pagination
+    page_size:
+      name: page_size
+      in: query
+      schema:
+        type: integer
+        minimum: 20
+        maximum: 200
+        default: 20
+      description: Number of items per page (20-200)
+    privacy_code:
+      name: privacy_code
+      in: query
+      schema:
+        type: string
+      description: Privacy code for the non public asset
+      required: false
+    api_key:
+      name: x-rwgps-api-key
+      in: header
+      schema:
+        type: string
+      required: true
+      description: API key for identifying the client application
+    auth_token:
+      name: x-rwgps-auth-token
+      in: header
+      schema:
+        type: string
+      required: true
+      description: Authentication token for the user
+    filter_name:
+      name: name
+      in: query
+      schema:
+        type: string
+      description: Filter by name (partial match)
+      required: false
+      getter: filter_name
+    email:
+      name: email
+      in: query
+      schema:
+        type: string
+      description: Filter by email (partial match)
+      required: false
+    visibility:
+      name: visibility
+      in: query
+      schema:
+        type: string
+        enum:
+        - public
+        - friends_only
+        - private
+      description: Filter by visibility
+      required: false
+    distance_min:
+      name: distance_min
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+      description: Minimum distance in meters
+      required: false
+    distance_max:
+      name: distance_max
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+      description: Maximum distance in meters
+      required: false
+    elevation_gain_min:
+      name: elevation_gain_min
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+      description: Minimum elevation gain in meters
+      required: false
+    elevation_gain_max:
+      name: elevation_gain_max
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+      description: Maximum elevation gain in meters
+      required: false
+    archived:
+      name: archived
+      in: query
+      schema:
+        type: string
+        enum:
+        - 'true'
+        - 'false'
+      description: Filter by archived status
+      required: false
+    stationary:
+      name: stationary
+      in: query
+      schema:
+        type: string
+        enum:
+        - 'true'
+        - 'false'
+      description: Filter by stationary status
+      required: false

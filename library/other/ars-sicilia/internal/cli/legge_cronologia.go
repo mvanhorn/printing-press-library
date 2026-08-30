@@ -8,6 +8,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -32,6 +33,7 @@ esiste in piu' anni della stessa legislatura.`,
 		Args:    cobra.MaximumNArgs(2),
 		Annotations: map[string]string{
 			"mcp:read-only": "true",
+			"pp:happy-args": "legisl=18;numero=26;--anno=2025",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 2 {
@@ -40,16 +42,26 @@ esiste in piu' anni della stessa legislatura.`,
 				}
 				return usageErr(fmt.Errorf("richiesti 2 argomenti: <legisl> e <numero>"))
 			}
+			legisl, errL := atoiArg(args[0], "legisl")
+			numero, errN := atoiArg(args[1], "numero")
+			if errL != nil || errN != nil {
+				// Sotto --dry-run (e sotto verify) gli argomenti possono essere
+				// segnaposto: la matrice di collaudo sonda i comandi scritti a
+				// mano con valori finti (`mock-value`), e prima di questa
+				// anteprima il ramo dry-run usciva 0 senza guardarli. Fallire
+				// qui trasformerebbe una sonda che passava in un errore, quindi
+				// si ripiega sull'help come fa il ramo degli argomenti mancanti
+				// qui sopra: un'uscita non muta, e con codice 0.
+				if dryRunOK(flags) || cliIsVerify() {
+					return cmd.Help()
+				}
+				if errL != nil {
+					return errL
+				}
+				return errN
+			}
 			if dryRunOK(flags) {
-				return nil
-			}
-			legisl, err := atoiArg(args[0], "legisl")
-			if err != nil {
-				return err
-			}
-			numero, err := atoiArg(args[1], "numero")
-			if err != nil {
-				return err
+				return emitLeggeCronologiaDryRun(cmd, legisl, numero, flagAnno)
 			}
 			return runLeggeCronologia(cmd, flags, legisl, numero, flagAnno)
 		},
@@ -58,6 +70,41 @@ esiste in piu' anni della stessa legislatura.`,
 	// L.R. 3/2024): --anno disambigua sul campo LEGANN, come in `leggi get`.
 	cmd.Flags().IntVar(&flagAnno, "anno", 0, "Anno della legge, per disambiguare numeri ripetuti tra anni diversi.")
 	return cmd
+}
+
+// emitLeggeCronologiaDryRun mostra la prima richiesta — quella che aggancia la
+// legge nell'archivio 201 — invece di uscire in silenzio con exit 0, che è
+// quello che faceva: il flag era accettato e scartato, e chi diagnosticava con
+// --dry-run (come `ddl iter`, che l'anteprima ce l'ha) leggeva l'uscita vuota
+// come un guasto del comando.
+//
+// Le richieste successive non si possono anteprimare: il ddl d'origine si
+// risolve dai campi P010/P012 della legge trovata, quindi la query dipende da
+// una risposta che il dry-run non chiede. Si dichiara il passo invece di
+// tacerlo o di inventarne la forma.
+// leggeSearchParams sono i parametri con cui si aggancia la legge, in un posto
+// solo: anteprima e ricerca vera devono partire dagli stessi.
+func leggeSearchParams(legisl, numero, anno int) map[string]string {
+	params := map[string]string{"legisl": itoa(legisl), "numero": itoa(numero)}
+	if anno != 0 {
+		params["anno"] = itoa(anno)
+	}
+	return params
+}
+
+func emitLeggeCronologiaDryRun(cmd *cobra.Command, legisl, numero, anno int) error {
+	target, err := dryRunTargetBySlug("leggi", leggeSearchParams(legisl, numero, anno))
+	if err != nil {
+		return err
+	}
+	if target == nil {
+		return fmt.Errorf("archivio leggi non disponibile")
+	}
+	nota := "aggancia la legge, poi risale al DDL d'origine seguendo i campi P010/P012 della scheda trovata e ne legge l'iter: quelle richieste dipendono da questa risposta e non sono anteprimabili."
+	if anno == 0 {
+		nota += " Senza --anno l'archivio restituisce una sola delle leggi con questo numero, e la cronologia può riferirsi all'atto sbagliato."
+	}
+	return emitDryRunRequests(cmd, []map[string]any{target}, nota)
 }
 
 func runLeggeCronologia(cmd *cobra.Command, flags *rootFlags, legisl, numero, anno int) error {
@@ -78,19 +125,19 @@ func runLeggeCronologia(cmd *cobra.Command, flags *rootFlags, legisl, numero, an
 	if arcLeggi == nil {
 		return fmt.Errorf("archivio leggi non disponibile")
 	}
-	params := map[string]string{"legisl": itoa(legisl), "numero": itoa(numero)}
-	if anno != 0 {
-		params["anno"] = itoa(anno)
-	}
-	recs, err := c.Search(ctx, *arcLeggi, icaro.SearchOptions{Params: params, Limit: 1})
+	recs, err := c.Search(ctx, *arcLeggi, icaro.SearchOptions{Params: leggeSearchParams(legisl, numero, anno), Limit: 1})
 	if err != nil {
 		return fmt.Errorf("ricerca legge: %w", err)
 	}
 	if len(recs) == 0 {
-		return notFoundErr(fmt.Errorf("nessuna legge trovata per legisl=%d numero=%d (aggiungi --anno per disambiguare numeri ripetuti tra anni diversi)", legisl, numero))
+		return notFoundErr(fmt.Errorf("%s", leggeNonTrovataMsg(legisl, numero, anno)))
 	}
 	law := recs[0]
+	warnAnnoNonPinnato(anno, numero, law.Fields["Data"])
 	report.Titolo = law.Title
+	// iterReport è condiviso con `ddl iter`: qui l'atto di cui si racconta la
+	// storia è la legge, quindi la radice porta la sua scheda.
+	report.URL = law.URL
 	report.Eventi = append(report.Eventi, iterEvent{
 		Fase:      "promulgazione",
 		Data:      law.Fields["Data"],
@@ -125,6 +172,9 @@ func runLeggeCronologia(cmd *cobra.Command, flags *rootFlags, legisl, numero, an
 			ddls, derr := c2.Search(ctx, *arcDdl, icaro.SearchOptions{ISISRaw: expr, Limit: 5, MaxPages: 1})
 			if derr == nil {
 				for _, r := range ddls {
+					if n, aerr := strconv.Atoi(strings.TrimSpace(r.Fields["Numero"])); aerr == nil {
+						report.DdlOriginari = append(report.DdlOriginari, n)
+					}
 					report.Eventi = append(report.Eventi, iterEvent{
 						Fase:      "ddl_originario",
 						Data:      r.Fields["Data"],
@@ -148,7 +198,17 @@ func runLeggeCronologia(cmd *cobra.Command, flags *rootFlags, legisl, numero, an
 					// "<numero> <parola> <4 cifre>" quando il taglio di fine
 					// iter non li esclude.
 					if doc, gerr := c2.GetDoc(ctx, *arcDdl, r.DocID); gerr == nil {
-						for _, ev := range docIterEvents(doc) {
+						// Le stesse guardie di coerenza seduta↔data di `ddl
+						// iter`: gli eventi sono letti dallo stesso iter e
+						// portano le stesse contraddizioni della fonte. Senza,
+						// la cronologia della L.R. 9/2020 dava il voto finale
+						// al 2 maggio 2020 con la seduta 187 (che è del 28
+						// aprile) senza alcun segnale, e chi incrociava per
+						// data concludeva «resoconto mancante».
+						evs := docIterEvents(doc)
+						_, avviso := marcaEventiIncoerenti(cmd, legisl, evs)
+						report.Note = uniscoNote(report.Note, avviso)
+						for _, ev := range evs {
 							ev.URL = r.URL
 							ev.ArchiveID = arcDdl.ID
 							ev.DocID = r.DocID
@@ -160,7 +220,7 @@ func runLeggeCronologia(cmd *cobra.Command, flags *rootFlags, legisl, numero, an
 		}
 	}
 	if len(report.Eventi) == 1 {
-		report.Note = fmt.Sprintf("Nessun DDL d'origine collegato alla L.R. %d/%d nell'archivio: il portale non espone il legame (campi P010/P012) per questo atto.", numero, annoLegge)
+		report.Note = uniscoNote(report.Note, fmt.Sprintf("Nessun DDL d'origine collegato alla L.R. %d/%d nell'archivio: il portale non espone il legame (campi P010/P012) per questo atto.", numero, annoLegge))
 	}
 
 	sort.SliceStable(report.Eventi, func(i, j int) bool {
@@ -176,4 +236,57 @@ func runLeggeCronologia(cmd *cobra.Command, flags *rootFlags, legisl, numero, an
 		fmt.Fprintf(out, "  [%s] %s — %s\n", e.Fase, e.Data, strings.TrimSpace(e.Sede+" "+e.Titolo))
 	}
 	return nil
+}
+
+// leggeNonTrovataMsg spiega perché la ricerca è tornata vuota, e la spiegazione
+// cambia a seconda che --anno sia stato dato o no.
+//
+// Senza --anno il consiglio giusto è darlo: lo stesso numero si ripete in anni
+// diversi della stessa legislatura. Ma con --anno già fornito quel consiglio
+// descrive un caso che non è quello in corso, e l'uscita si legge come «legge
+// inesistente» con un rimedio inapplicabile. Misurato sulla L.R. 21/2026,
+// promulgata il 4 agosto: l'archivio leggi arrivava al 22 luglio, quindi la
+// legge esisteva ed era solo troppo fresca per essere indicizzata.
+//
+// Il fronte della fonte NON si calcola qui. L'archivio leggi consegna dal più
+// vecchio (vedi novita.go), quindi una sonda da una riga stamperebbe la prima
+// legge dell'anno come «l'archivio arriva al…»: un numero sbagliato detto con
+// sicurezza, peggio di nessun numero. Leggerlo davvero vorrebbe dire scaricare
+// l'anno intero su un percorso d'errore. Si nomina invece il comando che quel
+// numero ce l'ha già.
+func leggeNonTrovataMsg(legisl, numero, anno int) string {
+	if anno == 0 {
+		return fmt.Sprintf("nessuna legge trovata per legisl=%d numero=%d (aggiungi --anno per disambiguare numeri ripetuti tra anni diversi)", legisl, numero)
+	}
+	return fmt.Sprintf(
+		"nessuna legge trovata per legisl=%d numero=%d anno=%d. Due cause possibili: la legge è stata promulgata da poco e l'archivio delle leggi non l'ha ancora indicizzata (`ars-sicilia-pp-cli novita --archivi leggi` dice fin dove arriva la fonte), oppure quella coppia numero-anno non esiste in questa legislatura (`ars-sicilia-pp-cli leggi cerca --legisl %d --anno %d` le elenca). Se la legge è recente, l'iter parlamentare si legge comunque dal lato ddl con `ars-sicilia-pp-cli ddl cerca` e `ddl iter`.",
+		legisl, numero, anno, legisl, anno)
+}
+
+// warnAnnoNonPinnato avverte su stderr quando il chiamante non ha fissato
+// --anno: l'archivio tiene lo stesso numero di legge in anni diversi della
+// stessa legislatura (nella XVIII ci sono due L.R. 26, ottobre 2024 e giugno
+// 2025) e la ricerca ne restituisce una sola, la prima. Senza avviso si ottiene
+// una cronologia perfettamente coerente e riferita all'atto sbagliato, senza
+// alcun segnale che ne esistesse un altro. Non sondiamo l'archivio per contare
+// gli anni davvero presenti: costerebbe pagine di richieste e resterebbe
+// inaffidabile, perché l'archivio tiene una riga per articolo e una legge lunga
+// riempirebbe da sola la finestra. Dire quale legge si è presa è più economico
+// e altrettanto utile: chi legge la data riconosce subito l'atto sbagliato.
+func warnAnnoNonPinnato(anno, numero int, data string) {
+	if msg := annoNonPinnatoHint(anno, numero, data); msg != "" {
+		fmt.Fprintln(os.Stderr, msg)
+	}
+}
+
+// annoNonPinnatoHint torna il testo dell'avviso, o "" quando non c'è nulla da
+// dire. Separato da warnAnnoNonPinnato per poterlo verificare senza catturare
+// stderr, come truncatedHint.
+func annoNonPinnatoHint(anno, numero int, data string) string {
+	if anno != 0 || strings.TrimSpace(data) == "" {
+		return ""
+	}
+	return fmt.Sprintf(
+		"hint: --anno non indicato: uso la L.R. %d promulgata il %s. Lo stesso numero si ripete in anni diversi della stessa legislatura e l'archivio ne restituisce una sola: se non è questa, ripeti con --anno.",
+		numero, data)
 }

@@ -1,0 +1,36 @@
+{
+  "query_family_examples": [
+    "get on the Texas Roadhouse waitlist",
+    "join the waitlist nearby",
+    "put us on the Roadhouse list"
+  ],
+  "entity_slots": ["$PLACE", "$STORE", "$PARTY"],
+  "expected_tool_calls": 4,
+  "steps": [
+    {
+      "cmd": "mapbox {$PLACE.json} --types place --country US",
+      "purpose": "Geocode the city or area the human named. If they named no place, ask for a city or use their last known area. Do not invent coordinates."
+    },
+    {
+      "cmd": "stores --lat {place.lat} --long {place.long} --limit 4 --radius 80",
+      "purpose": "Four nearby stores. Use extref as waitlist_id, not the internal id."
+    },
+    {
+      "cmd": "texasroadhouse get-quote {store.extref}",
+      "purpose": "Quote each of the four stores (party-size buckets 1-6)."
+    },
+    {
+      "client_side": "present_store_choices",
+      "args": {
+        "count": 4,
+        "fields": ["name", "streetaddress", "city", "state", "extref", "distance", "quote"],
+        "stop": true
+      },
+      "purpose": "STOP. Present choices. Wait for the human to name one store and party size. Never submit in this step."
+    },
+    {
+      "cmd": "texasroadhouse submit {store.extref} --dry-run --stdin",
+      "purpose": "Show the join body only after they picked a store and party size. Live submit is a later step with an explicit yes."
+    }
+  ]
+}

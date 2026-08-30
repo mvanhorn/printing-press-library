@@ -1,0 +1,51 @@
+version: 2
+project_name: carol-bike-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: carol-bike-pp-cli
+    main: ./cmd/carol-bike-pp-cli
+    binary: carol-bike-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/health/carol-bike/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: carol-bike-pp-mcp
+    main: ./cmd/carol-bike-pp-mcp
+    binary: carol-bike-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: carol-bike-pp-cli
+    repository:
+      owner: bricenice17
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Read and locally mirror personal CAROL Bike workout data."
+    install: |
+      bin.install "carol-bike-pp-cli"
+      bin.install "carol-bike-pp-mcp"

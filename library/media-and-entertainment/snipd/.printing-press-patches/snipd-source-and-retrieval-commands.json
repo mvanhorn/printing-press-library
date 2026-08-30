@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "id": "snipd-source-and-retrieval-commands",
+  "applied_at": "2026-07-13",
+  "base_run_id": "20260713-190747-d8d38c3e",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Hand-built Snipd export source layer plus six novel commands (pull + the search/quote/synthesize/filter/aggregate retrieval surface) over a local SQLite+FTS corpus.",
+  "reason": "Snipd has no public REST resource API. Full snip content is reachable only through the sanctioned Obsidian export: GET /obsidian/fetch-export-metadata (JSON catalog) and POST /obsidian/export-episode-snips, which takes a labelled-delimiter TEMPLATE body and returns a ZIP of server-rendered markdown (NOT JSON). The generator's typed-endpoint path cannot model a template-body/ZIP-response endpoint, so only the metadata GET is a generated typed endpoint (resource 'catalog'). Everything that makes the CLI useful is hand-built on top, exactly like Medium Reader and Substack Reader: internal/snipd is a keyed HTTP + parse layer beside the generated internal/client (which is JSON-only and cannot handle the ZIP); the six commands are hand-authored novel scaffolds whose generator-emitted RunE bodies were 'TODO: implement novel feature'. Auth is genuinely required (no keyless tier) and modelled in the spec as auth.type: bearer_token, so the generated config/client/doctor handle SNIPD_TOKEN; the hand source layer reuses config.SnipdToken rather than opening a second credential channel. Episodes and snips are stored in the generic resources table (resource_type='episodes'/'snips') to inherit the generic FTS5 (porter) index, mirroring Substack Reader's posts-in-generic-table choice. None of the listed files carry a generator DO-NOT-EDIT header.",
+  "files": [
+    "internal/snipd/parse.go",
+    "internal/snipd/parse_test.go",
+    "internal/snipd/client.go",
+    "internal/snipd/client_test.go",
+    "internal/cli/pull.go",
+    "internal/cli/quote.go",
+    "internal/cli/synthesize.go",
+    "internal/cli/filter.go",
+    "internal/cli/aggregate.go",
+    "internal/cli/snipd_corpus.go",
+    "internal/cli/snipd_corpus_test.go"
+  ],
+  "validated_outcome": "Pre-publish code review (adversarial subagent) confirmed CLEAN on SQL injection, secret leakage, resource leaks, nil-deref, dry-run/verify gating, and read-side aggregation phantoms; 5 write/parse-path findings fixed (curtailed pull no longer advances the incremental cursor past unfetched episodes; sync_state stamps the true mirror COUNT(*) not the per-run delta; querySnips threads ctx via QueryContext; parseQuote uses em-dash-only first-wins attribution so a body bullet isn't misread as speaker; UUID-less snips get a content-stable synthetic id). 0 hand-authored gosec findings after fixing one G104. go build/vet/test green under go1.26.4 (internal/snipd + internal/cli tests pass). shipcheck 7/7 legs PASS (verify, validate-narrative, dogfood, workflow-verify, apify-audit, verify-skill, scorecard). Scorecard 89/100 Grade A. Live dogfood --level quick PASS 16/16 against the real Snipd API. Full live pull verified end-to-end: 107 episodes / 2279 snips parsed and upserted in 86s, matching the reference corpus. Retrieval verified at scale against the real corpus: aggregate by-show (528 Finding Our Way / 336 Lenny's / ...), favorites count 11, search 'hallucination' relevant, quote 'thought partner' returns the correct quote+speaker, synthesize compact feed 11KB vs full search 27KB. MCP verified in a fresh session: 31 tools; pull/quote/synthesize/filter/aggregate mirrored with correct read-only hints; synthesize MCP call returns compact rows (snip_id+note present, transcript absent).",
+  "known_followups": [
+    "push (curated Tana Outliner export) is deferred to a fast-follow session, not shipped as a stub.",
+    "filter --tag / aggregate by-tag are correct but return empty for accounts whose snips carry no Snipd tags (verified: this account's snips are untagged).",
+    "Generated MCP recipe-intent 'where_do_my_snips_cluster' is annotated readOnly=false though it runs the read-only aggregate; generator-owned (retro candidate)."
+  ]
+}

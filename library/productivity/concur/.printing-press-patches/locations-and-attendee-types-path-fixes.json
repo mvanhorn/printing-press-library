@@ -1,0 +1,35 @@
+{
+  "schema_version": 2,
+  "id": "locations-and-attendee-types-path-fixes",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260812-144651-60addfc5",
+  "base_printing_press_version": "unstamped (pre-4.28.0, no .printing-press.json in this tree)",
+  "summary": "Two independent path corrections confirmed against developer.concur.com: location search lives under the newer Localities v5 resource family (not a guessed 'Locations v4'), and Attendee Types v4 is a bare top-level path, not nested under /expenseconfig/.",
+  "reason": "Both paths were LOW-confidence guesses (resource name only, no fetched URI template). locations.search 404'd against /locations/v4/locations with a query param named 'query'; the real resource is /localities/v5/locations with a free-text param named searchText. attendee_types.list 500'd against /expenseconfig/v4/attendeetypes; the real resource is the bare /v4/attendeetypes.",
+  "files": [
+    "internal/cli/promoted_locations.go",
+    "internal/cli/promoted_attendee-types.go",
+    "internal/cli/resource_paths.go",
+    "internal/cli/sync.go"
+  ],
+  "changes": [
+    {
+      "file": "internal/cli/promoted_locations.go",
+      "description": "path corrected to /localities/v5/locations; query param renamed from 'query' to 'searchText' to match the real API."
+    },
+    {
+      "file": "internal/cli/promoted_attendee-types.go",
+      "description": "path corrected to /v4/attendeetypes (was /expenseconfig/v4/attendeetypes)."
+    },
+    {
+      "file": "internal/cli/resource_paths.go",
+      "description": "resourceReadPaths['locations'] and resourceReadPaths['attendee_types'] updated to match."
+    },
+    {
+      "file": "internal/cli/sync.go",
+      "description": "syncResourcePath()'s locations and attendee_types entries updated to match."
+    }
+  ],
+  "validated_outcome": "locations.search: live-tested, HTTP 200 (valid empty result for 'New York' -- corporate location catalogs use structured locality codes, not free city names, so an empty match set is expected behavior, not a failure). attendee_types.list: live-tested, HTTP 403 with 'The OAuth Consumer must have one of these roles: Web Services Administrator, Expense Configuration Admin, or Expense Configuration Restricted' -- confirms the path is now correct AND confirms developer.concur.com's stated 'company access tokens only' requirement; this is a real, permanent auth-model boundary for cookie-session callers, not a further path bug. Documented in spec.yaml as AUTH-GATED.",
+  "upstream_issue": null
+}

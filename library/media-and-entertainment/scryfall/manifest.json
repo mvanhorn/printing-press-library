@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "scryfall-pp-mcp",
+  "display_name": "Scryfall",
+  "version": "4.29.0",
+  "description": "Magic: The Gathering card database MCP server: card search, identifier lookup, collection valuation, prices, rulings, sets, and symbology against api.scryfall.com (no auth)",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/scryfall-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/scryfall-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

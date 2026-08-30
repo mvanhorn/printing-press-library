@@ -1,0 +1,51 @@
+version: 2
+project_name: etsy-seller-dashboard-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: etsy-seller-dashboard-pp-cli
+    main: ./cmd/etsy-seller-dashboard-pp-cli
+    binary: etsy-seller-dashboard-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/commerce/etsy-seller-dashboard/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: etsy-seller-dashboard-pp-mcp
+    main: ./cmd/etsy-seller-dashboard-pp-mcp
+    binary: etsy-seller-dashboard-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: etsy-seller-dashboard-pp-cli
+    repository:
+      owner: horknfbr
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Read-only Etsy Shop Manager demand, advertising, offsite attribution, and promotion intelligence"
+    install: |
+      bin.install "etsy-seller-dashboard-pp-cli"
+      bin.install "etsy-seller-dashboard-pp-mcp"

@@ -1,0 +1,218 @@
+{
+  "api_name": "amazon-jobs",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "shubhtoy/amazon-jobs-scraper",
+      "url": "https://github.com/shubhtoy/amazon-jobs-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "marcogdepinto/amazon-jobs-scraper",
+      "url": "https://github.com/marcogdepinto/amazon-jobs-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-25T04:11:42Z",
+  "novel_features": [
+    {
+      "name": "New-since diff",
+      "command": "new",
+      "description": "See only the Amazon reqs that appeared since you last synced a saved search — no more re-scanning the whole list every morning.",
+      "rationale": "Requires a stored id_icims cursor in the local SQLite store; the stateless search API has no notion of 'new since my last look'.",
+      "example": "amazon-jobs-pp-cli new sde-seattle --agent",
+      "why_it_matters": "Reach for this when a user tracks a role over time and wants the delta, not the full list.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Saved searches",
+      "command": "save",
+      "description": "Persist a named query plus its filters and diff cursor so a search and its new-since state survive between runs.",
+      "rationale": "Persists {name, query, filters, cursor} rows the stateless API cannot hold.",
+      "example": "amazon-jobs-pp-cli save sde-seattle \"software engineer\" --city Seattle --country USA",
+      "why_it_matters": "Use this to set up a repeatable watch that `new` and `sync` then operate on by name.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Facet aggregation",
+      "command": "stats",
+      "description": "Count synced reqs grouped by city, state, team, or category — the aggregation Amazon's own empty facets[] never returns.",
+      "rationale": "GROUP BY over the local store; the server does zero aggregation and broad live counts are capped at 10000.",
+      "example": "amazon-jobs-pp-cli stats --by city --agent",
+      "why_it_matters": "Use this to answer 'which cities/teams have the most open reqs' without paging every result.",
+      "group": "Aggregation the API can't do"
+    },
+    {
+      "name": "Qualification-demand scan",
+      "command": "skills",
+      "description": "Rank teams and cities by how many synced reqs demand a given skill keyword in their basic/preferred qualifications.",
+      "rationale": "Keyword scan over qualification text grouped by team/city in local SQLite — cross-field demand no single API call returns.",
+      "example": "amazon-jobs-pp-cli skills Rust --agent",
+      "why_it_matters": "Reach for this for labor-market questions like 'who is hiring for X skill' rather than retrieving individual reqs.",
+      "group": "Aggregation the API can't do"
+    },
+    {
+      "name": "Pipeline facet filters",
+      "command": "find",
+      "description": "Filter live results by intern, manager, university, and schedule type — fields the .json endpoint silently ignores as server params.",
+      "rationale": "NULL-safe client-side predicates over paged results (scan-and-filter, --max-scan-pages bound); those fields are frequently null and non-filterable server-side.",
+      "example": "amazon-jobs-pp-cli find \"software engineer\" --manager=false --intern=false --agent",
+      "why_it_matters": "Use these flags when a user wants senior-IC, non-intern, or schedule-specific roles that Amazon can't filter server-side.",
+      "group": "Honest client-side filtering"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "New-since diff",
+      "command": "new",
+      "description": "See only the Amazon reqs that appeared since you last synced a saved search — no more re-scanning the whole list every morning.",
+      "rationale": "Requires a stored id_icims cursor in the local SQLite store; the stateless search API has no notion of 'new since my last look'.",
+      "example": "amazon-jobs-pp-cli new sde-seattle --agent",
+      "why_it_matters": "Reach for this when a user tracks a role over time and wants the delta, not the full list.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Saved searches",
+      "command": "save",
+      "description": "Persist a named query plus its filters and diff cursor so a search and its new-since state survive between runs.",
+      "rationale": "Persists {name, query, filters, cursor} rows the stateless API cannot hold.",
+      "example": "amazon-jobs-pp-cli save sde-seattle \"software engineer\" --city Seattle --country USA",
+      "why_it_matters": "Use this to set up a repeatable watch that `new` and `sync` then operate on by name.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Facet aggregation",
+      "command": "stats",
+      "description": "Count synced reqs grouped by city, state, team, or category — the aggregation Amazon's own empty facets[] never returns.",
+      "rationale": "GROUP BY over the local store; the server does zero aggregation and broad live counts are capped at 10000.",
+      "example": "amazon-jobs-pp-cli stats --by city --agent",
+      "why_it_matters": "Use this to answer 'which cities/teams have the most open reqs' without paging every result.",
+      "group": "Aggregation the API can't do"
+    },
+    {
+      "name": "Qualification-demand scan",
+      "command": "skills",
+      "description": "Rank teams and cities by how many synced reqs demand a given skill keyword in their basic/preferred qualifications.",
+      "rationale": "Keyword scan over qualification text grouped by team/city in local SQLite — cross-field demand no single API call returns.",
+      "example": "amazon-jobs-pp-cli skills Rust --agent",
+      "why_it_matters": "Reach for this for labor-market questions like 'who is hiring for X skill' rather than retrieving individual reqs.",
+      "group": "Aggregation the API can't do"
+    },
+    {
+      "name": "Pipeline facet filters",
+      "command": "find",
+      "description": "Filter live results by intern, manager, university, and schedule type — fields the .json endpoint silently ignores as server params.",
+      "rationale": "NULL-safe client-side predicates over paged results (scan-and-filter, --max-scan-pages bound); those fields are frequently null and non-filterable server-side.",
+      "example": "amazon-jobs-pp-cli find \"software engineer\" --manager=false --intern=false --agent",
+      "why_it_matters": "Use these flags when a user wants senior-IC, non-intern, or schedule-specific roles that Amazon can't filter server-side.",
+      "group": "Honest client-side filtering"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Amazon Jobs",
+    "headline": "Every Amazon.jobs feature, plus a local job store, new-since diffing, and aggregation Amazon's own site can't do — no login required.",
+    "value_prop": "amazon-jobs turns Amazon's careers site from a page you refresh into a queryable, watchable dataset. It uses the same unauthenticated JSON the site does, so there is no API key and no scraping fragility. Beyond search and filters, it keeps a local SQLite mirror that powers `new` (reqs unseen since your last check), `stats` (counts by city/team/category the empty server facets can't give), and `skills` (which teams demand a given qualification).",
+    "quickstart": [
+      {
+        "command": "amazon-jobs-pp-cli doctor",
+        "comment": "Confirm the API is reachable (no auth needed)."
+      },
+      {
+        "command": "amazon-jobs-pp-cli find \"software engineer\" --country USA --limit 10",
+        "comment": "Search live listings by keyword and country."
+      },
+      {
+        "command": "amazon-jobs-pp-cli find \"solutions architect\" --city Seattle --agent --select title,location,posted_date",
+        "comment": "Agent-native output, narrowed to the fields that matter (skips the huge description)."
+      },
+      {
+        "command": "amazon-jobs-pp-cli save sde-seattle \"software engineer\" --city Seattle --country USA",
+        "comment": "Persist a named search to track over time."
+      },
+      {
+        "command": "amazon-jobs-pp-cli sync engineer --max-pages 5",
+        "comment": "Mirror listings into the local store."
+      },
+      {
+        "command": "amazon-jobs-pp-cli stats --by city",
+        "comment": "Aggregate the synced store by city — counts Amazon's site never shows."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "A search with filters returns zero results but the same query without filters returns thousands.",
+        "fix": "Always pass --limit \u003e= 1; the API returns 0 hits when result_limit is 0 combined with a location filter."
+      },
+      {
+        "symptom": "`new` or `stats` says the local mirror is empty.",
+        "fix": "Run `amazon-jobs-pp-cli sync engineer` (or `sync` a saved search) first to populate the store."
+      },
+      {
+        "symptom": "Job descriptions are full of \u003cbr/\u003e and HTML entities.",
+        "fix": "Add --plain to `find`/`get` to strip HTML into readable text."
+      },
+      {
+        "symptom": "Broad searches always report about 10000 hits.",
+        "fix": "That is Amazon's server-side cap for broad queries; narrow with keyword/location filters, or sync and use `stats` for exact local counts."
+      }
+    ],
+    "when_to_use": "Use amazon-jobs when a task involves finding, filtering, tracking, or analyzing open roles at Amazon or AWS: keyword and location search, watching for newly-posted reqs over time, or aggregating the open-req landscape by city, team, or demanded skill. It is ideal for agents doing recurring labor-market research because output is deterministic JSON and the local store answers questions a single API call cannot.",
+    "anti_triggers": [
+      "Do not use this CLI for job boards other than Amazon.jobs — it only queries Amazon's careers API.",
+      "Do not use it to submit an application; it is read-only and has no apply/authenticated workflow.",
+      "Do not use it for general AWS service management — it is unrelated to the AWS SDK or AWS APIs."
+    ],
+    "recipes": [
+      {
+        "title": "Track new SDE roles in Seattle each morning",
+        "command": "amazon-jobs-pp-cli save sde-seattle \"software engineer\" --city Seattle --country USA \u0026\u0026 amazon-jobs-pp-cli new sde-seattle --agent",
+        "explanation": "Persist a named search once, then run `new` to see only reqs that appeared since your last sync."
+      },
+      {
+        "title": "Agent-native search narrowed to key fields",
+        "command": "amazon-jobs-pp-cli find \"solutions architect\" --country USA --agent --select title,location,posted_date,job_path",
+        "explanation": "Amazon reqs carry huge description/qualification text; --select trims the payload to the fields an agent needs."
+      },
+      {
+        "title": "Where is AWS hiring most right now?",
+        "command": "amazon-jobs-pp-cli sync aws --max-pages 10 \u0026\u0026 amazon-jobs-pp-cli stats --by city",
+        "explanation": "Mirror AWS reqs locally, then aggregate by city — counts the empty server facets never return."
+      },
+      {
+        "title": "Which teams demand a specific skill",
+        "command": "amazon-jobs-pp-cli sync engineer --max-pages 10 \u0026\u0026 amazon-jobs-pp-cli skills Rust --agent",
+        "explanation": "Scan synced qualification text for a keyword and rank teams/cities by demand."
+      },
+      {
+        "title": "Senior IC roles only (no manager, no intern)",
+        "command": "amazon-jobs-pp-cli find \"software engineer\" --country USA --manager=false --intern=false",
+        "explanation": "Client-side NULL-safe filters for fields Amazon can't filter server-side."
+      }
+    ],
+    "trigger_phrases": [
+      "find amazon jobs",
+      "search amazon.jobs for",
+      "new amazon reqs since yesterday",
+      "which teams at amazon are hiring for",
+      "amazon jobs in seattle",
+      "use amazon-jobs",
+      "run amazon-jobs"
+    ]
+  }
+}

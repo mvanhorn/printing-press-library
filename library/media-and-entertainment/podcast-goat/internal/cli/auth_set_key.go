@@ -97,6 +97,9 @@ Use --unset to clear a previously-saved key.`,
 				envName := config.EnvVarFor(flagProvider)
 				fmt.Fprintf(w, "saved %s key (%d chars) to %s\n", flagProvider, len(value), path)
 				fmt.Fprintf(w, "future invocations will use this when %s is not set in the environment.\n", envName)
+				if warn := demoKeyWarning(flagProvider, value); warn != "" {
+					fmt.Fprintln(w, warn)
+				}
 			}
 			return nil
 		},
@@ -107,4 +110,15 @@ Use --unset to clear a previously-saved key.`,
 	cmd.Flags().BoolVar(&flagStdin, "stdin", false, "Read key from stdin (one line)")
 	cmd.Flags().BoolVar(&flagUnset, "unset", false, "Clear the key for this provider")
 	return cmd
+}
+
+// demoKeyWarning returns a warning line when a just-saved key is spoken.md's
+// public demo key, and "" otherwise. The save is allowed (the demo episode is
+// a legitimate trial), but silence here meant the user discovered the limit
+// as an HTTP 402 on their first real fetch.
+func demoKeyWarning(provider, value string) string {
+	if provider == "spoken" && value == "pt_demo" {
+		return "WARNING: pt_demo is spoken.md's public demo key — it only works with the demo episode; every other fetch returns HTTP 402. Get a full key at https://spoken.md/ (this save is fine for trying the demo)."
+	}
+	return ""
 }

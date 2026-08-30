@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "flighty",
+  "cli_name": "flighty-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-28T09:20:44Z",
+  "source_commit": "e36d496e172ccc9bff64db18a3f48b555cc43ab6",
+  "printing_press_version": "4.31.1",
+  "run_id": "20260827-213420-70c6dbaf",
+  "changes": [
+    {
+      "title": "feat(flighty): add Flighty Airports CLI",
+      "pr": 1847,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1847",
+      "commit": "e36d496e172ccc9bff64db18a3f48b555cc43ab6"
+    }
+  ]
+}

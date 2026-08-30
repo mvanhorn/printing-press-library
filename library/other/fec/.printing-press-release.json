@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "fec",
+  "cli_name": "fec-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-22T09:24:56Z",
+  "source_commit": "cc0114961b07d92263a90da550dd8f1d7a4dff11",
+  "printing_press_version": "4.29.0",
+  "run_id": "20260821-194418",
+  "changes": [
+    {
+      "title": "feat(fec): add fec",
+      "pr": 1783,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1783",
+      "commit": "cc0114961b07d92263a90da550dd8f1d7a4dff11"
+    }
+  ]
+}

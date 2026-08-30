@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "mcp-managed-auth-wiring",
+  "applied_at": "2026-08-13",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "internal/mcp's client construction (newMCPClientFromConfig in tools.go) builds its *client.Client directly via client.New for MCP-specific NoCache/timeout/rate settings, bypassing rootFlags.newClient()'s clientHooks entirely. Any future regen must keep calling cli.InstallManagedPelotonBearer (the exported entry point added for this) from MCP's client construction, or every MCP tool call goes back to authenticating with no credential at all -- this is a pre-existing structural gap between the CLI and MCP client-construction paths, not specific to the current auth mechanism, so it will resurface for whatever this CLI's managed auth looks like after a future regen unless both call sites are kept in sync.",
+  "reason": "Found via adversarial self-review, then confirmed live against a real account: every MCP tool call (account_show, workouts_performance, etc.) returned HTTP 401 'Not logged in' because internal/mcp/tools.go's newMCPClientFromConfig never ran the clientHooks registry -- this predates the session-cookie/doctor/performance-sync work in this PR entirely; the CLI-side auth fixes never reached MCP mode at all. internal/mcp already imports internal/cli (for cli.RootCmd() in cobratree registration), so no import cycle risk. Fixed by exporting InstallManagedPelotonBearer from peloton_oauth.go and calling it from newMCPClientFromConfig, changing its signature to return an error.",
+  "files": [
+    "internal/cli/peloton_oauth.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go"
+  ],
+  "validated_outcome": "Verified live against a real Peloton account via the actual MCP stdio JSON-RPC protocol (tools/call for account_show and workouts_performance) before and after the fix: both returned HTTP 401 before, both return real live data after. Also updated the already-deployed Claude Desktop extension binaries in place so the fix is live for the account that surfaced it. New test TestNewMCPClientAppliesManagedAuth asserts InstallManagedPelotonBearer's error surfaces through newMCPClient with no credentials configured (a black-box proof the hook runs, since internal/mcp cannot reach into package cli's private OAuth test state to assert the success path directly). Full go build/vet/test suite passes."
+}

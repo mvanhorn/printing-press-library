@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "classes-show-nested-ride-id-write-through",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "recordProviderFactsBestEffort (internal/store/peloton.go) and UpsertBatch (internal/store/store.go) both fall back to nestedContainerResourceID when a resourceType's id lives one level down from the object's top level (nestedIDContainerKeys currently maps \"classes\" -> \"ride\", matching classes_show's response shape: {\"ride\":{\"id\":...},\"segments\":{...},\"averages\":{...},...}). The FULL outer object is what gets cached under that id, not just the inner container -- its sibling fields (segments, averages) are real content offline_classes_structure/offline_intervals need and the classes LIST endpoint's flatter items never carry at all. unwrapIDBearingEnvelopeItem can't cover this case: it only fires when exactly one top-level field is an object, and classes_show's response has several. Any future resourceType whose single-object endpoint response nests its id under one specific named field (not the ambiguous ANY-single-object-field case unwrapIDBearingEnvelopeItem already handles) should add an entry to nestedIDContainerKeys rather than reinventing this.",
+  "reason": "A round-9 live verification report found offline_classes_show/offline_classes_structure/offline_intervals erroring \"stored catalog_classes fact <id> not found\" for the vast majority of a real account's synced classes, and reclassified a caveat accepted as legitimate in rounds 6-7 as actually caused by this gap. Investigation traced the majority of that specific gap to stale data predating an earlier fix (verified live: a full classes resync closed nearly all of it, 2 -> 48644 matching provider_payloads rows against 48743 resources rows). But a handful of ids remained uncacheable even after that resync AND after directly live-fetching them via `classes show <id>` -- which is when this second, currently-active bug surfaced: EVERY classes_show call was silently failing to cache (confirmed live via the command's own \"warning: 1/1 classes items returned but not cached locally\" message), because its response nests id under ride.id, not the top level the generic extractor and unwrapIDBearingEnvelopeItem both expect. This is why the classes LIST sync (bulk, flat items) and single classes_show fetches were both needed and neither alone could close every gap.",
+  "files": [
+    "internal/store/peloton.go",
+    "internal/store/store.go",
+    "internal/store/peloton_test.go",
+    "internal/store/upsert_batch_test.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. TestUpsertBatchWithFacts_ClassesShowNestedRideIDStillCaches and TestUpsertBatch_ClassesNestedRideIDStoresFullOuterObject cover the provider_payloads and resources write paths respectively, asserting the full outer object (segments included) is what's cached, not just the inner ride object. Live-verified against the real account: `classes show <previously-orphaned-id>` no longer prints the \"not cached locally\" warning, the id appears in both `resources` and `provider_payloads` immediately after, and `offline classes show <that-id>` returns real segment data instead of erroring."
+}

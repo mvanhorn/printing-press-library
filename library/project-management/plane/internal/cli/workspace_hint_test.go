@@ -42,7 +42,8 @@ func TestClassifyAPIError_403WithWorkspaceKeepsAuthHint(t *testing.T) {
 	t.Setenv("PLANE_SLUG", "")
 	// An explicit --workspace means the slug is real, so a 403 is a genuine
 	// access/permission problem — keep the API-key hint (exit 4).
-	flags := &rootFlags{workspace: "bbm", configPath: writeSentinelConfig(t)}
+	setNovelWorkspace(t, "bbm")
+	flags := &rootFlags{configPath: writeSentinelConfig(t)}
 
 	err := classifyAPIError(errors.New("GET /members/ returned HTTP 403: forbidden"), flags)
 	if got := ExitCode(err); got != 4 {

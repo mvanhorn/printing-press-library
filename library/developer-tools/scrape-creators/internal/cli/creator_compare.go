@@ -121,6 +121,11 @@ func newNovelCreatorCompareCmd(flags *rootFlags) *cobra.Command {
 				failures = append(failures, o.failures...)
 			}
 
+			if len(rows) == 0 {
+				if err := allSourcesFailedErr("creator compare", len(args), failures); err != nil {
+					return err
+				}
+			}
 			warnFetchFailures(cmd, "creator compare", failures)
 
 			if novelWantsMachine(cmd.OutOrStdout(), flags) {

@@ -1,0 +1,66 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-29T22:12:18.992119887Z",
+  "printing_press_version": "4.31.2",
+  "api_name": "texas-roadhouse",
+  "display_name": "Texas Roadhouse - call ahead seating",
+  "cli_name": "texas-roadhouse-pp-cli",
+  "creator": {
+    "handle": "DashLabsDev",
+    "name": "Thomas McCormick"
+  },
+  "owner": "DashLabsDev",
+  "printer": "DashLabsDev",
+  "printer_name": "Thomas McCormick",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:20d4ed3e91ad92cf70b0c37af43f5080a479c11bfdd1658df25fe70c45ee1bbf",
+  "run_id": "20260829-221218",
+  "category": "food-and-dining",
+  "description": "Waitlist CLI for Texas Roadhouse. Find a nearby store, read the quote, join and leave the list.",
+  "mcp_binary": "texas-roadhouse-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_public_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Sniffed waitlist join",
+      "command": "texasroadhouse submit",
+      "description": "Join a store waitlist through the sniffed POST /waitlist/{extref}/submit surface (no public API). Store path uses extref not internal id; email is required; party size max 6; WaitMinutes comes from quote MinQuote."
+    },
+    {
+      "name": "Numeric waitlist cancel",
+      "command": "texasroadhouse cancel",
+      "description": "Cancel a waitlist request. The upstream body requires waitlistRequestId as a JSON number (string flags 400); siteId is the store extref."
+    },
+    {
+      "name": "Sniffed waitlist check-in",
+      "command": "texasroadhouse checkin",
+      "description": "Check in at the host stand via sniffed POST /waitlist/{extref}/checkin (no public API)."
+    },
+    {
+      "name": "Quote MinQuote lookup",
+      "command": "texasroadhouse get-quote",
+      "description": "Read per-party-size MinQuote/MaxQuote for a store extref so submit can send the required WaitMinutes."
+    },
+    {
+      "name": "Store extref lookup",
+      "command": "stores",
+      "description": "List nearby restaurants; waitlist paths use store extref, not the internal store id."
+    }
+  ]
+}

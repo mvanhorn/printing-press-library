@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "dataforseo",
   "cli_name": "dataforseo-pp-cli",
-  "version": "2026.7.1",
-  "released_at": "2026-07-21T05:40:08Z",
-  "source_commit": "14529fb037d1b0345280dba2013667e996eb228f",
+  "version": "2026.8.1",
+  "released_at": "2026-08-18T18:57:59Z",
+  "source_commit": "a29aa29d089080aa13398d96d1a90c4a09db06e2",
   "printing_press_version": "4.11.0",
   "run_id": "20260511-221728",
   "changes": [
     {
-      "title": "feat(dataforseo): add dataforseo",
-      "pr": 1058,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1058",
-      "commit": "14529fb037d1b0345280dba2013667e996eb228f"
+      "title": "docs: point leftover install recipes at @mvanhorn/printing-press-library",
+      "pr": 1751,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1751",
+      "commit": "a29aa29d089080aa13398d96d1a90c4a09db06e2"
     }
   ]
 }

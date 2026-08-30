@@ -1,0 +1,23 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/v1/server-card.schema.json",
+  "name": "io.github.vercel-labs/is-agentic",
+  "title": "Is Agentic",
+  "description": "Retrieve completed public Is Agentic website-readiness reports and agent-facing product guidance.",
+  "version": "1.0.0",
+  "websiteUrl": "https://is-agentic.com/",
+  "repository": {
+    "source": "github",
+    "url": "https://github.com/vercel-labs/is-agentic"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://is-agentic.com/mcp",
+      "supportedProtocolVersions": [
+        "2026-07-28",
+        "2025-11-25",
+        "2025-06-18"
+      ]
+    }
+  ]
+}

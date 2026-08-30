@@ -14,6 +14,7 @@ install:
 
 clean:
 	rm -rf bin/
+	rm -f giustizia-amministrativa-pp-cli giustizia-amministrativa-pp-mcp
 
 build-mcp:
 	go build -o bin/giustizia-amministrativa-pp-mcp ./cmd/giustizia-amministrativa-pp-mcp

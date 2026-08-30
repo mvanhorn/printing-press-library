@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "id": "review-recipe-sharing-links",
+  "applied_at": "2026-08-16",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Add guarded recipe sharing link request, acceptance, cancellation, unlink, listing, and source-link commands.",
+  "reason": "Public AnyList client evidence confirms multipart link_request protobuf requests for request/cancel, scalar multipart fields for accept/unlink, and fresh PBRecipeDataResponse user data for linked-user verification. The CLI keeps every write preview-only until explicit --apply, resolves destructive targets by exact IDs or unambiguous emails, validates target emails, and verifies pending/linked state after each live write. recipes link is a local read-only source-URL lookup; no email or print operation is invented.",
+  "files": [
+    "internal/anylist/client.go",
+    "internal/anylist/recipe_sharing_test.go",
+    "internal/cli/recipes.go",
+    "internal/cli/recipes_link.go",
+    "internal/cli/recipes_sharing.go",
+    "internal/cli/recipes_sharing_test.go",
+    "README.md",
+    "SKILL.md",
+    "tools-manifest.json",
+    "internal/mcp/code_orch_data.go"
+  ],
+  "validated_outcome": "Focused client tests prove exact multipart routes, field names, binary link_request parts, scalar accept/unlink fields, response types, and identifier validation. CLI tests prove email validation, exact/ambiguous target resolution, offline write previews, command registration, and selector safety. No live invite, accept, cancel, or unlink writes were performed.",
+  "findings_addressed": [
+    "recipe-sharing-request",
+    "recipe-sharing-cancel",
+    "recipe-sharing-accept",
+    "recipe-sharing-unlink",
+    "recipe-sharing-read-only-list",
+    "recipe-source-link"
+  ]
+}

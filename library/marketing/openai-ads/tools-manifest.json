@@ -1,0 +1,1504 @@
+{
+  "api_name": "openai-ads",
+  "base_url": "https://api.ads.openai.com/v1",
+  "description": "The first OpenAI Ads client that can write, and the only one that keeps local history.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "OPENAI_ADS_API_KEY",
+      "OPENAI_ADS_CONVERSIONS_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "OPENAI_ADS_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "description": "Ads API key from Ads Manager \u003e Settings. Scoped to one ad account. NOT the Conversions API key from Ads Manager \u003e Conversions (that one returns 403 Unauthorized to read ads data)."
+      },
+      {
+        "name": "OPENAI_ADS_CONVERSIONS_API_KEY",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true,
+        "description": "Optional. Conversions API key from Ads Manager \u003e Conversions, scoped to one conversion event in a data source. Only needed for server-side conversion event ingestion; it cannot read ads data."
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "ad-account_activate-method",
+      "description": "Activate the ad account. Returns the new AdAccountResource.",
+      "method": "POST",
+      "path": "/ad_account/activate",
+      "params": []
+    },
+    {
+      "name": "ad-account_get-insights-method",
+      "description": "Get ad account insights aggregated by time granularity. Optional: time_granularity, aggregation_level, limit (plus 9 more). Returns array of InsightItemBody.",
+      "method": "GET",
+      "path": "/ad_account/insights",
+      "params": [
+        {
+          "name": "time_granularity",
+          "type": "string",
+          "location": "query",
+          "description": "Time bucket size. `none` returns one bucket for the requested time range. Segmented requests..."
+        },
+        {
+          "name": "aggregation_level",
+          "type": "string",
+          "location": "query",
+          "description": "Entity grain inside the endpoint scope; it does not widen the endpoint scope."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of rows to return. Defaults to 20."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "time_ranges",
+          "type": "array",
+          "location": "query",
+          "description": "Report window filter. Send one JSON-encoded `unix_range`, `hour_range`, or `date_range`..."
+        },
+        {
+          "name": "filters",
+          "type": "array",
+          "location": "query",
+          "description": "Row filters encoded as JSON strings."
+        },
+        {
+          "name": "fields",
+          "type": "array",
+          "location": "query",
+          "description": "Additional row keys to return."
+        },
+        {
+          "name": "sort",
+          "type": "array",
+          "location": "query",
+          "description": "Row ordering encoded as JSON strings with `field` and `direction`."
+        },
+        {
+          "name": "segments",
+          "type": "array",
+          "location": "query",
+          "description": "Optional extra group-by dimension for enabled ad accounts."
+        },
+        {
+          "name": "override_segment_group_order",
+          "type": "array",
+          "location": "query",
+          "description": "Order of the aggregation level and requested segment. Include each exactly once."
+        },
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "Optional result expansion."
+        }
+      ]
+    },
+    {
+      "name": "ad-account_get-method",
+      "description": "Get metadata for the ad account. Returns the AdAccountResource.",
+      "method": "GET",
+      "path": "/ad_account",
+      "params": []
+    },
+    {
+      "name": "ad-account_pause-method",
+      "description": "Pause the ad account. Returns the new AdAccountResource.",
+      "method": "POST",
+      "path": "/ad_account/pause",
+      "params": []
+    },
+    {
+      "name": "ad-account_update-method",
+      "description": "Update ad account brand metadata. Optional: favicon_file_id, name. Returns the new AdAccountResource.",
+      "method": "POST",
+      "path": "/ad_account/brand",
+      "params": [
+        {
+          "name": "favicon_file_id",
+          "type": "string",
+          "location": "body",
+          "description": "Favicon file id"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "ad-groups_create-method",
+      "description": "Create an ad group for a campaign. Required: bidding_config, campaign_id, name, status. Optional: Idempotency-Key, context_hints, description (plus 1 more). Returns array of string.",
+      "method": "POST",
+      "path": "/ad_groups",
+      "params": [
+        {
+          "name": "Idempotency-Key",
+          "type": "string",
+          "location": "query",
+          "description": "Unique key for retrying this create request."
+        },
+        {
+          "name": "bidding-config-billing-event-type",
+          "wire_name": "bidding_config.billing_event_type",
+          "type": "string",
+          "location": "body",
+          "description": "Billing event type",
+          "required": true
+        },
+        {
+          "name": "bidding-config-custom-audience-bid-multipliers",
+          "wire_name": "bidding_config.custom_audience_bid_multipliers",
+          "type": "array",
+          "location": "body",
+          "description": "Custom audience bid multipliers"
+        },
+        {
+          "name": "bidding-config-max-bid-micros",
+          "wire_name": "bidding_config.max_bid_micros",
+          "type": "int",
+          "location": "body",
+          "description": "Max bid micros",
+          "required": true
+        },
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "body",
+          "description": "Campaign id",
+          "required": true
+        },
+        {
+          "name": "context_hints",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Context hints"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "product_set",
+          "type": "string",
+          "location": "body",
+          "description": "Product set"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ad-groups_get-method",
+      "description": "Get an ad group. Required: ad_group_id. Returns array of string.",
+      "method": "GET",
+      "path": "/ad_groups/{ad_group_id}",
+      "params": [
+        {
+          "name": "ad_group_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ad group id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ad-groups_list-method",
+      "description": "Get all ad groups for a campaign. Required: campaign_id. Optional: limit, after, before (plus 1 more). Returns array of AdGroupItemBody.",
+      "method": "GET",
+      "path": "/ad_groups",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "query",
+          "description": "Campaign id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "ad-groups_update-method",
+      "description": "Update an ad group. Required: ad_group_id. Optional: bidding_config, context_hints, description (plus 3 more). Returns array of string.",
+      "method": "POST",
+      "path": "/ad_groups/{ad_group_id}",
+      "params": [
+        {
+          "name": "ad_group_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ad group id",
+          "required": true
+        },
+        {
+          "name": "bidding-config-billing-event-type",
+          "wire_name": "bidding_config.billing_event_type",
+          "type": "string",
+          "location": "body",
+          "description": "Billing event type",
+          "required": true
+        },
+        {
+          "name": "bidding-config-custom-audience-bid-multipliers",
+          "wire_name": "bidding_config.custom_audience_bid_multipliers",
+          "type": "array",
+          "location": "body",
+          "description": "Custom audience bid multipliers"
+        },
+        {
+          "name": "bidding-config-max-bid-micros",
+          "wire_name": "bidding_config.max_bid_micros",
+          "type": "int",
+          "location": "body",
+          "description": "Max bid micros",
+          "required": true
+        },
+        {
+          "name": "context_hints",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Context hints"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "product-set-filters",
+          "wire_name": "product_set.filters",
+          "type": "array",
+          "location": "body",
+          "description": "Filters"
+        },
+        {
+          "name": "product-set-product-feed-id",
+          "wire_name": "product_set.product_feed_id",
+          "type": "string",
+          "location": "body",
+          "description": "Product feed id",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "ad-groups_activate_ad-group-method",
+      "description": "Activate an ad group. Required: ad_group_id. Returns array of string.",
+      "method": "POST",
+      "path": "/ad_groups/{ad_group_id}/activate",
+      "params": [
+        {
+          "name": "ad_group_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ad group id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ad-groups_archive_ad-group-method",
+      "description": "Archive an ad group. Required: ad_group_id. Returns array of string.",
+      "method": "POST",
+      "path": "/ad_groups/{ad_group_id}/archive",
+      "params": [
+        {
+          "name": "ad_group_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ad group id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ad-groups_insights_get-ad-group-method",
+      "description": "Get ad group insights aggregated by time granularity. Required: ad_group_id. Optional: time_granularity, aggregation_level, limit (plus 9 more). Returns array of InsightItemBody.",
+      "method": "GET",
+      "path": "/ad_groups/{ad_group_id}/insights",
+      "params": [
+        {
+          "name": "ad_group_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ad group id",
+          "required": true
+        },
+        {
+          "name": "time_granularity",
+          "type": "string",
+          "location": "query",
+          "description": "Time bucket size. `none` returns one bucket for the requested time range. Segmented requests..."
+        },
+        {
+          "name": "aggregation_level",
+          "type": "string",
+          "location": "query",
+          "description": "Entity grain inside the endpoint scope; it does not widen the endpoint scope."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of rows to return. Defaults to 20."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "time_ranges",
+          "type": "array",
+          "location": "query",
+          "description": "Report window filter. Send one JSON-encoded `unix_range`, `hour_range`, or `date_range`..."
+        },
+        {
+          "name": "filters",
+          "type": "array",
+          "location": "query",
+          "description": "Row filters encoded as JSON strings."
+        },
+        {
+          "name": "fields",
+          "type": "array",
+          "location": "query",
+          "description": "Additional row keys to return."
+        },
+        {
+          "name": "sort",
+          "type": "array",
+          "location": "query",
+          "description": "Row ordering encoded as JSON strings with `field` and `direction`."
+        },
+        {
+          "name": "segments",
+          "type": "array",
+          "location": "query",
+          "description": "Optional extra group-by dimension for enabled ad accounts."
+        },
+        {
+          "name": "override_segment_group_order",
+          "type": "array",
+          "location": "query",
+          "description": "Order of the aggregation level and requested segment. Include each exactly once."
+        },
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "Optional result expansion."
+        }
+      ]
+    },
+    {
+      "name": "ad-groups_pause_ad-group-method",
+      "description": "Pause an ad group. Required: ad_group_id. Returns array of string.",
+      "method": "POST",
+      "path": "/ad_groups/{ad_group_id}/pause",
+      "params": [
+        {
+          "name": "ad_group_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ad group id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ads_create-method",
+      "description": "Create an ad for an ad group. Required: ad_group_id, creative, name, status. Optional: Idempotency-Key. Returns the new AdItemBody.",
+      "method": "POST",
+      "path": "/ads",
+      "params": [
+        {
+          "name": "Idempotency-Key",
+          "type": "string",
+          "location": "query",
+          "description": "Unique key for retrying this create request."
+        },
+        {
+          "name": "ad_group_id",
+          "type": "string",
+          "location": "body",
+          "description": "Ad group id",
+          "required": true
+        },
+        {
+          "name": "creative-body",
+          "wire_name": "creative.body",
+          "type": "string",
+          "location": "body",
+          "description": "Body",
+          "required": true
+        },
+        {
+          "name": "creative-file-id",
+          "wire_name": "creative.file_id",
+          "type": "string",
+          "location": "body",
+          "description": "File id"
+        },
+        {
+          "name": "creative-price",
+          "wire_name": "creative.price",
+          "type": "string",
+          "location": "body",
+          "description": "Price"
+        },
+        {
+          "name": "creative-target-url",
+          "wire_name": "creative.target_url",
+          "type": "string",
+          "location": "body",
+          "description": "Target url"
+        },
+        {
+          "name": "creative-title",
+          "wire_name": "creative.title",
+          "type": "string",
+          "location": "body",
+          "description": "Title",
+          "required": true
+        },
+        {
+          "name": "creative-type",
+          "wire_name": "creative.type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ads_get-method",
+      "description": "Get an ad. Required: ad_id. Returns the AdItemBody.",
+      "method": "GET",
+      "path": "/ads/{ad_id}",
+      "params": [
+        {
+          "name": "ad_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ad id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ads_list-method",
+      "description": "Get all ads for an ad group. Required: ad_group_id. Optional: limit, after, before (plus 1 more). Returns array of AdItemBody.",
+      "method": "GET",
+      "path": "/ads",
+      "params": [
+        {
+          "name": "ad_group_id",
+          "type": "string",
+          "location": "query",
+          "description": "Ad group id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "ads_update-method",
+      "description": "Update an ad. Required: ad_id. Optional: creative, name, status. Returns the new AdItemBody.",
+      "method": "POST",
+      "path": "/ads/{ad_id}",
+      "params": [
+        {
+          "name": "ad_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ad id",
+          "required": true
+        },
+        {
+          "name": "creative-body",
+          "wire_name": "creative.body",
+          "type": "string",
+          "location": "body",
+          "description": "Body",
+          "required": true
+        },
+        {
+          "name": "creative-file-id",
+          "wire_name": "creative.file_id",
+          "type": "string",
+          "location": "body",
+          "description": "File id"
+        },
+        {
+          "name": "creative-price",
+          "wire_name": "creative.price",
+          "type": "string",
+          "location": "body",
+          "description": "Price"
+        },
+        {
+          "name": "creative-target-url",
+          "wire_name": "creative.target_url",
+          "type": "string",
+          "location": "body",
+          "description": "Target url"
+        },
+        {
+          "name": "creative-title",
+          "wire_name": "creative.title",
+          "type": "string",
+          "location": "body",
+          "description": "Title",
+          "required": true
+        },
+        {
+          "name": "creative-type",
+          "wire_name": "creative.type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "ads_activate_ad-method",
+      "description": "Activate an ad. Required: ad_id. Returns the new AdItemBody.",
+      "method": "POST",
+      "path": "/ads/{ad_id}/activate",
+      "params": [
+        {
+          "name": "ad_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ad id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ads_archive_ad-method",
+      "description": "Archive an ad. Required: ad_id. Returns the new AdItemBody.",
+      "method": "POST",
+      "path": "/ads/{ad_id}/archive",
+      "params": [
+        {
+          "name": "ad_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ad id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ads_insights_get-ad-method",
+      "description": "Get ad insights aggregated by time granularity. Required: ad_id. Optional: time_granularity, aggregation_level, limit (plus 9 more). Returns array of InsightItemBody.",
+      "method": "GET",
+      "path": "/ads/{ad_id}/insights",
+      "params": [
+        {
+          "name": "ad_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ad id",
+          "required": true
+        },
+        {
+          "name": "time_granularity",
+          "type": "string",
+          "location": "query",
+          "description": "Time bucket size. `none` returns one bucket for the requested time range. Segmented requests..."
+        },
+        {
+          "name": "aggregation_level",
+          "type": "string",
+          "location": "query",
+          "description": "Entity grain inside the endpoint scope; it does not widen the endpoint scope."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of rows to return. Defaults to 20."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "time_ranges",
+          "type": "array",
+          "location": "query",
+          "description": "Report window filter. Send one JSON-encoded `unix_range`, `hour_range`, or `date_range`..."
+        },
+        {
+          "name": "filters",
+          "type": "array",
+          "location": "query",
+          "description": "Row filters encoded as JSON strings."
+        },
+        {
+          "name": "fields",
+          "type": "array",
+          "location": "query",
+          "description": "Additional row keys to return."
+        },
+        {
+          "name": "sort",
+          "type": "array",
+          "location": "query",
+          "description": "Row ordering encoded as JSON strings with `field` and `direction`."
+        },
+        {
+          "name": "segments",
+          "type": "array",
+          "location": "query",
+          "description": "Optional extra group-by dimension for enabled ad accounts."
+        },
+        {
+          "name": "override_segment_group_order",
+          "type": "array",
+          "location": "query",
+          "description": "Order of the aggregation level and requested segment. Include each exactly once."
+        },
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "Optional result expansion."
+        }
+      ]
+    },
+    {
+      "name": "ads_pause_ad-method",
+      "description": "Pause an ad. Required: ad_id. Returns the new AdItemBody.",
+      "method": "POST",
+      "path": "/ads/{ad_id}/pause",
+      "params": [
+        {
+          "name": "ad_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ad id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_create-method",
+      "description": "Create a campaign for an ad account. Required: budget, name, status. Optional: Idempotency-Key, bidding_type, conversion_event_setting_ids (plus 5 more). Returns array of string.",
+      "method": "POST",
+      "path": "/campaigns",
+      "params": [
+        {
+          "name": "Idempotency-Key",
+          "type": "string",
+          "location": "query",
+          "description": "Unique key for retrying this create request."
+        },
+        {
+          "name": "bidding_type",
+          "type": "string",
+          "location": "body",
+          "description": "Bidding type"
+        },
+        {
+          "name": "budget-daily-spend-limit-micros",
+          "wire_name": "budget.daily_spend_limit_micros",
+          "type": "int",
+          "location": "body",
+          "description": "Daily spend limit micros"
+        },
+        {
+          "name": "budget-lifetime-spend-limit-micros",
+          "wire_name": "budget.lifetime_spend_limit_micros",
+          "type": "int",
+          "location": "body",
+          "description": "Lifetime spend limit micros"
+        },
+        {
+          "name": "conversion_event_setting_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Conversion event setting ids"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "end_time",
+          "type": "int",
+          "location": "body",
+          "description": "End time"
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "body",
+          "description": "Mode"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "start_time",
+          "type": "int",
+          "location": "body",
+          "description": "Start time"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status",
+          "required": true
+        },
+        {
+          "name": "targeting",
+          "type": "string",
+          "location": "body",
+          "description": "Targeting"
+        }
+      ]
+    },
+    {
+      "name": "campaigns_get-method",
+      "description": "Get a campaign. Required: campaign_id. Returns array of string.",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Campaign id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_list-method",
+      "description": "Get all campaigns for an ad account. Optional: limit, after, before (plus 1 more). Returns array of CampaignItemBody.",
+      "method": "GET",
+      "path": "/campaigns",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "campaigns_update-method",
+      "description": "Update a campaign. Required: campaign_id. Optional: budget, conversion_event_setting_ids, description (plus 5 more). Returns array of string.",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Campaign id",
+          "required": true
+        },
+        {
+          "name": "budget-daily-spend-limit-micros",
+          "wire_name": "budget.daily_spend_limit_micros",
+          "type": "int",
+          "location": "body",
+          "description": "Daily spend limit micros"
+        },
+        {
+          "name": "budget-lifetime-spend-limit-micros",
+          "wire_name": "budget.lifetime_spend_limit_micros",
+          "type": "int",
+          "location": "body",
+          "description": "Lifetime spend limit micros"
+        },
+        {
+          "name": "conversion_event_setting_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Conversion event setting ids"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "body",
+          "description": "End time"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "body",
+          "description": "Start time"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        },
+        {
+          "name": "targeting",
+          "type": "string",
+          "location": "body",
+          "description": "Targeting"
+        }
+      ]
+    },
+    {
+      "name": "campaigns_activate_campaign-method",
+      "description": "Activate a campaign. Required: campaign_id. Returns array of string.",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/activate",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Campaign id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_archive_campaign-method",
+      "description": "Archive a campaign. Required: campaign_id. Returns array of string.",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/archive",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Campaign id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_insights_get-campaign-method",
+      "description": "Get campaign insights aggregated by time granularity. Required: campaign_id. Optional: time_granularity, aggregation_level, limit (plus 9 more). Returns array of InsightItemBody.",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/insights",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Campaign id",
+          "required": true
+        },
+        {
+          "name": "time_granularity",
+          "type": "string",
+          "location": "query",
+          "description": "Time bucket size. `none` returns one bucket for the requested time range. Segmented requests..."
+        },
+        {
+          "name": "aggregation_level",
+          "type": "string",
+          "location": "query",
+          "description": "Entity grain inside the endpoint scope; it does not widen the endpoint scope."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of rows to return. Defaults to 20."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "time_ranges",
+          "type": "array",
+          "location": "query",
+          "description": "Report window filter. Send one JSON-encoded `unix_range`, `hour_range`, or `date_range`..."
+        },
+        {
+          "name": "filters",
+          "type": "array",
+          "location": "query",
+          "description": "Row filters encoded as JSON strings."
+        },
+        {
+          "name": "fields",
+          "type": "array",
+          "location": "query",
+          "description": "Additional row keys to return."
+        },
+        {
+          "name": "sort",
+          "type": "array",
+          "location": "query",
+          "description": "Row ordering encoded as JSON strings with `field` and `direction`."
+        },
+        {
+          "name": "segments",
+          "type": "array",
+          "location": "query",
+          "description": "Optional extra group-by dimension for enabled ad accounts."
+        },
+        {
+          "name": "override_segment_group_order",
+          "type": "array",
+          "location": "query",
+          "description": "Order of the aggregation level and requested segment. Include each exactly once."
+        },
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "Optional result expansion."
+        }
+      ]
+    },
+    {
+      "name": "campaigns_pause_campaign-method",
+      "description": "Pause a campaign. Required: campaign_id. Returns array of string.",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/pause",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Campaign id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversions_create-api-key-method",
+      "description": "Create a Conversions API key for the currently authenticated ad account. Required: name. Returns the new ConversionApiKeyResource.",
+      "method": "POST",
+      "path": "/conversions/api_keys",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversions_create-event-setting-method",
+      "description": "Create a conversion event setting for the currently authenticated ad account. Required: attribution_window_days, event_type, name, source_ids. Optional: custom_event_name. Returns the new ConversionEventSettingItemResource.",
+      "method": "POST",
+      "path": "/conversions/event_settings",
+      "params": [
+        {
+          "name": "attribution_window_days",
+          "type": "int",
+          "location": "body",
+          "description": "Attribution window days",
+          "required": true
+        },
+        {
+          "name": "custom_event_name",
+          "type": "string",
+          "location": "body",
+          "description": "Custom event name"
+        },
+        {
+          "name": "event_type",
+          "type": "string",
+          "location": "body",
+          "description": "Event type",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "source_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Source ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversions_create-source-method",
+      "description": "Create a conversion pixel. Required: client_type, name. Optional: automatic_advanced_matching_enabled. Returns the new ClientDataSourceItemResource.",
+      "method": "POST",
+      "path": "/conversions/pixels",
+      "params": [
+        {
+          "name": "automatic_advanced_matching_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Automatic advanced matching enabled"
+        },
+        {
+          "name": "client_type",
+          "type": "string",
+          "location": "body",
+          "description": "Client type",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversions_list-event-settings-method",
+      "description": "List conversion event settings for the currently authenticated ad account. Optional: limit, after, before (plus 1 more). Returns array of ConversionEventSettingItemResource.",
+      "method": "GET",
+      "path": "/conversions/event_settings",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "conversions_post-insights-method",
+      "description": "Get attributed conversion totals for the authenticated ad account. Required: aggregation_level, entity_ids, time_ranges. Returns array of ConversionSummaryRowBody.",
+      "method": "POST",
+      "path": "/conversions/insights",
+      "params": [
+        {
+          "name": "aggregation_level",
+          "type": "string",
+          "location": "body",
+          "description": "Aggregation level",
+          "required": true
+        },
+        {
+          "name": "entity_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Entity ids",
+          "required": true
+        },
+        {
+          "name": "time_ranges",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Time ranges",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "custom-audiences_create-method",
+      "description": "Create a custom audience for the authenticated ad account. Required: members, name. Optional: description. Returns the new CustomAudienceItemBody.",
+      "method": "POST",
+      "path": "/custom_audiences",
+      "params": [
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "members",
+          "type": "array",
+          "location": "body",
+          "description": "Members",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "custom-audiences_create-upload-method",
+      "description": "Create a custom audience from an uploaded file and start processing. Required: file_id, file_size, filename, mimetype, name. Optional: description, identifier_type. Returns the new CustomAudienceItemBody.",
+      "method": "POST",
+      "path": "/custom_audiences/upload",
+      "params": [
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "file_id",
+          "type": "string",
+          "location": "body",
+          "description": "File id",
+          "required": true
+        },
+        {
+          "name": "file_size",
+          "type": "int",
+          "location": "body",
+          "description": "File size",
+          "required": true
+        },
+        {
+          "name": "filename",
+          "type": "string",
+          "location": "body",
+          "description": "Filename",
+          "required": true
+        },
+        {
+          "name": "identifier_type",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier type"
+        },
+        {
+          "name": "mimetype",
+          "type": "string",
+          "location": "body",
+          "description": "Mimetype",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "custom-audiences_get-method",
+      "description": "Get a custom audience for the authenticated ad account. Required: custom_audience_id. Returns the CustomAudienceItemBody.",
+      "method": "GET",
+      "path": "/custom_audiences/{custom_audience_id}",
+      "params": [
+        {
+          "name": "custom_audience_id",
+          "type": "string",
+          "location": "path",
+          "description": "Custom audience id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "custom-audiences_list-method",
+      "description": "List custom audiences for the authenticated ad account. Optional: limit, after, before (plus 1 more). Returns array of CustomAudienceItemBody.",
+      "method": "GET",
+      "path": "/custom_audiences",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Before"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "custom-audiences_archive_custom-audience-method",
+      "description": "Archive a custom audience for the authenticated ad account. Required: custom_audience_id. Returns the new CustomAudienceItemBody.",
+      "method": "POST",
+      "path": "/custom_audiences/{custom_audience_id}/archive",
+      "params": [
+        {
+          "name": "custom_audience_id",
+          "type": "string",
+          "location": "path",
+          "description": "Custom audience id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "geo-lookup_get-method",
+      "description": "Search DMA and standard region codes for advertiser geo targeting. Required: q. Optional: limit. Returns array of GeoLookupEntry.",
+      "method": "GET",
+      "path": "/geo_lookup/search",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Location search text, e.g. a city, region, or country name.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "upload_image-method",
+      "description": "Upload an image URL or image file and return a file id. Optional: file, image_url, purpose. Returns the new UploadImageResource.",
+      "method": "POST",
+      "path": "/upload",
+      "params": [
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "File"
+        },
+        {
+          "name": "image_url",
+          "type": "string",
+          "location": "body",
+          "description": "Image url"
+        },
+        {
+          "name": "purpose",
+          "type": "string",
+          "location": "body",
+          "description": "Purpose"
+        }
+      ]
+    }
+  ]
+}

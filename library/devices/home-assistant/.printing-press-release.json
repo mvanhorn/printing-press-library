@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "home-assistant",
   "cli_name": "home-assistant-pp-cli",
-  "version": "2026.7.1",
-  "released_at": "2026-07-24T23:56:45Z",
-  "source_commit": "7753aa608886945c0c7e40eb968e639083497b28",
+  "version": "2026.8.1",
+  "released_at": "2026-08-17T07:57:07Z",
+  "source_commit": "40363ac0936c4f406625f8399d8ad9b57673170e",
   "printing_press_version": "4.29.0",
   "run_id": "20260718-170717-2c0fb604",
   "changes": [
     {
-      "title": "feat(home-assistant): add home-assistant",
-      "pr": 1560,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1560",
-      "commit": "7753aa608886945c0c7e40eb968e639083497b28"
+      "title": "fix(catalog): align Go fallback docs with toolchain floor",
+      "pr": 1735,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1735",
+      "commit": "40363ac0936c4f406625f8399d8ad9b57673170e"
     }
   ]
 }

@@ -1,0 +1,14 @@
+{
+  "id": "review-folder-metadata-handlers",
+  "source": "direct-input",
+  "summary": "Verify AnyList folder color and sort-position mutations.",
+  "evidence": {
+    "endpoint": "POST /data/list-folders/update",
+    "handlers": {
+      "set-folder-hex-color": "FolderSettings.folderHexColor read back as #123456",
+      "set-folder-sort-position": "FolderSettings.folderSortPosition read back as BeforeLists"
+    },
+    "cleanup": "Both disposable folders were removed and verified absent."
+  },
+  "validated_outcome": "Handlers are evidence-backed; production wiring is a separate slice."
+}

@@ -1,0 +1,27 @@
+{
+  "endpoint": "GET /api/tripPlans/uzyvvtuwtc/distinction",
+  "method": "GET",
+  "raw_url": "https://wanderlog.com/api/tripPlans/uzyvvtuwtc/distinction",
+  "status": 200,
+  "request_headers": {
+    "accept": "application/json,text/plain,*/*",
+    "referer": "https://wanderlog.com/",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+  },
+  "request_body": null,
+  "response_headers": {
+    "connection": "keep-alive",
+    "content-language": "en",
+    "content-length": "34",
+    "content-type": "application/json; charset=utf-8",
+    "date": "Fri, 19 Jun 2026 01:58:17 GMT",
+    "etag": "W/\"22-ZyP8k5MDbAB+qHrCLcqmfkos+2g\"",
+    "server": "nginx/1.24.0 (Ubuntu)",
+    "x-powered-by": "Express"
+  },
+  "response_body": {
+    "data": "pro-only",
+    "success": true
+  },
+  "response_body_known": true
+}

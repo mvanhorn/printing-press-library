@@ -15,7 +15,7 @@ func newListsSettingsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "settings",
-		Short:       "View or update settings for a shopping list",
+		Short:       "View cached settings for a shopping list (sort order and boolean flag updates available)",
 		Example:     "  anylist-pp-cli lists settings --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "lists.settings", "pp:method": "POST", "pp:path": "/data/list-settings/update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -59,8 +59,13 @@ func newListsSettingsCmd(flags *rootFlags) *cobra.Command {
 			return tw.Flush()
 		},
 	}
+	cmd.AddCommand(newListsSettingsUpdateSortOrderCmd(flags))
+	cmd.AddCommand(newListsSettingsUpdateFlagsCmd(flags))
+
 	cmd.Flags().StringVar(&bodyName, "name", "", "List name")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.AddCommand(newListsSettingsClearCmd(flags))
+	cmd.AddCommand(newListsSettingsSaveCmd(flags))
 
 	return cmd
 }

@@ -1,0 +1,45 @@
+{
+  "manifest_version": "0.3",
+  "name": "webflow-pp-mcp",
+  "display_name": "Webflow",
+  "version": "2.0.0",
+  "description": "The whole Webflow Data API, plus a local database that lets you audit SEO, diff staging against live, and preview a publish before you trigger it.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/webflow-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/webflow-pp-mcp",
+      "args": [],
+      "env": {
+        "WEBFLOW_API_TOKEN": "${user_config.webflow_api_token}",
+        "WEBFLOW_OAUTH2": "${user_config.webflow_oauth2}"
+      }
+    }
+  },
+  "user_config": {
+    "webflow_api_token": {
+      "type": "string",
+      "title": "WEBFLOW_API_TOKEN",
+      "description": "Optional. Sets WEBFLOW_API_TOKEN for the Webflow MCP server.",
+      "sensitive": true
+    },
+    "webflow_oauth2": {
+      "type": "string",
+      "title": "WEBFLOW_OAUTH2",
+      "description": "Optional. Sets WEBFLOW_OAUTH2 for the Webflow MCP server.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

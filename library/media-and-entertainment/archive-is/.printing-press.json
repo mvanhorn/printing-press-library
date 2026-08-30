@@ -5,6 +5,12 @@
     "handle": "mvanhorn",
     "name": "Matt Van Horn"
   },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",
   "printing_press_version": "1.2.1",

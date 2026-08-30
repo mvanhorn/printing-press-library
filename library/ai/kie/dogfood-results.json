@@ -1,0 +1,105 @@
+{
+    "dir": "/home/lenovo/dev/printing-press-library/library/ai/kie",
+    "spec_path": "/home/lenovo/dev/printing-press-library/library/ai/kie/spec.yaml",
+    "spec_source": "bundled",
+    "verdict": "WARN",
+    "path_check": {
+        "tested": 2,
+        "valid": 2,
+        "valid_pct": 100
+    },
+    "auth_check": {
+        "spec_scheme": "bearer token format (expects \"Bearer \" prefix)",
+        "generated_format": "Bearer ",
+        "match": true,
+        "detail": "spec and generated client both use \"Bearer\""
+    },
+    "browser_session_check": {
+        "required": false,
+        "pass": true,
+        "detail": "browser-session auth not required"
+    },
+    "oauth_scope_coverage_check": {
+        "checked": 0,
+        "covered": 0,
+        "skipped": true,
+        "detail": "no OAuth-scoped endpoints in spec"
+    },
+    "dead_flags": {
+        "total": 26,
+        "dead": 0
+    },
+    "dead_functions": {
+        "total": 88,
+        "dead": 1,
+        "items": [
+            "collectionItemsForOutput"
+        ]
+    },
+    "pipeline_check": {
+        "sync_calls_domain": true,
+        "search_calls_domain": false,
+        "domain_tables": 4,
+        "sync_file_emitted": true,
+        "sync_resources_present": false,
+        "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 4 domain tables found; defaultSyncResources empty (sync command is a no-op)"
+    },
+    "example_check": {
+        "tested": 0,
+        "with_examples": 0,
+        "valid_examples": 0,
+        "skipped": true,
+        "detail": "could not build CLI binary: exit status 1"
+    },
+    "wiring_check": {
+        "command_tree": {
+            "defined": 141,
+            "registered": 141
+        },
+        "config_consistency": {
+            "consistent": true
+        },
+        "workflow_completeness": {
+            "skipped": true,
+            "total_steps": 0,
+            "mapped_steps": 0,
+            "detail": "no workflow_verify.yaml found"
+        }
+    },
+    "novel_features_check": {
+        "planned": 0,
+        "found": 0,
+        "skipped": true
+    },
+    "mcp_surface_parity": {
+        "state": "runtime_walking",
+        "pass": true,
+        "detail": "MCP surface mirrors the Cobra tree at runtime"
+    },
+    "reimplementation_check": {
+        "checked": 0,
+        "exempted_via_store": 0,
+        "skipped": true
+    },
+    "source_client_check": {
+        "checked": 7
+    },
+    "print_json_filtered_check": {
+        "checked": 116
+    },
+    "test_presence": {
+        "checked": 2
+    },
+    "naming_check": {
+        "checked": 116
+    },
+    "sync_param_drop_check": {
+        "checked": 0,
+        "skipped": true
+    },
+    "issues": [
+        "1 dead helper functions found",
+        "defaultSyncResources empty: sync command is a runtime no-op; store-dependent novel commands have no advertised population path",
+        "example check skipped: could not build CLI binary: exit status 1"
+    ]
+}

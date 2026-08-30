@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "kie-pp-mcp",
+  "display_name": "Kie.ai",
+  "version": "0.0.0-dev",
+  "description": "Generate images, video, and music and manage tasks across Kie.ai's unified AI model marketplace (120+ models) plus dedicated Suno, Veo3.1, Runway, Flux Kontext, and 4o Image APIs.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/kie-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/kie-pp-mcp",
+      "args": [],
+      "env": {
+        "KIE_BEARER_AUTH": "${user_config.kie_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "kie_bearer_auth": {
+      "type": "string",
+      "title": "KIE_BEARER_AUTH",
+      "description": "Sets KIE_BEARER_AUTH for the Kie.ai MCP server. Get a credential from https://kie.ai/api-key.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

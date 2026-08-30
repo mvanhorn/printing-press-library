@@ -105,9 +105,9 @@ func newMigratedSchemeError(state string) error {
 // generating a fresh one, so a pre-migration storage.dek recovered from a
 // backup still decrypts today's cache-v6.json.enc.
 const migratedSchemeRemedy = "Granola desktop now keeps the data encryption key in a Keychain access group gated by an entitlement bound to its own Team ID, so no third-party binary can read it. " +
-	"Fetching newly recorded meetings needs a Granola API key, which requires a Business or Enterprise Granola workspace. " +
-	"Data already synced to the local store remains readable. " +
-	"If you kept a copy of storage.dek from before the migration, base64-encode its 32-byte DEK into GRANOLA_SAFESTORAGE_KEY_OVERRIDE: the migration imported the existing DEK rather than generating a new one, so the old key still decrypts today's files."
+	"Run `granola-pp-cli auth login` once: the CLI then holds its own Granola session and fetches meetings over the API without needing the key. " +
+	"Data already synced to the local store remains readable meanwhile. " +
+	"If you kept a copy of storage.dek from before the migration, base64-encode its 32-byte DEK into GRANOLA_SAFESTORAGE_KEY_OVERRIDE to also recover the cache-only surfaces: the migration imported the existing DEK rather than generating a new one, so the old key still decrypts today's files."
 
 // keySource records where the DEK in hand came from. Decrypt uses it to
 // tell a stale storage.dek left behind by a failed upstream migration

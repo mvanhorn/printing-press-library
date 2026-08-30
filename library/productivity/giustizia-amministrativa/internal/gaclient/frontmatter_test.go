@@ -74,3 +74,36 @@ func TestYAMLQuoteControlChars(t *testing.T) {
 		t.Errorf("CR not escaped in front matter:\n%s", fm)
 	}
 }
+
+func TestFrontMatterEmetteIMetadatiDiRegistro(t *testing.T) {
+	p := Provvedimento{
+		Ecli: "ECLI:IT:TARLAZ:2026:14259SENT",
+		Meta: &Meta{
+			DataPubblicazione: "14/08/2026",
+			Oggetto:           "accesso procedimento di sorveglianza",
+			Estensore:         "Silvia Piemonte",
+			Urn:               "urn:nir:tar.lazio;sezione.3Q:sentenza:00000-0000",
+			Omissis:           true,
+		},
+	}
+	fm := FrontMatter(p)
+	for _, atteso := range []string{
+		`data_pubblicazione: "14/08/2026"`,
+		`oggetto: "accesso procedimento di sorveglianza"`,
+		`estensore: "Silvia Piemonte"`,
+		`urn: "urn:nir:tar.lazio;sezione.3Q:sentenza:00000-0000"`,
+		"omissis: true",
+	} {
+		if !strings.Contains(fm, atteso) {
+			t.Errorf("front matter senza %q:\n%s", atteso, fm)
+		}
+	}
+	// Il presidente, la cui firma nel documento e' spesso vuota, non va emesso.
+	if strings.Contains(fm, "presidente:") {
+		t.Errorf("campo vuoto emesso:\n%s", fm)
+	}
+	// Senza metadati il blocco resta quello di prima.
+	if fm := FrontMatter(Provvedimento{Ecli: "X"}); strings.Contains(fm, "urn:") || strings.Contains(fm, "data_pubblicazione") {
+		t.Errorf("metadati emessi senza averli chiesti:\n%s", fm)
+	}
+}

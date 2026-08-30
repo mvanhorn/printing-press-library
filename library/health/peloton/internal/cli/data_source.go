@@ -313,6 +313,68 @@ var writeThroughListWrapperKeys = []string{
 }
 var writeThroughNestedEnvelopeKeys = []string{"data", "Data", "result", "Result"}
 
+// cacheWorkoutPerformance is writeThroughCache's counterpart for
+// performance_graph responses specifically: writeThroughCache extracts its
+// cache key from the response body, which performance_graph never carries
+// (the workout id lives only in the request path). id is the workout id the
+// caller already resolved from its own path argument, not derived from
+// data. Best-effort, same as writeThroughCache: failures are silently
+// ignored since the live result already succeeded.
+func cacheWorkoutPerformance(ctx context.Context, id string, data json.RawMessage) {
+	if id == "" {
+		return
+	}
+	db, err := store.OpenWithContext(ctx, defaultDBPath("peloton-pp-cli"))
+	if err != nil {
+		return
+	}
+	defer db.Close()
+	_ = db.UpsertWithFacts("performance", id, data)
+}
+
+// cacheWorkoutDetail is cacheWorkoutPerformance's counterpart for GET
+// /api/workout/{workout_id}: `workouts show` and `strength` both hit this
+// exact endpoint (returning the same full workout-detail payload, just
+// displaying different fields), each under their own resourceType
+// ("workouts", "strength") — neither of which is the "workout_details"
+// family `offline workout`, `offline intervals`, and `offline strength` all
+// read. Without this, those three offline commands 404 on every workout,
+// unconditionally, regardless of any prior sync or live fetch. Deliberately
+// additive: it does not change what "workouts"/"strength" live-mode caching
+// already does, only adds the family offline reads actually expect.
+func cacheWorkoutDetail(ctx context.Context, id string, data json.RawMessage) {
+	if id == "" {
+		return
+	}
+	db, err := store.OpenWithContext(ctx, defaultDBPath("peloton-pp-cli"))
+	if err != nil {
+		return
+	}
+	defer db.Close()
+	_ = db.UpsertWithFacts("workout_details", id, data)
+}
+
+// cacheClassesFilters is cacheWorkoutDetail's counterpart for GET
+// /api/ride/filters: `offline classes filters` reads a single stored fact
+// at family="filters", id="v1" (see newOfflineClassesFiltersCmd,
+// internal/cli/offline.go), but nothing ever wrote it -- classes_filters.go
+// (unlike every other single-fetch command in this CLI) had no write-through
+// cache call at all, and the endpoint isn't a list response the generic
+// write-through cache's item-extraction logic could populate it from
+// either. Without this, `offline classes filters` 404'd unconditionally
+// regardless of how many live `classes filters` calls preceded it. "v1" is
+// a fixed key: this endpoint has no natural id of its own (it returns one
+// global filter vocabulary, not a collection), so offline reads always look
+// up that same fixed key.
+func cacheClassesFilters(ctx context.Context, data json.RawMessage) {
+	db, err := store.OpenWithContext(ctx, defaultDBPath("peloton-pp-cli"))
+	if err != nil {
+		return
+	}
+	defer db.Close()
+	_ = db.UpsertWithFacts("filters", "v1", data)
+}
+
 // writeThroughCache upserts live API results into the local SQLite store so
 // FTS search covers everything the user has looked up — not just explicit syncs.
 // Best-effort: failures are silently ignored (the live result already succeeded).
@@ -379,7 +441,7 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 					}
 				}
 				if !looksLikeListEnvelope {
-					_, _, _ = db.UpsertBatch(resourceType, []json.RawMessage{data})
+					_, _, _ = db.UpsertBatchWithFacts(resourceType, []json.RawMessage{data})
 					return
 				}
 			}
@@ -387,7 +449,7 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 	}
 
 	if len(items) > 0 {
-		_, _, _ = db.UpsertBatch(resourceType, items)
+		_, _, _ = db.UpsertBatchWithFacts(resourceType, items)
 	}
 }
 
@@ -498,7 +560,7 @@ func writeMutationResponseToStore(ctx context.Context, resourceType string, data
 	}
 	defer db.Close()
 
-	_, _, _ = db.UpsertBatch(resourceType, items)
+	_, _, _ = db.UpsertBatchWithFacts(resourceType, items)
 }
 
 func mutationResponseEntityItems(resourceType string, data json.RawMessage, responsePath string) []json.RawMessage {
@@ -627,11 +689,30 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 		return data, prov, nil
 	}
 
-	// Get by ID — extract the last path segment as the ID
+	// Get by ID. The resolved path's last segment is the ID for most
+	// single-item endpoints (e.g. /api/ride/{id}), but some have a
+	// trailing static sub-resource after it (e.g.
+	// /api/workout/{workout_id}/performance_graph, where the last segment
+	// is literally "performance_graph", not the workout id) — confirmed
+	// live: --data-source local on `workouts performance <id>` always
+	// 404'd, even for data the store genuinely had, because it looked up
+	// resource "performance" ID "performance_graph". Try the last segment
+	// first (the common case), then the second-to-last as a fallback.
+	// Safe either way: db.Get requires an exact key match, so a wrong
+	// guess on the fallback just falls through to the same "not found"
+	// error the last-segment-only version already returned — it can never
+	// return mismatched data for a different id.
 	parts := strings.Split(strings.TrimRight(path, "/"), "/")
 	id := parts[len(parts)-1]
 
 	item, err := db.Get(resourceType, id)
+	if err != nil && errors.Is(err, sql.ErrNoRows) && len(parts) >= 2 {
+		if altID := parts[len(parts)-2]; altID != id {
+			if altItem, altErr := db.Get(resourceType, altID); altErr == nil {
+				return altItem, prov, nil
+			}
+		}
+	}
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, DataProvenance{}, fmt.Errorf("resource %q with ID %q not found in local store. Run 'peloton-pp-cli sync' first", resourceType, id)

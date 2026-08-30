@@ -12,6 +12,18 @@ import (
 // RegisterAll walks root's user-facing Cobra commands and registers shell-out
 // MCP tools for commands that are not already covered by typed endpoint tools.
 func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (string, error)) {
+	registerAll(s, root, cliPath, false)
+}
+
+// RegisterAllIncludingEndpoints registers the endpoint commands as shell-out
+// tools too. This is needed when a server exposes a compact orchestration
+// surface that deliberately suppresses typed endpoint tools: the companion
+// CLI remains the safe, preview/apply-gated mutation path in that mode.
+func RegisterAllIncludingEndpoints(s *server.MCPServer, root *cobra.Command, cliPath func() (string, error)) {
+	registerAll(s, root, cliPath, true)
+}
+
+func registerAll(s *server.MCPServer, root *cobra.Command, cliPath func() (string, error), includeEndpoints bool) {
 	if root == nil {
 		return
 	}
@@ -19,7 +31,11 @@ func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (strin
 		switch classify(cmd) {
 		case commandHidden:
 			return
-		case commandEndpoint, commandFramework:
+		case commandEndpoint:
+			if !includeEndpoints {
+				return
+			}
+		case commandFramework:
 			return
 		}
 		if !cmd.Runnable() {

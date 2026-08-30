@@ -180,6 +180,23 @@ func TestFilterFields(t *testing.T) {
 			fields: "id",
 			want:   `{}`,
 		},
+		{
+			// Round-12 verification NEW C: a raw upstream detail payload
+			// (not one of this CLI's own thin wrapper shapes) with many
+			// top-level fields and one array-valued field, where none of
+			// the requested names are top-level keys on this record. This
+			// used to trip the envelope fallback (which exists for small
+			// wrapper shapes like {"items":[...],"caveats":[...]}) and
+			// leak every non-array sibling -- including large nested
+			// objects -- completely unfiltered. It must now return {}
+			// the same as any other non-matching flat object, since an
+			// 8-key object is far larger than any real wrapper shape this
+			// CLI produces.
+			name:   "large raw payload with one array field and no match returns empty (not an envelope leak)",
+			input:  `{"id":"c1","ride":{"id":"c1","title":"nested title"},"segments":[{"role":"warmup"}],"averages":{"output":100},"playlist":{"tracks":[]},"instructor":{"bio":"long bio text"},"workout_share_images":{"square":"url"},"related_rides":["r1","r2"]}`,
+			fields: "title,duration,fitness_discipline",
+			want:   `{}`,
+		},
 	}
 	for _, tc := range cases {
 		tc := tc

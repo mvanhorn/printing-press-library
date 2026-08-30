@@ -38,6 +38,9 @@ func newRecipesImportCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
+			if bodyAddToList != "" {
+				return fmt.Errorf("recipe import with --add-to-list is disabled; use 'recipes ingredients' for raw facts, then apply explicit item operations selected by the AI")
+			}
 
 			ctx := cmd.Context()
 			cfg, st, err := openAuthedLocalStore(flags)
@@ -67,12 +70,6 @@ func newRecipesImportCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			added := 0
-			if bodyAddToList != "" {
-				added, err = addRecipeIngredientsToList(ctx, cfg, st, imported.Name, bodyAddToList, bodyScale, false)
-				if err != nil {
-					return err
-				}
-			}
 
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{

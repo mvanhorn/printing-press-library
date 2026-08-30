@@ -1,6 +1,6 @@
 ---
 name: pp-isitagentready
-description: "The terminal scanner for AI-agent readiness: every check the web tool runs, plus copy-paste fixes, CI gating, scan history, and a local store the web UI has no answer for. Trigger phrases: `scan my site for agent readiness`, `is my site agent-ready`, `what's my agent readiness level`, `how do I make my site ready for AI agents`, `fix my site for AI agents`, `check llms.txt and MCP discovery on this site`, `use isitagentready`, `run isitagentready`."
+description: "Two agent-readiness scanners in one terminal: every check isitagentready.com and is-agentic.com run, plus copy-paste fixes, CI gating, scan history, and a local store neither web UI has an answer for. Trigger phrases: `scan my site for agent readiness`, `is my site agent-ready`, `what's my agent readiness level`, `what does is-agentic say about my site`, `cross-check my agent readiness score`, `compare both agent readiness scanners`, `how do I make my site ready for AI agents`, `fix my site for AI agents`, `check llms.txt and MCP discovery on this site`, `use isitagentready`, `run isitagentready`."
 author: "bobe"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -34,7 +34,7 @@ This skill drives the `isitagentready-pp-cli` binary. **You must verify the CLI 
 2. Verify: `isitagentready-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/developer-tools/isitagentready/cmd/isitagentready-pp-cli@latest
@@ -42,7 +42,9 @@ go install github.com/mvanhorn/printing-press-library/library/developer-tools/is
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-isitagentready.com gives you a one-shot score in a browser tab with no memory. This CLI turns it into a repeatable loop: check any site, get the prioritized fixes with advice, gate it in CI, diff it over time, compare it to competitors, and batch-scan a whole portfolio, with every scan stored locally so history and open-advice tell you exactly what changed and what is still unfixed.
+isitagentready.com and is-agentic.com each give you a one-shot score in a browser tab with no memory, and neither knows the other exists. This CLI turns both into one repeatable loop: check any site against either scanner, get the prioritized fixes with advice, gate it in CI, diff it over time, compare it to competitors, and batch-scan a whole portfolio — with every scan stored locally and tagged by source, so history and open-advice tell you exactly what changed and what is still unfixed.
+
+The two scanners disagree, and that is the point. isitagentready.com reports a Level 0-5 across five fixed categories; is-agentic.com reports a score 0-100 over a per-site denominator that excludes checks that do not apply. This CLI never averages or rescales them. `crossref` puts both native verdicts side by side and calls agreement only on the four checks that genuinely measure the same thing.
 
 ## When to Use This CLI
 
@@ -108,6 +110,22 @@ These capabilities aren't available in any other tool for this API.
   isitagentready-pp-cli batch urls.txt --rank failing --csv
   ```
 
+### Cross-check both scanners
+- **`crossref`** — Show isitagentready.com's Level 0-5 and is-agentic.com's score 0-100 side by side for one URL, each in its own native scale and never merged, plus an agreement verdict on the four checks that genuinely measure the same thing.
+
+  _Reach for this when one scanner says you are fine and you want a second opinion — without pretending the two scores are the same number._
+
+  ```bash
+  isitagentready-pp-cli crossref https://example.com
+  ```
+- **`--source is-agentic`** — Run any scan-backed command against the second scanner. Every stored scan is tagged with its source, so `history`, `diff`, `gate`, `compare` and `batch` stay inside one scanner's scale instead of silently mixing two. Every is-agentic request in a run — including the concurrent `compare` and `batch` fan-out — goes through one shared client, so the whole process stays inside the host's advertised 2 requests/second public-report budget instead of racing itself into 429s.
+
+  _Reach for this to track is-agentic over time the same way you already track isitagentready._
+
+  ```bash
+  isitagentready-pp-cli report https://example.com --source is-agentic
+  ```
+
 ## Command Reference
 
 **scan** — Scan a website for AI-agent readiness
@@ -166,6 +184,33 @@ isitagentready-pp-cli compare https://example.com https://isitagentready.com
 ```
 
 Prints a per-standard matrix of which agent-readiness checks each site implements.
+
+### Cross-check a site against both scanners
+
+```bash
+isitagentready-pp-cli crossref https://example.com
+```
+
+Prints isitagentready's Level 0-5 and is-agentic's score 0-100 as two separate native verdicts, then an agreement table for the four checks both scanners actually measure. The two scores are never averaged or rescaled — their denominators differ (five fixed categories vs a per-site set that excludes non-applicable checks). If one scanner has no report for the URL, the other is still printed.
+
+### Track the second scanner over time
+
+```bash
+isitagentready-pp-cli check https://example.com --source is-agentic
+isitagentready-pp-cli history https://example.com --source is-agentic
+```
+
+With `--source is-agentic`, `check` prints that scanner's own verdict — the score and its label, the essential/recommended tier breakdown, and each non-passing issue with its fix — not an isitagentready level, because the two scales are not the same claim.
+
+Every scan is stored with its source, and every read filters to one source, so is-agentic history never mixes with isitagentready history. Omitting `--source` keeps the original isitagentready behavior, including for scans recorded before this feature existed.
+
+### Gate CI on the is-agentic score
+
+```bash
+isitagentready-pp-cli gate https://example.com --source is-agentic --min-score 70
+```
+
+`--min-score` is the is-agentic threshold; `--min-level` is the isitagentready one. Passing the wrong pair (`--min-level` with `--source is-agentic`) is a usage error rather than a silent reinterpretation, because a Level 3 and a score of 70 are not the same claim.
 
 ## Auth Setup
 

@@ -6,9 +6,9 @@ hotel-goat fans out across two cash-price sources by default:
 - **Google Hotels** — scraped from the server-rendered page (same data the web UI shows)
 - **Trivago** — called via Trivago's public MCP server (`https://mcp.trivago.com/mcp`), which exposes OTA-aggregated rates from Booking.com, Expedia, Agoda, Hotels.com, Priceline, etc.
 
-Pick a single source with `--source google` or `--source trivago`; the default is `--source both`. When both sources see the same property (matched on lat/lng + name overlap), the OTA prices are merged into one `prices[]` array. Trivago-only properties are appended as standalone rows so the agent gets a wider candidate set.
+Pick a single source with `--source google` or `--source trivago`; the default is `--source both`. When both sources see the same property (matched on lat/lng + name overlap), the OTA prices are merged into one `prices[]` array. Trivago-only properties are appended as standalone rows so the agent gets a wider candidate set. Note: Trivago's MCP server no longer exposes a search-suggestions tool, so hotel-goat searches `trivago-accommodation-search` with the destination query directly (no separate geocoding step).
 
-Trivago is geolocated server-side and returns EUR regardless of client hints. When the headline currency differs (typically Google's USD vs Trivago's EUR), each Trivago price is converted via the Frankfurter ECB FX endpoint (free, no key, 24h on-disk cache) so the agent compares apples-to-apples. The source label records what happened:
+When the headline currency differs (e.g. Trivago returned EUR but Google's is USD), each Trivago price is converted via the Frankfurter ECB FX endpoint (free, no key, 24h on-disk cache) so the agent compares apples-to-apples. The source label records what happened:
 
 - **`trivago/<OTA> [EUR 802 -> USD]`** — FX conversion succeeded. The numeric `price` and headline `price_per_night` are the converted (USD) values; the native EUR amount is preserved in the label so the agent can see both.
 - **`trivago/<OTA> [EUR]`** — FX lookup failed (offline, Frankfurter outage). The numeric `price` is the native EUR value; the headline `price_per_night` is NOT overridden, so cross-source comparisons remain meaningful.
@@ -70,7 +70,7 @@ npx -y @mvanhorn/printing-press-library install hotel-goat --agent claude-code -
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/travel/hotel-goat/cmd/hotel-goat-pp-cli@latest

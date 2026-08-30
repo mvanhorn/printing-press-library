@@ -28,7 +28,7 @@ func newNovelAppealChainCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if gaSkip(flags) {
-				return nil
+				return emitSkip(cmd, flags)
 			}
 			opts := f.opts("")
 			if !hasAnySearchInput(opts) {
@@ -41,6 +41,9 @@ func newNovelAppealChainCmd(flags *rootFlags) *cobra.Command {
 			res, err := c.Search(cmd.Context(), opts)
 			if err != nil {
 				return classifyAPIError(err, flags)
+			}
+			for _, w := range res.Warnings {
+				fmt.Fprintf(cmd.ErrOrStderr(), "Attenzione: %s\n", w)
 			}
 			type chain struct {
 				Ecli     string            `json:"ecli"`

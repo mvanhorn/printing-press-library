@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "ridewithgps",
+  "run_id": "20260616-213832-c533c1eb",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 136,
+  "tests_passed": 136,
+  "tests_skipped": 80,
+  "auth_context": {
+    "type": "api_key"
+  }
+}

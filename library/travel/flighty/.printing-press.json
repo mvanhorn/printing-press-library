@@ -1,0 +1,127 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-27T18:50:24.868918Z",
+  "printing_press_version": "4.31.1",
+  "api_name": "flighty",
+  "display_name": "Flighty Airports",
+  "cli_name": "flighty-pp-cli",
+  "creator": {
+    "handle": "SomSamantray",
+    "name": "Som Samantray"
+  },
+  "owner": "somsamantray",
+  "printer": "SomSamantray",
+  "printer_name": "Som Samantray",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:0b64a4d7af2da8b2d8205b3a4a7b40c9595ea54afa7a4b07dda7eb335ef38df3",
+  "run_id": "20260827-213420-70c6dbaf",
+  "category": "travel",
+  "description": "Every Flighty Airports meltdown map feature, plus cross-airport intelligence no web page can answer.",
+  "mcp_binary": "flighty-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Worst-airports ranking",
+      "command": "airports worst",
+      "description": "Rank the network's airports right now by cumulative delay and cancellations — the web map color-codes but never ranks."
+    },
+    {
+      "name": "Flight lookup by number",
+      "command": "airports find-flight",
+      "description": "Find one flight by number across arrivals and departures boards — status, original vs actual time, gate, belt, terminal."
+    },
+    {
+      "name": "Network airline disruption",
+      "command": "airports airline",
+      "description": "One airline's delay/cancel/divert footprint aggregated across every synced airport — impossible per-airport on the site."
+    },
+    {
+      "name": "Airport comparison",
+      "command": "airports compare",
+      "description": "Side-by-side status, delays, warnings, and flight rules for two airports."
+    },
+    {
+      "name": "Route disruption check",
+      "command": "airports route",
+      "description": "Both directions of one origin-destination pair's delay/cancel/divert stats, joined from each side's disrupted routes."
+    },
+    {
+      "name": "Healthy-alternates finder",
+      "command": "airports nearby",
+      "description": "Distance-ranked nearby airports, flagging which have normal operations right now."
+    },
+    {
+      "name": "Change diff since last sync",
+      "command": "airports diff",
+      "description": "What changed since the last sync: status transitions, new/cleared warnings, delay deltas."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Worst-airports ranking",
+      "command": "airports worst",
+      "description": "Rank the network's airports right now by cumulative delay and cancellations — the web map color-codes but never ranks."
+    },
+    {
+      "name": "Flight lookup by number",
+      "command": "airports find-flight",
+      "description": "Find one flight by number across arrivals and departures boards — status, original vs actual time, gate, belt, terminal."
+    },
+    {
+      "name": "Network airline disruption",
+      "command": "airports airline",
+      "description": "One airline's delay/cancel/divert footprint aggregated across every synced airport — impossible per-airport on the site."
+    },
+    {
+      "name": "Airport comparison",
+      "command": "airports compare",
+      "description": "Side-by-side status, delays, warnings, and flight rules for two airports."
+    },
+    {
+      "name": "Route disruption check",
+      "command": "airports route",
+      "description": "Both directions of one origin-destination pair's delay/cancel/divert stats, joined from each side's disrupted routes."
+    },
+    {
+      "name": "Healthy-alternates finder",
+      "command": "airports nearby",
+      "description": "Distance-ranked nearby airports, flagging which have normal operations right now."
+    },
+    {
+      "name": "Change diff since last sync",
+      "command": "airports diff",
+      "description": "What changed since the last sync: status transitions, new/cleared warnings, delay deltas."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 100,
+    "passed": 34,
+    "total": 34,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 96,
+      "grade": "A",
+      "total": 96
+    }
+  }
+}
