@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "orcarouter-focused-command-surface",
+  "applied_at": "2026-08-30",
+  "base_run_id": "20260830-053000",
+  "base_printing_press_version": "4.30.2",
+  "summary": "OrcaRouter CLI ships a focused OpenAI-compatible command surface (doctor, models, models get, chat, auth, auth set) rather than a full introspection API mirror, because the gateway exposes its OpenAI-compatible inference surface plus a model catalog — not the OpenRouter-style credits/providers/usage introspection API.",
+  "reason": "A regen must not invent OpenRouter-style introspection commands (credits, providers, usage) that the OrcaRouter gateway does not expose; those endpoints return 404. The CLI is a named-provider gateway client, not a full API dump.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/doctor.go",
+    "internal/cli/models.go",
+    "internal/cli/chat.go",
+    "internal/cli/auth.go"
+  ],
+  "validated_outcome": "Live probes confirmed /credits, /usage, /key, /providers return 404 on api.orcarouter.ai/v1; /models and /chat/completions return 200."
+}

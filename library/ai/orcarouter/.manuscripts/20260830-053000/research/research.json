@@ -1,0 +1,13 @@
+{
+  "run_id": "20260830-053000",
+  "api_name": "orcarouter",
+  "research_notes": [
+    "OrcaRouter is an OpenAI-compatible AI gateway at https://api.orcarouter.ai/v1.",
+    "GET /v1/models returns 204 models spanning orcarouter/* routing models and provider models (anthropic/*, openai/*, deepseek/*, google/*).",
+    "POST /v1/chat/completions is OpenAI-compatible; verified live with orcarouter/fusion-flash returning HTTP 200.",
+    "The gateway exposes a provider/model namespace like OpenRouter, but adds adaptive routing, automatic failover, zero-markup inference, observability, guardrails, and agent-tool governance on the same endpoint.",
+    "The catalog repo already publishes an openrouter CLI under library/ai/openrouter; orcarouter mirrors that shape as a first-class named provider.",
+    "Command set is intentionally focused: doctor, models, models get, chat, auth, auth set, version."
+  ],
+  "api_docs_url": "https://www.orcarouter.ai"
+}

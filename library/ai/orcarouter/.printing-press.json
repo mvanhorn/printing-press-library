@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-30T05:30:00Z",
+  "printing_press_version": "4.30.2",
+  "api_name": "orcarouter",
+  "display_name": "OrcaRouter",
+  "cli_name": "orcarouter-pp-cli",
+  "creator": {
+    "handle": "martinzudergaming-a11y",
+    "name": "martinzudergaming-a11y"
+  },
+  "owner": "martinzudergaming-a11y",
+  "printer": "martinzudergaming-a11y",
+  "printer_name": "martinzudergaming-a11y",
+  "run_id": "20260830-053000",
+  "category": "ai",
+  "description": "Agent-first OrcaRouter gateway access — model catalog, chat completions, auth health, and doctor diagnostics for the OpenAI-compatible OrcaRouter endpoint.",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "ORCAROUTER_API_KEY"
+  ],
+  "auth_key_url": "https://www.orcarouter.ai",
+  "auth_title": "OrcaRouter API key",
+  "auth_description": "API key from your OrcaRouter dashboard",
+  "novel_features": [
+    {
+      "name": "Gateway health check",
+      "command": "doctor",
+      "description": "Verify auth, config, and live connectivity to the OrcaRouter gateway in one command — probes /models and reports reachability plus model count."
+    },
+    {
+      "name": "Model catalog",
+      "command": "models",
+      "description": "List the full OrcaRouter model namespace (orcarouter/* plus routed provider models) with context length, sorted for agent-friendly scanning."
+    },
+    {
+      "name": "Model lookup",
+      "command": "models get",
+      "description": "Show a single OrcaRouter model by id including supported endpoint types and context length."
+    },
+    {
+      "name": "OpenAI-compatible chat",
+      "command": "chat",
+      "description": "Send a chat completion to any OrcaRouter model through the OpenAI-compatible endpoint with --max-tokens and --temperature, JSON output under --agent."
+    },
+    {
+      "name": "Auth state",
+      "command": "auth",
+      "description": "Show whether the CLI is configured, the auth source (env or config), and the target base URL — plus auth set to persist an API key to the local config."
+    }
+  ],
+  "catalog_description": "Agent-first OrcaRouter gateway access — model catalog, chat completions, auth health, and doctor diagnostics for the OpenAI-compatible OrcaRouter endpoint."
+}

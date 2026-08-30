@@ -1,0 +1,19 @@
+{
+  "run_id": "20260830-053000",
+  "api_name": "orcarouter",
+  "status": "pass",
+  "checked_at": "2026-08-30T05:32:00Z",
+  "checks": {
+    "go_build": "pass",
+    "go_vet": "pass",
+    "go_test": "pass",
+    "live_doctor": "pass",
+    "live_chat": "pass",
+    "live_models": "pass"
+  },
+  "evidence": [
+    "doctor --json: reachable true, model_count 204, auth_source env:ORCAROUTER_API_KEY",
+    "chat orcarouter/fusion-flash --max-tokens 40: HTTP 200, routed to openai/gpt-oss-120b",
+    "models: 204 models listed sorted by id"
+  ]
+}
