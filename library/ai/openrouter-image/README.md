@@ -10,6 +10,11 @@ Created by [@neal-kyle](https://github.com/neal-kyle).
 
 ## Install
 
+### Prerequisites
+
+- **Node.js** (any current LTS) — required for the npx installer below.
+- **Go 1.26.5 or newer** — only needed for the [Go fallback](#without-node-go-fallback) install or building from source. Not needed for the npx or pre-built binary paths.
+
 The recommended path installs both the `openrouter-image-pp-cli` binary and the `pp-openrouter-image` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
@@ -121,6 +126,48 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 ```
 
 </details>
+
+## Uninstall
+
+### CLI binary
+
+Remove the binary from the install location:
+
+```bash
+rm "$HOME/.local/bin/openrouter-image-pp-cli"
+```
+
+On Windows, delete `%LOCALAPPDATA%\Programs\PrintingPress\bin\openrouter-image-pp-cli.exe`.
+
+### Agent skill
+
+How you remove the skill depends on how it was installed:
+
+- **Via `hermes skills install`** (or another agent's equivalent): uninstall normally:
+
+  ```bash
+  hermes skills uninstall pp-openrouter-image
+  ```
+
+- **Via the npx installer** (`npx ... install openrouter-image`): the skill is registered as a local skill (symlinked into `~/.agents/skills/`), which `hermes skills uninstall` refuses to remove with "not a hub-installed skill (may be a builtin)". Delete it manually:
+
+  ```bash
+  rm "$HOME/.hermes/skills/pp-openrouter-image"      # symlink
+  rm -rf "$HOME/.agents/skills/pp-openrouter-image"  # shared skill target
+  ```
+
+  Remove an npx-installed skill first if you plan to reinstall via `hermes skills install`, otherwise the install is blocked with "Unsafe install path".
+
+### Local data (optional)
+
+Remove saved credentials and local state (sync cache, cost ledger, learnings):
+
+```bash
+rm -rf "$HOME/.config/openrouter-image-pp-cli" \
+       "$HOME/.local/share/openrouter-image-pp-cli" \
+       "$HOME/.local/state/openrouter-image-pp-cli" \
+       "$HOME/.cache/openrouter-image-pp-cli"
+```
 
 ## Authentication
 
