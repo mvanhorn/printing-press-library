@@ -171,7 +171,35 @@ rm -rf "$HOME/.config/openrouter-image-pp-cli" \
 
 ## Authentication
 
-Set OPENROUTER_API_KEY in your environment. The key is read per command; nothing is persisted to disk. Run `openrouter-image-pp-cli doctor` to verify setup.
+You need an OpenRouter API key. Get one at [openrouter.ai/keys](https://openrouter.ai/keys).
+
+### Permanent (saved to disk, survives restarts)
+
+```bash
+openrouter-image-pp-cli auth set-token YOUR_TOKEN_HERE
+```
+
+Verify it's saved:
+
+```bash
+openrouter-image-pp-cli auth status
+```
+
+### Temporary (current session only)
+
+```bash
+export OPENROUTER_API_KEY="YOUR_TOKEN_HERE"
+```
+
+This lasts until you close the terminal. Good for testing or one-off commands.
+
+### Verify everything works
+
+```bash
+openrouter-image-pp-cli doctor
+```
+
+Checks your credentials, config, and API connectivity. To remove saved credentials: `openrouter-image-pp-cli auth logout`.
 
 ## Quick Start
 
