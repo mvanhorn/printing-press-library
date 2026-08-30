@@ -12,8 +12,8 @@ Created by [@neal-kyle](https://github.com/neal-kyle).
 
 ### Prerequisites
 
-- **Node.js** (any current LTS) — required for the npx installer below.
-- **Go 1.26.5 or newer** — only needed for the [Go fallback](#without-node-go-fallback) install or building from source. Not needed for the npx or pre-built binary paths.
+- **Node.js** (any current LTS) — required to run the npx installer below.
+- **Go 1.26.5 or newer** — required by the npx installer (it compiles the CLI via `go install`) and by the [Go fallback](#without-node-go-fallback) / source builds. The only paths that skip Go are `--skill-only` (installs the skill without the binary) and the [pre-built binary](#pre-built-binary) download.
 
 The recommended path installs both the `openrouter-image-pp-cli` binary and the `pp-openrouter-image` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
@@ -160,7 +160,7 @@ How you remove the skill depends on how it was installed:
 
 ### Local data (optional)
 
-Remove saved credentials and local state (sync cache, cost ledger, learnings):
+Remove saved credentials and local state (sync cache, cost ledger, learnings). The commands below remove the default locations:
 
 ```bash
 rm -rf "$HOME/.config/openrouter-image-pp-cli" \
@@ -168,6 +168,8 @@ rm -rf "$HOME/.config/openrouter-image-pp-cli" \
        "$HOME/.local/state/openrouter-image-pp-cli" \
        "$HOME/.cache/openrouter-image-pp-cli"
 ```
+
+If you relocated storage via `OPENROUTER_IMAGE_HOME` or a per-kind override (`OPENROUTER_IMAGE_CONFIG_DIR`, `OPENROUTER_IMAGE_DATA_DIR`, `OPENROUTER_IMAGE_STATE_DIR`, `OPENROUTER_IMAGE_CACHE_DIR`), the files live under those locations instead. Run `openrouter-image-pp-cli doctor` (or `openrouter-image-pp-cli agent-context --pretty` for the resolved paths) to see where each kind currently resolves before deleting.
 
 ## Authentication
 
