@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 )
@@ -98,6 +99,10 @@ func TestChannelMapping(t *testing.T) {
 		"gasStation":    "gas",
 		"carwash":       "carwash",
 		"gasAndCarWash": "gas+carwash",
+		// the two values Costco's receiptsWithCounts actually returns (2026-09-07)
+		"WarehouseReceiptDetail": "warehouse",
+		"FuelReceipts":           "gas",
+		"":                       "warehouse",
 	}
 	for dt, want := range cases {
 		r := costcoReceipt{DocumentType: dt}
@@ -131,5 +136,24 @@ func TestDecodeJWTExp(t *testing.T) {
 	}
 	if _, ok := decodeJWTExp("not-a-jwt"); ok {
 		t.Fatal("expected non-JWT to fail")
+	}
+}
+
+func TestReceiptsQueryUsesReceiptsWithCountsAll(t *testing.T) {
+	if !strings.Contains(receiptsQuery, "receiptsWithCounts(") || !strings.Contains(receiptsQuery, "documentType: $documentType") {
+		t.Fatalf("receiptsQuery must use receiptsWithCounts with a documentType variable; the plain receipts query returns in-warehouse receipts only")
+	}
+	if got := receiptsVariables("2026-01-01", "2026-01-31")["documentType"]; got != "all" {
+		t.Fatalf("documentType = %q, want all", got)
+	}
+	var env receiptsEnvelope
+	if err := json.Unmarshal([]byte(`{"data":{"receiptsWithCounts":{"inWarehouse":1,"gasStation":1,"receipts":[{"documentType":"FuelReceipts"},{"documentType":"WarehouseReceiptDetail"}]}}}`), &env); err != nil {
+		t.Fatal(err)
+	}
+	if n := len(env.Data.ReceiptsWithCounts.Receipts); n != 2 {
+		t.Fatalf("envelope decoded %d receipts, want 2", n)
+	}
+	if env.Data.ReceiptsWithCounts.Receipts[0].channel() != "gas" {
+		t.Fatal("FuelReceipts must map to the gas channel")
 	}
 }

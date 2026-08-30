@@ -14,7 +14,7 @@ import (
 func FetchReceiptsWithClient(ctx context.Context, c *client.Client, startDate, endDate string) ([]costcoReceipt, error) {
 	body := map[string]any{
 		"query":     receiptsQuery,
-		"variables": map[string]string{"startDate": startDate, "endDate": endDate},
+		"variables": receiptsVariables(startDate, endDate),
 	}
 	data, _, err := c.PostQueryWithParams(ctx, costcoGraphQLPath, nil, body)
 	if err != nil {
@@ -27,7 +27,7 @@ func FetchReceiptsWithClient(ctx context.Context, c *client.Client, startDate, e
 	if len(env.Errors) > 0 {
 		return nil, fmt.Errorf("costco API error: %s", env.Errors[0].Message)
 	}
-	return env.Data.Receipts, nil
+	return env.Data.ReceiptsWithCounts.Receipts, nil
 }
 
 // ReceiptSummaryRow is the exported form of receiptSummary.

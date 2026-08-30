@@ -113,12 +113,13 @@ type costcoReceipt struct {
 	TenderArray         []costcoTender `json:"tenderArray"`
 }
 
-// channel maps documentType to a human channel label.
+// channel maps documentType to a human channel label. Costco's live values
+// are "WarehouseReceiptDetail" and "FuelReceipts".
 func (r costcoReceipt) channel() string {
 	switch strings.ToLower(r.DocumentType) {
-	case "warehouse", "inwarehouse":
+	case "warehouse", "inwarehouse", "warehousereceiptdetail":
 		return "warehouse"
-	case "gas", "gasstation", "fuel":
+	case "gas", "gasstation", "fuel", "fuelreceipts":
 		return "gas"
 	case "carwash":
 		return "carwash"
@@ -134,8 +135,16 @@ func (r costcoReceipt) channel() string {
 
 // receiptsQuery is the in-warehouse/gas/carwash receipts query. Field set is
 // the union the hand-built commands consume.
-const receiptsQuery = `query receipts($startDate: String!, $endDate: String!) {
-  receipts(startDate: $startDate, endDate: $endDate) {
+//
+// It is the site's own receiptsWithCounts query, not the older receipts query:
+// Costco scopes receipts(startDate, endDate) to in-warehouse receipts, so gas
+// receipts never arrived through it (verified 2026-09-07 against a live
+// account: the same window returned one warehouse receipt via receipts and
+// that receipt plus a FuelReceipts one via receiptsWithCounts). documentType
+// "all" returns in-warehouse and gas receipts together.
+const receiptsQuery = `query receiptsWithCounts($startDate: String!, $endDate: String!, $documentType: String!) {
+  receiptsWithCounts(startDate: $startDate, endDate: $endDate, documentType: $documentType) {
+    receipts {
     documentType
     receiptType
     membershipNumber
@@ -173,8 +182,19 @@ const receiptsQuery = `query receipts($startDate: String!, $endDate: String!) {
       amountTender
       displayAccountNumber
     }
+    }
   }
 }`
+
+// receiptsDocumentType is the documentType every receipts fetch asks for.
+// "all" returns in-warehouse and gas receipts together; "warehouse" returns
+// in-warehouse receipts only.
+const receiptsDocumentType = "all"
+
+// receiptsVariables builds the variables for receiptsQuery.
+func receiptsVariables(startDate, endDate string) map[string]string {
+	return map[string]string{"startDate": startDate, "endDate": endDate, "documentType": receiptsDocumentType}
+}
 
 type graphQLError struct {
 	Message string `json:"message"`
@@ -182,7 +202,9 @@ type graphQLError struct {
 
 type receiptsEnvelope struct {
 	Data struct {
-		Receipts []costcoReceipt `json:"receipts"`
+		ReceiptsWithCounts struct {
+			Receipts []costcoReceipt `json:"receipts"`
+		} `json:"receiptsWithCounts"`
 	} `json:"data"`
 	Errors []graphQLError `json:"errors"`
 }
@@ -197,7 +219,7 @@ func fetchReceipts(ctx context.Context, flags *rootFlags, startDate, endDate str
 	}
 	body := map[string]any{
 		"query":     receiptsQuery,
-		"variables": map[string]string{"startDate": startDate, "endDate": endDate},
+		"variables": receiptsVariables(startDate, endDate),
 	}
 	data, _, err := c.PostQueryWithParams(ctx, costcoGraphQLPath, nil, body)
 	if err != nil {
@@ -210,7 +232,7 @@ func fetchReceipts(ctx context.Context, flags *rootFlags, startDate, endDate str
 	if len(env.Errors) > 0 {
 		return nil, fmt.Errorf("costco API error: %s", env.Errors[0].Message)
 	}
-	return env.Data.Receipts, nil
+	return env.Data.ReceiptsWithCounts.Receipts, nil
 }
 
 // --- date helpers ---
