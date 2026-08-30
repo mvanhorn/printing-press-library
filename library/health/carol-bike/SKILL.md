@@ -52,7 +52,7 @@ Do not activate this CLI for requests that require creating, updating, deleting,
 These capabilities aren't available in any other tool for this API.
 
 ### Local data
-- **`sync`** — Mirror personal CAROL ride history into local SQLite for dependable offline search and analysis.
+- **`sync`** — Mirror REHIT, FAT BURN, free/zones/custom, and fitness-test ride history into one local SQLite store for dependable offline search and analysis.
 
   _Agents can query a durable personal ride history without keeping a browser running._
 
@@ -72,6 +72,9 @@ This CLI was generated with browser-observed traffic context.
 **ride** — Read personal CAROL Bike ride history.
 
 - `carol-bike-pp-cli ride get-latest` — Get the latest ride
+- `carol-bike-pp-cli ride list-fat-burn` — List FAT BURN rides
+- `carol-bike-pp-cli ride list-fitness-tests` — List fitness-test rides
+- `carol-bike-pp-cli ride list-free-custom-zones` — List free, zones, and custom rides
 - `carol-bike-pp-cli ride list-rehit` — List REHIT rides
 
 **stats** — Read aggregate CAROL Bike rider statistics.
@@ -81,7 +84,7 @@ This CLI was generated with browser-observed traffic context.
 - `carol-bike-pp-cli stats get-rider` — Get aggregate rider statistics
 - `carol-bike-pp-cli stats get-rides-per-week` — Get current weekly ride rate and target
 
-**trends** — Read CAROL Bike rider trend series.
+**trends** — Read CAROL Bike rider trend series. Trends remain REHIT-only; do not infer FAT BURN, free/zones/custom, or fitness-test trends from the all-family history commands.
 
 - `carol-bike-pp-cli trends` — Get rider trend series
 

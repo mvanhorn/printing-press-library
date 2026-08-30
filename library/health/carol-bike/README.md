@@ -136,7 +136,7 @@ carol-bike-pp-cli doctor --json
 # Preview the latest-ride request without sending it.
 carol-bike-pp-cli ride get-latest --dry-run --json
 
-# Preview a bounded full sync into the local store.
+# Preview a bounded full sync of all four ride families into the local store.
 carol-bike-pp-cli sync --full --max-pages 1 --dry-run --json
 
 ```
@@ -146,7 +146,7 @@ carol-bike-pp-cli sync --full --max-pages 1 --dry-run --json
 These capabilities aren't available in any other tool for this API.
 
 ### Local data
-- **`sync`** — Mirror personal CAROL ride history into local SQLite for dependable offline search and analysis.
+- **`sync`** — Mirror REHIT, FAT BURN, free/zones/custom, and fitness-test ride history into one local SQLite store for dependable offline search and analysis.
 
   _Agents can query a durable personal ride history without keeping a browser running._
 
@@ -240,6 +240,9 @@ Existing installs keep working because the platform-default rung matches the leg
 Read personal CAROL Bike ride history.
 
 - **`carol-bike-pp-cli ride get-latest`** - Get the latest ride
+- **`carol-bike-pp-cli ride list-fat-burn`** - List FAT BURN rides
+- **`carol-bike-pp-cli ride list-fitness-tests`** - List fitness-test rides
+- **`carol-bike-pp-cli ride list-free-custom-zones`** - List free, zones, and custom rides
 - **`carol-bike-pp-cli ride list-rehit`** - List REHIT rides
 
 ### stats
@@ -253,7 +256,7 @@ Read aggregate CAROL Bike rider statistics.
 
 ### trends
 
-Read CAROL Bike rider trend series.
+Read CAROL Bike rider trend series. This trend surface remains REHIT-only; the all-family ride-list and sync support does not generalize trends to other workout families.
 
 - **`carol-bike-pp-cli trends`** - Get rider trend series
 

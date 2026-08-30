@@ -11,5 +11,5 @@
     "internal/cli/sync.go",
     "internal/cli/carol_pagination_test.go"
   ],
-  "validated_outcome": "Full live sync must store all 394 rides and page 0 must be present in the first request."
+  "validated_outcome": "Every allowlisted CAROL ride family begins at page 0 and advances independently; deterministic fixtures verify non-empty family coverage, stable-ID deduplication, and idempotent repeat sync."
 }

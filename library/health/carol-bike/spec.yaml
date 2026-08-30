@@ -58,6 +58,96 @@ resources:
           type: page
           cursor_param: page
           limit_param: size
+      list-fat-burn:
+        method: GET
+        path: /rider/{riderId}/ride/type/FAT_BURN
+        description: List FAT BURN rides
+        params:
+          - name: v
+            flag_name: api-version
+            aliases: [v]
+            type: string
+            default: 3.9.1
+            description: CAROL Rider API version.
+          - name: page
+            type: int
+            default: 0
+            minimum: 0
+            description: Zero-based result page.
+          - name: size
+            type: int
+            default: 40
+            minimum: 1
+            maximum: 200
+            description: Number of rides per page.
+        response:
+          type: array
+          item: Ride
+        response_path: content
+        pagination:
+          type: page
+          cursor_param: page
+          limit_param: size
+      list-free-custom-zones:
+        method: GET
+        path: /rider/{riderId}/ride/type/FREE_AND_ZONES_AND_CUSTOM
+        description: List free, zones, and custom rides
+        params:
+          - name: v
+            flag_name: api-version
+            aliases: [v]
+            type: string
+            default: 3.9.1
+            description: CAROL Rider API version.
+          - name: page
+            type: int
+            default: 0
+            minimum: 0
+            description: Zero-based result page.
+          - name: size
+            type: int
+            default: 40
+            minimum: 1
+            maximum: 200
+            description: Number of rides per page.
+        response:
+          type: array
+          item: Ride
+        response_path: content
+        pagination:
+          type: page
+          cursor_param: page
+          limit_param: size
+      list-fitness-tests:
+        method: GET
+        path: /rider/{riderId}/ride/type/FITNESS_TESTS
+        description: List fitness-test rides
+        params:
+          - name: v
+            flag_name: api-version
+            aliases: [v]
+            type: string
+            default: 3.9.1
+            description: CAROL Rider API version.
+          - name: page
+            type: int
+            default: 0
+            minimum: 0
+            description: Zero-based result page.
+          - name: size
+            type: int
+            default: 40
+            minimum: 1
+            maximum: 200
+            description: Number of rides per page.
+        response:
+          type: array
+          item: Ride
+        response_path: content
+        pagination:
+          type: page
+          cursor_param: page
+          limit_param: size
   stats:
     description: Read aggregate CAROL Bike rider statistics.
     endpoints:

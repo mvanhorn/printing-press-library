@@ -415,26 +415,82 @@ Resource scoping:
 	return cmd
 }
 
-// syncResource handles the full paginated sync of a single resource.
-// It resumes from the last cursor unless sinceTS or full mode overrides it.
-// channel_workflow.go.tmpl mirrors the trailing dates arg conditional;
-// keep both call sites in sync if this signature changes.
+type rideSyncTarget struct {
+	path     string
+	stateKey string
+}
+
+// carolRideSyncTargets is intentionally closed: CAROL exposes workout history
+// through these four concrete families, not through an arbitrary type path.
+var carolRideSyncTargets = []rideSyncTarget{
+	{path: "/rider/{riderId}/ride/type/REHIT", stateKey: "ride"},
+	{path: "/rider/{riderId}/ride/type/FAT_BURN", stateKey: "ride:FAT_BURN"},
+	{path: "/rider/{riderId}/ride/type/FREE_AND_ZONES_AND_CUSTOM", stateKey: "ride:FREE_AND_ZONES_AND_CUSTOM"},
+	{path: "/rider/{riderId}/ride/type/FITNESS_TESTS", stateKey: "ride:FITNESS_TESTS"},
+}
+
+// syncResource handles the full paginated sync of a single public resource.
+// CAROL's ride resource fans out over the fixed workout-family allowlist while
+// retaining one public resource name and one local ride store.
 func syncResource(ctx context.Context, c interface {
 	Get(context.Context, string, map[string]string) (json.RawMessage, error)
 	RateLimit() float64
 }, db *store.Store, resource, sinceTS string, full bool, maxPages int, latestOnly bool, prune bool, userParams *syncUserParams, syncEvents io.Writer) syncResult {
+	if resource != "ride" {
+		path, err := syncResourcePath(resource)
+		if err != nil {
+			return syncResult{Resource: resource, Err: err}
+		}
+		return syncResourceAtPath(ctx, c, db, resource, resource, path, sinceTS, full, maxPages, latestOnly, prune, userParams, syncEvents, nil, true)
+	}
+
+	started := time.Now()
+	if syncEvents == nil {
+		syncEvents = io.Discard
+	}
+	if !humanFriendly {
+		fmt.Fprintf(syncEvents, `{"event":"sync_start","resource":"%s"}`+"\n", resource)
+	}
+
+	result := syncResult{Resource: resource}
+	seenRideIDs := map[string]struct{}{}
+	for _, target := range carolRideSyncTargets {
+		familyResult := syncResourceAtPath(ctx, c, db, resource, target.stateKey, target.path, sinceTS, full, maxPages, latestOnly, prune, userParams, syncEvents, seenRideIDs, false)
+		if result.Err == nil && familyResult.Err != nil {
+			result.Err = familyResult.Err
+		}
+		if result.Warn == nil && familyResult.Warn != nil {
+			result.Warn = familyResult.Warn
+		}
+		result.IntegrityFailure = result.IntegrityFailure || familyResult.IntegrityFailure
+	}
+
+	count, err := db.Count(resource)
+	if err != nil && result.Err == nil {
+		result.Err = fmt.Errorf("counting stored %s rows: %w", resource, err)
+	}
+	result.Count = count
+	result.Duration = time.Since(started)
+	if result.Err == nil && !humanFriendly {
+		fmt.Fprintf(syncEvents, `{"event":"sync_complete","resource":"%s","total":%d,"duration_ms":%d}`+"\n", resource, result.Count, result.Duration.Milliseconds())
+	}
+	return result
+}
+
+// syncResourceAtPath runs the generated sync loop for one exact endpoint.
+// stateResource isolates each ride family's resume cursor; resource remains
+// "ride" so every family shares typed storage, identity, output, and flags.
+func syncResourceAtPath(ctx context.Context, c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
+	RateLimit() float64
+}, db *store.Store, resource, stateResource, path, sinceTS string, full bool, maxPages int, latestOnly bool, prune bool, userParams *syncUserParams, syncEvents io.Writer, dedupeIDs map[string]struct{}, emitLifecycle bool) syncResult {
 	started := time.Now()
 	if syncEvents == nil {
 		syncEvents = io.Discard
 	}
 
-	if !humanFriendly {
+	if emitLifecycle && !humanFriendly {
 		fmt.Fprintf(syncEvents, `{"event":"sync_start","resource":"%s"}`+"\n", resource)
-	}
-
-	path, err := syncResourcePath(resource)
-	if err != nil {
-		return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
 	}
 
 	// Skip resources whose path template still contains unresolved `{key}`
@@ -486,8 +542,11 @@ func syncResource(ctx context.Context, c interface {
 	requestedAt := started.UTC()
 
 	// Resume cursor from sync_state (unless --full cleared it)
-	existingCursor, lastSynced, _, _ := db.GetSyncState(resource)
-	if !full {
+	existingCursor, lastSynced, _, _ := db.GetSyncState(stateResource)
+	if full || latestOnly {
+		existingCursor = ""
+		lastSynced = time.Time{}
+	} else {
 		if storedCount, err := db.Count(resource); err == nil && storedCount == 0 {
 			existingCursor = ""
 			lastSynced = time.Time{}
@@ -569,6 +628,12 @@ func syncResource(ctx context.Context, c interface {
 
 	for {
 		params := map[string]string{}
+		// PATCH: CAROL's ride-family endpoints use the documented Rider API
+		// version parameter. Apply the generated endpoint default here; explicit
+		// user params still win below.
+		if resource == "ride" {
+			params["v"] = "3.9.1"
+		}
 
 		if resourceSupportsPagination(resource) {
 			params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
@@ -717,6 +782,8 @@ func syncResource(ctx context.Context, c interface {
 		fetchedThisPage := len(items)
 		_, hydrationEnabled := itemHydrationPaths[resource]
 		items, hydrateFailures := hydrateScalarItems(ctx, c, resource, items)
+		items = dedupeSyncItems(resource, items, dedupeIDs)
+		processedThisPage := len(items)
 
 		// Keep page consumption separate from stored rows so integrity-loss
 		// outcomes are classified precisely: all items rejected by ID extraction,
@@ -730,7 +797,7 @@ func syncResource(ctx context.Context, c interface {
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("upserting batch for %s: %w", resource, err), Duration: time.Since(started)}
 		}
 
-		consumedTotal += fetchedThisPage
+		consumedTotal += processedThisPage
 		extractFailureTotal += extractFailures + hydrateFailures
 		hydrateFailureTotal += hydrateFailures
 		pageFailureCount := extractFailures + hydrateFailures
@@ -747,7 +814,7 @@ func syncResource(ctx context.Context, c interface {
 			return syncResult{Resource: resource, Count: totalCount + stored, Err: err, IntegrityFailure: true, Duration: time.Since(started)}
 		}
 
-		if fetchedThisPage > 0 && stored == 0 {
+		if processedThisPage > 0 && stored == 0 {
 			reason := "all_items_failed_id_extraction"
 			cause := "scalar item shape rather than objects with extractable IDs"
 			if hydrationEnabled && hydrateFailures > 0 {
@@ -755,11 +822,11 @@ func syncResource(ctx context.Context, c interface {
 				cause = "scalar item hydration failed for every ID"
 			}
 			if humanFriendly {
-				fmt.Fprintf(os.Stderr, "warning: %s returned %d items but stored 0 — the local store will be empty for this resource. Likely cause: %s.\n", resource, fetchedThisPage, cause)
+				fmt.Fprintf(os.Stderr, "warning: %s returned %d items but stored 0 — the local store will be empty for this resource. Likely cause: %s.\n", resource, processedThisPage, cause)
 			} else {
-				fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"reason":"%s"}`+"\n", resource, fetchedThisPage, reason)
+				fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"reason":"%s"}`+"\n", resource, processedThisPage, reason)
 			}
-			err := fmt.Errorf("%s consumed %d item(s) but stored 0", resource, fetchedThisPage)
+			err := fmt.Errorf("%s consumed %d item(s) but stored 0", resource, processedThisPage)
 			if !humanFriendly {
 				fmt.Fprintln(syncEvents, syncErrorJSON(resource, "", err))
 			}
@@ -916,8 +983,8 @@ func syncResource(ctx context.Context, c interface {
 		}
 
 		// Save cursor after each page for resumability
-		if err := db.SaveSyncProgress(resource, nextCursor, totalCount); err != nil {
-			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("saving sync progress for %s: %w", resource, err), Duration: time.Since(started)}
+		if err := db.SaveSyncProgress(stateResource, nextCursor, totalCount); err != nil {
+			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("saving sync progress for %s: %w", stateResource, err), Duration: time.Since(started)}
 		}
 
 		cursor = nextCursor
@@ -999,12 +1066,12 @@ func syncResource(ctx context.Context, c interface {
 	}
 	var stateErr error
 	if watermark.IsZero() {
-		stateErr = db.SaveSyncProgress(resource, finalCursor, cachedCount)
+		stateErr = db.SaveSyncProgress(stateResource, finalCursor, cachedCount)
 	} else {
-		stateErr = db.SaveSyncStateAt(resource, finalCursor, cachedCount, watermark)
+		stateErr = db.SaveSyncStateAt(stateResource, finalCursor, cachedCount, watermark)
 	}
 	if stateErr != nil {
-		return syncResult{Resource: resource, Count: cachedCount, Err: fmt.Errorf("saving sync state for %s: %w", resource, stateErr), Duration: time.Since(started)}
+		return syncResult{Resource: resource, Count: cachedCount, Err: fmt.Errorf("saving sync state for %s: %w", stateResource, stateErr), Duration: time.Since(started)}
 	}
 
 	// F4b symptom probe: if items were consumed and successfully
@@ -1027,7 +1094,7 @@ func syncResource(ctx context.Context, c interface {
 		return syncResult{Resource: resource, Count: 0, Err: err, IntegrityFailure: true, Duration: time.Since(started)}
 	}
 
-	if !humanFriendly {
+	if emitLifecycle && !humanFriendly {
 		fmt.Fprintf(syncEvents, `{"event":"sync_complete","resource":"%s","total":%d,"duration_ms":%d}`+"\n", resource, cachedCount, time.Since(started).Milliseconds())
 	}
 
@@ -1834,6 +1901,31 @@ type discriminatorDispatch struct {
 
 var discriminatorDispatchers = map[string]discriminatorDispatch{}
 
+func dedupeSyncItems(resource string, items []json.RawMessage, seenIDs map[string]struct{}) []json.RawMessage {
+	if seenIDs == nil {
+		return items
+	}
+	unique := make([]json.RawMessage, 0, len(items))
+	for _, item := range items {
+		obj, err := store.DecodeJSONObject(item)
+		if err != nil {
+			unique = append(unique, item)
+			continue
+		}
+		id := extractID(resource, obj)
+		if id == "" {
+			unique = append(unique, item)
+			continue
+		}
+		if _, duplicate := seenIDs[id]; duplicate {
+			continue
+		}
+		seenIDs[id] = struct{}{}
+		unique = append(unique, item)
+	}
+	return unique
+}
+
 func upsertResourceBatch(db *store.Store, resource string, items []json.RawMessage) (int, int, int, error) {
 	if _, ok := discriminatorDispatchers[resource]; !ok {
 		return db.UpsertBatchDetailed(resource, items)
@@ -2210,7 +2302,10 @@ var dataEnvelopeKeys = []string{"data", "Data", "result", "Result"}
 
 func responsePathForResource(resource, path string) []string {
 	switch resource + "\x00" + path {
-	case "ride\x00/rider/{riderId}/ride/type/REHIT":
+	case "ride\x00/rider/{riderId}/ride/type/REHIT",
+		"ride\x00/rider/{riderId}/ride/type/FAT_BURN",
+		"ride\x00/rider/{riderId}/ride/type/FREE_AND_ZONES_AND_CUSTOM",
+		"ride\x00/rider/{riderId}/ride/type/FITNESS_TESTS":
 		return []string{"content"}
 	}
 	return nil

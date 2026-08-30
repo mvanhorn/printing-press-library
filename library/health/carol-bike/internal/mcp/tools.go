@@ -50,6 +50,45 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/rider/{riderId}/ride/last", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "api-version", WireName: "v", Location: "query", Default: "3.9.1"}, {PublicName: "riderId", WireName: "riderId", Location: "template"}}, []string{}),
 	)
 	s.AddTool(
+		mcplib.NewTool("ride_list-fat-burn",
+			mcplib.WithDescription("List FAT BURN rides. Optional: api-version (default: 3.9.1), page (default: 0), size (default: 40). Returns array of Ride."),
+			mcplib.WithString("api-version", mcplib.Description("CAROL Rider API version.")),
+			mcplib.WithNumber("size", mcplib.Description("Number of rides per page.")),
+			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
+			mcplib.WithString("riderId", mcplib.Description("Path template value for {riderId}; overrides env/config for this MCP call")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/rider/{riderId}/ride/type/FAT_BURN", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: ""}, []mcpParamBinding{{PublicName: "api-version", WireName: "v", Location: "query", Default: "3.9.1"}, {PublicName: "size", WireName: "size", Location: "query", Default: "40"}, {PublicName: "riderId", WireName: "riderId", Location: "template"}}, []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("ride_list-fitness-tests",
+			mcplib.WithDescription("List fitness-test rides. Optional: api-version (default: 3.9.1), page (default: 0), size (default: 40). Returns array of Ride."),
+			mcplib.WithString("api-version", mcplib.Description("CAROL Rider API version.")),
+			mcplib.WithNumber("size", mcplib.Description("Number of rides per page.")),
+			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
+			mcplib.WithString("riderId", mcplib.Description("Path template value for {riderId}; overrides env/config for this MCP call")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/rider/{riderId}/ride/type/FITNESS_TESTS", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: ""}, []mcpParamBinding{{PublicName: "api-version", WireName: "v", Location: "query", Default: "3.9.1"}, {PublicName: "size", WireName: "size", Location: "query", Default: "40"}, {PublicName: "riderId", WireName: "riderId", Location: "template"}}, []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("ride_list-free-custom-zones",
+			mcplib.WithDescription("List free, zones, and custom rides. Optional: api-version (default: 3.9.1), page (default: 0), size (default: 40). Returns array of Ride."),
+			mcplib.WithString("api-version", mcplib.Description("CAROL Rider API version.")),
+			mcplib.WithNumber("size", mcplib.Description("Number of rides per page.")),
+			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
+			mcplib.WithString("riderId", mcplib.Description("Path template value for {riderId}; overrides env/config for this MCP call")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/rider/{riderId}/ride/type/FREE_AND_ZONES_AND_CUSTOM", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: ""}, []mcpParamBinding{{PublicName: "api-version", WireName: "v", Location: "query", Default: "3.9.1"}, {PublicName: "size", WireName: "size", Location: "query", Default: "40"}, {PublicName: "riderId", WireName: "riderId", Location: "template"}}, []string{}),
+	)
+	s.AddTool(
 		mcplib.NewTool("ride_list-rehit",
 			mcplib.WithDescription("List REHIT rides. Optional: api-version (default: 3.9.1), page (default: 0), size (default: 40). Returns array of Ride."),
 			mcplib.WithString("api-version", mcplib.Description("CAROL Rider API version.")),
@@ -893,7 +932,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"api":         "carol-bike",
 		"description": "Read and locally mirror personal CAROL Bike workout data.",
 		"archetype":   "generic",
-		"tool_count":  7,
+		"tool_count":  10,
 		"paths":       paths,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion carol-bike-pp-cli binary.",
@@ -920,7 +959,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{
 				"name":        "ride",
 				"description": "Read personal CAROL Bike ride history.",
-				"endpoints":   []string{"get-latest", "list-rehit"},
+				"endpoints":   []string{"get-latest", "list-fat-burn", "list-fitness-tests", "list-free-custom-zones", "list-rehit"},
 				"syncable":    true,
 				"searchable":  true,
 			},

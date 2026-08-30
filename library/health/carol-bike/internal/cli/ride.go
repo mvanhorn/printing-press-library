@@ -16,6 +16,9 @@ func newRideCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.AddCommand(newRideGetLatestCmd(flags))
+	cmd.AddCommand(newRideListFatBurnCmd(flags))
+	cmd.AddCommand(newRideListFitnessTestsCmd(flags))
+	cmd.AddCommand(newRideListFreeCustomZonesCmd(flags))
 	cmd.AddCommand(newRideListRehitCmd(flags))
 	return cmd
 }

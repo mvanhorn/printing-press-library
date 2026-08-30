@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "carol-all-family-ride-sync",
+  "applied_at": "2026-08-28",
+  "base_run_id": "20260828-185953",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Fan out the public ride sync over CAROL's four concrete workout-family endpoints while retaining one ride store.",
+  "reason": "Printing Press selects one list endpoint per resource for sync, but CAROL partitions ride history across four fixed paths; source generation alone would omit three families or expose generator-internal resource names. Generic sync also omits endpoint-default query parameters, while CAROL's canonical family request contract requires v=3.9.1.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/carol_pagination_test.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "sync --resources ride requests only the four allowlisted family paths with the default v=3.9.1 query parameter, preserves explicit user overrides, paginates each from page 0, and stores stable IDs idempotently in the shared ride resource/table; MCP registers typed read-only tools for get-latest and every ride-list family."
+}

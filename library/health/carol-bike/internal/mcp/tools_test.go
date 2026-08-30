@@ -107,6 +107,56 @@ func TestMCPRegisterToolsPreservesTypedSpecialTools(t *testing.T) {
 	if !strings.Contains(sqlTool.Tool.Description, "Run read-only SQL against local database") {
 		t.Fatalf("sql tool appears to have been overwritten by command mirror: %q", sqlTool.Tool.Description)
 	}
+	for _, name := range []string{
+		"ride_get-latest",
+		"ride_list-fat-burn",
+		"ride_list-fitness-tests",
+		"ride_list-free-custom-zones",
+		"ride_list-rehit",
+	} {
+		tool, ok := tools[name]
+		if !ok {
+			t.Errorf("typed ride tool %q missing from registered tools", name)
+			continue
+		}
+		if tool.Tool.Annotations.ReadOnlyHint == nil || !*tool.Tool.Annotations.ReadOnlyHint ||
+			tool.Tool.Annotations.DestructiveHint == nil || *tool.Tool.Annotations.DestructiveHint {
+			t.Errorf("typed ride tool %q annotations = %#v, want read-only and non-destructive", name, tool.Tool.Annotations)
+		}
+	}
+}
+
+func TestMCPContextListsAllTypedRideEndpoints(t *testing.T) {
+	result, err := handleContext(context.Background(), mcplib.CallToolRequest{})
+	if err != nil {
+		t.Fatalf("handleContext returned transport error: %v", err)
+	}
+	if result == nil || result.IsError {
+		t.Fatalf("handleContext IsError = %v, want false", result != nil && result.IsError)
+	}
+	var contextEnvelope struct {
+		ToolCount int `json:"tool_count"`
+		Resources []struct {
+			Name      string   `json:"name"`
+			Endpoints []string `json:"endpoints"`
+		} `json:"resources"`
+	}
+	if err := json.Unmarshal([]byte(mcpTextContent(t, result)), &contextEnvelope); err != nil {
+		t.Fatalf("context result must be valid JSON: %v", err)
+	}
+	if contextEnvelope.ToolCount != 10 {
+		t.Fatalf("context tool_count = %d, want 10 typed API tools", contextEnvelope.ToolCount)
+	}
+	want := []string{"get-latest", "list-fat-burn", "list-fitness-tests", "list-free-custom-zones", "list-rehit"}
+	for _, resource := range contextEnvelope.Resources {
+		if resource.Name == "ride" {
+			if strings.Join(resource.Endpoints, ",") != strings.Join(want, ",") {
+				t.Fatalf("ride endpoints = %v, want %v", resource.Endpoints, want)
+			}
+			return
+		}
+	}
+	t.Fatal("ride resource missing from context metadata")
 }
 
 func TestMCPSearchMissingStoreIsActionable(t *testing.T) {

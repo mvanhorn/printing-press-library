@@ -21,6 +21,9 @@ func TestDeclaredAPISurfaceReachable(t *testing.T) {
 	expected := []string{
 		"ride",
 		"ride get-latest",
+		"ride list-fat-burn",
+		"ride list-fitness-tests",
+		"ride list-free-custom-zones",
 		"ride list-rehit",
 		"stats",
 		"stats get-ride-calendar",
@@ -58,6 +61,36 @@ func TestDeclaredAPISurfaceReachable(t *testing.T) {
 	}
 	if len(missing) > 0 {
 		t.Fatalf("declared API command paths missing from generated Cobra tree: %s", strings.Join(missing, ", "))
+	}
+}
+
+func TestRideListCommandsExposeExactReadOnlyEndpoints(t *testing.T) {
+	tests := []struct {
+		command string
+		path    string
+	}{
+		{command: "ride list-rehit", path: "/rider/{riderId}/ride/type/REHIT"},
+		{command: "ride list-fat-burn", path: "/rider/{riderId}/ride/type/FAT_BURN"},
+		{command: "ride list-free-custom-zones", path: "/rider/{riderId}/ride/type/FREE_AND_ZONES_AND_CUSTOM"},
+		{command: "ride list-fitness-tests", path: "/rider/{riderId}/ride/type/FITNESS_TESTS"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.command, func(t *testing.T) {
+			cmd, _, err := RootCmd().Find(strings.Fields(tt.command))
+			if err != nil {
+				t.Fatalf("find command: %v", err)
+			}
+			if got := cmd.Annotations["pp:path"]; got != tt.path {
+				t.Fatalf("pp:path = %q, want %q", got, tt.path)
+			}
+			if got := cmd.Annotations["pp:method"]; got != "GET" {
+				t.Fatalf("pp:method = %q, want GET", got)
+			}
+			if got := cmd.Annotations["mcp:read-only"]; got != "true" {
+				t.Fatalf("mcp:read-only = %q, want true", got)
+			}
+		})
 	}
 }
 
