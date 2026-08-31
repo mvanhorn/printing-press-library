@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "round-trip-dates-native",
+  "applied_at": "2026-08-31",
+  "base_run_id": "20260712-220852",
+  "base_printing_press_version": "4.28.0",
+  "upstream_issue": "",
+  "files": [
+    "internal/gflights/dates_native.go",
+    "internal/gflights/dates_native_test.go",
+    "internal/gflights/html_fallback.go",
+    "internal/gflights/html_fallback_test.go"
+  ],
+  "summary": "GetCalendarGraph round-trip requests need a second segment (origin/dest swapped, travel_date = anchor + --duration nights), trip_type=1, and an outer [min,max]-nights duration filter appended after the [from,to] date range — the one-way payload's 3-element outer filters array grows to 5 elements for round trip. The response is a single combined round-trip total keyed off the outbound date, not a 2D grid; ReturnDate is computed client-side as departure + Duration, not read from the response. The RPC-blocked HTML fallback (datesViaHTML) mirrors this: it now sets SearchOptions.ReturnDate per day and, on a round-trip page, must pick the cheapest candidate only from the 'outbound' Direction bucket — the 'return' bucket holds incremental fares priced against a pre-selected outbound, not standalone round-trip totals, and would otherwise surface an artificially low partial fare as the day's price.",
+  "reason": "buildDatesPayload previously rejected opts.RoundTrip outright ('round-trip date searches not yet implemented in native backend'), even though DatesOptions.RoundTrip/Duration and DatePrice.ReturnDate were already wired end-to-end from the CLI flags. Shape verified against a live captured GetCalendarGraph f.req payload for a real round-trip search and against a live LHR-BCN round-trip response. datesViaHTML previously ignored RoundTrip/Duration entirely (silent one-way fallback on a round-trip query); fixed in the same patch since both paths share DatesOptions and the bug is easy to reintroduce independently on a future edit to either.",
+  "validated_outcome": "go build ./...; go vet ./...; go test ./...; live: `flight-goat-pp-cli dates LHR BCN --round --duration 2 --from 2027-03-01 --to 2027-03-10 --sort --agent` returns 10 rows with sane round-trip totals ($109-$127) and correct return_date = departure_date + 2 days; one-way dates queries unaffected (regression-checked live and via TestBuildDatesPayloadOneWayUnaffected). HTML fallback path covered by TestDatesViaHTMLRoundTripSetsReturnDate (round-trip tfs param built, ReturnDate echoed) and TestCheapestFallbackCandidateRoundTripIgnoresReturnBucket (guards against picking a partial return-bucket fare over the real outbound-bucket total)."
+}

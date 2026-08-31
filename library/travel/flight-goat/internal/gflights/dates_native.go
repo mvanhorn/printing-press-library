@@ -146,7 +146,7 @@ func datesChunk(ctx context.Context, opts DatesOptions, from, to time.Time) ([]D
 		if err != nil {
 			return err
 		}
-		rows, err = parseDatesResponse(respBody, currencyCode)
+		rows, err = parseDatesResponse(respBody, currencyCode, opts)
 		return err
 	})
 	return rows, err
@@ -154,13 +154,11 @@ func datesChunk(ctx context.Context, opts DatesOptions, from, to time.Time) ([]D
 
 // buildDatesPayload constructs the URL-encoded `f.req` value for a single
 // chunk. The shape mirrors fli's DateSearchFilters.format() — see
-// fli/models/google_flights/dates.py for the canonical field map.
+// fli/models/google_flights/dates.py for the canonical field map, cross-checked
+// against a captured live round-trip GetCalendarGraph request (2026-08-31).
 func buildDatesPayload(opts DatesOptions, from, to time.Time) (string, error) {
-	if opts.RoundTrip {
-		// Round-trip needs a second segment with origin/dest swapped (per fli's
-		// flight_segments len-2 case). Reject up front rather than build a
-		// one-way payload that wouldn't match the user's intent.
-		return "", errors.New("round-trip date searches not yet implemented in native backend")
+	if opts.RoundTrip && opts.Duration <= 0 {
+		return "", errors.New("--round requires --duration (nights) greater than zero")
 	}
 
 	seat, err := mapSeatType(opts.CabinClass)
@@ -186,9 +184,73 @@ func buildDatesPayload(opts DatesOptions, from, to time.Time) (string, error) {
 		airlinesField = airlines
 	}
 
-	segment := []any{
-		[]any{[]any{[]any{strings.ToUpper(opts.Origin), 0}}},      // [0] departure airport, nested 3 deep
-		[]any{[]any{[]any{strings.ToUpper(opts.Destination), 0}}}, // [1] arrival airport
+	tripType := tripTypeOneWay
+	segments := []any{buildDatesSegment(opts, opts.Origin, opts.Destination, stops, airlinesField, travelDate)}
+	// PATCH(library): round-trip needs a second segment with origin/dest
+	// swapped and its own travel_date = anchor + Duration nights, matching a
+	// captured live GetCalendarGraph request (2026-08-31). Google prices the
+	// pair as one round-trip total keyed off the outbound date, not a 2D grid.
+	if opts.RoundTrip {
+		tripType = tripTypeRoundTrip
+		returnDate := from.AddDate(0, 0, opts.Duration).Format("2006-01-02")
+		segments = append(segments, buildDatesSegment(opts, opts.Destination, opts.Origin, stops, airlinesField, returnDate))
+	}
+
+	// duration is the outer [2,2]-shaped min/max trip-length-in-nights filter
+	// seen in the captured round-trip payload; nil for one-way (matches the
+	// working one-way payload shape, which never set this field).
+	var duration any
+	if opts.RoundTrip {
+		duration = []any{opts.Duration, opts.Duration}
+	}
+
+	filters := []any{
+		nil, // [0] placeholder (dates uses nil; flights uses [])
+		[]any{
+			nil,                                   // [0]
+			nil,                                   // [1]
+			tripType,                              // [2] trip type
+			nil,                                   // [3]
+			[]any{},                               // [4]
+			seat,                                  // [5] seat type
+			[]any{passengerAdults(opts), 0, 0, 0}, // [6] passengers: [adults, children, lap, seat]
+			nil,                                   // [7] price limit
+			nil,                                   // [8]
+			nil,                                   // [9]
+			nil,                                   // [10] bags
+			nil,                                   // [11]
+			nil,                                   // [12]
+			segments,                              // [13] segments
+			nil,                                   // [14]
+			nil,                                   // [15]
+			nil,                                   // [16]
+			1,                                     // [17]
+		},
+		[]any{from.Format("2006-01-02"), to.Format("2006-01-02")},
+		nil,      // [3] unknown — present as null in captured round-trip payload
+		duration, // [4] [min,max] trip-length-in-nights filter, round-trip only
+	}
+
+	innerJSON, err := json.Marshal(filters)
+	if err != nil {
+		return "", fmt.Errorf("marshaling filters: %w", err)
+	}
+	wrapped := []any{nil, string(innerJSON)}
+	wrappedJSON, err := json.Marshal(wrapped)
+	if err != nil {
+		return "", fmt.Errorf("marshaling wrapper: %w", err)
+	}
+	return url.QueryEscape(string(wrappedJSON)), nil
+}
+
+// buildDatesSegment builds one 15-field segment slot for the calendar RPC —
+// same shape flights_native.go's buildOneSegment uses for the offers RPC,
+// minus the fields (time window, selected flight, layover) dates search
+// doesn't expose.
+func buildDatesSegment(opts DatesOptions, origin, dest string, stops int, airlinesField any, travelDate string) []any {
+	return []any{
+		[]any{[]any{[]any{strings.ToUpper(origin), 0}}}, // [0] departure airport, nested 3 deep
+		[]any{[]any{[]any{strings.ToUpper(dest), 0}}},   // [1] arrival airport
 		nil,           // [2] time restrictions
 		stops,         // [3] stops
 		airlinesField, // [4] airlines
@@ -203,42 +265,6 @@ func buildDatesPayload(opts DatesOptions, from, to time.Time) (string, error) {
 		nil,           // [13] emissions filter
 		3,             // [14] unknown — fli always sends 3
 	}
-
-	filters := []any{
-		nil, // [0] placeholder (dates uses nil; flights uses [])
-		[]any{
-			nil,                                   // [0]
-			nil,                                   // [1]
-			tripTypeOneWay,                        // [2] trip type (round-trip rejected above)
-			nil,                                   // [3]
-			[]any{},                               // [4]
-			seat,                                  // [5] seat type
-			[]any{passengerAdults(opts), 0, 0, 0}, // [6] passengers: [adults, children, lap, seat]
-			nil,                                   // [7] price limit
-			nil,                                   // [8]
-			nil,                                   // [9]
-			nil,                                   // [10] bags
-			nil,                                   // [11]
-			nil,                                   // [12]
-			[]any{segment},                        // [13] segments
-			nil,                                   // [14]
-			nil,                                   // [15]
-			nil,                                   // [16]
-			1,                                     // [17]
-		},
-		[]any{from.Format("2006-01-02"), to.Format("2006-01-02")},
-	}
-
-	innerJSON, err := json.Marshal(filters)
-	if err != nil {
-		return "", fmt.Errorf("marshaling filters: %w", err)
-	}
-	wrapped := []any{nil, string(innerJSON)}
-	wrappedJSON, err := json.Marshal(wrapped)
-	if err != nil {
-		return "", fmt.Errorf("marshaling wrapper: %w", err)
-	}
-	return url.QueryEscape(string(wrappedJSON)), nil
 }
 
 func passengerAdults(_ DatesOptions) int {
@@ -281,8 +307,10 @@ func mapMaxStops(s string) (int, error) {
 
 // parseDatesResponse unwraps Google's )]}' prefix, drills into the wrb.fr
 // envelope, and returns one DatePrice per date that came back with a price.
-// Items with null price are silently skipped (mirrors fli).
-func parseDatesResponse(body []byte, defaultCurrency string) ([]DatePrice, error) {
+// Items with null price are silently skipped (mirrors fli). opts is used only
+// to compute ReturnDate for round-trip queries (the response itself carries a
+// combined round-trip total keyed off the outbound date, not the return date).
+func parseDatesResponse(body []byte, defaultCurrency string, opts DatesOptions) ([]DatePrice, error) {
 	stripped := strings.TrimPrefix(string(body), googleResponsePrefix)
 	stripped = strings.TrimSpace(stripped)
 
@@ -334,11 +362,17 @@ func parseDatesResponse(body []byte, defaultCurrency string) ([]DatePrice, error
 		if currency == "" {
 			currency = defaultCurrency
 		}
-		out = append(out, DatePrice{
+		row := DatePrice{
 			DepartureDate: dateStr,
 			Price:         price,
 			Currency:      currency,
-		})
+		}
+		if opts.RoundTrip && opts.Duration > 0 {
+			if dep, err := time.Parse("2006-01-02", dateStr); err == nil {
+				row.ReturnDate = dep.AddDate(0, 0, opts.Duration).Format("2006-01-02")
+			}
+		}
+		out = append(out, row)
 	}
 	return out, nil
 }

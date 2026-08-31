@@ -16,6 +16,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -48,7 +49,7 @@ func TestParseOffersResponseDetectsBlockedEnvelope(t *testing.T) {
 // "response wrb.fr payload is not a string" error).
 func TestParseDatesResponseDetectsBlockedEnvelope(t *testing.T) {
 	body := loadFixture(t, "error_response_blocked.json")
-	_, err := parseDatesResponse(body, "USD")
+	_, err := parseDatesResponse(body, "USD", DatesOptions{})
 	if !errors.Is(err, errShoppingBlocked) {
 		t.Fatalf("parseDatesResponse error = %v, want errShoppingBlocked", err)
 	}
@@ -56,7 +57,7 @@ func TestParseDatesResponseDetectsBlockedEnvelope(t *testing.T) {
 
 func TestParseDatesResponseEmptyStringIsNotBlockedEnvelope(t *testing.T) {
 	body := []byte(googleResponsePrefix + ` [["wrb.fr","opaque",""]]`)
-	_, err := parseDatesResponse(body, "USD")
+	_, err := parseDatesResponse(body, "USD", DatesOptions{})
 	if err == nil {
 		t.Fatal("expected parseDatesResponse to reject an empty inner payload")
 	}
@@ -96,7 +97,7 @@ func TestParseOffersResponseDetectsCompactBlockedEnvelope(t *testing.T) {
 func TestParseDatesResponseDetectsCompactBlockedEnvelope(t *testing.T) {
 	body := []byte(googleResponsePrefix + `
 [["wrb.fr",null,null,null,null,[13]],["di",39],["af.httprm",38,"redacted",6]]`)
-	_, err := parseDatesResponse(body, "USD")
+	_, err := parseDatesResponse(body, "USD", DatesOptions{})
 	if !errors.Is(err, errShoppingBlocked) {
 		t.Fatalf("parseDatesResponse error = %v, want errShoppingBlocked", err)
 	}
@@ -452,5 +453,81 @@ func TestFilterFlightsClientSide_ReturnTimeWindowAppliesOnlyToReturnBucket(t *te
 	}
 	if len(filteredInbound) != 1 || filteredInbound[0].Legs[0].DepartureTime != "2026-07-20T18:00:00" {
 		t.Fatalf("inbound filter = %+v, want only the 18:00 departure", filteredInbound)
+	}
+}
+
+// TestCheapestFallbackCandidateRoundTripIgnoresReturnBucket guards against
+// picking a cheap "return" bucket entry (an incremental fare priced against
+// whatever outbound the page pre-selected, not a standalone round-trip
+// total) over a pricier but real round-trip total from the outbound bucket.
+func TestCheapestFallbackCandidateRoundTripIgnoresReturnBucket(t *testing.T) {
+	flights := []Flight{
+		{Price: 400, Direction: "outbound"},
+		{Price: 350, Direction: "outbound"},
+		{Price: 40, Direction: "return"}, // incremental fare, not a real total
+	}
+	got := cheapestFallbackCandidate(flights, true)
+	if got == nil || got.Price != 350 {
+		t.Fatalf("cheapestFallbackCandidate(roundTrip) = %+v, want outbound Price=350", got)
+	}
+}
+
+// One-way fallback pages have no Direction tagging (untagged/"") — every
+// flight is eligible.
+func TestCheapestFallbackCandidateOneWayConsidersAllFlights(t *testing.T) {
+	flights := []Flight{{Price: 120}, {Price: 90}, {Price: 200}}
+	got := cheapestFallbackCandidate(flights, false)
+	if got == nil || got.Price != 90 {
+		t.Fatalf("cheapestFallbackCandidate(oneWay) = %+v, want Price=90", got)
+	}
+}
+
+func TestCheapestFallbackCandidateSkipsNonPositivePrices(t *testing.T) {
+	flights := []Flight{{Price: 0}, {Price: -5}}
+	if got := cheapestFallbackCandidate(flights, false); got != nil {
+		t.Fatalf("cheapestFallbackCandidate = %+v, want nil (no positive-priced flights)", got)
+	}
+}
+
+// TestDatesViaHTMLRoundTripSetsReturnDate exercises the full per-day
+// fallback path: ReturnDate must be passed into the round-trip search page
+// request (day + Duration) and echoed back on the resulting DatePrice.
+func TestDatesViaHTMLRoundTripSetsReturnDate(t *testing.T) {
+	origFetch := fetchSearchPage
+	defer func() { fetchSearchPage = origFetch }()
+
+	var gotReturnDates []string
+	var mu sync.Mutex
+	html := wrapDs1HTML(loadFixture(t, "aus_lax_embedded_ds1.json"))
+	fetchSearchPage = func(_ context.Context, pageURL string) (string, error) {
+		u, err := url.Parse(pageURL)
+		if err != nil {
+			t.Fatal(err)
+		}
+		mu.Lock()
+		gotReturnDates = append(gotReturnDates, u.Query().Get("tfs"))
+		mu.Unlock()
+		return html, nil
+	}
+
+	from, _ := time.Parse("2006-01-02", "2026-07-13")
+	to, _ := time.Parse("2006-01-02", "2026-07-13")
+	rows, _, err := datesViaHTML(context.Background(), DatesOptions{
+		Origin:      "AUS",
+		Destination: "LAX",
+		RoundTrip:   true,
+		Duration:    3,
+	}, from, to, "USD")
+	if err != nil {
+		t.Fatalf("datesViaHTML returned error: %v", err)
+	}
+	if len(gotReturnDates) != 1 || gotReturnDates[0] == "" {
+		t.Fatalf("expected one request with a non-empty tfs (round-trip) param, got %v", gotReturnDates)
+	}
+	if len(rows) != 1 {
+		t.Fatalf("got %d rows, want 1", len(rows))
+	}
+	if rows[0].ReturnDate != "2026-07-16" {
+		t.Fatalf("ReturnDate = %q, want 2026-07-16 (departure + 3 days)", rows[0].ReturnDate)
 	}
 }
