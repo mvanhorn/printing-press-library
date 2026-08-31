@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-08-31T00:11:27.676975Z",
+  "cli_dir": "\u003ccli-dir\u003e/flow-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template fix. Short is accurate and unambiguous for this scoped command (list client profiles) even though brief."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template fix. Short is accurate and unambiguous for this scoped command (list recorded learnings) even though brief."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-08-31T00:05:42.991924Z"
+  }
+}

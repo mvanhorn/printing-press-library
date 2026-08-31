@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "flow-nextauth-cookie-surface",
+  "applied_at": "2026-08-30",
+  "base_run_id": "20260829-151601-99f635ea",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Add a second, independent auth surface: labs.google NextAuth session-cookie import (auth login --cookies-file), scoped separately from the aisandbox-pa Bearer token.",
+  "reason": "Flow has two unrelated backend origins with two unrelated auth mechanisms; project/projects/scenes gaps/drive import --tag-scene need the cookie, credits/video watch need the Bearer token, and sending one where the other is required causes silent failures.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/session.go",
+    "internal/cli/auth.go"
+  ]
+}

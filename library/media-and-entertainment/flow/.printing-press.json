@@ -1,0 +1,131 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-31T04:43:01.114001Z",
+  "printing_press_version": "4.31.1",
+  "api_name": "flow",
+  "display_name": "Google Flow",
+  "cli_name": "flow-pp-cli",
+  "creator": {
+    "handle": "wryenmeek",
+    "name": "github-actionsbot"
+  },
+  "owner": "wryenmeek",
+  "printer": "wryenmeek",
+  "printer_name": "github-actionsbot",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:0dc606136a618a8e15aac5af222e6e2e38ae1c75286d06ba537b5075683e23a1",
+  "run_id": "20260829-151601-99f635ea",
+  "category": "media-and-entertainment",
+  "description": "Everything Flow's community CLIs and MCP servers do, plus the two things none of them do: real Google Drive ingestion and an honest audio-drama pipeline that closes the loop Flow itself cannot.",
+  "mcp_binary": "flow-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "session_handshake",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Beat-to-prompt drafter",
+      "command": "script draft-prompts",
+      "description": "Turn a Scribe recap-script JSON into a ready-to-approve queue of per-segment Flow prompts, each matched to the right seed image automatically."
+    },
+    {
+      "name": "Episode import",
+      "command": "episode import",
+      "description": "Pull a whole episode's assets from two separate Google Drive folders -- Scribe's session output and the images folder -- into a Flow project and draft the prompt queue, in one command."
+    },
+    {
+      "name": "Audio mux-back",
+      "command": "mux",
+      "description": "Lay your real audio-drama mp3 back over the rendered Flow clips, in the right order and at the right offsets, with one local command."
+    },
+    {
+      "name": "Queue credit-affordability check",
+      "command": "queue estimate",
+      "description": "See whether a prepared batch of generations fits your remaining Flow credits before you spend a single one."
+    },
+    {
+      "name": "Drive import scene auto-tagging",
+      "command": "drive import",
+      "description": "Pull seed images straight out of a local Google Drive folder into a Flow project, with character tags inferred automatically from filenames (requires --project for character names)."
+    },
+    {
+      "name": "Batch aggregate status watch",
+      "command": "video watch",
+      "description": "Check on an entire submitted batch of generations with one command instead of clicking through each one."
+    },
+    {
+      "name": "Scene/character/asset gap check",
+      "command": "scenes gaps",
+      "description": "Find characters missing a reference image and see a media-status breakdown for a project, before you submit a batch."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Beat-to-prompt drafter",
+      "command": "script draft-prompts",
+      "description": "Turn a Scribe recap-script JSON into a ready-to-approve queue of per-segment Flow prompts, each matched to the right seed image automatically."
+    },
+    {
+      "name": "Episode import",
+      "command": "episode import",
+      "description": "Pull a whole episode's assets from two separate Google Drive folders -- Scribe's session output and the images folder -- into a Flow project and draft the prompt queue, in one command."
+    },
+    {
+      "name": "Audio mux-back",
+      "command": "mux",
+      "description": "Lay your real audio-drama mp3 back over the rendered Flow clips, in the right order and at the right offsets, with one local command."
+    },
+    {
+      "name": "Queue credit-affordability check",
+      "command": "queue estimate",
+      "description": "See whether a prepared batch of generations fits your remaining Flow credits before you spend a single one."
+    },
+    {
+      "name": "Drive import scene auto-tagging",
+      "command": "drive import",
+      "description": "Pull seed images straight out of a local Google Drive folder into a Flow project, with character tags inferred automatically from filenames (requires --project for character names)."
+    },
+    {
+      "name": "Batch aggregate status watch",
+      "command": "video watch",
+      "description": "Check on an entire submitted batch of generations with one command instead of clicking through each one."
+    },
+    {
+      "name": "Scene/character/asset gap check",
+      "command": "scenes gaps",
+      "description": "Find characters missing a reference image and see a media-status breakdown for a project, before you submit a batch."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 97.72727272727273,
+    "passed": 43,
+    "total": 44,
+    "failed": 1,
+    "data_pipeline": true,
+    "verdict": "WARN"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 87,
+      "grade": "A (1 of 25 dimensions unverified: live_api_verification)",
+      "total": 87
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

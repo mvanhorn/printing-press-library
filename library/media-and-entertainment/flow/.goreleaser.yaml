@@ -1,0 +1,55 @@
+version: 2
+project_name: flow-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: flow-pp-cli
+    main: ./cmd/flow-pp-cli
+    binary: flow-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X flow-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: flow-pp-mcp
+    main: ./cmd/flow-pp-mcp
+    binary: flow-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: flow-pp-cli
+    repository:
+      owner: wryenmeek
+      name: homebrew-tap
+    homepage: "https://github.com/wryenmeek/flow-pp-cli"
+    description: "Everything Flow's community CLIs and MCP servers do, plus the two things none of them do: real Google Drive ingestion and an honest audio-drama pipeline that closes the loop Flow itself cannot."
+    install: |
+      bin.install "flow-pp-cli"
+      bin.install "flow-pp-mcp"

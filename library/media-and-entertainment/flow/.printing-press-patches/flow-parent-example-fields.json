@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "flow-parent-example-fields",
+  "applied_at": "2026-08-30",
+  "base_run_id": "20260829-151601-99f635ea",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Fix stale/illustrative Example fields on drive.go, episode.go, and scenes.go (parent Cobra dispatcher commands) that were independently live-dogfood-tested and failed with non-existent placeholder paths, even though their child commands were correctly annotated and passing.",
+  "reason": "The live dogfood matrix mechanically tests every command with a declared Example field, parent or child; a parent's own illustrative (non-working) Example fails as a real invocation regardless of the child's pp:happy-args.",
+  "files": [
+    "internal/cli/drive.go",
+    "internal/cli/episode.go",
+    "internal/cli/scenes.go"
+  ]
+}

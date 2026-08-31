@@ -1,0 +1,296 @@
+{
+  "api_name": "flow",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "gflow-cli",
+      "url": "https://github.com/ffroliva/gflow-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Google-Flow_MCP",
+      "url": "https://github.com/Mitanshp5/Google-Flow_MCP",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "google-flow-browser-mcp",
+      "url": "https://github.com/TMSSS05/google-flow-browser-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "veo-automation-user-guide",
+      "url": "https://github.com/trgkyle/veo-automation-user-guide",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gemini-video-producer-skill",
+      "url": "https://github.com/zysilm-ai/gemini-video-producer-skill",
+      "language": "Markdown",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "New-generation submission cannot be automated at all -- the generation-agent endpoint (flowCreationAgent:streamChat) requires a fresh reCAPTCHA Enterprise solve on every turn, so this CLI does not attempt to submit generations; drafting the prompt queue (episode import / script draft-prompts) and submitting each shot in the real Flow UI remain two separate, manual steps by necessity.",
+    "Flow cannot ingest or lip-sync to a pre-existing external audio file anywhere in the product; `mux` closes this gap locally, after the fact, rather than via any Flow-native feature.",
+    "Flow has two separate backend origins with two separate auth mechanisms. `aisandbox-pa.googleapis.com` (credits, video status) accepts the harvested ya29.* Bearer token via FLOW_SESSION_TOKEN, confirmed live. `labs.google/fx/api/trpc/project.*` (backing `scenes gaps`, `drive import --tag-scene`, `project`, and `projects`) is Flow's own Next.js BFF authenticated by a NextAuth session cookie instead -- confirmed live that the Bearer token alone gets 401 there regardless of headers. This second surface is now wired up: `auth login --cookies-file` imports a captured `__Secure-next-auth.session-token` cookie scoped to labs.google, and all four of those commands were verified live against real account data. The one remaining gap: `sync --resources projects` and `export projects` still fail, for an unrelated reason -- the generic sync/export engine has no way to build the tRPC `input=` JSON envelope this endpoint's GET requires; only the hand-written `projects`/`project`/`scenes gaps`/`drive import` commands construct it correctly."
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-29T19:50:00Z",
+  "novel_features": [
+    {
+      "name": "Beat-to-prompt drafter",
+      "command": "script draft-prompts",
+      "description": "Turn a Scribe recap-script JSON into a ready-to-approve queue of per-segment Flow prompts, each matched to the right seed image automatically.",
+      "rationale": "Parses the user's real Scribe (wryenmeek/Scribe) recap_script.json directly -- a RadioPlayScript ({\"title\":..., \"elements\": [...]}, the canonical recap-script artifact per Scribe's own ADR-011) whose elements are dialogue/narration/sfx/music cues -- and mechanically matches each element against seed images by speaker/character name -- no live call, no NLP, no invented schema.",
+      "example": "flow-pp-cli script draft-prompts recap_script.json --images-dir ./seed-images --out episode3-queue.json",
+      "why_it_matters": "Reach for this whenever the user has a Scribe-produced recap script and wants shot-by-shot Flow prompts drafted without hand-typing each one.",
+      "group": "Audio-drama pipeline"
+    },
+    {
+      "name": "Episode import",
+      "command": "episode import",
+      "description": "Pull a whole episode's assets from two separate Google Drive folders -- Scribe's session output and the images folder -- into a Flow project and draft the prompt queue, in one command.",
+      "rationale": "The user's own stated killer feature: 'give Flow the folder the assets are in to start with and it uses them to generate the animation.' Combines drive import (images folder) with parsing the Scribe recap script (script folder) and running script draft-prompts automatically against the merged result.",
+      "example": "flow-pp-cli episode import --scribe-folder ~/gdrive/session12-scribe --images-folder ~/gdrive/episode12-images",
+      "why_it_matters": "Reach for this to start a new episode end-to-end from the two Drive folders instead of running drive import and script draft-prompts separately.",
+      "group": "Audio-drama pipeline"
+    },
+    {
+      "name": "Audio mux-back",
+      "command": "mux",
+      "description": "Lay your real audio-drama mp3 back over the rendered Flow clips, in the right order and at the right offsets, with one local command.",
+      "rationale": "Flow has no mechanism anywhere to import or sync to a pre-existing external audio track, so this closes the loop locally with ffmpeg instead of a manual video-editor pass.",
+      "example": "flow-pp-cli mux shot1.mp4 shot2.mp4 shot3.mp4 --audio episode3.mp3 --beats episode3-beats.json --out episode3-final.mp4",
+      "why_it_matters": "Reach for this as the last step of any audio-drama animation pass -- it replaces the manual video-editor re-assembly step entirely.",
+      "group": "Audio-drama pipeline"
+    },
+    {
+      "name": "Queue credit-affordability check",
+      "command": "queue estimate",
+      "description": "See whether a prepared batch of generations fits your remaining Flow credits before you spend a single one.",
+      "rationale": "Requires joining a locally prepared queue file's per-entry expected cost against the live credit balance -- no community tool or Flow's own UI exposes this.",
+      "example": "flow-pp-cli queue estimate episode3-queue.json",
+      "why_it_matters": "Reach for this before submitting any batch, especially when running multiple client projects against a shared credit pool.",
+      "group": "Batch economics"
+    },
+    {
+      "name": "Drive import scene auto-tagging",
+      "command": "drive import",
+      "description": "Pull seed images straight out of a local Google Drive folder into a Flow project, with character tags inferred automatically from filenames (requires --project for character names).",
+      "rationale": "Copies images out of a local Drive-for-Desktop folder path (there is no confirmed filename convention for scene tags, so --tag-scene does a best-effort match against character names synced from --project) -- Flow's own UI has no Drive picker at all, and a raw Drive folder ID would need a separate Drive API OAuth setup this CLI does not implement.",
+      "example": "flow-pp-cli drive import --folder-id ~/gdrive/episode3-images --tag-scene --project a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c",
+      "why_it_matters": "Reach for this whenever new reference images land in a Drive folder and need staging into a Flow project -- eliminates the download-then-reupload dance entirely.",
+      "group": "Drive ingestion"
+    },
+    {
+      "name": "Batch aggregate status watch",
+      "command": "video watch",
+      "description": "Check on an entire submitted batch of generations with one command instead of clicking through each one.",
+      "rationale": "Requires joining a locally prepared queue file's job ids against repeated live status polls, aggregated into one progress table.",
+      "example": "flow-pp-cli video watch --batch episode3-queue.json",
+      "why_it_matters": "Reach for this after queuing several generations and walking away -- one glance at aggregate progress instead of N manual look-ups.",
+      "group": "Batch economics"
+    },
+    {
+      "name": "Scene/character/asset gap check",
+      "command": "scenes gaps",
+      "description": "Find characters missing a reference image and see a media-status breakdown for a project, before you submit a batch.",
+      "rationale": "Decodes flow.projectInitialData's nested media/entities payload to report characters missing a reference image and a media status breakdown -- no SCENE entity type has ever been observed live, so this reports character/media gaps honestly rather than assuming a scene join the API doesn't expose.",
+      "example": "flow-pp-cli scenes gaps --project a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c",
+      "why_it_matters": "Reach for this as a pre-flight check before a big batch submission to catch missing assets early.",
+      "group": "Local sanity checks"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Beat-to-prompt drafter",
+      "command": "script draft-prompts",
+      "description": "Turn a Scribe recap-script JSON into a ready-to-approve queue of per-segment Flow prompts, each matched to the right seed image automatically.",
+      "rationale": "Parses the user's real Scribe (wryenmeek/Scribe) recap_script.json directly -- a RadioPlayScript ({\"title\":..., \"elements\": [...]}, the canonical recap-script artifact per Scribe's own ADR-011) whose elements are dialogue/narration/sfx/music cues -- and mechanically matches each element against seed images by speaker/character name -- no live call, no NLP, no invented schema.",
+      "example": "flow-pp-cli script draft-prompts recap_script.json --images-dir ./seed-images --out episode3-queue.json",
+      "why_it_matters": "Reach for this whenever the user has a Scribe-produced recap script and wants shot-by-shot Flow prompts drafted without hand-typing each one.",
+      "group": "Audio-drama pipeline"
+    },
+    {
+      "name": "Episode import",
+      "command": "episode import",
+      "description": "Pull a whole episode's assets from two separate Google Drive folders -- Scribe's session output and the images folder -- into a Flow project and draft the prompt queue, in one command.",
+      "rationale": "The user's own stated killer feature: 'give Flow the folder the assets are in to start with and it uses them to generate the animation.' Combines drive import (images folder) with parsing the Scribe recap script (script folder) and running script draft-prompts automatically against the merged result.",
+      "example": "flow-pp-cli episode import --scribe-folder ~/gdrive/session12-scribe --images-folder ~/gdrive/episode12-images",
+      "why_it_matters": "Reach for this to start a new episode end-to-end from the two Drive folders instead of running drive import and script draft-prompts separately.",
+      "group": "Audio-drama pipeline"
+    },
+    {
+      "name": "Audio mux-back",
+      "command": "mux",
+      "description": "Lay your real audio-drama mp3 back over the rendered Flow clips, in the right order and at the right offsets, with one local command.",
+      "rationale": "Flow has no mechanism anywhere to import or sync to a pre-existing external audio track, so this closes the loop locally with ffmpeg instead of a manual video-editor pass.",
+      "example": "flow-pp-cli mux shot1.mp4 shot2.mp4 shot3.mp4 --audio episode3.mp3 --beats episode3-beats.json --out episode3-final.mp4",
+      "why_it_matters": "Reach for this as the last step of any audio-drama animation pass -- it replaces the manual video-editor re-assembly step entirely.",
+      "group": "Audio-drama pipeline"
+    },
+    {
+      "name": "Queue credit-affordability check",
+      "command": "queue estimate",
+      "description": "See whether a prepared batch of generations fits your remaining Flow credits before you spend a single one.",
+      "rationale": "Requires joining a locally prepared queue file's per-entry expected cost against the live credit balance -- no community tool or Flow's own UI exposes this.",
+      "example": "flow-pp-cli queue estimate episode3-queue.json",
+      "why_it_matters": "Reach for this before submitting any batch, especially when running multiple client projects against a shared credit pool.",
+      "group": "Batch economics"
+    },
+    {
+      "name": "Drive import scene auto-tagging",
+      "command": "drive import",
+      "description": "Pull seed images straight out of a local Google Drive folder into a Flow project, with character tags inferred automatically from filenames (requires --project for character names).",
+      "rationale": "Copies images out of a local Drive-for-Desktop folder path (there is no confirmed filename convention for scene tags, so --tag-scene does a best-effort match against character names synced from --project) -- Flow's own UI has no Drive picker at all, and a raw Drive folder ID would need a separate Drive API OAuth setup this CLI does not implement.",
+      "example": "flow-pp-cli drive import --folder-id ~/gdrive/episode3-images --tag-scene --project a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c",
+      "why_it_matters": "Reach for this whenever new reference images land in a Drive folder and need staging into a Flow project -- eliminates the download-then-reupload dance entirely.",
+      "group": "Drive ingestion"
+    },
+    {
+      "name": "Batch aggregate status watch",
+      "command": "video watch",
+      "description": "Check on an entire submitted batch of generations with one command instead of clicking through each one.",
+      "rationale": "Requires joining a locally prepared queue file's job ids against repeated live status polls, aggregated into one progress table.",
+      "example": "flow-pp-cli video watch --batch episode3-queue.json",
+      "why_it_matters": "Reach for this after queuing several generations and walking away -- one glance at aggregate progress instead of N manual look-ups.",
+      "group": "Batch economics"
+    },
+    {
+      "name": "Scene/character/asset gap check",
+      "command": "scenes gaps",
+      "description": "Find characters missing a reference image and see a media-status breakdown for a project, before you submit a batch.",
+      "rationale": "Decodes flow.projectInitialData's nested media/entities payload to report characters missing a reference image and a media status breakdown -- no SCENE entity type has ever been observed live, so this reports character/media gaps honestly rather than assuming a scene join the API doesn't expose.",
+      "example": "flow-pp-cli scenes gaps --project a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c",
+      "why_it_matters": "Reach for this as a pre-flight check before a big batch submission to catch missing assets early.",
+      "group": "Local sanity checks"
+    }
+  ],
+  "narrative": {
+    "display_name": "Google Flow",
+    "headline": "Everything Flow's community CLIs and MCP servers do, plus the two things none of them do: real Google Drive ingestion and an honest audio-drama pipeline that closes the loop Flow itself cannot.",
+    "value_prop": "Flow has no in-app Google Drive picker and no way to import or sync to your own audio track -- this CLI pulls seed images straight from Drive, turns a Scribe recap script into ready-to-approve per-shot prompts, and muxes your real audio back onto the rendered clips locally, while staying honest that the final credit-spend click stays a transparent, user-driven action because of Google's reCAPTCHA gate on that step. The full pipeline is five steps, two of them manual by necessity: (1) `episode import` drafts the prompt queue from your two Drive folders, (2) you submit each shot's prompt in the real Flow UI (this CLI cannot automate that click -- see Authentication and Troubleshooting below), (3) you copy each returned job/workflow name into the queue file's job_name field, (4) `video watch --batch` polls them all at once, (5) `mux` lays your real audio back over the finished clips.",
+    "auth_narrative": "Flow has two independent auth surfaces, both rooted in the same Google sign-in but neither auto-refreshing. (1) aisandbox-pa.googleapis.com (credits, video status, generation) needs a harvested `ya29.*` Bearer token: labs.google/fx/tools/flow is a client-rendered page whose JavaScript mints it via Google Identity Services, with no server-side endpoint this CLI can call instead -- open the page in a logged-in browser, open its network tab, copy the `Authorization: Bearer ya29....` header value off any aisandbox-pa.googleapis.com request, and `export FLOW_SESSION_TOKEN=\u003cthat value\u003e`. (2) labs.google's own Next.js BFF (project, projects, scenes gaps, drive import --tag-scene) needs a NextAuth session cookie instead -- capture `__Secure-next-auth.session-token` from the same logged-in browser (e.g. via a Playwright storage_state() export or any cookie-export tool) and run `flow-pp-cli auth login --cookies-file storage-state.json` once. Re-capture and re-import/re-export either credential whenever a command reports the session has expired (~1 hour for the Bearer token).",
+    "quickstart": [
+      {
+        "command": "flow-pp-cli doctor --dry-run",
+        "comment": "Health check first -- works without auth, confirms the CLI itself is wired correctly."
+      },
+      {
+        "command": "flow-pp-cli auth login --cookies-file storage-state.json",
+        "comment": "Import a labs.google NextAuth session cookie (see Authentication below) -- covers project/projects/scenes gaps/drive import --tag-scene. credits/video watch need a separate FLOW_SESSION_TOKEN Bearer token, set as documented in Authentication below."
+      },
+      {
+        "command": "flow-pp-cli projects",
+        "comment": "List your Flow projects (sync --resources projects and export projects don't work yet for this resource -- see Troubleshooting below -- use this command directly instead)."
+      },
+      {
+        "command": "flow-pp-cli credits --api-key AIzaSyDUMMY00000000000000000000000000",
+        "comment": "Check your remaining Veo credit balance before planning any batch (the api-key is the public-looking 'key=' value Flow's own network requests send -- copy it once from your browser's dev tools)."
+      },
+      {
+        "command": "flow-pp-cli episode import --scribe-folder ~/gdrive/session12-scribe --images-folder ~/gdrive/episode12-images",
+        "comment": "Pull a whole episode's Scribe script + seed images from their two Drive folders and draft the prompt queue in one command."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Commands fail with an auth/session error after working fine earlier",
+        "fix": "There is no automatic token refresh -- Flow session page mints its Bearer token client-side in the browser, with no server endpoint this CLI can call. Re-open labs.google/fx/tools/flow in a logged-in browser, copy the fresh Authorization: Bearer ya29.... header value from a network request, and export FLOW_SESSION_TOKEN=\u003cthat value\u003e again; the token is short-lived (~1 hour)."
+      },
+      {
+        "symptom": "There is no command to submit a generation from this CLI",
+        "fix": "This is intentional, not a missing feature -- Google's reCAPTCHA Enterprise gate on Flow's generation-submit step (flowCreationAgent:streamChat) cannot be solved headlessly, so this CLI drafts and tracks batches but always hands the actual submit click back to you in the real Flow UI."
+      },
+      {
+        "symptom": "`drive import --tag-scene` succeeds but tags come back empty",
+        "fix": "Tagging is a best-effort filename match against character names synced from --project, not a fixed naming convention -- pass --project, confirm the project actually has CHARACTER entities via `scenes gaps --project \u003cid\u003e`, and check the image filenames actually contain a character's display name."
+      },
+      {
+        "symptom": "`scenes gaps`, `drive import --tag-scene`, `project`, or `projects` fail with an auth error even with a fresh FLOW_SESSION_TOKEN set",
+        "fix": "These commands call labs.google's own Next.js BFF (project.* tRPC endpoints), which authenticates via a NextAuth session cookie, not the ya29.* Bearer token -- run `flow-pp-cli auth login --cookies-file storage-state.json` with a storage-state export containing your logged-in labs.google cookies (Playwright's storage_state(), or any browser-cookie export tool). FLOW_SESSION_TOKEN remains separately required for credits/video/generation; the two credentials are independent and neither auto-refreshes."
+      },
+      {
+        "symptom": "`sync --resources projects` or `export projects` fail even with both a valid FLOW_SESSION_TOKEN and an imported labs.google session cookie",
+        "fix": "This is a known, unimplemented gap, not a misconfiguration on your end: project.searchUserProjects requires its query params wrapped in a single JSON-encoded `input=` envelope, which the generic sync/export engine has no mechanism to build. Use `flow-pp-cli projects` directly instead -- the hand-written command constructs the envelope correctly."
+      }
+    ],
+    "when_to_use": "Use this CLI for any Flow workflow that benefits from offline search over your own project library, scriptable batch preparation, Google Drive asset ingestion, or turning a timed audio-drama script into a ready-to-approve Flow prompt queue with a local audio mux-back step at the end.",
+    "anti_triggers": [
+      "Do not use this CLI to bypass or automate Google's reCAPTCHA-gated generation-submit step -- it is designed to stop short of that and hand off to your real browser.",
+      "Do not use this CLI's TTS/character-voice needs -- Flow's Voices tab has no CLI surface here since it does not serve the audio-drama (real-mp3) workflow this CLI targets.",
+      "Do not use this CLI for the official, documented Gemini API / Veo model access (that is a separate, fully-documented Google product surface with its own SDKs) -- this CLI targets the Flow web product specifically."
+    ],
+    "recipes": [
+      {
+        "title": "Stage a whole episode from Drive",
+        "command": "flow-pp-cli drive import --folder-id ~/gdrive/episode3-images --tag-scene --project a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c",
+        "explanation": "Pulls every new reference image out of a local Drive folder into the active project in one call, tagged with matching character names."
+      },
+      {
+        "title": "Draft a shot-by-shot queue from a recap script",
+        "command": "flow-pp-cli script draft-prompts recap_script.json --images-dir ./seed-images --out episode3-queue.json",
+        "explanation": "Mechanically merges each recap-script element with its matching seed image into a Flow-ready prompt, no hand-typing required."
+      },
+      {
+        "title": "Check a batch fits your credits before spending anything",
+        "command": "flow-pp-cli queue estimate episode3-queue.json --api-key AIzaSyDUMMY00000000000000000000000000",
+        "explanation": "Sums the queue's expected Veo-tier cost against your live balance and flags what to trim (omit --api-key for a local-only total with no live comparison)."
+      },
+      {
+        "title": "Track a whole batch instead of babysitting one clip at a time",
+        "command": "flow-pp-cli video watch --batch episode3-queue.json",
+        "explanation": "Aggregates repeated status polls across every job id in the queue into one progress table."
+      },
+      {
+        "title": "List projects with just the fields you need",
+        "command": "flow-pp-cli projects --json --select id,title,modifiedTime",
+        "explanation": "Pairs --json with --select to avoid burning context on Flow's full nested project payload. Use the `projects` command directly, not `sync --resources projects` -- the generic sync/export engine can't build the tRPC input envelope this endpoint requires yet (see Troubleshooting below)."
+      },
+      {
+        "title": "Finish the loop: mux your real audio back onto the rendered clips",
+        "command": "flow-pp-cli mux shot1.mp4 shot2.mp4 shot3.mp4 --audio episode3.mp3 --beats episode3-beats.json --out episode3-final.mp4",
+        "explanation": "Overlays the user's real audio-drama track onto the ordered, rendered clips locally -- the step Flow itself cannot do."
+      }
+    ],
+    "trigger_phrases": [
+      "animate my audio drama",
+      "import images from Google Drive into Flow",
+      "draft Flow prompts from my script",
+      "check my Flow credit balance",
+      "watch my Flow generation batch",
+      "use flow",
+      "run flow-cli"
+    ]
+  }
+}

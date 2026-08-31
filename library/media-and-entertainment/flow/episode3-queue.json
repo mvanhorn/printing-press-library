@@ -1,0 +1,10 @@
+{
+  "generated_from": "dogfood-fixture",
+  "shots": [
+    {
+      "index": 0,
+      "element_type": "shot",
+      "job_name": "operations/00000000-0000-0000-0000-000000000000"
+    }
+  ]
+}

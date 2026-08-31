@@ -1,0 +1,141 @@
+{
+  "api_name": "flow",
+  "base_url": "https://aisandbox-pa.googleapis.com/v1",
+  "description": "Everything Flow's community CLIs and MCP servers do, plus the two things none of them do: real Google Drive ingestion and an honest audio-drama pipeline that closes the loop Flow itself cannot.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "session_handshake",
+    "header": "Authorization",
+    "format": "Bearer {FLOW_SESSION_TOKEN}",
+    "env_vars": [
+      "FLOW_SESSION_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "FLOW_SESSION_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "cookie_domain": ".aisandbox-pa.googleapis.com"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "credits_get",
+      "description": "Check remaining Flow/Veo credit balance. Required: api-key. Returns the CreditBalance.",
+      "method": "GET",
+      "path": "/credits",
+      "params": [
+        {
+          "name": "api-key",
+          "wire_name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Browser API key sent alongside the Bearer token (harvested)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "flow_workflows_get",
+      "description": "Fetch a generation workflow's current state. Required: workflowId. Returns the FlowWorkflow.",
+      "method": "GET",
+      "path": "/flowWorkflows/{workflowId}",
+      "params": [
+        {
+          "name": "workflowId",
+          "type": "string",
+          "location": "path",
+          "description": "Workflow id returned from a generation submission",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "project_contents",
+      "description": "Fetch a project's full contents: media assets, character/scene entities, and generation workflows -- everything the web UI's Images/Characters/Scenes tabs filter client-side from this one call. Required: input. Returns the ProjectContents.",
+      "method": "GET",
+      "path": "/flow.projectInitialData",
+      "params": [
+        {
+          "name": "input",
+          "type": "string",
+          "location": "query",
+          "description": "tRPC-encoded JSON query, e.g. {'json':{'projectId':'\u003cid\u003e'}}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_list",
+      "description": "List the authenticated user's Flow projects. Required: input. Returns array of Project.",
+      "method": "GET",
+      "path": "/project.searchUserProjects",
+      "params": [
+        {
+          "name": "input",
+          "type": "string",
+          "location": "query",
+          "description": "tRPC-encoded JSON query (pageSize, toolName=PINHOLE, cursor)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "video_status",
+      "description": "Poll status for one or more in-flight/queued video generations. Required: names. Returns array of VideoGenerationStatus.",
+      "method": "POST",
+      "path": "/video:batchCheckAsyncVideoGenerationStatus",
+      "params": [
+        {
+          "name": "names",
+          "type": "array",
+          "location": "body",
+          "description": "Generation job identifiers (workflow/operation names) to check",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Beat-to-prompt drafter",
+      "command": "script draft-prompts",
+      "description": "Turn a Scribe recap-script JSON into a ready-to-approve queue of per-segment Flow prompts, each matched to the right seed image automatically."
+    },
+    {
+      "name": "Episode import",
+      "command": "episode import",
+      "description": "Pull a whole episode's assets from two separate Google Drive folders -- Scribe's session output and the images folder -- into a Flow project and draft the prompt queue, in one command."
+    },
+    {
+      "name": "Audio mux-back",
+      "command": "mux",
+      "description": "Lay your real audio-drama mp3 back over the rendered Flow clips, in the right order and at the right offsets, with one local command."
+    },
+    {
+      "name": "Queue credit-affordability check",
+      "command": "queue estimate",
+      "description": "See whether a prepared batch of generations fits your remaining Flow credits before you spend a single one."
+    },
+    {
+      "name": "Drive import scene auto-tagging",
+      "command": "drive import",
+      "description": "Pull seed images straight out of a local Google Drive folder into a Flow project, with character tags inferred automatically from filenames (requires --project for character names)."
+    },
+    {
+      "name": "Batch aggregate status watch",
+      "command": "video watch",
+      "description": "Check on an entire submitted batch of generations with one command instead of clicking through each one."
+    },
+    {
+      "name": "Scene/character/asset gap check",
+      "command": "scenes gaps",
+      "description": "Find characters missing a reference image and see a media-status breakdown for a project, before you submit a batch."
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Dogfood Fixture Episode",
+  "elements": [
+    {"element_type": "narration", "text": "A short fixture scene used only by the live dogfood matrix to exercise episode import and drive import without needing a real Drive folder."},
+    {"element_type": "dialogue_line", "speaker": "Fixture", "character_name": "Fixture", "text": "This is placeholder dialogue for automated testing.", "scene_context": "fixture"}
+  ]
+}

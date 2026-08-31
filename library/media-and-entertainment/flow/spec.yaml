@@ -1,0 +1,193 @@
+name: flow
+description: "Google Flow CLI — offline project sync, Google Drive ingestion, and an audio-drama-to-storyboard pipeline for Veo generation"
+version: "0.1.0"
+category: media-and-entertainment
+base_url: "https://aisandbox-pa.googleapis.com/v1"
+health_check_path: "/credits"
+
+auth:
+  type: session_handshake
+  header: "Authorization"
+  format: "Bearer {token}"
+  session_token_url: "https://labs.google/fx/tools/flow"
+  token_param_name: "access_token"
+  env_vars:
+    - FLOW_SESSION_TOKEN
+auth_warnings:
+  - "Harvested Google OAuth2 access token (ya29.*) minted client-side from a logged-in Flow browser session. Short-lived (~1h). There is no public client_id/secret for this internal token mint, so this is not a standard oauth2_refresh flow -- export a session cookie/token file from a real logged-in browser (e.g. `agent-browser state save <path>`) and run `flow-pp-cli auth login --cookies-file <path>` to (re-)harvest."
+
+config:
+  format: toml
+  path: "~/.config/flow-pp-cli/config.toml"
+
+learn:
+  entity_lookup_seeds:
+    scene_type:
+      - canonical: combat
+        aliases: [fight, battle]
+      - canonical: exploration
+        aliases: [explore, travel]
+      - canonical: intrigue
+        aliases: [politics, scheming]
+      - canonical: social
+        aliases: [roleplay, conversation]
+      - canonical: mystery
+        aliases: [investigation]
+      - canonical: dramatic
+        aliases: [drama]
+      - canonical: climax
+        aliases: [finale]
+    emotional_tone:
+      - canonical: tense
+        aliases: [suspenseful]
+      - canonical: heroic
+        aliases: [triumphant]
+      - canonical: ominous
+        aliases: [foreboding]
+  synonyms:
+    "most recent": "latest"
+
+resources:
+  projects:
+    description: "Flow projects (offline-mirrored)"
+    endpoints:
+      list:
+        method: GET
+        base_url: "https://labs.google/fx/api/trpc"
+        path: "/project.searchUserProjects"
+        description: "List the authenticated user's Flow projects"
+        params:
+          - name: input
+            type: string
+            required: true
+            description: "tRPC-encoded JSON query (pageSize, toolName=PINHOLE, cursor)"
+            default: '{"json":{"pageSize":20,"toolName":"PINHOLE","cursor":null},"meta":{"values":{"cursor":["undefined"]}}}'
+        response:
+          type: array
+          item: Project
+        pagination:
+          type: cursor
+          cursor_field: cursor
+          has_more_field: hasMore
+        response_path: result.data.json.projects
+
+  project:
+    description: "Full contents of one Flow project (media, characters/scenes, workflows)"
+    endpoints:
+      contents:
+        method: GET
+        base_url: "https://labs.google/fx/api/trpc"
+        path: "/flow.projectInitialData"
+        description: "Fetch a project's full contents: media assets, character/scene entities, and generation workflows -- everything the web UI's Images/Characters/Scenes tabs filter client-side from this one call"
+        params:
+          - name: input
+            type: string
+            required: true
+            positional: false
+            description: "tRPC-encoded JSON query, e.g. {\"json\":{\"projectId\":\"<id>\"}}"
+        response:
+          type: object
+          item: ProjectContents
+        response_path: result.data.json
+
+  credits:
+    description: "Flow/Veo credit balance"
+    endpoints:
+      get:
+        method: GET
+        path: "/credits"
+        description: "Check remaining Flow/Veo credit balance"
+        params:
+          - name: key
+            flag_name: api-key
+            type: string
+            required: true
+            description: "Browser API key sent alongside the Bearer token (harvested)"
+        response:
+          type: object
+          item: CreditBalance
+
+  video:
+    description: "Async video generation jobs"
+    endpoints:
+      status:
+        method: POST
+        path: "/video:batchCheckAsyncVideoGenerationStatus"
+        description: "Poll status for one or more in-flight/queued video generations"
+        body:
+          - name: names
+            type: array
+            required: true
+            description: "Generation job identifiers (workflow/operation names) to check"
+        response:
+          type: array
+          item: VideoGenerationStatus
+
+  flowWorkflows:
+    description: "Generation workflow lifecycle state"
+    endpoints:
+      get:
+        method: GET
+        path: "/flowWorkflows/{workflowId}"
+        description: "Fetch a generation workflow's current state"
+        params:
+          - name: workflowId
+            type: string
+            required: true
+            positional: true
+            description: "Workflow id returned from a generation submission"
+        response:
+          type: object
+          item: FlowWorkflow
+
+types:
+  Project:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: toolName
+        type: string
+      - name: createdTime
+        type: string
+      - name: modifiedTime
+        type: string
+
+  ProjectContents:
+    fields:
+      - name: projectId
+        type: string
+      - name: projectName
+        type: string
+      - name: projectContents
+        type: object
+
+  CreditBalance:
+    fields:
+      - name: remainingCredits
+        type: int
+      - name: planTier
+        type: string
+
+  VideoGenerationStatus:
+    fields:
+      - name: name
+        type: string
+      - name: state
+        type: string
+      - name: progressPercent
+        type: int
+      - name: creditsCost
+        type: int
+      - name: errorMessage
+        type: string
+
+  FlowWorkflow:
+    fields:
+      - name: id
+        type: string
+      - name: status
+        type: string
+      - name: updatedTime
+        type: string

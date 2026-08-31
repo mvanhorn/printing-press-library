@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/flow",
+  "research_dir": "\u003ccli-dir\u003e/20260829-151601-99f635ea",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

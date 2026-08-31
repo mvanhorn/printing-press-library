@@ -1,0 +1,115 @@
+{
+  "version": "1",
+  "api_name": "flow",
+  "captured_at": "2026-08-29T19:45:00Z",
+  "capture_method": "browser-use (authenticated, real Google account session)",
+  "primary_goal": "Add existing image and audio assets to a Flow project (ideally via Google Drive) and generate an animated clip from them.",
+  "reachability": {
+    "mode": "browser_clearance_http",
+    "confidence": 0.85,
+    "evidence": [
+      "probe-reachability against https://labs.google/fx/tools/flow/ returned mode=browser_clearance_http (reCAPTCHA widget present, both stdlib and surf-chrome probes flagged bot-protection)",
+      "probe-reachability against https://aisandbox-pa.googleapis.com/ returned mode=standard_http (bare host answers plain HTTP)",
+      "Live capture confirms read/status endpoints (credits, video status, tRPC project/user reads) are called with a harvested Google OAuth2 Bearer access token (ya29.*) over plain fetch/HTTPS -- no fresh reCAPTCHA token accompanies these calls",
+      "Live capture confirms the write path (flowCreationAgent:streamChat, used for both 'kick off generation' and its 'Approve' confirmation) triggers a fresh https://www.google.com/recaptcha/enterprise/clr call on every single turn, including a benign read-only 'what's the status?' chat message",
+      "Same-origin labs.google /fx/api/trpc/* endpoints (project.searchUserProjects, general.fetchUserPreferences, general.fetchUserAcknowledgement) are plain GETs, presumably cookie-session authenticated, no reCAPTCHA observed"
+    ]
+  },
+  "auth": {
+    "type": "session_handshake",
+    "harvested_credential": "Google OAuth2 Bearer access token (ya29. prefix), minted client-side from the logged-in Google session on page load",
+    "header": "Authorization",
+    "format": "Bearer {token}",
+    "token_lifetime_note": "Standard Google OAuth2 access tokens are short-lived (~1h); the printed CLI needs a browser-based `auth login --chrome` (or press-auth companion) re-harvest flow, not a static refresh_token grant, since there is no public client_id/secret for this internal token mint.",
+    "cookie_domain": "labs.google",
+    "same_origin_trpc_cookies": true
+  },
+  "http_transport_hint": "browser-chrome",
+  "endpoint_clusters": [
+    {
+      "cluster": "project-reads",
+      "host": "labs.google",
+      "path_prefix": "/fx/api/trpc/",
+      "endpoints": [
+        {"method": "GET", "path": "/fx/api/trpc/project.searchUserProjects", "params": ["pageSize", "toolName", "cursor"], "observed_auth": ["cookie"], "notes": "toolName=PINHOLE is Flow's internal codename"},
+        {"method": "GET", "path": "/fx/api/trpc/general.fetchUserPreferences", "observed_auth": ["cookie"]},
+        {"method": "GET", "path": "/fx/api/trpc/general.fetchUserAcknowledgement", "params": ["acknowledgementVersion"], "observed_auth": ["cookie"]}
+      ],
+      "mutation": false,
+      "recaptcha_required": false
+    },
+    {
+      "cluster": "account-status",
+      "host": "aisandbox-pa.googleapis.com",
+      "endpoints": [
+        {"method": "GET", "path": "/v1/credits", "params": ["key"], "observed_auth": ["authorization", "x-goog-api-key"], "notes": "Returns remaining Flow/Veo credit balance. key= is a public-looking browser API key (AIzaSy...), sent alongside the Bearer token."}
+      ],
+      "mutation": false,
+      "recaptcha_required": false
+    },
+    {
+      "cluster": "project-contents",
+      "host": "labs.google",
+      "path_prefix": "/fx/api/trpc/",
+      "endpoints": [
+        {"method": "GET", "path": "/fx/api/trpc/flow.projectInitialData", "params": ["input (projectId)"], "observed_auth": ["cookie"], "notes": "Single unified call returning the whole project: projectContents.media[] (image/video assets, each with workflowId, mediaMetadata incl. mediaTitle/prompt/status, and either an image{} or video{generatedVideo{...}} payload), projectContents.entities[] (entityInfo.entityType e.g. CHARACTER, displayName, imageReferences), projectContents.workflows[], projectContents.externalReferenceMedia[]. Confirmed empirically: clicking the UI's Images/Characters/Scenes sidebar tabs fires NO additional network calls -- they are pure client-side filters over this one payload. Only entityType=CHARACTER was observed in the sampled project; no SCENE-typed entity was directly observed, so 'scenes' as a distinct API-level concept is an inference from the UI's tab label, not confirmed -- treat scenes-specific features as needing a runtime fallback if no SCENE entityType ever appears."},
+        {"method": "GET", "path": "/fx/api/trpc/media.getMediaUrlRedirect", "params": ["name", "mediaUrlType"], "observed_auth": ["cookie"], "notes": "Per-asset thumbnail/full-media URL redirect, called once per media item after projectInitialData resolves."}
+      ],
+      "mutation": false,
+      "recaptcha_required": false
+    },
+    {
+      "cluster": "video-generation-status",
+      "host": "aisandbox-pa.googleapis.com",
+      "endpoints": [
+        {"method": "POST", "path": "/v1/video:batchCheckAsyncVideoGenerationStatus", "observed_auth": ["authorization"], "notes": "Polled repeatedly (~every few seconds) while a generation is queued/running. Clean batchable status-check endpoint -- good candidate for a `flow-cli video status` / `sync` command."},
+        {"method": "PATCH", "path": "/v1/flowWorkflows/{workflowId}", "observed_auth": ["authorization"], "notes": "Fired once per generation lifecycle event; likely updates workflow/session state."}
+      ],
+      "mutation": false,
+      "recaptcha_required": false
+    },
+    {
+      "cluster": "generation-agent",
+      "host": "aisandbox-pa.googleapis.com",
+      "endpoints": [
+        {"method": "POST", "path": "/v1/flowCreationAgent:streamChat", "query": "alt=sse", "observed_auth": ["authorization"], "notes": "Conversational, Gemini-mediated endpoint. ALL generation actions (submit prompt+ingredients, approve/reject credit spend, ask for status in natural language) go through this single SSE-streaming endpoint rather than discrete REST verbs. Every call observed here was immediately followed by a fresh https://www.google.com/recaptcha/enterprise/clr token mint -- this is the live-page-context-required surface."}
+      ],
+      "mutation": true,
+      "recaptcha_required": true,
+      "replayable": false,
+      "hold_reason": "reCAPTCHA Enterprise challenge is solved client-side per turn; no evidence a harvested token alone suffices without a live browser JS context. Confirmed independently by ffroliva/gflow-cli's README (community prior art): 'a pure HTTP transport for video returns HTTP 401 under non-Chrome browsers plus a reCAPTCHA... cannot reproduce headlessly'."
+    },
+    {
+      "cluster": "telemetry",
+      "host": "aisandbox-pa.googleapis.com",
+      "endpoints": [
+        {"method": "POST", "path": "/v1/flow:batchLogFrontendEvents", "notes": "Frontend analytics/telemetry. Not relevant to the CLI."}
+      ],
+      "mutation": false,
+      "recaptcha_required": false,
+      "skip": true
+    }
+  ],
+  "asset_upload": {
+    "observed": false,
+    "notes": "Clicking 'Upload media' opens a native OS file picker (<input type=file>), not a web-embedded Google Drive picker. Two distinct file inputs were found: one accepting only image/*, one accepting image/*, several video containers (.heic/.heif/.mp4/.mov/.3gp/.avi etc). NEITHER accept list includes any audio MIME type or .mp3/.wav extension -- Flow's asset upload does not accept a pre-existing audio track as project media. The actual upload network request (likely a GCS resumable-upload session) was not captured this run because no real file selection was completed to avoid polluting the user's real project with test uploads; Phase 3 should capture this against a small disposable test image before building the Drive-import feature."
+  },
+  "audio_capability": {
+    "native_generated_audio": true,
+    "native_generated_audio_notes": "Veo 3 generates its own synchronized audio (ambient sound + lip-synced dialogue) as part of video generation. This is generated audio, not an import of a user-supplied track.",
+    "voice_picker": {
+      "observed": true,
+      "notes": "The asset-attach picker has a 'Voices' tab listing ~10+ named TTS voices (Achernar, Achird, Algenib, ...) each with a gender/pitch descriptor, a 'Sample Dialogue' text field, and a 'Customize Performance' free-text field. This is a text-to-speech voice-casting tool for character dialogue lines the user types -- NOT a mechanism to attach or reference an existing audio file."
+    },
+    "user_audio_import": false,
+    "conclusion": "There is no discovered Flow surface, web or API, that accepts the user's own recorded/produced mp3 as an input to video generation or that syncs generated video to an existing external audio track. This directly affects the user's stated workflow (animate a pre-existing 'dramatic audio play mp3') -- Flow can supply narration/dialogue TTS or its own generated ambience, but cannot lip-sync or pace video to an arbitrary uploaded audio file. Any CLI feature promising 'animate my audio drama' must be scoped as: (a) auto-generate scene prompts/timing FROM the audio's transcript, (b) drive Flow's own generation per scene, and (c) locally mux the user's real mp3 back onto the resulting silent/re-audio'd clips with ffmpeg afterward -- not as a single native Flow upload-and-sync feature."
+  },
+  "credits_and_cost": {
+    "test_generation_cost_credits": 15,
+    "plan_context": "User is on a paid Flow/Google AI plan (PRO badge visible in UI). Pricing research: Google AI Pro ~1,000 credits/mo (~$19.99), Ultra ~25,000 credits/mo (~$249.99); Lite/Fast/Quality Veo tiers cost roughly 10/20/100 credits per generation.",
+    "risk_note": "Every CLI command that triggers or replays a generation spends real money. Must never auto-retry or batch-submit without an explicit per-call confirmation or --yes flag, and must surface running credit cost estimates before submission."
+  },
+  "tos_risk": {
+    "note": "Automating one's own logged-in Flow session is subject to Google's Terms of Service and the Labs Prohibited Use Policy (no bypassing safety measures, no automated access that violates published machine-readable restrictions). This is the user's own account and their call to make, but the generated CLI's README/SKILL should disclose this plainly rather than deciding for them."
+  }
+}
