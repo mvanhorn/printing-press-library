@@ -579,8 +579,8 @@ def _boolean_flag_names(cli_dir: Path) -> frozenset[str]:
     would silently drop a real positional. A CLI-wide scan (rather than
     per-command) deliberately includes persistent/root booleans like --json or
     --verbose, which are the common case a recipe writes before a positional."""
-    cli_pkg = cli_dir / "internal" / "cli"
-    if not cli_pkg.is_dir():
+    cli_pkg = cli_source_dir(cli_dir)
+    if cli_pkg is None:
         return frozenset()
     names: set[str] = set()
     for path in sorted(cli_pkg.glob("*.go")):
