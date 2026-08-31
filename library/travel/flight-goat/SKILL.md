@@ -82,6 +82,10 @@ Rate-limit semantics:
 - On a persistent 429 a batch stops early — continuing would deepen the IP block — the partial envelope is still emitted, and the exit code is 7 (rate limited).
 - While Google is blocked, `soar` and `explore`/`longhaul` use different backends and keep working; `doctor` documents the same contract under `google_flights`.
 
+### Round trip cheapest dates: `dates --round --duration`
+
+`dates` scans one-way prices by default. Add `--round --duration N` to scan round-trip totals instead — each row is the cheapest combined round-trip price for departing that day and returning `N` nights later, not a separate outbound/return price pair: `flight-goat-pp-cli dates SEA HNL --round --duration 7 --sort --agent`. `--duration` is required with `--round` and must be greater than zero. Each result row carries `return_date` (`departure_date` + `--duration`) alongside `price`, which is already the round-trip total.
+
 # Introduction
 AeroAPI is a simple, query-based API that gives software developers access
 to a variety of FlightAware's flight data. Users can obtain current or
