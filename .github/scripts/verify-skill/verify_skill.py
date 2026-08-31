@@ -554,6 +554,14 @@ def _iter_bool_flag_names(text: str) -> Iterable[str]:
         if method in ("BoolVar", "BoolSliceVar"):
             yield name
 
+    # Non-Var Cobra boolean declarations have a different argument shape:
+    # Flags().Bool("json", false, ...) / BoolP("json", "j", false, ...).
+    for m in re.finditer(
+        r'(?:Persistent)?Flags\(\)\.BoolP?\(\s*"([a-z][a-z0-9-]*)"',
+        text,
+    ):
+        yield m.group(1)
+
     aliases = {
         m.group(1): m.group(2) == "Persistent"
         for m in FLAG_ALIAS_RE.finditer(text)
