@@ -8646,6 +8646,12 @@
         "Find characters missing a reference image and see a media-status breakdown for a project, before you submit a batch."
       ],
       "path": "library/media-and-entertainment/flow",
+      "release": {
+        "cli_name": "flow-pp-cli",
+        "version": "2026.9.1",
+        "released_at": "2026-09-01T09:14:45Z",
+        "source_commit": "900a3f3d31031ba42319cd22ef2698ab9faa4529"
+      },
       "printer": "wryenmeek",
       "printer_name": "github-actionsbot",
       "creator": {
@@ -13193,6 +13199,12 @@
         "List immutable named KVM workflows in deterministic order."
       ],
       "path": "library/devices/kvmctl",
+      "release": {
+        "cli_name": "kvmctl-pp-cli",
+        "version": "2026.9.1",
+        "released_at": "2026-09-01T09:16:12Z",
+        "source_commit": "fbc990bd1b830fda6d0a06848f88890a5eedfe9b"
+      },
       "printer": "keithah",
       "printer_name": "Keith Herrington",
       "creator": {
