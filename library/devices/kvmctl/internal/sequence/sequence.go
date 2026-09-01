@@ -9,9 +9,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
-	"runtime"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -136,74 +137,115 @@ func (s *Store) withFileLock(suffix string, fn func() error) error {
 	return withLockPath(s.path+suffix, fn)
 }
 
-func withTargetLock(target string, fn func() error) error {
-	// Normalize target to a canonical user-independent identity to ensure proper
-	// serialization across different OS users and containers controlling the same
-	// physical device. Use device URL + machine identifier, not trimmed alias.
-	targetForLock := normalizeTargetForLocking(target)
+// sharedLockDirEnv lets operators relocate the cross-process lock directory.
+// Every process controlling the same device MUST agree on this value; when
+// processes run in separate mount namespaces the directory has to be a shared
+// bind mount, otherwise the kernel has no common inode to serialize on.
+const sharedLockDirEnv = "KVMCTL_LOCK_DIR"
 
-	// Use system-wide shared lock directory for cross-user coordination
-	dir := getSharedLockDir()
-	if err := os.MkdirAll(dir, 0700); err != nil {
-		return err
-	}
-	if err := os.Chmod(dir, 0700); err != nil {
-		return err
-	}
-	info, err := os.Lstat(dir)
-	if err != nil || info.Mode()&os.ModeSymlink != 0 || !info.IsDir() {
-		return errors.New("unsafe sequence lock directory")
-	}
-	hash := sha256.Sum256([]byte(targetForLock))
-	return withLockPath(filepath.Join(dir, hex.EncodeToString(hash[:])+".lock"), fn)
-}
-
-// normalizeTargetForLocking converts a user-facing target alias into a canonical
-// identity that is consistent across users and containers for the same physical
-// KVMD device. Expected target format: "url@machine" or just "url".
-func normalizeTargetForLocking(target string) string {
-	t := strings.TrimSpace(target)
-	if t == "" {
-		return "default"
-	}
-	// Canonicalize URL scheme/host/port for consistent identity
-	// Accept "http://host:port@machine" or "http://host:port" or "host:port@machine"
-	at := strings.LastIndex(t, "@")
-	var urlPart string
-	if at >= 0 {
-		urlPart = t[:at]
-	} else {
-		urlPart = t
-	}
-	urlPart = strings.TrimPrefix(urlPart, "http://")
-	urlPart = strings.TrimPrefix(urlPart, "https://")
-	// Ensure default ports are explicit for canonical identity
-	if !strings.Contains(urlPart, ":") {
-		urlPart = urlPart + ":80"
-	}
-	return urlPart
-}
-
-// getSharedLockDir returns a system-wide shared lock directory for cross-user
-// coordination. On Unix: /var/lock/kvmctl (fallback: /tmp/kvmctl-locks).
-// On Windows: os.TempDir()/kvmctl-locks.
-func getSharedLockDir() string {
+// defaultSharedLockDir is deliberately a single fixed path rather than a
+// privilege-dependent choice. A conditional path (e.g. /var/lock when root,
+// /tmp otherwise) would silently give different users different lock files and
+// defeat serialization entirely.
+func defaultSharedLockDir() string {
 	if runtime.GOOS == "windows" {
 		return filepath.Join(os.TempDir(), "kvmctl-locks")
 	}
-	// Try /var/lock/kvmctl first (standard system lock location)
-	const primary = "/var/lock/kvmctl"
-	if info, err := os.Lstat(primary); err == nil && info.IsDir() {
-		return primary
+	return "/tmp/kvmctl-locks"
+}
+
+// sharedLockDir resolves the directory used for device-scoped locks and ensures
+// it is usable by every local user. It is world-writable with the sticky bit
+// set (the /tmp model): any user may create their own lock file, but only the
+// owner may unlink or rename it.
+func sharedLockDir() (string, error) {
+	dir := strings.TrimSpace(os.Getenv(sharedLockDirEnv))
+	if dir == "" {
+		dir = defaultSharedLockDir()
+	} else if !filepath.IsAbs(dir) {
+		return "", fmt.Errorf("%s must be an absolute path", sharedLockDirEnv)
 	}
-	// Try to create it (may need root)
-	if err := os.MkdirAll(primary, 0700); err == nil {
-		if err := os.Chmod(primary, 0700); err == nil {
-			return primary
+
+	info, err := os.Lstat(dir)
+	switch {
+	case os.IsNotExist(err):
+		if err := os.MkdirAll(dir, 0o777); err != nil {
+			return "", err
+		}
+		// MkdirAll honors umask, so set the intended mode explicitly. Only the
+		// creating process reaches here, so it owns the directory.
+		if err := os.Chmod(dir, 0o777|os.ModeSticky); err != nil {
+			return "", err
+		}
+		info, err = os.Lstat(dir)
+		if err != nil {
+			return "", err
+		}
+	case err != nil:
+		return "", err
+	}
+
+	// Never chmod a pre-existing directory: it may be owned by another user and
+	// the chmod would either fail or weaken their setup. Validate instead.
+	if info.Mode()&os.ModeSymlink != 0 || !info.IsDir() {
+		return "", fmt.Errorf("unsafe sequence lock directory %s: not a regular directory", dir)
+	}
+	if runtime.GOOS != "windows" {
+		perm := info.Mode().Perm()
+		if perm&0o002 == 0 {
+			return "", fmt.Errorf("sequence lock directory %s is not writable by all local users (mode %o); "+
+				"cross-user serialization would silently break", dir, perm)
+		}
+		if info.Mode()&os.ModeSticky == 0 {
+			return "", fmt.Errorf("sequence lock directory %s is world-writable without the sticky bit (mode %o); "+
+				"another user could replace lock files", dir, perm)
 		}
 	}
-	// Fallback to /tmp (works for all users, but less ideal for persistence)
-	return "/tmp/kvmctl-locks"
+	return dir, nil
+}
+
+// withTargetLock serializes physical device actions across every process on the
+// host, regardless of which OS user runs them or which target alias they used.
+func withTargetLock(target string, fn func() error) error {
+	identity, err := canonicalTargetIdentity(target)
+	if err != nil {
+		return err
+	}
+	dir, err := sharedLockDir()
+	if err != nil {
+		return err
+	}
+	hash := sha256.Sum256([]byte(identity))
+	return withSharedLockPath(filepath.Join(dir, hex.EncodeToString(hash[:])+".lock"), fn)
+}
+
+// canonicalTargetIdentity reduces a user-facing target to the identity of the
+// physical KVMD endpoint, so that "kvm1", "http://kvm1/" and "https://kvm1:443"
+// all serialize against the same lock when they denote the same device.
+func canonicalTargetIdentity(target string) (string, error) {
+	t := strings.TrimSpace(target)
+	if t == "" {
+		return "", errors.New("target required for device serialization")
+	}
+	if !strings.Contains(t, "://") {
+		t = "https://" + t
+	}
+	u, err := url.Parse(t)
+	if err != nil || u.Host == "" {
+		return "", fmt.Errorf("target %q is not a resolvable device address", target)
+	}
+	scheme := strings.ToLower(u.Scheme)
+	host := strings.ToLower(u.Hostname())
+	port := u.Port()
+	if port == "" {
+		switch scheme {
+		case "http":
+			port = "80"
+		default:
+			port = "443"
+		}
+	}
+	return host + ":" + port, nil
 }
 
 func withLockPath(path string, fn func() error) error {
@@ -212,6 +254,27 @@ func withLockPath(path string, fn func() error) error {
 		return err
 	}
 	defer f.Close()
+	if err := lockExclusive(f); err != nil {
+		return err
+	}
+	defer unlockExclusive(f)
+	return fn()
+}
+
+// withSharedLockPath is withLockPath for the cross-user device lock. The lock
+// file is group/world readable+writable so a workflow run by a different OS user
+// can open the same inode and block on flock. The file carries no secrets — it
+// is zero length and used purely as a kernel lock handle — and the enclosing
+// directory is sticky, so a non-owner cannot unlink or swap it.
+func withSharedLockPath(path string, fn func() error) error {
+	f, err := openSharedLockFile(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	// Best effort: only the file's owner can chmod. If another user created it
+	// first it already carries the permissive mode, so a failure here is benign.
+	_ = os.Chmod(path, 0o666)
 	if err := lockExclusive(f); err != nil {
 		return err
 	}

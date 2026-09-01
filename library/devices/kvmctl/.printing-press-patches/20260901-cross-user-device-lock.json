@@ -1,0 +1,26 @@
+{
+  "id": "20260901-cross-user-device-lock",
+  "applied_at": "2026-09-01",
+  "schema": 2,
+  "summary": "Serialize physical KVM actions across OS users, containers and target aliases, and stop burning single-use authorizations on lock-setup failures.",
+  "files": [
+    "internal/sequence/sequence.go",
+    "internal/sequence/workflow.go",
+    "internal/sequence/locks_unix.go",
+    "internal/sequence/locks_windows.go",
+    "internal/sequence/crossuser_lock_test.go",
+    "internal/sequence/atomic_consume_test.go"
+  ],
+  "call_sites": [
+    "sequence.withTargetLock",
+    "sequence.canonicalTargetIdentity",
+    "sequence.sharedLockDir",
+    "sequence.withSharedLockPath",
+    "sequence.openSharedLockFile",
+    "sequence.ExecuteAuthorized"
+  ],
+  "reason": "The generated target lock keyed on os.UserCacheDir() and the raw target string. Two consequences: processes owned by different OS users (or in containers with separate cache dirs) took different lock files for one physical device, and two aliases for the same device ('kvm1' vs 'https://kvm1:443') also took different locks. Either case lets keyboard, mouse, switching and cleanup actions interleave on real hardware. Separately, ExecuteAuthorized consumed the single-use authorization before acquiring the lock, so any lock-setup failure destroyed the token for a workflow that never touched the device.",
+  "change": "withTargetLock now derives its key from canonicalTargetIdentity(target), which normalizes scheme, case, default port and path so every alias of one endpoint maps to one lock. The lock lives in a single fixed shared directory (KVMCTL_LOCK_DIR, default /tmp/kvmctl-locks) rather than a privilege-dependent path, created world-writable with the sticky bit and validated (never chmod-ed) when pre-existing; lock files are opened 0666 with O_NOFOLLOW so a second OS user can contend on the same inode. ExecuteAuthorized acquires the device lock before consuming the token, re-checking context cancellation after the potentially blocking acquire.",
+  "verification": "internal/sequence/crossuser_lock_test.go and atomic_consume_test.go. Both regression tests were confirmed to FAIL against the pre-fix code: raw-label hashing reports 4 concurrent holders of the device lock, and consume-before-lock loses the token on lock failure. TestTokenConsumptionIsAtomicAcrossProcesses races 8 real OS processes against one token and asserts exactly one wins; with the store flock removed it reports 8/8 winners, confirming the existing flock (not a process-local mutex) is what makes consumption atomic. go build, go vet, go test ./..., go test -race ./internal/sequence/..., and cross-builds for windows/amd64, windows/arm64, linux/amd64, linux/arm64 and darwin/arm64 all pass.",
+  "notes": "Processes in separate mount namespaces still need KVMCTL_LOCK_DIR pointed at a shared bind mount; the kernel cannot serialize on distinct inodes. This is documented at the constant and surfaced as a loud error rather than silent non-serialization."
+}

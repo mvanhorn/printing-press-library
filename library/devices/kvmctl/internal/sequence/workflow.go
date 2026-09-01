@@ -13,19 +13,30 @@ import (
 type JournalSink interface{ Append(map[string]any) error }
 
 // ExecuteAuthorized consumes token only after all binding and context checks pass.
+//
+// Lock ordering matters: the device lock is acquired BEFORE the single-use
+// authorization is consumed. Acquiring the lock can fail (permissions, a
+// misconfigured shared directory, cancellation), and consuming first would burn
+// the caller's one-time token on a workflow that never touched the device,
+// forcing a re-authorization. Taking the lock first makes those failures
+// retryable with the same token.
 func ExecuteAuthorized(ctx context.Context, a *Authorizer, e *Executor, d Device, token, target string, p Plan, j JournalSink) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	bound, expires, err := a.takeWithExpiry(ctx, token, target, p)
-	if err != nil {
-		return err
-	}
-	hash, err := bound.Hash()
-	if err != nil {
-		return err
-	}
 	return withTargetLock(target, func() error {
+		// Re-check cancellation: acquiring the lock may have blocked for a while.
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		bound, expires, err := a.takeWithExpiry(ctx, token, target, p)
+		if err != nil {
+			return err
+		}
+		hash, err := bound.Hash()
+		if err != nil {
+			return err
+		}
 		appendRecord := func(r map[string]any) error {
 			r["target"], r["plan_hash"] = target, hash
 			if j != nil {

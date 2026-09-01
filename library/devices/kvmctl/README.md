@@ -205,6 +205,7 @@ Supported environment variables include:
 | `KVMCTL_STATE_DIR` | override runtime state directory |
 | `KVMCTL_CACHE_DIR` | override cache directory |
 | `KVMCTL_NO_LEARN` | disable the local learning loop |
+| `KVMCTL_LOCK_DIR` | shared directory used to serialize physical device actions (default `/tmp/kvmctl-locks`) |
 
 For MCP, put these variables in the host's MCP server environment. The MCP binary does not receive CLI flags.
 
