@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "20260831-config-semantic-dispatch-slice",
+  "applied_at": "2026-08-31T19:00:00Z",
+  "base_run_id": "20260831-161927",
+  "base_printing_press_version": "4.31.3",
+  "files": [
+    "internal/config/config.go",
+    "internal/client/client.go",
+    "internal/mcp/tools.go"
+  ],
+  "summary": "Align environment connection semantics and expose one structured semantic dispatcher for CLI/MCP operations.",
+  "reason": "Close Python config.py, results.py, semantics.py, mcp_surface.py, and mcp_server.py contract gaps without editing generated endpoint mirrors beyond additive registration.",
+  "validated_outcome": "Focused and full Go tests, vet, build, formatting, diff checks, and dry-run CLI/MCP discovery checks are required before commit."
+}

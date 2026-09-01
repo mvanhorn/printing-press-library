@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "20260901-cross-platform-safety-cleanup",
+  "applied_at": "2026-09-01T03:30:00Z",
+  "base_run_id": "20260831-161927",
+  "base_printing_press_version": "4.31.3",
+  "files": [
+    "internal/machines/machines.go",
+    "internal/machines/verified_session.go",
+    "internal/machines/flock_unix.go",
+    "internal/machines/flock_windows.go",
+    "internal/sequence/sequence.go",
+    "internal/sequence/journal_open_unix.go",
+    "internal/sequence/journal_open_windows.go"
+  ],
+  "summary": "Move Unix-only flock and O_NOFOLLOW operations behind platform-specific implementations while preserving exclusive session locking on Windows.",
+  "reason": "Keep generated CLI packages buildable across supported targets without weakening session integrity or journal file safety.",
+  "validated_outcome": "Native tests, full tests, vet, builds, and Windows amd64/arm64 cross-builds passed."
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "20260831-kvmd-core-slice",
+  "applied_at": "2026-08-31T17:28:15Z",
+  "base_run_id": "20260831-161927",
+  "base_printing_press_version": "4.31.3",
+  "files": [
+    "internal/client/kvmd.go",
+    "internal/client/kvmd_test.go",
+    "internal/cli/kvmd_novel.go"
+  ],
+  "summary": "Add preserved KVMD semantic auth, capabilities, screenshot, keyboard, mouse, and target-switch operations through generated extension hooks.",
+  "reason": "Port the highest-value core kvmctl Python behavior without modifying generated files.",
+  "validated_outcome": "Go tests and CLI help/discovery verification pass."
+}

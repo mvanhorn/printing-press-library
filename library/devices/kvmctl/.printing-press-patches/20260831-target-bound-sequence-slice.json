@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "20260831-target-bound-sequence-slice",
+  "applied_at": "2026-08-31T18:00:00Z",
+  "base_run_id": "20260831-161927",
+  "base_printing_press_version": "4.31.3",
+  "files": [
+    "internal/sequence/sequence.go",
+    "internal/sequence/document.go",
+    "internal/sequence/sequence_test.go",
+    "internal/sequence/workflow.go",
+    "internal/sequence/workflow_test.go",
+    "internal/sequence/workflow_security_test.go",
+    "internal/cli/sequence_novel.go"
+  ],
+  "summary": "Add target-bound sequence validation, single-use expiring authorization, safe local persistence, cancellation-aware execution lifecycle, device serialization, and redacted journaling through novel extension hooks.",
+  "reason": "Port the security-critical sequence/workflow foundations from the preserved Python source without modifying generated-owned files.",
+  "validated_outcome": "Focused sequence tests pass; full repository verification performed before commit."
+}

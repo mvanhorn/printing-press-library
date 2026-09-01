@@ -1,0 +1,280 @@
+{
+  "api_name": "kvmctl",
+  "base_url": "https://glkvm.local",
+  "description": "The verified REST subset used by kvmctl for KVMD-compatible GLKVM devices.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "token",
+    "in": "header",
+    "env_vars": [
+      "KVMCTL_KVMD_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "KVMCTL_KVMD_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "hid_get-state",
+      "description": "Get state. Returns the JsonResult.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/api/hid",
+      "params": []
+    },
+    {
+      "name": "hid_reset",
+      "description": "Reset.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/api/hid/reset",
+      "params": []
+    },
+    {
+      "name": "hid_send-key",
+      "description": "Send key. Required: key. Optional: state, finish. Returns the new JsonResult.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/api/hid/events/send_key",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Key",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "bool",
+          "location": "query",
+          "description": "State"
+        },
+        {
+          "name": "finish",
+          "type": "bool",
+          "location": "query",
+          "description": "Finish"
+        }
+      ]
+    },
+    {
+      "name": "hid_send-mouse-button",
+      "description": "Send mouse button. Required: button, state.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/api/hid/events/send_mouse_button",
+      "params": [
+        {
+          "name": "button",
+          "type": "string",
+          "location": "query",
+          "description": "Button",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "bool",
+          "location": "query",
+          "description": "State",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hid_send-mouse-move",
+      "description": "Send mouse move. Required: x, y.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/api/hid/events/send_mouse_move",
+      "params": [
+        {
+          "name": "x",
+          "type": "int",
+          "location": "query",
+          "description": "X",
+          "required": true
+        },
+        {
+          "name": "y",
+          "type": "int",
+          "location": "query",
+          "description": "Y",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hid_send-mouse-wheel",
+      "description": "Send mouse wheel. Required: delta.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/api/hid/events/send_mouse_wheel",
+      "params": [
+        {
+          "name": "delta",
+          "type": "int",
+          "location": "query",
+          "description": "Delta",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hid_send-shortcut",
+      "description": "Send shortcut. Required: keys. Returns the new JsonResult.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/api/hid/events/send_shortcut",
+      "params": [
+        {
+          "name": "keys",
+          "type": "string",
+          "location": "query",
+          "description": "Keys",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "info_get",
+      "description": "Get an info. Returns the JsonResult.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/api/info",
+      "params": []
+    },
+    {
+      "name": "kvmd-compatible-kvm-auth_check",
+      "description": "Check. Returns the JsonResult.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/api/auth/check",
+      "params": []
+    },
+    {
+      "name": "kvmd-compatible-kvm-auth_login",
+      "description": "Login. Required: passwd, user. Optional: expire (default: 0). Returns the new JsonResult. (public)",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "expire",
+          "type": "int",
+          "location": "body",
+          "description": "Expire"
+        },
+        {
+          "name": "passwd",
+          "type": "string",
+          "location": "body",
+          "description": "Passwd",
+          "required": true
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "body",
+          "description": "User",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "kvmd-compatible-kvm-auth_logout",
+      "description": "Logout. Returns the new JsonResult.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/api/auth/logout",
+      "params": []
+    },
+    {
+      "name": "streamer_get-snapshot",
+      "description": "Get snapshot. Optional: preview (default: true), preview_max_width, preview_quality.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/api/streamer/snapshot",
+      "params": [
+        {
+          "name": "preview",
+          "type": "bool",
+          "location": "query",
+          "description": "Preview"
+        },
+        {
+          "name": "preview_max_width",
+          "type": "int",
+          "location": "query",
+          "description": "Preview max width"
+        },
+        {
+          "name": "preview_quality",
+          "type": "int",
+          "location": "query",
+          "description": "Preview quality"
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "image/jpeg"
+        }
+      ]
+    },
+    {
+      "name": "streamer_set-params",
+      "description": "Set params. Optional: desired_fps, quality.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/api/streamer/set_params",
+      "params": [
+        {
+          "name": "desired_fps",
+          "type": "int",
+          "location": "query",
+          "description": "Desired fps"
+        },
+        {
+          "name": "quality",
+          "type": "int",
+          "location": "query",
+          "description": "Quality"
+        }
+      ]
+    },
+    {
+      "name": "system_set-otg-functions",
+      "description": "Set otg functions. Required: start_cdrom, start_flash.",
+      "description_source": "generated",
+      "method": "POST",
+      "path": "/api/system/otg_functions",
+      "params": [
+        {
+          "name": "start_cdrom",
+          "type": "bool",
+          "location": "query",
+          "description": "Start cdrom",
+          "required": true
+        },
+        {
+          "name": "start_flash",
+          "type": "bool",
+          "location": "query",
+          "description": "Start flash",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "20260901-release-docs-and-goreleaser",
+  "applied_at": "2026-09-01T03:15:00Z",
+  "base_run_id": "20260831-161927",
+  "base_printing_press_version": "4.31.3",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    ".goreleaser.yaml"
+  ],
+  "summary": "Refresh public installation, safety, semantic-operation, workflow, MCP, and release documentation; correct release linker and homepage paths after canonical module-path migration.",
+  "reason": "The generated CLI gained substantial verified functionality and is being released as a standalone repository before catalog publication.",
+  "validated_outcome": "Documentation was audited for private infrastructure and credentials; Go tests, vet, build, diff checks, and release configuration validation pass."
+}

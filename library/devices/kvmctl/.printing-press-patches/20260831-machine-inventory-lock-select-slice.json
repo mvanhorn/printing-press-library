@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "20260831-machine-inventory-lock-select-slice",
+  "applied_at": "2026-08-31T19:00:00Z",
+  "base_run_id": "20260831-161927",
+  "base_printing_press_version": "4.31.3",
+  "files": [
+    "internal/machines/machines.go",
+    "internal/machines/profiles.go",
+    "internal/machines/state.go",
+    "internal/cli/machines_novel.go"
+  ],
+  "summary": "Preserve validated machine inventory, private atomic target persistence, cross-process locking, bounded cancellation-safe selection, and runtime-discoverable CLI commands.",
+  "reason": "Port the machine/target safety parity slice from the preserved Python source through Printing Press extension hooks.",
+  "validated_outcome": "Focused and full Go tests, vet, builds, formatting, diff checks, and CLI/MCP discovery smoke tests run on the final tree."
+}

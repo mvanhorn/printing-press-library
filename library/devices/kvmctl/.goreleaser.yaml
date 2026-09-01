@@ -1,0 +1,51 @@
+version: 2
+project_name: kvmctl-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: kvmctl-pp-cli
+    main: ./cmd/kvmctl-pp-cli
+    binary: kvmctl-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/devices/kvmctl/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: kvmctl-pp-mcp
+    main: ./cmd/kvmctl-pp-mcp
+    binary: kvmctl-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: kvmctl-pp-cli
+    repository:
+      owner: keithah
+      name: homebrew-tap
+    homepage: "https://github.com/keithah/kvmctl"
+    description: "The verified REST subset used by kvmctl for KVMD-compatible GLKVM devices."
+    install: |
+      bin.install "kvmctl-pp-cli"
+      bin.install "kvmctl-pp-mcp"

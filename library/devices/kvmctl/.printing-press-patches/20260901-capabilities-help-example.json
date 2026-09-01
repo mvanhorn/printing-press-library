@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "20260901-capabilities-help-example",
+  "applied_at": "2026-09-01T02:39:19Z",
+  "base_run_id": "20260831-161927",
+  "base_printing_press_version": "4.31.3",
+  "files": [
+    "internal/cli/kvmd_novel.go"
+  ],
+  "summary": "Add Examples text to the preserved capabilities command help.",
+  "reason": "Printing Press live dogfood requires Examples in command help; capabilities is a preserved hand-authored KVMD command.",
+  "validated_outcome": "Official live dogfood passed all 11 executed checks against the authenticated KVMD target."
+}

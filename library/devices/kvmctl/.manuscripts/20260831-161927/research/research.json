@@ -1,0 +1,54 @@
+{
+  "api_name": "kvmctl",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [
+    "Generic KVMD clients do not provide target-bound workflow authorization.",
+    "Generic API wrappers do not expose evidence envelopes or fail-closed write gates."
+  ],
+  "patterns": [
+    "KVM control is safest when plans, targets, and authorization are explicit."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-31T23:45:00Z",
+  "novel_features": [
+    {
+      "name": "Structured semantic dispatch",
+      "command": "semantic capabilities",
+      "description": "Expose named KVMD operations through stable evidence envelopes with explicit read/write policy.",
+      "rationale": "Agents need a bounded semantic surface instead of arbitrary API passthrough.",
+      "example": "kvmctl-pp-cli semantic capabilities --agent",
+      "why_it_matters": "Agents can discover safe KVM capabilities without learning endpoint details.",
+      "group": "Safety and agent readiness"
+    },
+    {
+      "name": "Target-bound workflows",
+      "command": "workflow-list",
+      "description": "List immutable named KVM workflows in deterministic order.",
+      "rationale": "Operators need reviewable workflow identities before authorizing execution.",
+      "example": "kvmctl-pp-cli workflow-list --repository workflows.json --agent",
+      "why_it_matters": "Workflow plans remain inspectable and reproducible before hardware actions.",
+      "group": "Safety and agent readiness"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Structured semantic dispatch",
+      "command": "semantic capabilities",
+      "description": "Expose named KVMD operations through stable evidence envelopes with explicit read/write policy.",
+      "rationale": "Agents need a bounded semantic surface instead of arbitrary API passthrough.",
+      "example": "kvmctl-pp-cli semantic capabilities --agent",
+      "why_it_matters": "Agents can discover safe KVM capabilities without learning endpoint details.",
+      "group": "Safety and agent readiness"
+    },
+    {
+      "name": "Target-bound workflows",
+      "command": "workflow-list",
+      "description": "List immutable named KVM workflows in deterministic order.",
+      "rationale": "Operators need reviewable workflow identities before authorizing execution.",
+      "example": "kvmctl-pp-cli workflow-list --repository workflows.json --agent",
+      "why_it_matters": "Workflow plans remain inspectable and reproducible before hardware actions.",
+      "group": "Safety and agent readiness"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "kvmctl-pp-cli"
+display_name = "Kvmd Compatible Kvm"
+description = "The verified REST subset used by kvmctl for KVMD-compatible GLKVM devices."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/kvmctl-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+KVMCTL_KVMD_TOKEN = true

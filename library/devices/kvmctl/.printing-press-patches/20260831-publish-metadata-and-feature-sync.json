@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "20260831-publish-metadata-and-feature-sync",
+  "applied_at": "2026-08-31T23:55:00Z",
+  "base_run_id": "20260831-161927",
+  "base_printing_press_version": "4.31.3",
+  "files": [
+    ".printing-press.json",
+    "README.md",
+    "SKILL.md",
+    "internal/cli/root.go",
+    "internal/cli/which.go",
+    ".manuscripts/20260831-161927/research/research.json"
+  ],
+  "summary": "Record the creator identity and verified novel features, then synchronize the generated README, SKILL, root highlights, and which index from the research artifact.",
+  "reason": "Printing Press publication validation requires creator.name and a research-backed novel feature record; dogfood is the source of truth for rendered feature documentation.",
+  "validated_outcome": "Dogfood reports novel_features_check planned=2 and found=2 with no depth mismatches. Remaining failures are dead-code heuristics, generic generated sync wiring, sparse endpoint examples, and unavailable Phase 5 live acceptance."
+}

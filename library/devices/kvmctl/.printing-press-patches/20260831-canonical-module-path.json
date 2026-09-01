@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "20260831-canonical-module-path",
+  "applied_at": "2026-08-31T23:30:00Z",
+  "base_run_id": "20260831-161927",
+  "base_printing_press_version": "4.31.3",
+  "files": [
+    "go.mod"
+  ],
+  "summary": "Canonicalize the generated module and all internal imports to the Printing Press library module path github.com/mvanhorn/printing-press-library/library/devices/kvmctl.",
+  "reason": "Printing Press publish validation requires the canonical public-library module namespace instead of the generator's temporary bare module path.",
+  "validated_outcome": "go mod tidy, go test ./..., go vet ./..., go build ./..., and git diff --check pass after canonicalization."
+}

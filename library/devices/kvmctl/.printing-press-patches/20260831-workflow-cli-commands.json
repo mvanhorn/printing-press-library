@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "20260831-workflow-cli-commands",
+  "applied_at": "2026-08-31T20:00:00Z",
+  "base_run_id": "20260831-161927",
+  "base_printing_press_version": "4.31.3",
+  "files": [
+    "internal/cli/workflows_novel.go",
+    "internal/cli/workflows_novel_test.go"
+  ],
+  "summary": "Add repository-backed workflow list, inspect, authorize, and execute CLI commands through the novel extension hook with deterministic and redacted JSON output.",
+  "reason": "Preserved hand-authored workflow CLI extension for generated kvmctl scaffold; generated-owned files remain untouched.",
+  "validated_outcome": "Focused workflow tests pass; full go test, go vet, go build, help/discovery, and diff checks are run before commit."
+}

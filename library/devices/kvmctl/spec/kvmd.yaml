@@ -1,0 +1,180 @@
+openapi: 3.0.3
+info:
+  title: KVMD-compatible KVM API
+  version: "4.82"
+  description: >-
+    The verified REST subset used by kvmctl for KVMD-compatible GLKVM devices.
+    Endpoint shapes are transcribed from the PiKVM HTTP API reference and the
+    live GLKVM probe recorded in PROBE_NOTES.md. Device-specific switch and
+    verification workflows remain novel application code, not generated API
+    endpoints.
+servers:
+  - url: https://glkvm.local
+    description: Local GLKVM virtual host; override with the CLI endpoint flag.
+security:
+  - kvmdToken: []
+tags:
+  - name: auth
+  - name: system
+  - name: hid
+  - name: streamer
+paths:
+  /api/auth/check:
+    get:
+      operationId: authCheck
+      tags: [auth]
+      security: [{kvmdToken: []}]
+      responses:
+        "200":
+          description: Authentication state
+          content:
+            application/json: {schema: {$ref: '#/components/schemas/JsonResult'}}
+  /api/auth/login:
+    post:
+      operationId: authLogin
+      tags: [auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [user, passwd]
+              properties:
+                user: {type: string}
+                passwd: {type: string, format: password}
+                expire: {type: integer, format: int64, default: 0}
+      responses:
+        "200":
+          description: Login response containing a token
+          content:
+            application/json: {schema: {$ref: '#/components/schemas/JsonResult'}}
+  /api/auth/logout:
+    post:
+      operationId: authLogout
+      tags: [auth]
+      responses:
+        "200":
+          description: Logout response
+          content:
+            application/json: {schema: {$ref: '#/components/schemas/JsonResult'}}
+  /api/info:
+    get:
+      operationId: getInfo
+      tags: [system]
+      responses:
+        "200":
+          description: Device and KVMD capabilities
+          content:
+            application/json: {schema: {$ref: '#/components/schemas/JsonResult'}}
+  /api/hid:
+    get:
+      operationId: getHidState
+      tags: [hid]
+      responses:
+        "200":
+          description: HID state
+          content:
+            application/json: {schema: {$ref: '#/components/schemas/JsonResult'}}
+  /api/hid/events/send_key:
+    post:
+      operationId: sendKey
+      tags: [hid]
+      x-pp-example: "kvmctl-pp-cli hid send-key --key Enter"
+      parameters:
+        - {name: key, in: query, required: true, schema: {type: string}}
+        - {name: state, in: query, required: false, schema: {type: boolean}}
+        - {name: finish, in: query, required: false, schema: {type: boolean}}
+      responses:
+        "200":
+          description: Key event accepted
+          content:
+            application/json: {schema: {$ref: '#/components/schemas/JsonResult'}}
+  /api/hid/events/send_shortcut:
+    post:
+      operationId: sendShortcut
+      tags: [hid]
+      parameters:
+        - {name: keys, in: query, required: true, schema: {type: string}}
+      responses:
+        "200":
+          description: Shortcut accepted
+          content:
+            application/json: {schema: {$ref: '#/components/schemas/JsonResult'}}
+  /api/hid/events/send_mouse_move:
+    post:
+      operationId: sendMouseMove
+      tags: [hid]
+      parameters:
+        - {name: x, in: query, required: true, schema: {type: integer, format: int32}}
+        - {name: y, in: query, required: true, schema: {type: integer, format: int32}}
+      responses:
+        "200": {description: Mouse move accepted}
+  /api/hid/events/send_mouse_button:
+    post:
+      operationId: sendMouseButton
+      tags: [hid]
+      parameters:
+        - {name: button, in: query, required: true, schema: {type: string}}
+        - {name: state, in: query, required: true, schema: {type: boolean}}
+      responses:
+        "200": {description: Mouse button event accepted}
+  /api/hid/events/send_mouse_wheel:
+    post:
+      operationId: sendMouseWheel
+      tags: [hid]
+      parameters:
+        - {name: delta, in: query, required: true, schema: {type: integer, format: int32}}
+      responses:
+        "200": {description: Mouse wheel event accepted}
+  /api/hid/reset:
+    post:
+      operationId: resetHid
+      tags: [hid]
+      responses:
+        "200": {description: HID reset accepted}
+  /api/streamer/snapshot:
+    get:
+      operationId: getSnapshot
+      tags: [streamer]
+      parameters:
+        - {name: preview, in: query, required: false, schema: {type: boolean, default: true}}
+        - {name: preview_max_width, in: query, required: false, schema: {type: integer, format: int32}}
+        - {name: preview_quality, in: query, required: false, schema: {type: integer, format: int32}}
+      responses:
+        "200":
+          description: JPEG snapshot
+          content:
+            image/jpeg: {schema: {type: string, format: binary}}
+  /api/streamer/set_params:
+    post:
+      operationId: setStreamerParams
+      tags: [streamer]
+      parameters:
+        - {name: desired_fps, in: query, required: false, schema: {type: integer, format: int32}}
+        - {name: quality, in: query, required: false, schema: {type: integer, format: int32}}
+      responses:
+        "200": {description: Streamer parameters accepted}
+  /api/system/otg_functions:
+    post:
+      operationId: setOtgFunctions
+      tags: [system]
+      parameters:
+        - {name: start_cdrom, in: query, required: true, schema: {type: boolean}}
+        - {name: start_flash, in: query, required: true, schema: {type: boolean}}
+      responses:
+        "200": {description: OTG state accepted}
+components:
+  securitySchemes:
+    kvmdToken:
+      type: apiKey
+      in: header
+      name: token
+  schemas:
+    JsonResult:
+      type: object
+      additionalProperties: true
+      properties:
+        ok: {type: boolean}
+        result: {type: object, additionalProperties: true}

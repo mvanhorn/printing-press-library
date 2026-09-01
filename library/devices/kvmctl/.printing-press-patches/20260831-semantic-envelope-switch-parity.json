@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "20260831-semantic-envelope-switch-parity",
+  "applied_at": "2026-08-31T18:10:00Z",
+  "base_run_id": "20260831-161927",
+  "base_printing_press_version": "4.31.3",
+  "files": [
+    "internal/cli/kvmd_novel.go",
+    "internal/results/results.go",
+    "internal/results/results_test.go",
+    "internal/switcher/switch.go",
+    "internal/switcher/switch_test.go"
+  ],
+  "summary": "Port stable semantic operation envelopes and sequential TH41-3 switch planning, with explicit confirmation for physical target switching.",
+  "reason": "Close remaining Python results.py and switch.py parity while keeping generated CLI changes in novel extension hooks.",
+  "validated_outcome": "Focused tests, full Go tests, vet, build, formatting, diff checks, and CLI discovery/smoke checks pass."
+}

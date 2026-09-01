@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "20260831-session-switch-otg-parity",
+  "applied_at": "2026-08-31T23:00:00Z",
+  "base_run_id": "20260831-161927",
+  "base_printing_press_version": "4.31.3",
+  "files": [
+    "internal/machines/machines.go",
+    "internal/machines/verified_session.go",
+    "internal/machines/verify.go",
+    "internal/switcher/switch.go",
+    "internal/recovery/recovery.go"
+  ],
+  "summary": "Close session/switch/OTG parity: MAC-authenticated verified-session persistence with HMAC atomic 0600/0700 and flock, complete verification policies (frame_change, ocr_identity, prompt_pattern) with bounded retries and injected sleep, and complete OTG/switch timing (OTG 8s/12s, hold 120ms gap 150ms) and streamer recovery with exact Python sequencing and cancellation safety.",
+  "reason": "Port remaining Python kvmctl session_store, machines verification, switch OTG timing, and recovery parity into Go with private atomic persistence, precise sleep injection, and bounded verification.",
+  "validated_outcome": "Focused tests for locking/persistence/timing via injected sleep, plus go test ./internal/machines ./internal/switcher ./internal/recovery, go vet, go build, go fmt, git diff --check verified."
+}

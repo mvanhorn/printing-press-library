@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "20260831-sequence-parity-slice",
+  "applied_at": "2026-08-31T19:00:00Z",
+  "base_run_id": "20260831-161927",
+  "base_printing_press_version": "4.31.3",
+  "files": [
+    "internal/sequence/sequence.go",
+    "internal/sequence/document.go",
+    "internal/sequence/sequence_test.go",
+    "internal/sequence/workflow.go"
+  ],
+  "summary": "Expand bounded target-bound sequence validation and execution with Python action types, canonical policy checks, optional KVMD chord/hold/mouse operations, screen assertion interface, and structured cleanup-aware results.",
+  "reason": "Generated-tree extension hook parity slice; generated-owned files remain untouched.",
+  "validated_outcome": "go test ./..., go vet ./..., go build ./..., git diff --check, and CLI help smoke tests pass."
+}

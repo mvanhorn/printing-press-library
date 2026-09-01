@@ -1,0 +1,51 @@
+{
+  "manifest_version": "0.3",
+  "name": "kvmctl-pp-mcp",
+  "display_name": "Kvmd Compatible Kvm",
+  "version": "4.31.3",
+  "description": "The verified REST subset used by kvmctl for KVMD-compatible GLKVM devices.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/kvmctl-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/kvmctl-pp-mcp",
+      "args": [],
+      "env": {
+        "KVMCTL_BASE_URL": "${user_config.kvmctl_base_url}",
+        "KVMCTL_KVMD_TOKEN": "${user_config.kvmctl_kvmd_token}",
+        "KVMCTL_USER_AGENT": "${user_config.kvmctl_user_agent}"
+      }
+    }
+  },
+  "user_config": {
+    "kvmctl_base_url": {
+      "type": "string",
+      "title": "KVMCTL_BASE_URL",
+      "description": "Optional. Sets KVMCTL_BASE_URL for the Kvmd Compatible Kvm MCP server. Per-instance, non-secret setting; not a credential."
+    },
+    "kvmctl_kvmd_token": {
+      "type": "string",
+      "title": "KVMCTL_KVMD_TOKEN",
+      "description": "Sets KVMCTL_KVMD_TOKEN for the Kvmd Compatible Kvm MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "kvmctl_user_agent": {
+      "type": "string",
+      "title": "KVMCTL_USER_AGENT",
+      "description": "Optional. Sets KVMCTL_USER_AGENT for the Kvmd Compatible Kvm MCP server. Per-instance, non-secret setting; not a credential."
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

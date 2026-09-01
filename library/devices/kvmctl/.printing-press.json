@@ -1,0 +1,44 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-31T16:19:27.094102Z",
+  "printing_press_version": "4.31.3",
+  "api_name": "kvmctl",
+  "display_name": "Kvmd Compatible Kvm",
+  "cli_name": "kvmctl-pp-cli",
+  "creator": {
+    "handle": "keithah",
+    "name": "Keith"
+  },
+  "owner": "keithah",
+  "printer": "keithah",
+  "printer_name": "Keith Herrington",
+  "spec_path": "spec.yaml",
+  "spec_format": "openapi3",
+  "spec_source": "official",
+  "spec_checksum": "sha256:6d81302a1a61412b55042912d2142db7ba16b662b0ba4076dd26a86d61f68f6f",
+  "run_id": "20260831-161927",
+  "category": "devices",
+  "description": "The verified REST subset used by kvmctl for KVMD-compatible GLKVM devices.",
+  "mcp_binary": "kvmctl-pp-mcp",
+  "mcp_tool_count": 14,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "4.82",
+  "auth_type": "api_key",
+  "auth_preference": "kvmdToken",
+  "auth_env_vars": [
+    "KVMCTL_KVMD_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Structured semantic dispatch",
+      "command": "semantic capabilities",
+      "description": "Expose named KVMD operations through stable evidence envelopes with explicit read/write policy."
+    },
+    {
+      "name": "Target-bound workflows",
+      "command": "workflow-list",
+      "description": "List immutable named KVM workflows in deterministic order."
+    }
+  ]
+}
