@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-27T06:09:10.260873Z",
+  "printing_press_version": "4.26.1",
+  "api_name": "hostex",
+  "display_name": "Hostex",
+  "cli_name": "hostex-pp-cli",
+  "creator": {
+    "handle": "Bust011r",
+    "name": "Bust011r"
+  },
+  "owner": "bust011r",
+  "printer": "Bust011r",
+  "printer_name": "Bust011r",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:c4110eab65ece6cc3f46623fb9c7d4e83f8ae35c99f697b8c6ac18cf5cd9bef7",
+  "run_id": "20260627-060401-7471d49d",
+  "category": "travel",
+  "description": "Every Hostex v3 operation, plus a local SQLite mirror that answers cross-property questions no single Hostex call can — occupancy gaps, revenue rollups, and guest-message SLA, offline.",
+  "mcp_binary": "hostex-pp-mcp",
+  "mcp_tool_count": 86,
+  "mcp_ready": "full",
+  "api_version": "3.9.0",
+  "auth_type": "api_key",
+  "auth_preference": "HostexAccessToken",
+  "auth_env_vars": [
+    "HOSTEX_HOSTEX_ACCESS_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "HOSTEX_ACCESS_TOKEN",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    },
+    {
+      "name": "HOSTEX_HOSTEX_ACCESS_TOKEN",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Operations gap finder",
+      "command": "ops-gaps",
+      "description": "Find imminent or occupied stays with no cleaning task or missing check-in details."
+    },
+    {
+      "name": "Stay brief dossier",
+      "command": "stay-brief",
+      "description": "One dossier for a single stay: reservation, guest, thread state, tasks, transactions, and review."
+    },
+    {
+      "name": "Inbox SLA triage",
+      "command": "inbox-sla",
+      "description": "Rank open guest conversations by age since the last guest message and flag threads past your SLA."
+    },
+    {
+      "name": "Automation preview",
+      "command": "automation-preview",
+      "description": "List pending automated messages and reviews and flag any whose thread a human has already handled."
+    },
+    {
+      "name": "Cross-channel price parity",
+      "command": "price-parity",
+      "description": "Flag property-dates where per-channel listing price or min-stay diverges across channels."
+    },
+    {
+      "name": "Oversell / double-sell watch",
+      "command": "oversell-watch",
+      "description": "Flag dates a channel still shows bookable on a property that is blocked or booked on the master calendar."
+    },
+    {
+      "name": "Revenue rollup",
+      "command": "revenue-rollup",
+      "description": "Net income minus expense by property or month over a date range, from the live ledger."
+    }
+  ]
+}

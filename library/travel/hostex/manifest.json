@@ -1,0 +1,45 @@
+{
+  "manifest_version": "0.3",
+  "name": "hostex-pp-mcp",
+  "display_name": "Hostex",
+  "version": "0.0.0",
+  "description": "Every Hostex v3 operation, plus a local SQLite mirror that answers cross-property questions no single Hostex call can — occupancy gaps, revenue rollups, and guest-message SLA, offline.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/hostex-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/hostex-pp-mcp",
+      "args": [],
+      "env": {
+        "HOSTEX_ACCESS_TOKEN": "${user_config.hostex_access_token}",
+        "HOSTEX_HOSTEX_ACCESS_TOKEN": "${user_config.hostex_hostex_access_token}"
+      }
+    }
+  },
+  "user_config": {
+    "hostex_access_token": {
+      "type": "string",
+      "title": "HOSTEX_ACCESS_TOKEN",
+      "description": "Optional. Sets HOSTEX_ACCESS_TOKEN for the Hostex MCP server.",
+      "sensitive": true
+    },
+    "hostex_hostex_access_token": {
+      "type": "string",
+      "title": "HOSTEX_HOSTEX_ACCESS_TOKEN",
+      "description": "Optional. Sets HOSTEX_HOSTEX_ACCESS_TOKEN for the Hostex MCP server.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

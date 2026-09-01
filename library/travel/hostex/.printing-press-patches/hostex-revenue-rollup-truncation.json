@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "hostex-revenue-rollup-truncation",
+  "applied_at": "2026-07-29",
+  "base_run_id": "20260627-060401-7471d49d",
+  "base_printing_press_version": "4.26.1",
+  "summary": "Surface ledger truncation in revenue-rollup instead of silently understating net revenue.",
+  "reason": "Code review found revenue-rollup capped its offset-pagination loop at 50 pages (5,000 transactions) while decoding but never using the response `total`. On accounts whose date range exceeds the cap the loop exited normally and every later transaction was dropped, so income, expense and net were understated with no signal to the operator. The scan now detects truncation (authoritative `total` when the API supplies it, full-page-at-cap heuristic when it does not), reports it as `truncated` plus `total_transactions` in the output, warns on stderr, and exposes --max-pages so the operator can actually complete the scan.",
+  "files": [
+    "internal/cli/revenue_rollup.go",
+    "internal/cli/revenue_rollup_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "gofmt clean; go vet, go build and go test ./... pass; new TestRevenueScanTruncated covers the API-total and page-cap paths in both directions; publish validate passes.",
+  "findings_addressed": ["greptile-p1-revenue-rollup-silent-truncation"]
+}

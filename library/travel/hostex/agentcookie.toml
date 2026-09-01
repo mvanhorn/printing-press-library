@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "hostex-pp-cli"
+display_name = "Hostex"
+description = "Every Hostex v3 operation, plus a local SQLite mirror that answers cross-property questions no single Hostex call can — occupancy gaps, revenue rollups, and guest-message SLA, offline."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/hostex-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+HOSTEX_ACCESS_TOKEN = true
+HOSTEX_HOSTEX_ACCESS_TOKEN = true

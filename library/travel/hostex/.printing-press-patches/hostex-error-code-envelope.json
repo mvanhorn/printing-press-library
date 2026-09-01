@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "hostex-error-code-envelope",
+  "applied_at": "2026-06-27",
+  "base_run_id": "20260627-060401-7471d49d",
+  "base_printing_press_version": "4.26.1",
+  "summary": "Treat Hostex's HTTP-200 response envelope error_code (>=400) as a typed error with 429/5xx retry, instead of trusting HTTP status.",
+  "reason": "Hostex returns HTTP 200 for every call and puts the real status in error_code (200=success). The generated client treated HTTP 200 as success, so application errors were silent successes and rate-limit retries never fired.",
+  "files": ["internal/client/client.go", "internal/client/hostex_envelope.go"],
+  "validated_outcome": "Live dogfood 255/255; reads return data, real 4xx surface as non-zero exit."
+}
