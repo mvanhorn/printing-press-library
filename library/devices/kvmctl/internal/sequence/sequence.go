@@ -144,12 +144,29 @@ func (s *Store) withFileLock(suffix string, fn func() error) error {
 const sharedLockDirEnv = "KVMCTL_LOCK_DIR"
 
 // defaultSharedLockDir is deliberately a single fixed path rather than a
-// privilege-dependent choice. A conditional path (e.g. /var/lock when root,
-// /tmp otherwise) would silently give different users different lock files and
-// defeat serialization entirely.
+// privilege-dependent or per-user choice. A conditional path (e.g. /var/lock
+// when root, /tmp otherwise) or a per-user one would silently give different
+// callers different lock files and defeat serialization entirely.
+//
+// On Windows os.TempDir() honors TMP/TEMP, which under a normal interactive
+// logon resolves to the per-user %LOCALAPPDATA%\Temp — two accounts would never
+// meet on the same file. Use the machine-wide ProgramData location instead.
 func defaultSharedLockDir() string {
-	if runtime.GOOS == "windows" {
-		return filepath.Join(os.TempDir(), "kvmctl-locks")
+	return defaultSharedLockDirFor(runtime.GOOS, os.Getenv)
+}
+
+// defaultSharedLockDirFor is the testable core of defaultSharedLockDir. Taking
+// the OS and environment as parameters lets the Windows path be verified from
+// any host, so the cross-user guarantee is not left to a skipped test.
+func defaultSharedLockDirFor(goos string, getenv func(string) string) string {
+	if goos == "windows" {
+		if pd := strings.TrimSpace(getenv("ProgramData")); pd != "" {
+			return filepath.Join(pd, "kvmctl", "locks")
+		}
+		if sr := strings.TrimSpace(getenv("SystemRoot")); sr != "" {
+			return filepath.Join(sr, "Temp", "kvmctl-locks")
+		}
+		return `C:\ProgramData\kvmctl\locks`
 	}
 	return "/tmp/kvmctl-locks"
 }
