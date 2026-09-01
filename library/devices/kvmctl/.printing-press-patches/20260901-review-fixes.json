@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "20260901-review-fixes",
+  "applied_at": "2026-09-01",
+  "base_run_id": "20260831-161927",
+  "base_printing_press_version": "4.31.3",
+  "files": [
+    "internal/sequence/sequence.go",
+    "internal/sequence/workflow.go",
+    "internal/sequence/locks_unix.go",
+    "internal/sequence/locks_windows.go",
+    "internal/sequence/workflow_security_test.go",
+    ".printing-press-patches/*.json"
+  ],
+  "summary": "Make authorization consumption and authorized KVM execution cross-process serialized, and normalize patch-ledger dates.",
+  "reason": "Review verification found that process-local mutexes did not protect shared authorization files or physical action sequences across CLI processes, and patch timestamps did not match the date-only ledger convention.",
+  "validated_outcome": "Atomic token consumption and execution serialization are protected by platform file locks; focused and full module validation passed."
+}

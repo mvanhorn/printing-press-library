@@ -25,27 +25,29 @@ func ExecuteAuthorized(ctx context.Context, a *Authorizer, e *Executor, d Device
 	if err != nil {
 		return err
 	}
-	appendRecord := func(r map[string]any) error {
-		r["target"], r["plan_hash"] = target, hash
-		if j != nil {
-			return j.Append(r)
+	return a.store.withFileLock(".execute.lock", func() error {
+		appendRecord := func(r map[string]any) error {
+			r["target"], r["plan_hash"] = target, hash
+			if j != nil {
+				return j.Append(r)
+			}
+			return nil
 		}
-		return nil
-	}
-	if err := appendRecord(map[string]any{"event": "sequence_start", "actions": len(bound.Actions)}); err != nil {
+		if err := appendRecord(map[string]any{"event": "sequence_start", "actions": len(bound.Actions)}); err != nil {
+			return err
+		}
+		err = e.executeUntil(ctx, d, bound, expires, func(index int, a Action) error {
+			return appendRecord(map[string]any{"event": "action", "index": index, "type": a.Type})
+		})
+		end := map[string]any{"event": "sequence_end", "ok": err == nil}
+		if err != nil {
+			end["error"] = err.Error()
+		}
+		if journalErr := appendRecord(end); err == nil && journalErr != nil {
+			err = journalErr
+		}
 		return err
-	}
-	err = e.executeUntil(ctx, d, bound, expires, func(index int, a Action) error {
-		return appendRecord(map[string]any{"event": "action", "index": index, "type": a.Type})
 	})
-	end := map[string]any{"event": "sequence_end", "ok": err == nil}
-	if err != nil {
-		end["error"] = err.Error()
-	}
-	if journalErr := appendRecord(end); err == nil && journalErr != nil {
-		err = journalErr
-	}
-	return err
 }
 
 func (a *Authorizer) takeWithExpiry(ctx context.Context, token, target string, p Plan) (Plan, time.Time, error) {
@@ -54,21 +56,23 @@ func (a *Authorizer) takeWithExpiry(ctx context.Context, token, target string, p
 		return Plan{}, time.Time{}, ctx.Err()
 	default:
 	}
-	auth, err := a.store.peek(token)
+	h, err := p.Hash()
 	if err != nil {
 		return Plan{}, time.Time{}, err
 	}
-	if auth.Target != target || auth.Plan.Target != target {
-		return Plan{}, time.Time{}, errors.New("authorization target mismatch")
-	}
-	if !a.now().Before(auth.ExpiresAt) {
-		return Plan{}, time.Time{}, errors.New("authorization expired")
-	}
-	h, err := p.Hash()
-	if err != nil || h != auth.Hash {
-		return Plan{}, time.Time{}, errors.New("plan mismatch")
-	}
-	if _, err = a.store.take(token); err != nil {
+	auth, err := a.store.takeMatching(token, func(auth authorization) error {
+		if auth.Target != target || auth.Plan.Target != target {
+			return errors.New("authorization target mismatch")
+		}
+		if !a.now().Before(auth.ExpiresAt) {
+			return errors.New("authorization expired")
+		}
+		if h != auth.Hash {
+			return errors.New("plan mismatch")
+		}
+		return nil
+	})
+	if err != nil {
 		return Plan{}, time.Time{}, err
 	}
 	return auth.Plan, auth.ExpiresAt, nil

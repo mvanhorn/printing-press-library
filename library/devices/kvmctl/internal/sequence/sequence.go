@@ -127,6 +127,23 @@ type Store struct {
 	mu   sync.Mutex
 }
 
+func (s *Store) withFileLock(suffix string, fn func() error) error {
+	dir := filepath.Dir(s.path)
+	if err := secureDir(dir); err != nil {
+		return err
+	}
+	f, err := openLockFile(s.path + suffix)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	if err := lockExclusive(f); err != nil {
+		return err
+	}
+	defer unlockExclusive(f)
+	return fn()
+}
+
 func NewStore(path string) *Store { return &Store{path: path} }
 func (s *Store) read() (map[string]authorization, error) {
 	if info, statErr := os.Lstat(s.path); statErr == nil && info.Mode()&os.ModeSymlink != 0 {
@@ -191,42 +208,81 @@ func secureDir(dir string) error {
 func (s *Store) put(a authorization) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	v, e := s.read()
-	if e != nil {
-		return e
-	}
-	v[a.Token] = a
-	return s.write(v)
+	return s.withFileLock(".lock", func() error {
+		v, e := s.read()
+		if e != nil {
+			return e
+		}
+		v[a.Token] = a
+		return s.write(v)
+	})
 }
 func (s *Store) take(token string) (authorization, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	v, e := s.read()
-	if e != nil {
-		return authorization{}, e
-	}
-	a, ok := v[token]
-	if !ok {
-		return authorization{}, errors.New("authorization invalid")
-	}
-	delete(v, token)
-	if e = s.write(v); e != nil {
-		return authorization{}, e
-	}
-	return a, nil
+	var result authorization
+	err := s.withFileLock(".lock", func() error {
+		v, err := s.read()
+		if err != nil {
+			return err
+		}
+		a, ok := v[token]
+		if !ok {
+			return errors.New("authorization invalid")
+		}
+		delete(v, token)
+		if err := s.write(v); err != nil {
+			return err
+		}
+		result = a
+		return nil
+	})
+	return result, err
 }
+
+func (s *Store) takeMatching(token string, check func(authorization) error) (authorization, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var result authorization
+	err := s.withFileLock(".lock", func() error {
+		v, err := s.read()
+		if err != nil {
+			return err
+		}
+		a, ok := v[token]
+		if !ok {
+			return errors.New("authorization invalid")
+		}
+		if err := check(a); err != nil {
+			return err
+		}
+		delete(v, token)
+		if err := s.write(v); err != nil {
+			return err
+		}
+		result = a
+		return nil
+	})
+	return result, err
+}
+
 func (s *Store) peek(token string) (authorization, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	v, e := s.read()
-	if e != nil {
-		return authorization{}, e
-	}
-	a, ok := v[token]
-	if !ok {
-		return authorization{}, errors.New("authorization invalid")
-	}
-	return a, nil
+	var result authorization
+	err := s.withFileLock(".lock", func() error {
+		v, err := s.read()
+		if err != nil {
+			return err
+		}
+		a, ok := v[token]
+		if !ok {
+			return errors.New("authorization invalid")
+		}
+		result = a
+		return nil
+	})
+	return result, err
 }
 
 type Authorizer struct {
