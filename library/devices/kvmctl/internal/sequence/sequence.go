@@ -151,7 +151,7 @@ func withTargetLock(target string, fn func() error) error {
 	if err != nil || info.Mode()&os.ModeSymlink != 0 || !info.IsDir() {
 		return errors.New("unsafe sequence lock directory")
 	}
-	hash := sha256.Sum256([]byte(target))
+	hash := sha256.Sum256([]byte(strings.TrimSpace(target)))
 	return withLockPath(filepath.Join(dir, hex.EncodeToString(hash[:])+".lock"), fn)
 }
 

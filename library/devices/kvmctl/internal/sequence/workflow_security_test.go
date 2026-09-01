@@ -55,11 +55,15 @@ func TestTargetLockSerializesIndependentStores(t *testing.T) {
 	var active, maxActive int32
 	var wg sync.WaitGroup
 	errs := make(chan error, 2)
-	for range 2 {
+	for i := 0; i < 2; i++ {
 		wg.Add(1)
-		go func() {
+		target := "same-target"
+		if i == 1 {
+			target = "  same-target  "
+		}
+		go func(target string) {
 			defer wg.Done()
-			errs <- withTargetLock("same-target", func() error {
+			errs <- withTargetLock(target, func() error {
 				current := atomic.AddInt32(&active, 1)
 				for {
 					old := atomic.LoadInt32(&maxActive)
@@ -71,7 +75,7 @@ func TestTargetLockSerializesIndependentStores(t *testing.T) {
 				atomic.AddInt32(&active, -1)
 				return nil
 			})
-		}()
+		}(target)
 	}
 	wg.Wait()
 	close(errs)
