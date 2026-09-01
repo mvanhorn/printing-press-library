@@ -28,14 +28,18 @@ This skill drives the `texas-roadhouse-pp-cli` binary. **You must verify the CLI
 If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/food-and-dining/texas-roadhouse/cmd/texas-roadhouse-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/food-and-dining/texas-roadhouse/cmd/texas-roadhouse-pp-cli@6695fc0c66c9f1a5670c049428bd79752e231751
 ```
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 Waitlist CLI for Texas Roadhouse. Find a nearby store, read the quote, join and leave the list.
 
-**Unofficial integration:** This skill is not affiliated with or endorsed by Texas Roadhouse. It uses browser-observed, undocumented endpoints that may change without notice. A waitlist submission sends the guest's name, email address, phone number, and party details to Texas Roadhouse. The current CLI accepts those values as flags; this disclosure does not redesign that argv flow. Do not place real PII in shared logs, transcripts, or reusable agent memory. Use only a private shell/process environment, clear sensitive shell history afterward, and never share command or `--dry-run` output containing real PII. Use placeholders for structural `--dry-run` checks; use `--yes` only after the user privately confirms the real store and party details.
+**Unofficial integration:** This skill is not affiliated with or endorsed by Texas Roadhouse. It uses browser-observed, undocumented endpoints that may change without notice. A waitlist submission sends the guest's name, email address, phone number, and party details to Texas Roadhouse. Do not put that identity on argv flags. Agents pass stdin JSON, `--guest-file`, or `TEXAS_ROADHOUSE_GUEST_*` env vars. `--dry-run` redacts guest fields. Hidden name/email/phone flags are a private `--yes` path only. Live `submit` / `checkin` / `cancel` require `--yes`.
+
+**MCP privacy boundary:** the MCP server intentionally does not expose waitlist `submit`, because MCP hosts can retain tool-call arguments in transcripts or logs. Use the CLI's stdin JSON, `--guest-file`, environment, or interactive-prompt flow for a guest join.
+
+**Last endpoint verification:** 2026-08-29. A Cloudflare challenge or HTTP 403 can mean the browser-facing endpoint changed or rejected the Chrome-compatible transport; retrying a mutation is unsafe until `--dry-run` and a fresh read request succeed.
 
 ## HTTP Transport
 
@@ -60,13 +64,13 @@ This CLI was generated with browser-observed traffic context.
 
 **texasroadhouse** — Operations on test
 
-- `texas-roadhouse-pp-cli texasroadhouse cancel` — Cancel a waitlist request. Live cancel requires `--yes`; `--dry-run` previews without POSTing.
-- `texas-roadhouse-pp-cli texasroadhouse checkin` — Confirm arrival after the guest receives the Texas Roadhouse text and replies `HERE`. Live check-in requires `--yes`; `--dry-run` previews without POSTing.
+- `texas-roadhouse-pp-cli texasroadhouse cancel` — Cancel a waitlist request. Guests can also text `REMOVE` to leave; CLI leave is this cancel command. Live cancel requires `--yes`; `--dry-run` previews without POSTing.
+- `texas-roadhouse-pp-cli texasroadhouse checkin` — Mark the party HERE after the guest texts `HERE` once everyone has arrived (text `REMOVE` to leave). Not a host-stand visit. Live check-in requires `--yes`; `--dry-run` previews without POSTing.
 - `texas-roadhouse-pp-cli texasroadhouse get-quote` — GET /api/texasroadhouse/waitlist/{waitlist_id}/quote
 - `texas-roadhouse-pp-cli texasroadhouse get-settings` — GET /api/texasroadhouse/waitlist/{waitlist_id}/settings
 - `texas-roadhouse-pp-cli texasroadhouse get-status` — GET waitlist request status. Query clientid=texasroadhouse.
 - `texas-roadhouse-pp-cli texasroadhouse get-test` — GET /api/texasroadhouse/waitlist/{waitlist_id}/test
-- `texas-roadhouse-pp-cli texasroadhouse submit` — Join a store waitlist. Live join requires `--yes`; `--dry-run` previews without POSTing.
+- `texas-roadhouse-pp-cli texasroadhouse submit` — Join a store waitlist. Guest PII comes from stdin JSON, `--guest-file`, or `TEXAS_ROADHOUSE_GUEST_*` env vars, not argv flags. Live join requires `--yes`; `--dry-run` previews a redacted body without POSTing.
 
 
 ### Finding the right command
@@ -97,7 +101,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
   ```
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
-- **Non-interactive** — never prompts, every input is a flag
+- **Non-interactive** — `--agent` never prompts; guest name/email/phone belong on stdin JSON, `--guest-file`, or env vars, not argv flags
 - **Explicit confirmation** — `--agent` does not imply `--yes`; pass `--yes` separately only after the target, arguments, and side effects are clear
 - **Explicit retries** — use `--idempotent` only when an already-existing create should count as success
 
@@ -396,7 +400,14 @@ When a human wants on a Texas Roadhouse waitlist:
 3. `stores --lat … --long … --limit 4 --radius 80`. Use each store's `extref` as `waitlist_id`, not the internal `id`.
 4. `texasroadhouse get-quote <extref>` for those four.
 5. **STOP.** Present 3–4 stores with name, street address, city, distance, and wait. Wait for the human to name one store and a party size (1–6).
-6. Dry-run `submit` only after that pick. Live `submit` only after an explicit yes. Email is required. VIP Club stays off.
+6. Repeat consent. Dry-run `submit --stdin` only after that pick. Guest name, email, and phone go in stdin JSON, `--guest-file`, or `TEXAS_ROADHOUSE_GUEST_*` — not argv flags:
+
+   ```bash
+   printf '%s\n' '{"EmailAddress":"guest@example.test","FirstName":"Test","LastName":"User","PrimaryPhoneAreaCode":"555","PrimaryPhoneNumber":"555-0100","PartySize":2,"WaitMinutes":10}' \
+     | texas-roadhouse-pp-cli texasroadhouse submit 218 --stdin --dry-run
+   ```
+
+   Live `submit` only after an explicit yes (`--yes`). VIP Club stays off. The guest later texts HERE once everyone has arrived (REMOVE to leave); `checkin` is that HERE mark, not a host-stand visit, and still needs `--yes`. CLI leave is `texasroadhouse cancel`.
 
 ### How to present the options (every harness)
 
@@ -435,7 +446,7 @@ Verify: `claude mcp list`
 
 1. Check if installed: `which texas-roadhouse-pp-cli`
    If not found, offer to install (see Prerequisites at the top of this skill).
-2. Match the user query to the best command from the Unique Capabilities and Command Reference above.
+2. Match the user query to the best command from the Command Reference above.
 3. Execute with the `--agent` flag:
    ```bash
    texas-roadhouse-pp-cli <command> [subcommand] [args] --agent

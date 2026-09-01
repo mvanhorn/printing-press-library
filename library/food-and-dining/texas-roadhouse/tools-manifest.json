@@ -86,7 +86,7 @@
     },
     {
       "name": "texasroadhouse_cancel",
-      "description": "Cancel a waitlist request (destructive). Live cancel requires yes=true; dry-run=true previews without POSTing. Required: waitlistRequestId, siteId. Optional: clientid, yes, dry-run. Returns the new WaitlistCancelResult.",
+      "description": "Cancel a waitlist request (destructive). Guests can also text REMOVE to leave; CLI leave is texasroadhouse cancel. Live cancel requires yes=true; dry-run=true previews without POSTing. Required: waitlistRequestId, siteId. Optional: clientid, yes, dry-run. Returns the new WaitlistCancelResult.",
       "method": "POST",
       "path": "/api/texasroadhouse/waitlist/cancel",
       "no_auth": true,
@@ -127,7 +127,7 @@
     },
     {
       "name": "texasroadhouse_checkin",
-      "description": "Confirm arrival after the guest receives the Texas Roadhouse text and replies HERE (destructive). Live check-in requires yes=true; dry-run=true previews without POSTing. Required: waitlist_id. Optional: yes, dry-run. Returns the new WaitlistCheckinResult.",
+      "description": "Mark the party HERE after the guest texts HERE once everyone has arrived (text REMOVE to leave). Not a host-stand visit (destructive). Live check-in requires yes=true; dry-run=true previews without POSTing. Required: waitlist_id. Optional: yes, dry-run. Returns the new WaitlistCheckinResult.",
       "method": "POST",
       "path": "/api/texasroadhouse/waitlist/{waitlist_id}/checkin",
       "no_auth": true,
@@ -227,107 +227,6 @@
           "location": "path",
           "description": "The waitlist_id path segment",
           "required": true
-        }
-      ]
-    },
-    {
-      "name": "texasroadhouse_submit",
-      "description": "Join a store waitlist (destructive). Live join requires yes=true; dry-run=true previews without POSTing. Required: waitlist_id, EmailAddress, FirstName, LastName, PrimaryPhoneAreaCode, PrimaryPhoneNumber, PartySize, WaitMinutes. Optional: IsSmoking, PrimaryPhoneExtension, PrimaryPhoneType, Platform, yes, dry-run. Returns the new WaitlistSubmitResult.",
-      "method": "POST",
-      "path": "/api/texasroadhouse/waitlist/{waitlist_id}/submit",
-      "no_auth": true,
-      "params": [
-        {
-          "name": "waitlist_id",
-          "type": "string",
-          "location": "path",
-          "description": "Store extref (not internal store id). Springfield MO is 218.",
-          "required": true
-        },
-        {
-          "name": "EmailAddress",
-          "type": "string",
-          "location": "body",
-          "description": "Guest email",
-          "required": true
-        },
-        {
-          "name": "FirstName",
-          "type": "string",
-          "location": "body",
-          "description": "Guest first name",
-          "required": true
-        },
-        {
-          "name": "LastName",
-          "type": "string",
-          "location": "body",
-          "description": "Guest last name",
-          "required": true
-        },
-        {
-          "name": "IsSmoking",
-          "type": "bool",
-          "location": "body",
-          "description": "Always false in the web app"
-        },
-        {
-          "name": "PrimaryPhoneAreaCode",
-          "type": "string",
-          "location": "body",
-          "description": "3-digit area code",
-          "required": true
-        },
-        {
-          "name": "PrimaryPhoneExtension",
-          "type": "string",
-          "location": "body",
-          "description": "Usually empty"
-        },
-        {
-          "name": "PrimaryPhoneNumber",
-          "type": "string",
-          "location": "body",
-          "description": "Local number as xxx-xxxx",
-          "required": true
-        },
-        {
-          "name": "PrimaryPhoneType",
-          "type": "integer",
-          "location": "body",
-          "description": "Web app sends 1"
-        },
-        {
-          "name": "PartySize",
-          "type": "number",
-          "location": "body",
-          "description": "Party size, max 6",
-          "required": true
-        },
-        {
-          "name": "WaitMinutes",
-          "type": "integer",
-          "location": "body",
-          "description": "From quote MinQuote for this party size",
-          "required": true
-        },
-        {
-          "name": "Platform",
-          "type": "string",
-          "location": "body",
-          "description": "Web app sends web"
-        },
-        {
-          "name": "yes",
-          "type": "boolean",
-          "location": "query",
-          "description": "Required for a live join. Same meaning as CLI --yes."
-        },
-        {
-          "name": "dry-run",
-          "type": "boolean",
-          "location": "query",
-          "description": "Preview the request body without POSTing. Same meaning as CLI --dry-run."
         }
       ]
     }

@@ -615,7 +615,7 @@ func TestWaitlistMutationToolsAreDestructiveAndGated(t *testing.T) {
 	RegisterTools(s)
 	tools := s.ListTools()
 
-	for _, name := range []string{"texasroadhouse_submit", "texasroadhouse_checkin", "texasroadhouse_cancel"} {
+	for _, name := range []string{"texasroadhouse_checkin", "texasroadhouse_cancel"} {
 		tool, ok := tools[name]
 		if !ok {
 			t.Fatalf("missing tool %s", name)
@@ -626,6 +626,9 @@ func TestWaitlistMutationToolsAreDestructiveAndGated(t *testing.T) {
 		if tool.Tool.Annotations.ReadOnlyHint != nil && *tool.Tool.Annotations.ReadOnlyHint {
 			t.Fatalf("%s must not be marked read-only", name)
 		}
+	}
+	if _, ok := tools["texasroadhouse_submit"]; ok {
+		t.Fatal("MCP must not expose waitlist submit because tool-call arguments can retain guest PII")
 	}
 
 	for _, name := range []string{"texasroadhouse_get_quote", "texasroadhouse_get_status", "texasroadhouse_get_settings", "stores_list_near"} {

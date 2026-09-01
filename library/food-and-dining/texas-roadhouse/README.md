@@ -2,7 +2,9 @@
 
 Waitlist CLI for Texas Roadhouse. Find a nearby store, read the quote, join and leave the list.
 
-> **Unofficial integration.** This project is not affiliated with or endorsed by Texas Roadhouse. It uses browser-observed, undocumented endpoints that can change without notice. Joining the waitlist sends guest name, email address, phone number, and party details to Texas Roadhouse. The current CLI still accepts those values as command-line flags; this disclosure does not remove them from shell history or process arguments. Use only a private shell, clear sensitive history afterward, and never paste command or `--dry-run` output containing real PII into shared logs. Use placeholders for structural `--dry-run` checks, then pass `--yes` only after privately verifying the real store and party details.
+> **Unofficial integration.** This project is not affiliated with or endorsed by Texas Roadhouse. It uses browser-observed, undocumented endpoints that can change without notice. Joining the waitlist sends guest name, email address, phone number, and party details to Texas Roadhouse. Do not put that identity on argv flags (shell history / `ps`). Pass stdin JSON, `--guest-file`, or `TEXAS_ROADHOUSE_GUEST_*` env vars. `--dry-run` redacts guest fields. Hidden name/email/phone flags are a private `--yes` path only. Never paste `--dry-run` output containing real PII into shared logs.
+
+**MCP privacy boundary:** the MCP server intentionally does not expose waitlist `submit`, because MCP hosts can retain tool-call arguments in transcripts or logs. Use the CLI's stdin JSON, `--guest-file`, environment, or interactive-prompt flow for a guest join.
 
 **Last endpoint verification:** 2026-08-29. A Cloudflare challenge or HTTP 403 can mean the browser-facing endpoint changed or rejected the Chrome-compatible transport; retrying a mutation is unsafe until `--dry-run` and a fresh read request succeed.
 
@@ -201,13 +203,13 @@ Operations on near
 
 Operations on test
 
-- **`texas-roadhouse-pp-cli texasroadhouse cancel`** - Cancel a waitlist request. Live cancel requires `--yes`; `--dry-run` previews without POSTing.
-- **`texas-roadhouse-pp-cli texasroadhouse checkin`** - Confirm arrival after the guest receives the Texas Roadhouse text and replies `HERE`. Live check-in requires `--yes`; `--dry-run` previews without POSTing.
+- **`texas-roadhouse-pp-cli texasroadhouse cancel`** - Cancel a waitlist request. Guests can also text `REMOVE` to leave; CLI leave is this cancel command. Live cancel requires `--yes`; `--dry-run` previews without POSTing.
+- **`texas-roadhouse-pp-cli texasroadhouse checkin`** - Mark the party HERE after the guest texts `HERE` once everyone has arrived (text `REMOVE` to leave). Not a host-stand visit. Live check-in requires `--yes`; `--dry-run` previews without POSTing.
 - **`texas-roadhouse-pp-cli texasroadhouse get-quote`** - GET /api/texasroadhouse/waitlist/{waitlist_id}/quote
 - **`texas-roadhouse-pp-cli texasroadhouse get-settings`** - GET /api/texasroadhouse/waitlist/{waitlist_id}/settings
 - **`texas-roadhouse-pp-cli texasroadhouse get-status`** - GET waitlist request status. Query clientid=texasroadhouse.
 - **`texas-roadhouse-pp-cli texasroadhouse get-test`** - GET /api/texasroadhouse/waitlist/{waitlist_id}/test
-- **`texas-roadhouse-pp-cli texasroadhouse submit`** - Join a store waitlist. Live join requires `--yes`; `--dry-run` previews without POSTing.
+- **`texas-roadhouse-pp-cli texasroadhouse submit`** - Join a store waitlist. Guest PII comes from stdin JSON, `--guest-file`, or `TEXAS_ROADHOUSE_GUEST_*` env vars, not argv flags. Live join requires `--yes`; `--dry-run` previews a redacted body without POSTing.
 
 
 ### Self-learning loop
@@ -249,7 +251,7 @@ texas-roadhouse-pp-cli mapbox 65804 --agent
 
 This CLI is designed for AI agent consumption:
 
-- **Non-interactive** - never prompts, every input is a flag
+- **Non-interactive** - `--agent` never prompts; guest name/email/phone belong on stdin JSON, `--guest-file`, or env vars, not argv flags
 - **Pipeable** - `--json` output to stdout, errors to stderr
 - **Filterable** - `--select <field>[,<field>...]` returns only fields you need
 - **Previewable** - `--dry-run` shows the request without sending

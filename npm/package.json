@@ -1,6 +1,6 @@
 {
   "name": "@mvanhorn/printing-press-library",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "description": "Installer and catalog CLI for Printing Press-generated CLIs.",
   "type": "module",
   "license": "MIT",
@@ -46,7 +46,7 @@
     "clean": "rm -rf dist",
     "preversion": "npm run check-lock-version",
     "version": "npm install --package-lock-only && npm run check-lock-version",
-    "test": "npm run build && node --test \"dist/tests/**/*.test.js\"",
+    "test": "npm run build && node --test dist/tests",
     "prepublishOnly": "npm test && npm run build"
   },
   "publishConfig": {

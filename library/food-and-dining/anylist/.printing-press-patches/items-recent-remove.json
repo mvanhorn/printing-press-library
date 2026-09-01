@@ -1,0 +1,17 @@
+{
+ "schema_version": 2,
+ "id": "items-recent-remove",
+ "applied_at": "2026-09-01",
+ "base_run_id": "20260514-120439",
+ "base_printing_press_version": "4.30.2",
+ "summary": "Add `items recent remove` to delete one entry from the Recent Items store (the sharded autocomplete backing store), with all-chunk resolution, ambiguity rejection, and all-chunk read-back verification.",
+ "reason": "The recent-items store is a PBStarterList of RecentItemsType sharded across many chunks, but the CLI only wired the starters and favorites batches into the starter-list mutation path, so junk entries (e.g. misspelled names that feed autocomplete) could never be removed. A live probe confirmed POST /data/starter-lists/update with a PBStarterListOperation remove handler works against recent chunks; this patch makes that path a first-class, verified command.",
+ "files": [
+  "internal/cli/items_recent_remove.go",
+  "internal/cli/items_recent_remove_test.go",
+  "internal/cli/items_recent.go",
+  "SKILL.md",
+  "README.md"
+ ],
+ "validated_outcome": "Offline unit tests cover all-chunk scan, ambiguity rejection, exact-ID match, chunk disambiguation, and empty-selector rejection, plus fail-closed verification: a read-back where the ID survives in multiple chunks (Greptile P1 on #1892 — the original verification treated the resolver's ambiguity error as absence) and a read-back with zero recent chunks both fail verification instead of reporting success. Live dogfood of the preview path against a real account resolved an ambiguous name across two chunks and rejected it with the disambiguation hint, and reported a clean miss for an absent name. A prior throwaway probe already proved the write+read-back round trip against a real recent chunk."
+}

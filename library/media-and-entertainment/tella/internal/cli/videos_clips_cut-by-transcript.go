@@ -22,7 +22,7 @@ func newVideosClipsCutByTranscriptCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "cut-by-transcript <id> <clipId>",
 		Short:       "Cut clip ranges by transcript word indices",
-		Long:        "Cut one or more ranges from a clip by referencing word indices in the uncut transcript. Tella resolves each range to exact word start/end times and merges the resulting cuts.",
+		Long:        "Cut one or more ranges from a clip by referencing stable word indices from get-transcript. Tella resolves each range to exact word start/end times and merges the resulting cuts.",
 		Example:     "  tella-pp-cli videos clips cut-by-transcript vid_abc cl_xyz --word-range 12:17 --word-range 43:44 --json",
 		Annotations: map[string]string{"pp:endpoint": "clips.cut-by-transcript", "pp:method": "POST", "pp:path": "/v1/videos/{id}/clips/{clipId}/cut-by-transcript"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -82,7 +82,7 @@ func newVideosClipsCutByTranscriptCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringArrayVar(&wordRangeFlags, "word-range", nil, "Word range to cut as from:to indices from the uncut transcript; repeatable")
+	cmd.Flags().StringArrayVar(&wordRangeFlags, "word-range", nil, "Word range to cut as stable from:to indices from get-transcript; repeatable")
 	cmd.Flags().StringVar(&wordRangesJSON, "word-ranges", "", "JSON array of {fromWordIndex,toWordIndex} ranges")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 	return cmd

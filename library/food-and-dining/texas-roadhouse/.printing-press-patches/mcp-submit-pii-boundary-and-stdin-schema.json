@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "mcp-submit-pii-boundary-and-stdin-schema",
+  "applied_at": "2026-08-31",
+  "base_run_id": "20260829-221218",
+  "base_printing_press_version": "4.31.2",
+  "summary": "Waitlist joins remain CLI-only, guest JSON is limited to the documented typed request schema, and dry-run redaction protects guest identity regardless of casing or nesting.",
+  "reason": "MCP hosts can retain tool-call arguments, and unknown or structured/wrong-type JSON values must not silently reach a sniffed waitlist POST or escape a redacted preview.",
+  "files": [
+    "internal/cli/texasroadhouse_pii.go",
+    "internal/cli/texasroadhouse_pii_test.go",
+    "internal/client/client.go",
+    "internal/client/client_test.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go",
+    "tools-manifest.json",
+    ".printing-press.json",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "MCP does not register texasroadhouse_submit; dry-run and live guards reject unknown, structured, null, and wrong-type guest JSON; recursive case-insensitive redaction preserves non-PII fields."
+}

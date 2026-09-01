@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
@@ -17,6 +18,10 @@ func newVideosClipsUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyCuts string
 	var bodyName string
 	var bodyOrder int
+	var microphoneVolume string
+	var systemAudioVolume string
+	var studioVoice string
+	var applyAudio bool
 	var stdinBody bool
 
 	cmd := &cobra.Command{
@@ -44,7 +49,7 @@ func newVideosClipsUpdateCmd(flags *rootFlags) *cobra.Command {
 			path = replacePathParam(path, "clipId", args[1])
 			var body map[string]any
 			if stdinBody {
-				stdinData, err := io.ReadAll(os.Stdin)
+				stdinData, err := io.ReadAll(cmd.InOrStdin())
 				if err != nil {
 					return fmt.Errorf("reading stdin: %w", err)
 				}
@@ -75,6 +80,34 @@ func newVideosClipsUpdateCmd(flags *rootFlags) *cobra.Command {
 				if bodyOrder != 0 {
 					body["order"] = bodyOrder
 				}
+			}
+			if microphoneVolume != "" {
+				volume, parseErr := parseClipVolume(microphoneVolume, "--microphone-volume")
+				if parseErr != nil {
+					return usageErr(parseErr)
+				}
+				body["microphoneVolume"] = volume
+			}
+			if systemAudioVolume != "" {
+				volume, parseErr := parseClipVolume(systemAudioVolume, "--system-audio-volume")
+				if parseErr != nil {
+					return usageErr(parseErr)
+				}
+				body["systemAudioVolume"] = volume
+			}
+			if studioVoice != "" {
+				enabled, parseErr := parseStrictBool(studioVoice, "--studio-voice")
+				if parseErr != nil {
+					return usageErr(parseErr)
+				}
+				body["studioSound"] = enabled
+			}
+			audioEdit := microphoneVolume != "" || systemAudioVolume != "" || studioVoice != ""
+			if audioEdit && (flags.dryRun || !applyAudio) {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"video_id": args[0], "clip_id": args[1], "body": body,
+					"dry_run": true, "applied": false,
+				}, flags)
 			}
 			data, statusCode, err := c.Patch(path, body)
 			if err != nil {
@@ -147,7 +180,33 @@ func newVideosClipsUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyCuts, "cuts", "", "Replaces the clip's cuts. Total cut duration must be less than `maxDurationSeconds`.")
 	cmd.Flags().StringVar(&bodyName, "name", "", "New clip name")
 	cmd.Flags().IntVar(&bodyOrder, "order", 0, "New position of the clip within the video")
+	cmd.Flags().StringVar(&microphoneVolume, "microphone-volume", "", "Per-clip microphone volume from 0 to 2, or inherit to clear the override")
+	cmd.Flags().StringVar(&systemAudioVolume, "system-audio-volume", "", "Per-clip system-audio volume from 0 to 2, or inherit to clear the override")
+	cmd.Flags().StringVar(&studioVoice, "studio-voice", "", "Per-clip Studio Voice state: false opts out, true re-enables it under the video master switch")
+	cmd.Flags().BoolVar(&applyAudio, "apply", false, "Apply audio or Studio Voice changes; these flags preview by default")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd
+}
+
+func parseClipVolume(raw, flag string) (any, error) {
+	if raw == "inherit" {
+		return nil, nil
+	}
+	value, err := strconv.ParseFloat(raw, 64)
+	if err != nil || value < 0 || value > 2 {
+		return nil, fmt.Errorf("%s must be a number from 0 to 2, or inherit", flag)
+	}
+	return value, nil
+}
+
+func parseStrictBool(raw, flag string) (bool, error) {
+	switch raw {
+	case "true":
+		return true, nil
+	case "false":
+		return false, nil
+	default:
+		return false, fmt.Errorf("%s must be true or false", flag)
+	}
 }

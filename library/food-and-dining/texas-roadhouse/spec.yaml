@@ -302,7 +302,7 @@ resources:
             checkin:
                 method: POST
                 path: /api/texasroadhouse/waitlist/{waitlist_id}/checkin
-                description: Confirm arrival after the guest receives the Texas Roadhouse text and replies HERE. Do not fire without a yes.
+                description: Mark the party HERE after the guest texts HERE once everyone has arrived (text REMOVE to leave). Not a host-stand visit. Do not fire without a yes.
                 params:
                     - name: waitlist_id
                       type: string
@@ -319,7 +319,7 @@ resources:
             cancel:
                 method: POST
                 path: /api/texasroadhouse/waitlist/cancel
-                description: Cancel a waitlist request. Do not fire without a yes.
+                description: Cancel a waitlist request. Guests can also text REMOVE to leave; CLI leave is this cancel command. Do not fire without a yes.
                 params:
                     - name: clientid
                       type: string

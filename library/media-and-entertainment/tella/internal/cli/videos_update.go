@@ -29,6 +29,8 @@ func newVideosUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodySearchEngineIndexingEnabled bool
 	var bodyTranscriptsEnabled bool
 	var bodyViewCountEnabled bool
+	var studioVoice string
+	var applyStudioVoice bool
 	var stdinBody bool
 
 	cmd := &cobra.Command{
@@ -52,7 +54,7 @@ func newVideosUpdateCmd(flags *rootFlags) *cobra.Command {
 			path = replacePathParam(path, "id", args[0])
 			var body map[string]any
 			if stdinBody {
-				stdinData, err := io.ReadAll(os.Stdin)
+				stdinData, err := io.ReadAll(cmd.InOrStdin())
 				if err != nil {
 					return fmt.Errorf("reading stdin: %w", err)
 				}
@@ -115,6 +117,19 @@ func newVideosUpdateCmd(flags *rootFlags) *cobra.Command {
 				if bodyViewCountEnabled != false {
 					body["viewCountEnabled"] = bodyViewCountEnabled
 				}
+			}
+			if studioVoice != "" {
+				enabled, parseErr := parseStrictBool(studioVoice, "--studio-voice")
+				if parseErr != nil {
+					return usageErr(parseErr)
+				}
+				body["studioSound"] = enabled
+			}
+			if studioVoice != "" && (flags.dryRun || !applyStudioVoice) {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"video_id": args[0], "body": body,
+					"dry_run": true, "applied": false,
+				}, flags)
 			}
 			data, statusCode, err := c.Patch(path, body)
 			if err != nil {
@@ -199,6 +214,8 @@ func newVideosUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&bodySearchEngineIndexingEnabled, "search-engine-indexing-enabled", false, "Allow search engines to index the video page")
 	cmd.Flags().BoolVar(&bodyTranscriptsEnabled, "transcripts-enabled", false, "Show transcript panel to viewers")
 	cmd.Flags().BoolVar(&bodyViewCountEnabled, "view-count-enabled", false, "Show view count on video page")
+	cmd.Flags().StringVar(&studioVoice, "studio-voice", "", "Studio Voice master switch: true enables enhancement generation; false disables it")
+	cmd.Flags().BoolVar(&applyStudioVoice, "apply", false, "Apply Studio Voice changes; --studio-voice previews by default")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd
