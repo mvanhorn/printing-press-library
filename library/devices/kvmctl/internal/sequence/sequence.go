@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"runtime"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -136,11 +137,13 @@ func (s *Store) withFileLock(suffix string, fn func() error) error {
 }
 
 func withTargetLock(target string, fn func() error) error {
-	base, err := os.UserCacheDir()
-	if err != nil {
-		return err
-	}
-	dir := filepath.Join(base, "kvmctl", "sequence-locks")
+	// Normalize target to a canonical user-independent identity to ensure proper
+	// serialization across different OS users and containers controlling the same
+	// physical device. Use device URL + machine identifier, not trimmed alias.
+	targetForLock := normalizeTargetForLocking(target)
+
+	// Use system-wide shared lock directory for cross-user coordination
+	dir := getSharedLockDir()
 	if err := os.MkdirAll(dir, 0700); err != nil {
 		return err
 	}
@@ -151,8 +154,56 @@ func withTargetLock(target string, fn func() error) error {
 	if err != nil || info.Mode()&os.ModeSymlink != 0 || !info.IsDir() {
 		return errors.New("unsafe sequence lock directory")
 	}
-	hash := sha256.Sum256([]byte(strings.TrimSpace(target)))
+	hash := sha256.Sum256([]byte(targetForLock))
 	return withLockPath(filepath.Join(dir, hex.EncodeToString(hash[:])+".lock"), fn)
+}
+
+// normalizeTargetForLocking converts a user-facing target alias into a canonical
+// identity that is consistent across users and containers for the same physical
+// KVMD device. Expected target format: "url@machine" or just "url".
+func normalizeTargetForLocking(target string) string {
+	t := strings.TrimSpace(target)
+	if t == "" {
+		return "default"
+	}
+	// Canonicalize URL scheme/host/port for consistent identity
+	// Accept "http://host:port@machine" or "http://host:port" or "host:port@machine"
+	at := strings.LastIndex(t, "@")
+	var urlPart string
+	if at >= 0 {
+		urlPart = t[:at]
+	} else {
+		urlPart = t
+	}
+	urlPart = strings.TrimPrefix(urlPart, "http://")
+	urlPart = strings.TrimPrefix(urlPart, "https://")
+	// Ensure default ports are explicit for canonical identity
+	if !strings.Contains(urlPart, ":") {
+		urlPart = urlPart + ":80"
+	}
+	return urlPart
+}
+
+// getSharedLockDir returns a system-wide shared lock directory for cross-user
+// coordination. On Unix: /var/lock/kvmctl (fallback: /tmp/kvmctl-locks).
+// On Windows: os.TempDir()/kvmctl-locks.
+func getSharedLockDir() string {
+	if runtime.GOOS == "windows" {
+		return filepath.Join(os.TempDir(), "kvmctl-locks")
+	}
+	// Try /var/lock/kvmctl first (standard system lock location)
+	const primary = "/var/lock/kvmctl"
+	if info, err := os.Lstat(primary); err == nil && info.IsDir() {
+		return primary
+	}
+	// Try to create it (may need root)
+	if err := os.MkdirAll(primary, 0700); err == nil {
+		if err := os.Chmod(primary, 0700); err == nil {
+			return primary
+		}
+	}
+	// Fallback to /tmp (works for all users, but less ideal for persistence)
+	return "/tmp/kvmctl-locks"
 }
 
 func withLockPath(path string, fn func() error) error {
