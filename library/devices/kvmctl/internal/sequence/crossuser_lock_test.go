@@ -330,11 +330,15 @@ func TestExecuteAuthorizedConsumesTokenExactlyOnce(t *testing.T) {
 // recordingDevice captures the physical actions a plan would have issued so a
 // test can assert that a failed run touched no hardware.
 type recordingDevice struct {
-	mu      sync.Mutex
-	actions []string
+	mu       sync.Mutex
+	actions  []string
+	onAction func()
 }
 
 func (d *recordingDevice) record(s string) error {
+	if d.onAction != nil {
+		d.onAction()
+	}
 	d.mu.Lock()
 	defer d.mu.Unlock()
 	d.actions = append(d.actions, s)

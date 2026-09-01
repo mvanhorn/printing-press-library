@@ -12,6 +12,26 @@ import (
 // JournalSink receives redacted lifecycle records.
 type JournalSink interface{ Append(map[string]any) error }
 
+// deviceEndpoint is implemented by devices that can report the address of the
+// physical KVM they drive. The lock must key on this rather than on the
+// user-supplied target label: two operators may reach one device under
+// different aliases, and only the endpoint identifies the real hardware.
+type deviceEndpoint interface {
+	Endpoint() string
+}
+
+// lockIdentity returns the string that identifies the physical device for
+// serialization. It prefers the device's real endpoint and falls back to the
+// target label when the device cannot report one.
+func lockIdentity(d Device, target string) string {
+	if e, ok := d.(deviceEndpoint); ok {
+		if ep := strings.TrimSpace(e.Endpoint()); ep != "" {
+			return ep
+		}
+	}
+	return target
+}
+
 // ExecuteAuthorized consumes token only after all binding and context checks pass.
 //
 // Lock ordering matters: the device lock is acquired BEFORE the single-use
@@ -20,11 +40,15 @@ type JournalSink interface{ Append(map[string]any) error }
 // the caller's one-time token on a workflow that never touched the device,
 // forcing a re-authorization. Taking the lock first makes those failures
 // retryable with the same token.
+//
+// The lock keys on the device's real endpoint when it can report one, so two
+// aliases for the same hardware still serialize; the authorization itself stays
+// bound to the caller-supplied target label.
 func ExecuteAuthorized(ctx context.Context, a *Authorizer, e *Executor, d Device, token, target string, p Plan, j JournalSink) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	return withTargetLock(target, func() error {
+	return withTargetLock(lockIdentity(d, target), func() error {
 		// Re-check cancellation: acquiring the lock may have blocked for a while.
 		if err := ctx.Err(); err != nil {
 			return err
@@ -163,6 +187,23 @@ type mouseAPI interface {
 }
 
 func NewKVMDDevice(api KVMDAPI) *KVMDDevice { return &KVMDDevice{api: api, held: map[string]bool{}} }
+
+// endpointAPI is satisfied by the generated KVMD client, which knows the base
+// URL of the device it talks to.
+type endpointAPI interface {
+	RequestBaseURL() string
+}
+
+// Endpoint reports the address of the physical KVM this device drives so that
+// serialization keys on the hardware rather than on a user-chosen alias.
+// It returns "" when the underlying client cannot report one, in which case the
+// caller falls back to the target label.
+func (d *KVMDDevice) Endpoint() string {
+	if a, ok := d.api.(endpointAPI); ok {
+		return a.RequestBaseURL()
+	}
+	return ""
+}
 
 func (d *KVMDDevice) Chord(ctx context.Context, keys string) error {
 	if a, ok := d.api.(shortcutAPI); ok {
