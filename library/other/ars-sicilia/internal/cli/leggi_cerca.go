@@ -65,7 +65,7 @@ func newLeggiCercaCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&flagAnno, "anno", 0, "Anno della legge (filtro temporale di questo archivio: non esiste --data sulle leggi; disambigua anche numeri ripetuti tra anni).")
 	cmd.Flags().IntVar(&flagNumero, "numero", 0, "Numero della legge.")
 	cmd.Flags().StringVar(&flagTesto, "testo", "", "Ricerca testuale libera.")
-	cmd.Flags().StringVar(&flagFrase, "frase", "", "Cerca le parole come locuzione, adiacenti e nell'ordine dato (ISIS adj). Piu' preciso di --testo, che combina le parole in AND sull'intero documento: --testo \"aree idonee\" aggancia anche chi ha le due parole in articoli diversi.")
+	cmd.Flags().StringVar(&flagFrase, "frase", "", "Cerca le parole come locuzione, adiacenti e nell'ordine dato (ISIS adj). Piu' preciso di --testo, che combina le parole in AND sull'intero documento: --testo \"aree idonee\" aggancia anche chi ha le due parole in articoli diversi. Una congiunzione minuscola («e», «o») non e' esprimibile come adiacenza: viene scartata allargando la distanza, con un avviso che dice cosa e' partito davvero.")
 	cmd.Flags().StringVar(&flagISIS, "isis-query", "", "Espressione ISIS grezza che bypassa la traduzione automatica dei flag (escape hatch power-user).")
 	cmd.Flags().IntVar(&flagLimit, "limit", 10, "Max leggi da restituire (con --articoli: max righe-articolo).")
 	cmd.Flags().IntVar(&flagMaxPages, "max-pages", 0, "Pagine massime da scaricare (0 = auto da --limit).")

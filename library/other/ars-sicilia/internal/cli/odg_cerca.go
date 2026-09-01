@@ -63,7 +63,7 @@ func newOdgCercaCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagData, "data", "", "Data di presentazione (YYYY-MM-DD; range con YYYY-MM-DD:YYYY-MM-DD). Non esiste --anno su questo archivio: per un anno intero usa --data AAAA-01-01:AAAA-12-31.")
 	cmd.Flags().IntVar(&flagNumero, "numero", 0, "Numero dell'atto (campo NUMORD). Piu' preciso di --testo: cercare il numero come testo libero aggancia ogni documento che lo cita, e l'atto voluto puo' finire oltre il --limit.")
 	cmd.Flags().StringVar(&flagTesto, "testo", "", "Ricerca testuale.")
-	cmd.Flags().StringVar(&flagFrase, "frase", "", "Cerca le parole come locuzione, adiacenti e nell'ordine dato (ISIS adj). Piu' preciso di --testo, che combina le parole in AND sull'intero documento: --testo \"aree idonee\" aggancia anche chi ha le due parole in articoli diversi.")
+	cmd.Flags().StringVar(&flagFrase, "frase", "", "Cerca le parole come locuzione, adiacenti e nell'ordine dato (ISIS adj). Piu' preciso di --testo, che combina le parole in AND sull'intero documento: --testo \"aree idonee\" aggancia anche chi ha le due parole in articoli diversi. Una congiunzione minuscola («e», «o») non e' esprimibile come adiacenza: viene scartata allargando la distanza, con un avviso che dice cosa e' partito davvero.")
 	cmd.Flags().StringVar(&flagISIS, "isis-query", "", "Espressione ISIS grezza (escape hatch).")
 	cmd.Flags().IntVar(&flagLimit, "limit", 10, "Max risultati da scaricare.")
 	cmd.Flags().IntVar(&flagMaxPages, "max-pages", 0, "Pagine massime da scaricare (0 = auto da --limit).")

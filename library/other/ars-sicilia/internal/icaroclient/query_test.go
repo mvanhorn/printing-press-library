@@ -230,3 +230,66 @@ func TestBuildQuery_FreeTextSingleWord(t *testing.T) {
 		t.Errorf("single word = %q, want (rifiuti)", got)
 	}
 }
+
+// La congiunzione italiana dentro una locuzione non è un operatore: «coesione
+// e crescita» è il titolo di una manovra, non un AND. Prima la si vedeva e si
+// usciva verbatim, cioè il flag prometteva una locuzione e consegnava un AND.
+func TestBuildQuery_FraseConCongiunzione(t *testing.T) {
+	arc := Archive{ID: "221", Slug: "ddl", FieldMap: map[string]string{"legisl": "LEGISL"}}
+	casi := []struct {
+		nome     string
+		frase    string
+		want     string
+		scartati []string
+	}{
+		{"una congiunzione", "coesione e crescita", "coesione adj2 crescita", []string{"e"}},
+		{"due di fila", "sanità e o ambiente", "sanità adj3 ambiente", []string{"e", "o"}},
+		{"due congiunzioni separate", "case e cura o salute", "case adj2 cura adj2 salute", []string{"e", "o"}},
+		{"in testa", "e crescita", "crescita", []string{"e"}},
+		{"nessuna collisione", "aree idonee", "aree adj idonee", nil},
+	}
+	for _, c := range casi {
+		t.Run(c.nome, func(t *testing.T) {
+			expr, scartati := FraseDegradata(c.frase)
+			if expr != c.want {
+				t.Errorf("FraseDegradata(%q) = %q, want %q", c.frase, expr, c.want)
+			}
+			if len(scartati) != len(c.scartati) {
+				t.Fatalf("scartati = %v, want %v", scartati, c.scartati)
+			}
+			for i := range scartati {
+				if scartati[i] != c.scartati[i] {
+					t.Errorf("scartati[%d] = %q, want %q", i, scartati[i], c.scartati[i])
+				}
+			}
+			if got, want := BuildQuery(arc, map[string]string{"frase": c.frase}, ""), "("+c.want+")"; got != want {
+				t.Errorf("BuildQuery(frase=%q) = %q, want %q", c.frase, got, want)
+			}
+		})
+	}
+}
+
+// La maiuscola è il segnale che distingue chi scrive un'espressione booleana
+// da chi cita un titolo: allentare la guardia sul minuscolo non deve toccare
+// il primo. Una frase di sole congiunzioni non ha nulla da unire e resta com'è.
+func TestFraseDegradata_EspressioniIntatte(t *testing.T) {
+	for _, in := range []string{"(aree idonee)", "aree E idonee", "aree NOT idonee", "aree ADJ2 idonee", "e o"} {
+		expr, scartati := FraseDegradata(in)
+		if expr != in || scartati != nil {
+			t.Errorf("FraseDegradata(%q) = (%q, %v), atteso invariato e senza scarti", in, expr, scartati)
+		}
+	}
+}
+
+// Un titolo copiato in stampatello non porta il segnale della maiuscola: la
+// congiunzione va scartata come in minuscolo, altrimenti l'AND muto torna
+// proprio sul caso che il fix esiste per coprire.
+func TestFraseDegradata_TuttoMaiuscolo(t *testing.T) {
+	expr, scartati := FraseDegradata("SVILUPPO E COESIONE")
+	if expr != "SVILUPPO adj2 COESIONE" {
+		t.Errorf("FraseDegradata(maiuscolo) = %q, want %q", expr, "SVILUPPO adj2 COESIONE")
+	}
+	if len(scartati) != 1 || scartati[0] != "E" {
+		t.Errorf("scartati = %v, want [E]", scartati)
+	}
+}

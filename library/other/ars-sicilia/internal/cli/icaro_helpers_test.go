@@ -343,7 +343,7 @@ func TestOrdinaPerPertinenzaTitoliTroncati(t *testing.T) {
 // cercato sta oltre la finestra, non che non esista.
 func TestPertinenzaHint(t *testing.T) {
 	fuoriTema := []icaro.Record{{Title: "Riconoscimento debiti fuori bilancio"}, {Title: "Legge di stabilità"}}
-	got := pertinenzaHint(fuoriTema, []string{"gestione", "rifiuti"}, "ddl")
+	got := pertinenzaHint(fuoriTema, []string{"gestione", "rifiuti"}, "ddl", false)
 	if got == "" {
 		t.Fatal("nessun titolo pertinente: atteso un avviso")
 	}
@@ -353,10 +353,10 @@ func TestPertinenzaHint(t *testing.T) {
 		}
 	}
 	conMatch := append(fuoriTema, icaro.Record{Title: "Norme sulla gestione dei rifiuti"})
-	if got := pertinenzaHint(conMatch, []string{"gestione", "rifiuti"}, "ddl"); got != "" {
+	if got := pertinenzaHint(conMatch, []string{"gestione", "rifiuti"}, "ddl", false); got != "" {
 		t.Errorf("c'è un titolo pertinente: atteso silenzio, ottenuto %q", got)
 	}
-	if got := pertinenzaHint(fuoriTema, nil, "ddl"); got != "" {
+	if got := pertinenzaHint(fuoriTema, nil, "ddl", false); got != "" {
 		t.Errorf("ricerca non testuale: atteso silenzio, ottenuto %q", got)
 	}
 }
@@ -369,7 +369,7 @@ func TestPertinenzaHintSenzaFraseSuBD(t *testing.T) {
 	troncati := []icaro.Record{{Title: "Legge di stabilità"}, {Title: titoloAlCap("Disegno di legge voto ")}}
 	for _, slug := range []string{"resoconti", "sommari", "convocazioni"} {
 		for _, recs := range [][]icaro.Record{fuoriTema, troncati} {
-			got := pertinenzaHint(recs, []string{"gestione", "rifiuti"}, slug)
+			got := pertinenzaHint(recs, []string{"gestione", "rifiuti"}, slug, false)
 			if got == "" {
 				t.Fatalf("%s: nessun titolo pertinente, atteso un avviso", slug)
 			}
@@ -382,7 +382,7 @@ func TestPertinenzaHintSenzaFraseSuBD(t *testing.T) {
 		}
 	}
 	// Sul flusso Icaro il consiglio resta: lì --frase funziona davvero.
-	if got := pertinenzaHint(fuoriTema, []string{"gestione", "rifiuti"}, "ddl"); !strings.Contains(got, "--frase") {
+	if got := pertinenzaHint(fuoriTema, []string{"gestione", "rifiuti"}, "ddl", false); !strings.Contains(got, "--frase") {
 		t.Errorf("archivio Icaro: --frase va ancora consigliato; got %q", got)
 	}
 }
@@ -395,7 +395,7 @@ func TestPertinenzaHintTitoliTroncati(t *testing.T) {
 		{Title: "Riconoscimento debiti fuori bilancio"},
 		{Title: titoloAlCap("Disegno di legge voto ")},
 	}
-	got := pertinenzaHint(recs, []string{"condizione", "insularità"}, "ddl")
+	got := pertinenzaHint(recs, []string{"condizione", "insularità"}, "ddl", false)
 	if got == "" {
 		t.Fatal("nessun titolo pertinente: atteso un avviso")
 	}
@@ -411,24 +411,24 @@ func TestPertinenzaHintTitoliTroncati(t *testing.T) {
 	}
 	// Sugli archivi senza `get` (sommari, convocazioni, biblioteca) non si
 	// inventa un comando che non esiste: resta il consiglio generico.
-	sommari := pertinenzaHint(recs, []string{"condizione", "insularità"}, "sommari")
+	sommari := pertinenzaHint(recs, []string{"condizione", "insularità"}, "sommari", false)
 	if strings.Contains(sommari, " get <legisl>") {
 		t.Errorf("avviso %q: sommari non ha un sottocomando get", sommari)
 	}
 	// Sulle leggi il numero da solo non identifica l'atto: senza --anno il
 	// comando suggerito apre la legge di un altro anno.
-	leggi := pertinenzaHint(recs, []string{"condizione", "insularità"}, "leggi")
+	leggi := pertinenzaHint(recs, []string{"condizione", "insularità"}, "leggi", false)
 	if !strings.Contains(leggi, "leggi get <legisl> <numero> --anno <anno>") {
 		t.Errorf("avviso %q: sulle leggi il comando va dato con --anno", leggi)
 	}
 	// Due troncati: il conteggio si accorda, «1 titoli» è un bug che si legge.
 	due := append(recs, icaro.Record{Title: titoloAlCap("Schema di progetto di legge ")})
-	if got := pertinenzaHint(due, []string{"condizione", "insularità"}, "ddl"); !strings.Contains(got, "2 titoli sono tagliati") {
+	if got := pertinenzaHint(due, []string{"condizione", "insularità"}, "ddl", false); !strings.Contains(got, "2 titoli sono tagliati") {
 		t.Errorf("avviso %q: atteso il plurale accordato", got)
 	}
 	// Senza troncati resta l'avviso di prima, che non parla di taglio.
 	interi := []icaro.Record{{Title: "Riconoscimento debiti fuori bilancio"}}
-	if got := pertinenzaHint(interi, []string{"gestione", "rifiuti"}, "ddl"); strings.Contains(got, "tagliat") {
+	if got := pertinenzaHint(interi, []string{"gestione", "rifiuti"}, "ddl", false); strings.Contains(got, "tagliat") {
 		t.Errorf("nessun titolo troncato: l'avviso non deve parlare di taglio; got %q", got)
 	}
 }
@@ -652,5 +652,46 @@ func TestSommariHint(t *testing.T) {
 	// Senza legislatura l'hint resta utile, col segnaposto al posto del numero.
 	if h := sommariHint(true, "ddl", map[string]string{"frase": "enti locali"}, []string{"enti"}); !strings.Contains(h, "--legisl <legisl>") {
 		t.Errorf("sommariHint senza legisl = %q", h)
+	}
+}
+
+// Quando la locuzione perde una parola per collisione col vocabolario ISIS,
+// l'avviso deve dire quale parola è caduta e quale espressione è partita: è
+// l'unico modo perché chi legge capisca che ha in mano una prossimità e non la
+// locuzione che aveva chiesto.
+func TestFraseHint(t *testing.T) {
+	got := fraseHint(map[string]string{"frase": "coesione e crescita"})
+	if got == "" {
+		t.Fatal("frase degradata: atteso un avviso")
+	}
+	for _, want := range []string{"«e»", "coesione adj2 crescita", "--isis-query"} {
+		if !strings.Contains(got, want) {
+			t.Errorf("avviso %q: manca %q", got, want)
+		}
+	}
+	if got := fraseHint(map[string]string{"frase": "aree idonee"}); got != "" {
+		t.Errorf("locuzione esprimibile: atteso silenzio, ottenuto %q", got)
+	}
+	if got := fraseHint(map[string]string{"testo": "coesione e crescita"}); got != "" {
+		t.Errorf("--testo non promette adiacenza: atteso silenzio, ottenuto %q", got)
+	}
+	if got := fraseHint(nil); got != "" {
+		t.Errorf("nessuna frase: atteso silenzio, ottenuto %q", got)
+	}
+}
+
+// Consigliare --frase a chi ha già usato --frase manda in un cerchio: è
+// l'avviso a cui è arrivato proprio seguendo il flag.
+func TestPertinenzaHint_NonConsigliaFraseAChiLaUsa(t *testing.T) {
+	fuoriTema := []icaro.Record{{Title: "Riconoscimento debiti fuori bilancio"}, {Title: "Legge di stabilità"}}
+	got := pertinenzaHint(fuoriTema, []string{"gestione", "rifiuti"}, "ddl", true)
+	if got == "" {
+		t.Fatal("nessun titolo pertinente: atteso un avviso")
+	}
+	if strings.Contains(got, "--frase") {
+		t.Errorf("avviso %q: non deve consigliare il flag già in uso", got)
+	}
+	if !strings.Contains(got, "--limit") {
+		t.Errorf("avviso %q: manca il rimedio praticabile", got)
 	}
 }

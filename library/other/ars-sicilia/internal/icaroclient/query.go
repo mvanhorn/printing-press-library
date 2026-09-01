@@ -118,24 +118,90 @@ func andJoinWords(v string) string {
 }
 
 // adjJoinWords fa combaciare le parole come locuzione, unendole con
-// l'operatore di adiacenza ISIS. Una parola sola non ha adiacenza da esprimere
-// e passa così com'è; un valore che contiene già parentesi o operatori è
-// un'espressione scritta dal chiamante e non va toccata (stesse guardie di
-// andJoinWords).
+// l'operatore di adiacenza ISIS. Vedi adjExpr per il dettaglio; qui si tiene
+// solo l'espressione, perché la maggior parte dei chiamanti non ha modo di
+// avvisare l'utente.
 func adjJoinWords(v string) string {
+	expr, _ := adjExpr(v)
+	return expr
+}
+
+// FraseDegradata torna l'espressione che `--frase` produce per v e l'elenco
+// dei token che ha dovuto scartare perché collidono col vocabolario ISIS.
+//
+// Serve al livello CLI per avvisare: quando l'elenco non è vuoto l'adiacenza
+// stretta non è esprimibile e il comando ha cercato una prossimità più larga,
+// che è un'altra cosa da quella promessa dal flag.
+func FraseDegradata(v string) (string, []string) {
+	return adjExpr(v)
+}
+
+// adjExpr costruisce l'espressione di adiacenza per una locuzione e riporta i
+// token scartati.
+//
+// Una parola sola non ha adiacenza da esprimere e passa così com'è; un valore
+// che contiene parentesi, o un operatore scritto in maiuscolo, è
+// un'espressione voluta da chi chiama e non va toccata.
+//
+// Il caso che questa funzione esiste per risolvere è la congiunzione italiana
+// dentro il titolo di un atto: «coesione e crescita». Il token «e» è anche
+// l'operatore AND di ISIS, e finché bastava vederlo per uscire verbatim il
+// flag prometteva una locuzione e consegnava un AND — senza dirlo. Ma «e» in
+// minuscolo dentro una frase è una parola, non un operatore: la maiuscola è
+// l'unico segnale che distingue chi sta scrivendo un'espressione booleana da
+// chi sta citando un titolo.
+//
+// Le stopword si scartano e la distanza le tiene in conto: «coesione e
+// crescita» diventa `coesione adj2 crescita`, non `coesione adj crescita`.
+// Misurato sul portale: ISIS indicizza la congiunzione come posizione, quindi
+// l'adiacenza stretta fra le due parole superstiti non aggancia la locuzione
+// vera (sul ddl 969, «prevenzione e contrasto», `adj` torna 3 risultati e non
+// lo comprende, `adj2` ne torna 41 e lo comprende, l'AND 144).
+func adjExpr(v string) (string, []string) {
 	if strings.ContainsAny(v, "()") {
-		return v
+		return v, nil
 	}
 	fields := strings.Fields(v)
 	if len(fields) < 2 {
-		return v
+		return v, nil
 	}
-	for _, f := range fields {
-		if isISISOperator(f) {
-			return v
+	// La maiuscola distingue l'operatore dalla parola solo se nella frase c'è
+	// anche qualcosa di minuscolo. Un titolo copiato in stampatello dal
+	// portale — «SVILUPPO E COESIONE» — non porta quel segnale: leggere «E»
+	// come operatore lì rimetterebbe in piedi l'AND muto, e senza nemmeno
+	// l'avviso.
+	if strings.ToUpper(v) != v {
+		for _, f := range fields {
+			// Operatore scritto in maiuscolo: espressione deliberata, intatta.
+			if isISISOperator(f) && f == strings.ToUpper(f) {
+				return v, nil
+			}
 		}
 	}
-	return strings.Join(fields, " adj ")
+	var parti, scartati []string
+	distanza := 0
+	for _, f := range fields {
+		if isISISOperator(f) {
+			scartati = append(scartati, f)
+			distanza++
+			continue
+		}
+		if len(parti) > 0 {
+			op := "adj"
+			if distanza > 0 {
+				op = fmt.Sprintf("adj%d", distanza+1)
+			}
+			parti = append(parti, op)
+		}
+		parti = append(parti, f)
+		distanza = 0
+	}
+	// Niente da unire: la frase era fatta di sole congiunzioni. Passa com'era,
+	// senza dichiarare una degradazione che non ha prodotto nulla di diverso.
+	if len(parti) == 0 {
+		return v, nil
+	}
+	return strings.Join(parti, " "), scartati
 }
 
 // isISISOperator reports whether a token is an ISIS boolean/proximity operator
