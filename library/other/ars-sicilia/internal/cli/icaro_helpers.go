@@ -255,17 +255,33 @@ func fraseHint(params map[string]string) string {
 	if v == "" {
 		return ""
 	}
-	expr, scartati := icaro.FraseDegradata(v)
+	expr, scartati, collisioni := icaro.FraseDegradata(v)
+	// Collisione non risolvibile: la parola e' piena e toglierla falsificherebbe
+	// la ricerca, quindi la frase e' partita intatta — e il portale la legge
+	// come un'espressione booleana. Prima questo caso era muto.
+	if len(collisioni) > 0 {
+		verbo, cosa := "è", "un operatore di ricerca"
+		if len(collisioni) > 1 {
+			verbo, cosa = "sono", "operatori di ricerca"
+		}
+		return fmt.Sprintf(
+			"hint: %s in «%s» %s anche %s del portale: la locuzione non è esprimibile e la ricerca è partita così com'era, cioè letta come un'espressione booleana. Per scrivere l'espressione a mano usa --isis-query.",
+			paroleHint(collisioni), v, verbo, cosa)
+	}
 	if len(scartati) == 0 {
 		return ""
 	}
-	quali := "la parola " + virgolette(scartati)[0]
-	if len(scartati) > 1 {
-		quali = "le parole " + strings.Join(virgolette(scartati), " e ")
-	}
 	return fmt.Sprintf(
 		"hint: %s in «%s» collide con il vocabolario di ricerca del portale e non può stare dentro una locuzione: la ricerca è partita come `%s`, cioè le parole vicine entro quella distanza, non la locuzione esatta. Per scrivere l'espressione a mano usa --isis-query.",
-		quali, v, expr)
+		paroleHint(scartati), v, expr)
+}
+
+// paroleHint nomina uno o piu' token nell'avviso, con l'articolo giusto.
+func paroleHint(tok []string) string {
+	if len(tok) == 1 {
+		return "la parola " + virgolette(tok)[0]
+	}
+	return "le parole " + strings.Join(virgolette(tok), " e ")
 }
 
 // terminiRicerca estrae le parole cercate a testo libero (--testo, --frase).

@@ -250,7 +250,10 @@ func TestBuildQuery_FraseConCongiunzione(t *testing.T) {
 	}
 	for _, c := range casi {
 		t.Run(c.nome, func(t *testing.T) {
-			expr, scartati := FraseDegradata(c.frase)
+			expr, scartati, collisioni := FraseDegradata(c.frase)
+			if len(collisioni) > 0 {
+				t.Fatalf("collisioni inattese: %v", collisioni)
+			}
 			if expr != c.want {
 				t.Errorf("FraseDegradata(%q) = %q, want %q", c.frase, expr, c.want)
 			}
@@ -274,7 +277,7 @@ func TestBuildQuery_FraseConCongiunzione(t *testing.T) {
 // il primo. Una frase di sole congiunzioni non ha nulla da unire e resta com'è.
 func TestFraseDegradata_EspressioniIntatte(t *testing.T) {
 	for _, in := range []string{"(aree idonee)", "aree E idonee", "aree NOT idonee", "aree ADJ2 idonee", "e o"} {
-		expr, scartati := FraseDegradata(in)
+		expr, scartati, _ := FraseDegradata(in)
 		if expr != in || scartati != nil {
 			t.Errorf("FraseDegradata(%q) = (%q, %v), atteso invariato e senza scarti", in, expr, scartati)
 		}
@@ -285,11 +288,42 @@ func TestFraseDegradata_EspressioniIntatte(t *testing.T) {
 // congiunzione va scartata come in minuscolo, altrimenti l'AND muto torna
 // proprio sul caso che il fix esiste per coprire.
 func TestFraseDegradata_TuttoMaiuscolo(t *testing.T) {
-	expr, scartati := FraseDegradata("SVILUPPO E COESIONE")
+	expr, scartati, _ := FraseDegradata("SVILUPPO E COESIONE")
 	if expr != "SVILUPPO adj2 COESIONE" {
 		t.Errorf("FraseDegradata(maiuscolo) = %q, want %q", expr, "SVILUPPO adj2 COESIONE")
 	}
 	if len(scartati) != 1 || scartati[0] != "E" {
 		t.Errorf("scartati = %v, want [E]", scartati)
+	}
+}
+
+// Il vocabolario ISIS contiene parole piene dell'italiano — «seguito»,
+// «vicino», «meno», «no», «escluso». Scartarle come si scarta una congiunzione
+// non attenua la ricerca, la falsifica: «aree meno idonee» diventerebbe «aree
+// idonee», il contrario di quel che si cerca. Lì la frase esce intatta e il
+// chiamante riceve la collisione da dichiarare.
+func TestFraseDegradata_ParolePieneNonSiScartano(t *testing.T) {
+	casi := []struct {
+		frase string
+		quale string
+	}{
+		{"in seguito alla", "seguito"},
+		{"aree meno idonee", "meno"},
+		{"zone vicino al mare", "vicino"},
+		{"personale escluso dal ruolo", "escluso"},
+	}
+	for _, c := range casi {
+		t.Run(c.frase, func(t *testing.T) {
+			expr, scartati, collisioni := FraseDegradata(c.frase)
+			if expr != c.frase {
+				t.Errorf("FraseDegradata(%q) = %q, atteso invariato", c.frase, expr)
+			}
+			if scartati != nil {
+				t.Errorf("scartati = %v, atteso nessuno: una parola piena non si toglie", scartati)
+			}
+			if len(collisioni) != 1 || collisioni[0] != c.quale {
+				t.Errorf("collisioni = %v, want [%s]", collisioni, c.quale)
+			}
+		})
 	}
 }

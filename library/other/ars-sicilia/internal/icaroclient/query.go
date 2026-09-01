@@ -122,18 +122,40 @@ func andJoinWords(v string) string {
 // solo l'espressione, perché la maggior parte dei chiamanti non ha modo di
 // avvisare l'utente.
 func adjJoinWords(v string) string {
-	expr, _ := adjExpr(v)
+	expr, _, _ := adjExpr(v)
 	return expr
 }
 
-// FraseDegradata torna l'espressione che `--frase` produce per v e l'elenco
-// dei token che ha dovuto scartare perché collidono col vocabolario ISIS.
+// FraseDegradata torna l'espressione che `--frase` produce per v, i token
+// scartati perché sono congiunzioni che collidono col vocabolario ISIS, e i
+// token che collidono ma NON si possono scartare.
 //
-// Serve al livello CLI per avvisare: quando l'elenco non è vuoto l'adiacenza
-// stretta non è esprimibile e il comando ha cercato una prossimità più larga,
-// che è un'altra cosa da quella promessa dal flag.
-func FraseDegradata(v string) (string, []string) {
+// Servono al livello CLI per avvisare, e dicono due cose diverse: con
+// `scartati` il comando ha cercato una prossimità più larga della locuzione
+// promessa; con `collisioni` non ha riscritto nulla e la frase è partita
+// com'era, che il portale legge come un'espressione booleana.
+func FraseDegradata(v string) (string, []string, []string) {
 	return adjExpr(v)
+}
+
+// congiunzioneCollidente riporta se il token e' una delle due congiunzioni
+// italiane che ISIS legge come operatore.
+//
+// Sono le uniche due parole che si possono togliere da una locuzione senza
+// cambiarla: reggono la sintassi e non portano significato proprio. Il
+// vocabolario ISIS contiene pero' anche `seguito`, `vicino`, `meno`, `no` ed
+// `escluso`, che in italiano sono parole piene: toglierle non attenua la
+// ricerca, la falsifica — «aree meno idonee» diventerebbe «aree idonee», cioe'
+// il contrario. Quelle fanno uscire la frase intatta, com'era prima.
+func congiunzioneCollidente(tok string) bool {
+	// Il confronto ignora le maiuscole: qui ci arriva anche il titolo in
+	// stampatello, dove la maiuscola non distingue piu' l'operatore dalla
+	// parola (vedi adjExpr).
+	switch strings.ToLower(tok) {
+	case "e", "o":
+		return true
+	}
+	return false
 }
 
 // adjExpr costruisce l'espressione di adiacenza per una locuzione e riporta i
@@ -157,13 +179,13 @@ func FraseDegradata(v string) (string, []string) {
 // l'adiacenza stretta fra le due parole superstiti non aggancia la locuzione
 // vera (sul ddl 969, «prevenzione e contrasto», `adj` torna 3 risultati e non
 // lo comprende, `adj2` ne torna 41 e lo comprende, l'AND 144).
-func adjExpr(v string) (string, []string) {
+func adjExpr(v string) (string, []string, []string) {
 	if strings.ContainsAny(v, "()") {
-		return v, nil
+		return v, nil, nil
 	}
 	fields := strings.Fields(v)
 	if len(fields) < 2 {
-		return v, nil
+		return v, nil, nil
 	}
 	// La maiuscola distingue l'operatore dalla parola solo se nella frase c'è
 	// anche qualcosa di minuscolo. Un titolo copiato in stampatello dal
@@ -174,14 +196,25 @@ func adjExpr(v string) (string, []string) {
 		for _, f := range fields {
 			// Operatore scritto in maiuscolo: espressione deliberata, intatta.
 			if isISISOperator(f) && f == strings.ToUpper(f) {
-				return v, nil
+				return v, nil, nil
 			}
 		}
+	}
+	// Una collisione che non e' una congiunzione non si puo' risolvere: la
+	// frase esce com'era, come faceva prima, e l'avviso dice perche'.
+	var collisioni []string
+	for _, f := range fields {
+		if isISISOperator(f) && !congiunzioneCollidente(f) {
+			collisioni = append(collisioni, f)
+		}
+	}
+	if len(collisioni) > 0 {
+		return v, nil, collisioni
 	}
 	var parti, scartati []string
 	distanza := 0
 	for _, f := range fields {
-		if isISISOperator(f) {
+		if congiunzioneCollidente(f) {
 			scartati = append(scartati, f)
 			distanza++
 			continue
@@ -199,9 +232,9 @@ func adjExpr(v string) (string, []string) {
 	// Niente da unire: la frase era fatta di sole congiunzioni. Passa com'era,
 	// senza dichiarare una degradazione che non ha prodotto nulla di diverso.
 	if len(parti) == 0 {
-		return v, nil
+		return v, nil, nil
 	}
-	return strings.Join(parti, " "), scartati
+	return strings.Join(parti, " "), scartati, nil
 }
 
 // isISISOperator reports whether a token is an ISIS boolean/proximity operator

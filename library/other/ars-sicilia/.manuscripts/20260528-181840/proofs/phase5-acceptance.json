@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "2bf6996fbb7db7c875376c12821fcfe78735361ab92c54b503aa07ab3f110022",
+  "source_fingerprint": "d16d45ef6fc5a46792f0fb080efd417c35dea731ad1827f46cd19962a81aa2cb",
   "source_files": {
     "cmd/ars-sicilia-pp-cli/main.go": "c0dfc303980570f5c430e6eb920798649f3825d25b3691778e19507229430b0c",
     "cmd/ars-sicilia-pp-mcp/main.go": "f181e27a68985fa073ecdaec19a264e69a0af84075b1460c097dc0dc4ea4b5db",
@@ -66,8 +66,8 @@
     "internal/cli/gruppi.go": "d561c302effefdf42ec8c31e62e66fb2b51701b42c4bb693f2a25410e6e9df93",
     "internal/cli/helpers.go": "9a17330ca156263b4eb1652db2d5ee365e105c0c404b2fc9eac97e6480067970",
     "internal/cli/html_extract.go": "7355bbacae707a4112fee80a70d01f84c9327170cf2351c88ac6a3a6e930943b",
-    "internal/cli/icaro_helpers.go": "03ed3ee51c757781ae339835b449ab27f3cdec903c56c6d1181c3d541d1d4d87",
-    "internal/cli/icaro_helpers_test.go": "daf11d6e2d2c94450d07a042c739d93338c58479e60c2894ad8cc3354c435325",
+    "internal/cli/icaro_helpers.go": "db5492e51175707eab8ef133c8340a45a996febf54007fcc0921f85083a78a67",
+    "internal/cli/icaro_helpers_test.go": "a73d929b9604e4fa470328a50d05abc75b8441bbc4c22a0168e461be323d759b",
     "internal/cli/import.go": "6e2ccefc32e31cf11ffe7cc5bd98d1d019cd5a81d1f63b976f4eddea77da03fc",
     "internal/cli/interpellanze.go": "6247903bf71e3137909aa93a978a18fef8d888a2e9f6add068e47ee5fff4d6c5",
     "internal/cli/interpellanze_cerca.go": "7a72c18a5fd96093e7530c35d9cdc31b3bd6fbbd2011f7fa2e12ffb72890eedd",
@@ -144,8 +144,8 @@
     "internal/icaroclient/parse.go": "bb218e70af65a6bc3b60b837191f53b6e804b7ada696379457003e6166dae9bf",
     "internal/icaroclient/parse_count_test.go": "6152d74403b200a7aefc464092f1f01b5a52f363284a4391570d408273f852ba",
     "internal/icaroclient/parse_test.go": "153a35677e42386334e5df35214ce01206317322130831366e73c890bd2194af",
-    "internal/icaroclient/query.go": "7d58b4f0133bcaf7052df7c0374c344ef9792c81dc2e3e457c09e8b4ca93469e",
-    "internal/icaroclient/query_test.go": "362cfe77cc6dd71be6a62022b73ce8a7657f69a4ed3dfe5356efc50dd14f7432",
+    "internal/icaroclient/query.go": "f6fc2a9b74a3ad554137ea62787177c86a7cdc0ef5f77288c9dd8b8236a9d29e",
+    "internal/icaroclient/query_test.go": "896d0ec585d29c54fd6455978835c2ae84f0638bdeebba3f9033036c7ee23b45",
     "internal/icaroclient/queryerror_test.go": "d9401977c21a572a97810d6809725adf0111b70b098239f600e7b0a408a314ef",
     "internal/icaroclient/retry_test.go": "9b263276009351f788555ffd77caec05dad3f0ab48d30e989aa392941587bcbb",
     "internal/icaroclient/split.go": "58bf77422d943b84aa7f95de25635497c4d5d89b2f974b4ecf8b372a889503fb",

@@ -695,3 +695,21 @@ func TestPertinenzaHint_NonConsigliaFraseAChiLaUsa(t *testing.T) {
 		t.Errorf("avviso %q: manca il rimedio praticabile", got)
 	}
 }
+
+// Una parola piena che collide col vocabolario ISIS non si scarta - toglierla
+// falsificherebbe la ricerca - ma il silenzio di prima era il difetto: la
+// frase parte com'era e il portale la legge come espressione booleana.
+func TestFraseHint_ParolaPienaCollidente(t *testing.T) {
+	got := fraseHint(map[string]string{"frase": "aree meno idonee"})
+	if got == "" {
+		t.Fatal("collisione non risolvibile: atteso un avviso")
+	}
+	for _, want := range []string{"«meno»", "così com'era", "--isis-query"} {
+		if !strings.Contains(got, want) {
+			t.Errorf("avviso %q: manca %q", got, want)
+		}
+	}
+	if strings.Contains(got, "adj") {
+		t.Errorf("avviso %q: non c'è stata riscrittura, non deve annunciarne una", got)
+	}
+}
