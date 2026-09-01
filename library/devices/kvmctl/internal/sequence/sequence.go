@@ -132,7 +132,31 @@ func (s *Store) withFileLock(suffix string, fn func() error) error {
 	if err := secureDir(dir); err != nil {
 		return err
 	}
-	f, err := openLockFile(s.path + suffix)
+	return withLockPath(s.path+suffix, fn)
+}
+
+func withTargetLock(target string, fn func() error) error {
+	base, err := os.UserCacheDir()
+	if err != nil {
+		return err
+	}
+	dir := filepath.Join(base, "kvmctl", "sequence-locks")
+	if err := os.MkdirAll(dir, 0700); err != nil {
+		return err
+	}
+	if err := os.Chmod(dir, 0700); err != nil {
+		return err
+	}
+	info, err := os.Lstat(dir)
+	if err != nil || info.Mode()&os.ModeSymlink != 0 || !info.IsDir() {
+		return errors.New("unsafe sequence lock directory")
+	}
+	hash := sha256.Sum256([]byte(target))
+	return withLockPath(filepath.Join(dir, hex.EncodeToString(hash[:])+".lock"), fn)
+}
+
+func withLockPath(path string, fn func() error) error {
+	f, err := openLockFile(path)
 	if err != nil {
 		return err
 	}

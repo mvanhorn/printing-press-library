@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -49,6 +50,39 @@ func (d *advancingDevice) Key(ctx context.Context, key string) error {
 	err := d.workflowDevice.Key(ctx, key)
 	*d.now = d.now.Add(3 * time.Second)
 	return err
+}
+func TestTargetLockSerializesIndependentStores(t *testing.T) {
+	var active, maxActive int32
+	var wg sync.WaitGroup
+	errs := make(chan error, 2)
+	for range 2 {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			errs <- withTargetLock("same-target", func() error {
+				current := atomic.AddInt32(&active, 1)
+				for {
+					old := atomic.LoadInt32(&maxActive)
+					if current <= old || atomic.CompareAndSwapInt32(&maxActive, old, current) {
+						break
+					}
+				}
+				time.Sleep(20 * time.Millisecond)
+				atomic.AddInt32(&active, -1)
+				return nil
+			})
+		}()
+	}
+	wg.Wait()
+	close(errs)
+	for err := range errs {
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	if got := atomic.LoadInt32(&maxActive); got != 1 {
+		t.Fatalf("max concurrent holders=%d, want 1", got)
+	}
 }
 func TestExecuteAuthorizedConsumesTokenAcrossStoreInstances(t *testing.T) {
 	dir := t.TempDir()

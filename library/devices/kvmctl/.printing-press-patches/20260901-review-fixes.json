@@ -12,7 +12,7 @@
     "internal/sequence/workflow_security_test.go",
     ".printing-press-patches/*.json"
   ],
-  "summary": "Make authorization consumption and authorized KVM execution cross-process serialized, and normalize patch-ledger dates.",
+  "summary": "Make authorization consumption atomic across processes and serialize authorized KVM execution by target, independent of authorization-store path, and normalize patch-ledger dates.",
   "reason": "Review verification found that process-local mutexes did not protect shared authorization files or physical action sequences across CLI processes, and patch timestamps did not match the date-only ledger convention.",
   "validated_outcome": "Atomic token consumption and execution serialization are protected by platform file locks; focused and full module validation passed."
 }

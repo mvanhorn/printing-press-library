@@ -25,7 +25,7 @@ func ExecuteAuthorized(ctx context.Context, a *Authorizer, e *Executor, d Device
 	if err != nil {
 		return err
 	}
-	return a.store.withFileLock(".execute.lock", func() error {
+	return withTargetLock(target, func() error {
 		appendRecord := func(r map[string]any) error {
 			r["target"], r["plan_hash"] = target, hash
 			if j != nil {
