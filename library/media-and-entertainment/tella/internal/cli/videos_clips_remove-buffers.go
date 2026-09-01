@@ -1,16 +1,10 @@
 // Copyright 2026 Greg Ceccarelli and contributors. Licensed under Apache-2.0. See LICENSE.
 
-// PATCH(library): hand-added composition — Tella's Cut-panel "Remove buffers"
-// button has no public-API equivalent (verified via 404 smoke test against
-// api.tella.com on 2026-05-16: remove-buffers, trim-buffers, cut-buffers all
-// return 404 while baseline remove-fillers returns 200). The web UI fetches
-// /api/stories/{vid}/scenes/{cl}/silences?mode=fast|faster|natural on
-// www.tella.tv (cookie auth, undocumented) and PATCHes the scene with every
-// returned silence range as a `cuts` entry. This file composes the
-// documented public endpoints — GET /v1/videos/{id}/clips/{clipId}/silences
-// (with --min-ms as a public-API substitute for the UI's mode dropdown) plus
-// POST .../cut per range — to deliver the same outcome via the supported
-// surface. Cataloged in .printing-press-patches.json#add-cut-panel-parity.
+// PATCH(library): legacy threshold-based composition retained for backward
+// compatibility. Tella now has official remove-silences modes; prefer that
+// command for natural (>800ms), fast (>500ms), or faster (>300ms). This older
+// workflow keeps its exact --min-ms behavior by composing the documented
+// get-silences and cut endpoints.
 
 package cli
 
@@ -20,17 +14,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// defaultBufferMinMs maps to the UI's "fast" mode behavior in practice:
-// the captured HAR showed the web app's "fast" mode returning every silence
-// ≥ ~150–200 ms. 200 ms is a sensible default that strips audible buffers
-// without cutting natural rhythm-pauses inside sentences.
+// defaultBufferMinMs preserves the historical remove-buffers threshold. It is
+// more aggressive than Tella's current official faster mode (300ms).
 const defaultBufferMinMs = 200
 
 func newVideosClipsRemoveBuffersCmd(flags *rootFlags) *cobra.Command {
 	var minMs int
 	cmd := &cobra.Command{
 		Use:     "remove-buffers <id> <clipId>",
-		Short:   "Trim every silence buffer in a clip by posting cuts via the public /silences + /cut endpoints. Mirrors the Tella web UI's 'Remove buffers' button. Returns a structured summary.",
+		Short:   "Legacy threshold-based silence cuts via the public /silences + /cut endpoints",
 		Example: "  tella-pp-cli videos clips remove-buffers vid_abc cl_xyz --min-ms 200",
 		// No pp:endpoint annotation: this is a multi-call composition, not a
 		// single endpoint. cobratree.RegisterAll() will still surface it as
@@ -115,6 +107,6 @@ func newVideosClipsRemoveBuffersCmd(flags *rootFlags) *cobra.Command {
 			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 		},
 	}
-	cmd.Flags().IntVar(&minMs, "min-ms", defaultBufferMinMs, "Minimum silence duration in milliseconds to cut (public-API substitute for the UI's mode dropdown; 0 = cut every silence)")
+	cmd.Flags().IntVar(&minMs, "min-ms", defaultBufferMinMs, "Minimum silence duration to cut (legacy default 200ms; official faster mode uses 300ms)")
 	return cmd
 }

@@ -30,7 +30,7 @@
     },
     {
       "cmd": "texasroadhouse submit {store.extref} --dry-run --stdin",
-      "purpose": "Show the join body only after they picked a store and party size. Live submit is a later step with an explicit yes."
+      "purpose": "Show the redacted join body only after they picked a store and party size. Guest name/email/phone stay on stdin JSON. Live submit is a later step with an explicit yes."
     }
   ]
 }

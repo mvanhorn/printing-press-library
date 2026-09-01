@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "sitemaps-feedpath-url-encode",
+  "applied_at": "2026-08-31",
+  "base_run_id": "20260509-053752",
+  "base_printing_press_version": "4.2.0",
+  "summary": "Percent-encode the sitemaps {feedpath} path parameter via url.PathEscape before substitution across submit-sitemap, get-sitemap, and delete-sitemap.",
+  "reason": "A feedpath is a sitemap web address (e.g. https://usenoreply.com/sitemap.xml); left raw, its scheme slashes split the REST path into extra segments and Google returns 404. Encoding the whole feedpath as one segment is required for the submitted path to match the sitemap index.",
+  "files": [
+    "internal/cli/webmasters_submit-sitemap.go",
+    "internal/cli/webmasters_get-sitemap.go",
+    "internal/cli/webmasters_delete-sitemap.go"
+  ],
+  "validated_outcome": "go test ./internal/cli/... passes the shared table-driven webmasters_sitemaps_test.go for submit/get/delete (encoded-slash invariant, no raw scheme on the wire, plain feedpath and siteUrl unchanged)."
+}

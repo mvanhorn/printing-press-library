@@ -142,6 +142,28 @@ func searchNativeDirect(ctx context.Context, opts SearchOptions) (*SearchResult,
 		}
 	}
 
+	// PATCH(library): SelectOutbound's contract (round trip only, positive
+	// index) was previously enforced only by the CLI's cobra Args validator
+	// (primary.go) — a direct library caller could pass a negative index
+	// (silently ignored, since only opts.SelectOutbound > 0 gates the
+	// two-step flow) or combine it with multi-city (silently ignored, since
+	// the multi-city branch below returns before SelectOutbound is ever
+	// read) or one-way (previously reached fetchSelectedReturn and failed
+	// with a confusing "out of range" error instead of a clear one).
+	// Greptile review finding: validate here so gflights.Search enforces its
+	// own contract regardless of caller.
+	if opts.SelectOutbound < 0 {
+		return nil, fmt.Errorf("SelectOutbound must be >= 0 (got %d)", opts.SelectOutbound)
+	}
+	if opts.SelectOutbound > 0 {
+		if tripType == tripTypeMultiCity {
+			return nil, fmt.Errorf("SelectOutbound does not apply to multi-city (Segments) searches")
+		}
+		if tripType != tripTypeRoundTrip {
+			return nil, fmt.Errorf("SelectOutbound requires a round trip (ReturnDate set); got a one-way search")
+		}
+	}
+
 	// PATCH(library): Google's multi-city POST endpoint requires an
 	// authenticated Google session (SAPISID cookie + XSRF hash); anonymous
 	// POSTs return ErrorResponse regardless of token tweaks. flight-goat
@@ -184,13 +206,14 @@ func searchNativeDirect(ctx context.Context, opts SearchOptions) (*SearchResult,
 		}, nil
 	}
 
-	payload, err := buildOffersPayload(opts, depDate, retDate, tripType, "")
+	payload, err := buildOffersPayload(opts, depDate, retDate, tripType, "", nil, "")
 	if err != nil {
 		return nil, fmt.Errorf("building payload: %w", err)
 	}
 	body := "f.req=" + payload
 
 	note := ""
+	viaHTMLFallback := false
 	var flights []Flight
 	err = retryBlockedRPC(ctx, func() error {
 		respBody, err := postFlightsFrontendRPC(ctx, offersEndpoint, "shopping", body, currencyCode)
@@ -217,6 +240,7 @@ func searchNativeDirect(ctx context.Context, opts SearchOptions) (*SearchResult,
 		if err != nil {
 			return nil, fmt.Errorf("google flights RPC is blocked and the HTML fallback failed: %w", err)
 		}
+		viaHTMLFallback = true
 	case err != nil:
 		return nil, fmt.Errorf("parsing response: %w", err)
 	default:
@@ -231,6 +255,41 @@ func searchNativeDirect(ctx context.Context, opts SearchOptions) (*SearchResult,
 	// one-click handoff. See booking_urls.go.
 	for i := range flights {
 		flights[i].BookingURLs = buildBookingURLs(opts, flights[i])
+	}
+
+	// PATCH(library): unlike the HTML-embedded payload (which splits
+	// outbound/return across two buckets and is already tagged by
+	// searchViaHTML — see flightsFromEmbeddedPayload), the native RPC's
+	// GetShoppingResults response carries a single flat list here regardless
+	// of trip type: a plain round-trip request (no SelectOutbound) gets back
+	// outbound itineraries only, each already priced with Google's own
+	// auto-picked "cheapest return" baked in — no separate return-leg data
+	// exists pre-selection. So direction is tagged from the REQUEST shape,
+	// not any response bucket position — but only on the native RPC path.
+	// Greptile review finding: this block used to run unconditionally and
+	// stomped the HTML fallback's correct per-row outbound/return tagging,
+	// which let fetchSelectedReturn treat every row (including true return
+	// rows) as a selectable outbound.
+	switch {
+	case viaHTMLFallback:
+		// searchViaHTML already tagged Direction correctly; leave it alone.
+	case tripType == tripTypeRoundTrip:
+		for i := range flights {
+			flights[i].Direction = "outbound"
+		}
+	default:
+		for i := range flights {
+			flights[i].SelectionToken = ""
+		}
+	}
+
+	var selectedOutbound *Flight
+	if opts.SelectOutbound > 0 {
+		selectedOutbound, flights, err = fetchSelectedReturn(ctx, opts, tripType, depDate, retDate, currencyCode, flights)
+		if err != nil {
+			return nil, err
+		}
+		note = strings.TrimSpace(note + " return options priced against the selected outbound (see selected_outbound).")
 	}
 
 	tripTypeName := "ONE_WAY"
@@ -253,17 +312,95 @@ func searchNativeDirect(ctx context.Context, opts SearchOptions) (*SearchResult,
 			CabinClass:    strings.ToUpper(opts.CabinClass),
 			Currency:      currencyCode,
 		},
-		Count:   len(flights),
-		Flights: flights,
-		Note:    note,
+		Count:            len(flights),
+		Flights:          flights,
+		Note:             note,
+		SelectedOutbound: selectedOutbound,
 	}, nil
+}
+
+// fetchSelectedReturn implements the second request of the
+// SearchOptions.SelectOutbound two-step flow. firstFlights is the first
+// (plain) response's Flights — all outbound itineraries, per searchNativeDirect.
+// It picks the requested 1-based outbound, re-queries Google with that
+// specific itinerary selected (via its SelectionToken — see
+// buildOffersPayload), and returns the chosen outbound alongside the second
+// response's flights, which (per the same single-bucket RPC shape) are
+// entirely return-leg options once selection makes the request unambiguous.
+//
+// PATCH(library): no HTML fallback exists for this step. The selected_flight
+// segment field and continuation token only make sense against the RPC that
+// produced them; a BotGuard block here surfaces as an error rather than
+// silently falling back to a differently-shaped page fetch.
+func fetchSelectedReturn(ctx context.Context, opts SearchOptions, tripType int, depDate, retDate time.Time, currencyCode string, firstFlights []Flight) (*Flight, []Flight, error) {
+	// PATCH(library): firstFlights is "all outbound" only on the native RPC
+	// path (searchNativeDirect tags every row "outbound" uniformly there —
+	// see the comment above that loop). The HTML fallback path
+	// (searchViaHTML) can hand back a list that already concatenates
+	// outbound and return buckets. Filtering here — rather than indexing
+	// firstFlights directly — keeps an out-of-range or return-bucket index
+	// from ever picking a return itinerary and sending its reversed route
+	// as the "outbound" selection. Greptile review finding.
+	var outboundOnly []Flight
+	for _, f := range firstFlights {
+		if f.Direction == "outbound" {
+			outboundOnly = append(outboundOnly, f)
+		}
+	}
+	if opts.SelectOutbound > len(outboundOnly) {
+		return nil, nil, fmt.Errorf("--select-outbound %d out of range: this search returned %d outbound itineraries", opts.SelectOutbound, len(outboundOnly))
+	}
+	chosen := outboundOnly[opts.SelectOutbound-1]
+	if chosen.SelectionToken == "" {
+		return nil, nil, fmt.Errorf("selected outbound itinerary carries no Google selection token; retry the search or pick a different --select-outbound index")
+	}
+
+	payload, err := buildOffersPayload(opts, depDate, retDate, tripType, "", &chosen, chosen.SelectionToken)
+	if err != nil {
+		return nil, nil, fmt.Errorf("building return-leg payload: %w", err)
+	}
+	body := "f.req=" + payload
+
+	var flights []Flight
+	err = retryBlockedRPC(ctx, func() error {
+		respBody, err := postFlightsFrontendRPC(ctx, offersEndpoint, "shopping", body, currencyCode)
+		if err != nil {
+			return err
+		}
+		flights, err = parseOffersResponse(respBody, currencyCode)
+		return err
+	})
+	switch {
+	case errors.Is(err, errShoppingBlocked):
+		return nil, nil, fmt.Errorf("google flights blocked the return-leg selection request; --select-outbound is RPC-only, no HTML fallback exists for it: %w", err)
+	case err != nil:
+		return nil, nil, fmt.Errorf("fetching return-leg options for the selected outbound: %w", err)
+	}
+	applyPerPassengerPrice(flights, opts.Passengers)
+	for i := range flights {
+		flights[i].BookingURLs = buildBookingURLs(opts, flights[i])
+		// PATCH(library): once an outbound is selected the request is
+		// unambiguous — everything this response carries is a return-leg
+		// option priced against it (see the func doc above).
+		flights[i].Direction = "return"
+	}
+	// PATCH(library): single-use token; clear it before handing the chosen
+	// outbound back so output doesn't imply it can be replayed again.
+	chosen.SelectionToken = ""
+	return &chosen, flights, nil
 }
 
 // buildOffersPayload constructs the URL-encoded `f.req` value mirroring
 // fli's FlightSearchFilters.format(). Field positions documented inline.
 // sessionTok is non-empty only for multi-city queries; it goes at
 // inner[0][3] of the JSON, mirroring what Google's own UI POSTs.
-func buildOffersPayload(opts SearchOptions, depDate, retDate time.Time, tripType int, sessionTok string) (string, error) {
+// selectedOutbound and continuationToken are set together, only by the
+// second request of the SearchOptions.SelectOutbound two-step flow:
+// selectedOutbound pins the outbound segment (buildOfferSegments), and
+// continuationToken — the chosen outbound row's SelectionToken — goes in the
+// outer envelope so Google associates the request with that itinerary. Both
+// nil/"" (the common case) preserves the prior single-request shape.
+func buildOffersPayload(opts SearchOptions, depDate, retDate time.Time, tripType int, sessionTok string, selectedOutbound *Flight, continuationToken string) (string, error) {
 	seat, err := mapSeatType(opts.CabinClass)
 	if err != nil {
 		return "", err
@@ -277,7 +414,7 @@ func buildOffersPayload(opts SearchOptions, depDate, retDate time.Time, tripType
 		return "", err
 	}
 
-	segments, err := buildOfferSegments(opts, depDate, retDate, tripType, stops)
+	segments, err := buildOfferSegments(opts, depDate, retDate, tripType, stops, selectedOutbound)
 	if err != nil {
 		return "", err
 	}
@@ -338,12 +475,19 @@ func buildOffersPayload(opts SearchOptions, depDate, retDate time.Time, tripType
 	// multi-city UI does not surface those controls). For one-way / round-trip
 	// the existing shape `[[], main, sortBy, showAll, 0, 1]` is preserved.
 	var outer []any
-	if tripType == tripTypeMultiCity {
+	switch {
+	case tripType == tripTypeMultiCity:
 		outer = []any{
 			[]any{nil, nil, nil, sessionTok},
 			main, 0, 0, 0, 1,
 		}
-	} else {
+	case continuationToken != "":
+		// PATCH(library): verified against a live captured browser request
+		// for the SelectOutbound follow-up — outer[0] becomes [nil, token]
+		// instead of the empty []any{} below; sortBy/showAll/trailing flags
+		// are unchanged from the plain shape.
+		outer = []any{[]any{nil, continuationToken}, main, sortBy, showAll, 0, 1}
+	default:
 		outer = []any{[]any{}, main, sortBy, showAll, 0, 1}
 	}
 
@@ -359,7 +503,7 @@ func buildOffersPayload(opts SearchOptions, depDate, retDate time.Time, tripType
 	return url.QueryEscape(string(wrappedJSON)), nil
 }
 
-func buildOfferSegments(opts SearchOptions, depDate, retDate time.Time, tripType int, stops int) ([]any, error) {
+func buildOfferSegments(opts SearchOptions, depDate, retDate time.Time, tripType int, stops int, selectedOutbound *Flight) ([]any, error) {
 	// PATCH(library): multi-city emits N segments from opts.Segments rather
 	// than the single (origin, dest, date) tuple. Each segment slot mirrors
 	// buildOneSegment's 15-field shape.
@@ -370,7 +514,7 @@ func buildOfferSegments(opts SearchOptions, depDate, retDate time.Time, tripType
 			if err != nil {
 				return nil, fmt.Errorf("segment %d date %q: %w", i+1, s.DepartureDate, err)
 			}
-			seg, err := buildOneSegment(opts, d, s.Origin, s.Destination, stops, opts.TimeWindow)
+			seg, err := buildOneSegment(opts, d, s.Origin, s.Destination, stops, opts.TimeWindow, nil)
 			if err != nil {
 				return nil, fmt.Errorf("segment %d: %w", i+1, err)
 			}
@@ -379,7 +523,12 @@ func buildOfferSegments(opts SearchOptions, depDate, retDate time.Time, tripType
 		return segs, nil
 	}
 	var segments []any
-	outbound, err := buildOneSegment(opts, depDate, opts.Origin, opts.Destination, stops, opts.TimeWindow)
+	// PATCH(library): selectedOutbound is set only by the two-step
+	// SearchOptions.SelectOutbound flow's follow-up request — it pins the
+	// outbound segment to the specific itinerary the caller chose, so
+	// Google prices/pairs the return leg against it instead of picking its
+	// own cheapest return. nil (the common case) preserves prior behavior.
+	outbound, err := buildOneSegment(opts, depDate, opts.Origin, opts.Destination, stops, opts.TimeWindow, selectedFlightField(selectedOutbound))
 	if err != nil {
 		return nil, err
 	}
@@ -393,7 +542,7 @@ func buildOfferSegments(opts SearchOptions, depDate, retDate time.Time, tripType
 		if returnWindow == "" {
 			returnWindow = opts.TimeWindow
 		}
-		inbound, err := buildOneSegment(opts, retDate, opts.Destination, opts.Origin, stops, returnWindow)
+		inbound, err := buildOneSegment(opts, retDate, opts.Destination, opts.Origin, stops, returnWindow, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -402,7 +551,36 @@ func buildOfferSegments(opts SearchOptions, depDate, retDate time.Time, tripType
 	return segments, nil
 }
 
-func buildOneSegment(opts SearchOptions, date time.Time, origin, dest string, stops int, timeWindow string) ([]any, error) {
+// selectedFlightField builds Google's "selected_flight" segment field
+// (buildOneSegment's index [8]) from a previously-returned outbound
+// itinerary: one [origin, date, dest, nil, airlineCode, flightNumber] entry
+// per flown leg, in the order flown. Verified against a live captured
+// browser request for a nonstop outbound; connections are inferred by
+// extending the same one-entry-per-leg shape. Returns nil (the prior,
+// unselected behavior) when f is nil or has no legs.
+func selectedFlightField(f *Flight) any {
+	if f == nil || len(f.Legs) == 0 {
+		return nil
+	}
+	rows := make([]any, 0, len(f.Legs))
+	for _, leg := range f.Legs {
+		date := leg.DepartureTime
+		if len(date) >= 10 {
+			date = date[:10]
+		}
+		rows = append(rows, []any{
+			strings.ToUpper(leg.DepartureAirport.Code),
+			date,
+			strings.ToUpper(leg.ArrivalAirport.Code),
+			nil,
+			strings.ToUpper(leg.Airline.Code),
+			leg.FlightNumber,
+		})
+	}
+	return rows
+}
+
+func buildOneSegment(opts SearchOptions, date time.Time, origin, dest string, stops int, timeWindow string, selectedFlight any) ([]any, error) {
 	var timeField any
 	if timeWindow != "" {
 		earliest, latest, err := parseTimeWindow(timeWindow)
@@ -452,7 +630,7 @@ func buildOneSegment(opts SearchOptions, date time.Time, origin, dest string, st
 		nil,                       // [5]
 		date.Format("2006-01-02"), // [6] travel date
 		nil,                       // [7] max duration
-		nil,                       // [8] selected_flight
+		selectedFlight,            // [8] selected_flight — see selectedFlightField
 		layoverAirports,           // [9] layover airports
 		nil,                       // [10]
 		nil,                       // [11]
@@ -562,13 +740,14 @@ func parseOfferRow(row any, currency string) (Flight, bool) {
 			legs = append(legs, leg)
 		}
 	}
-	price := parseOfferPrice(r)
+	price, token := parseOfferPrice(r)
 	return Flight{
 		DurationMinutes: duration,
 		Stops:           max0(len(legs) - 1),
 		Price:           price,
 		Currency:        currency,
 		Legs:            legs,
+		SelectionToken:  token,
 	}, true
 }
 
@@ -725,27 +904,39 @@ func applyPerPassengerPrice(flights []Flight, passengers int) {
 	}
 }
 
-// parseOfferPrice returns the numeric price from the flight row.
+// parseOfferPrice returns the numeric price and Google's opaque per-itinerary
+// selection token from the flight row.
 //
 // PATCH(greptile P1): the row's priceBlock[1] is Google's opaque price token
 // (e.g. "CJRIDJNH..."), not an ISO currency code. Earlier versions returned
 // it as a currency string, which then overwrote the user-requested ISO code
-// downstream. Now this returns only the price; callers preserve the ISO
+// downstream. This returns the price separately; callers preserve the ISO
 // code resolved from `--currency` / normalizeCurrency.
-func parseOfferPrice(row []any) float64 {
+//
+// PATCH(library): that same priceBlock[1] token is also exactly what a
+// captured browser session sends back as the outer envelope's continuation
+// token (outer[0][1]) when selecting a specific outbound itinerary — see
+// SearchOptions.SelectOutbound. Now returned alongside price instead of
+// discarded.
+func parseOfferPrice(row []any) (price float64, selectionToken string) {
 	if len(row) < 2 {
-		return 0
+		return 0, ""
 	}
 	priceBlock, ok := row[1].([]any)
 	if !ok {
-		return 0
+		return 0, ""
 	}
 	if len(priceBlock) > 0 {
 		if outer, ok := priceBlock[0].([]any); ok && len(outer) > 0 {
-			return numericFloat(outer[len(outer)-1])
+			price = numericFloat(outer[len(outer)-1])
 		}
 	}
-	return 0
+	if len(priceBlock) > 1 {
+		if t, ok := priceBlock[1].(string); ok {
+			selectionToken = t
+		}
+	}
+	return price, selectionToken
 }
 
 // --- small helpers ---

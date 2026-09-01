@@ -348,6 +348,7 @@ Manage items within a shopping list
 - **`anylist-pp-cli items list`** - List items in a shopping list; JSON output includes cached package size, photo IDs, prices, store IDs, category match ID, and category assignments when available
 - **`anylist-pp-cli items lookup`** - Look up product details by UPC/EAN barcode
 - **`anylist-pp-cli items recent`** - Show recently added items across all lists
+- **`anylist-pp-cli items recent remove`** - Remove an entry from the Recent Items autocomplete store (sharded across many starter-list chunks). Preview is the default and `--apply` is required; the selector must be an exact item ID or an exact name (case-insensitive), and a name present in several chunks is rejected until disambiguated with the ID or `--chunk`. Every removal is verified by a fresh read-back of all chunks before the local cache is updated.
 - **`anylist-pp-cli items remove`** - Remove an item from a shopping list
 - **`anylist-pp-cli items search`** - Search for items by name across all shopping lists
 - **`anylist-pp-cli items uncheck`** - Mark one or more items as unchecked

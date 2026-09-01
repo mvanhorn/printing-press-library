@@ -112,7 +112,7 @@ func TestBuildOffersPayload_OneWayUnchanged(t *testing.T) {
 		Passengers:    1,
 	}
 	d, _ := time.Parse("2006-01-02", opts.DepartureDate)
-	payload, err := buildOffersPayload(opts, d, time.Time{}, tripTypeOneWay, "")
+	payload, err := buildOffersPayload(opts, d, time.Time{}, tripTypeOneWay, "", nil, "")
 	if err != nil {
 		t.Fatalf("buildOffersPayload one-way: %v", err)
 	}

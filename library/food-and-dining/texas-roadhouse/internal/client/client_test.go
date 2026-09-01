@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -228,5 +229,84 @@ func TestStreamingHTTPClientDropsWholeCallTimeout(t *testing.T) {
 	}
 	if base.Timeout != 60*time.Second {
 		t.Fatalf("StreamingHTTPClient mutated the JSON client's Timeout to %s", base.Timeout)
+	}
+}
+
+func TestDryRunRedactsWaitlistPII(t *testing.T) {
+	c := &Client{BaseURL: "https://api.example.test"}
+	body, err := json.Marshal(map[string]any{
+		"EmailAddress":         "guest@example.test",
+		"FirstName":            "Test",
+		"LastName":             "User",
+		"PrimaryPhoneAreaCode": "555",
+		"PrimaryPhoneNumber":   "555-0100",
+		"PartySize":            2,
+		"WaitMinutes":          10,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	orig := os.Stderr
+	os.Stderr = w
+	_, _, dryErr := c.dryRun("POST", "https://api.example.test/api/texasroadhouse/waitlist/218/submit", "/api/texasroadhouse/waitlist/218/submit", nil, body, nil, "")
+	_ = w.Close()
+	os.Stderr = orig
+	out, readErr := io.ReadAll(r)
+	_ = r.Close()
+	if dryErr != nil {
+		t.Fatalf("dryRun: %v", dryErr)
+	}
+	if readErr != nil {
+		t.Fatal(readErr)
+	}
+	stderr := string(out)
+	for _, leak := range []string{"guest@example.test", "555-0100"} {
+		if strings.Contains(stderr, leak) {
+			t.Fatalf("dry-run stderr leaked %q: %s", leak, stderr)
+		}
+	}
+	if !strings.Contains(stderr, "redacted") {
+		t.Fatalf("dry-run stderr should redact PII, got %q", stderr)
+	}
+	if !strings.Contains(stderr, `"PartySize": 2`) && !strings.Contains(stderr, `"PartySize":2`) {
+		t.Fatalf("dry-run should still print non-PII fields, got %q", stderr)
+	}
+}
+
+func TestRedactDryRunJSONBodyRecursivelyAndCaseInsensitively(t *testing.T) {
+	body := []byte(`{"emailaddress":"email-value","nested":{"FiRsTnAmE":"first-value","items":[{"primaryphonenumber":"phone-value","keep":"safe-value"}]},"PartySize":2}`)
+	got := redactDryRunJSONBody(body)
+	gotText := string(got)
+	for _, leak := range []string{"email-value", "first-value", "phone-value"} {
+		if strings.Contains(gotText, leak) {
+			t.Fatalf("dry-run redaction leaked nested or mixed-case guest data")
+		}
+	}
+	var parsed map[string]any
+	if err := json.Unmarshal(got, &parsed); err != nil {
+		t.Fatalf("redacted body is not JSON: %v", err)
+	}
+	if parsed["emailaddress"] != dryRunPIIRedacted {
+		t.Fatal("dry-run redaction did not redact the top-level guest field")
+	}
+	nested, ok := parsed["nested"].(map[string]any)
+	if !ok || nested["FiRsTnAmE"] != dryRunPIIRedacted {
+		t.Fatal("dry-run redaction did not redact the nested guest field")
+	}
+	items, ok := nested["items"].([]any)
+	if !ok || len(items) != 1 {
+		t.Fatal("dry-run redaction did not preserve nested list content")
+	}
+	item, ok := items[0].(map[string]any)
+	if !ok || item["primaryphonenumber"] != dryRunPIIRedacted {
+		t.Fatal("dry-run redaction did not redact the nested phone field")
+	}
+	if item["keep"] != "safe-value" || parsed["PartySize"] != float64(2) {
+		t.Fatal("dry-run redaction changed non-PII body content")
 	}
 }

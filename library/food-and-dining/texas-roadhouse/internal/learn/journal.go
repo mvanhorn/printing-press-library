@@ -64,7 +64,7 @@ const (
 // credentials. Over-matching is fine (a redacted class loses only the
 // value class, and values are never written anyway); under-matching
 // would leak a secret's shape.
-var journalRedactedFlagPattern = regexp.MustCompile(`(?i)token|key|secret|password|cookie|auth`)
+var journalRedactedFlagPattern = regexp.MustCompile(`(?i)token|key|secret|password|cookie|auth|email|phone|first-name|last-name`)
 
 // JournalEntry is the on-disk record for one CLI invocation. Fields
 // keep omitempty so older readers parsing a newer-shape entry still

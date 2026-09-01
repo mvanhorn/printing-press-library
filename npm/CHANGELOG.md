@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.22
+
+- Run package tests via node --test dist/tests so Node walks compiled tests without a quoted glob that some shells do not expand.
+
 ## 0.1.21
 
 - Pin released Go CLI builds to the full `release.source_commit` selected by the live catalog instead of resolving mutable `@latest`. This reduces accidental branch drift but does not authenticate the mutable catalog or separate skill installer. Entries without release metadata retain the existing `@latest` fallback for compatibility.

@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "tella",
   "cli_name": "tella-pp-cli",
-  "version": "2026.8.1",
-  "released_at": "2026-08-17T07:57:07Z",
-  "source_commit": "40363ac0936c4f406625f8399d8ad9b57673170e",
+  "version": "2026.9.1",
+  "released_at": "2026-09-01T09:06:13Z",
+  "source_commit": "bae6a5a7367da96c7910fc5b6fd321ff0ad834fa",
   "printing_press_version": "4.2.1",
   "run_id": "20260509-180956",
   "changes": [
     {
-      "title": "fix(catalog): align Go fallback docs with toolchain floor",
-      "pr": 1735,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1735",
-      "commit": "40363ac0936c4f406625f8399d8ad9b57673170e"
+      "title": "feat(tella): add recoverable API editing workflows",
+      "pr": 1894,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1894",
+      "commit": "bae6a5a7367da96c7910fc5b6fd321ff0ad834fa"
     }
   ]
 }

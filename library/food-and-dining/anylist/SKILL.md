@@ -233,6 +233,7 @@ Create/delete, rename, parent movement, and child ordering use handlers verified
 - `anylist-pp-cli items list` — List items in a shopping list; JSON output includes cached package size, photo IDs, prices, store IDs, category match ID, and category assignments when available
 - `anylist-pp-cli items lookup` — Look up product details by UPC/EAN barcode
 - `anylist-pp-cli items recent` — Show recently added items across all lists
+- `anylist-pp-cli items recent remove` — Preview or remove an entry from the Recent Items store (the sharded autocomplete backing store). The selector must be an exact item ID or an exact name (case-insensitive); a name present in several chunks is rejected until disambiguated with the exact item ID or `--chunk`. Preview resolves against a fresh live read; `--apply` is required to write, and the removal is verified by reading back every chunk before the local cache is updated.
 - `anylist-pp-cli items remove` — Remove an item from a shopping list
 - `anylist-pp-cli items search` — Search for items by name across all shopping lists
 - `anylist-pp-cli items uncheck` — Mark one or more items as unchecked

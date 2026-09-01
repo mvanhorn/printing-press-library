@@ -20,7 +20,7 @@ func newTexasroadhouseCancelCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "cancel",
-		Short:       "Cancel a waitlist request. Live cancel requires --yes; --dry-run previews without POSTing.",
+		Short:       "Cancel a waitlist request. Guests can also text REMOVE to leave; CLI leave is this cancel command. Live cancel requires --yes; --dry-run previews without POSTing.",
 		Example:     "  texas-roadhouse-pp-cli --dry-run texasroadhouse cancel --waitlist-request-id 890199098 --site-id 901 --clientid texasroadhouse",
 		Annotations: map[string]string{"pp:endpoint": "texasroadhouse.cancel", "pp:method": "POST", "pp:path": "/api/texasroadhouse/waitlist/cancel"},
 		RunE: func(cmd *cobra.Command, args []string) error {

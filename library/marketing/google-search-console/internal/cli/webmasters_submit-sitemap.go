@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -36,7 +37,7 @@ func newWebmastersSubmitSitemapCmd(flags *rootFlags) *cobra.Command {
 			if len(args) < 2 {
 				return usageErr(fmt.Errorf("feedpath is required\nUsage: %s <%s>", cmd.CommandPath(), "feedpath"))
 			}
-			path = replacePathParam(path, "feedpath", args[1])
+			path = replacePathParam(path, "feedpath", url.PathEscape(args[1]))
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

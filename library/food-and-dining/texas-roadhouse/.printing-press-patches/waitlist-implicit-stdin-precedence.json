@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "waitlist-implicit-stdin-precedence",
+  "applied_at": "2026-08-31",
+  "base_run_id": "20260829-221218",
+  "base_printing_press_version": "4.31.2",
+  "summary": "Prefer an implicitly piped guest JSON document over ambient TEXAS_ROADHOUSE_GUEST_* values while retaining explicit source precedence.",
+  "reason": "A shell can retain stale guest environment values; letting them suppress a supplied pipe can select the wrong guest. Environment values remain fallback fields, while --guest-file and confirmed private flags remain explicit sources.",
+  "files": [
+    "internal/cli/texasroadhouse_pii.go",
+    "internal/cli/texasroadhouse_pii_test.go"
+  ],
+  "validated_outcome": "The implicit-pipe regression test proves piped guest fields override ambient environment values without changing --guest-file precedence."
+}

@@ -58,6 +58,20 @@ type Flight struct {
 	// always populated; Airline is populated only when all legs are operated
 	// by a single carrier in the airlineTemplates table. See booking_urls.go.
 	BookingURLs BookingURLs `json:"booking_urls"`
+	// PATCH(library): round trip only. Distinguishes an outbound-leg
+	// itinerary from a return-leg itinerary in the flat Flights list — each
+	// row is a self-contained one-way offer, not a paired round-trip total,
+	// so callers (agents especially) need this to avoid mixing directions.
+	// Empty for one-way and multi-city results.
+	Direction string `json:"direction,omitempty"`
+	// PATCH(library): Google's opaque per-itinerary continuation token
+	// (row priceBlock[1] in the raw response), present only on round-trip
+	// outbound rows. Feed it back via SearchOptions.SelectOutbound (by
+	// index) to run the true two-step round-trip flow: Google then returns
+	// return-leg options actually priced and paired against this specific
+	// outbound, instead of the auto-picked "cheapest return" total baked
+	// into every outbound row's Price today.
+	SelectionToken string `json:"selection_token,omitempty"`
 }
 
 // SearchResult is the normalized envelope returned by Search.
@@ -78,6 +92,11 @@ type SearchResult struct {
 	// from a retired IATA code. The Query echo above keeps the user's
 	// original input; AirportRemapped is the only signal of substitution.
 	AirportRemapped *AirportRemapNote `json:"airport_remapped,omitempty"`
+	// PATCH(library): populated only when SearchOptions.SelectOutbound was
+	// used. The specific outbound itinerary Flights (now return-leg options
+	// only) are priced and paired against — see the two-step flow doc on
+	// SearchOptions.SelectOutbound.
+	SelectedOutbound *Flight `json:"selected_outbound,omitempty"`
 }
 
 // SearchQuery echoes the user's query back in the response envelope.
@@ -158,6 +177,19 @@ type SearchOptions struct {
 	// authenticated session); see multicity.go and the CLI's --provider flag
 	// for the cross-provider dispatch.
 	Segments []Segment
+	// PATCH(library): SelectOutbound requests Google Flights' real two-step
+	// round-trip flow instead of the default single request. 1-based index
+	// into the outbound itineraries a prior plain round-trip search
+	// returned (Flights entries with Direction == "outbound", in that
+	// order). flight-goat re-queries Google with that specific outbound
+	// selected (via its SelectionToken); Google responds with return-leg
+	// options genuinely priced and paired against it, returned as Flights
+	// (Direction == "return") with SearchResult.SelectedOutbound set to the
+	// chosen outbound for reference. Round trip only (ReturnDate set); zero
+	// (default) keeps today's single-request behavior — every outbound row
+	// carries Google's own auto-picked "cheapest return" total baked into
+	// Price, with no return-leg detail.
+	SelectOutbound int
 }
 
 // Search runs a flight search against Google Flights' GetShoppingResults.

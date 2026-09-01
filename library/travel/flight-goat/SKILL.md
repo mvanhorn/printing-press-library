@@ -68,11 +68,23 @@ flight-goat-pp-cli flights \
 
 Round trips can constrain each leg's departure window independently: `--time` sets the outbound window, `--return-time` sets the return leg's window (falls back to `--time` when unset). Both take the same `H-H` 24h form, e.g. `flight-goat-pp-cli flights SEA HNL 2026-08-01 --return 2026-08-10 --time 6-12 --return-time 17-23` for a morning outbound and evening return.
 
+### Round trip: `--return` alone does not return return-leg options
+
+`--return` alone shows **outbound itineraries only**. Each one's `price` already bundles Google's own auto-picked "cheapest return" total, but no return-leg flight (times, airline, duration) is ever shown — do not read the outbound list as containing both directions, and do not assume the price is for the outbound leg alone.
+
+To see and choose real return-leg options, run the true two-step flow Google's own UI uses. Step 1, `flight-goat-pp-cli flights LHR BCN 2027-03-01 --return 2027-03-18 --agent`, returns outbound options with `flights[0].direction == "outbound"` — note the 1-based position of the one you want. Step 2, `flight-goat-pp-cli flights LHR BCN 2027-03-01 --return 2027-03-18 --select-outbound 1 --agent`, returns real return options priced against that specific outbound: `flights[]` now has `direction == "return"` with independent prices, and the envelope's `selected_outbound` echoes which outbound they're paired with.
+
+`--select-outbound N` is 1-based, counted in the order step 1 returned them. It requires `--return` (round trip only) and does not combine with `--trip` or `--segment` (>=2). Each `Flight` also carries `selection_token` on round-trip outbound rows — the same value the CLI itself uses internally to build the step-2 request — for callers building their own selection flow instead of a fixed index.
+
 Rate-limit semantics:
 
 - Transient 429s are retried automatically (2s/5s/12s backoff) before a command fails.
 - On a persistent 429 a batch stops early — continuing would deepen the IP block — the partial envelope is still emitted, and the exit code is 7 (rate limited).
 - While Google is blocked, `soar` and `explore`/`longhaul` use different backends and keep working; `doctor` documents the same contract under `google_flights`.
+
+### Round trip cheapest dates: `dates --round --duration`
+
+`dates` scans one-way prices by default. Add `--round --duration N` to scan round-trip totals instead — each row is the cheapest combined round-trip price for departing that day and returning `N` nights later, not a separate outbound/return price pair: `flight-goat-pp-cli dates SEA HNL --round --duration 7 --sort --agent`. `--duration` is required with `--round` and must be greater than zero. Each result row carries `return_date` (`departure_date` + `--duration`) alongside `price`, which is already the round-trip total.
 
 # Introduction
 AeroAPI is a simple, query-based API that gives software developers access

@@ -19,7 +19,7 @@ func newMapboxPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "mapbox <id>",
 		Short:       "GET /api/mapbox/geocoding/v5/mapbox.places/{id}",
 		Long:        "GET /api/mapbox/geocoding/v5/mapbox.places/{id}",
-		Example:     "  texas-roadhouse-pp-cli mapbox 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  texas-roadhouse-pp-cli mapbox 65804",
 		Annotations: map[string]string{"pp:endpoint": "mapbox.get_mapbox.places", "pp:method": "GET", "pp:path": "/api/mapbox/geocoding/v5/mapbox.places/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

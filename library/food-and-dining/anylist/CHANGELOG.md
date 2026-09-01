@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.9.1 - 2026-09-01
+
+- feat(anylist): add items recent remove for the sharded recent-items store (#1892).
+
 ## 2026.8.5 - 2026-08-31
 
 - feat(anylist): make recipe imports duplicate-safe (#1885).

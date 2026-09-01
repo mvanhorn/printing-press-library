@@ -22,11 +22,14 @@ func newVideosCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newVideosApplyStoryboardCmd(flags))
 	cmd.AddCommand(newVideosFormatCmd(flags))
 	cmd.AddCommand(newVideosAuditCmd(flags))
+	cmd.AddCommand(newVideosApplyEditsCmd(flags))
+	cmd.AddCommand(newVideosCleanCmd(flags))
 	cmd.AddCommand(newVideosClipsCmd(flags))
 	cmd.AddCommand(newVideosCollaboratorsCmd(flags))
 	cmd.AddCommand(newVideosDuplicateCmd(flags))
 	cmd.AddCommand(newVideosExportsCmd(flags))
 	cmd.AddCommand(newVideosThumbnailCmd(flags))
+	cmd.AddCommand(newVideosTimelineCmd(flags))
 	cmd.AddCommand(newVideosViewedCmd(flags))
 	return cmd
 }

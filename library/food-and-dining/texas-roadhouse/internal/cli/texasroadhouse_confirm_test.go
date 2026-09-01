@@ -15,12 +15,14 @@ import (
 )
 
 func waitlistMutationCases() []struct {
-	name string
-	args []string
+	name  string
+	args  []string
+	stdin string
 } {
 	return []struct {
-		name string
-		args []string
+		name  string
+		args  []string
+		stdin string
 	}{
 		{
 			name: "checkin",
@@ -31,18 +33,9 @@ func waitlistMutationCases() []struct {
 			args: []string{"texasroadhouse", "cancel", "--waitlist-request-id", "1", "--site-id", "218", "--no-learn"},
 		},
 		{
-			name: "submit",
-			args: []string{
-				"texasroadhouse", "submit", "218",
-				"--email-address", "guest@example.test",
-				"--first-name", "Test",
-				"--last-name", "User",
-				"--primary-phone-area-code", "555",
-				"--primary-phone-number", "555-0100",
-				"--party-size", "2",
-				"--wait-minutes", "10",
-				"--no-learn",
-			},
+			name:  "submit",
+			args:  []string{"texasroadhouse", "submit", "218", "--stdin", "--no-learn"},
+			stdin: submitGuestStdinJSON,
 		},
 	}
 }
@@ -52,7 +45,7 @@ func TestWaitlistMutationsRefuseWithoutYes(t *testing.T) {
 	for _, tc := range waitlistMutationCases() {
 		t.Run(tc.name, func(t *testing.T) {
 			args := append(append([]string{}, tc.args...), "--agent")
-			_, stderr, err := runRootArgs(t, args...)
+			_, stderr, err := runRootArgsWithStdin(t, tc.stdin, args...)
 			if err == nil {
 				t.Fatalf("expected refuse without --yes, stderr=%q", stderr)
 			}
@@ -108,7 +101,7 @@ func TestWaitlistMutationsDryRunDoesNotPost(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			posts.Store(0)
 			args := append(append([]string{}, tc.args...), "--dry-run", "--agent")
-			_, stderr, err := runRootArgs(t, args...)
+			_, stderr, err := runRootArgsWithStdin(t, tc.stdin, args...)
 			if err != nil {
 				t.Fatalf("dry-run should succeed: %v (stderr=%q)", err, stderr)
 			}
@@ -136,7 +129,7 @@ func TestWaitlistMutationsYesPosts(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			posts.Store(0)
 			args := append(append([]string{}, tc.args...), "--yes", "--agent")
-			_, stderr, err := runRootArgs(t, args...)
+			_, stderr, err := runRootArgsWithStdin(t, tc.stdin, args...)
 			if err != nil {
 				t.Fatalf("--yes should POST: %v (stderr=%q)", err, stderr)
 			}
@@ -154,4 +147,35 @@ func installClientBaseURL(baseURL string) func() {
 		return nil
 	})
 	return func() { clientHooks = orig }
+}
+
+func TestSubmitPrivateYesPathPosts(t *testing.T) {
+	withTempLearnHome(t)
+	var posts atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			posts.Add(1)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true}`))
+	}))
+	t.Cleanup(srv.Close)
+	t.Cleanup(installClientBaseURL(srv.URL))
+	_, stderr, err := runRootArgs(t,
+		"texasroadhouse", "submit", "218",
+		"--email-address", "guest@example.test",
+		"--first-name", "Test",
+		"--last-name", "User",
+		"--primary-phone-area-code", "555",
+		"--primary-phone-number", "555-0100",
+		"--party-size", "2",
+		"--wait-minutes", "10",
+		"--yes", "--agent", "--no-learn",
+	)
+	if err != nil {
+		t.Fatalf("private --yes path should POST: %v (stderr=%q)", err, stderr)
+	}
+	if posts.Load() == 0 {
+		t.Fatal("expected a live POST with hidden flags + --yes")
+	}
 }

@@ -284,7 +284,7 @@ func TestBuildOfferSegments_ReturnTimeWindowAppliesToInboundOnly(t *testing.T) {
 	depDate, _ := time.Parse("2006-01-02", opts.DepartureDate)
 	retDate, _ := time.Parse("2006-01-02", opts.ReturnDate)
 
-	segments, err := buildOfferSegments(opts, depDate, retDate, tripTypeRoundTrip, maxStopsAny)
+	segments, err := buildOfferSegments(opts, depDate, retDate, tripTypeRoundTrip, maxStopsAny, nil)
 	if err != nil {
 		t.Fatalf("buildOfferSegments: %v", err)
 	}
@@ -317,7 +317,7 @@ func TestBuildOfferSegments_ReturnTimeWindowFallsBackToTimeWindow(t *testing.T) 
 	depDate, _ := time.Parse("2006-01-02", opts.DepartureDate)
 	retDate, _ := time.Parse("2006-01-02", opts.ReturnDate)
 
-	segments, err := buildOfferSegments(opts, depDate, retDate, tripTypeRoundTrip, maxStopsAny)
+	segments, err := buildOfferSegments(opts, depDate, retDate, tripTypeRoundTrip, maxStopsAny, nil)
 	if err != nil {
 		t.Fatalf("buildOfferSegments: %v", err)
 	}

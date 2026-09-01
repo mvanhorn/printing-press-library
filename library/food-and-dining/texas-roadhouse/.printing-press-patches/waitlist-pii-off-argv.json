@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "waitlist-pii-off-argv",
+  "applied_at": "2026-08-31",
+  "base_run_id": "20260829-221218",
+  "base_printing_press_version": "4.31.2",
+  "summary": "Guest name/email/phone default to stdin, --guest-file, or TEXAS_ROADHOUSE_GUEST_* env (hidden argv flags only with --yes); dry-run redacts them; help examples use extref 218 / zip 65804; check-in is HERE once everyone has arrived (REMOVE to leave).",
+  "reason": "Argv PII leaks through shell history and ps. Cobra examples still used a fake UUID and a street as --email-address. HERE copy omitted arrival; SMS REMOVE was undocumented.",
+  "files": [
+    "internal/cli/texasroadhouse_pii.go",
+    "internal/cli/texasroadhouse_pii_test.go",
+    "internal/client/client.go",
+    "internal/client/client_test.go",
+    "internal/cli/texasroadhouse_submit.go",
+    "internal/cli/texasroadhouse_checkin.go",
+    "internal/cli/texasroadhouse_cancel.go",
+    "internal/cli/texasroadhouse_get_status.go",
+    "internal/cli/promoted_mapbox.go",
+    "internal/cli/texasroadhouse_confirm_test.go",
+    "internal/learn/journal.go",
+    "internal/mcp/tools.go",
+    "tools-manifest.json",
+    "spec.yaml"
+  ],
+  "validated_outcome": "Submit PII flags without --yes refuse; --stdin --dry-run redacts guest fields; client dry-run logger redacts MCP/CLI stderr; --guest-file wins over env and does not drain stdin; hidden flags + --yes still POST in httptest; help examples drop the UUID mock and street-as-email."
+}

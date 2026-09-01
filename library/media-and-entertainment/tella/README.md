@@ -187,6 +187,37 @@ These capabilities aren't available in any other tool for this API.
 
 ### Bulk operations
 
+- **`videos clips clean` / `videos clean`** — Preview and apply recoverable cleanup passes without opening the browser editor. The clip command accepts manual playback-time and transcript-word ranges; the video command discovers every clip through Tella's official timeline endpoint.
+
+  ```bash
+  # Preview, then apply the same clip cleanup.
+  tella-pp-cli videos clips clean vid_abc cl_xyz \
+    --remove-fillers \
+    --remove-silences natural \
+    --find-mistakes --unofficial \
+    --dry-run
+  tella-pp-cli videos clips clean vid_abc cl_xyz \
+    --remove-fillers \
+    --remove-silences natural \
+    --find-mistakes --unofficial \
+    --apply
+
+  # Cut hand-selected playback and transcript ranges in the same pass.
+  tella-pp-cli videos clips clean vid_abc cl_xyz \
+    --range 1200:1800 --range 8400:9100 \
+    --word-range 42:46 --dry-run
+
+  # Apply the official cleanup tools to every clip in a video.
+  tella-pp-cli videos clean vid_abc \
+    --remove-fillers --remove-silences natural --dry-run
+  tella-pp-cli videos clean vid_abc \
+    --remove-fillers --remove-silences natural --apply
+  ```
+
+  Cleanup snapshots each clip's exact existing cuts before mutation and records the last known post-clean cuts returned by Tella. Manual time ranges are sent together in one `cut_clip` request so earlier cuts cannot shift later coordinates. Because Tella exposes no conditional cut update, a failed compound apply never restores automatically: it re-fetches touched clips, reports whether their state is unchanged, matches the last known cleanup result, is indeterminate, or conflicts. Explicit undo re-fetches the clip and refuses if its cuts diverged from that recorded post-clean state. This is an advisory read-time check, not an atomic server guarantee: snapshot restore apply requires `--confirm-exclusive-editing`, which you must pass only after ensuring nobody else can save that clip until the command finishes.
+
+  Tella's official silence modes are `natural` (pauses longer than 800ms), `fast` (>500ms), and `faster` (>300ms). `--remove-buffers` remains available for backward compatibility and preserves the older threshold-based composition (`--buffer-min-ms`, default 200ms), so it is more aggressive than official `faster`; choose one or the other.
+
 - **`clips edit-pass`** — Apply a chained set of edits (remove-fillers, remove-buffers, trim-edges, trim-silences-gt N, find-mistakes [unofficial]) across every clip in a playlist in one command.
 
   _Use this to apply a creator's standard edit pass across an entire playlist without per-clip clicking._
@@ -197,8 +228,9 @@ These capabilities aren't available in any other tool for this API.
 
   Per-clip primitives also available individually:
   - `videos clips cut <vid> <clipId> --range 2000:3500 --range 8000:9200` — cut multiple time ranges in one request.
-  - `videos clips cut-by-transcript <vid> <clipId> --word-range 12:17` — cut by uncut-transcript word indices; Tella resolves exact word timing.
-  - `videos clips remove-buffers <vid> <clipId> [--min-ms N]` — UI-button equivalent: cuts every silence ≥ `N` ms (default 200). Public API only.
+  - `videos clips cut-by-transcript <vid> <clipId> --word-range 12:17` — cut by stable transcript word indices; Tella resolves exact word timing.
+  - `videos clips remove-silences <vid> <clipId> --mode natural --apply` — official Tella silence-removal modes with preview-by-default safety.
+  - `videos clips remove-buffers <vid> <clipId> [--min-ms N]` — legacy threshold mode: cuts every silence ≥ `N` ms (default 200). Public API only.
   - `videos clips trim-edges <vid> <clipId>` — narrow primitive: cuts only the head and tail silences. Public API only.
   - `videos clips find-mistakes <vid> <clipId> --unofficial` — AI mistake detection via Tella's web-app endpoint. **Unofficial API; cookie-auth required.** See the "Unofficial API: Find Mistakes" section below.
 
@@ -211,7 +243,7 @@ These capabilities aren't available in any other tool for this API.
 
 #### Unofficial API: Find Mistakes
 
-Tella's web UI exposes an AI-driven "Find mistakes" button on the Cut panel. That endpoint is **not part of the public API** (verified 404 against `api.tella.com` on 2026-05-16), so `find-mistakes` opts into the same internal endpoint the web app uses. It requires a session cookie copied from a logged-in browser.
+Tella's web UI exposes an AI-driven "Find mistakes" button on the Cut panel. As of 2026-08-31 it is still absent from Tella's public OpenAPI schema and MCP tool reference, so `find-mistakes` opts into the same internal endpoint the web app uses. It requires a session cookie copied from a logged-in browser.
 
 ```bash
 # 1) Open tella.tv in Chrome, DevTools → Application → Cookies → tella.tv.
@@ -223,7 +255,7 @@ export TELLA_SESSION_COOKIE='__Secure-Tella.session=...; XSRF-TOKEN=...'
 tella-pp-cli videos clips find-mistakes vid_abc cl_xyz --unofficial --json
 ```
 
-Detection step uses cookie auth against `prod-stream.tella.tv` (Server-Sent Events). Apply step uses the documented public `/v1/.../cut` endpoint (Bearer auth, additive — coexists with `--remove-buffers` and friends). Cookie expires periodically; refresh from DevTools when you see HTTP 401.
+Detection uses cookie auth against `prod-stream.tella.tv` (Server-Sent Events). Applying detected ranges uses the documented public batched `/v1/.../cut` endpoint (Bearer auth, additive). Cookie expires periodically; refresh it from DevTools after HTTP 401.
 
 > **Warning:** the unofficial AI service can change or break without notice. The CLI prints a fresh error message pointing you back to DevTools whenever the cookie returns 401. This auth surface is intentionally opt-in (`--unofficial`) so accidental shell usage doesn't hit a deprecated/unstable endpoint.
 
@@ -236,6 +268,18 @@ Detection step uses cookie auth against `prod-stream.tella.tv` (Server-Sent Even
   ```
 
 ### Transcript tooling
+
+- **Current official transcript reads and corrections** — `get-transcript` returns the cut-applied transcript with stable word indices. `update-transcript-words` changes transcript/caption text or visibility atomically; it never changes audio or timing.
+
+  ```bash
+  tella-pp-cli videos clips get-transcript vid_abc cl_xyz --json
+  tella-pp-cli videos clips update-transcript-words vid_abc cl_xyz \
+    --words '[{"index":12,"text":"Tella"},{"index":18,"hidden":true}]' \
+    --dry-run
+  tella-pp-cli videos clips update-transcript-words vid_abc cl_xyz \
+    --words '[{"index":12,"text":"Tella"},{"index":18,"hidden":true}]' \
+    --apply
+  ```
 
 - **`clips transcript-diff`** — Diff a clip's cut transcript against its uncut transcript to surface every word that editing removed (filler, silence, hand-edit) with timecodes.
 
@@ -268,18 +312,38 @@ tella-pp-cli videos clips insert-file vid_abc intro.mp4 --width 1920 --height 10
 # Upload B-roll and attach it as layout media over a time range.
 tella-pp-cli videos clips add-broll vid_abc cl_xyz broll.mp4 --width 1920 --height 1080 --duration 8.2 --start-ms 4000 --duration-ms 6000 --dry-run
 
-# Clean a clip, then roll back cuts if needed.
-tella-pp-cli videos clips clean vid_abc cl_xyz --remove-fillers --remove-buffers --trim-edges --dry-run
-tella-pp-cli videos clips clean vid_abc cl_xyz --remove-fillers --remove-buffers --trim-edges --apply
+# Read the full outline, clean a clip, then inspect the recovery preview.
+tella-pp-cli videos timeline vid_abc --include cuts,words --json
+tella-pp-cli videos clips clean vid_abc cl_xyz --remove-fillers --remove-silences natural --dry-run
+tella-pp-cli videos clips clean vid_abc cl_xyz --remove-fillers --remove-silences natural --apply
 tella-pp-cli videos clips undo-last-cuts vid_abc cl_xyz --dry-run
+
+# Apply undo only while you have exclusive editing access to this clip.
+tella-pp-cli videos clips undo-last-cuts vid_abc cl_xyz --apply --confirm-exclusive-editing
 
 # Inspect edit substrate, then cut transcript words or replace word ranges.
 tella-pp-cli videos clips silence-map vid_abc cl_xyz --json
 tella-pp-cli videos clips cut-words vid_abc cl_xyz --term "mistake" --dry-run
 tella-pp-cli videos clips replace-word-ranges vid_abc cl_xyz --word-ranges '[{"fromWordIndex":12,"toWordIndex":17}]' --dry-run
 
-# Restore exact cuts explicitly.
-tella-pp-cli videos clips restore-cuts vid_abc cl_xyz --cuts '[{"fromMs":100,"toMs":250}]' --dry-run
+# Restore inline cuts explicitly, or preview a snapshot's advisory divergence check.
+tella-pp-cli videos clips restore-cuts vid_abc cl_xyz --cuts '[{"startTimeMs":100,"durationMs":150}]' --dry-run
+tella-pp-cli videos clips restore-cuts vid_abc cl_xyz --snapshot cuts.json --dry-run
+tella-pp-cli videos clips restore-cuts vid_abc cl_xyz --snapshot cuts.json --apply --confirm-exclusive-editing
+
+# Adjust documented per-clip audio tracks. "inherit" clears an override.
+tella-pp-cli videos clips update vid_abc cl_xyz --microphone-volume 0.8 --system-audio-volume 0 --dry-run
+tella-pp-cli videos clips update vid_abc cl_xyz --microphone-volume 0.8 --system-audio-volume 0 --apply
+tella-pp-cli videos clips update vid_abc cl_xyz --microphone-volume inherit --system-audio-volume inherit --apply
+
+# Enable Studio Voice video-wide, then optionally opt a clip out.
+tella-pp-cli videos update vid_abc --studio-voice true --dry-run
+tella-pp-cli videos update vid_abc --studio-voice true --apply
+tella-pp-cli videos clips update vid_abc cl_xyz --studio-voice false --dry-run
+tella-pp-cli videos clips update vid_abc cl_xyz --studio-voice false --apply
+
+# Atomically add timeline resources. apply-edits cannot add cuts.
+tella-pp-cli videos apply-edits vid_abc --operations '[{"type":"add_zoom","operationId":"zoom-1","clipId":"cl_xyz","zoomType":"manualZoom","startTimeMs":1000,"durationMs":1500,"scale":2}]' --dry-run
 
 # Export/apply a full video edit plan.
 tella-pp-cli videos storyboard vid_abc --include-transcript --json > storyboard.json
@@ -292,6 +356,10 @@ tella-pp-cli playlists edit-pass plst_42 --remove-fillers --remove-buffers --tri
 ```
 
 Commands default to dry-run/plan mode when they perform compound edits; pass each command's `--apply` flag where available, or drop global `--dry-run`, only after reviewing the emitted plan.
+
+The CLI uses Tella's user-facing Studio Voice name, while translating it to the public API's `studioSound` field. Enabling it on a video starts enhanced-audio generation asynchronously; playback and exports use the raw audio until that version is ready. The clip setting opts an individual clip out (`false`) or re-enables it (`true`) under the video's master switch. When `--stdin` is combined with typed audio or Studio Voice flags, the typed flags are validated and override the corresponding JSON fields.
+
+Tella's editor added whole-clip mute in August 2026, but the current public `update_clip` schema and MCP reference do not expose that toggle. The CLI therefore does not guess a mute field. Use the documented microphone/system volume overrides above when those tracks exist; setting both to `0` is not presented as equivalent to Tella's undoable UI mute.
 
 ## Commands
 
@@ -402,7 +470,7 @@ Environment variables:
 - **Empty results from `transcripts search --data-source local`** — Run `tella-pp-cli sync` first to populate the local transcripts table.
 - **`webhooks tail` shows no events** — Confirm a webhook endpoint is registered (`tella-pp-cli webhooks endpoint create`); the inbox only collects events for registered endpoints.
 - **`clips edit-pass --dry-run` shows zero planned mutations** — Default short-circuits before fetching anything; the empty plan is by design. Drop `--dry-run` to see real planning (and use `--apply` to actually fire).
-- **`--remove-buffers` plans cuts but `--trim-silences-gt 1s` plans none** — The `--trim-silences-gt` flag wants silences ≥ N; if every silence is shorter than your threshold the plan is empty. Use `videos clips get-silences <id> <clipId>` to inspect raw ranges, or rely on `--remove-buffers` (default 200 ms threshold).
+- **Choosing a silence option** — Prefer `--remove-silences natural|fast|faster` for Tella's official modes. Legacy `--remove-buffers` uses the exact `--buffer-min-ms` threshold (default 200ms) through `get-silences` + batched `cut`, so it intentionally differs from official `faster` (>300ms). The cleanup command rejects using both together.
 - **`find-mistakes` returns HTTP 401** — Your `TELLA_SESSION_COOKIE` expired. Refresh from Chrome DevTools → Application → Cookies → tella.tv → copy the cookie row back into the env var. The unofficial AI host (`prod-stream.tella.tv`) does NOT accept the public-API Bearer token.
 - **Export wait times out** — Default timeout is 10m. Long videos can exceed; pass `--timeout 30m` and ensure the Export ready webhook endpoint is registered for early termination.
 

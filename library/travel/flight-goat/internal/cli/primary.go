@@ -83,6 +83,9 @@ func newGfFlightsCmd(flags *rootFlags) *cobra.Command {
 	// See flights_batch.go for the dogfood origin.
 	var tripStrs []string
 	var pace time.Duration
+	// PATCH(library): true two-step round-trip flow. See
+	// gflights.SearchOptions.SelectOutbound.
+	var selectOutbound int
 
 	// buildSearchBase constructs the SearchOptions shared by every mode
 	// (single search, batch trips). One construction site so a future flag
@@ -144,8 +147,33 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
 
   # Batch of independent searches with built-in pacing (Google rate-limits
   # bulk probes per IP — never fan these out in a shell loop)
-  flight-goat-pp-cli flights --trip "SEA>DEN@2026-09-14" --trip "PDX>DEN@2026-09-15@2026-09-17" --pace 3s --currency EUR`,
+  flight-goat-pp-cli flights --trip "SEA>DEN@2026-09-14" --trip "PDX>DEN@2026-09-15@2026-09-17" --pace 3s --currency EUR
+
+  # True two-step round trip: --return alone shows outbound options, each
+  # priced with Google's own auto-picked "cheapest return" total but no
+  # return-leg detail. Run once to see the outbound list (--json for
+  # indices), then re-run with --select-outbound N to fetch the actual
+  # return options priced against that specific outbound.
+  flight-goat-pp-cli flights LHR BCN 2027-03-01 --return 2027-03-18 --json
+  flight-goat-pp-cli flights LHR BCN 2027-03-01 --return 2027-03-18 --select-outbound 1 --json`,
 		Args: func(cmd *cobra.Command, args []string) error {
+			// PATCH(library): --select-outbound only makes sense against a
+			// plain round-trip single search — reject the other modes before
+			// they run any network call.
+			if selectOutbound != 0 {
+				if selectOutbound < 1 {
+					return usageErr(fmt.Errorf("--select-outbound must be >= 1 (1-based index into the outbound itineraries a prior round-trip search returned)"))
+				}
+				if len(tripStrs) > 0 {
+					return usageErr(fmt.Errorf("--select-outbound does not apply to --trip batches; run the two-step flow per trip manually"))
+				}
+				if len(segmentStrs) >= 2 {
+					return usageErr(fmt.Errorf("--select-outbound does not apply to multi-city (--segment) searches"))
+				}
+				if returnDate == "" {
+					return usageErr(fmt.Errorf("--select-outbound requires --return (round trip only) — it fetches return-leg options for a specific outbound"))
+				}
+			}
 			// PATCH(amend-2026-07-31): batch mode (--trip) replaces the
 			// positional query entirely; mixing modes would be ambiguous.
 			// These conflict checks run BEFORE the multi-city early return —
@@ -264,6 +292,7 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
 			opts.DepartureDate = departureDate
 			opts.ReturnDate = returnDate
 			opts.Segments = segments
+			opts.SelectOutbound = selectOutbound
 			// PATCH(greptile review): mirror the batch path's --return-time
 			// preflight for the single-search form — otherwise a malformed
 			// value reports success on --dry-run and a generic error (not a
@@ -282,6 +311,9 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
 				}
 				if opts.ReturnTimeWindow != "" {
 					fmt.Fprintf(cmd.OutOrStdout(), " return-time=%s", opts.ReturnTimeWindow)
+				}
+				if opts.SelectOutbound > 0 {
+					fmt.Fprintf(cmd.OutOrStdout(), " select-outbound=%d", opts.SelectOutbound)
 				}
 				if opts.MaxStops != "" {
 					fmt.Fprintf(cmd.OutOrStdout(), " stops=%s", strings.ToUpper(opts.MaxStops))
@@ -310,8 +342,24 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
 				return nil
 			}
 
-			fmt.Fprintf(cmd.ErrOrStderr(), "%d flights found for %s -> %s on %s (source: %s)\n",
-				result.Count, opts.Origin, opts.Destination, opts.DepartureDate, result.Source)
+			// PATCH(library): --select-outbound's response is return-leg-only
+			// (result.Flights holds Direction=="return" rows against the
+			// destination->origin route on ReturnDate) — label it as such
+			// instead of the default header, which would otherwise claim
+			// these are outbound results for the wrong route/date.
+			if result.SelectedOutbound != nil {
+				ob := result.SelectedOutbound
+				obDepart, carrier := "", ""
+				if len(ob.Legs) > 0 {
+					obDepart = trimTime(ob.Legs[0].DepartureTime)
+					carrier = ob.Legs[0].Airline.Code + ob.Legs[0].FlightNumber
+				}
+				fmt.Fprintf(cmd.ErrOrStderr(), "%d return options for %s -> %s on %s, paired with outbound %s (%s, departs %s) (source: %s)\n",
+					result.Count, opts.Destination, opts.Origin, opts.ReturnDate, carrier, formatPrice(ob.Currency, ob.Price), obDepart, result.Source)
+			} else {
+				fmt.Fprintf(cmd.ErrOrStderr(), "%d flights found for %s -> %s on %s (source: %s)\n",
+					result.Count, opts.Origin, opts.Destination, opts.DepartureDate, result.Source)
+			}
 
 			tw := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
 			fmt.Fprintln(tw, "PRICE\tDURATION\tSTOPS\tAIRLINES\tDEPART\tARRIVE")
@@ -367,6 +415,7 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
 	cmd.Flags().BoolVar(&nonstop, "nonstop", false, "Multi-city only: restrict to nonstop flights on every leg. Equivalent to /nonstop on Kayak.")
 	cmd.Flags().StringSliceVar(&tripStrs, "trip", nil, "Batch: repeatable independent search in 'ORIG>DEST@YYYY-MM-DD' or 'ORIG>DEST@DEPART@RETURN' form. Trips run sequentially with --pace between them; positional args must be omitted.")
 	cmd.Flags().DurationVar(&pace, "pace", 2*time.Second, "Batch only: delay between consecutive --trip searches (Google rate-limits bulk probes per IP)")
+	cmd.Flags().IntVar(&selectOutbound, "select-outbound", 0, "Round trip only: 1-based index (in outbound order from a prior plain --return search) of the outbound itinerary to select, then fetch real return-leg options priced against it. Without this flag, --return alone shows outbound-only results, each carrying Google's own auto-picked cheapest-return total with no return-leg detail.")
 	return cmd
 }
 

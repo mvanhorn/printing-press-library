@@ -266,8 +266,8 @@ Existing installs keep working because the platform-default rung matches the leg
 
 The headline commands query consumer fare sources directly — no `FLIGHT_GOAT_API_KEY` needed. FlightAware AeroAPI (the resources below) is secondary and optional.
 
-- **`flight-goat-pp-cli flights <origin> <destination> <date>`** - Google Flights fare search with real prices, durations, airlines, and leg details. Round trip with `--return`, multi-city with repeated `--segment`, batch probes with repeated `--trip`. Departure time window with `--time` (outbound) and `--return-time` (return leg, independent of `--time`; falls back to it when unset).
-- **`flight-goat-pp-cli dates <origin> <destination>`** - Cheapest-date scan for a route across a travel window.
+- **`flight-goat-pp-cli flights <origin> <destination> <date>`** - Google Flights fare search with real prices, durations, airlines, and leg details. Round trip with `--return`, multi-city with repeated `--segment`, batch probes with repeated `--trip`. Departure time window with `--time` (outbound) and `--return-time` (return leg, independent of `--time`; falls back to it when unset). `--select-outbound N` fetches real return-leg options priced against a specific outbound instead of Google's default bundled total — see below.
+- **`flight-goat-pp-cli dates <origin> <destination>`** - Cheapest-date scan for a route across a travel window. One-way by default; `--round --duration N` scans round-trip totals instead — see below.
 - **`flight-goat-pp-cli explore <airport>`** / **`flight-goat-pp-cli longhaul <airport>`** - Kayak nonstop and long-haul route discovery.
 - **`flight-goat-pp-cli soar <origin> <destination> <date>`** - FlySoar (Duffel NDC/GDS) second price opinion with a booking handoff.
 - **`flight-goat-pp-cli award <origin> <destination> [--from YYYY-MM-DD --to YYYY-MM-DD]`** - Seats.aero award (mileage) availability across cabin classes (economy/premium/business/first). Requires `SEATS_AERO_API_KEY` (Seats.aero Partner API key; cached search is Pro-eligible). Read-only — miles + taxes, no booking deeplinks.
@@ -275,6 +275,16 @@ The headline commands query consumer fare sources directly — no `FLIGHT_GOAT_A
 - **`flight-goat-pp-cli assess`** - Delayed-flight/rebooking decision support.
 
 Booking deeplinks in each result's `booking_urls` quote the same `--currency` the search ran in. `award` is the exception: it quotes mileage/points rather than cash and does not produce booking deeplinks.
+
+#### Round trip: getting real return-leg options with `--select-outbound`
+
+`--return` alone returns **outbound itineraries only**. Each row's price already bundles Google's own auto-picked "cheapest return" total, but no actual return flight (time, airline, duration) is shown. To see and choose real return-leg options — the same two-step flow Google's own site uses — run the search twice: first `flight-goat-pp-cli flights LHR BCN 2027-03-01 --return 2027-03-18` for the outbound list, then `flight-goat-pp-cli flights LHR BCN 2027-03-01 --return 2027-03-18 --select-outbound 1` to fetch return options priced against the 1st outbound in that list.
+
+`--select-outbound N` is a 1-based index into the outbound list step 1 returned. It requires `--return` and cannot combine with `--trip` or `--segment`. JSON output (`--json`/`--agent`) adds `direction` (`outbound`/`return`) on each flight and `selected_outbound` on the envelope, so a script or agent can tell which itinerary a set of return options is paired against.
+
+#### Round trip cheapest dates: `dates --round --duration`
+
+`dates` scans one-way prices by default. `--round --duration N` scans round-trip totals instead: `flight-goat-pp-cli dates SEA HNL --round --duration 7 --sort --agent` returns, for each candidate departure day, the cheapest combined round-trip price for departing that day and returning `N` nights later — not a separate outbound/return price pair. `--duration` is required with `--round` (nights, must be greater than zero). Each result row's `price` is already the round-trip total, and `return_date` (`departure_date` + `--duration`) is included alongside it.
 
 #### Bulk fare probes with built-in pacing
 

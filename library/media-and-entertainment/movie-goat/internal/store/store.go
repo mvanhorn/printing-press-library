@@ -595,13 +595,16 @@ func (s *Store) Search(query string, limit int) ([]json.RawMessage, error) {
 	if limit <= 0 {
 		limit = 50
 	}
+	if strings.TrimSpace(query) == "" {
+		return []json.RawMessage{}, nil
+	}
 	rows, err := s.db.Query(
 		`SELECT r.data FROM resources r
 		 JOIN resources_fts f ON r.id = f.id
 		 WHERE resources_fts MATCH ?
 		 ORDER BY rank
 		 LIMIT ?`,
-		query, limit,
+		ftsSafeQuery(query), limit,
 	)
 	if err != nil {
 		return nil, err
@@ -616,7 +619,41 @@ func (s *Store) Search(query string, limit int) ([]json.RawMessage, error) {
 		}
 		results = append(results, json.RawMessage(data))
 	}
+	if results == nil {
+		results = []json.RawMessage{}
+	}
 	return results, rows.Err()
+}
+
+// ftsMetaChars are FTS5 query-language metacharacters. A token containing any
+// of these must be quoted so it is treated as literal text rather than syntax.
+const ftsMetaChars = "\"`():*/+-{}[]^~<>,'&#?!@$%=;\\|."
+
+// ftsKeywords are FTS5 operator keywords. A bare token equal to one of these
+// (case-insensitively) must be quoted or SQLite interprets it as query
+// operators (NEAR/ANDNOT) instead of a literal term, which can raise a MATCH
+// parse error or silently change semantics.
+var ftsKeywords = map[string]bool{"and": true, "or": true, "not": true, "near": true, "andnot": true}
+
+// ftsSafeQuery neutralizes FTS5 query-language syntax in a user-supplied
+// search query while preserving implicit-AND semantics for ordinary multi-word
+// queries and prefix search for trailing-* tokens. A token is quoted (wrapped
+// in double quotes, with embedded quotes doubled per FTS5 string-literal rules)
+// when it contains a metacharacter or is a bare AND/OR/NOT/NEAR/ANDNOT keyword;
+// syntax-free tokens pass through unchanged. A trailing-* prefix token with no
+// other metacharacter passes through unquoted so FTS5 keeps prefix semantics.
+func ftsSafeQuery(query string) string {
+	tokens := strings.Fields(query)
+	for i, tok := range tokens {
+		prefix := strings.TrimSuffix(tok, "*")
+		if prefix != tok && prefix != "" && !strings.ContainsAny(prefix, ftsMetaChars) {
+			continue // legal prefix search, e.g. "incept*"
+		}
+		if strings.ContainsAny(tok, ftsMetaChars) || ftsKeywords[strings.ToLower(tok)] {
+			tokens[i] = `"` + strings.ReplaceAll(tok, `"`, `""`) + `"`
+		}
+	}
+	return strings.Join(tokens, " ")
 }
 
 func extractObjectID(obj map[string]any) string {

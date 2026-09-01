@@ -57,6 +57,7 @@ func newItemsRecentCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().IntVar(&bodyLimit, "limit", 20, "Maximum number of items to return")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.AddCommand(newItemsRecentRemoveCmd(flags))
 
 	return cmd
 }

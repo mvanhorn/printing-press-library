@@ -17,7 +17,7 @@ func newTexasroadhouseGetStatusCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "get-status <waitlist_id> <request_id>",
 		Short:       "GET waitlist request status. Query clientid=texasroadhouse.",
-		Example:     "  texas-roadhouse-pp-cli texasroadhouse get-status 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  texas-roadhouse-pp-cli texasroadhouse get-status 218 1",
 		Annotations: map[string]string{"pp:endpoint": "texasroadhouse.get_status", "pp:method": "GET", "pp:path": "/api/texasroadhouse/waitlist/{waitlist_id}/requests/{request_id}/status", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

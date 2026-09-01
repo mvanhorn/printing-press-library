@@ -411,6 +411,21 @@ func searchViaHTML(ctx context.Context, opts SearchOptions, currencyCode string)
 	}
 	outbound := filterFlightsClientSide(append([]Flight(nil), flights[:outboundCount]...), outboundOpts)
 	inbound := filterFlightsClientSide(append([]Flight(nil), flights[outboundCount:]...), returnOpts)
+	// PATCH(library): tag direction from the already-established
+	// outboundCount boundary (see TestFlightsFromEmbeddedPayload_OutboundReturnSplit)
+	// rather than guessing from airport codes — round trip only; a one-way
+	// search has nothing in the return bucket so outbound/inbound collapse
+	// to the same untagged list. See gflights.go's SelectOutbound doc; the
+	// native RPC path (flights_native.go) has no equivalent bucket split and
+	// tags Direction itself from request shape instead.
+	if opts.ReturnDate != "" {
+		for i := range outbound {
+			outbound[i].Direction = "outbound"
+		}
+		for i := range inbound {
+			inbound[i].Direction = "return"
+		}
+	}
 	flights = append(outbound, inbound...)
 	note := htmlFallbackNote
 	if !sortFlightsClientSide(flights, opts.SortBy) {
@@ -509,6 +524,37 @@ func filterFlightsClientSide(flights []Flight, opts SearchOptions) []Flight {
 	return out
 }
 
+// cheapestFallbackCandidate picks the cheapest priced flight to report for
+// one fallback day. On a round-trip page the "return" bucket holds
+// incremental fares priced against whatever outbound the page pre-selected,
+// not standalone round-trip totals — picking the global cheapest across both
+// buckets can surface a partial fare. The "outbound" bucket's Price is
+// already the full round-trip total for that itinerary (same convention
+// flights_native.go's first-fetch round-trip response uses), so round-trip
+// callers restrict to it; one-way callers (roundTrip=false) consider every
+// flight since there is only one bucket.
+func cheapestFallbackCandidate(flights []Flight, roundTrip bool) *Flight {
+	candidates := flights
+	if roundTrip {
+		candidates = nil
+		for i := range flights {
+			if flights[i].Direction == "outbound" {
+				candidates = append(candidates, flights[i])
+			}
+		}
+	}
+	var cheapest *Flight
+	for i := range candidates {
+		if candidates[i].Price <= 0 {
+			continue
+		}
+		if cheapest == nil || candidates[i].Price < cheapest.Price {
+			cheapest = &candidates[i]
+		}
+	}
+	return cheapest
+}
+
 // datesViaHTML serves the cheapest-dates query when the calendar RPC is
 // blocked: one server-rendered page per day, cheapest itinerary kept.
 // Bounded concurrency keeps the fan-out polite; individual day failures are
@@ -539,10 +585,15 @@ func datesViaHTML(ctx context.Context, opts DatesOptions, from, to time.Time, cu
 				results[i] = dayResult{idx: i, err: ctx.Err()}
 				return
 			}
+			var returnDate string
+			if opts.RoundTrip {
+				returnDate = day.AddDate(0, 0, opts.Duration).Format("2006-01-02")
+			}
 			searchOpts := SearchOptions{
 				Origin:        opts.Origin,
 				Destination:   opts.Destination,
 				DepartureDate: day.Format("2006-01-02"),
+				ReturnDate:    returnDate,
 				Airlines:      opts.Airlines,
 				CabinClass:    opts.CabinClass,
 				MaxStops:      opts.MaxStops,
@@ -552,21 +603,14 @@ func datesViaHTML(ctx context.Context, opts DatesOptions, from, to time.Time, cu
 				results[i] = dayResult{idx: i, err: err}
 				return
 			}
-			var cheapest *Flight
-			for j := range flights {
-				if flights[j].Price <= 0 {
-					continue
-				}
-				if cheapest == nil || flights[j].Price < cheapest.Price {
-					cheapest = &flights[j]
-				}
-			}
+			cheapest := cheapestFallbackCandidate(flights, opts.RoundTrip)
 			if cheapest == nil {
 				results[i] = dayResult{idx: i}
 				return
 			}
 			results[i] = dayResult{idx: i, price: &DatePrice{
 				DepartureDate: day.Format("2006-01-02"),
+				ReturnDate:    returnDate,
 				Price:         cheapest.Price,
 				Currency:      currencyCode,
 			}}

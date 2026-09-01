@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "search-untyped-local-results",
+  "applied_at": "2026-08-31",
+  "base_run_id": "20260504-004256",
+  "base_printing_press_version": "3.8.0",
+  "summary": "An untyped `search` against the local store must run the same FTS `db.Search` query the typed default arm runs, so `--data-source local` and the auto-mode network-failure fallback return real hits instead of a silent `results: []`. User-supplied query text must also be neutralized before it becomes an FTS5 `MATCH` expression, so FTS5 syntax in the query searches literally instead of raising a parse error.",
+  "reason": "The generated search command's `case \"\":` branch (no --type) was a stub that allocated a `seen` map, discarded it, and never assigned `results`, so offline searches always printed an empty result set and exited 0 — indistinguishable from a successful search over an empty corpus. The default arm already called `db.Search(query, limit)` and returned real hits; the untyped branch must call it too. A regen that restores the empty stub reintroduces the silent-wrong-answer defect. Separately, the query was interpolated raw into `WHERE resources_fts MATCH ?`, so FTS5 syntax in user input (e.g. \"Space: 1999\", \"Lilo & Stitch\", a bare AND/OR/NEAR, quotes) raised a parse error; `ftsSafeQuery` quotes syntax-bearing tokens (and bare FTS5 keywords) per token, doubling embedded quotes, preserving implicit-AND for plain multi-word queries and prefix search for trailing-* tokens.",
+  "files": [
+    "internal/cli/search.go",
+    "internal/cli/search_test.go",
+    "internal/store/store.go",
+    "internal/store/store_fts_test.go"
+  ],
+  "validated_outcome": "go build/vet/test pass; search_test.go asserts untyped local search returns the same non-empty, rank-ordered FTS hits as the --type zzzz control, the auto fallback (unreachable API, --no-cache) returns them with reason api_unreachable, and a no-match query returns an empty array. store_fts_test.go asserts FTS5-syntax queries (metacharacters and bare AND/OR/NOT/NEAR/ANDNOT keywords, plus %&#?!@$%=;\\| cases) return rows-or-empty with no MATCH parse error, plain multi-word queries keep implicit-AND, prefix search (incept*) is preserved, and empty queries return an empty result."
+}

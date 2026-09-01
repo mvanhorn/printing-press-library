@@ -20,8 +20,8 @@
   "category": "food-and-dining",
   "description": "Waitlist CLI for Texas Roadhouse. Find a nearby store, read the quote, join and leave the list.",
   "mcp_binary": "texas-roadhouse-pp-mcp",
-  "mcp_tool_count": 9,
-  "mcp_public_tool_count": 9,
+  "mcp_tool_count": 8,
+  "mcp_public_tool_count": 8,
   "mcp_ready": "full",
   "api_version": "0.1.0",
   "auth_type": "none",
@@ -50,7 +50,7 @@
     {
       "name": "Sniffed waitlist check-in",
       "command": "texasroadhouse checkin",
-      "description": "Confirm arrival after the guest receives the Texas Roadhouse text and replies HERE via sniffed POST /waitlist/{extref}/checkin (no public API)."
+      "description": "Mark the party HERE after the guest texts HERE once everyone has arrived (REMOVE to leave) via sniffed POST /waitlist/{extref}/checkin. Not a host-stand visit."
     },
     {
       "name": "Quote MinQuote lookup",
