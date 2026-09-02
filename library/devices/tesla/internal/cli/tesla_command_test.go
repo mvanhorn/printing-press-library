@@ -125,8 +125,20 @@ func TestCommand_DefaultPrint_FleetUnlock(t *testing.T) {
 	flags, _ := commandTestSetup(t, []productEntry{
 		{VIN: "SNOWFLAKEVIN0001", DisplayName: "Snowflake", CommandSigning: "required"},
 	})
-	// Make Fleet "ready" via env so the picker prefers it for VCSEC.
+	// Make Fleet fully dispatchable: token + key + binary on PATH.
 	t.Setenv("TESLA_FLEET_TOKEN", "fleet-bearer-xyz")
+
+	// Plant a real key file so resolveFleetKeyPath succeeds.
+	keyFile := commandTestKeyFile(t)
+	t.Setenv("TESLA_FLEET_KEY_FILE", keyFile)
+
+	// Plant a fake tesla-control on PATH so detectTeslaControlBinary resolves.
+	binDir := t.TempDir()
+	fakeBin := filepath.Join(binDir, teslaControlBinary)
+	if err := os.WriteFile(fakeBin, []byte("#!/bin/sh\nexit 0\n"), 0o755); err != nil {
+		t.Fatalf("write fake tesla-control: %v", err)
+	}
+	t.Setenv("PATH", binDir+string(os.PathListSeparator)+os.Getenv("PATH"))
 
 	// Sentinel: tesla-control must NOT be invoked.
 	calls := 0
@@ -471,7 +483,10 @@ func TestCommand_Fleet_TeslaControlMissing(t *testing.T) {
 	// PATH points at an empty dir; ~/go/bin is under a temp home so absent.
 	t.Setenv("PATH", t.TempDir())
 
-	out, err := runCommandForTest(t, flags, []string{"unlock", "--vehicle", "Snowflake", "--send"})
+	// Use --via=fleet to explicitly request Fleet. With auto-pick, missing
+	// tesla-control would fall back to BLE (for VCSEC). The explicit override
+	// must error clearly about the missing binary.
+	out, err := runCommandForTest(t, flags, []string{"unlock", "--vehicle", "Snowflake", "--send", "--via", "fleet"})
 	if err == nil {
 		t.Fatalf("expected tesla-control-missing error, got nil; output=%s", out.String())
 	}
@@ -913,6 +928,78 @@ func TestFleetTokenNeedsProactiveRefresh(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestCommandFleetTokenUsable verifies that the auto-picker's token readiness
+// check correctly identifies usable tokens (valid or refreshable) vs unusable
+// (expired with no refresh). Expired/unrefreshable should fall back to Hermes.
+func TestCommandFleetTokenUsable(t *testing.T) {
+	cases := []struct {
+		name string
+		ft   config.FleetConfig
+		want bool
+	}{
+		{"no token", config.FleetConfig{}, false},
+		{"valid token (not expired)", config.FleetConfig{
+			AccessToken: "tok",
+			TokenExpiry: time.Now().Add(time.Hour),
+		}, true},
+		{"valid token with refresh", config.FleetConfig{
+			AccessToken:  "tok",
+			RefreshToken: "ref",
+			TokenExpiry:  time.Now().Add(time.Hour),
+		}, true},
+		{"expired token with refresh (can auto-refresh)", config.FleetConfig{
+			AccessToken:  "tok",
+			RefreshToken: "ref",
+			TokenExpiry:  time.Now().Add(-time.Hour),
+		}, true},
+		{"expired token without refresh (cannot authenticate)", config.FleetConfig{
+			AccessToken: "tok",
+			TokenExpiry: time.Now().Add(-time.Hour),
+		}, false},
+		{"near-expiry within skew with refresh", config.FleetConfig{
+			AccessToken:  "tok",
+			RefreshToken: "ref",
+			TokenExpiry:  time.Now().Add(30 * time.Second), // within 60s skew
+		}, true},
+		{"near-expiry within skew without refresh", config.FleetConfig{
+			AccessToken: "tok",
+			TokenExpiry: time.Now().Add(30 * time.Second), // within 60s skew
+		}, false},
+		{"zero expiry (unknown) is usable", config.FleetConfig{
+			AccessToken: "tok",
+		}, true},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			flags := commandTestFlags(t)
+			cfg, err := config.Load(flags.configPath)
+			if err != nil {
+				t.Fatalf("Load: %v", err)
+			}
+			if c.ft.AccessToken != "" {
+				if err := cfg.SaveFleetTokens("cid", "", c.ft.AccessToken, c.ft.RefreshToken, c.ft.TokenExpiry, "", ""); err != nil {
+					t.Fatalf("SaveFleetTokens: %v", err)
+				}
+			}
+			if got := commandFleetTokenUsable(cfg); got != c.want {
+				t.Errorf("commandFleetTokenUsable = %v, want %v", got, c.want)
+			}
+		})
+	}
+
+	t.Run("env var override is always usable", func(t *testing.T) {
+		t.Setenv("TESLA_FLEET_TOKEN", "env-override-token")
+		flags := commandTestFlags(t)
+		cfg, err := config.Load(flags.configPath)
+		if err != nil {
+			t.Fatalf("Load: %v", err)
+		}
+		if !commandFleetTokenUsable(cfg) {
+			t.Error("env var TESLA_FLEET_TOKEN should always be considered usable")
+		}
+	})
 }
 
 // TestNewClient_ReadPathSelfHealsInBothModes guards that the read client always

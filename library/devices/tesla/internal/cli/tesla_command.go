@@ -239,29 +239,55 @@ func runCommand(cmd *cobra.Command, flags *rootFlags, name string, extraArgs []s
 	}
 }
 
-// commandFleetReady reports whether Fleet API credentials are present and
-// usable. We treat a present access token (even if expired) as ready because
-// the caller will auto-refresh on dispatch. Empty access token means the user
-// must run fleet-login first.
-func commandFleetReady(cfg *config.Config) bool {
+// commandFleetTokenPresent reports whether any Fleet API token is configured,
+// regardless of validity. Used by --via=fleet to determine if Fleet should be
+// attempted (dispatch will surface specific auth errors if token is expired).
+func commandFleetTokenPresent(cfg *config.Config) bool {
 	if cfg == nil {
 		return false
 	}
-	ft := cfg.FleetTokens()
 	if os.Getenv("TESLA_FLEET_TOKEN") != "" {
 		return true
 	}
+	ft := cfg.FleetTokens()
 	return ft.AccessToken != ""
 }
 
+// commandFleetTokenUsable reports whether the Fleet token can actually
+// authenticate: either valid (not expired) or refreshable (has refresh token).
+// An expired token without a refresh token cannot authenticate.
+func commandFleetTokenUsable(cfg *config.Config) bool {
+	if cfg == nil {
+		return false
+	}
+	// Environment variable override - assume caller knows it's valid
+	if os.Getenv("TESLA_FLEET_TOKEN") != "" {
+		return true
+	}
+	ft := cfg.FleetTokens()
+	if ft.AccessToken == "" {
+		return false
+	}
+	// Unknown expiry - assume valid (common for freshly-minted tokens)
+	if ft.TokenExpiry.IsZero() {
+		return true
+	}
+	// Token not expired (with skew buffer) - usable
+	if time.Now().Add(fleetTokenRefreshSkew).Before(ft.TokenExpiry) {
+		return true
+	}
+	// Token is expired - only usable if we can refresh
+	return ft.RefreshToken != ""
+}
+
 // commandFleetDispatchReady reports whether Fleet API can actually dispatch
-// commands. This is stricter than commandFleetReady: it requires not just a
-// token, but also a valid signing key and the tesla-control binary on PATH.
-// Used by the auto-picker to decide whether Fleet is truly usable; if false
-// and Hermes is running, auto may fall back to Hermes for owner-API commands.
+// commands. This is stricter than just checking for a token: it requires a
+// usable token (valid or refreshable), a valid signing key, and tesla-control
+// on PATH. Used by the auto-picker to decide whether Fleet is truly usable;
+// if false and Hermes is running, auto may fall back to Hermes.
 func commandFleetDispatchReady(cfg *config.Config) bool {
-	// Token must be present
-	if !commandFleetReady(cfg) {
+	// Token must be usable (valid or refreshable)
+	if !commandFleetTokenUsable(cfg) {
 		return false
 	}
 	// Signing key must be resolvable
