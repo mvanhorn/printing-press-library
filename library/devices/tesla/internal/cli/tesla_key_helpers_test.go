@@ -320,6 +320,25 @@ func TestSelectKeyByPublicMatch_SoleCandidate_Match(t *testing.T) {
 	}
 }
 
+func TestSelectKeyByPublicBytes_DuplicateCopies_SelectsOne(t *testing.T) {
+	dir := t.TempDir()
+	priv, pub := generateTestKeyPair(t, dir, "z-copy")
+	data, err := os.ReadFile(priv)
+	if err != nil {
+		t.Fatalf("read private key: %v", err)
+	}
+	copyPath := filepath.Join(dir, "a-copy-private.pem")
+	if err := os.WriteFile(copyPath, data, 0o600); err != nil {
+		t.Fatalf("write key copy: %v", err)
+	}
+	target := readPublicKeyBytes(pub)
+	// Unsorted input: original path first. Stable choice is sorted-first copy.
+	got := selectKeyByPublicBytes([]string{priv, copyPath}, target)
+	if got != copyPath {
+		t.Errorf("duplicate matching copies should return sorted-first path, got %q want %q", got, copyPath)
+	}
+}
+
 // ---------------------------------------------------------------------------
 // scanValidPrivateKeys tests
 // ---------------------------------------------------------------------------

@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -152,9 +153,10 @@ func scanValidPrivateKeys(dir string) []string {
 	return valid
 }
 
-// selectKeyByPublicBytes returns the unique candidate whose derived public
-// key matches targetPubBytes. Returns "" when target is empty or the match
-// is not unique.
+// selectKeyByPublicBytes returns a candidate whose derived public key matches
+// targetPubBytes. Duplicate files of the same key material count as one
+// identity; the lexicographically first path is returned. Returns "" when
+// target is empty, nothing matches, or matched paths derive different keys.
 func selectKeyByPublicBytes(candidates []string, targetPubBytes []byte) string {
 	if len(targetPubBytes) == 0 {
 		return ""
@@ -165,10 +167,17 @@ func selectKeyByPublicBytes(candidates []string, targetPubBytes []byte) string {
 			matched = append(matched, priv)
 		}
 	}
-	if len(matched) == 1 {
-		return matched[0]
+	if len(matched) == 0 {
+		return ""
 	}
-	return ""
+	firstPub := derivePublicKeyBytes(matched[0])
+	for _, p := range matched[1:] {
+		if !bytes.Equal(derivePublicKeyBytes(p), firstPub) {
+			return ""
+		}
+	}
+	sort.Strings(matched)
+	return matched[0]
 }
 
 // matchCandidatesToDomain returns the unique candidate matching the hosted
