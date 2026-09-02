@@ -687,20 +687,37 @@ func resolveFleetKeyPath(cfg *config.Config) (string, error) {
 		}
 	}
 	// Fallback: scan ~/.tesla/ for any *-private.pem file (fleet-template output).
-	if home, err := os.UserHomeDir(); err == nil && home != "" {
-		teslaDir := filepath.Join(home, ".tesla")
-		if entries, err := os.ReadDir(teslaDir); err == nil {
-			for _, e := range entries {
-				if !e.IsDir() && strings.HasSuffix(e.Name(), "-private.pem") {
-					p := filepath.Join(teslaDir, e.Name())
-					if _, statErr := os.Stat(p); statErr == nil {
-						return p, nil
-					}
+	home, homeErr := os.UserHomeDir()
+	if homeErr != nil || home == "" {
+		return "", fmt.Errorf("no Fleet signing key configured; set TESLA_FLEET_KEY_FILE or run `tesla auth fleet-template --gen-key` then `tesla auth fleet-register --key-file <path>`")
+	}
+	teslaDir := filepath.Join(home, ".tesla")
+	var candidates []string
+	if entries, err := os.ReadDir(teslaDir); err == nil {
+		for _, e := range entries {
+			if !e.IsDir() && strings.HasSuffix(e.Name(), "-private.pem") {
+				p := filepath.Join(teslaDir, e.Name())
+				if _, statErr := os.Stat(p); statErr == nil {
+					candidates = append(candidates, p)
 				}
 			}
 		}
 	}
-	return "", fmt.Errorf("no Fleet signing key configured; set TESLA_FLEET_KEY_FILE or run `tesla auth fleet-template --gen-key` then `tesla auth fleet-register --key-file <path>`")
+	if len(candidates) == 0 {
+		return "", fmt.Errorf("no Fleet signing key configured; set TESLA_FLEET_KEY_FILE or run `tesla auth fleet-template --gen-key` then `tesla auth fleet-register --key-file <path>`")
+	}
+	if len(candidates) == 1 {
+		return candidates[0], nil
+	}
+	// Multiple candidates: prefer the default fleet-template output name.
+	defaultName := filepath.Join(teslaDir, "tesla-keys-host-private.pem")
+	for _, c := range candidates {
+		if c == defaultName {
+			return c, nil
+		}
+	}
+	// No unique match — error with list of candidates.
+	return "", fmt.Errorf("multiple signing keys in %s:\n  %s\nSet TESLA_FLEET_KEY_FILE=<path> to select one", teslaDir, strings.Join(candidates, "\n  "))
 }
 
 // fleetTokenRefreshSkew is how far ahead of the stored expiry the proactive

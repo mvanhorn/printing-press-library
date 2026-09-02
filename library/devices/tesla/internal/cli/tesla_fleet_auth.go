@@ -260,7 +260,10 @@ honored when neither flag is set.`,
 
 			// Resolve the signing private key path. Order: explicit --key-file,
 			// then env TESLA_FLEET_KEY_FILE, then auto-detect from ~/.tesla/.
-			effKeyFile := resolveFleetKeyFileForRegister(keyFile, publicKeyDomain)
+			effKeyFile, keyErr := resolveFleetKeyFileForRegister(keyFile, publicKeyDomain)
+			if keyErr != nil {
+				return usageErr(keyErr)
+			}
 
 			// Resolve the regional Fleet base once: TESLA_FLEET_API_URL env >
 			// persisted [fleet].api_base > North America default. The partner
@@ -314,28 +317,33 @@ honored when neither flag is set.`,
 
 // resolveFleetKeyFileForRegister resolves the signing private key path for
 // fleet-register. Order: explicit flag, env TESLA_FLEET_KEY_FILE, auto-detect
-// from ~/.tesla/ based on common fleet-template output patterns. Returns ""
-// when no key is found (caller warns but does not fail).
-func resolveFleetKeyFileForRegister(flagValue, publicKeyDomain string) string {
-	// Explicit flag wins.
+// from ~/.tesla/ based on common fleet-template output patterns.
+//
+// Returns ("", nil) when no key is found (caller warns but does not fail).
+// Returns an error when an explicit path is provided but not readable, or when
+// multiple auto-detected candidates exist and none uniquely matches the domain.
+func resolveFleetKeyFileForRegister(flagValue, publicKeyDomain string) (string, error) {
+	// Explicit flag wins — must be readable or we fail.
 	if flagValue != "" {
 		abs, err := filepath.Abs(flagValue)
-		if err == nil {
-			if _, statErr := os.Stat(abs); statErr == nil {
-				return abs
-			}
+		if err != nil {
+			return "", fmt.Errorf("--key-file %q: %w", flagValue, err)
 		}
-		return flagValue
+		if _, statErr := os.Stat(abs); statErr != nil {
+			return "", fmt.Errorf("--key-file %q not readable: %w", abs, statErr)
+		}
+		return abs, nil
 	}
-	// Env override.
+	// Env override — must be readable or we fail.
 	if v := strings.TrimSpace(os.Getenv("TESLA_FLEET_KEY_FILE")); v != "" {
 		abs, err := filepath.Abs(v)
-		if err == nil {
-			if _, statErr := os.Stat(abs); statErr == nil {
-				return abs
-			}
+		if err != nil {
+			return "", fmt.Errorf("TESLA_FLEET_KEY_FILE=%q: %w", v, err)
 		}
-		return v
+		if _, statErr := os.Stat(abs); statErr != nil {
+			return "", fmt.Errorf("TESLA_FLEET_KEY_FILE=%q not readable: %w", abs, statErr)
+		}
+		return abs, nil
 	}
 	// Auto-detect from ~/.tesla/. fleet-template --gen-key writes to
 	// ~/.tesla/<dest-basename>-private.pem. Common patterns:
@@ -343,30 +351,60 @@ func resolveFleetKeyFileForRegister(flagValue, publicKeyDomain string) string {
 	//   ~/.tesla/<domain>-private.pem (if dest matched domain)
 	home, err := os.UserHomeDir()
 	if err != nil || home == "" {
-		return ""
+		return "", nil
 	}
 	teslaDir := filepath.Join(home, ".tesla")
-	candidates := []string{
-		filepath.Join(teslaDir, "tesla-keys-host-private.pem"),
-	}
-	// If domain looks like a hostname, try <hostname>-private.pem.
-	if publicKeyDomain != "" {
-		candidates = append(candidates, filepath.Join(teslaDir, publicKeyDomain+"-private.pem"))
-	}
-	// Also scan ~/.tesla/ for any *-private.pem file.
+
+	// Collect all readable *-private.pem files.
+	var allCandidates []string
 	if entries, err := os.ReadDir(teslaDir); err == nil {
 		for _, e := range entries {
 			if !e.IsDir() && strings.HasSuffix(e.Name(), "-private.pem") {
-				candidates = append(candidates, filepath.Join(teslaDir, e.Name()))
+				p := filepath.Join(teslaDir, e.Name())
+				if _, statErr := os.Stat(p); statErr == nil {
+					allCandidates = append(allCandidates, p)
+				}
 			}
 		}
 	}
-	for _, c := range candidates {
-		if _, err := os.Stat(c); err == nil {
-			return c
+	if len(allCandidates) == 0 {
+		return "", nil
+	}
+	if len(allCandidates) == 1 {
+		return allCandidates[0], nil
+	}
+
+	// Multiple candidates: prefer domain-matching or default fleet-template name.
+	var preferred []string
+	defaultName := filepath.Join(teslaDir, "tesla-keys-host-private.pem")
+	domainName := ""
+	if publicKeyDomain != "" {
+		domainName = filepath.Join(teslaDir, publicKeyDomain+"-private.pem")
+	}
+	for _, c := range allCandidates {
+		if c == domainName || c == defaultName {
+			preferred = append(preferred, c)
 		}
 	}
-	return ""
+	if len(preferred) == 1 {
+		return preferred[0], nil
+	}
+	// Still ambiguous — domain match takes priority over default.
+	if domainName != "" {
+		for _, c := range allCandidates {
+			if c == domainName {
+				return c, nil
+			}
+		}
+	}
+	for _, c := range allCandidates {
+		if c == defaultName {
+			return c, nil
+		}
+	}
+
+	// No unique match — error with list of candidates.
+	return "", fmt.Errorf("multiple signing keys in %s:\n  %s\nSpecify --key-file <path> to select one", teslaDir, strings.Join(allCandidates, "\n  "))
 }
 
 // newFleetLoginCmd runs the authorization_code grant via a localhost callback

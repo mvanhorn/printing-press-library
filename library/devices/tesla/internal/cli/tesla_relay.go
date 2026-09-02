@@ -646,34 +646,64 @@ go.mod; use ` + "`go build`" + ` from the cloned tree.`
 // preferring config.Fleet.PrivateKeyPath, then env TESLA_FLEET_KEY_FILE, then
 // any *-private.pem file in ~/.tesla/ (fleet-template/ble-pair output), then
 // errors with a remediation hint.
+//
+// Returns an error when an explicit path (config or env) is not readable, or
+// when multiple auto-detected candidates exist and none uniquely matches.
 func locateRelayPrivateKey(flags *rootFlags) (string, error) {
 	cfg, _ := config.Load(flagsConfigPath(flags))
 	if cfg != nil && strings.TrimSpace(cfg.Fleet.PrivateKeyPath) != "" {
 		p := cfg.Fleet.PrivateKeyPath
-		if _, err := os.Stat(p); err == nil {
-			return p, nil
+		abs, err := filepath.Abs(p)
+		if err != nil {
+			return "", fmt.Errorf("resolve config Fleet.PrivateKeyPath %q: %w", p, err)
 		}
+		if _, err := os.Stat(abs); err != nil {
+			return "", fmt.Errorf("Fleet.PrivateKeyPath %q not readable: %w", abs, err)
+		}
+		return abs, nil
 	}
 	if v := strings.TrimSpace(os.Getenv("TESLA_FLEET_KEY_FILE")); v != "" {
-		if _, err := os.Stat(v); err == nil {
-			return v, nil
+		abs, err := filepath.Abs(v)
+		if err != nil {
+			return "", fmt.Errorf("resolve TESLA_FLEET_KEY_FILE=%q: %w", v, err)
 		}
+		if _, err := os.Stat(abs); err != nil {
+			return "", fmt.Errorf("TESLA_FLEET_KEY_FILE=%q not readable: %w", abs, err)
+		}
+		return abs, nil
 	}
 	// Fallback: scan ~/.tesla/ for any *-private.pem file.
-	if home, err := os.UserHomeDir(); err == nil && home != "" {
-		teslaDir := filepath.Join(home, ".tesla")
-		if entries, err := os.ReadDir(teslaDir); err == nil {
-			for _, e := range entries {
-				if !e.IsDir() && strings.HasSuffix(e.Name(), "-private.pem") {
-					p := filepath.Join(teslaDir, e.Name())
-					if _, statErr := os.Stat(p); statErr == nil {
-						return p, nil
-					}
+	home, homeErr := os.UserHomeDir()
+	if homeErr != nil || home == "" {
+		return "", errors.New("no private signing key found; run `tesla auth fleet-template --gen-key` (Fleet) or `tesla auth ble-pair` (BLE) first to generate one")
+	}
+	teslaDir := filepath.Join(home, ".tesla")
+	var candidates []string
+	if entries, err := os.ReadDir(teslaDir); err == nil {
+		for _, e := range entries {
+			if !e.IsDir() && strings.HasSuffix(e.Name(), "-private.pem") {
+				p := filepath.Join(teslaDir, e.Name())
+				if _, statErr := os.Stat(p); statErr == nil {
+					candidates = append(candidates, p)
 				}
 			}
 		}
 	}
-	return "", errors.New("no private signing key found; run `tesla auth fleet-template --gen-key` (Fleet) or `tesla auth ble-pair` (BLE) first to generate one")
+	if len(candidates) == 0 {
+		return "", errors.New("no private signing key found; run `tesla auth fleet-template --gen-key` (Fleet) or `tesla auth ble-pair` (BLE) first to generate one")
+	}
+	if len(candidates) == 1 {
+		return candidates[0], nil
+	}
+	// Multiple candidates: prefer the default fleet-template output name.
+	defaultName := filepath.Join(teslaDir, "tesla-keys-host-private.pem")
+	for _, c := range candidates {
+		if c == defaultName {
+			return c, nil
+		}
+	}
+	// No unique match — error with list of candidates.
+	return "", fmt.Errorf("multiple signing keys in %s:\n  %s\nSet TESLA_FLEET_KEY_FILE=<path> to select one", teslaDir, strings.Join(candidates, "\n  "))
 }
 
 // ensureRelayCert generates a self-signed P256 cert (CN=localhost, SAN
