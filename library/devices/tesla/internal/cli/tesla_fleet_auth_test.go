@@ -767,6 +767,13 @@ func scopedRegisterHome(t *testing.T) string {
 	return teslaDir
 }
 
+func stubWellKnownFetch(t *testing.T, fn func(string) ([]byte, error)) {
+	t.Helper()
+	orig := fetchWellKnownPublicKey
+	fetchWellKnownPublicKey = fn
+	t.Cleanup(func() { fetchWellKnownPublicKey = orig })
+}
+
 func TestResolveFleetKeyFileForRegister_SoleMismatch_Rejected(t *testing.T) {
 	teslaDir := scopedRegisterHome(t)
 	priv, _ := generateTestKeyPair(t, teslaDir, "unrelated")
@@ -776,6 +783,9 @@ func TestResolveFleetKeyFileForRegister_SoleMismatch_Rejected(t *testing.T) {
 	if err := os.Rename(domainPub, filepath.Join(teslaDir, "keys.example.com-public.pem")); err != nil {
 		t.Fatalf("rename domain public key: %v", err)
 	}
+	stubWellKnownFetch(t, func(string) ([]byte, error) {
+		return nil, fmt.Errorf("offline")
+	})
 
 	got, err := resolveFleetKeyFileForRegister("", "keys.example.com")
 	if err == nil {
@@ -795,6 +805,9 @@ func TestResolveFleetKeyFileForRegister_SoleMatch_Accepted(t *testing.T) {
 	if err := os.Rename(pub, filepath.Join(teslaDir, "keys.example.com-public.pem")); err != nil {
 		t.Fatalf("rename domain public key: %v", err)
 	}
+	stubWellKnownFetch(t, func(string) ([]byte, error) {
+		return nil, fmt.Errorf("offline")
+	})
 
 	got, err := resolveFleetKeyFileForRegister("", "keys.example.com")
 	if err != nil {
@@ -830,16 +843,13 @@ func TestResolveFleetKeyFileForRegister_FetchMatchAndMismatch(t *testing.T) {
 	_, otherPub := generateTestKeyPair(t, teslaDir, "other")
 	os.Remove(filepath.Join(teslaDir, "other-private.pem"))
 
-	orig := fetchWellKnownPublicKey
-	t.Cleanup(func() { fetchWellKnownPublicKey = orig })
-
 	matching := derivePublicKeyBytes(priv)
-	fetchWellKnownPublicKey = func(domain string) ([]byte, error) {
+	stubWellKnownFetch(t, func(domain string) ([]byte, error) {
 		if domain != "keys.example.com" {
 			t.Errorf("unexpected domain %q", domain)
 		}
 		return matching, nil
-	}
+	})
 	got, err := resolveFleetKeyFileForRegister("", "keys.example.com")
 	if err != nil {
 		t.Fatalf("fetched matching public key should select sole candidate: %v", err)
@@ -871,22 +881,51 @@ func TestResolveFleetKeyFileForRegister_FetchMatchAndMismatch(t *testing.T) {
 	}
 }
 
-func TestResolveFleetKeyFileForRegister_LocalPreferredOverFetch(t *testing.T) {
+func TestResolveFleetKeyFileForRegister_FetchOverridesStaleLocal(t *testing.T) {
+	teslaDir := scopedRegisterHome(t)
+	fleetPriv, fleetPub := generateTestKeyPair(t, teslaDir, "fleet-host")
+	os.Remove(fleetPub)
+	stalePriv, stalePub := generateTestKeyPair(t, teslaDir, "stale")
+	if err := os.Rename(stalePub, filepath.Join(teslaDir, "keys.example.com-public.pem")); err != nil {
+		t.Fatalf("rename stale public key: %v", err)
+	}
+	stubWellKnownFetch(t, func(string) ([]byte, error) {
+		return derivePublicKeyBytes(fleetPriv), nil
+	})
+
+	got, err := resolveFleetKeyFileForRegister("", "keys.example.com")
+	if err != nil {
+		t.Fatalf("hosted public key should win over stale local: %v", err)
+	}
+	if got != fleetPriv {
+		t.Errorf("got %q, want hosted match %q (not stale %q)", got, fleetPriv, stalePriv)
+	}
+}
+
+func TestResolveFleetKeyFileForRegister_LocalFallbackWhenFetchFails(t *testing.T) {
 	teslaDir := scopedRegisterHome(t)
 	priv, pub := generateTestKeyPair(t, teslaDir, "fleet-host")
 	if err := os.Rename(pub, filepath.Join(teslaDir, "keys.example.com-public.pem")); err != nil {
 		t.Fatalf("rename domain public key: %v", err)
 	}
-	orig := fetchWellKnownPublicKey
-	t.Cleanup(func() { fetchWellKnownPublicKey = orig })
-	fetchWellKnownPublicKey = func(string) ([]byte, error) {
-		t.Fatal("fetch must not run when local domain public key exists")
-		return nil, nil
+	stubWellKnownFetch(t, func(string) ([]byte, error) {
+		return nil, fmt.Errorf("connection refused")
+	})
+
+	pubBytes, src, err := resolveRegisterPublicKeyMaterial(teslaDir, "keys.example.com")
+	if err != nil {
+		t.Fatalf("local fallback should succeed when fetch fails: %v", err)
+	}
+	if !strings.Contains(src, "local fallback") {
+		t.Errorf("source should mention local fallback, got %q", src)
+	}
+	if !bytes.Equal(pubBytes, derivePublicKeyBytes(priv)) {
+		t.Errorf("fallback bytes should match local public key")
 	}
 
 	got, err := resolveFleetKeyFileForRegister("", "keys.example.com")
 	if err != nil {
-		t.Fatalf("local domain public key should be used: %v", err)
+		t.Fatalf("local fallback should select matching key: %v", err)
 	}
 	if got != priv {
 		t.Errorf("got %q, want %q", got, priv)

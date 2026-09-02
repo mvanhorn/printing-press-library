@@ -354,28 +354,28 @@ func fetchWellKnownPublicKeyHTTPS(domain string) ([]byte, error) {
 }
 
 // resolveRegisterPublicKeyMaterial returns PKIX public-key bytes for the
-// domain being registered. Prefers ~/.tesla/<domain>-public.pem; if that
-// file is missing, fetches the Tesla well-known URL.
+// domain being registered. The hosted well-known PEM is authoritative; the
+// local ~/.tesla/<domain>-public.pem is used only when the fetch fails.
 func resolveRegisterPublicKeyMaterial(teslaDir, publicKeyDomain string) ([]byte, string, error) {
 	domain := strings.TrimSpace(publicKeyDomain)
 	if domain == "" {
 		return nil, "", nil
 	}
+	hostedURL := teslaWellKnownPublicKeyURL(domain)
+	b, fetchErr := fetchWellKnownPublicKey(domain)
+	if fetchErr == nil && len(b) > 0 {
+		return b, hostedURL, nil
+	}
+	if fetchErr == nil {
+		fetchErr = errors.New("fetched public key is empty")
+	}
 	localPath := filepath.Join(teslaDir, domain+"-public.pem")
-	if info, err := os.Stat(localPath); err == nil && info.Mode().IsRegular() {
-		if b := readPublicKeyBytes(localPath); len(b) > 0 {
-			return b, localPath, nil
+	if info, statErr := os.Stat(localPath); statErr == nil && info.Mode().IsRegular() {
+		if local := readPublicKeyBytes(localPath); len(local) > 0 {
+			return local, localPath + " (local fallback)", nil
 		}
-		return nil, "", fmt.Errorf("cannot parse local public key %s; specify --key-file or host a valid key at %s", localPath, teslaWellKnownPublicKeyURL(domain))
 	}
-	b, err := fetchWellKnownPublicKey(domain)
-	if err != nil {
-		return nil, "", fmt.Errorf("cannot fetch public key from %s: %w; specify --key-file", teslaWellKnownPublicKeyURL(domain), err)
-	}
-	if len(b) == 0 {
-		return nil, "", fmt.Errorf("fetched public key from %s is empty; specify --key-file", teslaWellKnownPublicKeyURL(domain))
-	}
-	return b, teslaWellKnownPublicKeyURL(domain), nil
+	return nil, "", fmt.Errorf("cannot fetch public key from %s: %w; specify --key-file", hostedURL, fetchErr)
 }
 
 // resolveFleetKeyFileForRegister resolves the signing private key path for
