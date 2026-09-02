@@ -312,7 +312,7 @@ tesla-control -ble -vin <VIN> add-key-request owner cloud_key
 # Tap NFC card or phone key when the car prompts
 
 # 7. Now remote commands work from anywhere
-tesla-pp-cli command unlock --vehicle Stella --send
+tesla-pp-cli command unlock --vehicle <name> --send
 ```
 
 After the one-time BLE+NFC pairing at the car, `unlock` (and any other signed command) works from anywhere with internet. Per-call cost: $0.001 plus a $0.02 wake if the car is asleep. Inside the $10/mo personal-use credit, that lands at roughly $0 net.
@@ -329,11 +329,11 @@ tesla-pp-cli auth ble-pair --vin <your-vin>
 # Install and run tesla-http-proxy (clone+build)
 git clone https://github.com/teslamotors/vehicle-command.git
 cd vehicle-command && go build -o tesla-http-proxy ./cmd/tesla-http-proxy
-./tesla-http-proxy -key-file ~/.config/tesla-pp-cli/private.pem -port 4443 -cert auto &
+./tesla-http-proxy -key-file ~/.tesla/<VIN>-private.pem -port 4443 -cert auto &
 
 # Start relay and send commands
 tesla-pp-cli relay start
-tesla-pp-cli command set_charge_limit --vehicle Snowflake --send -- percent=80
+tesla-pp-cli command set_charge_limit --vehicle <name> --send -- percent=80
 ```
 
 One-time BLE key enrollment at the car, then a local proxy plus relay. Subsequent `tesla command set_charge_limit`, `tesla command auto_conditioning_start`, `tesla command honk_horn`, and `tesla command media_toggle_playback` ride free over Hermes. Unlock and trunk are not available on this path; for those, use Fleet.
@@ -343,9 +343,9 @@ One-time BLE key enrollment at the car, then a local proxy plus relay. Subsequen
 The `--via` flag picks which transport handles a signed command:
 
 ```bash
-tesla command set-charge-limit --vehicle Snowflake --percent 80 --send --via hermes
-tesla command unlock --vehicle Stella --send --via fleet
-tesla command flash-lights --vehicle Snowflake --send --via ble
+tesla-pp-cli command set_charge_limit --vehicle <name> --send --via hermes -- percent=80
+tesla-pp-cli command unlock --vehicle <name> --send --via fleet
+tesla-pp-cli command flash_lights --vehicle <name> --send --via ble
 ```
 
 Defaults: pre-2021 vehicles use REST, post-2021 vehicles use whichever signed path is enrolled. If both Hermes and Fleet are enrolled, Hermes wins for infotainment commands (cheaper) and Fleet wins for unlock/lock/trunk (Hermes does not carry these). Override per-call with `--via`.
@@ -359,7 +359,7 @@ scp tesla-bundle.enc user@mac-mini:~/
 
 # On Mac mini:
 tesla auth import ~/tesla-bundle.enc
-tesla command honk --vehicle Snowflake --send --via fleet
+tesla-pp-cli command honk_horn --vehicle <name> --send --via fleet
 ```
 
 Export creates an Argon2id plus AES-256-GCM bundle of the REST bearer, the Fleet bearer, and the enrolled ECDSA keypair. Copy it over Tailscale or any secure channel. Import on the remote, enter the passphrase, and the same Fleet creds plus the same enrolled key work from the new host. The car does not need to re-enroll; key identity rides on the keypair.

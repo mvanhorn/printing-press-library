@@ -535,8 +535,11 @@ func commandDispatchFleet(cmd *cobra.Command, flags *rootFlags, cfg *config.Conf
 	bin := detectTeslaControlBinary()
 	if bin == "" {
 		return usageErr(fmt.Errorf(
-			"tesla-control not found on PATH or at ~/go/bin/%s; install via:\n"+
-				"  go install github.com/teslamotors/vehicle-command/cmd/tesla-control@latest",
+			"tesla-control not found on PATH or at ~/go/bin/%s; install via clone+build:\n"+
+				"  git clone https://github.com/teslamotors/vehicle-command.git\n"+
+				"  cd vehicle-command && go build -o tesla-control ./cmd/tesla-control\n"+
+				"  mv tesla-control ~/go/bin/\n"+
+				"Note: go install @latest fails due to upstream replace directives.",
 			teslaControlBinary,
 		))
 	}
@@ -656,10 +659,9 @@ func writeTokenFile(token string) (string, func(), error) {
 }
 
 // resolveFleetKeyPath returns the absolute path of the Fleet signing private
-// key, preferring env TESLA_FLEET_KEY_FILE, then cfg.Fleet.PrivateKeyPath. No
-// existence check beyond stat: we want tesla-control's own error message to
-// surface when the key is unreadable for any other reason (mode mismatch
-// etc.). Returns a usage error when neither source is set.
+// key. Resolution order: env TESLA_FLEET_KEY_FILE, cfg.Fleet.PrivateKeyPath,
+// then fallback scan of ~/.tesla/*-private.pem. Returns a usage error when
+// no key is found.
 func resolveFleetKeyPath(cfg *config.Config) (string, error) {
 	if v := strings.TrimSpace(os.Getenv(commandFleetKeyFileEnv)); v != "" {
 		abs, err := filepath.Abs(v)
@@ -684,7 +686,21 @@ func resolveFleetKeyPath(cfg *config.Config) (string, error) {
 			return abs, nil
 		}
 	}
-	return "", fmt.Errorf("no Fleet signing key configured; set TESLA_FLEET_KEY_FILE or run `tesla auth fleet-template --gen-key` and store the path with `tesla auth fleet-register`")
+	// Fallback: scan ~/.tesla/ for any *-private.pem file (fleet-template output).
+	if home, err := os.UserHomeDir(); err == nil && home != "" {
+		teslaDir := filepath.Join(home, ".tesla")
+		if entries, err := os.ReadDir(teslaDir); err == nil {
+			for _, e := range entries {
+				if !e.IsDir() && strings.HasSuffix(e.Name(), "-private.pem") {
+					p := filepath.Join(teslaDir, e.Name())
+					if _, statErr := os.Stat(p); statErr == nil {
+						return p, nil
+					}
+				}
+			}
+		}
+	}
+	return "", fmt.Errorf("no Fleet signing key configured; set TESLA_FLEET_KEY_FILE or run `tesla auth fleet-template --gen-key` then `tesla auth fleet-register --key-file <path>`")
 }
 
 // fleetTokenRefreshSkew is how far ahead of the stored expiry the proactive

@@ -644,8 +644,8 @@ go.mod; use ` + "`go build`" + ` from the cloned tree.`
 
 // locateRelayPrivateKey returns the private signing key path for the relay,
 // preferring config.Fleet.PrivateKeyPath, then env TESLA_FLEET_KEY_FILE, then
-// ~/.tesla/snowflake-private.pem (the BLE-pair default), then errors with a
-// remediation hint.
+// any *-private.pem file in ~/.tesla/ (fleet-template/ble-pair output), then
+// errors with a remediation hint.
 func locateRelayPrivateKey(flags *rootFlags) (string, error) {
 	cfg, _ := config.Load(flagsConfigPath(flags))
 	if cfg != nil && strings.TrimSpace(cfg.Fleet.PrivateKeyPath) != "" {
@@ -659,11 +659,18 @@ func locateRelayPrivateKey(flags *rootFlags) (string, error) {
 			return v, nil
 		}
 	}
-	home, err := os.UserHomeDir()
-	if err == nil {
-		candidate := filepath.Join(home, ".tesla", "snowflake-private.pem")
-		if _, err := os.Stat(candidate); err == nil {
-			return candidate, nil
+	// Fallback: scan ~/.tesla/ for any *-private.pem file.
+	if home, err := os.UserHomeDir(); err == nil && home != "" {
+		teslaDir := filepath.Join(home, ".tesla")
+		if entries, err := os.ReadDir(teslaDir); err == nil {
+			for _, e := range entries {
+				if !e.IsDir() && strings.HasSuffix(e.Name(), "-private.pem") {
+					p := filepath.Join(teslaDir, e.Name())
+					if _, statErr := os.Stat(p); statErr == nil {
+						return p, nil
+					}
+				}
+			}
 		}
 	}
 	return "", errors.New("no private signing key found; run `tesla auth fleet-template --gen-key` (Fleet) or `tesla auth ble-pair` (BLE) first to generate one")

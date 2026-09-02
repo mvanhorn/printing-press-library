@@ -138,9 +138,13 @@ func runBlePair(cmd *cobra.Command, flags *rootFlags, vin, keyFile, role string)
 	bin := detectTeslaControlBinary()
 	if bin == "" {
 		return usageErr(fmt.Errorf(
-			"tesla-control not found on PATH or at ~/go/bin/%s; install both:\n"+
-				"  go install github.com/teslamotors/vehicle-command/cmd/tesla-control@latest\n"+
-				"  go install github.com/teslamotors/vehicle-command/cmd/tesla-keygen@latest",
+			"tesla-control not found on PATH or at ~/go/bin/%s; install via clone+build:\n"+
+				"  git clone https://github.com/teslamotors/vehicle-command.git\n"+
+				"  cd vehicle-command\n"+
+				"  go build -o tesla-control ./cmd/tesla-control\n"+
+				"  go build -o tesla-keygen ./cmd/tesla-keygen\n"+
+				"  mv tesla-control tesla-keygen ~/go/bin/\n"+
+				"Note: go install @latest fails due to upstream replace directives.",
 			teslaControlBinary,
 		))
 	}

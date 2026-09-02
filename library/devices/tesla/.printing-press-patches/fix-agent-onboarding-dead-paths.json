@@ -4,13 +4,19 @@
   "applied_at": "2026-09-02",
   "base_run_id": "20260519-225351",
   "base_printing_press_version": "4.10.0",
-  "summary": "Default auth login uses tesla_auth (not the dead void-callback PKCE flow), fleet-register persists signing key path, docs lead with working agent-friendly flows.",
-  "reason": "Tesla's OAuth rejects the void-callback redirect_uri, making the default PKCE flow fail with a 404. Agents/headless boxes would wait forever for a pasted URL. The fleet-register command did not persist the signing key path, so signed commands failed with 'no Fleet signing key configured' despite fleet-template having generated the key. Documentation still led with the broken paste-the-404-URL flow.",
+  "summary": "Default auth login uses tesla_auth (not dead void-callback), fleet-register persists key path, resolveFleetKeyPath/locateRelayPrivateKey fallback to ~/.tesla/*-private.pem, compactFields strips cached_data/tokens/backseat_token, error strings use clone+build (not @latest), docs lead with working flows.",
+  "reason": "Tesla's OAuth rejects void-callback redirect_uri (404). fleet-register never persisted PrivateKeyPath. Error strings told users 'go install @latest' which fails due to upstream replace directives. Products --agent dumped huge cached_data protobuf. locateRelayPrivateKey hardcoded a personal car name. Docs taught the dead paste flow and used personal car names.",
   "files": [
     "internal/cli/tesla_auth_refresh.go",
     "internal/cli/tesla_fleet_auth.go",
+    "internal/cli/tesla_command.go",
+    "internal/cli/tesla_ble_pair.go",
+    "internal/cli/tesla_creds_export.go",
+    "internal/cli/tesla_relay.go",
+    "internal/cli/tesla_relay_test.go",
+    "internal/cli/helpers.go",
     "SKILL.md",
     "README.md"
   ],
-  "validated_outcome": "Module build/vet passes. Default auth login detects tesla_auth and uses it, or fails with clear install instructions. Fleet-register auto-detects the key from ~/.tesla/ or accepts --key-file. Docs describe working flows: tesla_auth for Owner API, clone+build for tesla-control, BLE+NFC virtual key pairing at the car for 2021+ vehicles."
+  "validated_outcome": "Module build/vet/test pass (310 cli tests). Default auth login uses tesla_auth or errors with install instructions. Fleet-register accepts --key-file and auto-detects from ~/.tesla/. resolveFleetKeyPath and locateRelayPrivateKey fall back to any *-private.pem in ~/.tesla/. Error strings give clone+build instructions. compactFields strips cached_data/tokens/backseat_token. Docs use generic <name>/<VIN> placeholders, correct key paths, and working flows."
 }

@@ -35,10 +35,10 @@ func scopedRelayHome(t *testing.T) relayPaths {
 	if err := os.MkdirAll(paths.Dir, 0o700); err != nil {
 		t.Fatalf("mkdir %s: %v", paths.Dir, err)
 	}
-	// Drop a fake snowflake-private.pem so locateRelayPrivateKey() succeeds.
+	// Drop a fake *-private.pem so locateRelayPrivateKey() succeeds.
 	teslaDir := filepath.Join(home, ".tesla")
 	_ = os.MkdirAll(teslaDir, 0o700)
-	_ = os.WriteFile(filepath.Join(teslaDir, "snowflake-private.pem"),
+	_ = os.WriteFile(filepath.Join(teslaDir, "test-vehicle-private.pem"),
 		[]byte("-----BEGIN PRIVATE KEY-----\nfake\n-----END PRIVATE KEY-----\n"), 0o600)
 	return paths
 }
@@ -589,19 +589,19 @@ func TestRelay_PortFree_DetectsConflict(t *testing.T) {
 	}
 }
 
-func TestRelay_LocateRelayPrivateKey_PrefersConfigThenEnvThenSnowflake(t *testing.T) {
+func TestRelay_LocateRelayPrivateKey_PrefersConfigThenEnvThenTeslaDir(t *testing.T) {
 	scopedRelayHome(t)
-	// scopedRelayHome plants ~/.tesla/snowflake-private.pem; with no config
-	// and no env, the snowflake path wins.
+	// scopedRelayHome plants ~/.tesla/test-vehicle-private.pem; with no config
+	// and no env, any *-private.pem in ~/.tesla/ wins.
 	key, err := locateRelayPrivateKey(&rootFlags{})
 	if err != nil {
 		t.Fatalf("locateRelayPrivateKey: %v", err)
 	}
-	if !strings.HasSuffix(key, "snowflake-private.pem") {
-		t.Errorf("expected snowflake key, got: %s", key)
+	if !strings.HasSuffix(key, "-private.pem") {
+		t.Errorf("expected *-private.pem key, got: %s", key)
 	}
 
-	// Env var wins over snowflake when present + file exists.
+	// Env var wins over ~/.tesla/ fallback when present + file exists.
 	envKey := filepath.Join(t.TempDir(), "env-key.pem")
 	_ = os.WriteFile(envKey, []byte("fake"), 0o600)
 	t.Setenv("TESLA_FLEET_KEY_FILE", envKey)

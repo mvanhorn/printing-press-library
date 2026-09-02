@@ -190,8 +190,9 @@ Free internet control for charge, climate, honk, and media commands. Uses your i
    git clone https://github.com/teslamotors/vehicle-command.git
    cd vehicle-command
    go build -o tesla-http-proxy ./cmd/tesla-http-proxy
-   ./tesla-http-proxy -key-file ~/.config/tesla-pp-cli/private.pem -port 4443 -cert auto
+   ./tesla-http-proxy -key-file ~/.tesla/<VIN>-private.pem -port 4443 -cert auto
    ```
+   Replace `<VIN>` with your vehicle's VIN (ble-pair writes keys there by default).
 
 5. **Start relay and send commands**:
    ```bash

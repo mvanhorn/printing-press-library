@@ -350,7 +350,7 @@ func buildCredsBundleContents(cfg *config.Config, includes []string) (*credsBund
 	if includesHas(includes, "keys") {
 		keyPath := strings.TrimSpace(cfg.Fleet.PrivateKeyPath)
 		if keyPath == "" {
-			return nil, usageErr(fmt.Errorf("--include keys requested but cfg.Fleet.PrivateKeyPath is empty (run 'tesla auth fleet-register' first)"))
+			return nil, usageErr(fmt.Errorf("--include keys requested but cfg.Fleet.PrivateKeyPath is empty (run 'tesla auth fleet-register --key-file <path>' or set TESLA_FLEET_KEY_FILE)"))
 		}
 		expanded := expandUserHome(keyPath)
 		raw, err := os.ReadFile(expanded)

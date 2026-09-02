@@ -903,12 +903,15 @@ func extractResponseData(data json.RawMessage) json.RawMessage {
 	}
 }
 
-// compactVerboseListFields are prose-shaped fields stripped from list-item
-// projections. On lists, "body"/"content"/"html"/"markdown" are verbose
-// noise and the row's identity is carried by id/name/title/etc.
+// compactVerboseListFields are prose-shaped or verbose fields stripped from
+// list-item projections. On lists, "body"/"content"/"html"/"markdown" are
+// verbose noise and the row's identity is carried by id/name/title/etc.
+// Tesla-specific: cached_data is a huge base64 protobuf on every products row,
+// tokens/backseat_token are auth blobs that should never leak to agent output.
 var compactVerboseListFields = map[string]bool{
 	"description": true, "body": true, "content": true,
 	"comments": true, "attachments": true, "html": true, "markdown": true,
+	"cached_data": true, "tokens": true, "backseat_token": true,
 }
 
 // compactVerboseObjectFields are metadata fields stripped from single-object
@@ -916,10 +919,15 @@ var compactVerboseListFields = map[string]bool{
 // for a `get` command those fields are the primary payload, and stripping
 // them under `--agent`/`--compact` silently emits a useless envelope.
 // Use `--select` to drop them explicitly.
+// Tesla-specific: cached_data is a huge base64 protobuf, tokens/backseat_token
+// are auth blobs that should never leak to agent output.
 var compactVerboseObjectFields = map[string]bool{
-	"description": true,
-	"comments":    true,
-	"attachments": true,
+	"description":    true,
+	"comments":       true,
+	"attachments":    true,
+	"cached_data":    true,
+	"tokens":         true,
+	"backseat_token": true,
 }
 
 // compactFields keeps only the most important fields for agent consumption.
