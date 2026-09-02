@@ -697,8 +697,11 @@ func resolveFleetKeyPath(cfg *config.Config) (string, error) {
 		return "", fmt.Errorf("no Fleet signing key configured; set TESLA_FLEET_KEY_FILE or run `tesla auth fleet-template --gen-key` then `tesla auth fleet-register --key-file <path>`")
 	}
 	var domain string
+	var hasFleetCredentials bool
 	if cfg != nil {
-		domain = strings.TrimSpace(cfg.FleetTokens().PublicKeyDomain)
+		ft := cfg.FleetTokens()
+		domain = strings.TrimSpace(ft.PublicKeyDomain)
+		hasFleetCredentials = ft.ClientID != "" || ft.AccessToken != ""
 	}
 	matched, err := matchCandidatesToDomain(teslaDir, candidates, domain)
 	if err != nil {
@@ -709,6 +712,12 @@ func resolveFleetKeyPath(cfg *config.Config) (string, error) {
 	}
 	// No configured Fleet domain to bind against.
 	if len(candidates) == 1 {
+		// If Fleet credentials exist but no PublicKeyDomain, don't accept an
+		// unverified key — the registration flow should have set the domain.
+		if hasFleetCredentials {
+			return "", fmt.Errorf("Fleet credentials exist but PublicKeyDomain is not configured; cannot verify if %s matches the registered public key. Run `tesla auth fleet-register` to complete setup, or set TESLA_FLEET_KEY_FILE=<path>", candidates[0])
+		}
+		// No Fleet setup at all — accept sole candidate for backward compat.
 		return candidates[0], nil
 	}
 	return "", errMultipleCandidates(teslaDir, candidates, "Set TESLA_FLEET_KEY_FILE=<path> to select one.")
