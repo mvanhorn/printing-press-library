@@ -1061,6 +1061,47 @@ func mintTestJWT(t *testing.T, exp time.Time) string {
 	return header + "." + payload + "." + sig
 }
 
+// TestJwtExpiry verifies the jwtExpiry helper extracts exp claims correctly.
+func TestJwtExpiry(t *testing.T) {
+	t.Run("valid JWT with exp", func(t *testing.T) {
+		exp := time.Now().Add(time.Hour).Truncate(time.Second)
+		jwt := mintTestJWT(t, exp)
+		got, ok := jwtExpiry(jwt)
+		if !ok {
+			t.Fatal("jwtExpiry returned ok=false for valid JWT")
+		}
+		if !got.Equal(exp) {
+			t.Errorf("jwtExpiry = %v, want %v", got, exp)
+		}
+	})
+
+	t.Run("not a JWT (wrong segment count)", func(t *testing.T) {
+		_, ok := jwtExpiry("not-a-jwt")
+		if ok {
+			t.Error("jwtExpiry returned ok=true for non-JWT")
+		}
+	})
+
+	t.Run("JWT without exp claim", func(t *testing.T) {
+		header := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"RS256"}`))
+		payload := base64.RawURLEncoding.EncodeToString([]byte(`{"aud":"test"}`))
+		sig := base64.RawURLEncoding.EncodeToString([]byte("sig"))
+		jwt := header + "." + payload + "." + sig
+		_, ok := jwtExpiry(jwt)
+		if ok {
+			t.Error("jwtExpiry returned ok=true for JWT without exp")
+		}
+	})
+
+	t.Run("invalid base64 payload", func(t *testing.T) {
+		jwt := "header.!!!invalid-base64!!!.sig"
+		_, ok := jwtExpiry(jwt)
+		if ok {
+			t.Error("jwtExpiry returned ok=true for invalid base64")
+		}
+	})
+}
+
 // TestNewClient_ReadPathSelfHealsInBothModes guards that the read client always
 // wires a 401 auto-refresh callback (plan U4): owner-api reads heal via the
 // owner-api refresh closure, Fleet-routed reads heal via the Fleet closure.
