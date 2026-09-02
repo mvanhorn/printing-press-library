@@ -677,6 +677,20 @@ func commandDispatchFleet(cmd *cobra.Command, flags *rootFlags, cfg *config.Conf
 			if rerr == nil {
 				rerr = errors.New("token endpoint returned no access token")
 			}
+			// A failed initial mint is an auth failure — the same live-call
+			// backstop applies as for a post-dispatch 401: reroute auto-mode
+			// owner-API commands to a running Hermes relay rather than
+			// stranding a command the relay can carry.
+			if hermesAuthFallback {
+				fbChoice := PathChoice{
+					Path:   PathHermes,
+					Reason: fmt.Sprintf("Hermes fallback: Fleet initial token mint failed (%v)", rerr),
+				}
+				if ferr := commandDispatchHermes(cmd, flags, cfg, v, name, extra, fbChoice); ferr != nil {
+					return fmt.Errorf("fleet token mint failed (%v); hermes fallback failed: %w", rerr, ferr)
+				}
+				return nil
+			}
 			return usageErr(fmt.Errorf("Fleet refresh failed: %v; run `tesla auth fleet-login`", rerr))
 		}
 	}

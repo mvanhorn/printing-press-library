@@ -884,10 +884,52 @@ func TestCommand_Fleet_RefreshOnlyConfig_MintsBeforeDispatch(t *testing.T) {
 	}
 }
 
+// TestCommand_Fleet_RefreshOnlyMintFails_AutoFallsBackToHermes: a failed
+// initial mint is an auth failure, so the live-call backstop applies to it
+// exactly as to a post-dispatch 401. Refresh-only credentials whose grant is
+// dead must not strand an auto-routed owner-API command that a running Hermes
+// relay can carry — and tesla-control must never run without a token.
+func TestCommand_Fleet_RefreshOnlyMintFails_AutoFallsBackToHermes(t *testing.T) {
+	flags, _ := commandTestSetup(t, []productEntry{
+		{VIN: "SNOWFLAKEVIN0001", DisplayName: "Snowflake", CommandSigning: "required"},
+	})
+	refreshes := seedFleetSelfHealWithAccess(t, flags, "", time.Time{}, false) // dead grant
+
+	calls := 0
+	orig := runTeslaControlSubprocessFn
+	t.Cleanup(func() { runTeslaControlSubprocessFn = orig })
+	runTeslaControlSubprocessFn = func(ctx context.Context, bin string, args []string) (string, string, error) {
+		calls++
+		return "", "", nil
+	}
+
+	t.Setenv(commandHermesPortEnv, "9999") // relay "running"
+	hermesCalls := hijackHermesSuccess(t)
+
+	out, err := runCommandForTest(t, flags, []string{"honk_horn", "--vehicle", "Snowflake", "--send"})
+	if err != nil {
+		t.Fatalf("expected Hermes fallback success after failed mint, got error: %v\n%s", err, out.String())
+	}
+	if *refreshes != 1 {
+		t.Errorf("expected exactly 1 mint attempt, got %d", *refreshes)
+	}
+	if calls != 0 {
+		t.Errorf("tesla-control must not run without a token, got %d calls", calls)
+	}
+	if *hermesCalls != 1 {
+		t.Errorf("expected exactly 1 Hermes dispatch, got %d", *hermesCalls)
+	}
+	body := out.String()
+	if !strings.Contains(body, `"path": "hermes"`) && !strings.Contains(body, `"path":"hermes"`) {
+		t.Errorf("expected path=hermes in fallback output, got: %s", body)
+	}
+}
+
 // TestCommand_Fleet_RefreshOnlyConfig_MintFails_ErrorsClearly: when the config
-// is refresh-token-only and the mint fails, dispatch surfaces the refresh
-// failure with fleet-login guidance (not a generic "not configured") and never
-// invokes tesla-control without a token.
+// is refresh-token-only, the mint fails, and the Hermes backstop is not
+// applicable (VCSEC command, no relay), dispatch surfaces the refresh failure
+// with fleet-login guidance (not a generic "not configured") and never invokes
+// tesla-control without a token.
 func TestCommand_Fleet_RefreshOnlyConfig_MintFails_ErrorsClearly(t *testing.T) {
 	flags, _ := commandTestSetup(t, []productEntry{
 		{VIN: "SNOWFLAKEVIN0001", DisplayName: "Snowflake", CommandSigning: "required"},
