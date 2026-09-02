@@ -108,6 +108,8 @@ internet path per command:
     (infotainment only: charge, climate, honk, media)
   - signed-cmd vehicles, VCSEC (lock, unlock, trunk, sentry): Fleet API only
     (Hermes proxy does not support VCSEC)
+  - if a Fleet send fails auth and a Hermes relay is running, infotainment
+    commands automatically fall back to Hermes (auto mode only)
   - no internet path available: prints the exact tesla-control -ble recipe
 
 By default this command PRINTS the intent and exits zero ("would unlock
@@ -196,6 +198,14 @@ func runCommand(cmd *cobra.Command, flags *rootFlags, name string, extraArgs []s
 		return usageErr(perr)
 	}
 
+	// Runtime auth backstop, via=auto owner-API only: offline readiness can
+	// prove a token parses and hasn't hit its exp, but revocation and
+	// signature validity are only provable by the live call. If Fleet
+	// dispatch still fails auth after its bounded refresh retry, reroute to
+	// the running Hermes relay instead of stranding the command. Explicit
+	// --via=fleet must keep erroring, so the flag is auto-mode only.
+	hermesAuthFallback := viaArg == "auto" && cmdClass == ClassOwnerAPI && hermesRunning
+
 	// Default-print: surface intent and exit zero. The whole point of KD5.
 	if !send {
 		return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
@@ -214,7 +224,7 @@ func runCommand(cmd *cobra.Command, flags *rootFlags, name string, extraArgs []s
 	// --send: dispatch to the chosen transport.
 	switch choice.Path {
 	case PathFleet:
-		return commandDispatchFleet(cmd, flags, cfg, resolved, name, extraArgs, choice)
+		return commandDispatchFleet(cmd, flags, cfg, resolved, name, extraArgs, choice, hermesAuthFallback)
 	case PathHermes:
 		return commandDispatchHermes(cmd, flags, cfg, resolved, name, extraArgs, choice)
 	case PathBLE:
@@ -631,7 +641,12 @@ func formatAmbiguousCandidates(hits []productEntry) string {
 // the user's private key + VIN. The token file is removed in a defer; the dir
 // is mode 0o700 so the file is not group/world readable even if a future
 // mode-leak bug widens the file mode.
-func commandDispatchFleet(cmd *cobra.Command, flags *rootFlags, cfg *config.Config, v *commandResolvedVehicle, name string, extra []string, choice PathChoice) error {
+//
+// hermesAuthFallback, set only for via=auto owner-API picks with a running
+// relay, reroutes the command through Hermes when Fleet still fails auth
+// after the bounded refresh retry — the live-call backstop for token defects
+// (revoked, invalidly signed) that no offline readiness check can detect.
+func commandDispatchFleet(cmd *cobra.Command, flags *rootFlags, cfg *config.Config, v *commandResolvedVehicle, name string, extra []string, choice PathChoice, hermesAuthFallback bool) error {
 	if cfg == nil {
 		return fmt.Errorf("nil config in Fleet dispatch")
 	}
@@ -725,6 +740,22 @@ func commandDispatchFleet(cmd *cobra.Command, flags *rootFlags, cfg *config.Conf
 		if newTok, _ := refreshFleetTokenGuarded(cfg); newTok != "" {
 			stdout, stderr, runErr = dispatchOnce(newTok)
 		}
+	}
+
+	// Live-call auth backstop (via=auto owner-API only): the token cleared
+	// every offline check yet Tesla rejected it — revoked or invalidly
+	// signed. A running Hermes relay can still carry this command class, so
+	// reroute instead of surfacing the auth error. Explicit --via=fleet
+	// never reaches here (hermesAuthFallback is false).
+	if runErr != nil && hermesAuthFallback && isFleetAuthError(stdout, stderr, runErr) {
+		fbChoice := PathChoice{
+			Path:   PathHermes,
+			Reason: fmt.Sprintf("Hermes fallback: Fleet auth failed after refresh retry (%v)", runErr),
+		}
+		if ferr := commandDispatchHermes(cmd, flags, cfg, v, name, extra, fbChoice); ferr != nil {
+			return fmt.Errorf("fleet auth failed (%v); hermes fallback failed: %w", runErr, ferr)
+		}
+		return nil
 	}
 
 	result := map[string]any{

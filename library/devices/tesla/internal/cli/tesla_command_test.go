@@ -920,6 +920,118 @@ func TestCommand_Fleet_RefreshOnlyConfig_MintFails_ErrorsClearly(t *testing.T) {
 	}
 }
 
+// hijackHermesSuccess points runHermesHTTPClientFn at an in-process stub that
+// records calls and returns HTTP 200. Returns the call counter.
+func hijackHermesSuccess(t *testing.T) *int {
+	t.Helper()
+	calls := 0
+	orig := runHermesHTTPClientFn
+	t.Cleanup(func() { runHermesHTTPClientFn = orig })
+	runHermesHTTPClientFn = func(ctx context.Context, endpoint, bearer string, body []byte) (int, string, error) {
+		calls++
+		return 200, `{"response":{"result":true,"reason":""}}`, nil
+	}
+	return &calls
+}
+
+// TestCommand_Fleet_AuthFail_AutoFallsBackToHermes: the live-call backstop.
+// Credentials that pass every offline check (future recorded expiry, refresh
+// token, client ID, key, binary) can still be revoked or invalidly signed —
+// only Tesla's rejection proves it. When via=auto picked Fleet, the 401
+// persists after the bounded refresh retry, and a Hermes relay is running,
+// the owner-API command must reroute through Hermes and succeed.
+func TestCommand_Fleet_AuthFail_AutoFallsBackToHermes(t *testing.T) {
+	flags, _ := commandTestSetup(t, []productEntry{
+		{VIN: "SNOWFLAKEVIN0001", DisplayName: "Snowflake", CommandSigning: "required"},
+	})
+	refreshes := seedFleetSelfHeal(t, flags, time.Now().Add(time.Hour), true)
+
+	calls, stub := auth401Stub(t, -1) // always 401: original + post-refresh retry
+	orig := runTeslaControlSubprocessFn
+	t.Cleanup(func() { runTeslaControlSubprocessFn = orig })
+	runTeslaControlSubprocessFn = stub
+
+	t.Setenv(commandHermesPortEnv, "9999") // relay "running"
+	hermesCalls := hijackHermesSuccess(t)
+
+	out, err := runCommandForTest(t, flags, []string{"honk_horn", "--vehicle", "Snowflake", "--send"})
+	if err != nil {
+		t.Fatalf("expected Hermes fallback success, got error: %v\n%s", err, out.String())
+	}
+	if *refreshes != 1 {
+		t.Errorf("expected exactly 1 refresh attempt before falling back, got %d", *refreshes)
+	}
+	if *calls != 2 {
+		t.Errorf("expected 2 tesla-control calls (401 then retry) before falling back, got %d", *calls)
+	}
+	if *hermesCalls != 1 {
+		t.Errorf("expected exactly 1 Hermes dispatch, got %d", *hermesCalls)
+	}
+	body := out.String()
+	if !strings.Contains(body, `"path": "hermes"`) && !strings.Contains(body, `"path":"hermes"`) {
+		t.Errorf("expected path=hermes in fallback output, got: %s", body)
+	}
+}
+
+// TestCommand_Fleet_AuthFail_ViaFleetExplicit_NoHermesFallback: the explicit
+// --via=fleet override must never silently switch transports — a persistent
+// auth failure surfaces as the Fleet error even with a healthy relay running.
+func TestCommand_Fleet_AuthFail_ViaFleetExplicit_NoHermesFallback(t *testing.T) {
+	flags, _ := commandTestSetup(t, []productEntry{
+		{VIN: "SNOWFLAKEVIN0001", DisplayName: "Snowflake", CommandSigning: "required"},
+	})
+	seedFleetSelfHeal(t, flags, time.Now().Add(time.Hour), true)
+
+	_, stub := auth401Stub(t, -1)
+	orig := runTeslaControlSubprocessFn
+	t.Cleanup(func() { runTeslaControlSubprocessFn = orig })
+	runTeslaControlSubprocessFn = stub
+
+	t.Setenv(commandHermesPortEnv, "9999")
+	hermesCalls := hijackHermesSuccess(t)
+
+	out, err := runCommandForTest(t, flags, []string{"honk_horn", "--vehicle", "Snowflake", "--send", "--via", "fleet"})
+	if err == nil {
+		t.Fatalf("expected Fleet auth error for explicit --via=fleet, got success: %s", out.String())
+	}
+	if *hermesCalls != 0 {
+		t.Errorf("explicit --via=fleet must not reroute to Hermes, got %d Hermes calls", *hermesCalls)
+	}
+	if !strings.Contains(out.String(), "401") {
+		t.Errorf("expected the Fleet 401 surfaced, got: %s", out.String())
+	}
+}
+
+// TestCommand_Fleet_NonAuthError_NoHermesFallback: the backstop is strictly
+// auth-gated. A sleeping car is not a credential defect; rerouting would not
+// help and risks double-sending, so the Fleet error surfaces unchanged.
+func TestCommand_Fleet_NonAuthError_NoHermesFallback(t *testing.T) {
+	flags, _ := commandTestSetup(t, []productEntry{
+		{VIN: "SNOWFLAKEVIN0001", DisplayName: "Snowflake", CommandSigning: "required"},
+	})
+	refreshes := seedFleetSelfHeal(t, flags, time.Now().Add(time.Hour), true)
+
+	orig := runTeslaControlSubprocessFn
+	t.Cleanup(func() { runTeslaControlSubprocessFn = orig })
+	runTeslaControlSubprocessFn = func(ctx context.Context, bin string, args []string) (string, string, error) {
+		return "", "Error: vehicle is asleep; wake it first\n", &exitErr{code: 1}
+	}
+
+	t.Setenv(commandHermesPortEnv, "9999")
+	hermesCalls := hijackHermesSuccess(t)
+
+	out, err := runCommandForTest(t, flags, []string{"honk_horn", "--vehicle", "Snowflake", "--send"})
+	if err == nil {
+		t.Fatalf("expected sleeping-car error, got success: %s", out.String())
+	}
+	if *hermesCalls != 0 {
+		t.Errorf("non-auth failure must not reroute to Hermes, got %d Hermes calls", *hermesCalls)
+	}
+	if *refreshes != 0 {
+		t.Errorf("non-auth failure must not refresh, got %d", *refreshes)
+	}
+}
+
 // TestIsFleetAuthError covers the auth-vs-not classification table (KD2).
 func TestIsFleetAuthError(t *testing.T) {
 	someErr := &exitErr{code: 1}
