@@ -166,6 +166,69 @@ func TestValidatePrivateKeyPEM_ECPrivateKeyPEM_Accepted(t *testing.T) {
 	}
 }
 
+func TestValidatePrivateKeyPEM_P384_Rejected(t *testing.T) {
+	dir := t.TempDir()
+	priv, err := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
+	if err != nil {
+		t.Fatalf("generate P-384 key: %v", err)
+	}
+	privBytes, err := x509.MarshalPKCS8PrivateKey(priv)
+	if err != nil {
+		t.Fatalf("marshal P-384 key: %v", err)
+	}
+	path := filepath.Join(dir, "p384-private.pem")
+	if err := os.WriteFile(path, pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: privBytes}), 0o600); err != nil {
+		t.Fatalf("write P-384 key: %v", err)
+	}
+	if err := validatePrivateKeyPEM(path); err == nil {
+		t.Errorf("validatePrivateKeyPEM should reject P-384 key")
+	} else if !strings.Contains(err.Error(), "P-384") || !strings.Contains(err.Error(), "P-256") {
+		t.Errorf("error should mention P-384 curve and P-256 requirement, got: %v", err)
+	}
+}
+
+func TestValidatePrivateKeyPEM_P521_Rejected(t *testing.T) {
+	dir := t.TempDir()
+	priv, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
+	if err != nil {
+		t.Fatalf("generate P-521 key: %v", err)
+	}
+	privBytes, err := x509.MarshalPKCS8PrivateKey(priv)
+	if err != nil {
+		t.Fatalf("marshal P-521 key: %v", err)
+	}
+	path := filepath.Join(dir, "p521-private.pem")
+	if err := os.WriteFile(path, pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: privBytes}), 0o600); err != nil {
+		t.Fatalf("write P-521 key: %v", err)
+	}
+	if err := validatePrivateKeyPEM(path); err == nil {
+		t.Errorf("validatePrivateKeyPEM should reject P-521 key")
+	} else if !strings.Contains(err.Error(), "P-521") || !strings.Contains(err.Error(), "P-256") {
+		t.Errorf("error should mention P-521 curve and P-256 requirement, got: %v", err)
+	}
+}
+
+func TestValidatePrivateKeyPEM_P384_EC_PRIVATE_KEY_Rejected(t *testing.T) {
+	dir := t.TempDir()
+	priv, err := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
+	if err != nil {
+		t.Fatalf("generate P-384 key: %v", err)
+	}
+	sec1, err := x509.MarshalECPrivateKey(priv)
+	if err != nil {
+		t.Fatalf("marshal P-384 EC key: %v", err)
+	}
+	path := filepath.Join(dir, "p384-ec-private.pem")
+	if err := os.WriteFile(path, pem.EncodeToMemory(&pem.Block{Type: "EC PRIVATE KEY", Bytes: sec1}), 0o600); err != nil {
+		t.Fatalf("write P-384 EC key: %v", err)
+	}
+	if err := validatePrivateKeyPEM(path); err == nil {
+		t.Errorf("validatePrivateKeyPEM should reject P-384 EC PRIVATE KEY")
+	} else if !strings.Contains(err.Error(), "P-384") || !strings.Contains(err.Error(), "P-256") {
+		t.Errorf("error should mention P-384 curve and P-256 requirement, got: %v", err)
+	}
+}
+
 // ---------------------------------------------------------------------------
 // selectKeyByPublicMatch tests
 // ---------------------------------------------------------------------------

@@ -5,6 +5,7 @@ package cli
 import (
 	"bytes"
 	"crypto/ecdsa"
+	"crypto/elliptic"
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
@@ -15,8 +16,9 @@ import (
 )
 
 // validatePrivateKeyPEM checks that path is a regular file containing a
-// PEM-encoded ECDSA private key (PKCS#8 or EC PRIVATE KEY). Tesla Fleet
-// and vehicle-command signing require ECDSA; RSA and other key types fail.
+// PEM-encoded ECDSA P-256 private key. Tesla Fleet and vehicle-command
+// signing require ECDSA P-256 (secp256r1); RSA, P-384, P-521, and other
+// key types are rejected with a clear error.
 func validatePrivateKeyPEM(path string) error {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -35,24 +37,37 @@ func validatePrivateKeyPEM(path string) error {
 	}
 	switch block.Type {
 	case "RSA PRIVATE KEY":
-		return fmt.Errorf("%q is an RSA private key; Tesla signing requires an ECDSA private key", path)
+		return fmt.Errorf("%q is an RSA private key; Tesla signing requires an ECDSA P-256 private key", path)
 	case "EC PRIVATE KEY", "PRIVATE KEY":
-		// Parse below and require *ecdsa.PrivateKey.
+		// Parse below and require *ecdsa.PrivateKey with P-256 curve.
 	default:
 		return fmt.Errorf("%q PEM block type %q is not a private key", path, block.Type)
 	}
-	var parsed any
+	var ecKey *ecdsa.PrivateKey
 	var parseErr error
 	if block.Type == "EC PRIVATE KEY" {
-		parsed, parseErr = x509.ParseECPrivateKey(block.Bytes)
+		ecKey, parseErr = x509.ParseECPrivateKey(block.Bytes)
 	} else {
+		var parsed any
 		parsed, parseErr = x509.ParsePKCS8PrivateKey(block.Bytes)
+		if parseErr == nil {
+			var ok bool
+			ecKey, ok = parsed.(*ecdsa.PrivateKey)
+			if !ok {
+				return fmt.Errorf("%q is not an ECDSA private key; Tesla signing requires an ECDSA P-256 private key", path)
+			}
+		}
 	}
 	if parseErr != nil {
 		return fmt.Errorf("%q is not a valid private key: %w", path, parseErr)
 	}
-	if _, ok := parsed.(*ecdsa.PrivateKey); !ok {
-		return fmt.Errorf("%q is not an ECDSA private key; Tesla signing requires an ECDSA private key", path)
+	// Tesla's vehicle-command requires NIST P-256 (secp256r1).
+	if ecKey.Curve != elliptic.P256() {
+		curveName := "unknown"
+		if ecKey.Curve != nil && ecKey.Curve.Params() != nil {
+			curveName = ecKey.Curve.Params().Name
+		}
+		return fmt.Errorf("%q uses curve %s; Tesla signing requires an ECDSA P-256 private key", path, curveName)
 	}
 	return nil
 }
