@@ -171,6 +171,25 @@ func selectKeyByPublicBytes(candidates []string, targetPubBytes []byte) string {
 	return ""
 }
 
+// matchCandidatesToDomain returns the unique candidate matching the hosted
+// well-known public key for domain. An empty domain means no binding
+// (("", nil)); the caller may then accept a sole candidate. When domain is
+// set, a fetch/parse failure or non-unique/zero match is an error.
+func matchCandidatesToDomain(teslaDir string, candidates []string, domain string) (string, error) {
+	domain = strings.TrimSpace(domain)
+	if domain == "" {
+		return "", nil
+	}
+	targetPub, targetSrc, err := resolveRegisterPublicKeyMaterial(teslaDir, domain)
+	if err != nil {
+		return "", err
+	}
+	if matched := selectKeyByPublicBytes(candidates, targetPub); matched != "" {
+		return matched, nil
+	}
+	return "", fmt.Errorf("found key(s) in %s do not match the public key for %s (%s); specify --key-file or set TESLA_FLEET_KEY_FILE", teslaDir, domain, targetSrc)
+}
+
 // selectKeyByPublicMatch returns the unique candidate whose derived public
 // key matches the PEM at targetPubPath. Sibling *-public.pem self-consistency
 // is not used: a local pair is not proof the key is Fleet-registered.

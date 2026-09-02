@@ -696,12 +696,20 @@ func resolveFleetKeyPath(cfg *config.Config) (string, error) {
 	if len(candidates) == 0 {
 		return "", fmt.Errorf("no Fleet signing key configured; set TESLA_FLEET_KEY_FILE or run `tesla auth fleet-template --gen-key` then `tesla auth fleet-register --key-file <path>`")
 	}
+	var domain string
+	if cfg != nil {
+		domain = strings.TrimSpace(cfg.FleetTokens().PublicKeyDomain)
+	}
+	matched, err := matchCandidatesToDomain(teslaDir, candidates, domain)
+	if err != nil {
+		return "", fmt.Errorf("%w; set TESLA_FLEET_KEY_FILE=<path>", err)
+	}
+	if matched != "" {
+		return matched, nil
+	}
+	// No configured Fleet domain to bind against.
 	if len(candidates) == 1 {
 		return candidates[0], nil
-	}
-	// Multiple candidates and no registered public key to bind against.
-	if matched := selectKeyByPublicMatch(candidates, ""); matched != "" {
-		return matched, nil
 	}
 	return "", errMultipleCandidates(teslaDir, candidates, "Set TESLA_FLEET_KEY_FILE=<path> to select one.")
 }

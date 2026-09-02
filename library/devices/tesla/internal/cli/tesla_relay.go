@@ -683,12 +683,21 @@ func locateRelayPrivateKey(flags *rootFlags) (string, error) {
 	if len(candidates) == 0 {
 		return "", errors.New("no private signing key found; run `tesla auth fleet-template --gen-key` (Fleet) or `tesla auth ble-pair` (BLE) first to generate one")
 	}
+	var domain string
+	if cfg != nil {
+		domain = strings.TrimSpace(cfg.Fleet.PublicKeyDomain)
+	}
+	matched, err := matchCandidatesToDomain(teslaDir, candidates, domain)
+	if err != nil {
+		return "", fmt.Errorf("%w; set TESLA_FLEET_KEY_FILE=<path>", err)
+	}
+	if matched != "" {
+		return matched, nil
+	}
+	// Relay also serves BLE. With no Fleet public-key domain in config there
+	// is nothing to bind against, so a lone ~/.tesla key is accepted.
 	if len(candidates) == 1 {
 		return candidates[0], nil
-	}
-	// Multiple candidates and no registered public key to bind against.
-	if matched := selectKeyByPublicMatch(candidates, ""); matched != "" {
-		return matched, nil
 	}
 	return "", errMultipleCandidates(teslaDir, candidates, "Set TESLA_FLEET_KEY_FILE=<path> to select one.")
 }

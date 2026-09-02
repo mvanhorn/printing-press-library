@@ -288,7 +288,11 @@ honored when neither flag is set.`,
 			}
 
 			// Persist client_id + secret + domain + key path + resolved region into [fleet].
+			// Always overwrite PrivateKeyPath, including empty: SaveFleetTokens
+			// skips blank fields, so a re-register with no resolved key would
+			// otherwise keep the previous domain's signing path.
 			cfg.Fleet.APIBase = fleetBase
+			cfg.Fleet.PrivateKeyPath = effKeyFile
 			if err := cfg.SaveFleetTokens(effClientID, effSecret, "", "", time.Time{}, publicKeyDomain, effKeyFile); err != nil {
 				return err
 			}
@@ -354,8 +358,8 @@ func fetchWellKnownPublicKeyHTTPS(domain string) ([]byte, error) {
 }
 
 // resolveRegisterPublicKeyMaterial returns PKIX public-key bytes for the
-// domain being registered. The hosted well-known PEM is authoritative; the
-// local ~/.tesla/<domain>-public.pem is used only when the fetch fails.
+// domain being registered. Only the hosted well-known PEM is used; a local
+// ~/.tesla/<domain>-public.pem is not a fallback (it may be stale).
 func resolveRegisterPublicKeyMaterial(teslaDir, publicKeyDomain string) ([]byte, string, error) {
 	domain := strings.TrimSpace(publicKeyDomain)
 	if domain == "" {
@@ -368,12 +372,6 @@ func resolveRegisterPublicKeyMaterial(teslaDir, publicKeyDomain string) ([]byte,
 	}
 	if fetchErr == nil {
 		fetchErr = errors.New("fetched public key is empty")
-	}
-	localPath := filepath.Join(teslaDir, domain+"-public.pem")
-	if info, statErr := os.Stat(localPath); statErr == nil && info.Mode().IsRegular() {
-		if local := readPublicKeyBytes(localPath); len(local) > 0 {
-			return local, localPath + " (local fallback)", nil
-		}
 	}
 	return nil, "", fmt.Errorf("cannot fetch public key from %s: %w; specify --key-file", hostedURL, fetchErr)
 }
@@ -422,20 +420,16 @@ func resolveFleetKeyFileForRegister(flagValue, publicKeyDomain string) (string, 
 		return "", nil
 	}
 
-	targetPub, targetSrc, err := resolveRegisterPublicKeyMaterial(teslaDir, publicKeyDomain)
+	matched, err := matchCandidatesToDomain(teslaDir, candidates, publicKeyDomain)
 	if err != nil {
 		return "", err
 	}
-	if len(targetPub) > 0 {
-		if matched := selectKeyByPublicBytes(candidates, targetPub); matched != "" {
-			return matched, nil
-		}
-		return "", fmt.Errorf("found key(s) in %s do not match the public key for %s (%s); specify --key-file or host the matching key at %s", teslaDir, strings.TrimSpace(publicKeyDomain), targetSrc, teslaWellKnownPublicKeyURL(publicKeyDomain))
+	if matched != "" {
+		return matched, nil
 	}
-
-	// No local or hosted public key to bind against. A lone candidate is the
-	// only signing key on disk, so persist it — identity matching cannot run
-	// without target material. --key-file remains the explicit override.
+	// No hosted public key to bind against (empty domain). A lone candidate
+	// is the only signing key on disk — identity matching cannot run without
+	// target material. --key-file remains the explicit override.
 	if len(candidates) == 1 {
 		return candidates[0], nil
 	}
