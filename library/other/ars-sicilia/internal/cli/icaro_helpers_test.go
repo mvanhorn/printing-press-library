@@ -713,3 +713,23 @@ func TestFraseHint_ParolaPienaCollidente(t *testing.T) {
 		t.Errorf("avviso %q: non c'è stata riscrittura, non deve annunciarne una", got)
 	}
 }
+
+// `leggi cerca --frase` aggrega e ritorna prima del ramo che già emette
+// fraseHint: la busta deve comunque portare l'avviso, e hintLeggiCorte
+// deve restare. «meno» non è scartabile.
+func TestAggregaLeggiFraseHintInBusta(t *testing.T) {
+	frHint := fraseHint(map[string]string{"frase": "aree meno idonee"})
+	if frHint == "" {
+		t.Fatal("collisione non risolvibile: atteso un avviso")
+	}
+	corto := hintLeggiCorte(true, false, 300, 10, 10)
+	if corto == "" {
+		t.Fatal("limite raggiunto: atteso hintLeggiCorte")
+	}
+	got := uniscoHint(corto, frHint)
+	for _, want := range []string{"«meno»", "mostrate 10 leggi", "--isis-query"} {
+		if !strings.Contains(got, want) {
+			t.Errorf("busta aggregata %q: manca %q", got, want)
+		}
+	}
+}

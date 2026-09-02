@@ -143,15 +143,21 @@ func runCerca(cmd *cobra.Command, flags *rootFlags, archiveSlug string, p cercaP
 		// quel caso avvisa; questa era l'unica a non farlo, ed è il percorso
 		// naturale della domanda «quali leggi nell'anno X».
 		hint := hintLeggiCorte(truncated, mancanti, len(recs), len(leggi), p.LimitLeggi)
+		frHint := fraseHint(p.Params)
 		// Questo ramo ha un hint tutto suo e ritorna prima di warnTruncated:
 		// senza il caso esplicito, `leggi cerca --envelope` sarebbe l'unica
-		// ricerca a non avere la busta, e in silenzio.
+		// ricerca a non avere la busta, e in silenzio. fraseHint va incluso
+		// qui: --dry-run e il ramo non aggregato già avvisano, e un --frase
+		// con un alias ISIS non scartabile (meno, no, seguito) altrimenti
+		// consegnerebbe i risultati senza dire che la locuzione è degradata.
 		if envelopeWanted(cmd.OutOrStdout(), flags) {
-			return emitEnvelope(cmd.OutOrStdout(), leggi, truncated, hint, flags)
+			warnPertinenza(frHint)
+			return emitEnvelope(cmd.OutOrStdout(), leggi, truncated, uniscoHint(hint, frHint), flags)
 		}
 		if err := printJSONFiltered(cmd.OutOrStdout(), leggi, flags); err != nil {
 			return err
 		}
+		warnPertinenza(frHint)
 		if hint != "" {
 			fmt.Fprintf(cmd.ErrOrStderr(), "hint: %s\n", hint)
 		}

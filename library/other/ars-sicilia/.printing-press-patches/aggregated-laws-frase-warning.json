@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "aggregated-laws-frase-warning",
+  "applied_at": "2026-09-02",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.30.3",
+  "summary": "The aggregated `leggi cerca` path must emit the same --frase degradation warning as --dry-run and the non-aggregated search path.",
+  "reason": "When --frase hits a non-droppable ISIS operator alias (meno, no, seguito, …), the AggregaLeggi branch returned before fraseHint and warnPertinenza ran, so the live CLI and MCP envelope exposed results without the warning.",
+  "files": ["internal/cli/icaro_helpers.go"],
+  "validated_outcome": "uniscoHint(hintLeggiCorte(...), fraseHint(--frase \"aree meno idonee\")) keeps the truncation hint and includes the «meno» warning."
+}
