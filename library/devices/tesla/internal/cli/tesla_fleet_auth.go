@@ -315,14 +315,77 @@ honored when neither flag is set.`,
 	return cmd
 }
 
+const teslaWellKnownPublicKeyPath = "/.well-known/appspecific/com.tesla.3p.public-key.pem"
+
+// fetchWellKnownPublicKey downloads the Tesla well-known partner public key
+// for a domain. Tests replace this to avoid live HTTPS.
+var fetchWellKnownPublicKey = fetchWellKnownPublicKeyHTTPS
+
+func teslaWellKnownPublicKeyURL(domain string) string {
+	return "https://" + strings.TrimSpace(domain) + teslaWellKnownPublicKeyPath
+}
+
+func fetchWellKnownPublicKeyHTTPS(domain string) ([]byte, error) {
+	domain = strings.TrimSpace(domain)
+	if domain == "" {
+		return nil, errors.New("empty public-key domain")
+	}
+	if strings.ContainsAny(domain, "/\\") || strings.Contains(domain, "://") {
+		return nil, fmt.Errorf("invalid public-key domain %q", domain)
+	}
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Get(teslaWellKnownPublicKeyURL(domain))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("http %d", resp.StatusCode)
+	}
+	data, err := io.ReadAll(io.LimitReader(resp.Body, 64<<10))
+	if err != nil {
+		return nil, err
+	}
+	pub := parsePublicKeyPEM(data)
+	if pub == nil {
+		return nil, errors.New("response is not a PEM public key")
+	}
+	return pub, nil
+}
+
+// resolveRegisterPublicKeyMaterial returns PKIX public-key bytes for the
+// domain being registered. Prefers ~/.tesla/<domain>-public.pem; if that
+// file is missing, fetches the Tesla well-known URL.
+func resolveRegisterPublicKeyMaterial(teslaDir, publicKeyDomain string) ([]byte, string, error) {
+	domain := strings.TrimSpace(publicKeyDomain)
+	if domain == "" {
+		return nil, "", nil
+	}
+	localPath := filepath.Join(teslaDir, domain+"-public.pem")
+	if info, err := os.Stat(localPath); err == nil && info.Mode().IsRegular() {
+		if b := readPublicKeyBytes(localPath); len(b) > 0 {
+			return b, localPath, nil
+		}
+		return nil, "", fmt.Errorf("cannot parse local public key %s; specify --key-file or host a valid key at %s", localPath, teslaWellKnownPublicKeyURL(domain))
+	}
+	b, err := fetchWellKnownPublicKey(domain)
+	if err != nil {
+		return nil, "", fmt.Errorf("cannot fetch public key from %s: %w; specify --key-file", teslaWellKnownPublicKeyURL(domain), err)
+	}
+	if len(b) == 0 {
+		return nil, "", fmt.Errorf("fetched public key from %s is empty; specify --key-file", teslaWellKnownPublicKeyURL(domain))
+	}
+	return b, teslaWellKnownPublicKeyURL(domain), nil
+}
+
 // resolveFleetKeyFileForRegister resolves the signing private key path for
 // fleet-register. Order: explicit flag, env TESLA_FLEET_KEY_FILE, auto-detect
 // from ~/.tesla/ based on common fleet-template output patterns.
 //
 // Returns ("", nil) when no key is found (caller warns but does not fail).
 // Returns an error when an explicit path is provided but not a valid private
-// key PEM, or when multiple auto-detected candidates exist and none can be
-// uniquely matched to a public key.
+// key PEM, when a domain public key is available and no candidate matches it,
+// or when multiple auto-detected candidates cannot be uniquely matched.
 func resolveFleetKeyFileForRegister(flagValue, publicKeyDomain string) (string, error) {
 	// Explicit flag wins — must be a valid private key PEM or we fail.
 	if flagValue != "" {
@@ -354,42 +417,28 @@ func resolveFleetKeyFileForRegister(flagValue, publicKeyDomain string) (string, 
 	}
 	teslaDir := filepath.Join(home, ".tesla")
 
-	// Collect all valid *-private.pem files.
 	candidates := scanValidPrivateKeys(teslaDir)
 	if len(candidates) == 0 {
 		return "", nil
 	}
 
-	// Try to match candidates via public key material against the domain's
-	// public key. This applies whether there's one candidate or many — a
-	// sole key unrelated to the registered domain must not be persisted.
-	var targetPubPath string
-	if publicKeyDomain != "" {
-		domainPubPath := filepath.Join(teslaDir, publicKeyDomain+"-public.pem")
-		if info, statErr := os.Stat(domainPubPath); statErr == nil && info.Mode().IsRegular() {
-			targetPubPath = domainPubPath
-		}
+	targetPub, targetSrc, err := resolveRegisterPublicKeyMaterial(teslaDir, publicKeyDomain)
+	if err != nil {
+		return "", err
 	}
-
-	if targetPubPath != "" {
-		// We have a domain public key to verify against.
-		if matched := selectKeyByPublicMatch(candidates, targetPubPath); matched != "" {
+	if len(targetPub) > 0 {
+		if matched := selectKeyByPublicBytes(candidates, targetPub); matched != "" {
 			return matched, nil
 		}
-		// No candidate matches the domain public key.
-		if len(candidates) == 1 {
-			return "", fmt.Errorf("sole private key %s does not match registered public key %s; specify --key-file if you want to use a different key", candidates[0], targetPubPath)
-		}
-		return "", errMultipleCandidates(teslaDir, candidates, "None match the registered public key. Specify --key-file <path> to select one.")
+		return "", fmt.Errorf("found key(s) in %s do not match the public key for %s (%s); specify --key-file or host the matching key at %s", teslaDir, strings.TrimSpace(publicKeyDomain), targetSrc, teslaWellKnownPublicKeyURL(publicKeyDomain))
 	}
 
-	// No domain public key available to verify against.
+	// No local or hosted public key to bind against. A lone candidate is the
+	// only signing key on disk, so persist it — identity matching cannot run
+	// without target material. --key-file remains the explicit override.
 	if len(candidates) == 1 {
-		// Accept sole candidate when we cannot verify (backward compat).
 		return candidates[0], nil
 	}
-
-	// Multiple candidates and no way to distinguish — require explicit selection.
 	return "", errMultipleCandidates(teslaDir, candidates, "Specify --key-file <path> to select one.")
 }
 

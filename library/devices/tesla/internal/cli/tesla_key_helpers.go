@@ -103,13 +103,9 @@ func derivePublicKeyBytes(privPath string) []byte {
 	return pubBytes
 }
 
-// readPublicKeyBytes reads a PEM public key file and returns the encoded
-// public key bytes for comparison. Returns nil if the file cannot be parsed.
-func readPublicKeyBytes(pubPath string) []byte {
-	data, err := os.ReadFile(pubPath)
-	if err != nil {
-		return nil
-	}
+// parsePublicKeyPEM parses a PEM-encoded PKIX public key and returns the
+// marshaled public key bytes used for equality checks. Returns nil on failure.
+func parsePublicKeyPEM(data []byte) []byte {
 	block, _ := pem.Decode(data)
 	if block == nil {
 		return nil
@@ -123,6 +119,16 @@ func readPublicKeyBytes(pubPath string) []byte {
 		return nil
 	}
 	return pubBytes
+}
+
+// readPublicKeyBytes reads a PEM public key file and returns the encoded
+// public key bytes for comparison. Returns nil if the file cannot be parsed.
+func readPublicKeyBytes(pubPath string) []byte {
+	data, err := os.ReadFile(pubPath)
+	if err != nil {
+		return nil
+	}
+	return parsePublicKeyPEM(data)
 }
 
 // scanValidPrivateKeys scans a directory for *-private.pem files that are
@@ -146,16 +152,11 @@ func scanValidPrivateKeys(dir string) []string {
 	return valid
 }
 
-// selectKeyByPublicMatch returns the unique candidate whose derived public
-// key matches the PEM at targetPubPath. Sibling *-public.pem self-consistency
-// is not used: a local pair is not proof the key is Fleet-registered.
-// Returns "" when targetPubPath is empty, unreadable, or the match is not unique.
-func selectKeyByPublicMatch(candidates []string, targetPubPath string) string {
-	if targetPubPath == "" {
-		return ""
-	}
-	targetPubBytes := readPublicKeyBytes(targetPubPath)
-	if targetPubBytes == nil {
+// selectKeyByPublicBytes returns the unique candidate whose derived public
+// key matches targetPubBytes. Returns "" when target is empty or the match
+// is not unique.
+func selectKeyByPublicBytes(candidates []string, targetPubBytes []byte) string {
+	if len(targetPubBytes) == 0 {
 		return ""
 	}
 	var matched []string
@@ -168,6 +169,17 @@ func selectKeyByPublicMatch(candidates []string, targetPubPath string) string {
 		return matched[0]
 	}
 	return ""
+}
+
+// selectKeyByPublicMatch returns the unique candidate whose derived public
+// key matches the PEM at targetPubPath. Sibling *-public.pem self-consistency
+// is not used: a local pair is not proof the key is Fleet-registered.
+// Returns "" when targetPubPath is empty, unreadable, or the match is not unique.
+func selectKeyByPublicMatch(candidates []string, targetPubPath string) string {
+	if targetPubPath == "" {
+		return ""
+	}
+	return selectKeyByPublicBytes(candidates, readPublicKeyBytes(targetPubPath))
 }
 
 // errMultipleCandidates returns a formatted error listing the candidate keys.

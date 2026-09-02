@@ -17,6 +17,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"testing"
@@ -58,6 +59,7 @@ func mintJWT(t *testing.T, aud, scope string) string {
 // mimics the client_credentials grant and the partner_accounts endpoint.
 // Asserts the [fleet] block is written with client_id and public_key_domain.
 func TestFleetRegister_HappyPath(t *testing.T) {
+	isolateHome(t)
 	flags := configFlags(t)
 
 	// Stub auth server: /oauth2/v3/token (client_credentials) returns a
@@ -129,6 +131,7 @@ func TestFleetRegister_HappyPath(t *testing.T) {
 // TestFleetRegister_PartnerAccountsError surfaces the Tesla error body on
 // 4xx and leaves the [fleet] block untouched.
 func TestFleetRegister_PartnerAccountsError(t *testing.T) {
+	isolateHome(t)
 	flags := configFlags(t)
 
 	authMux := http.NewServeMux()
@@ -176,6 +179,7 @@ func TestFleetRegister_PartnerAccountsError(t *testing.T) {
 
 // TestFleetRegister_ClientCredentials401 surfaces invalid_credentials cleanly.
 func TestFleetRegister_ClientCredentials401(t *testing.T) {
+	isolateHome(t)
 	flags := configFlags(t)
 
 	authMux := http.NewServeMux()
@@ -208,6 +212,7 @@ func TestFleetRegister_ClientCredentials401(t *testing.T) {
 // TestFleetRegister_SecretFileWinsOverFlag asserts --client-secret-file beats
 // --client-secret when both are supplied.
 func TestFleetRegister_SecretFileWinsOverFlag(t *testing.T) {
+	isolateHome(t)
 	flags := configFlags(t)
 
 	// Build a secret file (mode 600) with a distinctive marker.
@@ -738,4 +743,172 @@ func (b *threadSafeBuffer) String() string {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	return b.buf.String()
+}
+
+func isolateHome(t *testing.T) {
+	t.Helper()
+	if runtime.GOOS == "windows" {
+		return
+	}
+	t.Setenv("HOME", t.TempDir())
+	t.Setenv("TESLA_FLEET_KEY_FILE", "")
+}
+
+func scopedRegisterHome(t *testing.T) string {
+	t.Helper()
+	if runtime.GOOS == "windows" {
+		t.Skip("POSIX-only HOME override")
+	}
+	isolateHome(t)
+	teslaDir := filepath.Join(os.Getenv("HOME"), ".tesla")
+	if err := os.MkdirAll(teslaDir, 0o700); err != nil {
+		t.Fatalf("mkdir ~/.tesla: %v", err)
+	}
+	return teslaDir
+}
+
+func TestResolveFleetKeyFileForRegister_SoleMismatch_Rejected(t *testing.T) {
+	teslaDir := scopedRegisterHome(t)
+	priv, _ := generateTestKeyPair(t, teslaDir, "unrelated")
+	os.Remove(filepath.Join(teslaDir, "unrelated-public.pem"))
+	_, domainPub := generateTestKeyPair(t, teslaDir, "domain-src")
+	os.Remove(filepath.Join(teslaDir, "domain-src-private.pem"))
+	if err := os.Rename(domainPub, filepath.Join(teslaDir, "keys.example.com-public.pem")); err != nil {
+		t.Fatalf("rename domain public key: %v", err)
+	}
+
+	got, err := resolveFleetKeyFileForRegister("", "keys.example.com")
+	if err == nil {
+		t.Fatalf("expected mismatch error, got path %q", got)
+	}
+	if !strings.Contains(err.Error(), "do not match") || !strings.Contains(err.Error(), "--key-file") {
+		t.Errorf("error should mention mismatch and --key-file, got: %v", err)
+	}
+	if got != "" {
+		t.Errorf("mismatch must not persist a path, got %q (sole key was %q)", got, priv)
+	}
+}
+
+func TestResolveFleetKeyFileForRegister_SoleMatch_Accepted(t *testing.T) {
+	teslaDir := scopedRegisterHome(t)
+	priv, pub := generateTestKeyPair(t, teslaDir, "fleet-host")
+	if err := os.Rename(pub, filepath.Join(teslaDir, "keys.example.com-public.pem")); err != nil {
+		t.Fatalf("rename domain public key: %v", err)
+	}
+
+	got, err := resolveFleetKeyFileForRegister("", "keys.example.com")
+	if err != nil {
+		t.Fatalf("matching sole key should be accepted: %v", err)
+	}
+	if got != priv {
+		t.Errorf("got %q, want %q", got, priv)
+	}
+}
+
+func TestResolveFleetKeyFileForRegister_ExplicitKeyFile_BypassesMatch(t *testing.T) {
+	teslaDir := scopedRegisterHome(t)
+	_, domainPub := generateTestKeyPair(t, teslaDir, "keys.example.com")
+	if err := os.Rename(domainPub, filepath.Join(teslaDir, "keys.example.com-public.pem")); err != nil {
+		t.Fatalf("rename domain public key: %v", err)
+	}
+	otherDir := t.TempDir()
+	explicit, _ := generateTestKeyPair(t, otherDir, "explicit")
+
+	got, err := resolveFleetKeyFileForRegister(explicit, "keys.example.com")
+	if err != nil {
+		t.Fatalf("explicit --key-file should win: %v", err)
+	}
+	if got != explicit {
+		t.Errorf("got %q, want explicit %q", got, explicit)
+	}
+}
+
+func TestResolveFleetKeyFileForRegister_FetchMatchAndMismatch(t *testing.T) {
+	teslaDir := scopedRegisterHome(t)
+	priv, pub := generateTestKeyPair(t, teslaDir, "fleet-host")
+	os.Remove(pub)
+	_, otherPub := generateTestKeyPair(t, teslaDir, "other")
+	os.Remove(filepath.Join(teslaDir, "other-private.pem"))
+
+	orig := fetchWellKnownPublicKey
+	t.Cleanup(func() { fetchWellKnownPublicKey = orig })
+
+	matching := derivePublicKeyBytes(priv)
+	fetchWellKnownPublicKey = func(domain string) ([]byte, error) {
+		if domain != "keys.example.com" {
+			t.Errorf("unexpected domain %q", domain)
+		}
+		return matching, nil
+	}
+	got, err := resolveFleetKeyFileForRegister("", "keys.example.com")
+	if err != nil {
+		t.Fatalf("fetched matching public key should select sole candidate: %v", err)
+	}
+	if got != priv {
+		t.Errorf("got %q, want %q", got, priv)
+	}
+
+	fetchWellKnownPublicKey = func(string) ([]byte, error) {
+		return readPublicKeyBytes(otherPub), nil
+	}
+	got, err = resolveFleetKeyFileForRegister("", "keys.example.com")
+	if err == nil {
+		t.Fatalf("fetched mismatch should error, got %q", got)
+	}
+	if !strings.Contains(err.Error(), "do not match") {
+		t.Errorf("error should mention mismatch, got: %v", err)
+	}
+
+	fetchWellKnownPublicKey = func(string) ([]byte, error) {
+		return nil, fmt.Errorf("connection refused")
+	}
+	got, err = resolveFleetKeyFileForRegister("", "keys.example.com")
+	if err == nil {
+		t.Fatalf("failed fetch should error, got %q", got)
+	}
+	if !strings.Contains(err.Error(), "cannot fetch") || !strings.Contains(err.Error(), "--key-file") {
+		t.Errorf("error should mention fetch failure and --key-file, got: %v", err)
+	}
+}
+
+func TestResolveFleetKeyFileForRegister_LocalPreferredOverFetch(t *testing.T) {
+	teslaDir := scopedRegisterHome(t)
+	priv, pub := generateTestKeyPair(t, teslaDir, "fleet-host")
+	if err := os.Rename(pub, filepath.Join(teslaDir, "keys.example.com-public.pem")); err != nil {
+		t.Fatalf("rename domain public key: %v", err)
+	}
+	orig := fetchWellKnownPublicKey
+	t.Cleanup(func() { fetchWellKnownPublicKey = orig })
+	fetchWellKnownPublicKey = func(string) ([]byte, error) {
+		t.Fatal("fetch must not run when local domain public key exists")
+		return nil, nil
+	}
+
+	got, err := resolveFleetKeyFileForRegister("", "keys.example.com")
+	if err != nil {
+		t.Fatalf("local domain public key should be used: %v", err)
+	}
+	if got != priv {
+		t.Errorf("got %q, want %q", got, priv)
+	}
+}
+
+func TestResolveFleetKeyFileForRegister_NoPublicMaterial_AcceptsSole(t *testing.T) {
+	teslaDir := scopedRegisterHome(t)
+	priv, pub := generateTestKeyPair(t, teslaDir, "only")
+	os.Remove(pub)
+	orig := fetchWellKnownPublicKey
+	t.Cleanup(func() { fetchWellKnownPublicKey = orig })
+	fetchWellKnownPublicKey = func(string) ([]byte, error) {
+		t.Fatal("fetch must not run when publicKeyDomain is empty")
+		return nil, nil
+	}
+
+	got, err := resolveFleetKeyFileForRegister("", "")
+	if err != nil {
+		t.Fatalf("sole key without domain should be accepted: %v", err)
+	}
+	if got != priv {
+		t.Errorf("got %q, want %q", got, priv)
+	}
 }
