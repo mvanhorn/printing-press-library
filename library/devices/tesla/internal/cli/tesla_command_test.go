@@ -802,6 +802,48 @@ func TestCommand_Fleet_NonAuthError_NoRefresh(t *testing.T) {
 	}
 }
 
+// TestCommand_AutoPick_RefreshWithoutClientID_FallsBackToHermes: a stored
+// refresh token whose grant cannot POST (no client ID anywhere) is not auth
+// evidence. With key + binary present and Hermes running, via=auto must route
+// the owner-API command to Hermes instead of picking Fleet and dying on
+// "no Fleet client_id stored".
+func TestCommand_AutoPick_RefreshWithoutClientID_FallsBackToHermes(t *testing.T) {
+	flags, _ := commandTestSetup(t, []productEntry{
+		{VIN: "SNOWFLAKEVIN0001", DisplayName: "Snowflake", CommandSigning: "required"},
+	})
+	t.Setenv("TESLA_FLEET_TOKEN", "")
+	t.Setenv("TESLA_FLEET_CLIENT_ID", "")
+
+	// Refresh token stored with no client ID: the refresh grant's
+	// preconditions are not met, so Fleet cannot authenticate.
+	cfg, err := config.Load(flags.configPath)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if err := cfg.SaveFleetTokens("", "", "", "fleet-refresh-tok", time.Time{}, "", ""); err != nil {
+		t.Fatalf("SaveFleetTokens: %v", err)
+	}
+
+	// Key + binary both present: the only missing leg is mintable credentials.
+	keyFile := commandTestKeyFile(t)
+	t.Setenv("TESLA_FLEET_KEY_FILE", keyFile)
+	binDir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(binDir, teslaControlBinary), []byte("#!/bin/sh\nexit 0\n"), 0o755); err != nil {
+		t.Fatalf("plant tesla-control: %v", err)
+	}
+	t.Setenv("PATH", binDir)
+	t.Setenv(commandHermesPortEnv, "9999") // relay "running"
+
+	out, err := runCommandForTest(t, flags, []string{"honk_horn", "--vehicle", "Snowflake"})
+	if err != nil {
+		t.Fatalf("unexpected error: %v\n%s", err, out.String())
+	}
+	body := out.String()
+	if !strings.Contains(body, `"path": "hermes"`) && !strings.Contains(body, `"path":"hermes"`) {
+		t.Errorf("expected path=hermes fallback, got: %s", body)
+	}
+}
+
 // TestCommand_Fleet_RefreshOnlyConfig_MintsBeforeDispatch: a config holding
 // only a Fleet refresh token (no access token) counts as dispatch-ready for
 // the auto-picker, so dispatch must honor the same contract: mint the first
@@ -1021,75 +1063,103 @@ func TestFleetTokenNeedsProactiveRefresh(t *testing.T) {
 
 // TestCommandFleetTokenUsable verifies the fail-closed auth-readiness check:
 // only provable evidence counts (future JWT exp, recorded future expiry, or a
-// stored refresh token). Nonempty-but-unverifiable tokens are NOT usable, so
-// via=auto can fall back to Hermes instead of failing Fleet auth mid-dispatch.
+// mintable refresh grant: refresh token + client ID). Nonempty-but-
+// unverifiable tokens are NOT usable, so via=auto can fall back to Hermes
+// instead of failing Fleet auth mid-dispatch.
 func TestCommandFleetTokenUsable(t *testing.T) {
+	// Pin the client-ID env var so ambient values cannot leak into the
+	// refresh-capability leg; specific cases override it below.
+	t.Setenv("TESLA_FLEET_CLIENT_ID", "")
+
 	jwtValid := mintTestJWT(t, time.Now().Add(time.Hour))
 	jwtExpired := mintTestJWT(t, time.Now().Add(-time.Hour))
 
 	cases := []struct {
 		name string
 		ft   config.FleetConfig
-		want bool
+		// noClientID saves the config without a client ID, breaking the
+		// refresh grant's preconditions even when a refresh token exists.
+		noClientID bool
+		// envClientID, when set, provides the client ID via env instead.
+		envClientID string
+		want        bool
 	}{
-		{"no token", config.FleetConfig{}, false},
-		{"opaque token with recorded future expiry", config.FleetConfig{
+		{name: "no token", ft: config.FleetConfig{}, want: false},
+		{name: "opaque token with recorded future expiry", ft: config.FleetConfig{
 			AccessToken: "tok",
 			TokenExpiry: time.Now().Add(time.Hour),
-		}, true},
-		{"opaque token with recorded future expiry and refresh", config.FleetConfig{
+		}, want: true},
+		{name: "opaque token with recorded future expiry and refresh", ft: config.FleetConfig{
 			AccessToken:  "tok",
 			RefreshToken: "ref",
 			TokenExpiry:  time.Now().Add(time.Hour),
-		}, true},
-		{"expired token with refresh (can auto-refresh)", config.FleetConfig{
+		}, want: true},
+		{name: "expired token with refresh (can auto-refresh)", ft: config.FleetConfig{
 			AccessToken:  "tok",
 			RefreshToken: "ref",
 			TokenExpiry:  time.Now().Add(-time.Hour),
-		}, true},
-		{"expired token without refresh (cannot authenticate)", config.FleetConfig{
+		}, want: true},
+		{name: "expired token without refresh (cannot authenticate)", ft: config.FleetConfig{
 			AccessToken: "tok",
 			TokenExpiry: time.Now().Add(-time.Hour),
-		}, false},
-		{"near-expiry within skew with refresh", config.FleetConfig{
+		}, want: false},
+		{name: "near-expiry within skew with refresh", ft: config.FleetConfig{
 			AccessToken:  "tok",
 			RefreshToken: "ref",
 			TokenExpiry:  time.Now().Add(30 * time.Second), // within 60s skew
-		}, true},
-		{"near-expiry within skew without refresh", config.FleetConfig{
+		}, want: true},
+		{name: "near-expiry within skew without refresh", ft: config.FleetConfig{
 			AccessToken: "tok",
 			TokenExpiry: time.Now().Add(30 * time.Second), // within 60s skew
-		}, false},
-		{"opaque token with unknown expiry and no refresh is NOT usable (fail-closed)", config.FleetConfig{
+		}, want: false},
+		{name: "opaque token with unknown expiry and no refresh is NOT usable (fail-closed)", ft: config.FleetConfig{
 			AccessToken: "tok",
-		}, false},
-		{"opaque token with unknown expiry but refresh IS usable", config.FleetConfig{
+		}, want: false},
+		{name: "opaque token with unknown expiry but refresh IS usable", ft: config.FleetConfig{
 			AccessToken:  "tok",
 			RefreshToken: "ref",
-		}, true},
-		{"refresh token alone (no access token) is usable", config.FleetConfig{
+		}, want: true},
+		{name: "refresh token alone (no access token) is usable", ft: config.FleetConfig{
 			RefreshToken: "ref",
-		}, true},
-		{"stored JWT with future exp and no recorded expiry", config.FleetConfig{
+		}, want: true},
+		{name: "refresh token without client ID is NOT usable (grant cannot POST)", ft: config.FleetConfig{
+			RefreshToken: "ref",
+		}, noClientID: true, want: false},
+		{name: "refresh token with env client ID IS usable", ft: config.FleetConfig{
+			RefreshToken: "ref",
+		}, noClientID: true, envClientID: "cid-from-env", want: true},
+		{name: "expired token with refresh but no client ID is NOT usable", ft: config.FleetConfig{
+			AccessToken:  "tok",
+			RefreshToken: "ref",
+			TokenExpiry:  time.Now().Add(-time.Hour),
+		}, noClientID: true, want: false},
+		{name: "stored JWT with future exp and no recorded expiry", ft: config.FleetConfig{
 			AccessToken: jwtValid,
-		}, true},
-		{"stored expired JWT without refresh is NOT usable", config.FleetConfig{
+		}, want: true},
+		{name: "stored expired JWT without refresh is NOT usable", ft: config.FleetConfig{
 			AccessToken: jwtExpired,
-		}, false},
-		{"stored expired JWT with refresh IS usable", config.FleetConfig{
+		}, want: false},
+		{name: "stored expired JWT with refresh IS usable", ft: config.FleetConfig{
 			AccessToken:  jwtExpired,
 			RefreshToken: "ref",
-		}, true},
+		}, want: true},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
+			if c.envClientID != "" {
+				t.Setenv("TESLA_FLEET_CLIENT_ID", c.envClientID)
+			}
 			flags := commandTestFlags(t)
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				t.Fatalf("Load: %v", err)
 			}
 			if c.ft.AccessToken != "" || c.ft.RefreshToken != "" {
-				if err := cfg.SaveFleetTokens("cid", "", c.ft.AccessToken, c.ft.RefreshToken, c.ft.TokenExpiry, "", ""); err != nil {
+				clientID := "cid"
+				if c.noClientID {
+					clientID = ""
+				}
+				if err := cfg.SaveFleetTokens(clientID, "", c.ft.AccessToken, c.ft.RefreshToken, c.ft.TokenExpiry, "", ""); err != nil {
 					t.Fatalf("SaveFleetTokens: %v", err)
 				}
 			}
@@ -1100,22 +1170,25 @@ func TestCommandFleetTokenUsable(t *testing.T) {
 	}
 
 	// Env var token shapes. Fail-closed: only a parseable future exp claim
-	// counts; every other shape needs the stored refresh token.
+	// counts; every other shape needs a mintable stored refresh grant.
 	envCases := []struct {
 		name  string
 		token string
 		// storedRefresh seeds a refresh token in config before the check.
 		storedRefresh bool
-		want          bool
+		// noClientID saves that refresh token without a client ID.
+		noClientID bool
+		want       bool
 	}{
-		{"opaque env token without refresh is NOT usable (fail-closed)", "not-a-jwt-token", false, false},
-		{"opaque env token with stored refresh IS usable", "not-a-jwt-token", true, true},
-		{"env JWT with valid future exp is usable", jwtValid, false, true},
-		{"env JWT missing exp claim without refresh is NOT usable", mintTestJWTNoExp(t), false, false},
-		{"env JWT missing exp claim with stored refresh IS usable", mintTestJWTNoExp(t), true, true},
-		{"malformed env JWT without refresh is NOT usable", "header.!!!not-base64!!!.sig", false, false},
-		{"expired env JWT without refresh is NOT usable", jwtExpired, false, false},
-		{"expired env JWT with stored refresh IS usable", jwtExpired, true, true},
+		{name: "opaque env token without refresh is NOT usable (fail-closed)", token: "not-a-jwt-token", want: false},
+		{name: "opaque env token with stored refresh IS usable", token: "not-a-jwt-token", storedRefresh: true, want: true},
+		{name: "env JWT with valid future exp is usable", token: jwtValid, want: true},
+		{name: "env JWT missing exp claim without refresh is NOT usable", token: mintTestJWTNoExp(t), want: false},
+		{name: "env JWT missing exp claim with stored refresh IS usable", token: mintTestJWTNoExp(t), storedRefresh: true, want: true},
+		{name: "malformed env JWT without refresh is NOT usable", token: "header.!!!not-base64!!!.sig", want: false},
+		{name: "expired env JWT without refresh is NOT usable", token: jwtExpired, want: false},
+		{name: "expired env JWT with stored refresh IS usable", token: jwtExpired, storedRefresh: true, want: true},
+		{name: "expired env JWT with refresh but no client ID is NOT usable", token: jwtExpired, storedRefresh: true, noClientID: true, want: false},
 	}
 	for _, c := range envCases {
 		t.Run(c.name, func(t *testing.T) {
@@ -1126,7 +1199,11 @@ func TestCommandFleetTokenUsable(t *testing.T) {
 				t.Fatalf("Load: %v", err)
 			}
 			if c.storedRefresh {
-				if err := cfg.SaveFleetTokens("cid", "", "", "refresh-token", time.Time{}, "", ""); err != nil {
+				clientID := "cid"
+				if c.noClientID {
+					clientID = ""
+				}
+				if err := cfg.SaveFleetTokens(clientID, "", "", "refresh-token", time.Time{}, "", ""); err != nil {
 					t.Fatalf("SaveFleetTokens: %v", err)
 				}
 			}

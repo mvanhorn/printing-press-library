@@ -287,6 +287,23 @@ func jwtExpiry(tok string) (time.Time, bool) {
 	return time.Time{}, false
 }
 
+// commandFleetRefreshCapable reports whether the stored refresh credentials
+// satisfy the refresh grant's own offline preconditions: a refresh token plus
+// a resolvable client ID (TESLA_FLEET_CLIENT_ID env var or stored client_id).
+// Kept in lockstep with tryRefreshFleetToken's precondition checks so the
+// auto-picker's readiness and the actual grant never disagree — a refresh
+// token that cannot POST the grant is not auth evidence.
+func commandFleetRefreshCapable(cfg *config.Config) bool {
+	if cfg == nil {
+		return false
+	}
+	ft := cfg.FleetTokens()
+	if ft.RefreshToken == "" {
+		return false
+	}
+	return firstNonEmpty(os.Getenv("TESLA_FLEET_CLIENT_ID"), ft.ClientID) != ""
+}
+
 // commandFleetTokenUsable reports whether Fleet credentials can actually
 // authenticate. Fail-closed: a nonempty access-token string is never enough
 // on its own. Exactly three kinds of positive evidence count:
@@ -296,18 +313,16 @@ func jwtExpiry(tok string) (time.Time, bool) {
 //     future (refresh-skew buffered), or
 //   - the stored token carries a future expiry recorded from the OAuth
 //     response at save time (covers opaque tokens minted by fleet-login), or
-//   - a stored refresh token exists, which can mint a fresh access token.
+//   - the refresh grant's preconditions are met (refresh token + resolvable
+//     client ID), so a fresh access token can be minted.
 //
-// Malformed, opaque, missing-exp, or expired tokens without a refresh token
-// are NOT usable; via=auto then falls back (e.g. to a running Hermes relay)
-// instead of selecting Fleet and failing auth mid-dispatch. Explicit
-// --via=fleet does not consult this predicate: it always attempts Fleet and
-// lets dispatch surface a specific auth error.
+// Malformed, opaque, missing-exp, or expired tokens without a mintable
+// refresh grant are NOT usable; via=auto then falls back (e.g. to a running
+// Hermes relay) instead of selecting Fleet and failing auth mid-dispatch.
+// Explicit --via=fleet does not consult this predicate: it always attempts
+// Fleet and lets dispatch surface a specific auth error.
 func commandFleetTokenUsable(cfg *config.Config) bool {
-	refreshAvailable := false
-	if cfg != nil {
-		refreshAvailable = cfg.FleetTokens().RefreshToken != ""
-	}
+	refreshAvailable := commandFleetRefreshCapable(cfg)
 
 	// Env var token takes precedence when set. Its only freshness evidence
 	// is a parseable JWT exp claim in the future; every other shape (opaque,
@@ -930,6 +945,9 @@ func tryRefreshFleetToken(cfg *config.Config) (string, error) {
 	if cfg == nil {
 		return "", fmt.Errorf("nil cfg")
 	}
+	// Offline preconditions. Mirror any change here in
+	// commandFleetRefreshCapable, which the auto-picker uses to decide
+	// whether a refresh token counts as auth evidence.
 	ft := cfg.FleetTokens()
 	if ft.RefreshToken == "" {
 		return "", fmt.Errorf("no Fleet refresh token stored")
