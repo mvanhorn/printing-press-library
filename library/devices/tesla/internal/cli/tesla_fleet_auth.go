@@ -377,7 +377,7 @@ func resolveFleetKeyFileForRegister(flagValue, publicKeyDomain string) (string, 
 	}
 
 	// No unique match — error with list of candidates.
-	return "", errMultipleCandidates(teslaDir, candidates, "Specify --key-file <path> to select one, or ensure the matching *-public.pem sibling exists.")
+	return "", errMultipleCandidates(teslaDir, candidates, "Specify --key-file <path> to select one.")
 }
 
 // newFleetLoginCmd runs the authorization_code grant via a localhost callback

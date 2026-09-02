@@ -4,6 +4,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
 	"os"
@@ -113,39 +114,76 @@ func TestValidatePrivateKeyPEM_PublicKeyPEM_Rejected(t *testing.T) {
 	}
 }
 
+func TestValidatePrivateKeyPEM_RSAPrivateKey_Rejected(t *testing.T) {
+	dir := t.TempDir()
+	rsaKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatalf("generate RSA: %v", err)
+	}
+	pkcs1Path := filepath.Join(dir, "rsa-pkcs1.pem")
+	pkcs1PEM := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(rsaKey)})
+	if err := os.WriteFile(pkcs1Path, pkcs1PEM, 0o600); err != nil {
+		t.Fatalf("write PKCS1 RSA: %v", err)
+	}
+	if err := validatePrivateKeyPEM(pkcs1Path); err == nil {
+		t.Errorf("validatePrivateKeyPEM on RSA PRIVATE KEY should fail")
+	} else if !strings.Contains(err.Error(), "ECDSA") {
+		t.Errorf("error should mention ECDSA, got: %v", err)
+	}
+
+	pkcs8Bytes, err := x509.MarshalPKCS8PrivateKey(rsaKey)
+	if err != nil {
+		t.Fatalf("marshal PKCS8 RSA: %v", err)
+	}
+	pkcs8Path := filepath.Join(dir, "rsa-pkcs8.pem")
+	pkcs8PEM := pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: pkcs8Bytes})
+	if err := os.WriteFile(pkcs8Path, pkcs8PEM, 0o600); err != nil {
+		t.Fatalf("write PKCS8 RSA: %v", err)
+	}
+	if err := validatePrivateKeyPEM(pkcs8Path); err == nil {
+		t.Errorf("validatePrivateKeyPEM on PKCS#8 RSA should fail")
+	} else if !strings.Contains(err.Error(), "ECDSA") {
+		t.Errorf("error should mention ECDSA, got: %v", err)
+	}
+}
+
+func TestValidatePrivateKeyPEM_ECPrivateKeyPEM_Accepted(t *testing.T) {
+	dir := t.TempDir()
+	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatalf("generate key: %v", err)
+	}
+	sec1, err := x509.MarshalECPrivateKey(priv)
+	if err != nil {
+		t.Fatalf("marshal EC: %v", err)
+	}
+	path := filepath.Join(dir, "ec-sec1.pem")
+	if err := os.WriteFile(path, pem.EncodeToMemory(&pem.Block{Type: "EC PRIVATE KEY", Bytes: sec1}), 0o600); err != nil {
+		t.Fatalf("write EC PRIVATE KEY: %v", err)
+	}
+	if err := validatePrivateKeyPEM(path); err != nil {
+		t.Errorf("validatePrivateKeyPEM on EC PRIVATE KEY: %v", err)
+	}
+}
+
 // ---------------------------------------------------------------------------
 // selectKeyByPublicMatch tests
 // ---------------------------------------------------------------------------
 
-func TestSelectKeyByPublicMatch_SingleKey(t *testing.T) {
+func TestSelectKeyByPublicMatch_EmptyTarget_NeverAutoSelects(t *testing.T) {
 	dir := t.TempDir()
 	priv1, _ := generateTestKeyPair(t, dir, "key1")
-	candidates := []string{priv1}
-	// With only one key and no target, selectKeyByPublicMatch returns ""
-	// (because it only matches via sibling when no target is specified).
-	// The single-key fast path is handled by the caller.
-	result := selectKeyByPublicMatch(candidates, "")
-	if result != priv1 {
-		t.Errorf("single key with sibling should match, got: %q", result)
+	// Single candidate with a sibling still does not auto-select; callers
+	// take the single-key fast path themselves.
+	if result := selectKeyByPublicMatch([]string{priv1}, ""); result != "" {
+		t.Errorf("empty targetPubPath must not auto-select, got: %q", result)
 	}
-}
 
-func TestSelectKeyByPublicMatch_MatchesSiblingPublicKey(t *testing.T) {
-	dir := t.TempDir()
-	priv1, _ := generateTestKeyPair(t, dir, "key1")
 	priv2, _ := generateTestKeyPair(t, dir, "key2")
-	// Both have siblings, so both would match — should return "" (ambiguous).
-	candidates := []string{priv1, priv2}
-	result := selectKeyByPublicMatch(candidates, "")
-	if result != "" {
-		t.Errorf("two keys with siblings should be ambiguous, got: %q", result)
-	}
-
-	// Remove key2's public sibling, now only key1 should match.
 	os.Remove(filepath.Join(dir, "key2-public.pem"))
-	result = selectKeyByPublicMatch(candidates, "")
-	if result != priv1 {
-		t.Errorf("only key1 has sibling, should match, got: %q", result)
+	// Only key1 has a self-matching sibling; that must not win.
+	if result := selectKeyByPublicMatch([]string{priv1, priv2}, ""); result != "" {
+		t.Errorf("empty targetPubPath must not select sibling pair, got: %q", result)
 	}
 }
 
@@ -154,33 +192,32 @@ func TestSelectKeyByPublicMatch_ExplicitTarget(t *testing.T) {
 	priv1, pub1 := generateTestKeyPair(t, dir, "key1")
 	priv2, _ := generateTestKeyPair(t, dir, "key2")
 	candidates := []string{priv1, priv2}
-	// Match against explicit target public key.
 	result := selectKeyByPublicMatch(candidates, pub1)
 	if result != priv1 {
 		t.Errorf("should match key1 against its public key, got: %q", result)
 	}
 }
 
-func TestSelectKeyByPublicMatch_DecoyDefaultName_NotSelected(t *testing.T) {
+func TestSelectKeyByPublicMatch_DecoySibling_EmptyTarget_NotSelected(t *testing.T) {
 	dir := t.TempDir()
-	// Create the "default" filename key that should NOT be selected just by name.
-	decoyPriv, _ := generateTestKeyPair(t, dir, "tesla-keys-host")
-	// Create another key with a proper sibling.
-	realPriv, realPub := generateTestKeyPair(t, dir, "my-fleet-host")
-	// Remove the decoy's public sibling so it can't match.
-	os.Remove(filepath.Join(dir, "tesla-keys-host-public.pem"))
-
-	candidates := []string{decoyPriv, realPriv}
-	// Without target, should match the one with a sibling (realPriv).
-	result := selectKeyByPublicMatch(candidates, "")
-	if result != realPriv {
-		t.Errorf("should select key with sibling, not decoy default name, got: %q", result)
+	// Unrelated BLE/manual pair with a matching sibling public PEM.
+	decoyPriv, _ := generateTestKeyPair(t, dir, "ble-manual")
+	// Fleet-template key: move its public PEM to a domain-named path so the
+	// private file has no sibling in the directory (the Fleet-template shape).
+	fleetPriv, fleetPub := generateTestKeyPair(t, dir, "fleet-host")
+	registeredPub := filepath.Join(dir, "example.com-public.pem")
+	if err := os.Rename(fleetPub, registeredPub); err != nil {
+		t.Fatalf("rename registered public key: %v", err)
 	}
 
-	// With explicit target for the real key, should still select realPriv.
-	result = selectKeyByPublicMatch(candidates, realPub)
-	if result != realPriv {
-		t.Errorf("with explicit target, should select real key, got: %q", result)
+	candidates := []string{decoyPriv, fleetPriv}
+	if result := selectKeyByPublicMatch(candidates, ""); result != "" {
+		t.Errorf("empty targetPubPath must not select decoy sibling pair, got: %q", result)
+	}
+
+	result := selectKeyByPublicMatch(candidates, registeredPub)
+	if result != fleetPriv {
+		t.Errorf("with explicit target, should select fleet key, got: %q", result)
 	}
 }
 

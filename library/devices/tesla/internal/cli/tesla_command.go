@@ -699,12 +699,11 @@ func resolveFleetKeyPath(cfg *config.Config) (string, error) {
 	if len(candidates) == 1 {
 		return candidates[0], nil
 	}
-	// Multiple candidates: try to match via public key material.
+	// Multiple candidates and no registered public key to bind against.
 	if matched := selectKeyByPublicMatch(candidates, ""); matched != "" {
 		return matched, nil
 	}
-	// No unique match — error with list of candidates.
-	return "", errMultipleCandidates(teslaDir, candidates, "Set TESLA_FLEET_KEY_FILE=<path> to select one, or ensure the matching *-public.pem sibling exists.")
+	return "", errMultipleCandidates(teslaDir, candidates, "Set TESLA_FLEET_KEY_FILE=<path> to select one.")
 }
 
 // fleetTokenRefreshSkew is how far ahead of the stored expiry the proactive

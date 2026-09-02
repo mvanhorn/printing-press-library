@@ -15,8 +15,8 @@ import (
 )
 
 // validatePrivateKeyPEM checks that path is a regular file containing a
-// parseable PEM-encoded private key (ECDSA or RSA). Returns nil on success,
-// or an error describing why the path cannot be used as a signing key.
+// PEM-encoded ECDSA private key (PKCS#8 or EC PRIVATE KEY). Tesla Fleet
+// and vehicle-command signing require ECDSA; RSA and other key types fail.
 func validatePrivateKeyPEM(path string) error {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -34,18 +34,25 @@ func validatePrivateKeyPEM(path string) error {
 		return fmt.Errorf("%q contains no PEM block", path)
 	}
 	switch block.Type {
-	case "EC PRIVATE KEY", "PRIVATE KEY", "RSA PRIVATE KEY":
-		// OK — known private key PEM block types.
+	case "RSA PRIVATE KEY":
+		return fmt.Errorf("%q is an RSA private key; Tesla signing requires an ECDSA private key", path)
+	case "EC PRIVATE KEY", "PRIVATE KEY":
+		// Parse below and require *ecdsa.PrivateKey.
 	default:
 		return fmt.Errorf("%q PEM block type %q is not a private key", path, block.Type)
 	}
-	// Attempt to parse the key to catch corrupt/invalid data.
-	if _, err := x509.ParsePKCS8PrivateKey(block.Bytes); err != nil {
-		if _, err2 := x509.ParseECPrivateKey(block.Bytes); err2 != nil {
-			if _, err3 := x509.ParsePKCS1PrivateKey(block.Bytes); err3 != nil {
-				return fmt.Errorf("%q is not a valid private key (PKCS8: %v; EC: %v; PKCS1: %v)", path, err, err2, err3)
-			}
-		}
+	var parsed any
+	var parseErr error
+	if block.Type == "EC PRIVATE KEY" {
+		parsed, parseErr = x509.ParseECPrivateKey(block.Bytes)
+	} else {
+		parsed, parseErr = x509.ParsePKCS8PrivateKey(block.Bytes)
+	}
+	if parseErr != nil {
+		return fmt.Errorf("%q is not a valid private key: %w", path, parseErr)
+	}
+	if _, ok := parsed.(*ecdsa.PrivateKey); !ok {
+		return fmt.Errorf("%q is not an ECDSA private key; Tesla signing requires an ECDSA private key", path)
 	}
 	return nil
 }
@@ -103,34 +110,6 @@ func readPublicKeyBytes(pubPath string) []byte {
 	return pubBytes
 }
 
-// privateKeyMatchesPublic checks if a private key's derived public key matches
-// the given public key file. Returns true only if both can be parsed and the
-// encoded public key bytes are identical.
-func privateKeyMatchesPublic(privPath, pubPath string) bool {
-	privPub := derivePublicKeyBytes(privPath)
-	if privPub == nil {
-		return false
-	}
-	pubBytes := readPublicKeyBytes(pubPath)
-	if pubBytes == nil {
-		return false
-	}
-	return bytes.Equal(privPub, pubBytes)
-}
-
-// findSiblingPublicKey looks for a *-public.pem sibling to a *-private.pem
-// file. Returns the path if found, or "" if not.
-func findSiblingPublicKey(privPath string) string {
-	if !strings.HasSuffix(privPath, "-private.pem") {
-		return ""
-	}
-	pubPath := strings.TrimSuffix(privPath, "-private.pem") + "-public.pem"
-	if info, err := os.Stat(pubPath); err == nil && info.Mode().IsRegular() {
-		return pubPath
-	}
-	return ""
-}
-
 // scanValidPrivateKeys scans a directory for *-private.pem files that are
 // valid private keys (regular file, parseable PEM). Returns the list of
 // absolute paths.
@@ -152,29 +131,22 @@ func scanValidPrivateKeys(dir string) []string {
 	return valid
 }
 
-// selectKeyByPublicMatch tries to select a unique private key from candidates
-// by matching against sibling public keys. Returns the matched key path, or ""
-// if no unique match exists. If targetPubPath is non-empty, it's used as the
-// reference public key; otherwise each candidate's sibling is checked.
+// selectKeyByPublicMatch returns the unique candidate whose derived public
+// key matches the PEM at targetPubPath. Sibling *-public.pem self-consistency
+// is not used: a local pair is not proof the key is Fleet-registered.
+// Returns "" when targetPubPath is empty, unreadable, or the match is not unique.
 func selectKeyByPublicMatch(candidates []string, targetPubPath string) string {
-	var matched []string
-	var targetPubBytes []byte
-	if targetPubPath != "" {
-		targetPubBytes = readPublicKeyBytes(targetPubPath)
+	if targetPubPath == "" {
+		return ""
 	}
+	targetPubBytes := readPublicKeyBytes(targetPubPath)
+	if targetPubBytes == nil {
+		return ""
+	}
+	var matched []string
 	for _, priv := range candidates {
-		if targetPubBytes != nil {
-			// Match against explicit target public key.
-			if privPub := derivePublicKeyBytes(priv); privPub != nil && bytes.Equal(privPub, targetPubBytes) {
-				matched = append(matched, priv)
-			}
-		} else {
-			// Match against sibling public key.
-			if pubPath := findSiblingPublicKey(priv); pubPath != "" {
-				if privateKeyMatchesPublic(priv, pubPath) {
-					matched = append(matched, priv)
-				}
-			}
+		if privPub := derivePublicKeyBytes(priv); privPub != nil && bytes.Equal(privPub, targetPubBytes) {
+			matched = append(matched, priv)
 		}
 	}
 	if len(matched) == 1 {
