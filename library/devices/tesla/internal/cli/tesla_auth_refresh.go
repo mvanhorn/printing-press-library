@@ -37,28 +37,27 @@ func newTeslaAuthLoginCmd(flags *rootFlags) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:   "login",
-		Short: "Log in to Tesla; default is an in-process PKCE flow via your browser",
-		Long: `Default flow: opens Tesla's real login page in your browser, you log in
-(MFA happens at Tesla's page; we never see your password or codes), you get
-redirected to a 404 on auth.tesla.com, and you paste that URL back here. We
-extract the auth code, exchange it via PKCE, and store both tokens in your
-config.toml so the rest of the CLI picks them up.
+		Short: "Log in to Tesla via tesla_auth (default) or a fallback refresh-token flow",
+		Long: `Default flow: subprocesses into adriankumpf/tesla_auth, which opens Tesla's
+OAuth page in a native window. You log in there (Tesla owns MFA, captcha, SMS
+codes - we never see them), tesla_auth captures the tokens, and we store them
+in config.toml. This is the recommended path because it uses Tesla's supported
+tesla:// callback scheme and works on headless/agent boxes.
+
+If tesla_auth is not installed, the CLI errors with install instructions rather
+than falling back to a paste-the-URL flow that Tesla's OAuth no longer supports.
 
 Fallback modes for headless / CI / scripted use:
   --paste                 Read a pre-captured refresh token from stdin
   --refresh-token <tok>   Supply the refresh token as a flag (skips stdin)
-  --via tesla-auth        Subprocess into the adriankumpf/tesla_auth binary
-                          (must be on $PATH; shows you the same OAuth page in
-                          a native window). Useful if you'd rather click than
-                          paste.`,
+  --via tesla-auth        Explicitly request the tesla_auth subprocess flow
+                          (same as default when tesla_auth is installed)
+
+Install tesla_auth (Rust):
+  cargo install tesla_auth
+  # or: brew install adriankumpf/tap/tesla_auth (macOS)`,
 		Example: "  tesla-pp-cli auth login\n  tesla-pp-cli auth login --paste\n  tesla-pp-cli auth login --refresh-token eyJ...\n  tesla-pp-cli auth login --via tesla-auth",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Surface the tesla_auth detection hint when applicable, except in
-			// verify/dry-run/JSON modes where we don't want extra stderr noise.
-			if via == "" && !flags.asJSON && !cliutil.IsVerifyEnv() && !dryRunOK(flags) {
-				maybeHintTeslaAuthAvailable(cmd.OutOrStderr())
-			}
-
 			switch {
 			case via != "":
 				if via != "tesla-auth" {
@@ -70,7 +69,24 @@ Fallback modes for headless / CI / scripted use:
 			case paste:
 				return runTeslaPasteFlow(cmd, flags)
 			default:
-				return runTeslaPKCEFlow(cmd, flags)
+				// Default: use tesla_auth if available, otherwise fail with
+				// clear install instructions. The void-callback PKCE flow no
+				// longer works because Tesla rejects the redirect_uri.
+				if detectTeslaAuthBinary() != "" {
+					return runTeslaAuthSubprocessFlow(cmd, flags)
+				}
+				return fmt.Errorf(`tesla_auth not found on $PATH
+
+tesla_auth is required for Tesla OAuth login. Install it first:
+
+  cargo install tesla_auth
+  # or on macOS: brew install adriankumpf/tap/tesla_auth
+
+Then retry: tesla-pp-cli auth login
+
+If you already have a refresh token, use:
+  tesla-pp-cli auth login --refresh-token <token>
+  tesla-pp-cli auth login --paste  # reads token from stdin`)
 			}
 		},
 	}

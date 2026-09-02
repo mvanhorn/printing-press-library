@@ -123,7 +123,28 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
-Run `tesla auth login` and the CLI opens Tesla's real login page in your browser. Log in there (Tesla owns MFA, captcha, SMS codes - we never see them), Tesla redirects you to a 404 page on auth.tesla.com after success, you paste that URL back here. The CLI extracts the auth code via PKCE, exchanges it for tokens, and stores them in `~/.config/tesla-pp-cli/config.toml` (mode 0600). Bearer tokens last 8h; the CLI silently re-mints them on 401 using the long-lived refresh token, so once you log in you don't need to think about it. Headless / CI fallbacks: `auth login --paste` reads a pre-captured refresh token from stdin, `auth login --refresh-token <tok>` skips stdin, and `auth login --via tesla-auth` subprocesses into adriankumpf/tesla_auth (if you have it installed and prefer the native window). Newer vehicles on Tesla's signed-command protocol need separate key enrollment - see `tesla reachability` for diagnosis.
+### Prerequisites: Install tesla_auth
+
+The CLI requires `tesla_auth` for OAuth login. Install it first:
+
+```bash
+cargo install tesla_auth
+# or on macOS: brew install adriankumpf/tap/tesla_auth
+```
+
+### Owner API Login
+
+```bash
+tesla-pp-cli auth login
+```
+
+This subprocesses into `tesla_auth`, which opens Tesla's OAuth page in a native window. Log in there (Tesla owns MFA, captcha, SMS codes - we never see them), and tesla_auth captures the tokens. The CLI stores them in `~/.config/tesla-pp-cli/config.toml` (mode 0600). Bearer tokens last 8h; the CLI silently re-mints them on 401 using the long-lived refresh token.
+
+Headless/CI fallbacks when you already have a refresh token:
+- `auth login --paste` — reads a refresh token from stdin
+- `auth login --refresh-token <tok>` — supplies the token as a flag
+
+Newer vehicles on Tesla's signed-command protocol need separate key enrollment - see the Quick Start sections below and `tesla reachability` for diagnosis.
 
 ## Signed-command paths overview
 
@@ -147,52 +168,95 @@ Fleet API is Tesla's official developer surface, documented, billed, and stable.
 
 Free internet control for charge, climate, honk, and media commands. Uses your iOS-app OAuth, no Fleet registration, no per-call billing.
 
-1. `tesla auth login --via tesla-auth`
-
-   iOS-app PKCE flow. Stores the bearer this CLI needs for both REST and Hermes.
-
-2. `tesla auth ble-pair --vin <your-vin>`
-
-   Enroll this CLI's public key on the car over BLE. Run from a laptop within roughly 30ft of the car. The car prompts for an NFC tap to confirm.
-
-3. Install and run tesla-http-proxy:
-
+1. **Install tesla_auth** (required for login):
    ```bash
-   go install github.com/teslamotors/vehicle-command/cmd/tesla-http-proxy@latest
-   tesla-http-proxy -key-file ~/.config/tesla-pp-cli/private.pem -port 4443 -cert auto
+   cargo install tesla_auth
+   # or on macOS: brew install adriankumpf/tap/tesla_auth
    ```
 
-4. `tesla relay start && tesla command set-charge-limit --vehicle <name> --percent 80 --send`
+2. **Log in**:
+   ```bash
+   tesla-pp-cli auth login
+   ```
 
-   The relay forwards signed commands through Hermes. Replace `<name>` with the friendly name the CLI prints under `tesla products`.
+3. **Enroll key at the car** (BLE+NFC required, must be at car):
+   ```bash
+   tesla-pp-cli auth ble-pair --vin <your-vin>
+   ```
+   Run from a laptop within roughly 30ft of the car. The car prompts for an NFC tap to confirm.
+
+4. **Install and run tesla-http-proxy** (clone and build — `go install @latest` fails due to upstream replace directives):
+   ```bash
+   git clone https://github.com/teslamotors/vehicle-command.git
+   cd vehicle-command
+   go build -o tesla-http-proxy ./cmd/tesla-http-proxy
+   ./tesla-http-proxy -key-file ~/.config/tesla-pp-cli/private.pem -port 4443 -cert auto
+   ```
+
+5. **Start relay and send commands**:
+   ```bash
+   tesla-pp-cli relay start
+   tesla-pp-cli command set_charge_limit --vehicle <name> --send -- percent=80
+   ```
+   Replace `<name>` with the friendly name the CLI prints under `tesla products`.
 
 ## Quick start: Fleet API path
 
 Full coverage including unlock, lock, trunk, and any other signed command, callable from anywhere with internet. Roughly $0/mo for typical hobbyist use after the $10/mo personal-use credit.
 
-1. `tesla auth fleet-template --gen-key --dest ./tesla-keys-host`
+1. **Install tesla_auth** (required for Owner API login):
+   ```bash
+   cargo install tesla_auth
+   # or on macOS: brew install adriankumpf/tap/tesla_auth
+   ```
 
-   Scaffolds the public-key host (a Vercel project that serves `/.well-known/appspecific/com.tesla.3p.public-key.pem`) and generates an ECDSA P-256 keypair under `~/.config/tesla-pp-cli/`.
+2. **Install tesla-control** (clone and build — `go install @latest` fails due to upstream replace directives):
+   ```bash
+   git clone https://github.com/teslamotors/vehicle-command.git
+   cd vehicle-command
+   go build -o tesla-control ./cmd/tesla-control
+   mv tesla-control ~/go/bin/  # or somewhere on your $PATH
+   cd ..
+   ```
 
-2. `cd tesla-keys-host && vercel deploy --prod`
+3. **Generate keypair and scaffold public-key host**:
+   ```bash
+   tesla-pp-cli auth fleet-template --gen-key --dest ./tesla-keys-host
+   ```
+   The keypair lands in `~/.tesla/tesla-keys-host-private.pem` (mode 600).
 
-   Deploys the host. Vercel returns the public hostname (something like `<your-host>.vercel.app`). Tesla resolves that hostname to fetch your public key during partner registration and during every signed command.
+4. **Deploy the public-key host**:
+   ```bash
+   cd tesla-keys-host && vercel deploy --prod
+   ```
+   Vercel returns the public hostname (something like `<your-host>.vercel.app`).
 
-3. Register your app at developer.tesla.com.
+5. **Register your app at developer.tesla.com**: Create an app with allowed origin `https://<your-host>.vercel.app` and redirect URI `http://localhost:8585/callback`. Copy the `client_id` and `client_secret`.
 
-   On the partner account dashboard, register a new app with allowed origin and redirect set to `https://<your-host>.vercel.app`, and copy the `client_id` and `client_secret` Tesla shows you.
+6. **Register with Tesla** (the signing key path is auto-detected from `~/.tesla/`):
+   ```bash
+   tesla-pp-cli auth fleet-register \
+     --public-key-domain <your-host>.vercel.app \
+     --client-id <id> \
+     --client-secret-file <secret-file>
+   ```
 
-4. `tesla auth fleet-register --public-key-domain <your-host>.vercel.app --client-id <id> --client-secret-file <secret-file>`
+7. **Complete user OAuth**:
+   ```bash
+   tesla-pp-cli auth fleet-login
+   ```
 
-   Registers your `partner_accounts` entry with Tesla. After this, Tesla's API recognizes your public key for signed commands.
+8. **Enroll virtual key at the car** (BLE+NFC required — must be at the car):
+   ```bash
+   tesla-control -ble -vin <VIN> add-key-request owner cloud_key
+   # Tap your NFC card or phone key when the car prompts
+   ```
+   This step cannot be done remotely. You must be within Bluetooth range of the car with an NFC credential.
 
-5. `tesla auth fleet-login`
-
-   Browser-based user OAuth, callback on `localhost:8585`. Saves the Fleet user bearer token alongside the REST bearer.
-
-6. `tesla command unlock --vehicle <name> --send`
-
-   Signed remote unlock from anywhere with internet.
+9. **Remote commands now work from anywhere**:
+   ```bash
+   tesla-pp-cli command unlock --vehicle <name> --send
+   ```
 
 ## Choosing your path
 
@@ -220,6 +284,14 @@ Brokers (Teslemetry, Tessie, TeslaFi) are listed here only for completeness. The
 ### BLE virtual-key enrollment
 
 `tesla auth ble-pair --vin <your-vin>` runs the full BLE handshake: it subprocesses into `tesla-control` (from teslamotors/vehicle-command), points it at the keypair under `~/.config/tesla-pp-cli/`, and waits for the car to prompt for an NFC tap. Bring a Tesla-issued NFC card or the phone key from the iOS app, tap the center console when prompted, and the car records this CLI's public key as a virtual key.
+
+**Note:** `go install github.com/teslamotors/vehicle-command/cmd/tesla-control@latest` fails due to upstream `replace` directives. Clone and build instead:
+
+```bash
+git clone https://github.com/teslamotors/vehicle-command.git
+cd vehicle-command && go build -o tesla-control ./cmd/tesla-control
+mv tesla-control ~/go/bin/  # or somewhere on your $PATH
+```
 
 You need the laptop within roughly 30ft of the car for this one-time enrollment. Once enrolled, the same key signs commands over BLE (proximity) and over Fleet API (internet). Hermes uses the same key once `fleet-register` has uploaded it.
 

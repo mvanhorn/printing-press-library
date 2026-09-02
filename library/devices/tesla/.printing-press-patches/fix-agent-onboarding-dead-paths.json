@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "fix-agent-onboarding-dead-paths",
+  "applied_at": "2026-09-02",
+  "base_run_id": "20260519-225351",
+  "base_printing_press_version": "4.10.0",
+  "summary": "Default auth login uses tesla_auth (not the dead void-callback PKCE flow), fleet-register persists signing key path, docs lead with working agent-friendly flows.",
+  "reason": "Tesla's OAuth rejects the void-callback redirect_uri, making the default PKCE flow fail with a 404. Agents/headless boxes would wait forever for a pasted URL. The fleet-register command did not persist the signing key path, so signed commands failed with 'no Fleet signing key configured' despite fleet-template having generated the key. Documentation still led with the broken paste-the-404-URL flow.",
+  "files": [
+    "internal/cli/tesla_auth_refresh.go",
+    "internal/cli/tesla_fleet_auth.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "Module build/vet passes. Default auth login detects tesla_auth and uses it, or fails with clear install instructions. Fleet-register auto-detects the key from ~/.tesla/ or accepts --key-file. Docs describe working flows: tesla_auth for Owner API, clone+build for tesla-control, BLE+NFC virtual key pairing at the car for 2021+ vehicles."
+}
