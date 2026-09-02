@@ -622,22 +622,32 @@ func commandDispatchFleet(cmd *cobra.Command, flags *rootFlags, cfg *config.Conf
 	}
 	ft := cfg.FleetTokens()
 	token := firstNonEmpty(os.Getenv("TESLA_FLEET_TOKEN"), ft.AccessToken)
-	if token == "" {
+	if token == "" && ft.RefreshToken == "" {
 		return usageErr(fmt.Errorf("Fleet API not configured; run `tesla auth fleet-login`"))
 	}
 
 	// Proactive refresh, best-effort. Refresh when the stored token is expired,
-	// within the skew window of expiring, or has unknown expiry but a refresh
-	// token to use. The skew window matters on a sink: a freshly-synced token
-	// can be valid by local clock yet about to lapse, and refreshing before
-	// dispatch avoids racing the network. If refresh fails we still attempt the
-	// call; the reactive 401 path below is the safety net.
-	if fleetTokenNeedsProactiveRefresh(ft, fleetTokenRefreshSkew) {
+	// within the skew window of expiring, has unknown expiry but a refresh
+	// token to use, or when the config is refresh-token-only (no access token
+	// yet) — mint the first access token here so dispatch honors the same
+	// "refresh token can authenticate" contract as the auto-picker's readiness
+	// check. The skew window matters on a sink: a freshly-synced token can be
+	// valid by local clock yet about to lapse, and refreshing before dispatch
+	// avoids racing the network. If refresh fails while an access token is
+	// still in hand we attempt the call anyway (the reactive 401 path below is
+	// the safety net); with no access token at all a failed mint is fatal.
+	if token == "" || fleetTokenNeedsProactiveRefresh(ft, fleetTokenRefreshSkew) {
 		// Use the minted token whenever it is non-empty, even if persistence
 		// failed (tryRefreshFleetToken returns token+err in that case): a fresh
 		// token is usable for this dispatch regardless of the disk write.
-		if refreshed, _ := refreshFleetTokenGuarded(cfg); refreshed != "" {
+		refreshed, rerr := refreshFleetTokenGuarded(cfg)
+		if refreshed != "" {
 			token = refreshed
+		} else if token == "" {
+			if rerr == nil {
+				rerr = errors.New("token endpoint returned no access token")
+			}
+			return usageErr(fmt.Errorf("Fleet refresh failed: %v; run `tesla auth fleet-login`", rerr))
 		}
 	}
 

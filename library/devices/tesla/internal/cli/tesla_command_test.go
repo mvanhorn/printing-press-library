@@ -612,6 +612,13 @@ func TestCommand_SweepCommandTmp_RemovesStaleFiles(t *testing.T) {
 // isolates the reactive (401-driven) refresh path.
 func seedFleetSelfHeal(t *testing.T, flags *rootFlags, expiry time.Time, refreshOK bool) *int {
 	t.Helper()
+	return seedFleetSelfHealWithAccess(t, flags, "stale-fleet-access", expiry, refreshOK)
+}
+
+// seedFleetSelfHealWithAccess is seedFleetSelfHeal with a caller-chosen stored
+// access token. Pass "" for a refresh-token-only config (no access token yet).
+func seedFleetSelfHealWithAccess(t *testing.T, flags *rootFlags, access string, expiry time.Time, refreshOK bool) *int {
+	t.Helper()
 
 	cfg, err := config.Load(flags.configPath)
 	if err != nil {
@@ -620,7 +627,7 @@ func seedFleetSelfHeal(t *testing.T, flags *rootFlags, expiry time.Time, refresh
 	keyFile := commandTestKeyFile(t)
 	// clientID + refreshToken populate everything tryRefreshFleetToken needs;
 	// stale access token is what tesla-control will reject with a 401.
-	if err := cfg.SaveFleetTokens("fleet-cid", "fleet-csec", "stale-fleet-access", "fleet-refresh-tok", expiry, "keys.example.com", keyFile); err != nil {
+	if err := cfg.SaveFleetTokens("fleet-cid", "fleet-csec", access, "fleet-refresh-tok", expiry, "keys.example.com", keyFile); err != nil {
 		t.Fatalf("SaveFleetTokens: %v", err)
 	}
 	t.Setenv("TESLA_FLEET_KEY_FILE", keyFile)
@@ -792,6 +799,82 @@ func TestCommand_Fleet_NonAuthError_NoRefresh(t *testing.T) {
 	}
 	if calls != 1 {
 		t.Errorf("expected exactly 1 tesla-control call (no retry), got %d", calls)
+	}
+}
+
+// TestCommand_Fleet_RefreshOnlyConfig_MintsBeforeDispatch: a config holding
+// only a Fleet refresh token (no access token) counts as dispatch-ready for
+// the auto-picker, so dispatch must honor the same contract: mint the first
+// access token from the refresh token instead of erroring
+// "Fleet API not configured".
+func TestCommand_Fleet_RefreshOnlyConfig_MintsBeforeDispatch(t *testing.T) {
+	flags, _ := commandTestSetup(t, []productEntry{
+		{VIN: "SNOWFLAKEVIN0001", DisplayName: "Snowflake", CommandSigning: "required"},
+	})
+	refreshes := seedFleetSelfHealWithAccess(t, flags, "", time.Time{}, true)
+
+	var gotToken string
+	orig := runTeslaControlSubprocessFn
+	t.Cleanup(func() { runTeslaControlSubprocessFn = orig })
+	runTeslaControlSubprocessFn = func(ctx context.Context, bin string, args []string) (string, string, error) {
+		for i, a := range args {
+			if a == "-token-file" && i+1 < len(args) {
+				if data, err := os.ReadFile(args[i+1]); err == nil {
+					gotToken = string(data)
+				}
+			}
+		}
+		return "command succeeded\n", "", nil
+	}
+
+	out, err := runCommandForTest(t, flags, []string{"unlock", "--vehicle", "Snowflake", "--send"})
+	if err != nil {
+		t.Fatalf("refresh-only config should mint and dispatch, got error: %v\n%s", err, out.String())
+	}
+	if *refreshes != 1 {
+		t.Errorf("expected exactly 1 mint from the refresh token, got %d", *refreshes)
+	}
+	if gotToken != "fresh-fleet-access" {
+		t.Errorf("tesla-control token = %q, want the freshly-minted access token", gotToken)
+	}
+	if !strings.Contains(out.String(), `"path": "fleet"`) && !strings.Contains(out.String(), `"path":"fleet"`) {
+		t.Errorf("expected path=fleet, got: %s", out.String())
+	}
+}
+
+// TestCommand_Fleet_RefreshOnlyConfig_MintFails_ErrorsClearly: when the config
+// is refresh-token-only and the mint fails, dispatch surfaces the refresh
+// failure with fleet-login guidance (not a generic "not configured") and never
+// invokes tesla-control without a token.
+func TestCommand_Fleet_RefreshOnlyConfig_MintFails_ErrorsClearly(t *testing.T) {
+	flags, _ := commandTestSetup(t, []productEntry{
+		{VIN: "SNOWFLAKEVIN0001", DisplayName: "Snowflake", CommandSigning: "required"},
+	})
+	refreshes := seedFleetSelfHealWithAccess(t, flags, "", time.Time{}, false)
+
+	calls := 0
+	orig := runTeslaControlSubprocessFn
+	t.Cleanup(func() { runTeslaControlSubprocessFn = orig })
+	runTeslaControlSubprocessFn = func(ctx context.Context, bin string, args []string) (string, string, error) {
+		calls++
+		return "", "", nil
+	}
+
+	out, err := runCommandForTest(t, flags, []string{"unlock", "--vehicle", "Snowflake", "--send"})
+	if err == nil {
+		t.Fatalf("expected mint-failure error, got success: %s", out.String())
+	}
+	if *refreshes != 1 {
+		t.Errorf("expected exactly 1 refresh attempt, got %d", *refreshes)
+	}
+	if calls != 0 {
+		t.Errorf("tesla-control must not run without a token, got %d calls", calls)
+	}
+	if !strings.Contains(err.Error(), "Fleet refresh failed") || !strings.Contains(err.Error(), "fleet-login") {
+		t.Errorf("expected clear refresh-failure error with fleet-login guidance, got: %v", err)
+	}
+	if !errIsUsage(err) {
+		t.Errorf("expected usage error (exit 2), got: %v", err)
 	}
 }
 
