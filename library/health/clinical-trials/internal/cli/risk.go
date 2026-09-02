@@ -2,9 +2,10 @@
 
 // risk.go implements the `risk` command: an explainable, deterministic risk
 // read on a single trial. It fetches one study by NCT id, then scores it across
-// four observable signals — overall status / termination history, posted
-// enrollment, geographic breadth, and the lead sponsor's track record — and
-// returns each factor's contribution so the score is auditable, never a black box.
+// five observable signals — overall status / termination history, posted
+// enrollment, geographic breadth, the lead sponsor's track record, and trial
+// phase — and returns each factor's contribution so the score is auditable,
+// never a black box.
 package cli
 
 import (
@@ -39,10 +40,11 @@ func newNovelRiskCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "risk <nct-id>",
 		Short: "Get an explainable risk read on a single trial from termination, enrollment, site count, sponsor track record, and phase factor (earlier phases = higher risk).",
-		Long: "Score one trial's risk of failure across four observable signals — overall\n" +
-			"status / termination history, posted enrollment, geographic breadth, and the\n" +
-			"lead sponsor's track record. Each factor's point contribution is returned so\n" +
-			"the 0-100 score is fully explainable rather than a black box.",
+		Long: "Score one trial's risk of failure across five observable signals — overall\n" +
+			"status / termination history, posted enrollment, geographic breadth, the\n" +
+			"lead sponsor's track record, and trial phase. Each factor's point\n" +
+			"contribution is returned so the 0-100 score is fully explainable rather\n" +
+			"than a black box.",
 		Example: "  clinical-trials-pp-cli risk NCT07011732 --json\n" +
 			"  clinical-trials-pp-cli risk NCT04280705",
 		Args:        cobra.ExactArgs(1),
@@ -110,6 +112,19 @@ func scoreRisk(t Trial, sponsorTrials int) riskView {
 		v.Factors = append(v.Factors, riskFactor{Name: "status", Detail: detail, Points: 50})
 	case "COMPLETED":
 		v.Factors = append(v.Factors, riskFactor{Name: "status", Detail: "trial already completed; low forward risk", Points: 0})
+	case "UNKNOWN":
+		// The registry assigns UNKNOWN when a trial was last posted as
+		// recruiting and has passed its own estimated completion date by more
+		// than two years with no sponsor update. That is a different absence
+		// from the "" case below: there a status was never posted, here one was
+		// posted and has since gone stale, so the trial's present state cannot
+		// be verified from the record. Scored at the same 10 points because
+		// both describe an unknown current state; a higher figure would assert
+		// that stale trials terminate more often than unposted ones, which is
+		// not measured. Without this case UNKNOWN reached the default arm and
+		// scored 0 — less than a status that was never posted at all, which
+		// contradicts this table's own treatment of missing information.
+		v.Factors = append(v.Factors, riskFactor{Name: "status", Detail: "status not updated for over two years; current state unverifiable", Points: 10})
 	case "":
 		v.Factors = append(v.Factors, riskFactor{Name: "status", Detail: "overall status not posted", Points: 10})
 	default:

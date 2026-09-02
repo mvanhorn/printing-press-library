@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "risk-unknown-status-scores-as-unknown-state",
+  "applied_at": "2026-09-01",
+  "base_run_id": "20260623-164233-df565e8d",
+  "base_printing_press_version": "4.25.0",
+  "summary": "scoreRisk's status switch must give ClinicalTrials.gov's UNKNOWN status its own branch, scored the same as a status that was never posted, rather than letting it reach the default arm at zero points.",
+  "reason": "UNKNOWN means a trial was last posted as recruiting and has passed its estimated completion date by over two years with no sponsor update, so its present state cannot be verified from the record. Falling to the default arm scored it 0 — below the 10 points this same switch gives a status that was never posted at all, although UNKNOWN asserts strictly more. Both now score 10 because both leave the current state unknown; a higher figure would claim stale trials terminate more often than unposted ones, which is not measured. Guarded by TestScoreRiskStatusFactorPoints and one case in TestNovelRiskBehavior.",
+  "files": ["internal/cli/risk.go", "internal/cli/risk_test.go"],
+  "validated_outcome": "go test ./internal/cli/ passes with per-branch status-factor assertions; renaming the UNKNOWN case fails three subtests, so the branch is genuinely guarded."
+}

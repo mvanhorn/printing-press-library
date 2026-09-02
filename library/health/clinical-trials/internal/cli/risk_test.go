@@ -93,6 +93,21 @@ func TestNovelRiskBehavior(t *testing.T) {
 			wantLevel:     "high",
 			minScore:      55, maxScore: 100,
 		},
+		{
+			// Identical to the healthy trial above except for the status, which
+			// the registry has marked UNKNOWN. Every other factor scores 0, so
+			// the whole score is the status factor and nothing else can mask a
+			// regression here.
+			name: "stale UNKNOWN status is the only risk signal",
+			trial: Trial{
+				NCTID: "NCT5", Status: "UNKNOWN", Enrollment: 500,
+				Countries: []string{"United States", "Germany"}, Phases: []string{"PHASE3"},
+				Sponsor: "Pfizer",
+			},
+			sponsorTrials: 200,
+			wantLevel:     "low",
+			minScore:      10, maxScore: 10,
+		},
 	}
 	for _, tc := range cases {
 		tc := tc
@@ -118,6 +133,75 @@ func TestNovelRiskBehavior(t *testing.T) {
 			}
 			if v.Score != sum {
 				t.Errorf("score %d != capped factor sum %d", v.Score, sum)
+			}
+		})
+	}
+}
+
+// TestScoreRiskStatusFactorPoints pins the point value of every status branch
+// by name, which the table test above cannot do: that one reads only the total
+// and the bucket, so a status arm could lose or gain points and stay inside its
+// range as long as another factor moved the other way.
+//
+// UNKNOWN is the case this test was written for. The registry assigns it when a
+// trial was last posted as recruiting and has passed its estimated completion
+// date by more than two years with no update, and 97,164 studies carry it. It
+// had no branch of its own and reached the default arm at 0 points — below the
+// 10 given to a trial whose status was never posted, though UNKNOWN says strictly
+// more: a status was posted and has since stopped being true. Both now score 10,
+// since both leave the current state unknown.
+//
+// The default arm is asserted alongside it so a later reader can see that 0 is
+// deliberate for a live, self-reported status — not the same silence UNKNOWN used
+// to fall into.
+func TestScoreRiskStatusFactorPoints(t *testing.T) {
+	cases := []struct {
+		name       string
+		status     string
+		whyStopped string
+		wantPoints int
+	}{
+		{name: "recruiting", status: "RECRUITING", wantPoints: 0},
+		{name: "active not recruiting", status: "ACTIVE_NOT_RECRUITING", wantPoints: 0},
+		{name: "completed", status: "COMPLETED", wantPoints: 0},
+		{name: "terminated", status: "TERMINATED", whyStopped: "lack of efficacy", wantPoints: 50},
+		{name: "withdrawn", status: "WITHDRAWN", wantPoints: 50},
+		{name: "suspended", status: "SUSPENDED", wantPoints: 50},
+		{name: "unknown", status: "UNKNOWN", wantPoints: 10},
+		{name: "lowercase unknown is upcased before matching", status: "unknown", wantPoints: 10},
+		{name: "status not posted", status: "", wantPoints: 10},
+	}
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			// Every other factor is deliberately at 0 points, so the status
+			// factor is isolated.
+			trial := Trial{
+				NCTID: "NCT0", Status: tc.status, WhyStopped: tc.whyStopped,
+				Enrollment: 500, Countries: []string{"United States", "Germany"},
+				Phases: []string{"PHASE3"}, Sponsor: "Acme",
+			}
+			v := scoreRisk(trial, 100)
+			var status *riskFactor
+			for i := range v.Factors {
+				if v.Factors[i].Name == "status" {
+					status = &v.Factors[i]
+					break
+				}
+			}
+			if status == nil {
+				t.Fatalf("status %q: no %q factor entry in %+v", tc.status, "status", v.Factors)
+			}
+			if status.Points != tc.wantPoints {
+				t.Errorf("status %q: status factor points = %d, want %d", tc.status, status.Points, tc.wantPoints)
+			}
+			if status.Detail == "" {
+				t.Errorf("status %q: status factor has empty detail", tc.status)
+			}
+			// With every other factor at 0, the total IS the status factor.
+			if v.Score != tc.wantPoints {
+				t.Errorf("status %q: score = %d, want %d (other factors should contribute 0)", tc.status, v.Score, tc.wantPoints)
 			}
 		})
 	}
