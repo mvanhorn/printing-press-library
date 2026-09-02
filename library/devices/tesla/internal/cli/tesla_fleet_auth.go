@@ -320,91 +320,64 @@ honored when neither flag is set.`,
 // from ~/.tesla/ based on common fleet-template output patterns.
 //
 // Returns ("", nil) when no key is found (caller warns but does not fail).
-// Returns an error when an explicit path is provided but not readable, or when
-// multiple auto-detected candidates exist and none uniquely matches the domain.
+// Returns an error when an explicit path is provided but not a valid private
+// key PEM, or when multiple auto-detected candidates exist and none can be
+// uniquely matched to a public key.
 func resolveFleetKeyFileForRegister(flagValue, publicKeyDomain string) (string, error) {
-	// Explicit flag wins — must be readable or we fail.
+	// Explicit flag wins — must be a valid private key PEM or we fail.
 	if flagValue != "" {
 		abs, err := filepath.Abs(flagValue)
 		if err != nil {
 			return "", fmt.Errorf("--key-file %q: %w", flagValue, err)
 		}
-		if _, statErr := os.Stat(abs); statErr != nil {
-			return "", fmt.Errorf("--key-file %q not readable: %w", abs, statErr)
+		if err := validatePrivateKeyPEM(abs); err != nil {
+			return "", fmt.Errorf("--key-file: %w", err)
 		}
 		return abs, nil
 	}
-	// Env override — must be readable or we fail.
+	// Env override — must be a valid private key PEM or we fail.
 	if v := strings.TrimSpace(os.Getenv("TESLA_FLEET_KEY_FILE")); v != "" {
 		abs, err := filepath.Abs(v)
 		if err != nil {
 			return "", fmt.Errorf("TESLA_FLEET_KEY_FILE=%q: %w", v, err)
 		}
-		if _, statErr := os.Stat(abs); statErr != nil {
-			return "", fmt.Errorf("TESLA_FLEET_KEY_FILE=%q not readable: %w", abs, statErr)
+		if err := validatePrivateKeyPEM(abs); err != nil {
+			return "", fmt.Errorf("TESLA_FLEET_KEY_FILE: %w", err)
 		}
 		return abs, nil
 	}
 	// Auto-detect from ~/.tesla/. fleet-template --gen-key writes to
-	// ~/.tesla/<dest-basename>-private.pem. Common patterns:
-	//   ~/.tesla/tesla-keys-host-private.pem (default --dest)
-	//   ~/.tesla/<domain>-private.pem (if dest matched domain)
+	// ~/.tesla/<dest-basename>-private.pem.
 	home, err := os.UserHomeDir()
 	if err != nil || home == "" {
 		return "", nil
 	}
 	teslaDir := filepath.Join(home, ".tesla")
 
-	// Collect all readable *-private.pem files.
-	var allCandidates []string
-	if entries, err := os.ReadDir(teslaDir); err == nil {
-		for _, e := range entries {
-			if !e.IsDir() && strings.HasSuffix(e.Name(), "-private.pem") {
-				p := filepath.Join(teslaDir, e.Name())
-				if _, statErr := os.Stat(p); statErr == nil {
-					allCandidates = append(allCandidates, p)
-				}
-			}
-		}
-	}
-	if len(allCandidates) == 0 {
+	// Collect all valid *-private.pem files.
+	candidates := scanValidPrivateKeys(teslaDir)
+	if len(candidates) == 0 {
 		return "", nil
 	}
-	if len(allCandidates) == 1 {
-		return allCandidates[0], nil
+	if len(candidates) == 1 {
+		return candidates[0], nil
 	}
 
-	// Multiple candidates: prefer domain-matching or default fleet-template name.
-	var preferred []string
-	defaultName := filepath.Join(teslaDir, "tesla-keys-host-private.pem")
-	domainName := ""
+	// Multiple candidates: try to match via public key material.
+	// First, check if a public key for the domain is available locally.
+	var targetPubPath string
 	if publicKeyDomain != "" {
-		domainName = filepath.Join(teslaDir, publicKeyDomain+"-private.pem")
-	}
-	for _, c := range allCandidates {
-		if c == domainName || c == defaultName {
-			preferred = append(preferred, c)
+		domainPubPath := filepath.Join(teslaDir, publicKeyDomain+"-public.pem")
+		if info, statErr := os.Stat(domainPubPath); statErr == nil && info.Mode().IsRegular() {
+			targetPubPath = domainPubPath
 		}
 	}
-	if len(preferred) == 1 {
-		return preferred[0], nil
-	}
-	// Still ambiguous — domain match takes priority over default.
-	if domainName != "" {
-		for _, c := range allCandidates {
-			if c == domainName {
-				return c, nil
-			}
-		}
-	}
-	for _, c := range allCandidates {
-		if c == defaultName {
-			return c, nil
-		}
+	if matched := selectKeyByPublicMatch(candidates, targetPubPath); matched != "" {
+		return matched, nil
 	}
 
 	// No unique match — error with list of candidates.
-	return "", fmt.Errorf("multiple signing keys in %s:\n  %s\nSpecify --key-file <path> to select one", teslaDir, strings.Join(allCandidates, "\n  "))
+	return "", errMultipleCandidates(teslaDir, candidates, "Specify --key-file <path> to select one, or ensure the matching *-public.pem sibling exists.")
 }
 
 // newFleetLoginCmd runs the authorization_code grant via a localhost callback

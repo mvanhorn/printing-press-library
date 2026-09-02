@@ -4,8 +4,8 @@
   "applied_at": "2026-09-02",
   "base_run_id": "20260519-225351",
   "base_printing_press_version": "4.10.0",
-  "summary": "Default auth login uses tesla_auth (not dead void-callback), fleet-register persists key path and rejects unreadable explicit paths, key resolvers error on multiple candidates instead of picking first match, compactFields strips cached_data/tokens/backseat_token, error strings use clone+build (not @latest), docs lead with working flows.",
-  "reason": "Tesla's OAuth rejects void-callback redirect_uri (404). fleet-register never persisted PrivateKeyPath and accepted unreadable explicit paths, causing silent failures later. Key resolvers picked arbitrary first-match when multiple *-private.pem files existed, selecting unrelated keys. Error strings told users 'go install @latest' which fails due to upstream replace directives. Products --agent dumped huge cached_data protobuf. locateRelayPrivateKey hardcoded a personal car name. Docs taught the dead paste flow and used personal car names.",
+  "summary": "Default auth login uses tesla_auth (not dead void-callback), all key paths validated as regular files with parseable PEM private keys before persisting, multiple candidates resolved via public key matching (sibling *-public.pem), compactFields strips cached_data/tokens/backseat_token, error strings use clone+build (not @latest), docs lead with working flows.",
+  "reason": "Tesla's OAuth rejects void-callback redirect_uri (404). fleet-register never persisted PrivateKeyPath and accepted directories/sockets/invalid paths (os.Stat passes for these), causing silent failures later. Key resolvers picked arbitrary first-match by filename when multiple *-private.pem files existed, even selecting a decoy tesla-keys-host-private.pem over the real key. Error strings told users 'go install @latest' which fails due to upstream replace directives. Products --agent dumped huge cached_data protobuf. locateRelayPrivateKey hardcoded a personal car name. Docs taught the dead paste flow and used personal car names.",
   "files": [
     "internal/cli/tesla_auth_refresh.go",
     "internal/cli/tesla_fleet_auth.go",
@@ -14,9 +14,11 @@
     "internal/cli/tesla_creds_export.go",
     "internal/cli/tesla_relay.go",
     "internal/cli/tesla_relay_test.go",
+    "internal/cli/tesla_key_helpers.go",
+    "internal/cli/tesla_key_helpers_test.go",
     "internal/cli/helpers.go",
     "SKILL.md",
     "README.md"
   ],
-  "validated_outcome": "Module build/vet/test pass (310 cli tests). Default auth login uses tesla_auth or errors with install instructions. Fleet-register accepts --key-file, rejects unreadable explicit paths at register time, and auto-detects unique keys from ~/.tesla/. All key resolvers error with candidate list when multiple keys exist and none uniquely matches. Error strings give clone+build instructions. compactFields strips cached_data/tokens/backseat_token. Docs use generic <name>/<VIN> placeholders, correct key paths, and working flows."
+  "validated_outcome": "Module build/vet/test pass (320+ cli tests). Default auth login uses tesla_auth or errors with install instructions. All key resolvers validate paths are regular files containing parseable PEM private keys (directories, sockets, unreadable files rejected). Multiple candidates resolved via public key material matching (sibling *-public.pem files), not filename. Tests cover: directory rejected, unreadable rejected, decoy default-name key not selected without public-key match. Error strings give clone+build instructions. compactFields strips cached_data/tokens/backseat_token. Docs use generic <name>/<VIN> placeholders, correct key paths, and working flows."
 }

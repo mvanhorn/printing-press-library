@@ -9,7 +9,12 @@ package cli
 import (
 	"bytes"
 	"context"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -31,6 +36,26 @@ func commandTestFlags(t *testing.T) *rootFlags {
 	t.Helper()
 	cfgPath := filepath.Join(t.TempDir(), "config.toml")
 	return &rootFlags{configPath: cfgPath, timeout: 5 * time.Second, rateLimit: 0}
+}
+
+// commandTestKeyFile generates a real ECDSA P-256 private key PEM file for
+// tests that need a valid TESLA_FLEET_KEY_FILE. Returns the path.
+func commandTestKeyFile(t *testing.T) string {
+	t.Helper()
+	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatalf("generate key: %v", err)
+	}
+	privBytes, err := x509.MarshalPKCS8PrivateKey(priv)
+	if err != nil {
+		t.Fatalf("marshal key: %v", err)
+	}
+	privPEM := pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: privBytes})
+	keyFile := filepath.Join(t.TempDir(), "fleet-private.pem")
+	if err := os.WriteFile(keyFile, privPEM, 0o600); err != nil {
+		t.Fatalf("write key: %v", err)
+	}
+	return keyFile
 }
 
 // commandTestSetup wires up the common scaffolding used by every test:
@@ -138,11 +163,8 @@ func TestCommand_Fleet_UnlockSend_InvokesTeslaControl(t *testing.T) {
 	})
 	t.Setenv("TESLA_FLEET_TOKEN", "fleet-bearer-xyz")
 
-	// Plant a fake key file so resolveFleetKeyPath succeeds.
-	keyFile := filepath.Join(t.TempDir(), "fleet-private.pem")
-	if err := os.WriteFile(keyFile, []byte("-----BEGIN EC PRIVATE KEY-----\nfake\n-----END EC PRIVATE KEY-----\n"), 0o600); err != nil {
-		t.Fatalf("write key: %v", err)
-	}
+	// Plant a real key file so resolveFleetKeyPath succeeds.
+	keyFile := commandTestKeyFile(t)
 	t.Setenv("TESLA_FLEET_KEY_FILE", keyFile)
 
 	// Plant a fake tesla-control on PATH so detectTeslaControlBinary resolves.
@@ -188,10 +210,7 @@ func TestCommand_Fleet_TokenFileShape(t *testing.T) {
 	})
 	t.Setenv("TESLA_FLEET_TOKEN", "fleet-bearer-xyz")
 
-	keyFile := filepath.Join(t.TempDir(), "fleet-private.pem")
-	if err := os.WriteFile(keyFile, []byte("fake"), 0o600); err != nil {
-		t.Fatalf("write key: %v", err)
-	}
+	keyFile := commandTestKeyFile(t)
 	t.Setenv("TESLA_FLEET_KEY_FILE", keyFile)
 
 	binDir := t.TempDir()
@@ -446,10 +465,7 @@ func TestCommand_Fleet_TeslaControlMissing(t *testing.T) {
 	})
 	t.Setenv("TESLA_FLEET_TOKEN", "fleet-bearer-xyz")
 
-	keyFile := filepath.Join(t.TempDir(), "fleet-private.pem")
-	if err := os.WriteFile(keyFile, []byte("fake"), 0o600); err != nil {
-		t.Fatalf("write key: %v", err)
-	}
+	keyFile := commandTestKeyFile(t)
 	t.Setenv("TESLA_FLEET_KEY_FILE", keyFile)
 
 	// PATH points at an empty dir; ~/go/bin is under a temp home so absent.
@@ -580,10 +596,7 @@ func seedFleetSelfHeal(t *testing.T, flags *rootFlags, expiry time.Time, refresh
 	if err != nil {
 		t.Fatalf("Load cfg: %v", err)
 	}
-	keyFile := filepath.Join(t.TempDir(), "fleet-private.pem")
-	if err := os.WriteFile(keyFile, []byte("-----BEGIN EC PRIVATE KEY-----\nfake\n-----END EC PRIVATE KEY-----\n"), 0o600); err != nil {
-		t.Fatalf("write key: %v", err)
-	}
+	keyFile := commandTestKeyFile(t)
 	// clientID + refreshToken populate everything tryRefreshFleetToken needs;
 	// stale access token is what tesla-control will reject with a 401.
 	if err := cfg.SaveFleetTokens("fleet-cid", "fleet-csec", "stale-fleet-access", "fleet-refresh-tok", expiry, "keys.example.com", keyFile); err != nil {

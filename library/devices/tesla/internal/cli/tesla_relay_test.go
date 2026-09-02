@@ -2,6 +2,11 @@ package cli
 
 import (
 	"context"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"net"
 	"os"
@@ -35,11 +40,28 @@ func scopedRelayHome(t *testing.T) relayPaths {
 	if err := os.MkdirAll(paths.Dir, 0o700); err != nil {
 		t.Fatalf("mkdir %s: %v", paths.Dir, err)
 	}
-	// Drop a fake *-private.pem so locateRelayPrivateKey() succeeds.
+	// Generate a real ECDSA key so locateRelayPrivateKey() passes validation.
 	teslaDir := filepath.Join(home, ".tesla")
 	_ = os.MkdirAll(teslaDir, 0o700)
-	_ = os.WriteFile(filepath.Join(teslaDir, "test-vehicle-private.pem"),
-		[]byte("-----BEGIN PRIVATE KEY-----\nfake\n-----END PRIVATE KEY-----\n"), 0o600)
+	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatalf("generate key: %v", err)
+	}
+	privBytes, err := x509.MarshalPKCS8PrivateKey(priv)
+	if err != nil {
+		t.Fatalf("marshal key: %v", err)
+	}
+	privPEM := pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: privBytes})
+	privPath := filepath.Join(teslaDir, "test-vehicle-private.pem")
+	_ = os.WriteFile(privPath, privPEM, 0o600)
+	// Also write the public key sibling so it can be matched.
+	pubBytes, err := x509.MarshalPKIXPublicKey(&priv.PublicKey)
+	if err != nil {
+		t.Fatalf("marshal public key: %v", err)
+	}
+	pubPEM := pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: pubBytes})
+	pubPath := filepath.Join(teslaDir, "test-vehicle-public.pem")
+	_ = os.WriteFile(pubPath, pubPEM, 0o644)
 	return paths
 }
 
@@ -592,7 +614,7 @@ func TestRelay_PortFree_DetectsConflict(t *testing.T) {
 func TestRelay_LocateRelayPrivateKey_PrefersConfigThenEnvThenTeslaDir(t *testing.T) {
 	scopedRelayHome(t)
 	// scopedRelayHome plants ~/.tesla/test-vehicle-private.pem; with no config
-	// and no env, any *-private.pem in ~/.tesla/ wins.
+	// and no env, the single *-private.pem in ~/.tesla/ wins.
 	key, err := locateRelayPrivateKey(&rootFlags{})
 	if err != nil {
 		t.Fatalf("locateRelayPrivateKey: %v", err)
@@ -601,9 +623,14 @@ func TestRelay_LocateRelayPrivateKey_PrefersConfigThenEnvThenTeslaDir(t *testing
 		t.Errorf("expected *-private.pem key, got: %s", key)
 	}
 
-	// Env var wins over ~/.tesla/ fallback when present + file exists.
-	envKey := filepath.Join(t.TempDir(), "env-key.pem")
-	_ = os.WriteFile(envKey, []byte("fake"), 0o600)
+	// Env var wins over ~/.tesla/ fallback when present + file is a valid key.
+	envDir := t.TempDir()
+	envKey := filepath.Join(envDir, "env-key.pem")
+	// Generate a real key for the env test.
+	priv, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	privBytes, _ := x509.MarshalPKCS8PrivateKey(priv)
+	privPEM := pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: privBytes})
+	_ = os.WriteFile(envKey, privPEM, 0o600)
 	t.Setenv("TESLA_FLEET_KEY_FILE", envKey)
 	key, err = locateRelayPrivateKey(&rootFlags{})
 	if err != nil {
