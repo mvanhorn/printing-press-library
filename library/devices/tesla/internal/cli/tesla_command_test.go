@@ -126,8 +126,10 @@ func TestCommand_DefaultPrint_FleetUnlock(t *testing.T) {
 	flags, _ := commandTestSetup(t, []productEntry{
 		{VIN: "SNOWFLAKEVIN0001", DisplayName: "Snowflake", CommandSigning: "required"},
 	})
-	// Make Fleet fully dispatchable: token + key + binary on PATH.
-	t.Setenv("TESLA_FLEET_TOKEN", "fleet-bearer-xyz")
+	// Make Fleet fully dispatchable: usable (unexpired JWT) token + key +
+	// binary on PATH. Auto-pick is fail-closed, so the token must carry a
+	// parseable future exp claim.
+	t.Setenv("TESLA_FLEET_TOKEN", mintTestJWT(t, time.Now().Add(time.Hour)))
 
 	// Plant a real key file so resolveFleetKeyPath succeeds.
 	keyFile := commandTestKeyFile(t)
@@ -174,7 +176,8 @@ func TestCommand_Fleet_UnlockSend_InvokesTeslaControl(t *testing.T) {
 	flags, _ := commandTestSetup(t, []productEntry{
 		{VIN: "SNOWFLAKEVIN0001", DisplayName: "Snowflake", CommandSigning: "required"},
 	})
-	t.Setenv("TESLA_FLEET_TOKEN", "fleet-bearer-xyz")
+	// Usable (unexpired JWT) token: auto-pick is fail-closed on opaque strings.
+	t.Setenv("TESLA_FLEET_TOKEN", mintTestJWT(t, time.Now().Add(time.Hour)))
 
 	// Plant a real key file so resolveFleetKeyPath succeeds.
 	keyFile := commandTestKeyFile(t)
@@ -221,7 +224,9 @@ func TestCommand_Fleet_TokenFileShape(t *testing.T) {
 	flags, _ := commandTestSetup(t, []productEntry{
 		{VIN: "SNOWFLAKEVIN0001", DisplayName: "Snowflake", CommandSigning: "required"},
 	})
-	t.Setenv("TESLA_FLEET_TOKEN", "fleet-bearer-xyz")
+	// Usable (unexpired JWT) token: auto-pick is fail-closed on opaque strings.
+	fleetJWT := mintTestJWT(t, time.Now().Add(time.Hour))
+	t.Setenv("TESLA_FLEET_TOKEN", fleetJWT)
 
 	keyFile := commandTestKeyFile(t)
 	t.Setenv("TESLA_FLEET_KEY_FILE", keyFile)
@@ -276,8 +281,8 @@ func TestCommand_Fleet_TokenFileShape(t *testing.T) {
 	if !got.underTmp {
 		t.Errorf("token file %q is not under ~/.config/tesla-pp-cli/tmp/", got.tokenFile)
 	}
-	if got.token != "fleet-bearer-xyz" {
-		t.Errorf("token file content = %q, want fleet-bearer-xyz", got.token)
+	if got.token != fleetJWT {
+		t.Errorf("token file content = %q, want the env JWT", got.token)
 	}
 
 	// After the call returns the cleanup defer should have removed the file.
@@ -931,21 +936,25 @@ func TestFleetTokenNeedsProactiveRefresh(t *testing.T) {
 	}
 }
 
-// TestCommandFleetTokenUsable verifies that the auto-picker's token readiness
-// check correctly identifies usable tokens (valid or refreshable) vs unusable
-// (expired with no refresh). Expired/unrefreshable should fall back to Hermes.
+// TestCommandFleetTokenUsable verifies the fail-closed auth-readiness check:
+// only provable evidence counts (future JWT exp, recorded future expiry, or a
+// stored refresh token). Nonempty-but-unverifiable tokens are NOT usable, so
+// via=auto can fall back to Hermes instead of failing Fleet auth mid-dispatch.
 func TestCommandFleetTokenUsable(t *testing.T) {
+	jwtValid := mintTestJWT(t, time.Now().Add(time.Hour))
+	jwtExpired := mintTestJWT(t, time.Now().Add(-time.Hour))
+
 	cases := []struct {
 		name string
 		ft   config.FleetConfig
 		want bool
 	}{
 		{"no token", config.FleetConfig{}, false},
-		{"valid token (not expired)", config.FleetConfig{
+		{"opaque token with recorded future expiry", config.FleetConfig{
 			AccessToken: "tok",
 			TokenExpiry: time.Now().Add(time.Hour),
 		}, true},
-		{"valid token with refresh", config.FleetConfig{
+		{"opaque token with recorded future expiry and refresh", config.FleetConfig{
 			AccessToken:  "tok",
 			RefreshToken: "ref",
 			TokenExpiry:  time.Now().Add(time.Hour),
@@ -968,8 +977,25 @@ func TestCommandFleetTokenUsable(t *testing.T) {
 			AccessToken: "tok",
 			TokenExpiry: time.Now().Add(30 * time.Second), // within 60s skew
 		}, false},
-		{"zero expiry (unknown) is usable", config.FleetConfig{
+		{"opaque token with unknown expiry and no refresh is NOT usable (fail-closed)", config.FleetConfig{
 			AccessToken: "tok",
+		}, false},
+		{"opaque token with unknown expiry but refresh IS usable", config.FleetConfig{
+			AccessToken:  "tok",
+			RefreshToken: "ref",
+		}, true},
+		{"refresh token alone (no access token) is usable", config.FleetConfig{
+			RefreshToken: "ref",
+		}, true},
+		{"stored JWT with future exp and no recorded expiry", config.FleetConfig{
+			AccessToken: jwtValid,
+		}, true},
+		{"stored expired JWT without refresh is NOT usable", config.FleetConfig{
+			AccessToken: jwtExpired,
+		}, false},
+		{"stored expired JWT with refresh IS usable", config.FleetConfig{
+			AccessToken:  jwtExpired,
+			RefreshToken: "ref",
 		}, true},
 	}
 	for _, c := range cases {
@@ -979,7 +1005,7 @@ func TestCommandFleetTokenUsable(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Load: %v", err)
 			}
-			if c.ft.AccessToken != "" {
+			if c.ft.AccessToken != "" || c.ft.RefreshToken != "" {
 				if err := cfg.SaveFleetTokens("cid", "", c.ft.AccessToken, c.ft.RefreshToken, c.ft.TokenExpiry, "", ""); err != nil {
 					t.Fatalf("SaveFleetTokens: %v", err)
 				}
@@ -990,61 +1016,42 @@ func TestCommandFleetTokenUsable(t *testing.T) {
 		})
 	}
 
-	t.Run("env var with non-JWT token is usable (cannot check expiry)", func(t *testing.T) {
-		t.Setenv("TESLA_FLEET_TOKEN", "not-a-jwt-token")
-		flags := commandTestFlags(t)
-		cfg, err := config.Load(flags.configPath)
-		if err != nil {
-			t.Fatalf("Load: %v", err)
-		}
-		if !commandFleetTokenUsable(cfg) {
-			t.Error("non-JWT env token should be considered usable (cannot determine expiry)")
-		}
-	})
-
-	t.Run("env var with valid JWT is usable", func(t *testing.T) {
-		jwt := mintTestJWT(t, time.Now().Add(time.Hour)) // expires in 1 hour
-		t.Setenv("TESLA_FLEET_TOKEN", jwt)
-		flags := commandTestFlags(t)
-		cfg, err := config.Load(flags.configPath)
-		if err != nil {
-			t.Fatalf("Load: %v", err)
-		}
-		if !commandFleetTokenUsable(cfg) {
-			t.Error("valid JWT env token should be usable")
-		}
-	})
-
-	t.Run("env var with expired JWT and no refresh is NOT usable", func(t *testing.T) {
-		jwt := mintTestJWT(t, time.Now().Add(-time.Hour)) // expired 1 hour ago
-		t.Setenv("TESLA_FLEET_TOKEN", jwt)
-		flags := commandTestFlags(t)
-		cfg, err := config.Load(flags.configPath)
-		if err != nil {
-			t.Fatalf("Load: %v", err)
-		}
-		// No refresh token stored
-		if commandFleetTokenUsable(cfg) {
-			t.Error("expired JWT env token without refresh should NOT be usable")
-		}
-	})
-
-	t.Run("env var with expired JWT but stored refresh IS usable", func(t *testing.T) {
-		jwt := mintTestJWT(t, time.Now().Add(-time.Hour)) // expired 1 hour ago
-		t.Setenv("TESLA_FLEET_TOKEN", jwt)
-		flags := commandTestFlags(t)
-		cfg, err := config.Load(flags.configPath)
-		if err != nil {
-			t.Fatalf("Load: %v", err)
-		}
-		// Store a refresh token that can be used to get a fresh access token
-		if err := cfg.SaveFleetTokens("cid", "", "", "refresh-token", time.Time{}, "", ""); err != nil {
-			t.Fatalf("SaveFleetTokens: %v", err)
-		}
-		if !commandFleetTokenUsable(cfg) {
-			t.Error("expired JWT env token WITH stored refresh should be usable")
-		}
-	})
+	// Env var token shapes. Fail-closed: only a parseable future exp claim
+	// counts; every other shape needs the stored refresh token.
+	envCases := []struct {
+		name  string
+		token string
+		// storedRefresh seeds a refresh token in config before the check.
+		storedRefresh bool
+		want          bool
+	}{
+		{"opaque env token without refresh is NOT usable (fail-closed)", "not-a-jwt-token", false, false},
+		{"opaque env token with stored refresh IS usable", "not-a-jwt-token", true, true},
+		{"env JWT with valid future exp is usable", jwtValid, false, true},
+		{"env JWT missing exp claim without refresh is NOT usable", mintTestJWTNoExp(t), false, false},
+		{"env JWT missing exp claim with stored refresh IS usable", mintTestJWTNoExp(t), true, true},
+		{"malformed env JWT without refresh is NOT usable", "header.!!!not-base64!!!.sig", false, false},
+		{"expired env JWT without refresh is NOT usable", jwtExpired, false, false},
+		{"expired env JWT with stored refresh IS usable", jwtExpired, true, true},
+	}
+	for _, c := range envCases {
+		t.Run(c.name, func(t *testing.T) {
+			t.Setenv("TESLA_FLEET_TOKEN", c.token)
+			flags := commandTestFlags(t)
+			cfg, err := config.Load(flags.configPath)
+			if err != nil {
+				t.Fatalf("Load: %v", err)
+			}
+			if c.storedRefresh {
+				if err := cfg.SaveFleetTokens("cid", "", "", "refresh-token", time.Time{}, "", ""); err != nil {
+					t.Fatalf("SaveFleetTokens: %v", err)
+				}
+			}
+			if got := commandFleetTokenUsable(cfg); got != c.want {
+				t.Errorf("commandFleetTokenUsable = %v, want %v", got, c.want)
+			}
+		})
+	}
 }
 
 // mintTestJWT creates a minimal JWT with the given expiry for testing.
@@ -1059,6 +1066,78 @@ func mintTestJWT(t *testing.T, exp time.Time) string {
 	payload := base64.RawURLEncoding.EncodeToString(cb)
 	sig := base64.RawURLEncoding.EncodeToString([]byte("test-signature"))
 	return header + "." + payload + "." + sig
+}
+
+// mintTestJWTNoExp creates a JWT-shaped token whose payload has no exp claim.
+func mintTestJWTNoExp(t *testing.T) string {
+	t.Helper()
+	header := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"RS256","typ":"JWT"}`))
+	payload := base64.RawURLEncoding.EncodeToString([]byte(`{"aud":"https://fleet-api.prd.na.vn.cloud.tesla.com"}`))
+	sig := base64.RawURLEncoding.EncodeToString([]byte("test-signature"))
+	return header + "." + payload + "." + sig
+}
+
+// TestCommand_AutoPick_FailClosedTokenShapes drives the real router end to
+// end: signing key present, tesla-control on PATH, Hermes relay "running",
+// owner-API command, via=auto. Every token shape whose validity cannot be
+// proven (opaque, missing exp, malformed, expired without refresh) must NOT
+// pick Fleet — the command routes to the running Hermes relay instead. A
+// provably fresh JWT must still pick Fleet even with Hermes running.
+func TestCommand_AutoPick_FailClosedTokenShapes(t *testing.T) {
+	cases := []struct {
+		name     string
+		token    func(t *testing.T) string
+		wantPath string
+	}{
+		{"opaque env token -> hermes", func(t *testing.T) string {
+			return "fleet-bearer-opaque"
+		}, "hermes"},
+		{"env JWT missing exp claim -> hermes", func(t *testing.T) string {
+			return mintTestJWTNoExp(t)
+		}, "hermes"},
+		{"malformed env JWT -> hermes", func(t *testing.T) string {
+			return "header.!!!not-base64!!!.sig"
+		}, "hermes"},
+		{"expired env JWT without refresh -> hermes", func(t *testing.T) string {
+			return mintTestJWT(t, time.Now().Add(-time.Hour))
+		}, "hermes"},
+		{"valid unexpired env JWT -> fleet (Fleet-first holds)", func(t *testing.T) string {
+			return mintTestJWT(t, time.Now().Add(time.Hour))
+		}, "fleet"},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			flags, _ := commandTestSetup(t, []productEntry{
+				{VIN: "SNOWFLAKEVIN0001", DisplayName: "Snowflake", CommandSigning: "required"},
+			})
+			t.Setenv("TESLA_FLEET_TOKEN", c.token(t))
+
+			// Signing key + tesla-control both present: the only leg that
+			// varies across cases is whether the token can authenticate.
+			keyFile := commandTestKeyFile(t)
+			t.Setenv("TESLA_FLEET_KEY_FILE", keyFile)
+			binDir := t.TempDir()
+			if err := os.WriteFile(filepath.Join(binDir, teslaControlBinary), []byte("#!/bin/sh\nexit 0\n"), 0o755); err != nil {
+				t.Fatalf("plant tesla-control: %v", err)
+			}
+			t.Setenv("PATH", binDir)
+
+			// Hermes relay "running" (env short-circuit).
+			t.Setenv(commandHermesPortEnv, "9999")
+
+			// Default-print (no --send) surfaces the picked path without
+			// dispatching anything.
+			out, err := runCommandForTest(t, flags, []string{"honk_horn", "--vehicle", "Snowflake"})
+			if err != nil {
+				t.Fatalf("unexpected error: %v\n%s", err, out.String())
+			}
+			body := out.String()
+			wantJSON := `"path": "` + c.wantPath + `"`
+			if !strings.Contains(body, wantJSON) && !strings.Contains(body, `"path":"`+c.wantPath+`"`) {
+				t.Errorf("expected %s, got: %s", wantJSON, body)
+			}
+		})
+	}
 }
 
 // TestJwtExpiry verifies the jwtExpiry helper extracts exp claims correctly.

@@ -287,57 +287,72 @@ func jwtExpiry(tok string) (time.Time, bool) {
 	return time.Time{}, false
 }
 
-// commandFleetTokenUsable reports whether the Fleet token can actually
-// authenticate: either valid (not expired) or refreshable (has refresh token).
-// An expired token without a refresh token cannot authenticate.
+// commandFleetTokenUsable reports whether Fleet credentials can actually
+// authenticate. Fail-closed: a nonempty access-token string is never enough
+// on its own. Exactly three kinds of positive evidence count:
+//
+//   - the effective access token (TESLA_FLEET_TOKEN env var wins over the
+//     stored config token) is a JWT with a parseable exp claim still in the
+//     future (refresh-skew buffered), or
+//   - the stored token carries a future expiry recorded from the OAuth
+//     response at save time (covers opaque tokens minted by fleet-login), or
+//   - a stored refresh token exists, which can mint a fresh access token.
+//
+// Malformed, opaque, missing-exp, or expired tokens without a refresh token
+// are NOT usable; via=auto then falls back (e.g. to a running Hermes relay)
+// instead of selecting Fleet and failing auth mid-dispatch. Explicit
+// --via=fleet does not consult this predicate: it always attempts Fleet and
+// lets dispatch surface a specific auth error.
 func commandFleetTokenUsable(cfg *config.Config) bool {
+	refreshAvailable := false
+	if cfg != nil {
+		refreshAvailable = cfg.FleetTokens().RefreshToken != ""
+	}
+
+	// Env var token takes precedence when set. Its only freshness evidence
+	// is a parseable JWT exp claim in the future; every other shape (opaque,
+	// malformed, missing exp, expired) needs the stored refresh token.
+	if envTok := os.Getenv("TESLA_FLEET_TOKEN"); envTok != "" {
+		if exp, ok := jwtExpiry(envTok); ok && time.Now().Add(fleetTokenRefreshSkew).Before(exp) {
+			return true
+		}
+		return refreshAvailable
+	}
+
 	if cfg == nil {
 		return false
 	}
-	// Environment variable token - check its JWT expiry
-	if envTok := os.Getenv("TESLA_FLEET_TOKEN"); envTok != "" {
-		exp, hasExp := jwtExpiry(envTok)
-		if !hasExp {
-			// Can't determine expiry - assume valid (non-JWT or no exp claim)
-			return true
-		}
-		// Check if expired (with skew buffer)
-		if time.Now().Add(fleetTokenRefreshSkew).After(exp) {
-			// Env token is expired. Check if we have a stored refresh token
-			// that could be used to get a fresh token.
-			if cfg != nil {
-				ft := cfg.FleetTokens()
-				if ft.RefreshToken != "" {
-					return true // Can refresh
-				}
-			}
-			return false // Expired and no way to refresh
-		}
-		return true // Not expired
-	}
 	ft := cfg.FleetTokens()
 	if ft.AccessToken == "" {
-		return false
+		// No access token at all: a stored refresh token can still mint one.
+		return refreshAvailable
 	}
-	// Unknown expiry - assume valid (common for freshly-minted tokens)
-	if ft.TokenExpiry.IsZero() {
+	// Prefer the token's own exp claim when it parses as a JWT.
+	if exp, ok := jwtExpiry(ft.AccessToken); ok {
+		if time.Now().Add(fleetTokenRefreshSkew).Before(exp) {
+			return true
+		}
+		return refreshAvailable
+	}
+	// Opaque stored token: the expiry recorded from the OAuth response at
+	// save time is the remaining evidence. Unknown expiry fails closed.
+	if !ft.TokenExpiry.IsZero() && time.Now().Add(fleetTokenRefreshSkew).Before(ft.TokenExpiry) {
 		return true
 	}
-	// Token not expired (with skew buffer) - usable
-	if time.Now().Add(fleetTokenRefreshSkew).Before(ft.TokenExpiry) {
-		return true
-	}
-	// Token is expired - only usable if we can refresh
-	return ft.RefreshToken != ""
+	return refreshAvailable
 }
 
 // commandFleetDispatchReady reports whether Fleet API can actually dispatch
-// commands. This is stricter than just checking for a token: it requires a
-// usable token (valid or refreshable), a valid signing key, and tesla-control
-// on PATH. Used by the auto-picker to decide whether Fleet is truly usable;
-// if false and Hermes is running, auto may fall back to Hermes.
+// commands. Fail-closed predicate for the via=auto picker — ALL of:
+//   - credentials that can actually authenticate (commandFleetTokenUsable),
+//   - a resolvable signing private key (same rules as dispatch),
+//   - tesla-control on PATH.
+//
+// If any leg is missing, fleetReady=false and auto may fall back to a running
+// Hermes relay (or the BLE recipe). Explicit --via=fleet bypasses this and
+// errors clearly from dispatch instead.
 func commandFleetDispatchReady(cfg *config.Config) bool {
-	// Token must be usable (valid or refreshable)
+	// Credentials must provably authenticate (valid or refreshable).
 	if !commandFleetTokenUsable(cfg) {
 		return false
 	}
