@@ -973,6 +973,55 @@ func TestCommand_Fleet_AuthFail_AutoFallsBackToHermes(t *testing.T) {
 	}
 }
 
+// TestCommand_Fleet_RevokedEnvJWT_AutoFallsBackToHermes pins the exact gap no
+// offline check can close: TESLA_FLEET_TOKEN is a JWT whose payload carries a
+// future exp (passes jwtExpiry and every static readiness leg), but Tesla
+// rejects it — revoked or invalidly signed. With no stored refresh token the
+// reactive refresh cannot mint, so the live-call backstop must reroute the
+// owner-API command through the running Hermes relay.
+func TestCommand_Fleet_RevokedEnvJWT_AutoFallsBackToHermes(t *testing.T) {
+	flags, _ := commandTestSetup(t, []productEntry{
+		{VIN: "SNOWFLAKEVIN0001", DisplayName: "Snowflake", CommandSigning: "required"},
+	})
+	// Offline-valid env token: JWT shape, future exp. Revocation is invisible
+	// to jwtExpiry, so readiness marks Fleet dispatchable.
+	t.Setenv("TESLA_FLEET_TOKEN", mintTestJWT(t, time.Now().Add(time.Hour)))
+
+	keyFile := commandTestKeyFile(t)
+	t.Setenv("TESLA_FLEET_KEY_FILE", keyFile)
+	binDir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(binDir, teslaControlBinary), []byte("#!/bin/sh\nexit 0\n"), 0o755); err != nil {
+		t.Fatalf("plant tesla-control: %v", err)
+	}
+	t.Setenv("PATH", binDir)
+
+	// Tesla rejects the token: tesla-control 401s. No stored refresh token,
+	// so the reactive refresh fails before any network call and cannot mask
+	// the rejection.
+	calls, stub := auth401Stub(t, -1)
+	orig := runTeslaControlSubprocessFn
+	t.Cleanup(func() { runTeslaControlSubprocessFn = orig })
+	runTeslaControlSubprocessFn = stub
+
+	t.Setenv(commandHermesPortEnv, "9999") // relay "running"
+	hermesCalls := hijackHermesSuccess(t)
+
+	out, err := runCommandForTest(t, flags, []string{"honk_horn", "--vehicle", "Snowflake", "--send"})
+	if err != nil {
+		t.Fatalf("expected Hermes fallback success for revoked env JWT, got error: %v\n%s", err, out.String())
+	}
+	if *calls != 1 {
+		t.Errorf("expected 1 tesla-control call (no refresh retry without a refresh token), got %d", *calls)
+	}
+	if *hermesCalls != 1 {
+		t.Errorf("expected exactly 1 Hermes dispatch, got %d", *hermesCalls)
+	}
+	body := out.String()
+	if !strings.Contains(body, `"path": "hermes"`) && !strings.Contains(body, `"path":"hermes"`) {
+		t.Errorf("expected path=hermes in fallback output, got: %s", body)
+	}
+}
+
 // TestCommand_Fleet_AuthFail_ViaFleetExplicit_NoHermesFallback: the explicit
 // --via=fleet override must never silently switch transports — a persistent
 // auth failure surfaces as the Fleet error even with a healthy relay running.
