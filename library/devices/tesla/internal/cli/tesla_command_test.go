@@ -13,6 +13,7 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
 	"net/http"
@@ -989,17 +990,75 @@ func TestCommandFleetTokenUsable(t *testing.T) {
 		})
 	}
 
-	t.Run("env var override is always usable", func(t *testing.T) {
-		t.Setenv("TESLA_FLEET_TOKEN", "env-override-token")
+	t.Run("env var with non-JWT token is usable (cannot check expiry)", func(t *testing.T) {
+		t.Setenv("TESLA_FLEET_TOKEN", "not-a-jwt-token")
 		flags := commandTestFlags(t)
 		cfg, err := config.Load(flags.configPath)
 		if err != nil {
 			t.Fatalf("Load: %v", err)
 		}
 		if !commandFleetTokenUsable(cfg) {
-			t.Error("env var TESLA_FLEET_TOKEN should always be considered usable")
+			t.Error("non-JWT env token should be considered usable (cannot determine expiry)")
 		}
 	})
+
+	t.Run("env var with valid JWT is usable", func(t *testing.T) {
+		jwt := mintTestJWT(t, time.Now().Add(time.Hour)) // expires in 1 hour
+		t.Setenv("TESLA_FLEET_TOKEN", jwt)
+		flags := commandTestFlags(t)
+		cfg, err := config.Load(flags.configPath)
+		if err != nil {
+			t.Fatalf("Load: %v", err)
+		}
+		if !commandFleetTokenUsable(cfg) {
+			t.Error("valid JWT env token should be usable")
+		}
+	})
+
+	t.Run("env var with expired JWT and no refresh is NOT usable", func(t *testing.T) {
+		jwt := mintTestJWT(t, time.Now().Add(-time.Hour)) // expired 1 hour ago
+		t.Setenv("TESLA_FLEET_TOKEN", jwt)
+		flags := commandTestFlags(t)
+		cfg, err := config.Load(flags.configPath)
+		if err != nil {
+			t.Fatalf("Load: %v", err)
+		}
+		// No refresh token stored
+		if commandFleetTokenUsable(cfg) {
+			t.Error("expired JWT env token without refresh should NOT be usable")
+		}
+	})
+
+	t.Run("env var with expired JWT but stored refresh IS usable", func(t *testing.T) {
+		jwt := mintTestJWT(t, time.Now().Add(-time.Hour)) // expired 1 hour ago
+		t.Setenv("TESLA_FLEET_TOKEN", jwt)
+		flags := commandTestFlags(t)
+		cfg, err := config.Load(flags.configPath)
+		if err != nil {
+			t.Fatalf("Load: %v", err)
+		}
+		// Store a refresh token that can be used to get a fresh access token
+		if err := cfg.SaveFleetTokens("cid", "", "", "refresh-token", time.Time{}, "", ""); err != nil {
+			t.Fatalf("SaveFleetTokens: %v", err)
+		}
+		if !commandFleetTokenUsable(cfg) {
+			t.Error("expired JWT env token WITH stored refresh should be usable")
+		}
+	})
+}
+
+// mintTestJWT creates a minimal JWT with the given expiry for testing.
+func mintTestJWT(t *testing.T, exp time.Time) string {
+	t.Helper()
+	header := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"RS256","typ":"JWT"}`))
+	claims := map[string]any{
+		"aud": "https://fleet-api.prd.na.vn.cloud.tesla.com",
+		"exp": exp.Unix(),
+	}
+	cb, _ := json.Marshal(claims)
+	payload := base64.RawURLEncoding.EncodeToString(cb)
+	sig := base64.RawURLEncoding.EncodeToString([]byte("test-signature"))
+	return header + "." + payload + "." + sig
 }
 
 // TestNewClient_ReadPathSelfHealsInBothModes guards that the read client always

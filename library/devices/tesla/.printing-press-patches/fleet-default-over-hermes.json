@@ -5,7 +5,7 @@
   "base_run_id": "20260519-225351",
   "base_printing_press_version": "4.10.0",
   "summary": "PickPath auto-picker prefers Fleet over Hermes for ClassOwnerAPI when Fleet can fully authenticate and dispatch (usable token + key + binary); Hermes is fallback when Fleet incomplete or explicit --via=hermes.",
-  "reason": "Fleet handles all signed commands reliably from anywhere. Auto-pick must check full dispatch readiness: (1) token is usable (valid or has refresh token), (2) signing key exists, (3) tesla-control binary on PATH. Expired/unrefreshable token falls back to Hermes instead of selecting Fleet and failing auth. Explicit --via=fleet always tries Fleet and lets dispatch surface specific errors.",
+  "reason": "Fleet handles all signed commands reliably from anywhere. Auto-pick must check full dispatch readiness: (1) token is usable (valid JWT exp claim not expired, or stored refresh token exists), (2) signing key exists, (3) tesla-control binary on PATH. Expired/unrefreshable token (including TESLA_FLEET_TOKEN env var) falls back to Hermes instead of selecting Fleet and failing auth. Explicit --via=fleet always tries Fleet and lets dispatch surface specific errors.",
   "files": [
     "internal/cli/tesla_signed_paths.go",
     "internal/cli/tesla_signed_paths_test.go",
@@ -15,5 +15,5 @@
     "SKILL.md",
     "README.md"
   ],
-  "validated_outcome": "Valid-token+key+binary -> Fleet; expired-unrefreshable-token+hermesRunning -> Hermes fallback; --via=fleet always tries Fleet"
+  "validated_outcome": "Valid-token+key+binary -> Fleet; expired-JWT-env-var+no-refresh+hermesRunning -> Hermes fallback; --via=fleet always tries Fleet"
 }

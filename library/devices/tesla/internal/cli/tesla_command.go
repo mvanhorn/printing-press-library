@@ -25,6 +25,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -253,6 +254,39 @@ func commandFleetTokenPresent(cfg *config.Config) bool {
 	return ft.AccessToken != ""
 }
 
+// jwtExpiry extracts the exp (expiration) claim from a JWT token. Returns
+// zero time and false if the token is not a valid JWT or has no exp claim.
+func jwtExpiry(tok string) (time.Time, bool) {
+	parts := strings.Split(tok, ".")
+	if len(parts) != 3 {
+		return time.Time{}, false
+	}
+	payload, err := base64.RawURLEncoding.DecodeString(parts[1])
+	if err != nil {
+		// Tesla pads sometimes; try standard URL encoding.
+		payload, err = base64.URLEncoding.DecodeString(parts[1])
+		if err != nil {
+			return time.Time{}, false
+		}
+	}
+	var raw map[string]any
+	if jerr := json.Unmarshal(payload, &raw); jerr != nil {
+		return time.Time{}, false
+	}
+	// exp is a Unix timestamp (seconds since epoch)
+	switch v := raw["exp"].(type) {
+	case float64:
+		return time.Unix(int64(v), 0), true
+	case int64:
+		return time.Unix(v, 0), true
+	case json.Number:
+		if i, err := v.Int64(); err == nil {
+			return time.Unix(i, 0), true
+		}
+	}
+	return time.Time{}, false
+}
+
 // commandFleetTokenUsable reports whether the Fleet token can actually
 // authenticate: either valid (not expired) or refreshable (has refresh token).
 // An expired token without a refresh token cannot authenticate.
@@ -260,9 +294,26 @@ func commandFleetTokenUsable(cfg *config.Config) bool {
 	if cfg == nil {
 		return false
 	}
-	// Environment variable override - assume caller knows it's valid
-	if os.Getenv("TESLA_FLEET_TOKEN") != "" {
-		return true
+	// Environment variable token - check its JWT expiry
+	if envTok := os.Getenv("TESLA_FLEET_TOKEN"); envTok != "" {
+		exp, hasExp := jwtExpiry(envTok)
+		if !hasExp {
+			// Can't determine expiry - assume valid (non-JWT or no exp claim)
+			return true
+		}
+		// Check if expired (with skew buffer)
+		if time.Now().Add(fleetTokenRefreshSkew).After(exp) {
+			// Env token is expired. Check if we have a stored refresh token
+			// that could be used to get a fresh token.
+			if cfg != nil {
+				ft := cfg.FleetTokens()
+				if ft.RefreshToken != "" {
+					return true // Can refresh
+				}
+			}
+			return false // Expired and no way to refresh
+		}
+		return true // Not expired
 	}
 	ft := cfg.FleetTokens()
 	if ft.AccessToken == "" {
