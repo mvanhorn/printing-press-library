@@ -359,12 +359,10 @@ func resolveFleetKeyFileForRegister(flagValue, publicKeyDomain string) (string, 
 	if len(candidates) == 0 {
 		return "", nil
 	}
-	if len(candidates) == 1 {
-		return candidates[0], nil
-	}
 
-	// Multiple candidates: try to match via public key material.
-	// First, check if a public key for the domain is available locally.
+	// Try to match candidates via public key material against the domain's
+	// public key. This applies whether there's one candidate or many — a
+	// sole key unrelated to the registered domain must not be persisted.
 	var targetPubPath string
 	if publicKeyDomain != "" {
 		domainPubPath := filepath.Join(teslaDir, publicKeyDomain+"-public.pem")
@@ -372,11 +370,26 @@ func resolveFleetKeyFileForRegister(flagValue, publicKeyDomain string) (string, 
 			targetPubPath = domainPubPath
 		}
 	}
-	if matched := selectKeyByPublicMatch(candidates, targetPubPath); matched != "" {
-		return matched, nil
+
+	if targetPubPath != "" {
+		// We have a domain public key to verify against.
+		if matched := selectKeyByPublicMatch(candidates, targetPubPath); matched != "" {
+			return matched, nil
+		}
+		// No candidate matches the domain public key.
+		if len(candidates) == 1 {
+			return "", fmt.Errorf("sole private key %s does not match registered public key %s; specify --key-file if you want to use a different key", candidates[0], targetPubPath)
+		}
+		return "", errMultipleCandidates(teslaDir, candidates, "None match the registered public key. Specify --key-file <path> to select one.")
 	}
 
-	// No unique match — error with list of candidates.
+	// No domain public key available to verify against.
+	if len(candidates) == 1 {
+		// Accept sole candidate when we cannot verify (backward compat).
+		return candidates[0], nil
+	}
+
+	// Multiple candidates and no way to distinguish — require explicit selection.
 	return "", errMultipleCandidates(teslaDir, candidates, "Specify --key-file <path> to select one.")
 }
 

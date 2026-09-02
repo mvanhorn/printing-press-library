@@ -284,6 +284,42 @@ func TestSelectKeyByPublicMatch_DecoySibling_EmptyTarget_NotSelected(t *testing.
 	}
 }
 
+// TestSelectKeyByPublicMatch_SoleCandidate_Mismatch verifies that a single
+// candidate that doesn't match the target public key returns empty string.
+// This is critical for fleet-register: if ~/.tesla has exactly one key but
+// it's unrelated to the registered domain, we must NOT persist it.
+func TestSelectKeyByPublicMatch_SoleCandidate_Mismatch(t *testing.T) {
+	dir := t.TempDir()
+
+	// Create an unrelated key (old BLE key, different pair).
+	unrelatedPriv, _ := generateTestKeyPair(t, dir, "old-ble-key")
+
+	// Create a "domain" public key that doesn't match unrelatedPriv.
+	_, domainPub := generateTestKeyPair(t, dir, "registered-domain")
+
+	// Single candidate that doesn't match the target public key.
+	candidates := []string{unrelatedPriv}
+	result := selectKeyByPublicMatch(candidates, domainPub)
+	if result != "" {
+		t.Errorf("sole candidate with mismatched public key should return empty, got: %q", result)
+	}
+}
+
+// TestSelectKeyByPublicMatch_SoleCandidate_Match verifies that a single
+// candidate that DOES match the target public key is returned.
+func TestSelectKeyByPublicMatch_SoleCandidate_Match(t *testing.T) {
+	dir := t.TempDir()
+
+	// Create a key pair and use its public key as the "domain" public key.
+	matchingPriv, matchingPub := generateTestKeyPair(t, dir, "matching-key")
+
+	candidates := []string{matchingPriv}
+	result := selectKeyByPublicMatch(candidates, matchingPub)
+	if result != matchingPriv {
+		t.Errorf("sole candidate matching public key should be returned, got: %q", result)
+	}
+}
+
 // ---------------------------------------------------------------------------
 // scanValidPrivateKeys tests
 // ---------------------------------------------------------------------------
