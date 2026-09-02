@@ -112,9 +112,8 @@ func PickPath(cmdClass CommandClass, vehicleClass string, fleetReady, hermesRunn
 		case "ble":
 			return PathChoice{Path: PathBLE, Reason: "BLE override for REST-friendly vehicle: tesla-control -ble recipe"}, nil
 		case "fleet":
-			if !fleetReady {
-				return PathChoice{}, fmt.Errorf("--via=fleet requested but Fleet API not configured; run `tesla auth fleet-login`")
-			}
+			// Always try Fleet for explicit --via=fleet; dispatch validates
+			// token/key/binary and returns specific errors if missing.
 			return PathChoice{Path: PathFleet, Reason: "Fleet API override for REST-friendly vehicle"}, nil
 		case "hermes":
 			if !hermesRunning {
@@ -157,9 +156,8 @@ func PickPath(cmdClass CommandClass, vehicleClass string, fleetReady, hermesRunn
 			return PathChoice{Path: PathBLE, Reason: "BLE recipe (Fleet not configured; Hermes wake_up is broken)"}, nil
 		}
 	case "fleet":
-		if !fleetReady {
-			return PathChoice{}, fmt.Errorf("--via=fleet requested but Fleet API not configured; run `tesla auth fleet-login`")
-		}
+		// Always try Fleet for explicit --via=fleet; dispatch validates
+		// token/key/binary and returns specific errors if missing.
 		return PathChoice{Path: PathFleet, Reason: "Fleet API (explicit --via=fleet)"}, nil
 	case "hermes":
 		if cmdClass == ClassVCSEC {

@@ -183,9 +183,11 @@ func runCommand(cmd *cobra.Command, flags *rootFlags, name string, extraArgs []s
 		return err
 	}
 
-	// Pre-flight the picker inputs.
+	// Pre-flight the picker inputs. For auto-pick, fleetReady means "can
+	// actually dispatch" (token + key + binary). For explicit --via=fleet,
+	// PickPath always tries Fleet and lets dispatch fail with specific errors.
 	cmdClass := classifyCommand(name)
-	fleetReady := commandFleetReady(cfg)
+	fleetReady := commandFleetDispatchReady(cfg)
 	hermesRunning := commandHermesRunning()
 
 	choice, perr := PickPath(cmdClass, resolved.VehicleClass, fleetReady, hermesRunning, viaArg)
@@ -250,6 +252,27 @@ func commandFleetReady(cfg *config.Config) bool {
 		return true
 	}
 	return ft.AccessToken != ""
+}
+
+// commandFleetDispatchReady reports whether Fleet API can actually dispatch
+// commands. This is stricter than commandFleetReady: it requires not just a
+// token, but also a valid signing key and the tesla-control binary on PATH.
+// Used by the auto-picker to decide whether Fleet is truly usable; if false
+// and Hermes is running, auto may fall back to Hermes for owner-API commands.
+func commandFleetDispatchReady(cfg *config.Config) bool {
+	// Token must be present
+	if !commandFleetReady(cfg) {
+		return false
+	}
+	// Signing key must be resolvable
+	if _, err := resolveFleetKeyPath(cfg); err != nil {
+		return false
+	}
+	// tesla-control binary must be on PATH
+	if detectTeslaControlBinary() == "" {
+		return false
+	}
+	return true
 }
 
 // commandHermesRunning reports whether the local Hermes relay subprocess is

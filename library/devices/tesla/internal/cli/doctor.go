@@ -579,14 +579,9 @@ func collectRelayDoctorStatus() string {
 // helper from tesla_signed_paths.go so doctor and the `tesla command`
 // router never drift.
 func collectSignedCommandPathsDoctorStatus(cfg *config.Config) string {
-	fleetReady := false
-	if cfg != nil {
-		ft := cfg.FleetTokens()
-		fleetReady = ft.AccessToken != ""
-	}
-	if os.Getenv("TESLA_FLEET_TOKEN") != "" {
-		fleetReady = true
-	}
+	// fleetReady means "can actually dispatch" (token + key + binary).
+	// This matches the auto-picker logic in runCommand.
+	fleetReady := commandFleetDispatchReady(cfg)
 	hermesRunning := false
 	if paths, err := newRelayPaths(); err == nil {
 		_, _, hermesRunning = readRelayState(paths)
