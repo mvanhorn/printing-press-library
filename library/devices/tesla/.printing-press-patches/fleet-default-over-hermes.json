@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "fleet-default-over-hermes",
+  "applied_at": "2026-09-02",
+  "base_run_id": "20260519-225351",
+  "base_printing_press_version": "4.10.0",
+  "summary": "PickPath auto-picker prefers Fleet over Hermes for ClassOwnerAPI when Fleet is enrolled; Hermes is an explicit --via=hermes override only.",
+  "reason": "Fleet handles all signed commands reliably from anywhere. Climate/charge/honk via Fleet proven working 2026-09-02. Hermes-first confused Grok Bot importers into standing up tesla-http-proxy+relay unnecessarily.",
+  "files": [
+    "internal/cli/tesla_signed_paths.go",
+    "internal/cli/tesla_signed_paths_test.go",
+    "internal/cli/tesla_command.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "tesla-pp-cli command climate-on --vehicle Snowflake --via=fleet --send returns status ok"
+}

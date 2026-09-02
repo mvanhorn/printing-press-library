@@ -164,46 +164,9 @@ BLE needs a laptop, Raspberry Pi, or other Linux/macOS host that can sit within 
 
 Fleet API is Tesla's official developer surface, documented, billed, and stable. The Hermes path uses an iOS-app bearer credential reaching Tesla's mobile-app signaling backend. The Hermes path works today but is unofficial; Tesla could change or remove it without notice. Use Fleet for commands you depend on (unlock, lock, daily automations). Use Hermes for routine infotainment commands where you would rather not pay per call.
 
-## Quick start: Hermes free path
+## Quick start: Fleet API path (recommended)
 
-Free internet control for charge, climate, honk, and media commands. Uses your iOS-app OAuth, no Fleet registration, no per-call billing.
-
-1. **Install tesla_auth** (required for login):
-   ```bash
-   cargo install tesla_auth
-   # or on macOS: brew install adriankumpf/tap/tesla_auth
-   ```
-
-2. **Log in**:
-   ```bash
-   tesla-pp-cli auth login
-   ```
-
-3. **Enroll key at the car** (BLE+NFC required, must be at car):
-   ```bash
-   tesla-pp-cli auth ble-pair --vin <your-vin>
-   ```
-   Run from a laptop within roughly 30ft of the car. The car prompts for an NFC tap to confirm.
-
-4. **Install and run tesla-http-proxy** (clone and build — `go install @latest` fails due to upstream replace directives):
-   ```bash
-   git clone https://github.com/teslamotors/vehicle-command.git
-   cd vehicle-command
-   go build -o tesla-http-proxy ./cmd/tesla-http-proxy
-   ./tesla-http-proxy -key-file ~/.tesla/<VIN>-private.pem -port 4443 -cert auto
-   ```
-   Replace `<VIN>` with your vehicle's VIN (ble-pair writes keys there by default).
-
-5. **Start relay and send commands**:
-   ```bash
-   tesla-pp-cli relay start
-   tesla-pp-cli command set_charge_limit --vehicle <name> --send -- percent=80
-   ```
-   Replace `<name>` with the friendly name the CLI prints under `tesla products`.
-
-## Quick start: Fleet API path
-
-Full coverage including unlock, lock, trunk, and any other signed command, callable from anywhere with internet. Roughly $0/mo for typical hobbyist use after the $10/mo personal-use credit.
+Full coverage for all signed commands (climate, charge, unlock, lock, trunk, etc.), callable from anywhere with internet. Roughly $0/mo for typical hobbyist use after the $10/mo personal-use credit. This is the default path for 2021+ vehicles.
 
 1. **Install tesla_auth** (required for Owner API login):
    ```bash
@@ -264,9 +227,9 @@ Full coverage including unlock, lock, trunk, and any other signed command, calla
 | Situation | Path |
 |-----------|------|
 | Pre-2021 Tesla | REST (existing default, no extra setup) |
-| Want $0 cost and your car is at home | BLE (run from a laptop or Pi within Bluetooth range) |
-| Want $0 and remote control of infotainment commands only | Hermes |
-| Want full coverage including unlock from anywhere | Fleet API |
+| 2021+ Tesla (default) | Fleet API (all commands, roughly $0/mo within personal-use credit) |
+| Want $0 cost and car is within Bluetooth range | BLE (run from a laptop or Pi) |
+| Want $0 for infotainment commands only, Fleet not set up | Hermes (use `--via=hermes` explicitly) |
 | Want to deploy your agent to a cloud Mac mini | Fleet plus `tesla auth export` then `tesla auth import` |
 
 ## Costs
@@ -294,7 +257,7 @@ cd vehicle-command && go build -o tesla-control ./cmd/tesla-control
 mv tesla-control ~/go/bin/  # or somewhere on your $PATH
 ```
 
-You need the laptop within roughly 30ft of the car for this one-time enrollment. Once enrolled, the same key signs commands over BLE (proximity) and over Fleet API (internet). Hermes uses the same key once `fleet-register` has uploaded it.
+You need the laptop within roughly 30ft of the car for this one-time enrollment. Once enrolled, the same key signs commands over BLE (proximity) and over Fleet API (internet).
 
 ### Multi-machine deployments
 
@@ -598,6 +561,30 @@ Environment variables:
 - **All commands return 401 token expired** — Auto-refresh should handle this transparently. If it doesn't (refresh token revoked), run `tesla auth login` to re-authenticate. To disable auto-refresh entirely, set `TESLA_PP_NO_AUTOREFRESH=1`.
 - **vehicle_data calls drain the 12V battery** — Run snapshots on a cron with `tesla snap --all` and avoid keeping the car awake unnecessarily; check `tesla doctor` for asleep-state behavior and battery drain mitigation
 - **`tesla cost ledger` shows $0 for Supercharger sessions** — Run `tesla snap --all` to refresh vehicle_data, then `tesla timeline` to stitch new charge sessions into `tesla_charges`; Supercharger pricing may also lag in the upstream CHARGING_HISTORY by up to 24h
+
+## Optional: Hermes relay path (free, infotainment only)
+
+The Hermes relay path routes signed commands through a local `tesla-http-proxy` using your iOS-app OAuth bearer. It is free (no Fleet billing) but only supports infotainment commands (charge, climate, honk, media). Unlock, lock, and trunk are not available on this path.
+
+Use `--via=hermes` to force this path when Fleet is also configured:
+
+```bash
+tesla-pp-cli command climate_on --vehicle <name> --send --via=hermes
+```
+
+To set up Hermes (requires BLE key enrollment first):
+
+```bash
+# Install and run tesla-http-proxy
+git clone https://github.com/teslamotors/vehicle-command.git
+cd vehicle-command && go build -o tesla-http-proxy ./cmd/tesla-http-proxy
+./tesla-http-proxy -key-file ~/.tesla/<VIN>-private.pem -port 4443 -cert auto &
+
+# Start relay
+tesla-pp-cli relay start
+```
+
+The relay must be running on the same host. Fleet API is the recommended default for most users; Hermes is an advanced option for users who want to avoid Fleet billing entirely for infotainment commands.
 
 ## Discovery Signals
 

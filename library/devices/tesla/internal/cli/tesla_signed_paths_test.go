@@ -44,15 +44,15 @@ func TestSignedPaths_PickPath(t *testing.T) {
 			via:          "auto",
 			wantPath:     PathREST,
 		},
-		// Signed-cmd cars: KD6 defaults.
+		// Signed-cmd cars: Fleet-first defaults.
 		{
-			name:          "signed_cmd + owner-api + Fleet + relay running -> hermes (KD6 cost-honest default)",
+			name:          "signed_cmd + owner-api + Fleet + relay running -> fleet (Fleet-first default)",
 			cmdClass:      ClassOwnerAPI,
 			vehicleClass:  VehicleClassSignedCmd,
 			fleetReady:    true,
 			hermesRunning: true,
 			via:           "auto",
-			wantPath:      PathHermes,
+			wantPath:      PathFleet,
 		},
 		{
 			name:          "signed_cmd + owner-api + Fleet + relay NOT running -> fleet",
@@ -62,6 +62,15 @@ func TestSignedPaths_PickPath(t *testing.T) {
 			hermesRunning: false,
 			via:           "auto",
 			wantPath:      PathFleet,
+		},
+		{
+			name:          "signed_cmd + owner-api + no Fleet + relay running -> hermes (fallback)",
+			cmdClass:      ClassOwnerAPI,
+			vehicleClass:  VehicleClassSignedCmd,
+			fleetReady:    false,
+			hermesRunning: true,
+			via:           "auto",
+			wantPath:      PathHermes,
 		},
 		{
 			name:          "signed_cmd + owner-api + only BLE (no Fleet, no relay) -> ble",

@@ -284,7 +284,7 @@ tesla-pp-cli analytics --select battery_level,captured_at --limit 30 --json
 
 Pull the 30 most recent vehicle-state rows from the local SQLite for trend analysis; same data TeslaMate would surface in Grafana.
 
-### Recipe: Remote unlock from anywhere (Fleet path)
+### Recipe: Remote commands from anywhere (Fleet path — default)
 
 ```bash
 # 1. Install tesla-control (clone+build, not go install @latest)
@@ -312,43 +312,24 @@ tesla-control -ble -vin <VIN> add-key-request owner cloud_key
 # Tap NFC card or phone key when the car prompts
 
 # 7. Now remote commands work from anywhere
+tesla-pp-cli command climate_on --vehicle <name> --send
 tesla-pp-cli command unlock --vehicle <name> --send
 ```
 
-After the one-time BLE+NFC pairing at the car, `unlock` (and any other signed command) works from anywhere with internet. Per-call cost: $0.001 plus a $0.02 wake if the car is asleep. Inside the $10/mo personal-use credit, that lands at roughly $0 net.
-
-### Recipe: Cheap remote charge control via Hermes
-
-```bash
-# Install tesla_auth first: cargo install tesla_auth
-tesla-pp-cli auth login
-
-# One-time BLE key enrollment at the car
-tesla-pp-cli auth ble-pair --vin <your-vin>
-
-# Install and run tesla-http-proxy (clone+build)
-git clone https://github.com/teslamotors/vehicle-command.git
-cd vehicle-command && go build -o tesla-http-proxy ./cmd/tesla-http-proxy
-./tesla-http-proxy -key-file ~/.tesla/<VIN>-private.pem -port 4443 -cert auto &
-
-# Start relay and send commands
-tesla-pp-cli relay start
-tesla-pp-cli command set_charge_limit --vehicle <name> --send -- percent=80
-```
-
-One-time BLE key enrollment at the car, then a local proxy plus relay. Subsequent `tesla command set_charge_limit`, `tesla command auto_conditioning_start`, `tesla command honk_horn`, and `tesla command media_toggle_playback` ride free over Hermes. Unlock and trunk are not available on this path; for those, use Fleet.
+After the one-time BLE+NFC pairing at the car, all signed commands work from anywhere with internet. Per-call cost: $0.001 plus a $0.02 wake if the car is asleep. Inside the $10/mo personal-use credit, that lands at roughly $0 net.
 
 ### Recipe: Switching between paths
 
-The `--via` flag picks which transport handles a signed command:
+The `--via` flag overrides the default transport:
 
 ```bash
-tesla-pp-cli command set_charge_limit --vehicle <name> --send --via hermes -- percent=80
+tesla-pp-cli command set_charge_limit --vehicle <name> --send -- percent=80
 tesla-pp-cli command unlock --vehicle <name> --send --via fleet
 tesla-pp-cli command flash_lights --vehicle <name> --send --via ble
+tesla-pp-cli command honk_horn --vehicle <name> --send --via hermes
 ```
 
-Defaults: pre-2021 vehicles use REST, post-2021 vehicles use whichever signed path is enrolled. If both Hermes and Fleet are enrolled, Hermes wins for infotainment commands (cheaper) and Fleet wins for unlock/lock/trunk (Hermes does not carry these). Override per-call with `--via`.
+Defaults: pre-2021 vehicles use REST, post-2021 vehicles use Fleet when enrolled. Use `--via=hermes` to force the Hermes relay path (free, but only for infotainment commands — charge, climate, honk, media). Use `--via=ble` for local Bluetooth commands.
 
 ### Recipe: Deploy your tesla agent to a cloud Mac mini
 
@@ -373,16 +354,20 @@ Is the vehicle pre-2021?
   Yes -> REST (default path, no extra setup)
   No  -> Continue.
 
+Is Fleet API enrolled?
+  Yes -> Fleet API (default for all signed commands, roughly $0/mo within personal-use credit)
+  No  -> Continue.
+
 Is the car within Bluetooth range of this host?
   Yes -> BLE (free, all commands, no internet needed)
   No  -> Continue.
 
-Do you need unlock, lock, trunk, or another non-infotainment signed command?
-  Yes -> Fleet API (roughly $0/mo within personal-use credit)
-  No  -> Hermes (free, infotainment commands only)
+Is Hermes relay running and only need infotainment commands?
+  Yes -> Hermes (free, but only charge/climate/honk/media — no unlock/lock/trunk)
+  No  -> Set up Fleet API (see Auth Setup below)
 
 Deploying to a second host (cloud Mac mini, Pi)?
-  Use the chosen path above, then `tesla auth export` and `tesla auth import` on the remote.
+  Use Fleet + `tesla auth export` and `tesla auth import` on the remote.
 ```
 
 ## Auth Setup

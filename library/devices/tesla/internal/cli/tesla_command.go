@@ -1,10 +1,11 @@
 // tesla command — unified router that picks the right transport per vehicle
 // and per command, with explicit --via override and an opt-in --send flag.
 //
-// Defaults follow KD6 in 2026-05-22-001:
+// Defaults:
 //   - REST-friendly vehicle: legacy owner-API REST (unchanged from v0.1)
-//   - signed-cmd vehicle, owner-API command, Hermes relay running: Hermes
-//   - signed-cmd vehicle, owner-API command, Fleet creds present: Fleet
+//   - signed-cmd vehicle, Fleet enrolled: Fleet for all commands
+//   - signed-cmd vehicle, Fleet not enrolled, Hermes running: Hermes
+//     (infotainment only)
 //   - signed-cmd vehicle, VCSEC command: Fleet (Hermes cannot VCSEC)
 //   - signed-cmd vehicle, wake_up: Fleet (Hermes wake_up bug)
 //   - no internet path available: print the tesla-control -ble recipe
@@ -97,16 +98,15 @@ func newCommandCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "command <name> [--vehicle NAME-OR-VIN] [--via=auto|fleet|hermes|ble] [--send] [extra-args...]",
 		Short: "Send a Tesla command via the best-available signed path",
-		Long: `Unified router for Tesla vehicle commands. Picks the cheapest available
+		Long: `Unified router for Tesla vehicle commands. Picks the best available
 internet path per command:
 
   - REST-friendly vehicles (pre-2021 S/X, pre-late-2021 3/Y) -> legacy REST
-  - signed-cmd vehicles, owner-API command (charge, climate, honk, media):
-    Hermes relay if running (free), Fleet API otherwise (paid)
+  - signed-cmd vehicles with Fleet enrolled -> Fleet API (all commands)
+  - signed-cmd vehicles, Fleet not enrolled, Hermes relay running -> Hermes
+    (infotainment only: charge, climate, honk, media)
   - signed-cmd vehicles, VCSEC (lock, unlock, trunk, sentry): Fleet API only
     (Hermes proxy does not support VCSEC)
-  - signed-cmd vehicles, wake_up: Fleet API (Hermes proxy has a known wake_up
-    bug)
   - no internet path available: prints the exact tesla-control -ble recipe
 
 By default this command PRINTS the intent and exits zero ("would unlock
@@ -118,7 +118,8 @@ Use --via=auto|fleet|hermes|ble to override the picker. The router surfaces a
 clear error if the requested path is unavailable (e.g. --via=hermes for unlock
 errors out because Hermes cannot VCSEC).`,
 		Example: `  tesla-pp-cli command unlock --vehicle Snowflake --send
-  tesla-pp-cli command set_charge_limit --vehicle Snowflake --via=hermes --send -- 80
+  tesla-pp-cli command set_charge_limit --vehicle Snowflake --send -- 80
+  tesla-pp-cli command climate_on --vehicle Snowflake --via=fleet --send
   tesla-pp-cli command honk_horn --vehicle Stella`,
 		Annotations: map[string]string{
 			// KD5/OQ1: worst-case is destructive even with --send guarding the
