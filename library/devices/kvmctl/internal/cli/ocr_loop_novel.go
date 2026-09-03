@@ -24,17 +24,17 @@ func registerOCRLoopCommands(root *cobra.Command, flags *rootFlags) {
 		},
 	}
 
+	var expectedText string
 	verify := &cobra.Command{
 		Use:         "verify",
 		Short:       "Verify exact high-confidence text in a fresh observation",
 		Args:        cobra.NoArgs,
 		Annotations: map[string]string{"pp:novel": "true", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			expected, _ := cmd.Flags().GetString("expect-text")
-			return dispatchOCRPresentation(cmd, flags, "verify-text", map[string]any{"text": expected})
+			return dispatchOCRPresentation(cmd, flags, "verify-text", map[string]any{"text": expectedText})
 		},
 	}
-	verify.Flags().String("expect-text", "", "exact text expected in the fresh OCR observation")
+	verify.Flags().StringVar(&expectedText, "expect-text", "", "exact text expected in the fresh OCR observation")
 	_ = verify.MarkFlagRequired("expect-text")
 
 	act := &cobra.Command{
@@ -50,6 +50,7 @@ func registerOCRLoopCommands(root *cobra.Command, flags *rootFlags) {
 }
 
 func newOCRClickTextCommand(flags *rootFlags) *cobra.Command {
+	var observation string
 	cmd := &cobra.Command{
 		Use:         "click-text <text>",
 		Short:       "Click one exact high-confidence OCR text match",
@@ -63,12 +64,13 @@ func newOCRClickTextCommand(flags *rootFlags) *cobra.Command {
 			return dispatchOCRPresentation(cmd, flags, "click-text", map[string]any{"text": args[0], "observation_id": observation, "write_enabled": true})
 		},
 	}
-	cmd.Flags().String("observation", "", "observation ID returned by kvmctl observe")
+	cmd.Flags().StringVar(&observation, "observation", "", "observation ID returned by kvmctl observe")
 	_ = cmd.MarkFlagRequired("observation")
 	return cmd
 }
 
 func newOCRPressKeyCommand(flags *rootFlags) *cobra.Command {
+	var observation string
 	cmd := &cobra.Command{
 		Use:         "press-key <key>",
 		Short:       "Press an allowed key against one fresh OCR observation",
@@ -82,7 +84,7 @@ func newOCRPressKeyCommand(flags *rootFlags) *cobra.Command {
 			return dispatchOCRPresentation(cmd, flags, "press-key", map[string]any{"key": args[0], "observation_id": observation, "write_enabled": true})
 		},
 	}
-	cmd.Flags().String("observation", "", "observation ID returned by kvmctl observe")
+	cmd.Flags().StringVar(&observation, "observation", "", "observation ID returned by kvmctl observe")
 	_ = cmd.MarkFlagRequired("observation")
 	return cmd
 }
