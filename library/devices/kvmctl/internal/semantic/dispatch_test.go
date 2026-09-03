@@ -3,6 +3,7 @@ package semantic
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/devices/kvmctl/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/devices/kvmctl/internal/config"
 	"net/http"
@@ -66,11 +67,39 @@ func TestClickTextRequiresFreshObservationWritesAndReturnsPostObservation(t *tes
 		t.Fatal("click-text accepted without write_enabled")
 	}
 	out := dispatchObject(t, c, "click-text", map[string]any{"write_enabled": true, "observation_id": id, "text": "  proceed  "})
-	if out["ok"] != true || snapshots != 2 || len(events) != 3 {
+	if out["ok"] != true || snapshots != 3 || len(events) != 3 {
 		t.Fatalf("output=%#v snapshots=%d events=%v", out, snapshots, events)
 	}
 	if _, ok := out["evidence"].(map[string]any)["post_observation"]; !ok {
 		t.Fatalf("missing post observation: %#v", out)
+	}
+}
+
+func TestClickTextRefusesChangedScreenBeforeHID(t *testing.T) {
+	t.Setenv("KVMCTL_OCR_PROTOCOL", "json")
+	t.Setenv("KVMCTL_OCR_COMMAND", writeFakeOCR(t, `{"width":100,"height":50,"words":[{"text":"Proceed","confidence":95,"x":10,"y":10,"width":40,"height":10}]}`))
+	var snapshots, hidEvents int
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/api/streamer/snapshot":
+			snapshots++
+			_, _ = w.Write([]byte(fmt.Sprintf("snapshot-%d", snapshots)))
+		case "/api/hid/events/send_mouse_move", "/api/hid/events/send_mouse_button":
+			hidEvents++
+			_, _ = w.Write([]byte(`{"result":{}}`))
+		default:
+			t.Fatalf("unexpected path %s", r.URL.Path)
+		}
+	}))
+	defer srv.Close()
+	c := client.New(&config.Config{BaseURL: srv.URL}, 0, 0)
+	observed := dispatchObject(t, c, "observe", nil)
+	id := observed["evidence"].(map[string]any)["observation"].(map[string]any)["observation_id"].(string)
+	if _, err := Dispatch(context.Background(), c, "click-text", map[string]any{"write_enabled": true, "observation_id": id, "text": "Proceed"}); err == nil {
+		t.Fatal("changed screen did not refuse click")
+	}
+	if hidEvents != 0 {
+		t.Fatalf("changed screen sent %d HID events", hidEvents)
 	}
 }
 

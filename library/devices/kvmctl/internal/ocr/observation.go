@@ -62,7 +62,21 @@ func NewObservation(imageBytes []byte, capturedAt time.Time, engine string, widt
 			Regions: cloneRegions(regions),
 		},
 	}
-	canonical, err := json.Marshal(observation)
+	// The identifier intentionally excludes CapturedAt: a fresh recapture of an
+	// unchanged screen must validate the same observation ID, while timestamp
+	// remains evidence metadata for callers.
+	identity := struct {
+		ImageSHA256 string         `json:"image_sha256"`
+		Width       int            `json:"width"`
+		Height      int            `json:"height"`
+		OCR         OCRObservation `json:"ocr"`
+	}{
+		ImageSHA256: observation.ImageSHA256,
+		Width:       observation.Width,
+		Height:      observation.Height,
+		OCR:         observation.OCR,
+	}
+	canonical, err := json.Marshal(identity)
 	if err != nil {
 		return Observation{}, fmt.Errorf("canonicalize OCR observation: %w", err)
 	}

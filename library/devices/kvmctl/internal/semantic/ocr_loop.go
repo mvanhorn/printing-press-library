@@ -25,7 +25,7 @@ func opObserve(ctx context.Context, c *client.Client) (results.Operation, error)
 }
 
 func opClickText(ctx context.Context, c *client.Client, args map[string]any) (results.Operation, error) {
-	observation, err := requiredObservation(args)
+	observation, err := requiredFreshObservation(ctx, c, args)
 	if err != nil {
 		return results.Operation{}, err
 	}
@@ -54,7 +54,7 @@ func opClickText(ctx context.Context, c *client.Client, args map[string]any) (re
 }
 
 func opPressKey(ctx context.Context, c *client.Client, args map[string]any) (results.Operation, error) {
-	observation, err := requiredObservation(args)
+	observation, err := requiredFreshObservation(ctx, c, args)
 	if err != nil {
 		return results.Operation{}, err
 	}
@@ -125,14 +125,17 @@ func captureObservation(ctx context.Context, c *client.Client) (ocr.Observation,
 	return observation, nil
 }
 
-func requiredObservation(args map[string]any) (ocr.Observation, error) {
+func requiredFreshObservation(ctx context.Context, c *client.Client, args map[string]any) (ocr.Observation, error) {
 	id := stringArg(args, "observation_id")
 	if id == "" {
 		return ocr.Observation{}, fmt.Errorf("observation_id is required")
 	}
-	observation, ok := observations.Get(id)
-	if !ok || observation.ID != id {
-		return ocr.Observation{}, fmt.Errorf("observation_id is unavailable or stale")
+	observation, unavailable := captureObservation(ctx, c)
+	if unavailable != nil {
+		return ocr.Observation{}, unavailable
+	}
+	if observation.ID != id {
+		return ocr.Observation{}, fmt.Errorf("observation_id is stale: screen changed")
 	}
 	return observation, nil
 }

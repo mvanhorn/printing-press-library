@@ -21,6 +21,10 @@ func TestNewObservationHashesImageAndCanonicalEvidence(t *testing.T) {
 	if observation.CapturedAt.Location() != time.UTC || observation.CapturedAt.Nanosecond() != 123 {
 		t.Fatalf("captured at = %s, want UTC with nanoseconds", observation.CapturedAt)
 	}
+	fresh, err := NewObservation([]byte("snapshot"), capturedAt.Add(time.Second), "tesseract", 100, 50, []Region{{Text: "Advanced", Confidence: 95.2, Box: [4]int{10, 5, 40, 10}, Pixel: [2]int{30, 10}}})
+	if err != nil || fresh.ID != observation.ID {
+		t.Fatalf("unchanged screen identity = %q (%v), want %q", fresh.ID, err, observation.ID)
+	}
 }
 
 func TestObservationStoreExpiresEntriesAndDefensivelyCopies(t *testing.T) {
