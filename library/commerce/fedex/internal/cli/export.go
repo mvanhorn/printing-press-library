@@ -4,11 +4,11 @@
 package cli
 
 import (
-	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/secureio"
 	"github.com/spf13/cobra"
 )
 
@@ -48,51 +48,47 @@ large datasets as it has no memory pressure.`,
 				path += "/" + args[1]
 			}
 
-			var writer *bufio.Writer
-			if outputFile != "" {
-				f, err := os.Create(outputFile)
-				if err != nil {
-					return fmt.Errorf("creating output file: %w", err)
-				}
-				defer f.Close()
-				writer = bufio.NewWriter(f)
-				defer writer.Flush()
-			} else {
-				writer = bufio.NewWriter(os.Stdout)
-				defer writer.Flush()
-			}
-
 			data, err := c.Get(path, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
+			var output bytes.Buffer
 
 			switch format {
 			case "jsonl":
 				var items []json.RawMessage
 				if err := json.Unmarshal(data, &items); err != nil {
-					fmt.Fprintln(writer, string(data))
-					return nil
+					fmt.Fprintln(&output, string(data))
+					break
 				}
 				count := 0
 				for _, item := range items {
 					if limit > 0 && count >= limit {
 						break
 					}
-					fmt.Fprintln(writer, string(item))
+					fmt.Fprintln(&output, string(item))
 					count++
 				}
-				if outputFile != "" {
-					fmt.Fprintf(os.Stderr, "Exported %d records to %s\n", count, outputFile)
-				}
 			default:
-				enc := json.NewEncoder(writer)
+				enc := json.NewEncoder(&output)
 				enc.SetIndent("", "  ")
 				var parsed any
 				if err := json.Unmarshal(data, &parsed); err != nil {
 					return err
 				}
-				return enc.Encode(parsed)
+				if err := enc.Encode(parsed); err != nil {
+					return err
+				}
+			}
+			if outputFile != "" {
+				if err := secureio.WriteFileAtomic(outputFile, output.Bytes()); err != nil {
+					return fmt.Errorf("writing output file: %w", err)
+				}
+				fmt.Fprintf(cmd.ErrOrStderr(), "Exported data to %s\n", outputFile)
+				return nil
+			}
+			if _, err := cmd.OutOrStdout().Write(output.Bytes()); err != nil {
+				return fmt.Errorf("writing export output: %w", err)
 			}
 			return nil
 		},

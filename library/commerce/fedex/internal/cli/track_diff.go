@@ -121,7 +121,6 @@ func pollTrackingDiff(ctx context.Context, c interface {
 			ScanLocationState:   ev.State,
 			ScanLocationCountry: ev.Country,
 			DeliveryAttempts:    ev.DeliveryAttempts,
-			Raw:                 string(ev.Raw),
 		})
 		if isNew {
 			newEvents = append(newEvents, ev.JSON)

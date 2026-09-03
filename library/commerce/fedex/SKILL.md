@@ -244,7 +244,7 @@ These capabilities aren't available in any other tool for this API.
 
 **Hand-written commands**
 
-- `fedex-pp-cli auth login [--client-id <id>] [--client-secret <secret>] [--env sandbox|prod]` — Mint an OAuth2 bearer token via client_credentials and cache it on disk
+- `fedex-pp-cli auth login [--client-id <id>] [--env sandbox|prod]` — Mint and cache a short-lived OAuth2 bearer token; the client secret is accepted only from the service-specific environment variable
 - `fedex-pp-cli auth logout` — Clear the cached bearer token
 - `fedex-pp-cli auth status` — Show the cached token's expiry and which env vars were detected
 - `fedex-pp-cli rate shop --from <zip> --to <zip> --weight <n>[lb|kg]` — Quote rates across every applicable service type in parallel and rank by cost or transit
@@ -318,7 +318,7 @@ Joins shipments + rate quotes from the local ledger; answers 'where did I spend 
 
 ## Auth Setup
 
-FedEx uses OAuth2 client_credentials. Run `fedex auth login` once with your sandbox or production Client ID and Client Secret; the CLI mints a 1-hour bearer token, caches it on disk, and refreshes proactively before expiry. Production label printing requires per-project Bar Code Analysis Group (BAG) approval from FedEx — `fedex doctor` surfaces approval status before you hit it.
+FedEx uses OAuth2 client_credentials. Inject the project Client ID and Client Secret through `FEDEX_API_KEY` and `FEDEX_SECRET_KEY` (or the Track-specific variables) and run `fedex-pp-cli auth login`; the CLI caches only the short-lived bearer token. Production label printing requires per-project Bar Code Analysis Group (BAG) approval from FedEx — `fedex-pp-cli doctor` surfaces approval status before you hit it.
 
 Run `fedex-pp-cli doctor` to verify setup.
 

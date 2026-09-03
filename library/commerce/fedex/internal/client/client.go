@@ -13,6 +13,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/approval"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/secureio"
 	"io"
 	"math"
 	"net"
@@ -30,6 +31,7 @@ type Client struct {
 	Config         *config.Config
 	HTTPClient     *http.Client
 	DryRun         bool
+	DryRunWriter   io.Writer
 	NoCache        bool
 	MutationPermit *approval.Permit
 	cacheDir       string
@@ -78,14 +80,18 @@ func newHTTPClient(timeout time.Duration, jar http.CookieJar) *http.Client {
 func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 	homeDir, _ := os.UserHomeDir()
 	cacheDir := filepath.Join(homeDir, ".cache", "fedex-pp-cli")
+	if root := strings.TrimSpace(os.Getenv("FEDEX_DATA_DIR")); root != "" {
+		cacheDir = filepath.Join(root, "cache")
+	}
 	httpClient := newHTTPClient(timeout, nil)
 	return &Client{
-		BaseURL:    strings.TrimRight(cfg.BaseURL, "/"),
-		Config:     cfg,
-		HTTPClient: httpClient,
-		cacheDir:   cacheDir,
-		limiter:    cliutil.NewAdaptiveLimiter(rateLimit),
-		retrySleep: time.Sleep,
+		BaseURL:      strings.TrimRight(cfg.BaseURL, "/"),
+		Config:       cfg,
+		HTTPClient:   httpClient,
+		DryRunWriter: os.Stderr,
+		cacheDir:     cacheDir,
+		limiter:      cliutil.NewAdaptiveLimiter(rateLimit),
+		retrySleep:   time.Sleep,
 	}
 }
 
@@ -132,7 +138,7 @@ func (c *Client) readCache(path string, params map[string]string) (json.RawMessa
 	if err != nil || time.Since(info.ModTime()) > 5*time.Minute {
 		return nil, false
 	}
-	data, err := os.ReadFile(cacheFile)
+	data, err := secureio.ReadFile(cacheFile)
 	if err != nil {
 		return nil, false
 	}
@@ -140,9 +146,11 @@ func (c *Client) readCache(path string, params map[string]string) (json.RawMessa
 }
 
 func (c *Client) writeCache(path string, params map[string]string, data json.RawMessage) {
-	os.MkdirAll(c.cacheDir, 0o755)
+	if secureio.EnsurePrivateDir(c.cacheDir) != nil {
+		return
+	}
 	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
-	os.WriteFile(cacheFile, []byte(data), 0o644)
+	_ = secureio.WriteFileAtomic(cacheFile, []byte(data))
 }
 
 // invalidateCache wholesale-removes the cache directory after a successful
@@ -265,7 +273,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			lastErr = fmt.Errorf("%s %s: %w", method, path, err)
 			if canRetry && attempt < maxRetries {
 				wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
-				fmt.Fprintf(os.Stderr, "network error, retrying in %s (attempt %d/%d)\n", wait, attempt+1, maxRetries)
+				fmt.Fprintf(c.outputWriter(), "network error, retrying in %s (attempt %d/%d)\n", wait, attempt+1, maxRetries)
 				c.sleepRetry(wait)
 				continue
 			}
@@ -302,7 +310,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			Method:     method,
 			Path:       path,
 			StatusCode: resp.StatusCode,
-			Body:       truncateBody(respBody),
+			Body:       safeAPIErrorBody(respBody),
 		}
 
 		// Feed every rate-limit response back into the limiter, but only retry
@@ -311,7 +319,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			c.limiter.OnRateLimit()
 			if canRetry && attempt < maxRetries {
 				wait := cliutil.RetryAfter(resp)
-				fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
+				fmt.Fprintf(c.outputWriter(), "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
 				c.sleepRetry(wait)
 				lastErr = apiErr
 				continue
@@ -321,7 +329,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		// Server error - retry with backoff
 		if resp.StatusCode >= 500 && canRetry && attempt < maxRetries {
 			wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
-			fmt.Fprintf(os.Stderr, "server error %d, retrying in %s (attempt %d/%d)\n", resp.StatusCode, wait, attempt+1, maxRetries)
+			fmt.Fprintf(c.outputWriter(), "server error %d, retrying in %s (attempt %d/%d)\n", resp.StatusCode, wait, attempt+1, maxRetries)
 			c.sleepRetry(wait)
 			lastErr = apiErr
 			continue
@@ -438,44 +446,60 @@ func canRetryAmbiguousFailure(method, path string) bool {
 	return ok
 }
 
-// dryRun prints the outgoing request exactly as the live path would send it,
-// using the auth material already resolved in `do()`. Never triggers a network
-// call — the caller is responsible for passing cached auth material only.
+// dryRun prints a structured, redacted request summary. It intentionally omits
+// request values, query values, header values, and authorization material.
 func (c *Client) dryRun(method, targetURL, path string, params map[string]string, body []byte, headerOverrides map[string]string, authHeader string) (json.RawMessage, int, error) {
-	fmt.Fprintf(os.Stderr, "%s %s\n", method, targetURL)
-	queryPrinted := false
-	if params != nil {
+	_ = targetURL
+	_ = authHeader
+	summary := map[string]any{
+		"dry_run": true,
+		"method":  method,
+		"path":    path,
+	}
+	if len(params) > 0 {
 		keys := make([]string, 0, len(params))
-		for k := range params {
-			if params[k] != "" {
-				keys = append(keys, k)
+		for key, value := range params {
+			if value != "" {
+				keys = append(keys, key)
 			}
 		}
 		sort.Strings(keys)
-		for _, k := range keys {
-			sep := "?"
-			if queryPrinted {
-				sep = "&"
+		summary["query_fields"] = keys
+	}
+	if len(headerOverrides) > 0 {
+		keys := make([]string, 0, len(headerOverrides))
+		for key := range headerOverrides {
+			keys = append(keys, key)
+		}
+		sort.Strings(keys)
+		summary["header_fields"] = keys
+	}
+	if len(body) > 0 {
+		hash := sha256.Sum256(body)
+		summary["body_sha256"] = hex.EncodeToString(hash[:])
+		var object map[string]any
+		if json.Unmarshal(body, &object) == nil {
+			keys := make([]string, 0, len(object))
+			for key := range object {
+				keys = append(keys, key)
 			}
-			fmt.Fprintf(os.Stderr, "  %s%s=%s\n", sep, k, params[k])
-			queryPrinted = true
+			sort.Strings(keys)
+			summary["body_fields"] = keys
 		}
 	}
-	_ = queryPrinted
-	if body != nil {
-		var pretty json.RawMessage
-		if json.Unmarshal(body, &pretty) == nil {
-			enc := json.NewEncoder(os.Stderr)
-			enc.SetIndent("  ", "  ")
-			fmt.Fprintf(os.Stderr, "  Body:\n")
-			enc.Encode(pretty)
-		}
+	encoder := json.NewEncoder(c.outputWriter())
+	encoder.SetIndent("", "  ")
+	if err := encoder.Encode(summary); err != nil {
+		return nil, 0, fmt.Errorf("writing dry-run summary: %w", err)
 	}
-	if authHeader != "" {
-		fmt.Fprintf(os.Stderr, "  %s: %s\n", "Authorization", maskToken(authHeader))
-	}
-	fmt.Fprintf(os.Stderr, "\n(dry run - no request sent)\n")
 	return json.RawMessage(`{"dry_run": true}`), 0, nil
+}
+
+func (c *Client) outputWriter() io.Writer {
+	if c.DryRunWriter != nil {
+		return c.DryRunWriter
+	}
+	return io.Discard
 }
 
 func (c *Client) ConfiguredTimeout() time.Duration {
@@ -606,7 +630,7 @@ func (c *Client) mintTrackToken(clientID, clientSecret string) error {
 	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode >= 400 {
-		return fmt.Errorf("FedEx track auth: HTTP %d: %s", resp.StatusCode, truncateBody(body))
+		return fmt.Errorf("FedEx track auth: HTTP %d: %s", resp.StatusCode, safeAPIErrorBody(body))
 	}
 	var tokenResp struct {
 		AccessToken string `json:"access_token"`
@@ -648,7 +672,7 @@ func (c *Client) mintClientCredentialsToken(clientID, clientSecret string) error
 
 	body, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode >= 400 {
-		return fmt.Errorf("FedEx auth: HTTP %d: %s", resp.StatusCode, truncateBody(body))
+		return fmt.Errorf("FedEx auth: HTTP %d: %s", resp.StatusCode, safeAPIErrorBody(body))
 	}
 
 	var tokenResp struct {
@@ -706,10 +730,35 @@ func maskToken(token string) string {
 	return "****" + token[len(token)-4:]
 }
 
-func truncateBody(b []byte) string {
-	s := string(b)
-	if len(s) > 200 {
-		return s[:200] + "..."
+func safeAPIErrorBody(body []byte) string {
+	var envelope struct {
+		Errors []struct {
+			Code string `json:"code"`
+		} `json:"errors"`
 	}
-	return s
+	if json.Unmarshal(body, &envelope) != nil {
+		return "response body redacted"
+	}
+	codes := make([]string, 0, len(envelope.Errors))
+	for _, item := range envelope.Errors {
+		code := strings.TrimSpace(item.Code)
+		if code == "" || len(code) > 80 {
+			continue
+		}
+		valid := true
+		for _, r := range code {
+			if !((r >= 'A' && r <= 'Z') || (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '.' || r == '_' || r == '-') {
+				valid = false
+				break
+			}
+		}
+		if valid {
+			codes = append(codes, code)
+		}
+	}
+	if len(codes) == 0 {
+		return "response body redacted"
+	}
+	encoded, _ := json.Marshal(map[string]any{"codes": codes})
+	return string(encoded)
 }

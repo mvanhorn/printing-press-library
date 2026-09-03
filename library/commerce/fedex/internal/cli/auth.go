@@ -6,6 +6,7 @@ package cli
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/config"
 	"github.com/spf13/cobra"
@@ -58,12 +59,16 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 }
 
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
-	return &cobra.Command{
+	var expiresIn time.Duration
+	cmd := &cobra.Command{
 		Use:     "set-token <token>",
-		Short:   "Save an API token to the config file",
-		Example: "  fedex-pp-cli auth set-token sk_live_abc123",
+		Short:   "Save a bounded-lifetime access token to the config file",
+		Example: "  fedex-pp-cli auth set-token <token> --expires-in 55m",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if expiresIn <= 0 || expiresIn > 24*time.Hour {
+				return usageErr(fmt.Errorf("--expires-in must be greater than zero and no more than 24h"))
+			}
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
@@ -77,8 +82,10 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 			// token bytes through scripted dogfood that captures stderr.
 			cfg.AuthHeaderVal = ""
 
-			// Save the token directly via the config's save mechanism
-			if err := cfg.SaveTokens("", "", args[0], "", cfg.TokenExpiry); err != nil {
+			// Supplying a token to this command explicitly opts into caching this
+			// short-lived value. Reusable client credentials are never serialized.
+			cfg.CacheAccessToken = true
+			if err := cfg.SaveTokens("", "", args[0], "", time.Now().Add(expiresIn)); err != nil {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}
 
@@ -86,6 +93,8 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
+	cmd.Flags().DurationVar(&expiresIn, "expires-in", 0, "Required access-token lifetime (for example 55m; maximum 24h)")
+	return cmd
 }
 
 func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
@@ -103,16 +112,16 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 				return configErr(fmt.Errorf("clearing tokens: %w", err))
 			}
 
-			// Warn if env vars still set
-			if os.Getenv("FEDEX_API_KEY") != "" {
-				fmt.Fprintf(cmd.OutOrStdout(), "Config cleared. Note: FEDEX_API_KEY env var is still set.\n")
-				return nil
+			// Environment-provided credentials are intentionally not persisted or
+			// modified by logout. Say so explicitly instead of claiming the process
+			// is unauthenticated while Hermes may still inject them.
+			for _, name := range []string{"FEDEX_API_KEY", "FEDEX_SECRET_KEY", "FEDEX_TRACK_API_KEY", "FEDEX_TRACK_SECRET_KEY"} {
+				if os.Getenv(name) != "" {
+					fmt.Fprintf(cmd.OutOrStdout(), "Cached config credentials cleared. Note: %s remains available from the environment.\n", name)
+					return nil
+				}
 			}
-			if os.Getenv("FEDEX_SECRET_KEY") != "" {
-				fmt.Fprintf(cmd.OutOrStdout(), "Config cleared. Note: FEDEX_SECRET_KEY env var is still set.\n")
-				return nil
-			}
-			fmt.Fprintln(cmd.OutOrStdout(), "Logged out. Credentials cleared.")
+			fmt.Fprintln(cmd.OutOrStdout(), "Logged out. Cached config credentials cleared.")
 			return nil
 		},
 	}

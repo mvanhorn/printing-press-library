@@ -7,10 +7,10 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/secureio"
 )
 
 // DeliverSink describes where command output should be routed when
@@ -71,20 +71,8 @@ func Deliver(sink DeliverSink, body []byte, compact bool) error {
 }
 
 func deliverFile(path string, body []byte) error {
-	// Atomic write: tmp + rename. Protects agents from seeing a partial
-	// file if the process is interrupted mid-write.
-	dir := filepath.Dir(path)
-	if dir != "" && dir != "." {
-		if err := os.MkdirAll(dir, 0o755); err != nil {
-			return fmt.Errorf("creating deliver dir: %w", err)
-		}
-	}
-	tmp := path + ".tmp"
-	if err := os.WriteFile(tmp, body, 0o600); err != nil {
-		return fmt.Errorf("writing deliver tmp: %w", err)
-	}
-	if err := os.Rename(tmp, path); err != nil {
-		return fmt.Errorf("replacing deliver file: %w", err)
+	if err := secureio.WriteFileAtomic(path, body); err != nil {
+		return fmt.Errorf("writing deliver file: %w", err)
 	}
 	return nil
 }

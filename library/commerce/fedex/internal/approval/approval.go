@@ -18,6 +18,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/secureio"
 )
 
 const (
@@ -256,14 +258,12 @@ func (s *Store) ensureDir() error {
 	if strings.TrimSpace(s.dir) == "" {
 		return fmt.Errorf("pending operation directory is required")
 	}
-	if err := os.MkdirAll(s.dir, 0o700); err != nil {
-		return fmt.Errorf("creating pending operation directory: %w", err)
+	if filepath.Base(filepath.Clean(s.dir)) == "pending" {
+		if err := secureio.EnsurePrivateDir(filepath.Dir(s.dir)); err != nil {
+			return fmt.Errorf("securing pending operation root: %w", err)
+		}
 	}
-	info, err := os.Lstat(s.dir)
-	if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
-		return fmt.Errorf("pending operation path must be a real directory")
-	}
-	if err := os.Chmod(s.dir, 0o700); err != nil {
+	if err := secureio.EnsurePrivateDir(s.dir); err != nil {
 		return fmt.Errorf("securing pending operation directory: %w", err)
 	}
 	return nil
@@ -272,18 +272,10 @@ func (s *Store) ensureDir() error {
 func (s *Store) recordPath(id string) string { return filepath.Join(s.dir, id+".json") }
 
 func (s *Store) readRecord(id string) (*Record, error) {
-	path := s.recordPath(id)
-	info, err := os.Lstat(path)
+	data, err := secureio.ReadFile(s.recordPath(id))
 	if errors.Is(err, os.ErrNotExist) {
 		return nil, ErrNotFound
 	}
-	if err != nil || !info.Mode().IsRegular() || info.Mode()&os.ModeSymlink != 0 {
-		return nil, fmt.Errorf("pending operation record must be a regular file")
-	}
-	if err := os.Chmod(path, 0o600); err != nil {
-		return nil, fmt.Errorf("securing pending operation record: %w", err)
-	}
-	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("reading pending operation: %w", err)
 	}
@@ -331,34 +323,10 @@ func (s *Store) writeRecord(record *Record) error {
 	if err != nil {
 		return err
 	}
-	tmp, err := os.CreateTemp(s.dir, ".pending-*.tmp")
-	if err != nil {
-		return fmt.Errorf("creating pending operation file: %w", err)
-	}
-	tmpName := tmp.Name()
-	defer os.Remove(tmpName)
-	if err := tmp.Chmod(0o600); err != nil {
-		tmp.Close()
-		return fmt.Errorf("securing pending operation file: %w", err)
-	}
-	if _, err := tmp.Write(data); err != nil {
-		tmp.Close()
-		return fmt.Errorf("writing pending operation: %w", err)
-	}
-	if err := tmp.Sync(); err != nil {
-		tmp.Close()
-		return fmt.Errorf("syncing pending operation: %w", err)
-	}
-	if err := tmp.Close(); err != nil {
-		return fmt.Errorf("closing pending operation: %w", err)
-	}
-	if err := os.Rename(tmpName, s.recordPath(record.ID)); err != nil {
+	if err := secureio.WriteFileAtomic(s.recordPath(record.ID), data); err != nil {
 		return fmt.Errorf("committing pending operation: %w", err)
 	}
-	if err := os.Chmod(s.recordPath(record.ID), 0o600); err != nil {
-		return err
-	}
-	return syncDir(s.dir)
+	return nil
 }
 
 func (s *Store) lock(id string) (func(), error) {

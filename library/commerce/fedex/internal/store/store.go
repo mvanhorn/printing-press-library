@@ -8,12 +8,14 @@ package store
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/secureio"
 	_ "modernc.org/sqlite"
 )
 
@@ -153,6 +155,9 @@ CREATE TABLE IF NOT EXISTS poll_state (
 
 // DefaultPath returns the user-level SQLite path for the FedEx ledger.
 func DefaultPath() string {
+	if root := strings.TrimSpace(os.Getenv("FEDEX_DATA_DIR")); root != "" {
+		return filepath.Join(root, "fedex.db")
+	}
 	home, err := os.UserHomeDir()
 	if err != nil || home == "" {
 		return "fedex.db"
@@ -167,11 +172,19 @@ func Open(path string) (*Store, error) {
 		path = DefaultPath()
 	}
 	if dir := filepath.Dir(path); dir != "" && dir != "." {
-		if err := os.MkdirAll(dir, 0o755); err != nil {
+		if err := secureio.EnsurePrivateDir(dir); err != nil {
 			return nil, fmt.Errorf("creating store dir: %w", err)
 		}
 	}
-	dsn := path + "?_pragma=journal_mode(WAL)&_pragma=foreign_keys(ON)&_pragma=busy_timeout(5000)"
+	if err := secureio.PreparePrivateFile(path); err != nil {
+		return nil, fmt.Errorf("securing store file: %w", err)
+	}
+	for _, sidecar := range []string{path + "-wal", path + "-shm", path + "-journal"} {
+		if err := secureio.SecureExistingFile(sidecar); err != nil && !errors.Is(err, os.ErrNotExist) {
+			return nil, fmt.Errorf("rejecting unsafe SQLite sidecar %s: %w", sidecar, err)
+		}
+	}
+	dsn := path + "?_pragma=journal_mode(WAL)&_pragma=foreign_keys(ON)&_pragma=busy_timeout(5000)&_pragma=secure_delete(ON)"
 	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("opening %s: %w", path, err)
@@ -181,6 +194,51 @@ func Open(path string) (*Store, error) {
 		_ = db.Close()
 		return nil, fmt.Errorf("applying schema: %w", err)
 	}
+	// Earlier releases stored complete FedEx responses, labels, address trees,
+	// and scan-event JSON. Physically purge those legacy blobs once rather than
+	// merely making them unreachable through SQL.
+	legacyRaw := []struct{ table, column string }{
+		{"shipments", "raw_response"},
+		{"rate_quotes", "raw_response"},
+		{"address_validations", "raw_response"},
+		{"tracking_events", "raw"},
+	}
+	needsVacuum := false
+	for _, legacy := range legacyRaw {
+		var count int
+		if err := db.QueryRow("SELECT COUNT(*) FROM " + legacy.table + " WHERE " + legacy.column + " <> ''").Scan(&count); err != nil {
+			_ = db.Close()
+			return nil, fmt.Errorf("checking legacy raw responses in %s: %w", legacy.table, err)
+		}
+		if count == 0 {
+			continue
+		}
+		needsVacuum = true
+		if _, err := db.Exec("UPDATE " + legacy.table + " SET " + legacy.column + " = '' WHERE " + legacy.column + " <> ''"); err != nil {
+			_ = db.Close()
+			return nil, fmt.Errorf("scrubbing legacy raw responses from %s: %w", legacy.table, err)
+		}
+	}
+	if needsVacuum {
+		if _, err := db.Exec("PRAGMA wal_checkpoint(TRUNCATE)"); err != nil {
+			_ = db.Close()
+			return nil, fmt.Errorf("checkpointing scrubbed store: %w", err)
+		}
+		if _, err := db.Exec("VACUUM"); err != nil {
+			_ = db.Close()
+			return nil, fmt.Errorf("vacuuming scrubbed store: %w", err)
+		}
+	}
+	if err := secureio.SecureExistingFile(path); err != nil {
+		_ = db.Close()
+		return nil, fmt.Errorf("securing store file: %w", err)
+	}
+	for _, suffix := range []string{"-wal", "-shm"} {
+		if err := secureio.SecureExistingFile(path + suffix); err != nil && !os.IsNotExist(err) {
+			_ = db.Close()
+			return nil, fmt.Errorf("securing store sidecar: %w", err)
+		}
+	}
 	return &Store{db: db, path: path}, nil
 }
 
@@ -188,8 +246,8 @@ func (s *Store) DB() *sql.DB  { return s.db }
 func (s *Store) Path() string { return s.path }
 func (s *Store) Close() error { return s.db.Close() }
 
-// Shipment captures the SMB-relevant fields we persist after a successful
-// ship create. The raw FedEx response is preserved for forensic JSON.
+// Shipment captures the operational fields persisted after a successful ship
+// create. RawResponse remains only for source compatibility and is never stored.
 type Shipment struct {
 	TrackingNumber       string
 	MasterTrackingNumber string
@@ -232,7 +290,7 @@ func (s *Store) InsertShipment(ctx context.Context, sp Shipment) (int64, error) 
 		sp.RecipientName, sp.RecipientAddress, sp.RecipientCity, sp.RecipientState, sp.RecipientPostal, sp.RecipientCountry,
 		sp.WeightValue, sp.WeightUnits, sp.Reference,
 		sp.NetChargeAmount, sp.NetChargeCurrency, sp.ListChargeAmount,
-		sp.LabelPath, sp.RawResponse)
+		sp.LabelPath, "")
 	if err != nil {
 		return 0, fmt.Errorf("insert shipment: %w", err)
 	}
@@ -274,7 +332,7 @@ func (s *Store) InsertRateQuote(ctx context.Context, q RateQuote) error {
 	`,
 		q.OriginPostal, q.OriginCountry, q.DestPostal, q.DestCountry, q.WeightValue, q.WeightUnits,
 		q.ServiceType, q.PackagingType, q.ListAmount, q.NetAmount, q.Currency, q.TransitDays, q.DeliveryDayOfWeek,
-		sel, q.RawResponse)
+		sel, "")
 	return err
 }
 
@@ -309,7 +367,7 @@ func (s *Store) InsertTrackingEvent(ctx context.Context, ev TrackingEvent) (bool
 	`,
 		ev.TrackingNumber, ev.CarrierCode, ev.EventTimestamp, ev.EventType, ev.EventDescription,
 		ev.StatusCode, ev.StatusLocale, ev.ScanLocationCity, ev.ScanLocationState, ev.ScanLocationCountry,
-		ev.DeliveryAttempts, ev.Raw)
+		ev.DeliveryAttempts, "")
 	if err != nil {
 		return false, fmt.Errorf("insert tracking event: %w", err)
 	}
@@ -460,7 +518,7 @@ func (s *Store) InsertAddressValidation(ctx context.Context, av AddressValidatio
 		 resolved_street, resolved_city, resolved_state, resolved_postal, raw_response)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`, av.CacheKey, av.Street, av.City, av.State, av.Postal, av.Country, av.Classification,
-		av.ResolvedStreet, av.ResolvedCity, av.ResolvedState, av.ResolvedPostal, av.RawResponse)
+		av.ResolvedStreet, av.ResolvedCity, av.ResolvedState, av.ResolvedPostal, "")
 	return err
 }
 

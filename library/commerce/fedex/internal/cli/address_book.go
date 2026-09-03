@@ -241,7 +241,6 @@ func newAddressValidateCachedCmd(flags *rootFlags) *cobra.Command {
 					ResolvedCity:   rc,
 					ResolvedState:  rst,
 					ResolvedPostal: rp,
-					RawResponse:    string(data),
 				})
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{

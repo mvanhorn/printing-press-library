@@ -6,10 +6,10 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/secureio"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/store"
 
 	"github.com/spf13/cobra"
@@ -124,7 +124,7 @@ end-of-day endpoint to formally close the manifest.`,
 			}
 
 			if outputPath != "" {
-				if err := os.WriteFile(outputPath, buf.Bytes(), 0o644); err != nil {
+				if err := secureio.WriteFileAtomic(outputPath, buf.Bytes()); err != nil {
 					return err
 				}
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
