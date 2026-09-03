@@ -32,7 +32,7 @@ type wbDiffView struct {
 func wbSnapshotPath(country, indicator string) string {
 	dir := filepath.Join(filepath.Dir(defaultDBPath("world-bank-pp-cli")), "snapshots")
 	name := strings.ToUpper(country) + "_" + indicator + ".json"
-	name = strings.ReplaceAll(name, "/", "_")
+	name = strings.NewReplacer("/", "_", `\`, "_").Replace(name)
 	return filepath.Join(dir, name)
 }
 
