@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/csv"
@@ -14,6 +15,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/secureio"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/store"
 
 	"github.com/spf13/cobra"
@@ -338,7 +340,6 @@ func shipOneRow(ctx context.Context, c clientShipper, st *store.Store, row shipB
 			NetChargeAmount:   net,
 			NetChargeCurrency: ccy,
 			LabelPath:         labelPath,
-			RawResponse:       string(data),
 		})
 	}
 	return shipBulkResult{
@@ -464,32 +465,43 @@ func parseShipResponse(data json.RawMessage) (tracking string, net float64, ccy 
 }
 
 func writeLabelPDF(dir, tracking, encoded string) string {
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return ""
-	}
 	raw, err := base64.StdEncoding.DecodeString(encoded)
 	if err != nil {
 		return ""
 	}
-	name := tracking
-	if name == "" {
-		name = "label"
-	}
+	name := safeLabelFileName(tracking)
 	path := filepath.Join(dir, name+".pdf")
-	if err := os.WriteFile(path, raw, 0o644); err != nil {
+	if err := secureio.WriteFileAtomic(path, raw); err != nil {
 		return ""
 	}
 	return path
 }
 
-func writeShipBulkLedger(path string, results []shipBulkResult) error {
-	f, err := os.Create(path)
-	if err != nil {
-		return err
+func safeLabelFileName(tracking string) string {
+	tracking = strings.TrimSpace(tracking)
+	if tracking == "" {
+		return "label"
 	}
-	defer f.Close()
-	w := csv.NewWriter(f)
-	defer w.Flush()
+	var name strings.Builder
+	for _, r := range tracking {
+		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '-' || r == '_' {
+			name.WriteRune(r)
+		} else {
+			name.WriteByte('_')
+		}
+		if name.Len() >= 80 {
+			break
+		}
+	}
+	if name.Len() == 0 {
+		return "label"
+	}
+	return name.String()
+}
+
+func writeShipBulkLedger(path string, results []shipBulkResult) error {
+	var buffer bytes.Buffer
+	w := csv.NewWriter(&buffer)
 	if err := w.Write([]string{"order_id", "status", "tracking_number", "net_charge", "currency", "label_path", "error"}); err != nil {
 		return err
 	}
@@ -501,7 +513,11 @@ func writeShipBulkLedger(path string, results []shipBulkResult) error {
 			return err
 		}
 	}
-	return nil
+	w.Flush()
+	if err := w.Error(); err != nil {
+		return err
+	}
+	return secureio.WriteFileAtomic(path, buffer.Bytes())
 }
 
 func summarizeShipBulk(results []shipBulkResult) map[string]any {

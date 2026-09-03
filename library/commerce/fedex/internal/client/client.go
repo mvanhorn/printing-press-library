@@ -8,11 +8,15 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/approval"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/secureio"
 	"io"
 	"math"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -23,14 +27,21 @@ import (
 )
 
 type Client struct {
-	BaseURL    string
-	Config     *config.Config
-	HTTPClient *http.Client
-	DryRun     bool
-	NoCache    bool
-	cacheDir   string
-	limiter    *cliutil.AdaptiveLimiter
+	BaseURL        string
+	Config         *config.Config
+	HTTPClient     *http.Client
+	DryRun         bool
+	DryRunWriter   io.Writer
+	NoCache        bool
+	MutationPermit *approval.Permit
+	cacheDir       string
+	limiter        *cliutil.AdaptiveLimiter
+	retrySleep     func(time.Duration)
 }
+
+var ErrBoundConfirmationRequired = errors.New("protected FedEx mutation requires a matching consumed operation permit")
+
+const maxResponseBodyBytes int64 = 20 << 20
 
 // APIError carries HTTP status information for structured exit codes.
 type APIError struct {
@@ -44,20 +55,51 @@ func (e *APIError) Error() string {
 	return fmt.Sprintf("%s %s returned HTTP %d: %s", e.Method, e.Path, e.StatusCode, e.Body)
 }
 
+// OutcomeUnknownError reports a mutation whose result cannot be determined
+// safely. The caller must reconcile remote state before attempting it again.
+type OutcomeUnknownError struct {
+	Method     string
+	Path       string
+	StatusCode int
+	Cause      error
+}
+
+func (e *OutcomeUnknownError) Error() string {
+	if e.StatusCode > 0 {
+		return fmt.Sprintf("%s %s outcome unknown after HTTP %d; reconcile before retrying: %v", e.Method, e.Path, e.StatusCode, e.Cause)
+	}
+	return fmt.Sprintf("%s %s outcome unknown; reconcile before retrying: %v", e.Method, e.Path, e.Cause)
+}
+
+func (e *OutcomeUnknownError) Unwrap() error {
+	return e.Cause
+}
+
 func newHTTPClient(timeout time.Duration, jar http.CookieJar) *http.Client {
-	return &http.Client{Timeout: timeout, Jar: jar}
+	return &http.Client{
+		Timeout: timeout,
+		Jar:     jar,
+		CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
 }
 
 func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 	homeDir, _ := os.UserHomeDir()
 	cacheDir := filepath.Join(homeDir, ".cache", "fedex-pp-cli")
+	if root := strings.TrimSpace(os.Getenv("FEDEX_DATA_DIR")); root != "" {
+		cacheDir = filepath.Join(root, "cache")
+	}
 	httpClient := newHTTPClient(timeout, nil)
 	return &Client{
-		BaseURL:    strings.TrimRight(cfg.BaseURL, "/"),
-		Config:     cfg,
-		HTTPClient: httpClient,
-		cacheDir:   cacheDir,
-		limiter:    cliutil.NewAdaptiveLimiter(rateLimit),
+		BaseURL:      strings.TrimRight(cfg.BaseURL, "/"),
+		Config:       cfg,
+		HTTPClient:   httpClient,
+		DryRunWriter: os.Stderr,
+		cacheDir:     cacheDir,
+		limiter:      cliutil.NewAdaptiveLimiter(rateLimit),
+		retrySleep:   time.Sleep,
 	}
 }
 
@@ -104,7 +146,7 @@ func (c *Client) readCache(path string, params map[string]string) (json.RawMessa
 	if err != nil || time.Since(info.ModTime()) > 5*time.Minute {
 		return nil, false
 	}
-	data, err := os.ReadFile(cacheFile)
+	data, err := secureio.ReadFile(cacheFile)
 	if err != nil {
 		return nil, false
 	}
@@ -112,9 +154,11 @@ func (c *Client) readCache(path string, params map[string]string) (json.RawMessa
 }
 
 func (c *Client) writeCache(path string, params map[string]string, data json.RawMessage) {
-	os.MkdirAll(c.cacheDir, 0o755)
+	if secureio.EnsurePrivateDir(c.cacheDir) != nil {
+		return
+	}
 	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
-	os.WriteFile(cacheFile, []byte(data), 0o644)
+	_ = secureio.WriteFileAtomic(cacheFile, []byte(data))
 }
 
 // invalidateCache wholesale-removes the cache directory after a successful
@@ -162,6 +206,9 @@ func (c *Client) PatchWithHeaders(path string, body any, headers map[string]stri
 // do executes an HTTP request. headerOverrides, when non-nil, override global
 // RequiredHeaders for this specific request (used for per-endpoint API versioning).
 func (c *Client) do(method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
+	if err := validateFedExBaseURL(c.BaseURL); err != nil {
+		return nil, 0, err
+	}
 	targetURL := c.BaseURL + path
 
 	var bodyBytes []byte
@@ -173,18 +220,21 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		bodyBytes = b
 	}
 
-	// Resolve auth material before the dry-run branch so --dry-run can preview
-	// exactly what would be sent. Uses only cached credentials; a token that
-	// requires a network refresh will be re-fetched on the live request path,
-	// not during dry-run.
+	// A dry run performs no network activity, including OAuth token minting.
+	// Omitting the Authorization preview is deliberate: it keeps dry-run output
+	// useful without resolving or exposing credential material.
+	if c.DryRun {
+		return c.dryRun(method, targetURL, path, params, bodyBytes, headerOverrides, "")
+	}
+
+	canRetry := canRetryAmbiguousFailure(method, path)
+	if !isKnownReadOnlyOperation(method, path) && (c.MutationPermit == nil || !c.MutationPermit.Allows(method, path, body)) {
+		return nil, 0, ErrBoundConfirmationRequired
+	}
+
 	authHeader, err := c.authHeaderForPath(path)
 	if err != nil {
 		return nil, 0, err
-	}
-
-	// Build the request for dry-run display or actual execution
-	if c.DryRun {
-		return c.dryRun(method, targetURL, path, params, bodyBytes, headerOverrides, authHeader)
 	}
 
 	const maxRetries = 3
@@ -229,18 +279,45 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {
 			lastErr = fmt.Errorf("%s %s: %w", method, path, err)
-			continue
+			if canRetry && attempt < maxRetries {
+				wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
+				fmt.Fprintf(c.outputWriter(), "network error, retrying in %s (attempt %d/%d)\n", wait, attempt+1, maxRetries)
+				c.sleepRetry(wait)
+				continue
+			}
+			if !canRetry {
+				return nil, 0, &OutcomeUnknownError{Method: method, Path: path, Cause: lastErr}
+			}
+			return nil, 0, lastErr
 		}
 
-		respBody, err := io.ReadAll(resp.Body)
+		respBody, err := io.ReadAll(io.LimitReader(resp.Body, maxResponseBodyBytes+1))
 		resp.Body.Close()
+		if err == nil && int64(len(respBody)) > maxResponseBodyBytes {
+			err = fmt.Errorf("response exceeds %d-byte limit", maxResponseBodyBytes)
+		}
 		if err != nil {
-			return nil, 0, fmt.Errorf("reading response: %w", err)
+			readErr := fmt.Errorf("reading response: %w", err)
+			// A final 4xx status conclusively rejects the request even if its error
+			// body cannot be read. Do not force mutation reconciliation for a
+			// request that the server explicitly refused.
+			if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+				return nil, resp.StatusCode, &APIError{
+					Method:     method,
+					Path:       path,
+					StatusCode: resp.StatusCode,
+					Body:       "response body unavailable",
+				}
+			}
+			if !canRetry {
+				return nil, resp.StatusCode, &OutcomeUnknownError{Method: method, Path: path, StatusCode: resp.StatusCode, Cause: readErr}
+			}
+			return nil, resp.StatusCode, readErr
 		}
 		respBody = sanitizeJSONResponse(respBody)
 
 		// Success
-		if resp.StatusCode < 400 {
+		if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 			c.limiter.OnSuccess()
 			// Cache-invalidate on successful non-GET requests. The !c.DryRun guard
 			// is structurally redundant (dry-run short-circuits before the retry
@@ -255,26 +332,45 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			Method:     method,
 			Path:       path,
 			StatusCode: resp.StatusCode,
-			Body:       truncateBody(respBody),
+			Body:       safeAPIErrorBody(respBody),
+		}
+		if resp.StatusCode >= 300 && resp.StatusCode < 400 && !canRetry {
+			return nil, resp.StatusCode, &OutcomeUnknownError{
+				Method:     method,
+				Path:       path,
+				StatusCode: resp.StatusCode,
+				Cause:      apiErr,
+			}
 		}
 
-		// Rate limited - adjust adaptive limiter and retry
-		if resp.StatusCode == 429 && attempt < maxRetries {
+		// Feed every rate-limit response back into the limiter, but only retry
+		// operations whose outcome is known to be read-only.
+		if resp.StatusCode == 429 {
 			c.limiter.OnRateLimit()
-			wait := cliutil.RetryAfter(resp)
-			fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
-			time.Sleep(wait)
-			lastErr = apiErr
-			continue
+			if canRetry && attempt < maxRetries {
+				wait := cliutil.RetryAfter(resp)
+				fmt.Fprintf(c.outputWriter(), "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
+				c.sleepRetry(wait)
+				lastErr = apiErr
+				continue
+			}
 		}
 
 		// Server error - retry with backoff
-		if resp.StatusCode >= 500 && attempt < maxRetries {
+		if resp.StatusCode >= 500 && canRetry && attempt < maxRetries {
 			wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
-			fmt.Fprintf(os.Stderr, "server error %d, retrying in %s (attempt %d/%d)\n", resp.StatusCode, wait, attempt+1, maxRetries)
-			time.Sleep(wait)
+			fmt.Fprintf(c.outputWriter(), "server error %d, retrying in %s (attempt %d/%d)\n", resp.StatusCode, wait, attempt+1, maxRetries)
+			c.sleepRetry(wait)
 			lastErr = apiErr
 			continue
+		}
+		if resp.StatusCode >= 500 && !canRetry {
+			return nil, resp.StatusCode, &OutcomeUnknownError{
+				Method:     method,
+				Path:       path,
+				StatusCode: resp.StatusCode,
+				Cause:      apiErr,
+			}
 		}
 
 		// Client error or retries exhausted - return the error
@@ -284,44 +380,156 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 	return nil, 0, lastErr
 }
 
-// dryRun prints the outgoing request exactly as the live path would send it,
-// using the auth material already resolved in `do()`. Never triggers a network
-// call — the caller is responsible for passing cached auth material only.
+func (c *Client) sleepRetry(wait time.Duration) {
+	if c.retrySleep != nil {
+		c.retrySleep(wait)
+		return
+	}
+	time.Sleep(wait)
+}
+
+func validateFedExBaseURL(rawURL string) error {
+	parsed, err := url.Parse(strings.TrimSpace(rawURL))
+	if err != nil || parsed.Scheme == "" || parsed.Host == "" {
+		return errors.New("FedEx base URL is invalid")
+	}
+	if parsed.User != nil || parsed.RawQuery != "" || parsed.Fragment != "" || (parsed.Path != "" && parsed.Path != "/") {
+		return errors.New("FedEx base URL must be an origin without credentials, query, fragment, or path")
+	}
+	hostname := strings.ToLower(parsed.Hostname())
+	if parsed.Scheme == "https" && (hostname == "apis.fedex.com" || hostname == "apis-sandbox.fedex.com") {
+		return nil
+	}
+	if (parsed.Scheme == "http" || parsed.Scheme == "https") && hostname == "localhost" {
+		return nil
+	}
+	if ip := net.ParseIP(hostname); ip != nil && ip.IsLoopback() && (parsed.Scheme == "http" || parsed.Scheme == "https") {
+		return nil
+	}
+	return errors.New("FedEx base URL must use an official FedEx HTTPS origin or a loopback test origin")
+}
+
+var retryableReadOnlyPosts = map[string]struct{}{
+	"/availability/v1/packageandserviceoptions":            {},
+	"/availability/v1/specialserviceoptions":               {},
+	"/availability/v1/transittimes":                        {},
+	"/country/v1/postal/validate":                          {},
+	"/globaltrade/v1/shipments/regulatorydetails/retrieve": {},
+	"/location/v1/locations":                               {},
+	"/pickup/v1/freight/pickups/availabilities":            {},
+	"/pickup/v1/pickups/availabilities":                    {},
+	"/rate/v1/freight/rates/quotes":                        {},
+	"/rate/v1/rates/quotes":                                {},
+	"/ship/v1/consolidations/confirmationresults":          {},
+	"/ship/v1/consolidations/results":                      {},
+	"/ship/v1/consolidations/retrieve":                     {},
+	"/ship/v1/openshipments/packages/retrieve":             {},
+	"/ship/v1/openshipments/results":                       {},
+	"/ship/v1/openshipments/retrieve":                      {},
+	"/ship/v1/shipments/packages/validate":                 {},
+	"/ship/v1/shipments/results":                           {},
+	"/track/v1/associatedshipments":                        {},
+	"/track/v1/referencenumbers":                           {},
+	"/track/v1/tcn":                                        {},
+	"/track/v1/trackingdocuments":                          {},
+	"/track/v1/trackingnumbers":                            {},
+}
+
+var knownReadOnlyPosts = func() map[string]struct{} {
+	result := make(map[string]struct{}, len(retryableReadOnlyPosts)+1)
+	for path := range retryableReadOnlyPosts {
+		result[path] = struct{}{}
+	}
+	// Address validation can be billable. It is read-only for authorization,
+	// but intentionally excluded from automatic retries.
+	result["/address/v1/addresses/resolve"] = struct{}{}
+	return result
+}()
+
+func isKnownReadOnlyOperation(method, path string) bool {
+	switch method {
+	case http.MethodGet, http.MethodHead, http.MethodOptions:
+		return true
+	case http.MethodPost:
+		path, _, _ = strings.Cut(path, "?")
+		_, ok := knownReadOnlyPosts[path]
+		return ok
+	default:
+		return false
+	}
+}
+
+// canRetryAmbiguousFailure returns true only for operations known to be
+// read-only even when the FedEx API models them as POST requests. The exact
+// allowlist fails closed if FedEx adds a new POST operation.
+func canRetryAmbiguousFailure(method, path string) bool {
+	switch method {
+	case http.MethodGet, http.MethodHead, http.MethodOptions:
+		return true
+	case http.MethodPost:
+	default:
+		return false
+	}
+
+	path, _, _ = strings.Cut(path, "?")
+	_, ok := retryableReadOnlyPosts[path]
+	return ok
+}
+
+// dryRun prints a structured, redacted request summary. It intentionally omits
+// request values, query values, header values, and authorization material.
 func (c *Client) dryRun(method, targetURL, path string, params map[string]string, body []byte, headerOverrides map[string]string, authHeader string) (json.RawMessage, int, error) {
-	fmt.Fprintf(os.Stderr, "%s %s\n", method, targetURL)
-	queryPrinted := false
-	if params != nil {
+	_ = targetURL
+	_ = authHeader
+	summary := map[string]any{
+		"dry_run": true,
+		"method":  method,
+		"path":    path,
+	}
+	if len(params) > 0 {
 		keys := make([]string, 0, len(params))
-		for k := range params {
-			if params[k] != "" {
-				keys = append(keys, k)
+		for key, value := range params {
+			if value != "" {
+				keys = append(keys, key)
 			}
 		}
 		sort.Strings(keys)
-		for _, k := range keys {
-			sep := "?"
-			if queryPrinted {
-				sep = "&"
+		summary["query_fields"] = keys
+	}
+	if len(headerOverrides) > 0 {
+		keys := make([]string, 0, len(headerOverrides))
+		for key := range headerOverrides {
+			keys = append(keys, key)
+		}
+		sort.Strings(keys)
+		summary["header_fields"] = keys
+	}
+	if len(body) > 0 {
+		hash := sha256.Sum256(body)
+		summary["body_sha256"] = hex.EncodeToString(hash[:])
+		var object map[string]any
+		if json.Unmarshal(body, &object) == nil {
+			keys := make([]string, 0, len(object))
+			for key := range object {
+				keys = append(keys, key)
 			}
-			fmt.Fprintf(os.Stderr, "  %s%s=%s\n", sep, k, params[k])
-			queryPrinted = true
+			sort.Strings(keys)
+			summary["body_fields"] = keys
 		}
 	}
-	_ = queryPrinted
-	if body != nil {
-		var pretty json.RawMessage
-		if json.Unmarshal(body, &pretty) == nil {
-			enc := json.NewEncoder(os.Stderr)
-			enc.SetIndent("  ", "  ")
-			fmt.Fprintf(os.Stderr, "  Body:\n")
-			enc.Encode(pretty)
-		}
+	encoder := json.NewEncoder(c.outputWriter())
+	encoder.SetIndent("", "  ")
+	if err := encoder.Encode(summary); err != nil {
+		return nil, 0, fmt.Errorf("writing dry-run summary: %w", err)
 	}
-	if authHeader != "" {
-		fmt.Fprintf(os.Stderr, "  %s: %s\n", "Authorization", maskToken(authHeader))
-	}
-	fmt.Fprintf(os.Stderr, "\n(dry run - no request sent)\n")
 	return json.RawMessage(`{"dry_run": true}`), 0, nil
+}
+
+func (c *Client) outputWriter() io.Writer {
+	if c.DryRunWriter != nil {
+		return c.DryRunWriter
+	}
+	return io.Discard
 }
 
 func (c *Client) ConfiguredTimeout() time.Duration {
@@ -348,28 +556,56 @@ func (c *Client) authHeaderForPath(path string) (string, error) {
 	if c.Config == nil {
 		return "", nil
 	}
-	if isTrackPath(path) && trackCredsConfigured(c.Config) {
+	if isTrackPath(path) && (c.Config.TrackAccessToken != "" || trackCredsConfigured(c.Config)) {
+		if c.Config.TrackAccessToken != "" && c.Config.TrackTokenExpiry.IsZero() {
+			return "", fmt.Errorf("refusing to send Track access token without a bounded expiry")
+		}
+		if c.Config.TrackAccessToken != "" && !sameTokenOrigin(c.Config.TrackTokenBaseURL, c.BaseURL) {
+			return "", fmt.Errorf("refusing to send Track access token to a different FedEx environment")
+		}
 		// Track-only project. Mint into the Track token slot.
 		if needsTrackTokenMint(c.Config) {
 			id, secret := resolveTrackCredentials(c.Config)
-			if id != "" && secret != "" {
-				if err := c.mintTrackToken(id, secret); err != nil {
-					return "", err
+			if id == "" || secret == "" {
+				if c.Config.TrackAccessToken != "" {
+					return "", fmt.Errorf("refusing to send expired or expiring Track access token without refresh credentials")
 				}
+				return "", fmt.Errorf("Track OAuth client credentials are incomplete")
+			}
+			if err := c.mintTrackToken(id, secret); err != nil {
+				return "", err
 			}
 		}
 		return c.Config.AuthHeaderForPath(path), nil
 	}
 	// Default pair (Ship/Rate/Address/Pickup/Locations/etc.).
+	if c.Config.AccessToken != "" && c.Config.TokenExpiry.IsZero() {
+		return "", fmt.Errorf("refusing to send access token without a bounded expiry")
+	}
+	if c.Config.AccessToken != "" && !sameTokenOrigin(c.Config.TokenBaseURL, c.BaseURL) {
+		return "", fmt.Errorf("refusing to send access token to a different FedEx environment")
+	}
 	if needsTokenMint(c.Config) {
 		clientID, clientSecret := resolveOAuthCredentials(c.Config)
-		if clientID != "" && clientSecret != "" {
-			if err := c.mintClientCredentialsToken(clientID, clientSecret); err != nil {
-				return "", err
+		if clientID == "" || clientSecret == "" {
+			if c.Config.AccessToken != "" {
+				return "", fmt.Errorf("refusing to send expired or expiring access token without refresh credentials")
 			}
+			if clientID != "" || clientSecret != "" {
+				return "", fmt.Errorf("OAuth client credentials are incomplete")
+			}
+		} else if err := c.mintClientCredentialsToken(clientID, clientSecret); err != nil {
+			return "", err
 		}
 	}
 	return c.Config.AuthHeaderForPath(path), nil
+}
+
+func sameTokenOrigin(tokenBaseURL, requestBaseURL string) bool {
+	normalize := func(value string) string {
+		return strings.ToLower(strings.TrimRight(strings.TrimSpace(value), "/"))
+	}
+	return normalize(tokenBaseURL) != "" && normalize(tokenBaseURL) == normalize(requestBaseURL)
 }
 
 // isTrackPath duplicates the config-package helper because the client must
@@ -391,7 +627,7 @@ func needsTokenMint(cfg *config.Config) bool {
 		return true
 	}
 	if cfg.TokenExpiry.IsZero() {
-		return false
+		return true
 	}
 	return time.Until(cfg.TokenExpiry) < 60*time.Second
 }
@@ -401,7 +637,7 @@ func needsTrackTokenMint(cfg *config.Config) bool {
 		return true
 	}
 	if cfg.TrackTokenExpiry.IsZero() {
-		return false
+		return true
 	}
 	return time.Until(cfg.TrackTokenExpiry) < 60*time.Second
 }
@@ -452,7 +688,7 @@ func (c *Client) mintTrackToken(clientID, clientSecret string) error {
 	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode >= 400 {
-		return fmt.Errorf("FedEx track auth: HTTP %d: %s", resp.StatusCode, truncateBody(body))
+		return fmt.Errorf("FedEx track auth: HTTP %d: %s", resp.StatusCode, safeAPIErrorBody(body))
 	}
 	var tokenResp struct {
 		AccessToken string `json:"access_token"`
@@ -465,6 +701,7 @@ func (c *Client) mintTrackToken(clientID, clientSecret string) error {
 		return fmt.Errorf("FedEx track auth: response missing access_token")
 	}
 	expiry := time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second)
+	c.Config.BaseURL = c.BaseURL
 	if err := c.Config.SaveTrackTokens(clientID, clientSecret, tokenResp.AccessToken, expiry); err != nil {
 		return fmt.Errorf("saving track token: %w", err)
 	}
@@ -494,7 +731,7 @@ func (c *Client) mintClientCredentialsToken(clientID, clientSecret string) error
 
 	body, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode >= 400 {
-		return fmt.Errorf("FedEx auth: HTTP %d: %s", resp.StatusCode, truncateBody(body))
+		return fmt.Errorf("FedEx auth: HTTP %d: %s", resp.StatusCode, safeAPIErrorBody(body))
 	}
 
 	var tokenResp struct {
@@ -510,6 +747,7 @@ func (c *Client) mintClientCredentialsToken(clientID, clientSecret string) error
 
 	expiry := time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second)
 	c.Config.AuthHeaderVal = "" // force AuthHeader() to use AccessToken path
+	c.Config.BaseURL = c.BaseURL
 	if err := c.Config.SaveTokens(clientID, clientSecret, tokenResp.AccessToken, "", expiry); err != nil {
 		return fmt.Errorf("saving FedEx token: %w", err)
 	}
@@ -552,10 +790,35 @@ func maskToken(token string) string {
 	return "****" + token[len(token)-4:]
 }
 
-func truncateBody(b []byte) string {
-	s := string(b)
-	if len(s) > 200 {
-		return s[:200] + "..."
+func safeAPIErrorBody(body []byte) string {
+	var envelope struct {
+		Errors []struct {
+			Code string `json:"code"`
+		} `json:"errors"`
 	}
-	return s
+	if json.Unmarshal(body, &envelope) != nil {
+		return "response body redacted"
+	}
+	codes := make([]string, 0, len(envelope.Errors))
+	for _, item := range envelope.Errors {
+		code := strings.TrimSpace(item.Code)
+		if code == "" || len(code) > 80 {
+			continue
+		}
+		valid := true
+		for _, r := range code {
+			if !((r >= 'A' && r <= 'Z') || (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '.' || r == '_' || r == '-') {
+				valid = false
+				break
+			}
+		}
+		if valid {
+			codes = append(codes, code)
+		}
+	}
+	if len(codes) == 0 {
+		return "response body redacted"
+	}
+	encoded, _ := json.Marshal(map[string]any{"codes": codes})
+	return string(encoded)
 }

@@ -92,7 +92,7 @@ To install:
 
 1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/fedex-current).
 2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `FEDEX_API_KEY` when Claude Desktop prompts you.
+3. Fill in `FEDEX_API_KEY` (Client ID) and `FEDEX_SECRET_KEY` (Client Secret) when Claude Desktop prompts you.
 
 Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
 
@@ -113,7 +113,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
     "fedex": {
       "command": "fedex-pp-mcp",
       "env": {
-        "FEDEX_API_KEY": "<your-key>"
+        "FEDEX_API_KEY": "<your-client-id>",
+        "FEDEX_SECRET_KEY": "<your-client-secret>"
       }
     }
   }
@@ -124,25 +125,42 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
-FedEx uses OAuth2 client_credentials. Run `fedex auth login` once with your sandbox or production Client ID and Client Secret; the CLI mints a 1-hour bearer token, caches it on disk, and refreshes proactively before expiry. Production label printing requires per-project Bar Code Analysis Group (BAG) approval from FedEx — `fedex doctor` surfaces approval status before you hit it.
+FedEx uses OAuth2 client_credentials. Run `fedex-pp-cli auth login` with sandbox or production credentials supplied through environment variables; the CLI mints a bounded bearer token and never serializes the client secret. Production label printing requires per-project Bar Code Analysis Group (BAG) approval from FedEx; `fedex-pp-cli doctor` provides a reminder, but approval status must be verified in the FedEx developer portal or with FedEx support.
+
+Tokens are bound to the exact API origin that minted them. `--env sandbox` uses `https://apis-sandbox.fedex.com`; `--env prod` uses `https://apis.fedex.com`. A token cached for one origin is discarded rather than sent to the other. Manual token installation requires an explicit environment:
+
+```bash
+fedex-pp-cli auth set-token '<short-lived-token>' --expires-in 55m --env sandbox
+```
+
+## Hardened label and pickup workflows
+
+- The four read-only MCP tools use operation-specific nested request schemas plus server-side validation before any HTTP call. Rate requests preserve official optional rate types, controls, carrier choices, and grouped-package semantics rather than imposing single-package shipment-validation limits. Address validation requires FedEx's common minimum (`streetLines` and `countryCode`), applies the documented nonblank US alternatives (`postalCode` or `city` plus `stateOrProvinceCode`), accepts empty optional locality fields where country rules permit, and models resolution controls. Shipment validation likewise permits empty optional state/postal fields outside US/CA/PR while enforcing their nonblank presence for those countries; it also enforces required pickup, total-weight, payment/conditional-payor, label, party, and one-package details and requires explicit FedEx success/failure alerts. Pickup availability validates every modeled address field plus official nested shipment/package details through the same validator used by scheduling preflight; dimensions are required for `YOUR_PACKAGING`, while units may be `CM`, `IN`, blank, null, or omitted per FedEx's inch default. It preserves each `output.options` entry (carrier, availability, date, cutoff, and structured access duration) and drops addresses, messages, request echoes, and unrelated response fields.
+- `shipments create` and MCP `create_label` validate one shipper, one recipient, one package, service, account, `labelResponseOptions=LABEL`, and a PDF label request before creating an approval preview.
+- A confirmed label creation writes exactly one bounded, validated PDF under `$FEDEX_DATA_DIR/labels/` (or the default private data directory) and persists only operational shipment fields. Printing remains a separate operation.
+- `pickups create` and MCP `schedule_pickup` require an official pickup-availability request during preview (`associatedAccountNumber` is a string; `pickupRequestType`, `carriers`, and `countryRelationship` are required). Its official minimum address projection (`postalCode` and `countryCode`) must match the scheduled address, and every optional availability-address field supplied must also match. The response must contain exactly one option matching the scheduled carrier and date. When FedEx availability cannot be used, a nonblank `--availability-override-reason` / `availability_override_reason` is required and bound into the approval digest.
+- Pickup confirmation, carrier/date/location, cutoff/access times, transaction ID, request hash, and status are persisted in the private SQLite ledger.
+- Pickup cancellation resolves account, carrier, date, and Express location from a matching local confirmation. A pickup not present in the ledger requires complete explicit identifiers plus `--legacy-reason` / `legacy_reason`.
+- A transport error, 5xx response, oversized body, or malformed mutation success is recorded as `outcome_unknown`. Reconcile with FedEx before retrying.
+- Equivalent mutation previews are blocked while an operation is pending, executing, successful, or `outcome_unknown`. Inspect the durable record with `fedex-pp-cli operations status <operation-id>`. After independently determining the FedEx outcome, use the separately approved `operations reconcile` workflow to record `not_executed` or `succeeded`; only `not_executed` permits a retry.
 
 ## Quick Start
 
 ```bash
 # Mint a bearer token from FedEx OAuth2 client_credentials and cache it
-fedex auth login --client-id $FEDEX_API_KEY --client-secret $FEDEX_SECRET_KEY --env sandbox
+fedex-pp-cli auth login --env sandbox
 
 # Verify auth, sandbox/prod routing, and surface any BAG approval gaps before you hit them at ship-time
-fedex doctor
+fedex-pp-cli doctor
 
 # Compare every applicable service type ranked by cost — the most useful one-liner this CLI offers
-fedex rate shop --from 90210 --to 10001 --weight 5lb --json --select rates.serviceType,rates.totalNetCharge
+fedex-pp-cli rate shop --from 90210 --to 10001 --weight 5lb --json --select rates.serviceType,rates.totalNetCharge
 
 # Save a recipient to the local address book so you do not retype it for every shipment
-fedex address save --name acme --street '500 Main St' --city Denver --state CO --zip 80202 --country US
+fedex-pp-cli address save acme --street '500 Main St' --city Denver --state CO --zip 80202 --country US
 
 # Batch-create labels with adaptive rate limiting; resumable on partial failure
-fedex ship bulk --csv orders.csv --service GROUND --resume
+fedex-pp-cli ship bulk --csv=orders.csv --service GROUND --resume
 
 ```
 
@@ -156,35 +174,35 @@ These capabilities aren't available in any other tool for this API.
   _When picking the cheapest viable service for a shipment, this collapses 6+ API calls into one ranked answer. The headline cost-saving command for SMB shippers._
 
   ```bash
-  fedex rate shop --from 90210 --to 10001 --weight 5lb --json --select rates.serviceType,rates.totalNetCharge,rates.transitTime
+  fedex-pp-cli rate shop --from 90210 --to 10001 --weight 5lb --json --select rates.serviceType,rates.totalNetCharge,rates.transitTime
   ```
 - **`ship bulk`** — Create labels for a CSV of orders with adaptive rate limiting, per-row PASS/FAIL accounting, and resume-from-last-success.
 
   _The 'I ship 30 packages a day' workflow. Replaces clicking through FedEx Ship Manager one label at a time._
 
   ```bash
-  fedex ship bulk --csv orders.csv --service GROUND --output labels/ --resume
+  fedex-pp-cli ship bulk --csv=orders.csv --service GROUND --output labels/ --resume
   ```
 - **`return create`** — Generate a Ground Call Tag (return label) against an existing tracking number with one command, optionally emailing it to the recipient.
 
   _E-commerce customer-service workflow. Issuing a return label is the most common post-sale interaction._
 
   ```bash
-  fedex return create --tracking 794633071234 --reason damaged --email customer@example.com
+  fedex-pp-cli return create --tracking 794633071234 --reason damaged --email customer@example.com
   ```
 - **`address validate`** — SHA-256-keyed local cache prevents re-billing the FedEx Address Validation API for repeat lookups.
 
   _Direct cost savings — the only feature with a quantifiable per-call $ impact._
 
   ```bash
-  fedex address validate --street '1600 Amphitheatre Pkwy' --city 'Mountain View' --state CA --zip 94043 --country US --cache
+  fedex-pp-cli address validate --street '1600 Amphitheatre Pkwy' --city 'Mountain View' --state CA --zip 94043 --country US --cache
   ```
 - **`ship etd`** — Single-command Electronic Trade Documents shipping: uploads commercial invoice, captures docId, and stitches it into the shipment create call.
 
   _International shipments require ETD; this collapses an error-prone multi-step into one atomic action._
 
   ```bash
-  fedex ship etd --invoice invoice.pdf --orig CN --dest US --recipient-name 'Acme' --weight 2kg --service FEDEX_INTERNATIONAL_PRIORITY
+  fedex-pp-cli ship etd --invoice invoice.pdf --orig CN --dest US --recipient-name 'Acme' --weight 2kg --service FEDEX_INTERNATIONAL_PRIORITY
   ```
 
 ### Local state that compounds
@@ -193,65 +211,65 @@ These capabilities aren't available in any other tool for this API.
   _Ergonomic parity with paid SaaS competitors. Eliminates retyping addresses for repeat customers._
 
   ```bash
-  fedex address save acme --street '500 Main St' --city Denver --state CO --zip 80202 --country US
+  fedex-pp-cli address save acme --street '500 Main St' --city Denver --state CO --zip 80202 --country US
   ```
 - **`track diff`** — Show only the tracking events that have appeared since the last poll for each tracking number in the local store.
 
   _Replaces tracking-poll dedupe glue agents would otherwise write._
 
   ```bash
-  fedex track diff --since 1h --json
+  fedex-pp-cli track diff --since 1h --json
   ```
 - **`track watch`** — Continuously poll a set of tracking numbers and emit new events to stdout, a webhook, or a file as they arrive. Polling alternative to FedEx push notifications.
 
   _Most SMBs don't have provisioned push webhooks. Polling daemon is the universal alternative._
 
   ```bash
-  fedex track watch --tracking 794633071234 --interval 10m --webhook https://example.com/hook
+  fedex-pp-cli track watch --tracking 794633071234 --interval 10m --webhook https://example.com/hook
   ```
 - **`archive`** — SQLite FTS5 search across every shipment in the local archive — recipient name, address, reference, tracking number, service.
 
   _'Did we ship to ACME last week?' — a question SMBs ask constantly._
 
   ```bash
-  fedex archive 'warehouse 47' --service GROUND --json
+  fedex-pp-cli archive 'warehouse 47' --service GROUND --json
   ```
 - **`spend report`** — Sum of net charges per service type, lane, or account from the local rate-quote and shipment ledger.
 
   _'How much did I spend on FedEx last month?' — the question every SMB owner asks._
 
   ```bash
-  fedex spend report --since 30d --by service --json
+  fedex-pp-cli spend report --since 30d --by service --json
   ```
 - **`export`** — Dump shipments + charges + tracking events as CSV or JSON for QuickBooks/Xero reconciliation.
 
   _Closes the loop on accounting reconciliation without manual data entry._
 
   ```bash
-  fedex export --format csv --since 30d --output fedex-april.csv
+  fedex-pp-cli export shipments --format jsonl --output fedex-shipments.jsonl
   ```
 - **`manifest`** — Generate a printable PDF/text summary of every shipment created today from the local archive, optionally invoking the Ground EOD close API.
 
   _Closes the warehouse-day workflow loop in one command._
 
   ```bash
-  fedex manifest --date 2026-05-02 --close --output manifest.md
+  fedex-pp-cli manifest --date 2026-05-02 --close --output manifest.md
   ```
-- **`sql`** — Direct SQLite SELECT queries against shipments, rate_quotes, tracking_events, address_validations, addresses tables.
+- **`sql`** — Direct SQLite SELECT queries against shipments, pickups, rate_quotes, tracking_events, address_validations, and addresses tables.
 
   _Escape hatch for arbitrary analytics over the local ledger._
 
   ```bash
-  fedex sql "select serviceType, count(*) as n, sum(net_charge) as spend from shipments where created_at > date('now','-30 days') group by serviceType order by spend desc"
+  fedex-pp-cli sql "select service_type, count(*) as n, sum(net_charge_amount) as spend from shipments where created_at > date('now','-30 days') group by service_type order by spend desc"
   ```
 
 ### Setup smoothness
-- **`doctor`** — Verifies OAuth auth, sandbox/prod routing, account-number format, label-format compatibility, and surfaces BAG (Bar Code Analysis Group) approval status.
+- **`doctor`** — Checks local configuration and API reachability and reminds you to verify FedEx production-label prerequisites separately.
 
-  _Avoids the most common 'why won't my labels print' failure mode for first-time users._
+  _Use it as a local diagnostic, not as evidence of FedEx certification or BAG approval._
 
   ```bash
-  fedex doctor
+  fedex-pp-cli doctor
   ```
 
 ## Usage
@@ -404,11 +422,11 @@ Rank by `--rank-by transit` to surface fastest service first, then inspect `net_
 
 ```bash
 # First run — adaptive rate limiting, low concurrency, write labels to ./labels/
-fedex-pp-cli ship bulk --csv orders.csv --service FEDEX_GROUND \
+fedex-pp-cli ship bulk --csv=orders.csv --service FEDEX_GROUND \
   --output ./labels --concurrency 3 --account "$FEDEX_ACCOUNT_NUMBER"
 
 # Network blip? Re-run with --resume; rows already in the archive are skipped
-fedex-pp-cli ship bulk --csv orders.csv --resume --account "$FEDEX_ACCOUNT_NUMBER"
+fedex-pp-cli ship bulk --csv=orders.csv --resume --account "$FEDEX_ACCOUNT_NUMBER"
 ```
 
 ### Capture only-new tracking events for a webhook
@@ -496,7 +514,7 @@ fedex-pp-cli spend report --by lane --since 168h --json
 fedex-pp-cli doctor
 
 # Verify a specific call without sending it
-fedex-pp-cli ship bulk --csv orders.csv --dry-run
+fedex-pp-cli ship bulk --csv=orders.csv --dry-run
 ```
 
 ## Output Formats
@@ -526,8 +544,8 @@ This CLI is designed for AI agent consumption:
 - **Pipeable** - `--json` output to stdout, errors to stderr
 - **Filterable** - `--select id,name` returns only fields you need
 - **Previewable** - `--dry-run` shows the request without sending
-- **Retryable** - creates return "already exists" on retry, deletes return "already deleted"
-- **Confirmable** - `--yes` for explicit confirmation of destructive actions
+- **Conservative retries** - only a narrow read-only allowlist is retried; ambiguous mutations return `outcome_unknown`
+- **Bound confirmation** - protected writes require `--yes` plus the operation ID and digest from an exact preview
 - **Piped input** - write commands can accept structured input when their help lists `--stdin`
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
@@ -552,18 +570,18 @@ Environment variables:
 ## Troubleshooting
 **Authentication errors (exit code 4)**
 - Run `fedex-pp-cli doctor` to check credentials
-- Verify the environment variable is set: `echo $FEDEX_API_KEY`
+- Verify the secret provider supplies both `FEDEX_API_KEY` and `FEDEX_SECRET_KEY`; do not print either value
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items
 
 ### API-specific
 
-- **HTTP 403 with no body, then no responses for 10 minutes** — You hit the per-IP throttle (1 req/s sustained for 2 min). Use `fedex ship bulk --concurrency 1` or wait 10 minutes; cliutil.AdaptiveLimiter prevents this when used
-- **401 NOT.AUTHORIZED.ERROR on every call** — Token expired or credentials wrong. Run `fedex auth login` again with valid Client ID + Client Secret
-- **PDF labels won't print on thermal printer** — Pass --label-format ZPLII or EPL2 to ship create; thermal printers can't render PDF directly
-- **Production ship returns BAG-not-approved error** — Production label printing requires per-project FedEx Bar Code Analysis Group approval. Run `fedex doctor` for status; submit your BAG application via the FedEx developer portal
-- **track diff returns nothing despite known new events** — Run `fedex track number <num>` first to seed the local store; diff compares against what's already cached
+- **HTTP 403 with no body, then no responses for 10 minutes** — You hit the per-IP throttle (1 req/s sustained for 2 min). Use `fedex-pp-cli ship bulk --concurrency 1` or wait 10 minutes; cliutil.AdaptiveLimiter prevents this when used
+- **401 NOT.AUTHORIZED.ERROR on every call** — Token expired or credentials wrong. Run `fedex-pp-cli auth login` again with valid Client ID + Client Secret supplied through the environment
+- **PDF labels won't print on a thermal printer** — The hardened single-label workflow intentionally requests and validates PDF. Keep printing as a separate operation and use a trusted PDF-capable print path or an explicitly reviewed conversion step.
+- **Production ship returns BAG-not-approved error** — Production label printing requires per-project FedEx Bar Code Analysis Group approval. Verify approval in the FedEx developer portal or with FedEx support before production validation.
+- **track diff returns nothing despite known new events** — Run `fedex-pp-cli track number <num>` first to seed the local store; diff compares against what's already cached
 
 ---
 

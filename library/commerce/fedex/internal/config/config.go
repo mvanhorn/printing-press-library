@@ -4,27 +4,31 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/secureio"
 	"github.com/pelletier/go-toml/v2"
 )
 
 type Config struct {
-	BaseURL        string    `toml:"base_url"`
-	AuthHeaderVal  string    `toml:"auth_header"`
-	AuthSource     string    `toml:"-"`
-	AccessToken    string    `toml:"access_token"`
-	RefreshToken   string    `toml:"refresh_token"`
-	TokenExpiry    time.Time `toml:"token_expiry"`
-	ClientID       string    `toml:"client_id"`
-	ClientSecret   string    `toml:"client_secret"`
-	Path           string    `toml:"-"`
-	FedexApiKey    string    `toml:"api_key"`
-	FedexSecretKey string    `toml:"secret_key"`
+	BaseURL          string    `toml:"base_url"`
+	AuthHeaderVal    string    `toml:"auth_header"`
+	AuthSource       string    `toml:"-"`
+	AccessToken      string    `toml:"access_token"`
+	TokenBaseURL     string    `toml:"token_base_url"`
+	RefreshToken     string    `toml:"refresh_token"`
+	TokenExpiry      time.Time `toml:"token_expiry"`
+	CacheAccessToken bool      `toml:"cache_access_token"`
+	ClientID         string    `toml:"client_id"`
+	ClientSecret     string    `toml:"client_secret"`
+	Path             string    `toml:"-"`
+	FedexApiKey      string    `toml:"api_key"`
+	FedexSecretKey   string    `toml:"secret_key"`
 
 	// Track-API-only credentials. As of October 2023 FedEx requires a
 	// dedicated developer-portal project for the Track API; you cannot
@@ -37,6 +41,7 @@ type Config struct {
 	TrackClientID     string    `toml:"track_client_id"`
 	TrackClientSecret string    `toml:"track_client_secret"`
 	TrackAccessToken  string    `toml:"track_access_token"`
+	TrackTokenBaseURL string    `toml:"track_token_base_url"`
 	TrackTokenExpiry  time.Time `toml:"track_token_expiry"`
 	TrackApiKey       string    `toml:"track_api_key"`
 	TrackSecretKey    string    `toml:"track_secret_key"`
@@ -59,11 +64,16 @@ func Load(configPath string) (*Config, error) {
 	cfg.Path = path
 
 	// Try to load config file
-	data, err := os.ReadFile(path)
+	data, err := secureio.ReadFile(path)
 	if err == nil {
 		if err := toml.Unmarshal(data, cfg); err != nil {
 			return nil, fmt.Errorf("parsing config %s: %w", path, err)
 		}
+		// Reusable credentials from legacy config files are intentionally not
+		// loaded. They are removed the next time the config is saved.
+		cfg.clearReusableCredentials()
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return nil, fmt.Errorf("reading config %s: %w", path, err)
 	}
 
 	// Env var overrides
@@ -74,6 +84,9 @@ func Load(configPath string) (*Config, error) {
 	if v := os.Getenv("FEDEX_SECRET_KEY"); v != "" {
 		cfg.FedexSecretKey = v
 		cfg.AuthSource = "env:FEDEX_SECRET_KEY"
+	}
+	if v := strings.ToLower(strings.TrimSpace(os.Getenv("FEDEX_CACHE_ACCESS_TOKEN"))); v == "1" || v == "true" || v == "yes" {
+		cfg.CacheAccessToken = true
 	}
 	// Track-API project credentials (optional; Pattern A from Magento/Karrio).
 	if v := os.Getenv("FEDEX_TRACK_API_KEY"); v != "" {
@@ -87,6 +100,10 @@ func Load(configPath string) (*Config, error) {
 	if v := os.Getenv("FEDEX_BASE_URL"); v != "" {
 		cfg.BaseURL = v
 	}
+	// Validate persisted bearer tokens only after the effective base URL and
+	// cache policy are known. An environment switch between sandbox and
+	// production must discard, never reuse, a token minted for the other origin.
+	cfg.discardInvalidCachedTokens(time.Now())
 	return cfg, nil
 }
 
@@ -101,25 +118,12 @@ func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
 	}
-	// FedEx OAuth2 client_credentials: the env var holds the Client ID, not
-	// a usable bearer token. The AccessToken path (minted via auth login or
-	// the client's auto-refresh) MUST take precedence over the env-var path,
-	// otherwise every API call gets sent with the API Key in the Authorization
-	// header and FedEx rejects with "Invalid CXS JWT". The env-var-as-bearer
-	// fallback below is only valid when no real OAuth token has been minted yet
-	// AND the user has manually pasted a real bearer JWT into FEDEX_API_KEY
-	// (the rare debugging path).
+	// FedEx OAuth2 client_credentials: FEDEX_API_KEY is the client ID, never a
+	// bearer token. Only a token minted or explicitly installed with provenance
+	// may be placed in the Authorization header.
 	if c.AccessToken != "" {
 		c.AuthSource = "oauth2"
 		return applyAuthFormat("Bearer {token}", map[string]string{"access_token": c.AccessToken, "token": c.AccessToken})
-	}
-	if c.FedexApiKey != "" {
-		c.AuthSource = "env:FEDEX_API_KEY"
-		return applyAuthFormat("Bearer {token}", map[string]string{
-			"api_key":       c.FedexApiKey,
-			"FEDEX_API_KEY": c.FedexApiKey,
-			"token":         c.FedexApiKey,
-		})
 	}
 	return ""
 }
@@ -137,33 +141,83 @@ func applyAuthFormat(format string, replacements map[string]string) string {
 	return format
 }
 
-func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken string, expiry time.Time) error {
-	c.ClientID = clientID
-	c.ClientSecret = clientSecret
+func (c *Config) SaveTokens(_, _, accessToken, _ string, expiry time.Time) error {
 	c.AccessToken = accessToken
-	c.RefreshToken = refreshToken
+	c.TokenBaseURL = normalizeBaseURL(c.BaseURL)
+	c.RefreshToken = ""
 	c.TokenExpiry = expiry
+	if !c.CacheAccessToken {
+		return nil
+	}
+	if accessToken != "" && (expiry.IsZero() || !expiry.After(time.Now()) || expiry.After(time.Now().Add(24*time.Hour))) {
+		return fmt.Errorf("refusing to cache access token without a bounded future expiry")
+	}
 	return c.save()
 }
 
 func (c *Config) ClearTokens() error {
+	c.clearReusableCredentials()
 	c.AccessToken = ""
+	c.TokenBaseURL = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
 	c.TrackAccessToken = ""
+	c.TrackTokenBaseURL = ""
 	c.TrackTokenExpiry = time.Time{}
+	c.CacheAccessToken = false
 	return c.save()
 }
 
-// SaveTrackTokens persists the dedicated Track-API project credentials and
-// the most recent access token minted from them. Same shape as SaveTokens
-// but routed to the Track* fields so the default pair is never overwritten.
-func (c *Config) SaveTrackTokens(clientID, clientSecret, accessToken string, expiry time.Time) error {
-	c.TrackClientID = clientID
-	c.TrackClientSecret = clientSecret
+func (c *Config) clearReusableCredentials() {
+	c.AuthHeaderVal = ""
+	c.AuthSource = ""
+	c.RefreshToken = ""
+	c.ClientID = ""
+	c.ClientSecret = ""
+	c.FedexApiKey = ""
+	c.FedexSecretKey = ""
+	c.TrackClientID = ""
+	c.TrackClientSecret = ""
+	c.TrackApiKey = ""
+	c.TrackSecretKey = ""
+}
+
+func (c *Config) discardInvalidCachedTokens(now time.Time) {
+	maxExpiry := now.Add(24 * time.Hour)
+	if c.AccessToken != "" && (!c.CacheAccessToken || c.TokenExpiry.IsZero() || !c.TokenExpiry.After(now) || c.TokenExpiry.After(maxExpiry) || !sameBaseURL(c.TokenBaseURL, c.BaseURL)) {
+		c.AccessToken = ""
+		c.TokenBaseURL = ""
+		c.RefreshToken = ""
+		c.TokenExpiry = time.Time{}
+	}
+	if c.TrackAccessToken != "" && (!c.CacheAccessToken || c.TrackTokenExpiry.IsZero() || !c.TrackTokenExpiry.After(now) || c.TrackTokenExpiry.After(maxExpiry) || !sameBaseURL(c.TrackTokenBaseURL, c.BaseURL)) {
+		c.TrackAccessToken = ""
+		c.TrackTokenBaseURL = ""
+		c.TrackTokenExpiry = time.Time{}
+	}
+}
+
+// SaveTrackTokens persists only the short-lived Track API access token. The
+// reusable client ID and secret remain in the caller's secret provider.
+func (c *Config) SaveTrackTokens(_, _, accessToken string, expiry time.Time) error {
 	c.TrackAccessToken = accessToken
+	c.TrackTokenBaseURL = normalizeBaseURL(c.BaseURL)
 	c.TrackTokenExpiry = expiry
+	if !c.CacheAccessToken {
+		return nil
+	}
+	if accessToken != "" && (expiry.IsZero() || !expiry.After(time.Now()) || expiry.After(time.Now().Add(24*time.Hour))) {
+		return fmt.Errorf("refusing to cache track access token without a bounded future expiry")
+	}
 	return c.save()
+}
+
+func normalizeBaseURL(value string) string {
+	return strings.ToLower(strings.TrimRight(strings.TrimSpace(value), "/"))
+}
+
+func sameBaseURL(left, right string) bool {
+	return normalizeBaseURL(left) != "" && normalizeBaseURL(left) == normalizeBaseURL(right)
 }
 
 // AuthHeaderForPath returns the right Authorization value for a given
@@ -179,15 +233,10 @@ func (c *Config) AuthHeaderForPath(path string) string {
 	if c == nil {
 		return ""
 	}
-	// Track path with Track creds configured: prefer the Track token.
-	if isTrackPath(path) && (c.TrackAccessToken != "" || c.TrackApiKey != "") {
-		if c.TrackAccessToken != "" {
-			c.AuthSource = "oauth2:track"
-			return applyAuthFormat("Bearer {token}", map[string]string{"token": c.TrackAccessToken})
-		}
-		// Rare debug path: user manually pasted a JWT into FEDEX_TRACK_API_KEY.
-		c.AuthSource = "env:FEDEX_TRACK_API_KEY"
-		return applyAuthFormat("Bearer {token}", map[string]string{"token": c.TrackApiKey})
+	// Track path with a separately minted Track token: prefer that token.
+	if isTrackPath(path) && c.TrackAccessToken != "" {
+		c.AuthSource = "oauth2:track"
+		return applyAuthFormat("Bearer {token}", map[string]string{"token": c.TrackAccessToken})
 	}
 	// All other paths (and Track requests when no Track creds set): default.
 	return c.AuthHeader()
@@ -204,12 +253,23 @@ func isTrackPath(path string) bool {
 
 func (c *Config) save() error {
 	dir := filepath.Dir(c.Path)
-	if err := os.MkdirAll(dir, 0o700); err != nil {
+	if err := secureio.EnsurePrivateDir(dir); err != nil {
 		return fmt.Errorf("creating config dir: %w", err)
 	}
-	data, err := toml.Marshal(c)
+	persisted := *c
+	persisted.AuthHeaderVal = ""
+	persisted.RefreshToken = ""
+	persisted.ClientID = ""
+	persisted.ClientSecret = ""
+	persisted.FedexApiKey = ""
+	persisted.FedexSecretKey = ""
+	persisted.TrackClientID = ""
+	persisted.TrackClientSecret = ""
+	persisted.TrackApiKey = ""
+	persisted.TrackSecretKey = ""
+	data, err := toml.Marshal(&persisted)
 	if err != nil {
 		return fmt.Errorf("marshaling config: %w", err)
 	}
-	return os.WriteFile(c.Path, data, 0o600)
+	return secureio.WriteFileAtomic(c.Path, data)
 }

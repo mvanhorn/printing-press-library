@@ -6,6 +6,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net"
 	"os"
 	"strings"
 
@@ -14,13 +15,11 @@ import (
 )
 
 // Transport selection order: --transport flag, then PP_MCP_TRANSPORT env,
-// then the first transport declared in the spec (see MCPConfig.Transport).
-// The flag surface lets one binary serve stdio locally and streamable HTTP
-// when hosted in a container or remote sandbox, matching the Anthropic
-// guidance that production agents need a remote option.
+// then stdio. HTTP requires a separate --allow-http flag and a loopback bind;
+// the server has no remote authentication or TLS boundary.
 
 const (
-	defaultHTTPAddr = ":7777"
+	defaultHTTPAddr = "127.0.0.1:7777"
 )
 
 func main() {
@@ -34,7 +33,12 @@ func main() {
 
 	transport := flag.String("transport", defaultTransport(), "MCP transport: stdio | http")
 	addr := flag.String("addr", defaultHTTPAddr, "bind address for http transport (host:port or :port)")
+	allowHTTP := flag.Bool("allow-http", false, "explicitly allow loopback-only HTTP transport")
 	flag.Parse()
+	if err := validateTransport(*transport, *allowHTTP, *addr); err != nil {
+		fmt.Fprintf(os.Stderr, "MCP server configuration error: %v\n", err)
+		os.Exit(2)
+	}
 
 	switch strings.ToLower(*transport) {
 	case "stdio":
@@ -49,9 +53,6 @@ func main() {
 			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
 			os.Exit(1)
 		}
-	default:
-		fmt.Fprintf(os.Stderr, "unknown --transport %q (supported: stdio, http)\n", *transport)
-		os.Exit(2)
 	}
 }
 
@@ -64,4 +65,29 @@ func defaultTransport() string {
 		return t
 	}
 	return "stdio"
+}
+
+func validateTransport(transport string, allowHTTP bool, address string) error {
+	switch strings.ToLower(strings.TrimSpace(transport)) {
+	case "stdio":
+		return nil
+	case "http":
+		if !allowHTTP {
+			return fmt.Errorf("HTTP transport requires explicit --allow-http; stdio is the supported default")
+		}
+		host, _, err := net.SplitHostPort(address)
+		if err != nil {
+			return fmt.Errorf("invalid HTTP bind address %q: %w", address, err)
+		}
+		if strings.EqualFold(host, "localhost") {
+			return nil
+		}
+		ip := net.ParseIP(host)
+		if ip == nil || !ip.IsLoopback() {
+			return fmt.Errorf("HTTP bind address %q is not loopback; unauthenticated remote MCP is disabled", address)
+		}
+		return nil
+	default:
+		return fmt.Errorf("unknown --transport %q (supported: stdio, http)", transport)
+	}
 }

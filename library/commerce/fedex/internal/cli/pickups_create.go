@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/workflow"
 	"github.com/spf13/cobra"
 )
 
@@ -20,6 +21,8 @@ func newPickupsCreateCmd(flags *rootFlags) *cobra.Command {
 	var bodyCarrierCode string
 	var bodyRemarks string
 	var bodyCountryRelationships string
+	var availabilityRequest string
+	var availabilityOverrideReason string
 	var stdinBody bool
 
 	cmd := &cobra.Command{
@@ -98,9 +101,19 @@ func newPickupsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["countryRelationships"] = bodyCountryRelationships
 				}
 			}
-			data, statusCode, err := c.Post(path, body)
+			if err := workflow.ValidateRequest(workflow.ActionSchedulePickup, body); err != nil {
+				return err
+			}
+			preflight, err := preparePickupPreflight(flags, c, body, availabilityRequest, availabilityOverrideReason)
+			if err != nil {
+				return err
+			}
+			data, statusCode, executed, err := executeProtectedMutationWithOptions(cmd, flags, c, "schedule_pickup", "POST", path, body, preflight)
 			if err != nil {
 				return classifyAPIError(err)
+			}
+			if !executed {
+				return nil
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -172,6 +185,8 @@ func newPickupsCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyCarrierCode, "carrier-code", "", "FDXE (Express) or FDXG (Ground)")
 	cmd.Flags().StringVar(&bodyRemarks, "remarks", "", "")
 	cmd.Flags().StringVar(&bodyCountryRelationships, "country-relationships", "", "")
+	cmd.Flags().StringVar(&availabilityRequest, "availability-request", "", "Pickup availability request JSON; required unless an override reason is supplied")
+	cmd.Flags().StringVar(&availabilityOverrideReason, "availability-override-reason", "", "Document why pickup availability preflight is being bypassed")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

@@ -8,12 +8,14 @@ package store
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/secureio"
 	_ "modernc.org/sqlite"
 )
 
@@ -47,6 +49,12 @@ CREATE TABLE IF NOT EXISTS shipments (
   list_charge_amount REAL,
   label_path TEXT,
   raw_response TEXT,
+  transaction_id TEXT,
+  request_hash TEXT,
+  status TEXT NOT NULL DEFAULT 'created',
+  cancellation_transaction_id TEXT,
+  cancellation_status TEXT,
+  cancelled_at TIMESTAMP,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_shipments_created ON shipments(created_at);
@@ -149,10 +157,38 @@ CREATE TABLE IF NOT EXISTS poll_state (
   last_polled_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   watermark TEXT
 );
+
+CREATE TABLE IF NOT EXISTS pickups (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  operation_id TEXT NOT NULL UNIQUE,
+  confirmation_number TEXT,
+  account_number TEXT NOT NULL,
+  carrier_code TEXT NOT NULL,
+  scheduled_date TEXT NOT NULL,
+  location_code TEXT,
+  cutoff_time TEXT,
+  access_start_time TEXT,
+  ready_time TEXT,
+  request_hash TEXT NOT NULL,
+  transaction_id TEXT,
+  status TEXT NOT NULL,
+  preflight_status TEXT NOT NULL,
+  preflight_override_reason TEXT,
+  cancellation_transaction_id TEXT,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  cancelled_at TIMESTAMP
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_pickups_confirmation
+  ON pickups(confirmation_number) WHERE confirmation_number <> '';
+CREATE INDEX IF NOT EXISTS idx_pickups_scheduled ON pickups(scheduled_date, carrier_code);
 `
 
 // DefaultPath returns the user-level SQLite path for the FedEx ledger.
 func DefaultPath() string {
+	if root := strings.TrimSpace(os.Getenv("FEDEX_DATA_DIR")); root != "" {
+		return filepath.Join(root, "fedex.db")
+	}
 	home, err := os.UserHomeDir()
 	if err != nil || home == "" {
 		return "fedex.db"
@@ -167,11 +203,19 @@ func Open(path string) (*Store, error) {
 		path = DefaultPath()
 	}
 	if dir := filepath.Dir(path); dir != "" && dir != "." {
-		if err := os.MkdirAll(dir, 0o755); err != nil {
+		if err := secureio.EnsurePrivateDir(dir); err != nil {
 			return nil, fmt.Errorf("creating store dir: %w", err)
 		}
 	}
-	dsn := path + "?_pragma=journal_mode(WAL)&_pragma=foreign_keys(ON)&_pragma=busy_timeout(5000)"
+	if err := secureio.PreparePrivateFile(path); err != nil {
+		return nil, fmt.Errorf("securing store file: %w", err)
+	}
+	for _, sidecar := range []string{path + "-wal", path + "-shm", path + "-journal"} {
+		if err := secureio.SecureExistingFile(sidecar); err != nil && !errors.Is(err, os.ErrNotExist) {
+			return nil, fmt.Errorf("rejecting unsafe SQLite sidecar %s: %w", sidecar, err)
+		}
+	}
+	dsn := path + "?_pragma=journal_mode(WAL)&_pragma=foreign_keys(ON)&_pragma=busy_timeout(5000)&_pragma=secure_delete(ON)"
 	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("opening %s: %w", path, err)
@@ -181,63 +225,350 @@ func Open(path string) (*Store, error) {
 		_ = db.Close()
 		return nil, fmt.Errorf("applying schema: %w", err)
 	}
+	if err := ensureShipmentWorkflowColumns(db); err != nil {
+		_ = db.Close()
+		return nil, fmt.Errorf("migrating shipment workflow columns: %w", err)
+	}
+	// Earlier releases stored complete FedEx responses, labels, address trees,
+	// and scan-event JSON. Physically purge those legacy blobs once rather than
+	// merely making them unreachable through SQL.
+	legacyRaw := []struct{ table, column string }{
+		{"shipments", "raw_response"},
+		{"rate_quotes", "raw_response"},
+		{"address_validations", "raw_response"},
+		{"tracking_events", "raw"},
+	}
+	needsVacuum := false
+	for _, legacy := range legacyRaw {
+		var count int
+		if err := db.QueryRow("SELECT COUNT(*) FROM " + legacy.table + " WHERE " + legacy.column + " <> ''").Scan(&count); err != nil {
+			_ = db.Close()
+			return nil, fmt.Errorf("checking legacy raw responses in %s: %w", legacy.table, err)
+		}
+		if count == 0 {
+			continue
+		}
+		needsVacuum = true
+		if _, err := db.Exec("UPDATE " + legacy.table + " SET " + legacy.column + " = '' WHERE " + legacy.column + " <> ''"); err != nil {
+			_ = db.Close()
+			return nil, fmt.Errorf("scrubbing legacy raw responses from %s: %w", legacy.table, err)
+		}
+	}
+	if needsVacuum {
+		if _, err := db.Exec("PRAGMA wal_checkpoint(TRUNCATE)"); err != nil {
+			_ = db.Close()
+			return nil, fmt.Errorf("checkpointing scrubbed store: %w", err)
+		}
+		if _, err := db.Exec("VACUUM"); err != nil {
+			_ = db.Close()
+			return nil, fmt.Errorf("vacuuming scrubbed store: %w", err)
+		}
+	}
+	if err := secureio.SecureExistingFile(path); err != nil {
+		_ = db.Close()
+		return nil, fmt.Errorf("securing store file: %w", err)
+	}
+	for _, suffix := range []string{"-wal", "-shm"} {
+		if err := secureio.SecureExistingFile(path + suffix); err != nil && !os.IsNotExist(err) {
+			_ = db.Close()
+			return nil, fmt.Errorf("securing store sidecar: %w", err)
+		}
+	}
 	return &Store{db: db, path: path}, nil
+}
+
+func ensureShipmentWorkflowColumns(db *sql.DB) error {
+	rows, err := db.Query("PRAGMA table_info(shipments)")
+	if err != nil {
+		return err
+	}
+	existing := make(map[string]bool)
+	for rows.Next() {
+		var cid int
+		var name, dataType string
+		var notNull, primaryKey int
+		var defaultValue any
+		if err := rows.Scan(&cid, &name, &dataType, &notNull, &defaultValue, &primaryKey); err != nil {
+			rows.Close()
+			return err
+		}
+		existing[name] = true
+	}
+	if err := rows.Close(); err != nil {
+		return err
+	}
+	columns := []struct {
+		name       string
+		definition string
+	}{
+		{"transaction_id", "TEXT"},
+		{"request_hash", "TEXT"},
+		{"status", "TEXT NOT NULL DEFAULT 'created'"},
+		{"cancellation_transaction_id", "TEXT"},
+		{"cancellation_status", "TEXT"},
+		{"cancelled_at", "TIMESTAMP"},
+	}
+	for _, column := range columns {
+		if existing[column.name] {
+			continue
+		}
+		if _, err := db.Exec("ALTER TABLE shipments ADD COLUMN " + column.name + " " + column.definition); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (s *Store) DB() *sql.DB  { return s.db }
 func (s *Store) Path() string { return s.path }
 func (s *Store) Close() error { return s.db.Close() }
 
-// Shipment captures the SMB-relevant fields we persist after a successful
-// ship create. The raw FedEx response is preserved for forensic JSON.
+// Shipment captures the operational fields persisted after a successful ship
+// create. RawResponse remains only for source compatibility and is never stored.
 type Shipment struct {
-	TrackingNumber       string
-	MasterTrackingNumber string
-	Account              string
-	ServiceType          string
-	PackagingType        string
-	ShipperName          string
-	ShipperPostal        string
-	ShipperCountry       string
-	RecipientName        string
-	RecipientAddress     string
-	RecipientCity        string
-	RecipientState       string
-	RecipientPostal      string
-	RecipientCountry     string
-	WeightValue          float64
-	WeightUnits          string
-	Reference            string
-	NetChargeAmount      float64
-	NetChargeCurrency    string
-	ListChargeAmount     float64
-	LabelPath            string
-	RawResponse          string
-	CreatedAt            time.Time
+	TrackingNumber            string
+	MasterTrackingNumber      string
+	Account                   string
+	ServiceType               string
+	PackagingType             string
+	ShipperName               string
+	ShipperPostal             string
+	ShipperCountry            string
+	RecipientName             string
+	RecipientAddress          string
+	RecipientCity             string
+	RecipientState            string
+	RecipientPostal           string
+	RecipientCountry          string
+	WeightValue               float64
+	WeightUnits               string
+	Reference                 string
+	NetChargeAmount           float64
+	NetChargeCurrency         string
+	ListChargeAmount          float64
+	LabelPath                 string
+	RawResponse               string
+	TransactionID             string
+	RequestHash               string
+	Status                    string
+	CancellationTransactionID string
+	CancellationStatus        string
+	CancelledAt               *time.Time
+	CreatedAt                 time.Time
 }
 
 func (s *Store) InsertShipment(ctx context.Context, sp Shipment) (int64, error) {
 	res, err := s.db.ExecContext(ctx, `
-		INSERT OR IGNORE INTO shipments
+		INSERT INTO shipments
 		(tracking_number, master_tracking_number, account, service_type, packaging_type,
 		 shipper_name, shipper_postal, shipper_country,
 		 recipient_name, recipient_address, recipient_city, recipient_state, recipient_postal, recipient_country,
 		 weight_value, weight_units, reference,
 		 net_charge_amount, net_charge_currency, list_charge_amount,
-		 label_path, raw_response)
-		VALUES (?, ?, ?, ?, ?,  ?, ?, ?,  ?, ?, ?, ?, ?, ?,  ?, ?, ?,  ?, ?, ?,  ?, ?)
+		 label_path, raw_response, transaction_id, request_hash, status,
+		 cancellation_transaction_id, cancellation_status, cancelled_at)
+		VALUES (?, ?, ?, ?, ?,  ?, ?, ?,  ?, ?, ?, ?, ?, ?,  ?, ?, ?,  ?, ?, ?,  ?, ?,  ?, ?, ?, ?, ?, ?)
 	`,
 		sp.TrackingNumber, sp.MasterTrackingNumber, sp.Account, sp.ServiceType, sp.PackagingType,
 		sp.ShipperName, sp.ShipperPostal, sp.ShipperCountry,
 		sp.RecipientName, sp.RecipientAddress, sp.RecipientCity, sp.RecipientState, sp.RecipientPostal, sp.RecipientCountry,
 		sp.WeightValue, sp.WeightUnits, sp.Reference,
 		sp.NetChargeAmount, sp.NetChargeCurrency, sp.ListChargeAmount,
-		sp.LabelPath, sp.RawResponse)
+		sp.LabelPath, "", sp.TransactionID, sp.RequestHash, defaultStatus(sp.Status, "created"),
+		sp.CancellationTransactionID, sp.CancellationStatus, sp.CancelledAt)
 	if err != nil {
 		return 0, fmt.Errorf("insert shipment: %w", err)
 	}
 	id, _ := res.LastInsertId()
 	return id, nil
+}
+
+func defaultStatus(value, fallback string) string {
+	if strings.TrimSpace(value) == "" {
+		return fallback
+	}
+	return value
+}
+
+func (s *Store) GetShipmentByTracking(ctx context.Context, tracking string) (*Shipment, error) {
+	row := s.db.QueryRowContext(ctx, `
+		SELECT tracking_number, coalesce(master_tracking_number,''), coalesce(account,''), service_type, coalesce(packaging_type,''),
+		       coalesce(reference,''), coalesce(net_charge_amount,0), coalesce(net_charge_currency,''), coalesce(label_path,''),
+		       coalesce(transaction_id,''), coalesce(request_hash,''), coalesce(status,'created'), coalesce(cancellation_transaction_id,''),
+		       coalesce(cancellation_status,''), cancelled_at, created_at
+		FROM shipments WHERE tracking_number = ?
+	`, tracking)
+	var shipment Shipment
+	if err := row.Scan(
+		&shipment.TrackingNumber, &shipment.MasterTrackingNumber, &shipment.Account,
+		&shipment.ServiceType, &shipment.PackagingType, &shipment.Reference,
+		&shipment.NetChargeAmount, &shipment.NetChargeCurrency, &shipment.LabelPath,
+		&shipment.TransactionID, &shipment.RequestHash, &shipment.Status,
+		&shipment.CancellationTransactionID, &shipment.CancellationStatus,
+		&shipment.CancelledAt, &shipment.CreatedAt,
+	); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &shipment, nil
+}
+
+func (s *Store) UpdateShipmentCancellation(ctx context.Context, tracking, status, transactionID string) (bool, error) {
+	if status == "canceling" {
+		result, err := s.db.ExecContext(ctx, `
+			UPDATE shipments SET cancellation_status = ?
+			WHERE tracking_number = ? AND coalesce(cancellation_status, '') IN ('', 'cancel_rejected')
+		`, status, tracking)
+		if err != nil {
+			return false, err
+		}
+		count, err := result.RowsAffected()
+		return count > 0, err
+	}
+	var cancelledAt any
+	if status == "cancelled" {
+		cancelledAt = time.Now().UTC()
+	}
+	result, err := s.db.ExecContext(ctx, `
+		UPDATE shipments
+		SET status = CASE WHEN ? = 'cancelled' THEN 'cancelled' ELSE status END,
+		    cancellation_status = ?, cancellation_transaction_id = ?, cancelled_at = ?
+		WHERE tracking_number = ?
+	`, status, status, transactionID, cancelledAt, tracking)
+	if err != nil {
+		return false, err
+	}
+	count, err := result.RowsAffected()
+	return count > 0, err
+}
+
+type Pickup struct {
+	OperationID               string
+	ConfirmationNumber        string
+	AccountNumber             string
+	CarrierCode               string
+	ScheduledDate             string
+	LocationCode              string
+	CutoffTime                string
+	AccessStartTime           string
+	ReadyTime                 string
+	RequestHash               string
+	TransactionID             string
+	Status                    string
+	PreflightStatus           string
+	PreflightOverrideReason   string
+	CancellationTransactionID string
+	CreatedAt                 time.Time
+	UpdatedAt                 time.Time
+	CancelledAt               *time.Time
+}
+
+func (s *Store) UpsertPickup(ctx context.Context, pickup Pickup) error {
+	_, err := s.db.ExecContext(ctx, `
+		INSERT INTO pickups
+		(operation_id, confirmation_number, account_number, carrier_code, scheduled_date,
+		 location_code, cutoff_time, access_start_time, ready_time, request_hash,
+		 transaction_id, status, preflight_status, preflight_override_reason,
+		 cancellation_transaction_id, cancelled_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		ON CONFLICT(operation_id) DO UPDATE SET
+		 confirmation_number=excluded.confirmation_number,
+		 account_number=excluded.account_number,
+		 carrier_code=excluded.carrier_code,
+		 scheduled_date=excluded.scheduled_date,
+		 location_code=excluded.location_code,
+		 cutoff_time=excluded.cutoff_time,
+		 access_start_time=excluded.access_start_time,
+		 ready_time=excluded.ready_time,
+		 request_hash=excluded.request_hash,
+		 transaction_id=excluded.transaction_id,
+		 status=excluded.status,
+		 preflight_status=excluded.preflight_status,
+		 preflight_override_reason=excluded.preflight_override_reason,
+		 cancellation_transaction_id=excluded.cancellation_transaction_id,
+		 cancelled_at=excluded.cancelled_at,
+		 updated_at=CURRENT_TIMESTAMP
+	`, pickup.OperationID, pickup.ConfirmationNumber, pickup.AccountNumber, pickup.CarrierCode,
+		pickup.ScheduledDate, pickup.LocationCode, pickup.CutoffTime, pickup.AccessStartTime,
+		pickup.ReadyTime, pickup.RequestHash, pickup.TransactionID,
+		defaultStatus(pickup.Status, "scheduled"), defaultStatus(pickup.PreflightStatus, "verified"),
+		pickup.PreflightOverrideReason, pickup.CancellationTransactionID, pickup.CancelledAt)
+	return err
+}
+
+func (s *Store) GetPickupByConfirmation(ctx context.Context, confirmation string) (*Pickup, error) {
+	return s.getPickup(ctx, "confirmation_number", confirmation)
+}
+
+func (s *Store) GetPickupByOperationID(ctx context.Context, operationID string) (*Pickup, error) {
+	return s.getPickup(ctx, "operation_id", operationID)
+}
+
+func (s *Store) getPickup(ctx context.Context, column, value string) (*Pickup, error) {
+	if column != "confirmation_number" && column != "operation_id" {
+		return nil, fmt.Errorf("unsupported pickup lookup column %q", column)
+	}
+	row := s.db.QueryRowContext(ctx, `
+		SELECT operation_id, coalesce(confirmation_number,''), account_number, carrier_code, scheduled_date,
+		       coalesce(location_code,''), coalesce(cutoff_time,''), coalesce(access_start_time,''), coalesce(ready_time,''), request_hash,
+		       coalesce(transaction_id,''), status, preflight_status, coalesce(preflight_override_reason,''),
+		       coalesce(cancellation_transaction_id,''), created_at, updated_at, cancelled_at
+		FROM pickups WHERE `+column+` = ?
+	`, value)
+	var pickup Pickup
+	if err := row.Scan(&pickup.OperationID, &pickup.ConfirmationNumber, &pickup.AccountNumber,
+		&pickup.CarrierCode, &pickup.ScheduledDate, &pickup.LocationCode, &pickup.CutoffTime,
+		&pickup.AccessStartTime, &pickup.ReadyTime, &pickup.RequestHash, &pickup.TransactionID,
+		&pickup.Status, &pickup.PreflightStatus, &pickup.PreflightOverrideReason,
+		&pickup.CancellationTransactionID, &pickup.CreatedAt, &pickup.UpdatedAt,
+		&pickup.CancelledAt); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &pickup, nil
+}
+
+func (s *Store) UpdatePickupCancellation(ctx context.Context, confirmation, status, transactionID string) (bool, error) {
+	if status == "canceling" {
+		result, err := s.db.ExecContext(ctx, `
+			UPDATE pickups SET status = ?, updated_at = CURRENT_TIMESTAMP
+			WHERE confirmation_number = ? AND status IN ('scheduled', 'cancel_rejected')
+		`, status, confirmation)
+		if err != nil {
+			return false, err
+		}
+		count, err := result.RowsAffected()
+		return count > 0, err
+	}
+	var cancelledAt any
+	if status == "cancelled" {
+		cancelledAt = time.Now().UTC()
+	}
+	result, err := s.db.ExecContext(ctx, `
+		UPDATE pickups SET status = ?, cancellation_transaction_id = ?, cancelled_at = ?, updated_at = CURRENT_TIMESTAMP
+		WHERE confirmation_number = ?
+	`, status, transactionID, cancelledAt, confirmation)
+	if err != nil {
+		return false, err
+	}
+	count, err := result.RowsAffected()
+	return count > 0, err
+}
+
+func (s *Store) UpdatePickupStatusByOperationID(ctx context.Context, operationID, status string) (bool, error) {
+	result, err := s.db.ExecContext(ctx, `
+		UPDATE pickups SET status = ?, updated_at = CURRENT_TIMESTAMP
+		WHERE operation_id = ?
+	`, status, operationID)
+	if err != nil {
+		return false, err
+	}
+	count, err := result.RowsAffected()
+	return count > 0, err
 }
 
 // RateQuote is one row in a rate-shop result. `Selected` is set when the
@@ -274,7 +605,7 @@ func (s *Store) InsertRateQuote(ctx context.Context, q RateQuote) error {
 	`,
 		q.OriginPostal, q.OriginCountry, q.DestPostal, q.DestCountry, q.WeightValue, q.WeightUnits,
 		q.ServiceType, q.PackagingType, q.ListAmount, q.NetAmount, q.Currency, q.TransitDays, q.DeliveryDayOfWeek,
-		sel, q.RawResponse)
+		sel, "")
 	return err
 }
 
@@ -309,7 +640,7 @@ func (s *Store) InsertTrackingEvent(ctx context.Context, ev TrackingEvent) (bool
 	`,
 		ev.TrackingNumber, ev.CarrierCode, ev.EventTimestamp, ev.EventType, ev.EventDescription,
 		ev.StatusCode, ev.StatusLocale, ev.ScanLocationCity, ev.ScanLocationState, ev.ScanLocationCountry,
-		ev.DeliveryAttempts, ev.Raw)
+		ev.DeliveryAttempts, "")
 	if err != nil {
 		return false, fmt.Errorf("insert tracking event: %w", err)
 	}
@@ -460,7 +791,7 @@ func (s *Store) InsertAddressValidation(ctx context.Context, av AddressValidatio
 		 resolved_street, resolved_city, resolved_state, resolved_postal, raw_response)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`, av.CacheKey, av.Street, av.City, av.State, av.Postal, av.Country, av.Classification,
-		av.ResolvedStreet, av.ResolvedCity, av.ResolvedState, av.ResolvedPostal, av.RawResponse)
+		av.ResolvedStreet, av.ResolvedCity, av.ResolvedState, av.ResolvedPostal, "")
 	return err
 }
 

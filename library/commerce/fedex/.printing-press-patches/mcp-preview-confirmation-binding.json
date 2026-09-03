@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "id": "mcp-preview-confirmation-binding",
+  "applied_at": "2026-09-02",
+  "base_run_id": "20260502-152509",
+  "base_printing_press_version": "3.6.0",
+  "summary": "Require short-lived, one-time, payload-bound confirmation before FedEx mutations and stop agent mode from granting write authority.",
+  "reason": "Billable and state-changing shipment and pickup requests must not execute from a single agent-generated call or from --agent alone; a reviewed request must be cryptographically bound to a durable pending operation and consumed at most once.",
+  "files": [
+    "internal/approval/approval.go",
+    "internal/approval/approval_test.go",
+    "internal/approval/summary_test.go",
+    "internal/cli/mutation_approval.go",
+    "internal/cli/shipments_create.go",
+    "internal/cli/shipments_cancel.go",
+    "internal/cli/pickups_create.go",
+    "internal/cli/pickups_cancel.go",
+    "internal/cli/root.go",
+    "internal/cli/root_safety_test.go",
+    "internal/client/client.go",
+    "internal/client/client_test.go",
+    "internal/client/all_mutations_test.go",
+    "internal/mcp/narrow.go",
+    "internal/mcp/tools_safety_test.go"
+  ],
+  "validated_outcome": "Tests prove previews make no FedEx request, confirmations bind the action, normalized origin, method, path, and exact canonical request, concurrent or replayed consumption cannot execute twice, --agent does not imply --yes, bare --yes cannot authorize any state-changing client path, and action-specific previews include redacted target, timing, package, and weight details."
+}

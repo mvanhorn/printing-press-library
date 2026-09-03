@@ -15,6 +15,8 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/secureio"
 )
 
 // Store is a key-value cache backed by the filesystem.
@@ -35,7 +37,7 @@ func (s *Store) Get(key string) (json.RawMessage, bool) {
 	if err != nil || time.Since(info.ModTime()) > s.TTL {
 		return nil, false
 	}
-	data, err := os.ReadFile(path)
+	data, err := secureio.ReadFile(path)
 	if err != nil {
 		return nil, false
 	}
@@ -44,8 +46,10 @@ func (s *Store) Get(key string) (json.RawMessage, bool) {
 
 // Set stores a value in the cache.
 func (s *Store) Set(key string, value json.RawMessage) {
-	_ = os.MkdirAll(s.Dir, 0o755)
-	_ = os.WriteFile(s.path(key), []byte(value), 0o644)
+	if secureio.EnsurePrivateDir(s.Dir) != nil {
+		return
+	}
+	_ = secureio.WriteFileAtomic(s.path(key), []byte(value))
 }
 
 // Clear removes all cached entries.

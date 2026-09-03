@@ -6,6 +6,7 @@ package mcp
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -14,33 +15,16 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/mcp/cobratree"
 )
 
-// RegisterTools registers all API operations as MCP tools.
+// RegisterTools exposes only the reviewed shipping workflows. The generic API
+// executor and runtime Cobra mirror remain available to CLI users but are not
+// registered in the default MCP surface.
 func RegisterTools(s *server.MCPServer) {
-	// Code-orchestration mode — the full surface is covered by two tools
-	// (<api>_search + <api>_execute). Endpoint-mirror tools are suppressed.
-	RegisterCodeOrchestrationTools(s)
-
-	// Context tool — front-loaded domain knowledge for agents.
-	// Call this first to understand the API taxonomy, query patterns, and capabilities.
-	s.AddTool(
-		mcplib.NewTool("context",
-			mcplib.WithDescription("Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-		),
-		handleContext,
-	)
-
-	// Runtime Cobra-tree mirror — exposes every user-facing command that is
-	// not already covered by a typed endpoint or framework MCP tool.
-	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
+	registerNarrowTools(s)
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
@@ -84,14 +68,11 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 		case "GET":
 			data, err = c.Get(path, params)
 		case "POST":
-			body, _ := json.Marshal(args)
-			data, _, err = c.Post(path, body)
+			data, _, err = c.Post(path, codeOrchWriteBody(args))
 		case "PUT":
-			body, _ := json.Marshal(args)
-			data, _, err = c.Put(path, body)
+			data, _, err = c.Put(path, codeOrchWriteBody(args))
 		case "PATCH":
-			body, _ := json.Marshal(args)
-			data, _, err = c.Patch(path, body)
+			data, _, err = c.Patch(path, codeOrchWriteBody(args))
 		case "DELETE":
 			data, _, err = c.Delete(path)
 		default:
@@ -100,25 +81,27 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 
 		if err != nil {
 			msg := err.Error()
+			var unknown *client.OutcomeUnknownError
+			if errors.As(err, &unknown) {
+				return toolJSONError("outcome_unknown", msg), nil
+			}
 			switch {
-			case strings.Contains(msg, "HTTP 409"):
-				return mcplib.NewToolResultText("already exists (no-op)"), nil
 			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
 				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
-					"\n      Set your API key: export FEDEX_API_KEY=<your-key>" +
+					"\n      Provide FEDEX_API_KEY (Client ID) and FEDEX_SECRET_KEY through your secret provider." +
 					"\n      Get a key at: https://developer.fedex.com/api/en-us/get-started.html" +
 					"\n      Run 'fedex-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
 				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your token." +
-					"\n      Set it with: export FEDEX_API_KEY=<your-key>" +
+					"\n      Provide FEDEX_API_KEY (Client ID) and FEDEX_SECRET_KEY through your secret provider." +
 					"\n      Get a key at: https://developer.fedex.com/api/en-us/get-started.html" +
 					"\n      Run 'fedex-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource." +
-					"\n      Set it with: export FEDEX_API_KEY=<your-key>" +
+					"\n      Provide FEDEX_API_KEY (Client ID) and FEDEX_SECRET_KEY through your secret provider." +
 					"\n      Get a key at: https://developer.fedex.com/api/en-us/get-started.html" +
 					"\n      Run 'fedex-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
@@ -153,9 +136,7 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 }
 
 func newMCPClient() (*client.Client, error) {
-	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "fedex-pp-cli", "config.toml")
-	cfg, err := config.Load(cfgPath)
+	cfg, err := config.Load("")
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}

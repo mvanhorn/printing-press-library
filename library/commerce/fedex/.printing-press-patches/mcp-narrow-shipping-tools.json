@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "id": "mcp-narrow-shipping-tools",
+  "applied_at": "2026-09-02",
+  "base_run_id": "20260502-152509",
+  "base_printing_press_version": "3.6.0",
+  "summary": "Replace the broad default FedEx MCP executor and Cobra mirror with eight reviewed shipping tools.",
+  "reason": "A generic endpoint selector and runtime command mirror cannot be constrained by a Hermes tool allowlist and exposed unrelated file, SQL, import/export, webhook, bulk, and tracking-daemon capabilities.",
+  "files": [
+    "internal/mcp/narrow.go",
+    "internal/mcp/narrow_read.go",
+    "internal/mcp/narrow_read_test.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_safety_test.go",
+    "internal/workflow/preflight.go",
+    "internal/workflow/preflight_test.go",
+    "internal/workflow/pickup_availability_request.go",
+    "internal/workflow/pickup_availability_request_test.go",
+    "internal/cli/pickup_preflight_test.go",
+    "internal/mcp/pickup_schedule_workflow_test.go",
+    "internal/mcp/code_orch_writebody_test.go",
+    "internal/client/base_url_test.go",
+    "internal/client/address_retry_test.go",
+    ".printing-press.json",
+    "tools-manifest.json"
+  ],
+  "validated_outcome": "Unit and MCP protocol tests assert the exact eight-tool surface, deeply matched complete runtime/manifest request schemas for all eight tools, official optional rate controls and grouped-package semantics, country-aware nonblank address minima with empty optional locality fields accepted where permitted, resolution controls, required shipment pickup/total-weight/payment/conditional-payor/label fields, shared nested pickup-availability validation of every modeled address field before HTTP, conditional YOUR_PACKAGING dimensions, FedEx's default-inch behavior for blank/null/omitted dimension units, and operation-specific read-only, destructive, idempotent, and open-world annotations; fedex_execute and broad CLI mirror tools are absent, non-FedEx remote API origins are rejected before credentials can be sent, shipment validity requires explicit alert evidence, pickup availability retains official per-option carrier/date/window evidence, and responses expose only action-specific allowlisted fields."
+}

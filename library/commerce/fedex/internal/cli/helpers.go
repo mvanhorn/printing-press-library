@@ -123,20 +123,15 @@ func dryRunOK(flags *rootFlags) bool {
 func classifyAPIError(err error) error {
 	msg := err.Error()
 	switch {
-	case strings.Contains(msg, "HTTP 409"):
-		// 409 Conflict = resource already exists. For agents retrying creates, this is success.
-		fmt.Fprintln(os.Stderr, "already exists (no-op)")
-		return nil
 	case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
 		return authErr(fmt.Errorf("%w\nhint: the API rejected the request — this usually means auth is missing or invalid."+
-			"\n      Set your API key: export FEDEX_API_KEY=<your-key>"+
-			"\n      Get a key at: https://developer.fedex.com/api/en-us/get-started.html"+
+			"\n      Supply FEDEX_API_KEY and FEDEX_SECRET_KEY through your secret provider."+
+			"\n      Get project credentials at: https://developer.fedex.com/api/en-us/get-started.html"+
 			"\n      Run 'fedex-pp-cli doctor' to check auth status."+
 			"\n      Response: "+cliutil.SanitizeErrorBody(msg), err))
 	case strings.Contains(msg, "HTTP 401"):
-		return authErr(fmt.Errorf("%w\nhint: check your token. Set it with: fedex-pp-cli auth set-token <token>"+
-			"\n      or: export FEDEX_API_KEY=<your-token>"+
-			"\n      Get a key at: https://developer.fedex.com/api/en-us/get-started.html"+
+		return authErr(fmt.Errorf("%w\nhint: check the OAuth credentials supplied through FEDEX_API_KEY and FEDEX_SECRET_KEY."+
+			"\n      Get project credentials at: https://developer.fedex.com/api/en-us/get-started.html"+
 			"\n      Run 'fedex-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 403") && strings.Contains(msg, "/track/"):
 		// As of October 2023 FedEx requires a SEPARATE project for the Track

@@ -5,10 +5,12 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/workflow"
 	"github.com/spf13/cobra"
 )
 
@@ -19,6 +21,7 @@ func newPickupsCancelCmd(flags *rootFlags) *cobra.Command {
 	var bodyCarrierCode string
 	var bodyScheduledDate string
 	var bodyLocation string
+	var legacyReason string
 	var stdinBody bool
 
 	cmd := &cobra.Command{
@@ -28,17 +31,8 @@ func newPickupsCancelCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"pp:endpoint": "pickups.cancel"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
-				if !cmd.Flags().Changed("associated-account-number") && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "associated-account-number")
-				}
 				if !cmd.Flags().Changed("pickup-confirmation-code") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "pickup-confirmation-code")
-				}
-				if !cmd.Flags().Changed("carrier-code") && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "carrier-code")
-				}
-				if !cmd.Flags().Changed("scheduled-date") && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "scheduled-date")
 				}
 			}
 			c, err := flags.newClient()
@@ -83,9 +77,22 @@ func newPickupsCancelCmd(flags *rootFlags) *cobra.Command {
 					body["location"] = bodyLocation
 				}
 			}
-			data, statusCode, err := c.Put(path, body)
+			resolved, err := workflow.ResolvePickupCancellation(cmd.Context(), body, legacyReason)
+			if errors.Is(err, workflow.ErrAlreadyCancelled) {
+				data, _ := json.Marshal(workflow.PickupReceipt{Status: "already_cancelled", ConfirmationNumber: bodyPickupConfirmationCode})
+				return printOutput(cmd.OutOrStdout(), data, true)
+			}
+			if err != nil {
+				return err
+			}
+			body = resolved.Body
+			options := protectedMutationOptions{Context: resolved.Context}
+			data, statusCode, executed, err := executeProtectedMutationWithOptions(cmd, flags, c, "cancel_pickup", "PUT", path, body, options)
 			if err != nil {
 				return classifyAPIError(err)
+			}
+			if !executed {
+				return nil
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -156,6 +163,7 @@ func newPickupsCancelCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyCarrierCode, "carrier-code", "", "")
 	cmd.Flags().StringVar(&bodyScheduledDate, "scheduled-date", "", "")
 	cmd.Flags().StringVar(&bodyLocation, "location", "", "")
+	cmd.Flags().StringVar(&legacyReason, "legacy-reason", "", "Reason for cancelling a pickup not found in the local ledger")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd
