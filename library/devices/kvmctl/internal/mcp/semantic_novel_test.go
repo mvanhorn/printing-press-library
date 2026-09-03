@@ -26,3 +26,24 @@ func TestSemanticDispatchDescribesOCRObservationLoopArguments(t *testing.T) {
 		}
 	}
 }
+
+func TestMCPWriteGateRequiresHostPolicyAndExplicitArgument(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		host bool
+		raw  any
+		want bool
+	}{
+		{"both true", true, true, true},
+		{"host policy false", false, true, false},
+		{"argument omitted", true, nil, false},
+		{"argument false", true, false, false},
+		{"argument wrong type", true, "true", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := mcpWriteEnabled(tc.host, tc.raw); got != tc.want {
+				t.Fatalf("mcpWriteEnabled(%v, %#v) = %v, want %v", tc.host, tc.raw, got, tc.want)
+			}
+		})
+	}
+}

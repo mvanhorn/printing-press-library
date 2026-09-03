@@ -29,11 +29,8 @@ func registerSemanticTool(s *server.MCPServer) {
 		if raw == nil {
 			raw = map[string]any{}
 		}
-		raw["write_enabled"] = envTruthy(os.Getenv("KVMCTL_WRITE_ENABLED"))
-		// propagate per-invocation flags from arguments envelope
-		if v, ok := args["write_enabled"].(bool); ok {
-			raw["write_enabled"] = v
-		}
+		rawRequestedWrite := raw["write_enabled"]
+		raw["write_enabled"] = mcpWriteEnabled(envTruthy(os.Getenv("KVMCTL_WRITE_ENABLED")), rawRequestedWrite)
 		out, err := semantic.Dispatch(ctx, c, stringArg(args, "operation"), raw)
 		if err != nil {
 			return mcpToolError(err.Error()), nil
@@ -43,6 +40,11 @@ func registerSemanticTool(s *server.MCPServer) {
 }
 
 func stringArg(m map[string]any, k string) string { v, _ := m[k].(string); return v }
+
+func mcpWriteEnabled(hostPolicy bool, raw any) bool {
+	explicit, ok := raw.(bool)
+	return hostPolicy && ok && explicit
+}
 
 func envTruthy(v string) bool {
 	switch strings.ToLower(strings.TrimSpace(v)) {
