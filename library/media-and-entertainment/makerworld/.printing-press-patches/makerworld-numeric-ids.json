@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "makerworld-numeric-ids",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260615-230103-a70cae73",
+  "base_printing_press_version": "4.24.0",
+  "summary": "MakerWorld design IDs are numeric; endpoint-command examples and verifier fixtures must use a real numeric ID, never a UUID.",
+  "reason": "comment-service/commentandrating runs strconv.ParseInt on designId and returns HTTP 400 for non-numeric input, so a synthesized UUID fixture fails live dogfood. designs get/ratings/related/remixes carry pp:happy-args / pp:no-error-path-probe annotations and numeric examples (2865269) for this reason.",
+  "files": ["internal/cli/designs_get.go", "internal/cli/designs_ratings.go", "internal/cli/designs_related.go", "internal/cli/designs_remixes.go", "internal/cli/designs_search.go"],
+  "validated_outcome": "Full live dogfood 75/75 after numeric fixtures applied (UUID fixture previously caused 4 failures)."
+}

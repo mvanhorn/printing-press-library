@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "makerworld-pp-mcp",
+  "display_name": "MakerWorld",
+  "version": "0.0.0",
+  "description": "Every MakerWorld model, searchable offline — plus trend deltas, designer-watch, and multi-tag discovery no scraper or the web UI offers.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/makerworld-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/makerworld-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

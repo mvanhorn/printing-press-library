@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "makerworld-root-banner-uses-canonical-product-name",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260615-230103-a70cae73",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Root --help banner and MCP server display name use canonical brand casing \"MakerWorld\" (not \"Makerworld\"); root Short/Long restored to the full headline.",
+  "reason": "The generator derived the root banner from the slug ('makerworld' -> title-cased 'Makerworld', lowercase 'w') and truncated the description with an ellipsis ('the web…'). Both diverged from the canonical product name 'MakerWorld' used in README, discover --help, and the manifest display_name/description, so the first thing a user saw misspelled the product. A reprint must seed the banner from the manifest display_name and the full description, not the slug.",
+  "files": [
+    "internal/cli/root.go",
+    "cmd/makerworld-pp-mcp/main.go"
+  ],
+  "upstream_issue": ""
+}

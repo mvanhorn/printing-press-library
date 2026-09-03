@@ -1,0 +1,324 @@
+name: makerworld
+description: "MakerWorld 3D-model catalog CLI — browse, search, and mirror Bambu Lab's model platform offline"
+version: "0.1.0"
+base_url: "https://api.bambulab.com/v1"
+http_transport: standard
+health_check_path: "/search-service/homepage/nav"
+category: media-and-entertainment
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+  - name: x-bbl-app-source
+    value: "makerworld"
+
+# Public reads need no auth on api.bambulab.com. Download + favorites require a
+# Bambu Cloud JWT (MAKERWORLD_TOKEN) and are hand-coded in the build phase.
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/makerworld-pp-cli/config.toml"
+
+resources:
+  designs:
+    description: "Browse, search, and inspect MakerWorld designs (3D models)"
+    endpoints:
+      list:
+        method: GET
+        path: "/search-service/select/design/nav"
+        description: "List designs by navigation category (Trending, For You, or a category key)"
+        params:
+          - name: navKey
+            flag_name: nav
+            type: string
+            required: false
+            default: "Trending"
+            description: "Category key: Trending, Foryou, Following, or category_100..category_2000, LaserCut"
+            enum: ["Trending", "Foryou", "Following", "category_100", "category_200", "category_300", "category_400", "category_500", "category_600", "category_700", "category_800", "category_900", "category_1000", "category_2000", "LaserCut"]
+          - name: offset
+            type: int
+            required: false
+            default: 0
+            description: "Pagination offset"
+          - name: limit
+            type: int
+            required: false
+            default: 20
+            description: "Page size"
+        response:
+          type: array
+          item: Design
+        response_path: hits
+        pagination:
+          type: offset
+      get:
+        method: GET
+        path: "/design-service/design/{design_id}"
+        description: "Get full detail for one design (instances, creator, tags, counts)"
+        params:
+          - name: design_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric design ID"
+          - name: trafficSource
+            flag_name: traffic-source
+            type: string
+            required: false
+            default: "browse"
+            description: "Analytics source hint: browse, recommend, or search"
+        response:
+          type: object
+          item: Design
+      search:
+        method: GET
+        path: "/search-service/select/design2"
+        description: "Keyword-search the live MakerWorld catalog"
+        params:
+          - name: keyword
+            type: string
+            required: true
+            positional: true
+            description: "Search keyword"
+          - name: orderBy
+            flag_name: order-by
+            type: string
+            required: false
+            default: "score"
+            description: "Sort order: score (relevance) or hotScore (trending)"
+            enum: ["score", "hotScore"]
+          - name: designType
+            flag_name: design-type
+            type: int
+            required: false
+            default: 0
+            description: "Design type filter (0 = all)"
+          - name: isFromSearchList
+            flag_name: from-search-list
+            type: bool
+            required: false
+            default: false
+            description: "Internal ranking continuity flag"
+          - name: offset
+            type: int
+            required: false
+            default: 0
+            description: "Pagination offset"
+          - name: limit
+            type: int
+            required: false
+            default: 20
+            description: "Page size"
+        response:
+          type: array
+          item: Design
+        response_path: hits
+        pagination:
+          type: offset
+      related:
+        method: GET
+        path: "/search-service/design/{design_id}/relate"
+        description: "List designs related to a given design"
+        params:
+          - name: design_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric design ID"
+          - name: offset
+            type: int
+            required: false
+            default: 0
+            description: "Pagination offset"
+          - name: limit
+            type: int
+            required: false
+            default: 20
+            description: "Page size"
+        response:
+          type: array
+          item: Design
+        response_path: hits
+        pagination:
+          type: offset
+      remixes:
+        method: GET
+        path: "/design-service/design/{design_id}/remixed"
+        description: "List designs that are remixes of a given design"
+        params:
+          - name: design_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric design ID"
+          - name: offset
+            type: int
+            required: false
+            default: 0
+            description: "Pagination offset"
+          - name: limit
+            type: int
+            required: false
+            default: 20
+            description: "Page size"
+        response:
+          type: array
+          item: Design
+        response_path: hits
+        pagination:
+          type: offset
+      ratings:
+        method: GET
+        path: "/comment-service/commentandrating"
+        description: "List comments and star ratings for a design"
+        params:
+          - name: designId
+            flag_name: design-id
+            type: string
+            required: true
+            description: "Numeric design ID"
+          - name: type
+            type: int
+            required: false
+            default: 0
+            description: "Filter type (0 = all)"
+          - name: sort
+            type: int
+            required: false
+            default: 0
+            description: "Sort mode (0 = default)"
+          - name: offset
+            type: int
+            required: false
+            default: 0
+            description: "Pagination offset"
+          - name: limit
+            type: int
+            required: false
+            default: 20
+            description: "Page size"
+        response:
+          type: array
+          item: Rating
+        response_path: hits
+        pagination:
+          type: offset
+      recommend:
+        method: GET
+        path: "/search-service/recommand/youlike"
+        description: "List recommended-for-you designs"
+        params:
+          - name: offset
+            type: int
+            required: false
+            default: 0
+            description: "Pagination offset"
+          - name: limit
+            type: int
+            required: false
+            default: 20
+            description: "Page size"
+        response:
+          type: array
+          item: Design
+        response_path: hits
+        pagination:
+          type: offset
+
+  designers:
+    description: "Look up a designer's published models"
+    endpoints:
+      models:
+        method: GET
+        path: "/search-service/select/design2"
+        description: "List a designer's published designs by their numeric user ID"
+        params:
+          - name: creator_id
+            url_name: designCreatorId
+            type: string
+            required: true
+            description: "Designer's numeric user ID (uid)"
+          - name: orderBy
+            flag_name: order-by
+            type: string
+            required: false
+            default: "newest"
+            description: "Sort order"
+          - name: offset
+            type: int
+            required: false
+            default: 0
+            description: "Pagination offset"
+          - name: limit
+            type: int
+            required: false
+            default: 20
+            description: "Page size"
+        response:
+          type: array
+          item: Design
+        response_path: hits
+        pagination:
+          type: offset
+
+  categories:
+    description: "List MakerWorld navigation categories"
+    endpoints:
+      list:
+        method: GET
+        path: "/search-service/homepage/nav"
+        description: "List navigation categories and their keys"
+        response:
+          type: array
+          item: Category
+        response_path: navs
+
+types:
+  Design:
+    fields:
+      - name: id
+        type: int
+      - name: title
+        type: string
+      - name: slug
+        type: string
+      - name: summary
+        type: string
+      - name: coverUrl
+        type: string
+      - name: cover
+        type: string
+      - name: likeCount
+        type: int
+      - name: collectionCount
+        type: int
+      - name: printCount
+        type: int
+      - name: downloadCount
+        type: int
+      - name: commentCount
+        type: int
+      - name: createTime
+        type: string
+      - name: nsfw
+        type: bool
+  Rating:
+    fields:
+      - name: id
+        type: int
+      - name: type
+        type: int
+      - name: content
+        type: string
+      - name: rating
+        type: int
+  Category:
+    fields:
+      - name: key
+        type: string
+      - name: name
+        type: string
+      - name: type
+        type: int

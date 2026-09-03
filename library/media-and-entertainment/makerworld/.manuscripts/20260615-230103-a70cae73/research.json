@@ -1,0 +1,179 @@
+{
+  "api_name": "makerworld",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "bambu-mcp",
+      "url": "https://github.com/schwarztim/bambu-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-16T04:16:51Z",
+  "novel_features": [
+    {
+      "name": "Quality-blend discovery",
+      "command": "discover",
+      "description": "Find models that are both highly rated and printable on your setup, ranked by a composite quality score from your local mirror; constrain with --printable, --no-ams, --material, or --max-weight.",
+      "rationale": "Requires joining per-instance rating data against download/print counts in local SQLite — no scraper or the MakerWorld UI exposes a combined quality filter.",
+      "example": "makerworld-pp-cli discover --sort quality --no-ams --limit 20 --agent",
+      "why_it_matters": "Reach for this when an agent needs models filtered by real quality and printer fit, not just popularity.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Designer-watch deltas",
+      "command": "designers deltas",
+      "description": "See which tracked designers posted new models or climbed in rank since your last sync.",
+      "rationale": "Set-diffs each designer's mirrored catalog between two sync snapshots; MakerWorld has no 'new since last visit'.",
+      "example": "makerworld-pp-cli designers deltas --limit 50 --agent",
+      "why_it_matters": "Use this to answer 'what changed for the creators I follow' without re-scanning every profile.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Trend movers",
+      "command": "movers",
+      "description": "Rank models by the biggest jump in likes, downloads, or prints between your two most recent syncs.",
+      "rationale": "A reproducible time-delta over local snapshots; the platform's server-ranked Trending is opaque and non-reproducible.",
+      "example": "makerworld-pp-cli movers --metric downloads --limit 25 --agent",
+      "why_it_matters": "Pick this over 'browse --nav Trending' when the question is what is rising right now, not what is popular overall.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Multi-tag discovery",
+      "command": "tags",
+      "description": "List the most common tags across your synced catalog, or find models matching ALL of several tags at once.",
+      "rationale": "A case-insensitive multi-tag intersection over the local mirror — the MakerWorld UI only filters by one tag at a time.",
+      "example": "makerworld-pp-cli tags toy fidget --limit 15 --agent",
+      "why_it_matters": "Use this to narrow to models matching a precise combination of tags, not just one.",
+      "group": "Service-specific structure"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Quality-blend discovery",
+      "command": "discover",
+      "description": "Find models that are both highly rated and printable on your setup, ranked by a composite quality score from your local mirror; constrain with --printable, --no-ams, --material, or --max-weight.",
+      "rationale": "Requires joining per-instance rating data against download/print counts in local SQLite — no scraper or the MakerWorld UI exposes a combined quality filter.",
+      "example": "makerworld-pp-cli discover --sort quality --no-ams --limit 20 --agent",
+      "why_it_matters": "Reach for this when an agent needs models filtered by real quality and printer fit, not just popularity.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Designer-watch deltas",
+      "command": "designers deltas",
+      "description": "See which tracked designers posted new models or climbed in rank since your last sync.",
+      "rationale": "Set-diffs each designer's mirrored catalog between two sync snapshots; MakerWorld has no 'new since last visit'.",
+      "example": "makerworld-pp-cli designers deltas --limit 50 --agent",
+      "why_it_matters": "Use this to answer 'what changed for the creators I follow' without re-scanning every profile.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Trend movers",
+      "command": "movers",
+      "description": "Rank models by the biggest jump in likes, downloads, or prints between your two most recent syncs.",
+      "rationale": "A reproducible time-delta over local snapshots; the platform's server-ranked Trending is opaque and non-reproducible.",
+      "example": "makerworld-pp-cli movers --metric downloads --limit 25 --agent",
+      "why_it_matters": "Pick this over 'browse --nav Trending' when the question is what is rising right now, not what is popular overall.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Multi-tag discovery",
+      "command": "tags",
+      "description": "List the most common tags across your synced catalog, or find models matching ALL of several tags at once.",
+      "rationale": "A case-insensitive multi-tag intersection over the local mirror — the MakerWorld UI only filters by one tag at a time.",
+      "example": "makerworld-pp-cli tags toy fidget --limit 15 --agent",
+      "why_it_matters": "Use this to narrow to models matching a precise combination of tags, not just one.",
+      "group": "Service-specific structure"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "MAKERWORLD_TOKEN"
+  },
+  "narrative": {
+    "display_name": "MakerWorld",
+    "headline": "Every MakerWorld model, searchable offline — plus trend deltas, designer-watch, and multi-tag discovery no scraper or the web UI offers.",
+    "value_prop": "A fast, agent-native CLI over MakerWorld's public catalog. Browse, search, and inspect 3D models from the terminal, mirror them into a local SQLite database for offline full-text search, then run queries the platform never exposes: what is newly rising (movers), which tracked designers shipped (designers deltas), and which models match a precise tag combination (tags). Reads need no account; an optional token unlocks 3MF downloads and your favorites.",
+    "auth_narrative": "Browsing, search, and model details work with no credentials against Bambu Lab's public API. To download 3MF files or read your favorites, set MAKERWORLD_TOKEN to a Bambu Cloud token (the same JWT the Bambu Handy app uses).",
+    "quickstart": [
+      {
+        "command": "makerworld-pp-cli doctor --dry-run",
+        "comment": "Health check — confirms the CLI and API host are reachable; needs no auth."
+      },
+      {
+        "command": "makerworld-pp-cli designs list --nav Trending --limit 10",
+        "comment": "See what is trending right now, straight from the public API."
+      },
+      {
+        "command": "makerworld-pp-cli designs search \"articulated dragon\" --limit 10",
+        "comment": "Keyword-search the live catalog (designs search)."
+      },
+      {
+        "command": "makerworld-pp-cli sync --resources designs --max-pages 5",
+        "comment": "Mirror a slice of the catalog into local SQLite for offline search and deltas."
+      },
+      {
+        "command": "makerworld-pp-cli discover --sort quality --limit 20",
+        "comment": "Surface high-quality models from your local mirror."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "the live keyword search returns no results for a query",
+        "fix": "Some queries are rank-gated; retry with: designs search \u003ckw\u003e --order-by hotScore, or sync then use offline FTS: search \u003ckw\u003e."
+      },
+      {
+        "symptom": "movers or designers deltas returns empty",
+        "fix": "These need at least two syncs to diff. Run 'sync' again later, then re-run."
+      },
+      {
+        "symptom": "download fails with 401/403",
+        "fix": "Set MAKERWORLD_TOKEN to a current Bambu Cloud JWT; tokens expire after ~90 days."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or script needs MakerWorld catalog data as structured JSON: discovering printable models by quality or printer fit, tracking designers and trends over time, or resolving a model to its downloadable 3MF. It shines for repeated, queryable access where the web UI's per-visit browsing and opaque ranking fall short.",
+    "anti_triggers": [
+      "Do not use this CLI to slice models or generate G-code — it fetches catalog data and 3MF files, not slicer output.",
+      "Do not use it to control or monitor a physical Bambu printer (MQTT/print jobs) — it is catalog-only.",
+      "Do not use it to publish, edit, or moderate your own designs — it is read-and-download oriented."
+    ],
+    "recipes": [
+      {
+        "title": "Inspect a model's printer requirements (deeply nested — narrow with --select)",
+        "command": "makerworld-pp-cli designs get 2865269 --agent --select title,downloadCount,instances.weight,instances.needAms,instances.materialCnt",
+        "explanation": "Pull just the fields that decide whether a model fits your printer, instead of the full multi-KB design payload."
+      },
+      {
+        "title": "Find newly-rising household models",
+        "command": "makerworld-pp-cli movers --metric downloads --limit 15 --agent",
+        "explanation": "Rank models by download growth between your two most recent syncs."
+      },
+      {
+        "title": "Track what your favorite designers shipped",
+        "command": "makerworld-pp-cli designers deltas --limit 30 --agent",
+        "explanation": "Roll up new uploads and rank rises across all synced designers."
+      },
+      {
+        "title": "Only models printable without AMS",
+        "command": "makerworld-pp-cli discover keychain --printable --no-ams --limit 20 --agent",
+        "explanation": "Constrain discovery to single-material models that print on a base machine (no AMS)."
+      }
+    ],
+    "trigger_phrases": [
+      "search makerworld for",
+      "find a 3d model of",
+      "what's trending on makerworld",
+      "models by this designer",
+      "download this makerworld model",
+      "use makerworld",
+      "run makerworld"
+    ]
+  }
+}

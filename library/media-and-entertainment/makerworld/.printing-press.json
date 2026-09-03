@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-16T05:21:50.919472Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "makerworld",
+  "display_name": "MakerWorld",
+  "cli_name": "makerworld-pp-cli",
+  "creator": {
+    "handle": "vcolombo",
+    "name": "Vincent Colombo"
+  },
+  "owner": "vcolombo",
+  "printer": "vcolombo",
+  "printer_name": "Vincent Colombo",
+  "spec_path": "makerworld-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:06f67c472d06e05bcbf1830945ffafb9e1ee1181df74b178629334cb4817e5ee",
+  "run_id": "20260615-230103-a70cae73",
+  "category": "media-and-entertainment",
+  "description": "Every MakerWorld model, searchable offline — plus trend deltas, designer-watch, and multi-tag discovery no scraper or the web UI offers.",
+  "mcp_binary": "makerworld-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_public_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Quality-blend discovery",
+      "command": "discover",
+      "description": "Find models that are both highly rated and printable on your setup, ranked by a composite quality score from your local mirror; constrain with --printable, --no-ams, --material, or --max-weight."
+    },
+    {
+      "name": "Designer-watch deltas",
+      "command": "designers deltas",
+      "description": "See which tracked designers posted new models or climbed in rank since your last sync."
+    },
+    {
+      "name": "Trend movers",
+      "command": "movers",
+      "description": "Rank models by the biggest jump in likes, downloads, or prints between your two most recent syncs."
+    },
+    {
+      "name": "Multi-tag discovery",
+      "command": "tags",
+      "description": "List the most common tags across your synced catalog, or find models matching ALL of several tags at once."
+    }
+  ]
+}

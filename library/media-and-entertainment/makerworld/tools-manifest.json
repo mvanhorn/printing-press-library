@@ -1,0 +1,284 @@
+{
+  "api_name": "makerworld",
+  "base_url": "https://api.bambulab.com/v1",
+  "description": "Every MakerWorld model, searchable offline — plus trend deltas, designer-watch, and multi-tag discovery no scraper or the web UI offers.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    },
+    {
+      "name": "x-bbl-app-source",
+      "value": "makerworld"
+    }
+  ],
+  "tools": [
+    {
+      "name": "categories_list",
+      "description": "List navigation categories and their keys. Returns array of Category.",
+      "method": "GET",
+      "path": "/search-service/homepage/nav",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "designers_models",
+      "description": "List a designer's published designs by their numeric user ID. Required: creator_id. Optional: order-by (default: newest), offset (default: 0), limit (default: 20). Returns array of Design.",
+      "method": "GET",
+      "path": "/search-service/select/design2",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "creator_id",
+          "wire_name": "designCreatorId",
+          "type": "string",
+          "location": "query",
+          "description": "Designer's numeric user ID (uid)",
+          "required": true
+        },
+        {
+          "name": "order-by",
+          "wire_name": "orderBy",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "designs_get",
+      "description": "Get full detail for one design (instances, creator, tags, counts). Required: design_id. Optional: traffic-source (default: browse). Returns the Design.",
+      "method": "GET",
+      "path": "/design-service/design/{design_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "design_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric design ID",
+          "required": true
+        },
+        {
+          "name": "traffic-source",
+          "wire_name": "trafficSource",
+          "type": "string",
+          "location": "query",
+          "description": "Analytics source hint: browse, recommend, or search"
+        }
+      ]
+    },
+    {
+      "name": "designs_list",
+      "description": "List designs by navigation category (Trending, For You, or a category key). Optional: nav (default: Trending), offset (default: 0), limit (default: 20). Returns array of Design.",
+      "method": "GET",
+      "path": "/search-service/select/design/nav",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "nav",
+          "wire_name": "navKey",
+          "type": "string",
+          "location": "query",
+          "description": "Category key: Trending, Foryou, Following, or category_100..category_2000, LaserCut"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "designs_ratings",
+      "description": "List comments and star ratings for a design. Required: design-id. Optional: type (default: 0), sort (default: 0), offset (default: 0) (plus 1 more). Returns array of Rating.",
+      "method": "GET",
+      "path": "/comment-service/commentandrating",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "design-id",
+          "wire_name": "designId",
+          "type": "string",
+          "location": "query",
+          "description": "Numeric design ID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "int",
+          "location": "query",
+          "description": "Filter type (0 = all)"
+        },
+        {
+          "name": "sort",
+          "type": "int",
+          "location": "query",
+          "description": "Sort mode (0 = default)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "designs_recommend",
+      "description": "List recommended-for-you designs. Optional: offset (default: 0), limit (default: 20). Returns array of Design.",
+      "method": "GET",
+      "path": "/search-service/recommand/youlike",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "designs_related",
+      "description": "List designs related to a given design. Required: design_id. Optional: offset (default: 0), limit (default: 20). Returns array of Design.",
+      "method": "GET",
+      "path": "/search-service/design/{design_id}/relate",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "design_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric design ID",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "designs_remixes",
+      "description": "List designs that are remixes of a given design. Required: design_id. Optional: offset (default: 0), limit (default: 20). Returns array of Design.",
+      "method": "GET",
+      "path": "/design-service/design/{design_id}/remixed",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "design_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric design ID",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "designs_search",
+      "description": "Keyword-search the live MakerWorld catalog. Required: keyword. Optional: order-by (default: score), design-type (default: 0), from-search-list (default: false) (plus 2 more). Returns array of Design.",
+      "method": "GET",
+      "path": "/search-service/select/design2",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "path",
+          "description": "Search keyword",
+          "required": true
+        },
+        {
+          "name": "order-by",
+          "wire_name": "orderBy",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order: score (relevance) or hotScore (trending)"
+        },
+        {
+          "name": "design-type",
+          "wire_name": "designType",
+          "type": "int",
+          "location": "query",
+          "description": "Design type filter (0 = all)"
+        },
+        {
+          "name": "from-search-list",
+          "wire_name": "isFromSearchList",
+          "type": "bool",
+          "location": "query",
+          "description": "Internal ranking continuity flag"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    }
+  ]
+}
