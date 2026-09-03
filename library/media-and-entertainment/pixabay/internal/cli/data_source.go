@@ -243,8 +243,10 @@ var listEnvelopeMetadataKeys = map[string]bool{
 	// list wrappers themselves — must stay in sync with pageItemKeys
 	"results": true, "data": true, "items": true,
 	"records": true, "nodes": true, "entries": true, "features": true,
+	"hits": true,
 	"Results": true, "Data": true, "Items": true,
 	"Records": true, "Nodes": true, "Entries": true, "Features": true,
+	"Hits": true,
 	// pagination cursors / tokens
 	"next_cursor": true, "nextCursor": true,
 	"next_page_token": true, "nextPageToken": true,
@@ -269,8 +271,8 @@ var listEnvelopeMetadataKeys = map[string]bool{
 }
 
 var writeThroughListWrapperKeys = []string{
-	"data", "results", "items", "records", "nodes", "entries", "features",
-	"Data", "Results", "Items", "Records", "Nodes", "Entries", "Features",
+	"data", "results", "items", "records", "nodes", "entries", "features", "hits",
+	"Data", "Results", "Items", "Records", "Nodes", "Entries", "Features", "Hits",
 }
 var writeThroughNestedEnvelopeKeys = []string{"data", "Data", "result", "Result"}
 
