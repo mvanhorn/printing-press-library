@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "20260902-ocr-observation-boundary",
+  "applied_at": "2026-09-02",
+  "base_run_id": "20260831-161927",
+  "base_printing_press_version": "4.31.3",
+  "files": [
+    "internal/ocr/engine.go",
+    "internal/ocr/observation.go"
+  ],
+  "summary": "Preserve an opt-in argv-only OCR engine with strict evidence parsing and a short-lived bounded in-memory observation store.",
+  "reason": "OCR observations must be grounded in configured executable output and expire before they can authorize stale screen actions.",
+  "validated_outcome": "Focused OCR tests and race test exercise real local Tesseract TSV input, strict JSON rejection, deterministic evidence hashes, expiration, eviction, and defensive copying."
+}
