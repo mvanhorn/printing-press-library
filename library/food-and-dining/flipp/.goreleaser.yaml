@@ -1,0 +1,51 @@
+version: 2
+project_name: flipp-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: flipp-pp-cli
+    main: ./cmd/flipp-pp-cli
+    binary: flipp-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/food-and-dining/flipp/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: flipp-pp-mcp
+    main: ./cmd/flipp-pp-mcp
+    binary: flipp-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: flipp-pp-cli
+    repository:
+      owner: 
+      name: homebrew-tap
+    homepage: "https://github.com//flipp-pp-cli"
+    description: "Find local Flipp flyer deals, coupons, and grocery savings by ZIP or postal code."
+    install: |
+      bin.install "flipp-pp-cli"
+      bin.install "flipp-pp-mcp"

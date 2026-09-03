@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-27T20:06:23.967138Z",
+  "printing_press_version": "4.27.0",
+  "api_name": "flipp",
+  "display_name": "Flipp",
+  "cli_name": "flipp-pp-cli",
+  "creator": {
+    "name": "mlabrenz",
+    "handle": "mlabrenz"
+  },
+  "printer": "mlabrenz",
+  "printer_name": "mlabrenz",
+  "spec_path": "flipp-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:0e572423582035a231273c6408b11dff6596ea011dbcbd719822e9b5d7a44d66",
+  "run_id": "20260627-124259-5ec5d802",
+  "category": "food-and-dining",
+  "description": "Find local Flipp flyer deals, coupons, and grocery savings by ZIP or postal code.",
+  "mcp_binary": "flipp-pp-mcp",
+  "mcp_tool_count": 6,
+  "mcp_public_tool_count": 6,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Basket price comparison",
+      "command": "basket price",
+      "description": "Compare a grocery list across nearby merchants and see the cheapest practical basket."
+    },
+    {
+      "name": "Deal scan by category pack",
+      "command": "deals scan",
+      "description": "Scan curated staple categories and rank local deals by discount, urgency, and merchant."
+    },
+    {
+      "name": "Expiring-soon savings",
+      "command": "expiring",
+      "description": "Find local flyer and coupon savings that expire within a chosen window."
+    },
+    {
+      "name": "Merchant coverage map",
+      "command": "coverage",
+      "description": "Show which nearby merchants have active food flyers, searchable items, and coupon coverage."
+    },
+    {
+      "name": "Unit-price normalized search",
+      "command": "unit-price",
+      "description": "Normalize item prices by package size when Flipp listings include parseable quantities."
+    },
+    {
+      "name": "Shopping-list watch snapshot",
+      "command": "watchlist add",
+      "description": "Persist target prices for recurring staples and compare them against future synced snapshots."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Basket price comparison",
+      "command": "basket price",
+      "description": "Compare a grocery list across nearby merchants and see the cheapest practical basket."
+    },
+    {
+      "name": "Deal scan by category pack",
+      "command": "deals scan",
+      "description": "Scan curated staple categories and rank local deals by discount, urgency, and merchant."
+    },
+    {
+      "name": "Expiring-soon savings",
+      "command": "expiring",
+      "description": "Find local flyer and coupon savings that expire within a chosen window."
+    },
+    {
+      "name": "Merchant coverage map",
+      "command": "coverage",
+      "description": "Show which nearby merchants have active food flyers, searchable items, and coupon coverage."
+    },
+    {
+      "name": "Unit-price normalized search",
+      "command": "unit-price",
+      "description": "Normalize item prices by package size when Flipp listings include parseable quantities."
+    },
+    {
+      "name": "Shopping-list watch snapshot",
+      "command": "watchlist add",
+      "description": "Persist target prices for recurring staples and compare them against future synced snapshots."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 24,
+    "total": 24,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 86,
+      "grade": "A",
+      "total": 86
+    }
+  }
+}

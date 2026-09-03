@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "flipp-polish-quality",
+  "applied_at": "2026-06-27",
+  "base_run_id": "20260627-124259-5ec5d802",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Preserve post-generation polish for publish metadata, watchlist storage integrity, expiring-deal filtering, and grocery relevance ranking.",
+  "reason": "Standalone polish fixed publish manifest fields, removed hand-authored gosec findings, corrected common milk query ranking, and addressed review findings in novel grocery helper commands before publication, including corrupt watchlist handling.",
+  "files": [
+    ".printing-press.json",
+    "internal/cli/basket_price.go",
+    "internal/cli/expiring.go",
+    "internal/cli/expiring_test.go",
+    "internal/cli/watchlist_add.go",
+    "internal/cli/watchlist_add_test.go",
+    "internal/cli/flipp_novel_helpers.go",
+    "internal/cli/unit_price.go",
+    "internal/cli/unit_price_test.go"
+  ],
+  "validated_outcome": "publish validate passed, final shipcheck passed 7/7, live matrix passed 6/6, gosec hand-authored findings dropped to zero, and review-targeted tests cover expiry filtering, watchlist dedupe, and malformed watchlist rejection."
+}

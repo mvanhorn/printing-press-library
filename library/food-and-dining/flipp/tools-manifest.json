@@ -1,0 +1,175 @@
+{
+  "api_name": "flipp",
+  "base_url": "https://backflipp.wishabi.com/flipp",
+  "description": "Find local Flipp flyer deals, coupons, and grocery savings by ZIP or postal code.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "flipp-pp-cli/0.1 (+https://github.com/mvanhorn/printing-press-library)"
+    }
+  ],
+  "tools": [
+    {
+      "name": "flyers_data",
+      "description": "Fetch the combined local flyer and coupon data payload. Optional: zip (default: 85001), locale (default: en-us). Returns the FlyerDataResponse.",
+      "method": "GET",
+      "path": "/data",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "zip",
+          "wire_name": "postal_code",
+          "type": "string",
+          "location": "query",
+          "description": "ZIP or postal code used to find local flyer and coupon data",
+          "aliases": [
+            "postal",
+            "postal-code"
+          ]
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "Flipp locale for the combined data payload"
+        }
+      ]
+    },
+    {
+      "name": "flyers_items",
+      "description": "List item clippings from a specific flyer. Required: flyer_id. Optional: sid (default: 1234567890123456), locale (default: en). Returns array of FlyerItem.",
+      "method": "GET",
+      "path": "/flyers/{flyer_id}/flyer_items",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "flyer_id",
+          "type": "int",
+          "location": "path",
+          "description": "Flipp flyer ID",
+          "required": true
+        },
+        {
+          "name": "sid",
+          "type": "string",
+          "location": "query",
+          "description": "16-digit Flipp session identifier accepted by flyer item endpoints"
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "Flyer item locale"
+        }
+      ]
+    },
+    {
+      "name": "flyers_list",
+      "description": "List active flyers for a ZIP or postal code. Optional: zip (default: 85001), locale (default: en-us). Returns the FlyersResponse.",
+      "method": "GET",
+      "path": "/flyers",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "zip",
+          "wire_name": "postal_code",
+          "type": "string",
+          "location": "query",
+          "description": "ZIP or postal code used to find local flyers",
+          "aliases": [
+            "postal",
+            "postal-code"
+          ]
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "Flipp locale for flyers"
+        }
+      ]
+    },
+    {
+      "name": "items_search",
+      "description": "Search local flyer and ecommerce deals by keyword. Required: q. Optional: zip (default: 85001), locale (default: en-us), sort. Returns the SearchResponse.",
+      "method": "GET",
+      "path": "/items/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "path",
+          "description": "Item keyword to search for, such as milk, eggs, or coffee",
+          "required": true
+        },
+        {
+          "name": "zip",
+          "wire_name": "postal_code",
+          "type": "string",
+          "location": "query",
+          "description": "ZIP or postal code used to find local Flipp results",
+          "aliases": [
+            "postal",
+            "postal-code"
+          ]
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "Flipp locale for the search"
+        },
+        {
+          "name": "sort",
+          "wire_name": "sort_type",
+          "type": "string",
+          "location": "query",
+          "description": "Upstream Flipp sort mode",
+          "aliases": [
+            "sort-type"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "location_by_ip",
+      "description": "Detect the current public IP location as a Flipp postal code. Returns the LocationInfo.",
+      "method": "GET",
+      "path": "/location_info/by_ip",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "merchants_list",
+      "description": "List Flipp merchants available for a ZIP or postal code. Optional: zip (default: 85001), locale (default: en-us). Returns the MerchantsResponse.",
+      "method": "GET",
+      "path": "/merchants",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "zip",
+          "wire_name": "postal_code",
+          "type": "string",
+          "location": "query",
+          "description": "ZIP or postal code used to find relevant merchants",
+          "aliases": [
+            "postal",
+            "postal-code"
+          ]
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "Flipp locale for merchants"
+        }
+      ]
+    }
+  ]
+}

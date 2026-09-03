@@ -1,0 +1,260 @@
+name: flipp
+description: "Local Flipp flyers, grocery deals, coupons, and ZIP-code savings"
+cli_description: "Find local Flipp flyer deals, coupons, and grocery savings by ZIP or postal code."
+version: "0.1.0"
+category: food-and-dining
+base_url: "https://backflipp.wishabi.com/flipp"
+health_check_path: "/location_info/by_ip"
+required_headers:
+  - name: User-Agent
+    value: "flipp-pp-cli/0.1 (+https://github.com/mvanhorn/printing-press-library)"
+auth:
+  type: none
+config:
+  format: toml
+  path: "~/.config/flipp-pp-cli/config.toml"
+cache:
+  enabled: true
+  stale_after: 6h
+resources:
+  items:
+    description: "Search Flipp flyer and ecommerce deal items"
+    endpoints:
+      search:
+        method: GET
+        path: "/items/search"
+        description: "Search local flyer and ecommerce deals by keyword"
+        example: "  flipp-pp-cli items milk --zip 85001 --sort price_low_to_high --json"
+        happy_args: "q=milk;--zip=85001"
+        params:
+          - name: q
+            type: string
+            required: true
+            positional: true
+            description: "Item keyword to search for, such as milk, eggs, or coffee"
+          - name: postal_code
+            flag_name: zip
+            aliases: [postal, postal-code]
+            type: string
+            default: "85001"
+            description: "ZIP or postal code used to find local Flipp results"
+          - name: locale
+            type: string
+            default: "en-us"
+            enum: ["en-us", "en-ca", "fr-ca"]
+            description: "Flipp locale for the search"
+          - name: sort_type
+            flag_name: sort
+            aliases: [sort-type]
+            type: string
+            enum: ["relevancy", "price_low_to_high", "price_high_to_low"]
+            description: "Upstream Flipp sort mode"
+        response:
+          type: object
+          item: SearchResponse
+  flyers:
+    description: "Browse active local flyers and flyer items"
+    endpoints:
+      list:
+        method: GET
+        path: "/flyers"
+        description: "List active flyers for a ZIP or postal code"
+        example: "  flipp-pp-cli flyers list --zip 85001 --json --select flyers.id,flyers.merchant,flyers.valid_to"
+        happy_args: "--zip=85001"
+        params:
+          - name: postal_code
+            flag_name: zip
+            aliases: [postal, postal-code]
+            type: string
+            default: "85001"
+            description: "ZIP or postal code used to find local flyers"
+          - name: locale
+            type: string
+            default: "en-us"
+            enum: ["en-us", "en-ca", "fr-ca"]
+            description: "Flipp locale for flyers"
+        response:
+          type: object
+          item: FlyersResponse
+      data:
+        method: GET
+        path: "/data"
+        description: "Fetch the combined local flyer and coupon data payload"
+        example: "  flipp-pp-cli flyers data --zip 85001 --json --select flyers.id,flyers.merchant,coupons.id"
+        happy_args: "--zip=85001"
+        params:
+          - name: postal_code
+            flag_name: zip
+            aliases: [postal, postal-code]
+            type: string
+            default: "85001"
+            description: "ZIP or postal code used to find local flyer and coupon data"
+          - name: locale
+            type: string
+            default: "en-us"
+            enum: ["en-us", "en-ca", "fr-ca"]
+            description: "Flipp locale for the combined data payload"
+        response:
+          type: object
+          item: FlyerDataResponse
+      items:
+        method: GET
+        base_url: "https://flyers-ng.flippback.com/api/flipp"
+        path: "/flyers/{flyer_id}/flyer_items"
+        description: "List item clippings from a specific flyer"
+        example: "  flipp-pp-cli flyers items 8005907 --sid 1234567890123456 --json"
+        happy_args: "flyer_id=8005907;--sid=1234567890123456"
+        params:
+          - name: flyer_id
+            type: int
+            required: true
+            positional: true
+            description: "Flipp flyer ID"
+          - name: sid
+            type: string
+            default: "1234567890123456"
+            description: "16-digit Flipp session identifier accepted by flyer item endpoints"
+          - name: locale
+            type: string
+            default: "en"
+            enum: ["en", "fr"]
+            description: "Flyer item locale"
+        response:
+          type: array
+          item: FlyerItem
+  merchants:
+    description: "List merchants Flipp tracks"
+    endpoints:
+      list:
+        method: GET
+        path: "/merchants"
+        description: "List Flipp merchants available for a ZIP or postal code"
+        example: "  flipp-pp-cli merchants list --zip 85001 --json --select merchants.id,merchants.name"
+        happy_args: "--zip=85001"
+        params:
+          - name: postal_code
+            flag_name: zip
+            aliases: [postal, postal-code]
+            type: string
+            default: "85001"
+            description: "ZIP or postal code used to find relevant merchants"
+          - name: locale
+            type: string
+            default: "en-us"
+            enum: ["en-us", "en-ca", "fr-ca"]
+            description: "Flipp locale for merchants"
+        response:
+          type: object
+          item: MerchantsResponse
+  location:
+    description: "Resolve a default Flipp location"
+    base_url: "https://flyers-ng.flippback.com/api/flipp"
+    endpoints:
+      by_ip:
+        method: GET
+        path: "/location_info/by_ip"
+        description: "Detect the current public IP location as a Flipp postal code"
+        example: "  flipp-pp-cli location by-ip --json"
+        response:
+          type: object
+          item: LocationInfo
+types:
+  SearchResponse:
+    fields:
+      - name: items
+        type: array
+        description: "Flyer item matches"
+      - name: ecom_items
+        type: array
+        description: "Ecommerce item matches"
+      - name: coupons
+        type: array
+        description: "Coupon matches"
+      - name: coupons_v2
+        type: array
+        description: "Newer coupon matches"
+      - name: ads
+        type: array
+        description: "Ad matches"
+  FlyersResponse:
+    fields:
+      - name: refreshed_at
+        type: string
+        description: "Flipp refresh timestamp"
+      - name: category_sort_csv
+        type: string
+        description: "Category display order"
+      - name: flyers
+        type: array
+        description: "Active local flyers"
+  FlyerDataResponse:
+    fields:
+      - name: refreshed_at
+        type: string
+        description: "Flipp refresh timestamp"
+      - name: category_sort_csv
+        type: string
+        description: "Flyer category display order"
+      - name: coupon_category_sort_csv
+        type: string
+        description: "Coupon category display order"
+      - name: flyers
+        type: array
+        description: "Active local flyers"
+      - name: coupons
+        type: array
+        description: "Local coupons"
+      - name: loyalty_program_coupons
+        type: array
+        description: "Local loyalty coupons"
+      - name: flyer_item_coupons
+        type: array
+        description: "Coupons attached to flyer items"
+  MerchantsResponse:
+    fields:
+      - name: merchants
+        type: array
+        description: "Merchants available through Flipp"
+  LocationInfo:
+    fields:
+      - name: postal_code
+        type: string
+        description: "Detected ZIP or postal code"
+      - name: city_name
+        type: string
+        description: "Detected city"
+      - name: region_name
+        type: string
+        description: "Detected state, province, or region"
+      - name: country_code
+        type: string
+        description: "Detected country code"
+      - name: ip
+        type: string
+        description: "Detected public IP address"
+  FlyerItem:
+    fields:
+      - name: id
+        type: int
+        description: "Flyer item ID"
+      - name: flyer_id
+        type: int
+        description: "Parent flyer ID"
+      - name: name
+        type: string
+        description: "Flyer item name"
+      - name: brand
+        type: string
+        description: "Brand when Flipp provides it"
+      - name: price
+        type: string
+        description: "Displayed flyer price"
+      - name: valid_from
+        type: string
+        description: "Deal start time"
+      - name: valid_to
+        type: string
+        description: "Deal end time"
+      - name: cutout_image_url
+        type: string
+        description: "Flyer clipping image URL"

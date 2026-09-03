@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "flipp-pp-mcp",
+  "display_name": "Flipp",
+  "version": "0.1.0",
+  "description": "Find local Flipp flyer deals, coupons, and grocery savings by ZIP or postal code.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/flipp-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/flipp-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
