@@ -1586,6 +1586,19 @@ func (s *Store) SaveSyncState(resourceType, cursor string, count int) error {
 	return err
 }
 
+// ResetSyncCursor clears a resume cursor without claiming a successful sync.
+// --full / --latest-only must forget the previous checkpoint, but stamping
+// last_synced_at here would mark stale rows fresh if the following fetch fails.
+func (s *Store) ResetSyncCursor(resourceType string) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	_, err := s.db.Exec(
+		`UPDATE sync_state SET last_cursor = '' WHERE resource_type = ?`,
+		resourceType,
+	)
+	return err
+}
+
 func (s *Store) GetSyncState(resourceType string) (cursor string, lastSynced time.Time, count int, err error) {
 	err = s.db.QueryRow(
 		`SELECT last_cursor, last_synced_at, total_count FROM sync_state WHERE resource_type = ?`,

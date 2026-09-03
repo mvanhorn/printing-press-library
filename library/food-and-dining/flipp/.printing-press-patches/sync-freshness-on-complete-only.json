@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "sync-freshness-on-complete-only",
+  "applied_at": "2026-09-03",
+  "base_run_id": "20260627-124259-5ec5d802",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Do not advance last_synced_at unless a resource sync stored rows or finished a complete enumeration.",
+  "reason": "SaveSyncState always stamps last_synced_at. Using it to clear --full/--latest-only cursors, or after an HTTP 200 non-JSON body that stored nothing, made stale local rows look fresh and suppressed fallback hints.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/sync_freshness_test.go",
+    "internal/store/store.go",
+    ".goreleaser.yaml"
+  ],
+  "validated_outcome": "Tests cover ResetSyncCursor plus fetch failure preserving the prior timestamp, non-JSON 200 leaving last_synced_at unchanged, and a completed JSON page advancing it."
+}

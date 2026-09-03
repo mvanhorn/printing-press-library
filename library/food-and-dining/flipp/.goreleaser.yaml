@@ -39,13 +39,3 @@ archives:
         formats: [zip]
 checksum:
   name_template: checksums.txt
-brews:
-  - name: flipp-pp-cli
-    repository:
-      owner: 
-      name: homebrew-tap
-    homepage: "https://github.com//flipp-pp-cli"
-    description: "Find local Flipp flyer deals, coupons, and grocery savings by ZIP or postal code."
-    install: |
-      bin.install "flipp-pp-cli"
-      bin.install "flipp-pp-mcp"

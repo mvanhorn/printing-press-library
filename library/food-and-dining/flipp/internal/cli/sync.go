@@ -155,11 +155,13 @@ Resource scoping:
 				return usageErr(err)
 			}
 
-			// --full: clear all sync cursors before starting.
+			// --full: clear resume cursors before starting, but do not
+			// stamp last_synced_at. SaveSyncState would advertise stale
+			// local rows as fresh if a selected resource then fails to fetch.
 			// Skip under --dry-run: a preview must not mutate sync-state (issue #2935).
 			if full && !c.DryRun {
 				for _, resource := range resources {
-					_ = db.SaveSyncState(resource, "", 0)
+					_ = db.ResetSyncCursor(resource)
 				}
 			}
 
@@ -184,7 +186,7 @@ Resource scoping:
 						for _, resource := range resources {
 							existing, _, _, _ := db.GetSyncState(resource)
 							if existing != "" {
-								_ = db.SaveSyncState(resource, "", 0)
+								_ = db.ResetSyncCursor(resource)
 							}
 						}
 					}
@@ -416,11 +418,11 @@ func syncResource(ctx context.Context, c interface {
 
 	// Resume cursor from sync_state (unless --full cleared it)
 	existingCursor, lastSynced, _, _ := db.GetSyncState(resource)
-	if !full {
-		if storedCount, err := db.Count(resource); err == nil && storedCount == 0 {
-			existingCursor = ""
-			lastSynced = time.Time{}
-		}
+	if full {
+		existingCursor = ""
+	} else if storedCount, err := db.Count(resource); err == nil && storedCount == 0 {
+		existingCursor = ""
+		lastSynced = time.Time{}
 	}
 
 	// Determine the since param value:
@@ -783,13 +785,18 @@ func syncResource(ctx context.Context, c interface {
 		}
 	}
 
-	// Final sync state: clear cursor on natural completion, but preserve the
-	// resume cursor when an operator intentionally capped the page budget.
-	finalCursor := ""
-	if capExitHit {
-		finalCursor = capExitCursor
+	// Stamp last_synced_at only when this resource actually stored rows or
+	// finished a complete enumeration. Incomplete paths (HTTP 200 non-JSON,
+	// stuck cursor, missing cursor, first-page fetch failure after --full
+	// cursor reset) must leave the previous successful-sync timestamp in
+	// place so local/automatic fallback still treats the cache as stale.
+	if shouldStampSuccessfulSync(outcome.complete, totalCount) {
+		finalCursor := ""
+		if capExitHit {
+			finalCursor = capExitCursor
+		}
+		_ = db.SaveSyncState(resource, finalCursor, totalCount)
 	}
-	_ = db.SaveSyncState(resource, finalCursor, totalCount)
 
 	// F4b symptom probe: if items were consumed and successfully
 	// extracted (extractFailures < consumed) but nothing landed in
@@ -1665,6 +1672,13 @@ type partitionOutcome struct {
 	complete bool
 	reason   string
 	scopeVal string
+}
+
+// shouldStampSuccessfulSync reports whether last_synced_at should advance.
+// Incomplete enumerations that stored no rows must not advertise stale
+// local data as fresh.
+func shouldStampSuccessfulSync(complete bool, stored int) bool {
+	return complete || stored > 0
 }
 
 // flatReconcileModes maps a flat resource to its reconcile mode classification
