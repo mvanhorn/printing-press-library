@@ -20,7 +20,7 @@ import (
 )
 
 var Operations = []string{
-	"capabilities", "snapshot", "ocr", "verify",
+	"capabilities", "snapshot", "ocr", "verify", "observe", "click-text", "press-key", "verify-text",
 	"host.identity.inspect", "host.graphics.inspect", "service.render_access.inspect",
 	"host.reboot", "select", "hid_reset", "rearm_otg",
 	"kvm_send_text", "kvm_send_keys", "kvm_hold_key", "kvm_release_all",
@@ -38,6 +38,8 @@ var writeRequired = map[string]bool{
 	"kvm_send_text": true, "kvm_send_keys": true, "kvm_hold_key": true, "kvm_release_all": true,
 	"kvm_mouse_move": true, "kvm_mouse_move_pct": true, "kvm_mouse_click": true, "kvm_mouse_scroll": true,
 	"kvm_ocr_click":          true,
+	"click-text":             true,
+	"press-key":              true,
 	"exec_command":           true,
 	"kvm_sequence_authorize": true, "kvm_sequence_execute": true,
 	"kvm_workflow_authorize": true, "kvm_workflow_execute": true,
@@ -47,6 +49,7 @@ var writeRequired = map[string]bool{
 
 var readOnlyOps = map[string]bool{
 	"capabilities": true, "snapshot": true, "ocr": true, "verify": true,
+	"observe": true, "verify-text": true,
 	"host.identity.inspect": true, "host.graphics.inspect": true, "service.render_access.inspect": true,
 	"kvm_status": true, "kvm_screenshot_to_file": true, "kvm_ocr_screenshot": true,
 	"kvm_sequence_plan": true, "kvm_workflow_list": true, "kvm_workflow_inspect": true,
@@ -79,6 +82,14 @@ func Dispatch(ctx context.Context, c *client.Client, name string, args map[strin
 		out, err = opOCR(ctx, c, args)
 	case "verify":
 		out, err = opVerify(ctx, c, args)
+	case "observe":
+		out, err = opObserve(ctx, c)
+	case "click-text":
+		out, err = opClickText(ctx, c, args)
+	case "press-key":
+		out, err = opPressKey(ctx, c, args)
+	case "verify-text":
+		out, err = opVerifyText(ctx, c, args)
 	case "host.identity.inspect", "host.graphics.inspect", "service.render_access.inspect":
 		out, err = opHostProbe(name)
 	case "host.reboot":
