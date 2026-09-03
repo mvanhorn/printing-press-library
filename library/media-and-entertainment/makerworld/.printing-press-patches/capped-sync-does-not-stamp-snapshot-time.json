@@ -4,8 +4,8 @@
   "applied_at": "2026-09-03",
   "base_run_id": "20260615-230103-a70cae73",
   "base_printing_press_version": "4.24.0",
-  "summary": "Incomplete enumerations (--max-pages cap, sticky next-cursor abort, per-page resume checkpoints) must not advance last_synced_at; only a completed page loop (cleared cursor) is a snapshot observation.",
+  "summary": "Incomplete enumerations (--max-pages cap, sticky next-cursor abort, unprovable next page, per-page resume checkpoints) must not advance last_synced_at; only a completed page loop (cleared cursor) is a snapshot observation.",
   "reason": "movers and designers-deltas key design_snapshots on GetLastSyncedAt. Stamping last_synced_at when pagination is still incomplete — a preserved --max-pages cursor or a repeated next cursor — makes later retries look like new upstream activity (designers deltas NewDesigns) even when MakerWorld data has not changed. --latest-only still stamps because it clears the cursor and treats the head page as a complete observation.",
   "files": ["internal/cli/sync.go", "internal/store/store.go"],
-  "validated_outcome": "SaveSyncCheckpoint preserves last_synced_at after SaveSyncState; a first insert is scanable by GetSyncState with a zero watermark that GetLastSyncedAt treats as empty. CLI tests: capped designs sync and sticky-cursor abort keep a prior last_synced_at; completing remaining pages then stamps it."
+  "validated_outcome": "Incomplete exits (--max-pages, sticky cursor, unprovable next page) use SaveSyncCheckpoint. CLI tests: capped designs sync and sticky-cursor abort keep a prior last_synced_at and a resume cursor; completing remaining pages then stamps it."
 }

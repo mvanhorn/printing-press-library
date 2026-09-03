@@ -448,8 +448,8 @@ func syncResource(ctx context.Context, c interface {
 	var progressCount int64
 	pagesFetched := 0
 	lastNextCursor := ""
-	capExitHit := false
-	capExitCursor := ""
+	incompleteExit := false
+	incompleteCursor := ""
 	// extractFailureTotal accumulates per-item primary-key extraction
 	// misses across pages within this resource sync. Resource-level
 	// concurrency is 1 (one goroutine per resource via the work channel)
@@ -636,19 +636,19 @@ func syncResource(ctx context.Context, c interface {
 			truncatedByCap := resourceSupportsPagination(resource) && hasMore
 			truncatedByCap = truncatedByCap && len(items) >= pageSize.limit
 			if truncatedByCap {
-				capExitCursor = nextCursor
+				incompleteCursor = nextCursor
 			}
-			if truncatedByCap && capExitCursor == "" {
+			if truncatedByCap && incompleteCursor == "" {
 				if pageSize.cursorType == "offset" {
 					currentOffset, _ := strconv.Atoi(cursor)
-					capExitCursor = strconv.Itoa(currentOffset + pageSize.limit)
+					incompleteCursor = strconv.Itoa(currentOffset + pageSize.limit)
 				} else {
 					truncatedByCap = false
 				}
 			}
-			if truncatedByCap && capExitCursor != cursor {
+			if truncatedByCap && incompleteCursor != cursor {
 				if !latestOnly {
-					capExitHit = true
+					incompleteExit = true
 					if humanFriendly {
 						fmt.Fprintf(os.Stderr, "\n  %s: reached --max-pages limit (%d pages, %d items)\n", resource, maxPages, totalCount)
 					} else {
@@ -666,11 +666,8 @@ func syncResource(ctx context.Context, c interface {
 		// check below because the natural-end check would not catch a sticky
 		// non-empty cursor on its own.
 		if nextCursor != "" && nextCursor == lastNextCursor {
-			// Same incomplete-enumeration contract as --max-pages: keep the
-			// resume cursor and do not stamp last_synced_at. SaveSyncState
-			// would clear the cursor and snapshot the partial mirror.
-			capExitHit = true
-			capExitCursor = nextCursor
+			incompleteExit = true
+			incompleteCursor = nextCursor
 			if humanFriendly {
 				fmt.Fprintf(os.Stderr, "\n  %s: API returned the same next cursor across two pages; aborting to prevent budget waste.\n", resource)
 			} else {
@@ -696,6 +693,8 @@ func syncResource(ctx context.Context, c interface {
 			} else {
 				// A cursor-based API reporting has_more without a next cursor
 				// cannot advance safely; stop instead of looping silently.
+				incompleteExit = true
+				incompleteCursor = cursor
 				break
 			}
 		}
@@ -710,12 +709,13 @@ func syncResource(ctx context.Context, c interface {
 		cursor = nextCursor
 	}
 
-	// Natural completion clears the cursor and stamps last_synced_at.
-	// Incomplete exits (--max-pages cap or a sticky next cursor) preserve
-	// the resume cursor without advancing last_synced_at, so movers /
-	// designers-deltas do not snapshot a partial mirror as complete.
-	if capExitHit {
-		_ = db.SaveSyncCheckpoint(resource, capExitCursor, totalCount)
+	// Natural completion (and --latest-only) clears the cursor and stamps
+	// last_synced_at. Incomplete exits — --max-pages cap, sticky next cursor,
+	// or an unprovable next page — preserve the resume cursor without
+	// advancing last_synced_at, so movers / designers-deltas do not snapshot
+	// a partial mirror as complete.
+	if incompleteExit {
+		_ = db.SaveSyncCheckpoint(resource, incompleteCursor, totalCount)
 	} else {
 		_ = db.SaveSyncState(resource, "", totalCount)
 	}
