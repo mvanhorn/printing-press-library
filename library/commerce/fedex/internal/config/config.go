@@ -4,27 +4,30 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/secureio"
 	"github.com/pelletier/go-toml/v2"
 )
 
 type Config struct {
-	BaseURL        string    `toml:"base_url"`
-	AuthHeaderVal  string    `toml:"auth_header"`
-	AuthSource     string    `toml:"-"`
-	AccessToken    string    `toml:"access_token"`
-	RefreshToken   string    `toml:"refresh_token"`
-	TokenExpiry    time.Time `toml:"token_expiry"`
-	ClientID       string    `toml:"client_id"`
-	ClientSecret   string    `toml:"client_secret"`
-	Path           string    `toml:"-"`
-	FedexApiKey    string    `toml:"api_key"`
-	FedexSecretKey string    `toml:"secret_key"`
+	BaseURL          string    `toml:"base_url"`
+	AuthHeaderVal    string    `toml:"auth_header"`
+	AuthSource       string    `toml:"-"`
+	AccessToken      string    `toml:"access_token"`
+	RefreshToken     string    `toml:"refresh_token"`
+	TokenExpiry      time.Time `toml:"token_expiry"`
+	CacheAccessToken bool      `toml:"cache_access_token"`
+	ClientID         string    `toml:"client_id"`
+	ClientSecret     string    `toml:"client_secret"`
+	Path             string    `toml:"-"`
+	FedexApiKey      string    `toml:"api_key"`
+	FedexSecretKey   string    `toml:"secret_key"`
 
 	// Track-API-only credentials. As of October 2023 FedEx requires a
 	// dedicated developer-portal project for the Track API; you cannot
@@ -59,11 +62,17 @@ func Load(configPath string) (*Config, error) {
 	cfg.Path = path
 
 	// Try to load config file
-	data, err := os.ReadFile(path)
+	data, err := secureio.ReadFile(path)
 	if err == nil {
 		if err := toml.Unmarshal(data, cfg); err != nil {
 			return nil, fmt.Errorf("parsing config %s: %w", path, err)
 		}
+		// Reusable credentials from legacy config files are intentionally not
+		// loaded. They are removed the next time the config is saved.
+		cfg.clearReusableCredentials()
+		cfg.discardInvalidCachedTokens(time.Now())
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return nil, fmt.Errorf("reading config %s: %w", path, err)
 	}
 
 	// Env var overrides
@@ -74,6 +83,9 @@ func Load(configPath string) (*Config, error) {
 	if v := os.Getenv("FEDEX_SECRET_KEY"); v != "" {
 		cfg.FedexSecretKey = v
 		cfg.AuthSource = "env:FEDEX_SECRET_KEY"
+	}
+	if v := strings.ToLower(strings.TrimSpace(os.Getenv("FEDEX_CACHE_ACCESS_TOKEN"))); v == "1" || v == "true" || v == "yes" {
+		cfg.CacheAccessToken = true
 	}
 	// Track-API project credentials (optional; Pattern A from Magento/Karrio).
 	if v := os.Getenv("FEDEX_TRACK_API_KEY"); v != "" {
@@ -137,32 +149,68 @@ func applyAuthFormat(format string, replacements map[string]string) string {
 	return format
 }
 
-func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken string, expiry time.Time) error {
-	c.ClientID = clientID
-	c.ClientSecret = clientSecret
+func (c *Config) SaveTokens(_, _, accessToken, _ string, expiry time.Time) error {
 	c.AccessToken = accessToken
-	c.RefreshToken = refreshToken
+	c.RefreshToken = ""
 	c.TokenExpiry = expiry
+	if !c.CacheAccessToken {
+		return nil
+	}
+	if accessToken != "" && (expiry.IsZero() || !expiry.After(time.Now()) || expiry.After(time.Now().Add(24*time.Hour))) {
+		return fmt.Errorf("refusing to cache access token without a bounded future expiry")
+	}
 	return c.save()
 }
 
 func (c *Config) ClearTokens() error {
+	c.clearReusableCredentials()
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
 	c.TrackAccessToken = ""
 	c.TrackTokenExpiry = time.Time{}
+	c.CacheAccessToken = false
 	return c.save()
 }
 
-// SaveTrackTokens persists the dedicated Track-API project credentials and
-// the most recent access token minted from them. Same shape as SaveTokens
-// but routed to the Track* fields so the default pair is never overwritten.
-func (c *Config) SaveTrackTokens(clientID, clientSecret, accessToken string, expiry time.Time) error {
-	c.TrackClientID = clientID
-	c.TrackClientSecret = clientSecret
+func (c *Config) clearReusableCredentials() {
+	c.AuthHeaderVal = ""
+	c.AuthSource = ""
+	c.RefreshToken = ""
+	c.ClientID = ""
+	c.ClientSecret = ""
+	c.FedexApiKey = ""
+	c.FedexSecretKey = ""
+	c.TrackClientID = ""
+	c.TrackClientSecret = ""
+	c.TrackApiKey = ""
+	c.TrackSecretKey = ""
+}
+
+func (c *Config) discardInvalidCachedTokens(now time.Time) {
+	maxExpiry := now.Add(24 * time.Hour)
+	if c.AccessToken != "" && (!c.CacheAccessToken || c.TokenExpiry.IsZero() || !c.TokenExpiry.After(now) || c.TokenExpiry.After(maxExpiry)) {
+		c.AccessToken = ""
+		c.RefreshToken = ""
+		c.TokenExpiry = time.Time{}
+	}
+	if c.TrackAccessToken != "" && (!c.CacheAccessToken || c.TrackTokenExpiry.IsZero() || !c.TrackTokenExpiry.After(now) || c.TrackTokenExpiry.After(maxExpiry)) {
+		c.TrackAccessToken = ""
+		c.TrackTokenExpiry = time.Time{}
+	}
+}
+
+// SaveTrackTokens persists only the short-lived Track API access token. The
+// reusable client ID and secret remain in the caller's secret provider.
+func (c *Config) SaveTrackTokens(_, _, accessToken string, expiry time.Time) error {
 	c.TrackAccessToken = accessToken
 	c.TrackTokenExpiry = expiry
+	if !c.CacheAccessToken {
+		return nil
+	}
+	if accessToken != "" && (expiry.IsZero() || !expiry.After(time.Now()) || expiry.After(time.Now().Add(24*time.Hour))) {
+		return fmt.Errorf("refusing to cache track access token without a bounded future expiry")
+	}
 	return c.save()
 }
 
@@ -204,12 +252,23 @@ func isTrackPath(path string) bool {
 
 func (c *Config) save() error {
 	dir := filepath.Dir(c.Path)
-	if err := os.MkdirAll(dir, 0o700); err != nil {
+	if err := secureio.EnsurePrivateDir(dir); err != nil {
 		return fmt.Errorf("creating config dir: %w", err)
 	}
-	data, err := toml.Marshal(c)
+	persisted := *c
+	persisted.AuthHeaderVal = ""
+	persisted.RefreshToken = ""
+	persisted.ClientID = ""
+	persisted.ClientSecret = ""
+	persisted.FedexApiKey = ""
+	persisted.FedexSecretKey = ""
+	persisted.TrackClientID = ""
+	persisted.TrackClientSecret = ""
+	persisted.TrackApiKey = ""
+	persisted.TrackSecretKey = ""
+	data, err := toml.Marshal(&persisted)
 	if err != nil {
 		return fmt.Errorf("marshaling config: %w", err)
 	}
-	return os.WriteFile(c.Path, data, 0o600)
+	return secureio.WriteFileAtomic(c.Path, data)
 }

@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "mcp-narrow-shipping-tools",
+  "applied_at": "2026-09-02",
+  "base_run_id": "20260502-152509",
+  "base_printing_press_version": "3.6.0",
+  "summary": "Replace the broad default FedEx MCP executor and Cobra mirror with eight reviewed shipping tools.",
+  "reason": "A generic endpoint selector and runtime command mirror cannot be constrained by a Hermes tool allowlist and exposed unrelated file, SQL, import/export, webhook, bulk, and tracking-daemon capabilities.",
+  "files": [
+    "internal/mcp/narrow.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_safety_test.go",
+    "internal/mcp/code_orch_writebody_test.go",
+    "internal/client/base_url_test.go",
+    "internal/client/address_retry_test.go",
+    ".printing-press.json",
+    "tools-manifest.json"
+  ],
+  "validated_outcome": "Unit and MCP protocol tests assert the exact eight-tool surface and operation-specific read-only, destructive, idempotent, and open-world annotations; fedex_execute and broad CLI mirror tools are absent, metadata matches runtime registration, non-FedEx remote API origins are rejected before credentials can be sent, and mutation results expose only action-specific allowlisted identifiers without labels, URLs, or address/contact fields."
+}

@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/secureio"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/store"
 
 	"github.com/spf13/cobra"
@@ -68,7 +69,7 @@ func newTrackWatchCmd(flags *rootFlags) *cobra.Command {
 
 			var outFh *os.File
 			if outputFile != "" {
-				outFh, err = os.OpenFile(outputFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+				outFh, err = secureio.OpenFile(outputFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY)
 				if err != nil {
 					return err
 				}

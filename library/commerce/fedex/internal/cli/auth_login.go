@@ -64,6 +64,9 @@ pair is stored separately and only used when the request path is /track/*.
 Credentials default to env vars based on --service:
   --service default (default): FEDEX_API_KEY + FEDEX_SECRET_KEY
   --service track            : FEDEX_TRACK_API_KEY + FEDEX_TRACK_SECRET_KEY
+
+Client secrets are environment-only and are never accepted as command-line
+arguments, written to shell history, or serialized in the CLI config.
 `),
 		Example: strings.Trim(`
   # Sandbox Ship/Rate/Address project (uses env vars)
@@ -75,8 +78,6 @@ Credentials default to env vars based on --service:
   # Track-only project (the second pair you need for tracking calls)
   fedex-pp-cli auth login --service track --env prod
 
-  # Explicit credentials
-  fedex-pp-cli auth login --client-id ABCDEF --client-secret SHHHH --env sandbox
 `, "\n"),
 		Annotations: map[string]string{"mcp:hidden": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -114,7 +115,7 @@ Credentials default to env vars based on --service:
 				if isTrack {
 					envHint = "FEDEX_TRACK_API_KEY/FEDEX_TRACK_SECRET_KEY"
 				}
-				return authErr(fmt.Errorf("client ID and secret required (set --client-id/--client-secret or %s)", envHint))
+				return authErr(fmt.Errorf("client ID and secret required (set --client-id for the ID and provide the secret through %s)", envHint))
 			}
 
 			base := fedexSandboxBase
@@ -137,6 +138,9 @@ Credentials default to env vars based on --service:
 				return configErr(err)
 			}
 			expiry := time.Now().Add(time.Duration(tok.ExpiresIn) * time.Second)
+			// Running auth login is an explicit request to cache the short-lived
+			// access token; reusable client credentials are never serialized.
+			cfg.CacheAccessToken = true
 			label := "default (Ship/Rate/Address)"
 			if isTrack {
 				if err := cfg.SaveTrackTokens(clientID, clientSecret, tok.AccessToken, expiry); err != nil {
@@ -161,7 +165,6 @@ Credentials default to env vars based on --service:
 	}
 
 	cmd.Flags().StringVar(&clientID, "client-id", "", "FedEx API key (Client ID); defaults to env var (varies by --service)")
-	cmd.Flags().StringVar(&clientSecret, "client-secret", "", "FedEx Secret key (Client Secret); defaults to env var (varies by --service)")
 	cmd.Flags().StringVar(&env, "env", "sandbox", "FedEx environment: sandbox (default) or prod")
 	cmd.Flags().StringVar(&service, "service", "default", "Which FedEx project: default (Ship/Rate/Address) or track (Track-only project)")
 
@@ -197,10 +200,11 @@ func mintFedExToken(ctx interface{}, httpClient *http.Client, baseURL, clientID,
 	if resp.StatusCode != http.StatusOK {
 		var ae fedexAuthError
 		if json.Unmarshal(body, &ae) == nil && len(ae.Errors) > 0 {
-			return nil, fmt.Errorf("FedEx auth error %s: %s (transaction %s)",
-				ae.Errors[0].Code, ae.Errors[0].Message, ae.TransactionID)
+			if code := safeFedExErrorCode(ae.Errors[0].Code); code != "" {
+				return nil, fmt.Errorf("FedEx auth error %s (HTTP %d)", code, resp.StatusCode)
+			}
 		}
-		return nil, fmt.Errorf("FedEx token endpoint returned HTTP %d: %s", resp.StatusCode, string(body))
+		return nil, fmt.Errorf("FedEx token endpoint returned HTTP %d (response body redacted)", resp.StatusCode)
 	}
 
 	var tok tokenResponse

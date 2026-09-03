@@ -21,24 +21,26 @@ import (
 var version = "2026.8.1"
 
 type rootFlags struct {
-	asJSON        bool
-	compact       bool
-	csv           bool
-	plain         bool
-	quiet         bool
-	dryRun        bool
-	noCache       bool
-	noInput       bool
-	yes           bool
-	agent         bool
-	selectFields  string
-	configPath    string
-	profileName   string
-	deliverSpec   string
-	timeout       time.Duration
-	rateLimit     float64
-	dataSource    string
-	freshnessMeta any
+	asJSON             bool
+	compact            bool
+	csv                bool
+	plain              bool
+	quiet              bool
+	dryRun             bool
+	noCache            bool
+	noInput            bool
+	yes                bool
+	agent              bool
+	operationID        string
+	confirmationDigest string
+	selectFields       string
+	configPath         string
+	profileName        string
+	deliverSpec        string
+	timeout            time.Duration
+	rateLimit          float64
+	dataSource         string
+	freshnessMeta      any
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
@@ -120,10 +122,12 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().BoolVar(&flags.noCache, "no-cache", false, "Bypass response cache")
 	rootCmd.PersistentFlags().BoolVar(&flags.noInput, "no-input", false, "Disable all interactive prompts (for CI/agents)")
 	rootCmd.PersistentFlags().StringVar(&flags.selectFields, "select", "", "Comma-separated fields to include in output (e.g. --select id,name,status)")
-	rootCmd.PersistentFlags().BoolVar(&flags.yes, "yes", false, "Skip confirmation prompts (for agents and scripts)")
+	rootCmd.PersistentFlags().BoolVar(&flags.yes, "yes", false, "Execute a mutation after supplying its preview operation ID and digest")
+	rootCmd.PersistentFlags().StringVar(&flags.operationID, "operation-id", "", "Pending operation ID returned by a mutation preview")
+	rootCmd.PersistentFlags().StringVar(&flags.confirmationDigest, "confirmation-digest", "", "Digest returned by the matching mutation preview")
 	rootCmd.PersistentFlags().BoolVar(&noColor, "no-color", false, "Disable colored output")
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
-	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
+	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set agent-friendly output defaults (--json --compact --no-input --no-color); does not authorize mutations")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'fedex-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
@@ -166,9 +170,6 @@ See README.md or the bundled SKILL.md for recipes.`,
 			}
 			if !cmd.Flags().Changed("no-input") {
 				flags.noInput = true
-			}
-			if !cmd.Flags().Changed("yes") {
-				flags.yes = true
 			}
 			if !cmd.Flags().Changed("no-color") {
 				noColor = true

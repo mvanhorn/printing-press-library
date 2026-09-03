@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/secureio"
 	"github.com/spf13/cobra"
 )
 
@@ -36,7 +37,7 @@ func feedbackFilePath() (string, error) {
 		return "", fmt.Errorf("resolving home dir: %w", err)
 	}
 	dir := filepath.Join(home, ".fedex-pp-cli")
-	if err := os.MkdirAll(dir, 0o700); err != nil {
+	if err := secureio.EnsurePrivateDir(dir); err != nil {
 		return "", fmt.Errorf("creating state dir: %w", err)
 	}
 	return filepath.Join(dir, "feedback.jsonl"), nil
@@ -63,7 +64,7 @@ func appendFeedback(entry FeedbackEntry) error {
 	if err != nil {
 		return err
 	}
-	f, err := os.OpenFile(p, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)
+	f, err := secureio.OpenFile(p, os.O_APPEND|os.O_CREATE|os.O_WRONLY)
 	if err != nil {
 		return fmt.Errorf("opening feedback ledger: %w", err)
 	}

@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/secureio"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -34,7 +35,7 @@ func profileStorePath() (string, error) {
 		return "", fmt.Errorf("resolving home dir: %w", err)
 	}
 	dir := filepath.Join(home, ".fedex-pp-cli")
-	if err := os.MkdirAll(dir, 0o700); err != nil {
+	if err := secureio.EnsurePrivateDir(dir); err != nil {
 		return "", fmt.Errorf("creating state dir: %w", err)
 	}
 	return filepath.Join(dir, "profiles.json"), nil
@@ -45,7 +46,7 @@ func loadProfileStore() (*profileStore, error) {
 	if err != nil {
 		return nil, err
 	}
-	data, err := os.ReadFile(p)
+	data, err := secureio.ReadFile(p)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return &profileStore{Profiles: map[string]Profile{}}, nil
@@ -71,11 +72,10 @@ func saveProfileStore(s *profileStore) error {
 	if err != nil {
 		return fmt.Errorf("marshaling profiles: %w", err)
 	}
-	tmp := p + ".tmp"
-	if err := os.WriteFile(tmp, data, 0o600); err != nil {
+	if err := secureio.WriteFileAtomic(p, data); err != nil {
 		return fmt.Errorf("writing profiles: %w", err)
 	}
-	return os.Rename(tmp, p)
+	return nil
 }
 
 // GetProfile returns a profile by name, or (nil, nil) if not found.
@@ -101,6 +101,7 @@ func ApplyProfileToFlags(cmd *cobra.Command, profile *Profile) error {
 	// resolution itself or are dangerous to overlay.
 	reserved := map[string]bool{
 		"profile": true, "config": true, "help": true,
+		"yes": true, "operation-id": true, "confirmation-digest": true,
 	}
 	for name, value := range profile.Values {
 		if reserved[name] {
