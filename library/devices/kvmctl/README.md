@@ -133,6 +133,25 @@ kvmctl-pp-cli semantic host-identity --agent
 
 The MCP server exposes the same structured `semantic_dispatch` surface for agents.
 
+### OCR observation loop
+
+Use the purpose-built commands for the bounded observe → act → verify loop. They delegate only to the semantic core; they are not a planner and never infer a next UI action.
+
+```bash
+# Configure a local OCR command. It receives screenshot bytes on stdin.
+export KVMCTL_OCR_COMMAND=tesseract
+export KVMCTL_OCR_PROTOCOL=json
+
+kvmctl-pp-cli observe --agent
+kvmctl-pp-cli act click-text "Advanced" --observation <observation-id> --yes --agent
+kvmctl-pp-cli act press-key F10 --observation <observation-id> --yes --agent
+kvmctl-pp-cli verify --expect-text "Save Changes" --agent
+```
+
+`observe` returns the OCR observation ID. Both actions require that exact `--observation` value and explicit `--yes`; the semantic core captures the screen again and refuses a stale, unavailable, ambiguous, or non-matching observation. `verify` always captures a new observation and checks one exact high-confidence text match. `KVMCTL_OCR_PROTOCOL=json` selects the JSON OCR protocol expected by the configured command. These commands have automated HTTP/OCR fixtures only; no live BIOS interaction is claimed.
+
+For MCP, call `semantic_dispatch` with `operation: "observe"`, `"verify-text"`, `"click-text"`, or `"press-key"`. The tool schema describes the required arguments; mutating operations additionally need `arguments.write_enabled: true` and the MCP host must permit writes with `KVMCTL_WRITE_ENABLED=1`.
+
 ### Immutable workflows
 
 Workflows are loaded from JSON, listed deterministically, inspected with action values redacted, authorized once, and then executed only against the resolved target and revision.
@@ -205,6 +224,8 @@ Supported environment variables include:
 | `KVMCTL_STATE_DIR` | override runtime state directory |
 | `KVMCTL_CACHE_DIR` | override cache directory |
 | `KVMCTL_NO_LEARN` | disable the local learning loop |
+| `KVMCTL_OCR_COMMAND` | local OCR executable; it receives fresh screenshot bytes on stdin |
+| `KVMCTL_OCR_PROTOCOL` | OCR response protocol (`json` for the structured observation loop) |
 | `KVMCTL_LOCK_DIR` | shared directory used to serialize physical device actions (default `/tmp/kvmctl-locks`) |
 
 For MCP, put these variables in the host's MCP server environment. The MCP binary does not receive CLI flags.

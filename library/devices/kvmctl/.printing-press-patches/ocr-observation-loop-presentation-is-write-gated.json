@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "ocr-observation-loop-presentation-is-write-gated",
+  "applied_at": "2026-09-02",
+  "base_run_id": "20260831-161927",
+  "base_printing_press_version": "4.31.3",
+  "summary": "A regen must preserve the intent-level observe, verify, and act command tree over the fail-closed semantic OCR observation loop.",
+  "reason": "Agents need discoverable commands that forward only the approved OCR operations while requiring an explicit observation ID and --yes before any HID mutation; generic JSON arguments obscure both requirements.",
+  "files": [
+    "internal/cli/ocr_loop_novel.go",
+    "internal/cli/ocr_loop_novel_test.go",
+    "internal/mcp/semantic_novel.go",
+    "internal/mcp/semantic_novel_test.go"
+  ],
+  "validated_outcome": "Focused CLI and MCP tests cover command discovery, argument forwarding, and both write gates; full Go test, vet, build, CLI help, and MCP tool-schema smoke are run before commit."
+}

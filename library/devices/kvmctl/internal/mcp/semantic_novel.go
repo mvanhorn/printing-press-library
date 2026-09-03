@@ -12,9 +12,9 @@ import (
 
 func registerSemanticTool(s *server.MCPServer) {
 	tool := mcp.NewTool("semantic_dispatch",
-		mcp.WithDescription("Dispatch one structured semantic KVM operation with evidence envelope (operation, transport, read_only, ok, evidence, state). Full TOOL_SPEC: capabilities, snapshot, ocr, verify, host.identity.inspect, host.graphics.inspect, service.render_access.inspect, host.reboot, select, hid_reset, rearm_otg, kvm_send_text, kvm_send_keys, kvm_hold_key, kvm_release_all, kvm_mouse_move, kvm_mouse_move_pct, kvm_mouse_click, kvm_mouse_scroll, kvm_status, kvm_screenshot_to_file, kvm_ocr_screenshot, kvm_ocr_click, exec_command, kvm_sequence_plan, kvm_sequence_authorize, kvm_sequence_execute, kvm_workflow_authorize, kvm_workflow_list, kvm_workflow_inspect, kvm_workflow_execute (plus legacy aliases status/keyboard/mouse/target-switch/sequence). Write-gated ops require KVMCTL_WRITE_ENABLED=1. Evidence is redacted via results.Build."),
+		mcp.WithDescription("Dispatch one structured semantic KVM operation with evidence envelope (operation, transport, read_only, ok, evidence, state). OCR observation loop: observe: no arguments; verify-text: arguments.text; click-text: arguments.text and arguments.observation_id; requires write_enabled=true; press-key: arguments.key and arguments.observation_id; requires write_enabled=true. Observation IDs come from observe and are rechecked against a fresh screen capture; do not plan or infer UI actions. Write-gated ops require KVMCTL_WRITE_ENABLED=1. Evidence is redacted via results.Build."),
 		mcp.WithString("operation", mcp.Required(), mcp.Description("One of: "+strings.Join(semantic.Operations, ", "))),
-		mcp.WithObject("arguments", mcp.Description("Operation arguments; include write_enabled gating, bounded numeric validation, and secret-free evidence. Exec requires transport=ssh, shell metachars rejected.")),
+		mcp.WithObject("arguments", mcp.Description("Operation arguments. OCR: observe has none; verify-text needs text; click-text needs text plus observation_id and write_enabled=true; press-key needs key plus observation_id and write_enabled=true. Exec requires transport=ssh; shell metachars rejected.")),
 	)
 	s.AddTool(tool, func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		c, session, err := newMCPClient(ctx)
