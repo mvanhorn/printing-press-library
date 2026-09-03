@@ -7,10 +7,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/spf13/cobra"
-	"io"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/makerworld/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/makerworld/internal/store"
+	"github.com/spf13/cobra"
+	"io"
 	"net/url"
 	"os"
 	"regexp"
@@ -695,8 +695,9 @@ func syncResource(ctx context.Context, c interface {
 			}
 		}
 
-		// Save cursor after each page for resumability
-		if err := db.SaveSyncState(resource, nextCursor, totalCount); err != nil {
+		// Save cursor after each page for resumability without stamping a
+		// snapshot boundary — last_synced_at advances only on completion.
+		if err := db.SaveSyncCheckpoint(resource, nextCursor, totalCount); err != nil {
 			// Non-fatal: log and continue
 			fmt.Fprintf(os.Stderr, "\nwarning: failed to save sync state for %s: %v\n", resource, err)
 		}
@@ -704,13 +705,15 @@ func syncResource(ctx context.Context, c interface {
 		cursor = nextCursor
 	}
 
-	// Final sync state: clear cursor on natural completion, but preserve the
-	// resume cursor when an operator intentionally capped the page budget.
-	finalCursor := ""
+	// Natural completion clears the cursor and stamps last_synced_at.
+	// A --max-pages cap preserves the resume cursor without advancing
+	// last_synced_at, so movers / designers-deltas do not snapshot a
+	// partial mirror as if it were a complete observation.
 	if capExitHit {
-		finalCursor = capExitCursor
+		_ = db.SaveSyncCheckpoint(resource, capExitCursor, totalCount)
+	} else {
+		_ = db.SaveSyncState(resource, "", totalCount)
 	}
-	_ = db.SaveSyncState(resource, finalCursor, totalCount)
 
 	// F4b symptom probe: if items were consumed and successfully
 	// extracted (extractFailures < consumed) but nothing landed in

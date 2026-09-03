@@ -1658,6 +1658,22 @@ func (s *Store) SaveSyncState(resourceType, cursor string, count int) error {
 	return err
 }
 
+// SaveSyncCheckpoint stores a resume cursor and running count without advancing
+// last_synced_at. Incomplete --max-pages runs and per-page checkpoints use this
+// so movers / designers-deltas do not treat pagination fill as a new observation.
+func (s *Store) SaveSyncCheckpoint(resourceType, cursor string, count int) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	_, err := s.db.Exec(
+		`INSERT INTO sync_state (resource_type, last_cursor, last_synced_at, total_count)
+		 VALUES (?, ?, NULL, ?)
+		 ON CONFLICT(resource_type) DO UPDATE SET last_cursor = excluded.last_cursor,
+		 total_count = excluded.total_count`,
+		resourceType, cursor, count,
+	)
+	return err
+}
+
 func (s *Store) GetSyncState(resourceType string) (cursor string, lastSynced time.Time, count int, err error) {
 	err = s.db.QueryRow(
 		`SELECT last_cursor, last_synced_at, total_count FROM sync_state WHERE resource_type = ?`,
