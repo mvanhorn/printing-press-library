@@ -7,5 +7,5 @@
   "summary": "Incomplete --max-pages syncs and per-page resume checkpoints must not advance last_synced_at; only a completed page loop (cleared cursor) is a snapshot observation.",
   "reason": "movers and designers-deltas key design_snapshots on GetLastSyncedAt. Stamping last_synced_at when a resume cursor is preserved makes the next resumed pages look like new upstream activity (designers deltas NewDesigns) even when MakerWorld data has not changed. --latest-only still stamps because it clears the cursor and treats the head page as a complete observation.",
   "files": ["internal/cli/sync.go", "internal/store/store.go"],
-  "validated_outcome": "SaveSyncCheckpoint preserves last_synced_at after SaveSyncState and leaves it empty on first insert; go test ./internal/store ./internal/cli pass."
+  "validated_outcome": "SaveSyncCheckpoint preserves last_synced_at after SaveSyncState; a first insert is scanable by GetSyncState with a zero watermark that GetLastSyncedAt treats as empty. CLI tests: capped designs sync keeps a prior last_synced_at and leaves a first-run watermark unset; completing remaining pages then stamps it."
 }

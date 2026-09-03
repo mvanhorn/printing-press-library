@@ -47,10 +47,17 @@ func TestSaveSyncCheckpointFirstInsertLeavesLastSyncedAtEmpty(t *testing.T) {
 	if err := s.SaveSyncCheckpoint("designs", "1", 5); err != nil {
 		t.Fatalf("SaveSyncCheckpoint: %v", err)
 	}
-	if got := s.GetLastSyncedAt("designs"); got != "" {
-		t.Fatalf("first checkpoint stamped last_synced_at = %q, want empty", got)
+	cursor, watermark, count, err := s.GetSyncState("designs")
+	if err != nil {
+		t.Fatalf("GetSyncState after first checkpoint: %v", err)
 	}
-	if cursor := s.GetSyncCursor("designs"); cursor != "1" {
-		t.Fatalf("cursor = %q want 1", cursor)
+	if cursor != "1" || count != 5 {
+		t.Fatalf("cursor/count = %q/%d want 1/5", cursor, count)
+	}
+	if !watermark.IsZero() {
+		t.Fatalf("first checkpoint stamped last_synced_at = %v", watermark)
+	}
+	if got := s.GetLastSyncedAt("designs"); got != "" {
+		t.Fatalf("GetLastSyncedAt after first checkpoint = %q, want empty", got)
 	}
 }

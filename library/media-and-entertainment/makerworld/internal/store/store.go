@@ -1661,15 +1661,17 @@ func (s *Store) SaveSyncState(resourceType, cursor string, count int) error {
 // SaveSyncCheckpoint stores a resume cursor and running count without advancing
 // last_synced_at. Incomplete --max-pages runs and per-page checkpoints use this
 // so movers / designers-deltas do not treat pagination fill as a new observation.
+// A new row gets a parseable zero RFC3339 timestamp so GetSyncState can scan
+// last_synced_at into time.Time; NULL would fail that scan and drop the resume cursor.
 func (s *Store) SaveSyncCheckpoint(resourceType, cursor string, count int) error {
 	s.writeMu.Lock()
 	defer s.writeMu.Unlock()
 	_, err := s.db.Exec(
 		`INSERT INTO sync_state (resource_type, last_cursor, last_synced_at, total_count)
-		 VALUES (?, ?, NULL, ?)
+		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(resource_type) DO UPDATE SET last_cursor = excluded.last_cursor,
 		 total_count = excluded.total_count`,
-		resourceType, cursor, count,
+		resourceType, cursor, time.Time{}.UTC().Format(time.RFC3339), count,
 	)
 	return err
 }
@@ -1892,13 +1894,19 @@ func (s *Store) ListFieldSets(resourceType string, fields []string) ([]map[strin
 }
 
 // GetLastSyncedAt returns the last sync timestamp for a resource type.
+// Progress-only checkpoints store a zero RFC3339 value so GetSyncState can
+// scan last_synced_at; movers and designers deltas must not treat that
+// placeholder as a real sync.
 func (s *Store) GetLastSyncedAt(resourceType string) string {
 	var ts sql.NullString
 	s.db.QueryRow("SELECT last_synced_at FROM sync_state WHERE resource_type = ?", resourceType).Scan(&ts)
-	if ts.Valid {
-		return ts.String
+	if !ts.Valid {
+		return ""
 	}
-	return ""
+	if parsed, err := time.Parse(time.RFC3339, ts.String); err == nil && parsed.IsZero() {
+		return ""
+	}
+	return ts.String
 }
 
 // ClearSyncCursors resets all sync state for a full resync.
