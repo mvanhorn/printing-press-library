@@ -14,33 +14,16 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/mcp/cobratree"
 )
 
-// RegisterTools registers all API operations as MCP tools.
+// RegisterTools exposes only the reviewed shipping workflows. The generic API
+// executor and runtime Cobra mirror remain available to CLI users but are not
+// registered in the default MCP surface.
 func RegisterTools(s *server.MCPServer) {
-	// Code-orchestration mode — the full surface is covered by two tools
-	// (<api>_search + <api>_execute). Endpoint-mirror tools are suppressed.
-	RegisterCodeOrchestrationTools(s)
-
-	// Context tool — front-loaded domain knowledge for agents.
-	// Call this first to understand the API taxonomy, query patterns, and capabilities.
-	s.AddTool(
-		mcplib.NewTool("context",
-			mcplib.WithDescription("Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-		),
-		handleContext,
-	)
-
-	// Runtime Cobra-tree mirror — exposes every user-facing command that is
-	// not already covered by a typed endpoint or framework MCP tool.
-	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
+	registerNarrowTools(s)
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.

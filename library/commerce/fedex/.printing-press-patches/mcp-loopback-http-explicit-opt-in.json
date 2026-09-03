@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "mcp-loopback-http-explicit-opt-in",
+  "applied_at": "2026-09-02",
+  "base_run_id": "20260502-152509",
+  "base_printing_press_version": "3.6.0",
+  "summary": "Keep stdio as the default MCP transport and require explicit opt-in plus a loopback bind for HTTP mode.",
+  "reason": "The MCP HTTP transport has no authentication or TLS boundary and previously defaulted to an all-interface :7777 bind whenever selected through a flag or environment variable.",
+  "files": [
+    "cmd/fedex-pp-mcp/main.go",
+    "cmd/fedex-pp-mcp/main_test.go"
+  ],
+  "validated_outcome": "Tests and binary probes confirm default stdio opens no listener, HTTP without --allow-http exits with status 2, and non-loopback bind addresses are rejected."
+}

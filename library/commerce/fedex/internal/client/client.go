@@ -8,11 +8,14 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/approval"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/config"
 	"io"
 	"math"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -23,15 +26,18 @@ import (
 )
 
 type Client struct {
-	BaseURL    string
-	Config     *config.Config
-	HTTPClient *http.Client
-	DryRun     bool
-	NoCache    bool
-	cacheDir   string
-	limiter    *cliutil.AdaptiveLimiter
-	retrySleep func(time.Duration)
+	BaseURL        string
+	Config         *config.Config
+	HTTPClient     *http.Client
+	DryRun         bool
+	NoCache        bool
+	MutationPermit *approval.Permit
+	cacheDir       string
+	limiter        *cliutil.AdaptiveLimiter
+	retrySleep     func(time.Duration)
 }
+
+var ErrBoundConfirmationRequired = errors.New("protected FedEx mutation requires a matching consumed operation permit")
 
 // APIError carries HTTP status information for structured exit codes.
 type APIError struct {
@@ -184,6 +190,9 @@ func (c *Client) PatchWithHeaders(path string, body any, headers map[string]stri
 // do executes an HTTP request. headerOverrides, when non-nil, override global
 // RequiredHeaders for this specific request (used for per-endpoint API versioning).
 func (c *Client) do(method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
+	if err := validateFedExBaseURL(c.BaseURL); err != nil {
+		return nil, 0, err
+	}
 	targetURL := c.BaseURL + path
 
 	var bodyBytes []byte
@@ -195,22 +204,24 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		bodyBytes = b
 	}
 
-	// Resolve auth material before the dry-run branch so --dry-run can preview
-	// exactly what would be sent. Uses only cached credentials; a token that
-	// requires a network refresh will be re-fetched on the live request path,
-	// not during dry-run.
+	// A dry run performs no network activity, including OAuth token minting.
+	// Omitting the Authorization preview is deliberate: it keeps dry-run output
+	// useful without resolving or exposing credential material.
+	if c.DryRun {
+		return c.dryRun(method, targetURL, path, params, bodyBytes, headerOverrides, "")
+	}
+
+	canRetry := canRetryAmbiguousFailure(method, path)
+	if !isKnownReadOnlyOperation(method, path) && (c.MutationPermit == nil || !c.MutationPermit.Allows(method, path, body)) {
+		return nil, 0, ErrBoundConfirmationRequired
+	}
+
 	authHeader, err := c.authHeaderForPath(path)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	// Build the request for dry-run display or actual execution
-	if c.DryRun {
-		return c.dryRun(method, targetURL, path, params, bodyBytes, headerOverrides, authHeader)
-	}
-
 	const maxRetries = 3
-	canRetry := canRetryAmbiguousFailure(method, path)
 	var lastErr error
 
 	for attempt := 0; attempt <= maxRetries; attempt++ {
@@ -339,8 +350,28 @@ func (c *Client) sleepRetry(wait time.Duration) {
 	time.Sleep(wait)
 }
 
+func validateFedExBaseURL(rawURL string) error {
+	parsed, err := url.Parse(strings.TrimSpace(rawURL))
+	if err != nil || parsed.Scheme == "" || parsed.Host == "" {
+		return errors.New("FedEx base URL is invalid")
+	}
+	if parsed.User != nil || parsed.RawQuery != "" || parsed.Fragment != "" || (parsed.Path != "" && parsed.Path != "/") {
+		return errors.New("FedEx base URL must be an origin without credentials, query, fragment, or path")
+	}
+	hostname := strings.ToLower(parsed.Hostname())
+	if parsed.Scheme == "https" && (hostname == "apis.fedex.com" || hostname == "apis-sandbox.fedex.com") {
+		return nil
+	}
+	if (parsed.Scheme == "http" || parsed.Scheme == "https") && hostname == "localhost" {
+		return nil
+	}
+	if ip := net.ParseIP(hostname); ip != nil && ip.IsLoopback() && (parsed.Scheme == "http" || parsed.Scheme == "https") {
+		return nil
+	}
+	return errors.New("FedEx base URL must use an official FedEx HTTPS origin or a loopback test origin")
+}
+
 var retryableReadOnlyPosts = map[string]struct{}{
-	"/address/v1/addresses/resolve":                        {},
 	"/availability/v1/packageandserviceoptions":            {},
 	"/availability/v1/specialserviceoptions":               {},
 	"/availability/v1/transittimes":                        {},
@@ -364,6 +395,30 @@ var retryableReadOnlyPosts = map[string]struct{}{
 	"/track/v1/tcn":                                        {},
 	"/track/v1/trackingdocuments":                          {},
 	"/track/v1/trackingnumbers":                            {},
+}
+
+var knownReadOnlyPosts = func() map[string]struct{} {
+	result := make(map[string]struct{}, len(retryableReadOnlyPosts)+1)
+	for path := range retryableReadOnlyPosts {
+		result[path] = struct{}{}
+	}
+	// Address validation can be billable. It is read-only for authorization,
+	// but intentionally excluded from automatic retries.
+	result["/address/v1/addresses/resolve"] = struct{}{}
+	return result
+}()
+
+func isKnownReadOnlyOperation(method, path string) bool {
+	switch method {
+	case http.MethodGet, http.MethodHead, http.MethodOptions:
+		return true
+	case http.MethodPost:
+		path, _, _ = strings.Cut(path, "?")
+		_, ok := knownReadOnlyPosts[path]
+		return ok
+	default:
+		return false
+	}
 }
 
 // canRetryAmbiguousFailure returns true only for operations known to be

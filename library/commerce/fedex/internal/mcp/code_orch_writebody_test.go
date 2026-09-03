@@ -54,7 +54,7 @@ func TestCodeOrchWriteBodyMarshalsToJSONObject(t *testing.T) {
 	}
 }
 
-func TestCodeOrchExecuteSendsShipmentAsJSONObject(t *testing.T) {
+func TestCodeOrchExecuteRequiresConfirmationBeforeShipment(t *testing.T) {
 	var gotBody []byte
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var err error
@@ -86,22 +86,15 @@ func TestCodeOrchExecuteSendsShipmentAsJSONObject(t *testing.T) {
 	if err != nil {
 		t.Fatalf("handleCodeOrchExecute: %v", err)
 	}
-	if result == nil || result.IsError {
-		t.Fatalf("handleCodeOrchExecute result = %#v, want success", result)
+	if result == nil || !result.IsError {
+		t.Fatalf("handleCodeOrchExecute result = %#v, want confirmation error", result)
 	}
-	if len(gotBody) == 0 || gotBody[0] != '{' {
-		t.Fatalf("shipment request body must be a JSON object, got %q", gotBody)
-	}
-	var decoded map[string]any
-	if err := json.Unmarshal(gotBody, &decoded); err != nil {
-		t.Fatalf("decode shipment request body: %v", err)
-	}
-	if decoded["requestedShipment"] == nil {
-		t.Fatalf("requestedShipment missing from request body: %#v", decoded)
+	if len(gotBody) != 0 {
+		t.Fatalf("unconfirmed shipment emitted a request body: %q", gotBody)
 	}
 }
 
-func TestGenericAPIHandlerSendsStructuredObject(t *testing.T) {
+func TestGenericAPIHandlerRequiresConfirmationBeforeMutation(t *testing.T) {
 	var gotBody []byte
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var err error
@@ -127,17 +120,10 @@ func TestGenericAPIHandlerSendsStructuredObject(t *testing.T) {
 	if err != nil {
 		t.Fatalf("makeAPIHandler: %v", err)
 	}
-	if result == nil || result.IsError {
-		t.Fatalf("makeAPIHandler result = %#v, want success", result)
+	if result == nil || !result.IsError {
+		t.Fatalf("makeAPIHandler result = %#v, want confirmation error", result)
 	}
-	if len(gotBody) == 0 || gotBody[0] != '{' {
-		t.Fatalf("generic handler body must be a JSON object, got %q", gotBody)
-	}
-	var decoded map[string]any
-	if err := json.Unmarshal(gotBody, &decoded); err != nil {
-		t.Fatalf("decode generic handler request body: %v", err)
-	}
-	if decoded["trackingNumber"] != "synthetic-tracking-number" {
-		t.Fatalf("trackingNumber missing from request body: %#v", decoded)
+	if len(gotBody) != 0 {
+		t.Fatalf("unconfirmed generic mutation emitted a request body: %q", gotBody)
 	}
 }

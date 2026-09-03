@@ -12,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/approval"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/config"
 )
 
@@ -29,6 +30,71 @@ func newRetryTestClient(baseURL string) *Client {
 	client.NoCache = true
 	client.cacheDir = ""
 	return client
+}
+
+func authorizeTestMutation(t *testing.T, client *Client, method, path string, body any) {
+	t.Helper()
+	mutation := approval.Mutation{Action: "test", Origin: "https://test.invalid:443", Method: method, Path: path, Request: body}
+	store := approval.NewStore(t.TempDir(), time.Minute)
+	record, err := store.Create(mutation, approval.ReviewSummary{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, permit, err := store.Consume(record.ID, record.ConfirmationDigest, mutation)
+	if err != nil {
+		t.Fatal(err)
+	}
+	client.MutationPermit = permit
+}
+
+func TestMutationRequiresExplicitAuthorizationBeforeNetwork(t *testing.T) {
+	calls := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true}`))
+	}))
+	t.Cleanup(server.Close)
+
+	client := newRetryTestClient(server.URL)
+	client.HTTPClient = server.Client()
+	body := map[string]any{"test": true}
+	if _, _, err := client.Post("/ship/v1/shipments", body); !errors.Is(err, ErrBoundConfirmationRequired) {
+		t.Fatalf("unauthorized mutation error=%v, want ErrBoundConfirmationRequired", err)
+	}
+	if calls != 0 {
+		t.Fatalf("unauthorized mutation emitted %d network calls, want 0", calls)
+	}
+
+	authorizeTestMutation(t, client, http.MethodPost, "/ship/v1/shipments", body)
+	if _, _, err := client.Post("/ship/v1/shipments", body); err != nil {
+		t.Fatalf("authorized mutation: %v", err)
+	}
+	if calls != 1 {
+		t.Fatalf("authorized mutation emitted %d network calls, want 1", calls)
+	}
+}
+
+func TestDryRunDoesNotMintTokenOrSendMutation(t *testing.T) {
+	calls := 0
+	client := New(&config.Config{
+		BaseURL:        "https://apis-sandbox.fedex.com",
+		FedexApiKey:    "synthetic-client-id",
+		FedexSecretKey: "synthetic-client-secret",
+	}, time.Second, 0)
+	client.DryRun = true
+	client.cacheDir = ""
+	client.HTTPClient = &http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) {
+		calls++
+		return nil, errors.New("network must not be reached during dry-run")
+	})}
+
+	if _, _, err := client.Post("/ship/v1/shipments", map[string]any{"test": true}); err != nil {
+		t.Fatalf("dry-run mutation: %v", err)
+	}
+	if calls != 0 {
+		t.Fatalf("dry-run emitted %d network calls, want 0", calls)
+	}
 }
 
 func TestWriteMethodsEncodeStructuredBodyOnce(t *testing.T) {
@@ -58,6 +124,7 @@ func TestWriteMethodsEncodeStructuredBodyOnce(t *testing.T) {
 
 	for _, method := range []string{http.MethodPost, http.MethodPut, http.MethodPatch} {
 		t.Run(method, func(t *testing.T) {
+			authorizeTestMutation(t, client, method, "/test", body)
 			var err error
 			switch method {
 			case http.MethodPost:
@@ -128,8 +195,10 @@ func TestMutationDoesNotRetryServerError(t *testing.T) {
 	client := newRetryTestClient(server.URL)
 	client.HTTPClient = server.Client()
 	client.retrySleep = func(time.Duration) {}
+	body := map[string]any{"accountNumber": map[string]any{"value": "TEST"}}
+	authorizeTestMutation(t, client, http.MethodPost, "/ship/v1/shipments", body)
 
-	_, status, err := client.Post("/ship/v1/shipments", map[string]any{"accountNumber": map[string]any{"value": "TEST"}})
+	_, status, err := client.Post("/ship/v1/shipments", body)
 	if err == nil || status != http.StatusInternalServerError {
 		t.Fatalf("Post status=%d err=%v, want outcome-unknown HTTP 500", status, err)
 	}
@@ -144,14 +213,16 @@ func TestMutationDoesNotRetryServerError(t *testing.T) {
 
 func TestMutationDoesNotRetryTransportError(t *testing.T) {
 	calls := 0
-	client := newRetryTestClient("https://fedex.invalid")
+	client := newRetryTestClient("http://127.0.0.1:1")
 	client.HTTPClient = &http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) {
 		calls++
 		return nil, errors.New("connection reset after write")
 	})}
 	client.retrySleep = func(time.Duration) {}
+	body := map[string]any{"carrierCode": "FDXE"}
+	authorizeTestMutation(t, client, http.MethodPost, "/pickup/v1/pickups", body)
 
-	_, status, err := client.Post("/pickup/v1/pickups", map[string]any{"carrierCode": "FDXE"})
+	_, status, err := client.Post("/pickup/v1/pickups", body)
 	if err == nil || status != 0 {
 		t.Fatalf("Post status=%d err=%v, want outcome-unknown transport error", status, err)
 	}
@@ -175,8 +246,10 @@ func TestMutationDoesNotRetryRateLimit(t *testing.T) {
 	client := newRetryTestClient(server.URL)
 	client.HTTPClient = server.Client()
 	client.retrySleep = func(time.Duration) {}
+	body := map[string]any{"confirmationNumber": "TEST"}
+	authorizeTestMutation(t, client, http.MethodPut, "/pickup/v1/pickups/cancel", body)
 
-	_, status, err := client.Put("/pickup/v1/pickups/cancel", map[string]any{"confirmationNumber": "TEST"})
+	_, status, err := client.Put("/pickup/v1/pickups/cancel", body)
 	if err == nil || status != http.StatusTooManyRequests {
 		t.Fatalf("Put status=%d err=%v, want HTTP 429", status, err)
 	}
@@ -197,7 +270,7 @@ func TestRetryClassification(t *testing.T) {
 		want   bool
 	}{
 		{name: "get", method: http.MethodGet, path: "/anything", want: true},
-		{name: "address validation", method: http.MethodPost, path: "/address/v1/addresses/resolve", want: true},
+		{name: "billable address validation", method: http.MethodPost, path: "/address/v1/addresses/resolve", want: false},
 		{name: "service availability", method: http.MethodPost, path: "/availability/v1/packageandserviceoptions", want: true},
 		{name: "consolidation results", method: http.MethodPost, path: "/ship/v1/consolidations/results", want: true},
 		{name: "freight pickup availability", method: http.MethodPost, path: "/pickup/v1/freight/pickups/availabilities", want: true},

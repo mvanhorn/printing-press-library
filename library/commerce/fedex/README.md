@@ -130,7 +130,7 @@ FedEx uses OAuth2 client_credentials. Run `fedex auth login` once with your sand
 
 ```bash
 # Mint a bearer token from FedEx OAuth2 client_credentials and cache it
-fedex auth login --client-id $FEDEX_API_KEY --client-secret $FEDEX_SECRET_KEY --env sandbox
+fedex-pp-cli auth login --env sandbox
 
 # Verify auth, sandbox/prod routing, and surface any BAG approval gaps before you hit them at ship-time
 fedex doctor
@@ -142,7 +142,7 @@ fedex rate shop --from 90210 --to 10001 --weight 5lb --json --select rates.servi
 fedex address save --name acme --street '500 Main St' --city Denver --state CO --zip 80202 --country US
 
 # Batch-create labels with adaptive rate limiting; resumable on partial failure
-fedex ship bulk --csv orders.csv --service GROUND --resume
+fedex-pp-cli ship bulk --csv=orders.csv --service GROUND --resume
 
 ```
 
@@ -163,7 +163,7 @@ These capabilities aren't available in any other tool for this API.
   _The 'I ship 30 packages a day' workflow. Replaces clicking through FedEx Ship Manager one label at a time._
 
   ```bash
-  fedex ship bulk --csv orders.csv --service GROUND --output labels/ --resume
+  fedex-pp-cli ship bulk --csv=orders.csv --service GROUND --output labels/ --resume
   ```
 - **`return create`** — Generate a Ground Call Tag (return label) against an existing tracking number with one command, optionally emailing it to the recipient.
 
@@ -404,11 +404,11 @@ Rank by `--rank-by transit` to surface fastest service first, then inspect `net_
 
 ```bash
 # First run — adaptive rate limiting, low concurrency, write labels to ./labels/
-fedex-pp-cli ship bulk --csv orders.csv --service FEDEX_GROUND \
+fedex-pp-cli ship bulk --csv=orders.csv --service FEDEX_GROUND \
   --output ./labels --concurrency 3 --account "$FEDEX_ACCOUNT_NUMBER"
 
 # Network blip? Re-run with --resume; rows already in the archive are skipped
-fedex-pp-cli ship bulk --csv orders.csv --resume --account "$FEDEX_ACCOUNT_NUMBER"
+fedex-pp-cli ship bulk --csv=orders.csv --resume --account "$FEDEX_ACCOUNT_NUMBER"
 ```
 
 ### Capture only-new tracking events for a webhook
@@ -496,7 +496,7 @@ fedex-pp-cli spend report --by lane --since 168h --json
 fedex-pp-cli doctor
 
 # Verify a specific call without sending it
-fedex-pp-cli ship bulk --csv orders.csv --dry-run
+fedex-pp-cli ship bulk --csv=orders.csv --dry-run
 ```
 
 ## Output Formats

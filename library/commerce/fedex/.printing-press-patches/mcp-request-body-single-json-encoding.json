@@ -11,5 +11,5 @@
     "internal/mcp/code_orch_writebody_test.go",
     "internal/mcp/tools.go"
   ],
-  "validated_outcome": "Unit and handler-level mock-server tests confirm both orchestration and generic handlers send top-level JSON objects with their structured fields intact."
+  "validated_outcome": "Unit and client mock-server tests confirm structured POST, PUT, and PATCH bodies receive one JSON encoding pass; orchestration and generic mutation handlers are separately blocked before network access without confirmation."
 }
