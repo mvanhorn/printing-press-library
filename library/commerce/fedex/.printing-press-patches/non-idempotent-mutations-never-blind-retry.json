@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "non-idempotent-mutations-never-blind-retry",
+  "applied_at": "2026-09-02",
+  "base_run_id": "20260502-152509",
+  "base_printing_press_version": "3.6.0",
+  "summary": "Retry only explicitly safe FedEx reads and return typed outcome-unknown errors for ambiguous mutation failures.",
+  "reason": "The shared FedEx client retried every method after transport errors, rate limits, and server errors, which could duplicate shipments, labels, pickup requests, cancellations, and other remote mutations.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/client_test.go"
+  ],
+  "validated_outcome": "Mock-server and transport tests confirm mutation requests execute once, 429 responses are not retried, ambiguous transport and 5xx failures return OutcomeUnknownError, and allowlisted read-only POST operations retain bounded retry behavior."
+}

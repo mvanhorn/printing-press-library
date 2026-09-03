@@ -575,10 +575,7 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	case "DELETE":
 		data, _, err = c.Delete(path)
 	default:
-		body, mErr := json.Marshal(params)
-		if mErr != nil {
-			return mcplib.NewToolResultError(fmt.Sprintf("marshaling body: %v", mErr)), nil
-		}
+		body := codeOrchWriteBody(params)
 		switch ep.Method {
 		case "POST":
 			data, _, err = c.Post(path, body)
@@ -594,4 +591,12 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
 	return mcplib.NewToolResultText(string(data)), nil
+}
+
+// codeOrchWriteBody preserves the structured request body for the client's
+// single JSON encoding pass. Passing pre-marshaled []byte here causes
+// json.Marshal in client.do to emit a base64 JSON string instead of the object
+// FedEx expects.
+func codeOrchWriteBody(params map[string]any) any {
+	return params
 }

@@ -8,11 +8,14 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/approval"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/config"
 	"io"
 	"math"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -23,14 +26,18 @@ import (
 )
 
 type Client struct {
-	BaseURL    string
-	Config     *config.Config
-	HTTPClient *http.Client
-	DryRun     bool
-	NoCache    bool
-	cacheDir   string
-	limiter    *cliutil.AdaptiveLimiter
+	BaseURL        string
+	Config         *config.Config
+	HTTPClient     *http.Client
+	DryRun         bool
+	NoCache        bool
+	MutationPermit *approval.Permit
+	cacheDir       string
+	limiter        *cliutil.AdaptiveLimiter
+	retrySleep     func(time.Duration)
 }
+
+var ErrBoundConfirmationRequired = errors.New("protected FedEx mutation requires a matching consumed operation permit")
 
 // APIError carries HTTP status information for structured exit codes.
 type APIError struct {
@@ -42,6 +49,26 @@ type APIError struct {
 
 func (e *APIError) Error() string {
 	return fmt.Sprintf("%s %s returned HTTP %d: %s", e.Method, e.Path, e.StatusCode, e.Body)
+}
+
+// OutcomeUnknownError reports a mutation whose result cannot be determined
+// safely. The caller must reconcile remote state before attempting it again.
+type OutcomeUnknownError struct {
+	Method     string
+	Path       string
+	StatusCode int
+	Cause      error
+}
+
+func (e *OutcomeUnknownError) Error() string {
+	if e.StatusCode > 0 {
+		return fmt.Sprintf("%s %s outcome unknown after HTTP %d; reconcile before retrying: %v", e.Method, e.Path, e.StatusCode, e.Cause)
+	}
+	return fmt.Sprintf("%s %s outcome unknown; reconcile before retrying: %v", e.Method, e.Path, e.Cause)
+}
+
+func (e *OutcomeUnknownError) Unwrap() error {
+	return e.Cause
 }
 
 func newHTTPClient(timeout time.Duration, jar http.CookieJar) *http.Client {
@@ -58,6 +85,7 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 		HTTPClient: httpClient,
 		cacheDir:   cacheDir,
 		limiter:    cliutil.NewAdaptiveLimiter(rateLimit),
+		retrySleep: time.Sleep,
 	}
 }
 
@@ -162,6 +190,9 @@ func (c *Client) PatchWithHeaders(path string, body any, headers map[string]stri
 // do executes an HTTP request. headerOverrides, when non-nil, override global
 // RequiredHeaders for this specific request (used for per-endpoint API versioning).
 func (c *Client) do(method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
+	if err := validateFedExBaseURL(c.BaseURL); err != nil {
+		return nil, 0, err
+	}
 	targetURL := c.BaseURL + path
 
 	var bodyBytes []byte
@@ -173,18 +204,21 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		bodyBytes = b
 	}
 
-	// Resolve auth material before the dry-run branch so --dry-run can preview
-	// exactly what would be sent. Uses only cached credentials; a token that
-	// requires a network refresh will be re-fetched on the live request path,
-	// not during dry-run.
+	// A dry run performs no network activity, including OAuth token minting.
+	// Omitting the Authorization preview is deliberate: it keeps dry-run output
+	// useful without resolving or exposing credential material.
+	if c.DryRun {
+		return c.dryRun(method, targetURL, path, params, bodyBytes, headerOverrides, "")
+	}
+
+	canRetry := canRetryAmbiguousFailure(method, path)
+	if !isKnownReadOnlyOperation(method, path) && (c.MutationPermit == nil || !c.MutationPermit.Allows(method, path, body)) {
+		return nil, 0, ErrBoundConfirmationRequired
+	}
+
 	authHeader, err := c.authHeaderForPath(path)
 	if err != nil {
 		return nil, 0, err
-	}
-
-	// Build the request for dry-run display or actual execution
-	if c.DryRun {
-		return c.dryRun(method, targetURL, path, params, bodyBytes, headerOverrides, authHeader)
 	}
 
 	const maxRetries = 3
@@ -229,13 +263,26 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {
 			lastErr = fmt.Errorf("%s %s: %w", method, path, err)
-			continue
+			if canRetry && attempt < maxRetries {
+				wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
+				fmt.Fprintf(os.Stderr, "network error, retrying in %s (attempt %d/%d)\n", wait, attempt+1, maxRetries)
+				c.sleepRetry(wait)
+				continue
+			}
+			if !canRetry {
+				return nil, 0, &OutcomeUnknownError{Method: method, Path: path, Cause: lastErr}
+			}
+			return nil, 0, lastErr
 		}
 
 		respBody, err := io.ReadAll(resp.Body)
 		resp.Body.Close()
 		if err != nil {
-			return nil, 0, fmt.Errorf("reading response: %w", err)
+			readErr := fmt.Errorf("reading response: %w", err)
+			if !canRetry {
+				return nil, resp.StatusCode, &OutcomeUnknownError{Method: method, Path: path, StatusCode: resp.StatusCode, Cause: readErr}
+			}
+			return nil, resp.StatusCode, readErr
 		}
 		respBody = sanitizeJSONResponse(respBody)
 
@@ -258,23 +305,34 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			Body:       truncateBody(respBody),
 		}
 
-		// Rate limited - adjust adaptive limiter and retry
-		if resp.StatusCode == 429 && attempt < maxRetries {
+		// Feed every rate-limit response back into the limiter, but only retry
+		// operations whose outcome is known to be read-only.
+		if resp.StatusCode == 429 {
 			c.limiter.OnRateLimit()
-			wait := cliutil.RetryAfter(resp)
-			fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
-			time.Sleep(wait)
-			lastErr = apiErr
-			continue
+			if canRetry && attempt < maxRetries {
+				wait := cliutil.RetryAfter(resp)
+				fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
+				c.sleepRetry(wait)
+				lastErr = apiErr
+				continue
+			}
 		}
 
 		// Server error - retry with backoff
-		if resp.StatusCode >= 500 && attempt < maxRetries {
+		if resp.StatusCode >= 500 && canRetry && attempt < maxRetries {
 			wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
 			fmt.Fprintf(os.Stderr, "server error %d, retrying in %s (attempt %d/%d)\n", resp.StatusCode, wait, attempt+1, maxRetries)
-			time.Sleep(wait)
+			c.sleepRetry(wait)
 			lastErr = apiErr
 			continue
+		}
+		if resp.StatusCode >= 500 && !canRetry {
+			return nil, resp.StatusCode, &OutcomeUnknownError{
+				Method:     method,
+				Path:       path,
+				StatusCode: resp.StatusCode,
+				Cause:      apiErr,
+			}
 		}
 
 		// Client error or retries exhausted - return the error
@@ -282,6 +340,102 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 	}
 
 	return nil, 0, lastErr
+}
+
+func (c *Client) sleepRetry(wait time.Duration) {
+	if c.retrySleep != nil {
+		c.retrySleep(wait)
+		return
+	}
+	time.Sleep(wait)
+}
+
+func validateFedExBaseURL(rawURL string) error {
+	parsed, err := url.Parse(strings.TrimSpace(rawURL))
+	if err != nil || parsed.Scheme == "" || parsed.Host == "" {
+		return errors.New("FedEx base URL is invalid")
+	}
+	if parsed.User != nil || parsed.RawQuery != "" || parsed.Fragment != "" || (parsed.Path != "" && parsed.Path != "/") {
+		return errors.New("FedEx base URL must be an origin without credentials, query, fragment, or path")
+	}
+	hostname := strings.ToLower(parsed.Hostname())
+	if parsed.Scheme == "https" && (hostname == "apis.fedex.com" || hostname == "apis-sandbox.fedex.com") {
+		return nil
+	}
+	if (parsed.Scheme == "http" || parsed.Scheme == "https") && hostname == "localhost" {
+		return nil
+	}
+	if ip := net.ParseIP(hostname); ip != nil && ip.IsLoopback() && (parsed.Scheme == "http" || parsed.Scheme == "https") {
+		return nil
+	}
+	return errors.New("FedEx base URL must use an official FedEx HTTPS origin or a loopback test origin")
+}
+
+var retryableReadOnlyPosts = map[string]struct{}{
+	"/availability/v1/packageandserviceoptions":            {},
+	"/availability/v1/specialserviceoptions":               {},
+	"/availability/v1/transittimes":                        {},
+	"/country/v1/postal/validate":                          {},
+	"/globaltrade/v1/shipments/regulatorydetails/retrieve": {},
+	"/location/v1/locations":                               {},
+	"/pickup/v1/freight/pickups/availabilities":            {},
+	"/pickup/v1/pickups/availabilities":                    {},
+	"/rate/v1/freight/rates/quotes":                        {},
+	"/rate/v1/rates/quotes":                                {},
+	"/ship/v1/consolidations/confirmationresults":          {},
+	"/ship/v1/consolidations/results":                      {},
+	"/ship/v1/consolidations/retrieve":                     {},
+	"/ship/v1/openshipments/packages/retrieve":             {},
+	"/ship/v1/openshipments/results":                       {},
+	"/ship/v1/openshipments/retrieve":                      {},
+	"/ship/v1/shipments/packages/validate":                 {},
+	"/ship/v1/shipments/results":                           {},
+	"/track/v1/associatedshipments":                        {},
+	"/track/v1/referencenumbers":                           {},
+	"/track/v1/tcn":                                        {},
+	"/track/v1/trackingdocuments":                          {},
+	"/track/v1/trackingnumbers":                            {},
+}
+
+var knownReadOnlyPosts = func() map[string]struct{} {
+	result := make(map[string]struct{}, len(retryableReadOnlyPosts)+1)
+	for path := range retryableReadOnlyPosts {
+		result[path] = struct{}{}
+	}
+	// Address validation can be billable. It is read-only for authorization,
+	// but intentionally excluded from automatic retries.
+	result["/address/v1/addresses/resolve"] = struct{}{}
+	return result
+}()
+
+func isKnownReadOnlyOperation(method, path string) bool {
+	switch method {
+	case http.MethodGet, http.MethodHead, http.MethodOptions:
+		return true
+	case http.MethodPost:
+		path, _, _ = strings.Cut(path, "?")
+		_, ok := knownReadOnlyPosts[path]
+		return ok
+	default:
+		return false
+	}
+}
+
+// canRetryAmbiguousFailure returns true only for operations known to be
+// read-only even when the FedEx API models them as POST requests. The exact
+// allowlist fails closed if FedEx adds a new POST operation.
+func canRetryAmbiguousFailure(method, path string) bool {
+	switch method {
+	case http.MethodGet, http.MethodHead, http.MethodOptions:
+		return true
+	case http.MethodPost:
+	default:
+		return false
+	}
+
+	path, _, _ = strings.Cut(path, "?")
+	_, ok := retryableReadOnlyPosts[path]
+	return ok
 }
 
 // dryRun prints the outgoing request exactly as the live path would send it,

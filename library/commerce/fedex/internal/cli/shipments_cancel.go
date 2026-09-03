@@ -76,9 +76,12 @@ func newShipmentsCancelCmd(flags *rootFlags) *cobra.Command {
 					body["trackingNumber"] = bodyTrackingNumber
 				}
 			}
-			data, statusCode, err := c.Put(path, body)
+			data, statusCode, executed, err := executeProtectedMutation(cmd, flags, c, "cancel_shipment", "PUT", path, body)
 			if err != nil {
 				return classifyAPIError(err)
+			}
+			if !executed {
+				return nil
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
