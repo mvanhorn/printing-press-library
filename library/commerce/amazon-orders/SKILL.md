@@ -291,8 +291,8 @@ If new cookies were captured from Chrome and you want other headless agents to u
 ```bash
 TMP=$(mktemp "${TMPDIR:-/tmp}/amazon-orders-session.XXXXXX")
 chmod 600 "$TMP"
-amazon-orders-pp-cli auth export --output "$TMP" --note "captured $(date -u +%FT%TZ) from $(hostname)"
-op document edit 'amazon-orders-session' --vault Agent "$TMP"
+amazon-orders-pp-cli auth export --output "$TMP" --note "captured $(date -u +%FT%TZ) from $(hostname)" &&
+  op document edit 'amazon-orders-session' --vault Agent "$TMP"
 shred -u "$TMP" 2>/dev/null || rm -f "$TMP"
 ```
 
