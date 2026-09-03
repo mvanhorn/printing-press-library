@@ -1659,8 +1659,9 @@ func (s *Store) SaveSyncState(resourceType, cursor string, count int) error {
 }
 
 // SaveSyncCheckpoint stores a resume cursor and running count without advancing
-// last_synced_at. Incomplete --max-pages runs and per-page checkpoints use this
-// so movers / designers-deltas do not treat pagination fill as a new observation.
+// last_synced_at. Incomplete --max-pages runs, sticky-cursor aborts, and
+// per-page checkpoints use this so movers / designers-deltas do not treat
+// pagination fill as a new observation.
 // A new row gets a parseable zero RFC3339 timestamp so GetSyncState can scan
 // last_synced_at into time.Time; NULL would fail that scan and drop the resume cursor.
 func (s *Store) SaveSyncCheckpoint(resourceType, cursor string, count int) error {

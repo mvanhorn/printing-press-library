@@ -666,6 +666,11 @@ func syncResource(ctx context.Context, c interface {
 		// check below because the natural-end check would not catch a sticky
 		// non-empty cursor on its own.
 		if nextCursor != "" && nextCursor == lastNextCursor {
+			// Same incomplete-enumeration contract as --max-pages: keep the
+			// resume cursor and do not stamp last_synced_at. SaveSyncState
+			// would clear the cursor and snapshot the partial mirror.
+			capExitHit = true
+			capExitCursor = nextCursor
 			if humanFriendly {
 				fmt.Fprintf(os.Stderr, "\n  %s: API returned the same next cursor across two pages; aborting to prevent budget waste.\n", resource)
 			} else {
@@ -706,9 +711,9 @@ func syncResource(ctx context.Context, c interface {
 	}
 
 	// Natural completion clears the cursor and stamps last_synced_at.
-	// A --max-pages cap preserves the resume cursor without advancing
-	// last_synced_at, so movers / designers-deltas do not snapshot a
-	// partial mirror as if it were a complete observation.
+	// Incomplete exits (--max-pages cap or a sticky next cursor) preserve
+	// the resume cursor without advancing last_synced_at, so movers /
+	// designers-deltas do not snapshot a partial mirror as complete.
 	if capExitHit {
 		_ = db.SaveSyncCheckpoint(resource, capExitCursor, totalCount)
 	} else {
