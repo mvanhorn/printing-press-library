@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/creativefabrica/internal/algolia"
 	"github.com/mvanhorn/printing-press-library/library/commerce/creativefabrica/internal/cliutil"
@@ -17,17 +18,21 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// newAlgoliaClient builds the catalog client, honoring the CREATIVEFABRICA_BASE_URL
-// override (used by the verifier/mock server) via the generated config loader.
-func newAlgoliaClient(flags *rootFlags) *algolia.Client {
-	c := algolia.New(flags.timeout, flags.rateLimit)
-	c.DryRun = flags.dryRun
-	if cfg, err := config.Load(flags.configPath); err == nil && cfg.BaseURL != "" {
-		// Only override when an explicit non-default base URL is set (mock/test).
+// NewCatalogClient builds the credential-aware catalog client, honoring
+// CREATIVEFABRICA_BASE_URL / config base_url (verifier, mock, or alternate host).
+func NewCatalogClient(timeout time.Duration, rateLimit float64, configPath string) *algolia.Client {
+	c := algolia.New(timeout, rateLimit)
+	if cfg, err := config.Load(configPath); err == nil && cfg.BaseURL != "" {
 		if cfg.BaseURL != "https://"+algolia.DefaultAppID+"-dsn.algolia.net" {
 			c.BaseURL = cfg.BaseURL
 		}
 	}
+	return c
+}
+
+func newAlgoliaClient(flags *rootFlags) *algolia.Client {
+	c := NewCatalogClient(flags.timeout, flags.rateLimit, flags.configPath)
+	c.DryRun = flags.dryRun
 	return c
 }
 

@@ -1,7 +1,9 @@
 package cli
 
 import (
+	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/creativefabrica/internal/algolia"
 )
@@ -143,5 +145,23 @@ func TestQuoteFacetEscaping(t *testing.T) {
 	}
 	if quoteFacet(`a\b`) != `"a\\b"` {
 		t.Errorf("backslash escaping: %s", quoteFacet(`a\b`))
+	}
+}
+
+func TestNewCatalogClientHonorsBaseURL(t *testing.T) {
+	missing := filepath.Join(t.TempDir(), "missing.toml")
+	t.Setenv("CREATIVEFABRICA_BASE_URL", "https://mock.example")
+	c := NewCatalogClient(time.Second, 1, missing)
+	if c.BaseURL != "https://mock.example" {
+		t.Fatalf("BaseURL = %q, want mock host", c.BaseURL)
+	}
+}
+
+func TestNewCatalogClientLeavesDefaultHostEmpty(t *testing.T) {
+	missing := filepath.Join(t.TempDir(), "missing.toml")
+	t.Setenv("CREATIVEFABRICA_BASE_URL", "")
+	c := NewCatalogClient(time.Second, 1, missing)
+	if c.BaseURL != "" {
+		t.Fatalf("default host should leave BaseURL empty, got %q", c.BaseURL)
 	}
 }

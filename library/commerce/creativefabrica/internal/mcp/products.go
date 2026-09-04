@@ -9,7 +9,6 @@ import (
 	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mvanhorn/printing-press-library/library/commerce/creativefabrica/internal/algolia"
 	"github.com/mvanhorn/printing-press-library/library/commerce/creativefabrica/internal/cli"
 )
 
@@ -35,7 +34,7 @@ func handleProductsSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcp
 	if err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
-	c := algolia.New(30*time.Second, defaultMCPRateLimit)
+	c := cli.NewCatalogClient(30*time.Second, defaultMCPRateLimit, "")
 	results, err := c.Search(ctx, reqs...)
 	if err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
