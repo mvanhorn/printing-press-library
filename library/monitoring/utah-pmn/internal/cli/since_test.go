@@ -4,8 +4,12 @@
 package cli
 
 import (
+	"context"
 	"io"
+	"path/filepath"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/monitoring/utah-pmn/internal/store"
 )
 
 // TestNovelSinceHelpWires smoke-tests that the since command
@@ -45,5 +49,36 @@ func TestNovelSinceHelpWires(t *testing.T) {
 //	    }
 //	}
 func TestNovelSinceBehavior(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for since")
+	t.Parallel()
+	ctx := context.Background()
+	db, err := store.OpenWithContext(ctx, filepath.Join(t.TempDir(), "since.db"))
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	t.Cleanup(func() { _ = db.Close() })
+	if err := ensurePMNTables(ctx, db.DB()); err != nil {
+		t.Fatalf("tables: %v", err)
+	}
+
+	n := pmnNotice{NoticeID: 42, PublicBodyName: "Delta City Council", MeetingTitle: "Rezone", MeetingStartTime: "2026-07-01"}
+	seen, err := noticeSeen(ctx, db.DB(), n.NoticeID)
+	if err != nil {
+		t.Fatalf("noticeSeen: %v", err)
+	}
+	if seen {
+		t.Fatal("fresh store should not have seen notice 42")
+	}
+	if err := recordNotice(ctx, db.DB(), n, "2026-06-01T00:00:00Z"); err != nil {
+		t.Fatalf("recordNotice: %v", err)
+	}
+	seen, err = noticeSeen(ctx, db.DB(), n.NoticeID)
+	if err != nil {
+		t.Fatalf("noticeSeen after record: %v", err)
+	}
+	if !seen {
+		t.Fatal("expected notice 42 to be recorded")
+	}
+	if err := recordNotice(ctx, db.DB(), n, "2026-06-02T00:00:00Z"); err != nil {
+		t.Fatalf("duplicate recordNotice: %v", err)
+	}
 }

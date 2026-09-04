@@ -45,5 +45,49 @@ func TestNovelLanduseHelpWires(t *testing.T) {
 //	    }
 //	}
 func TestNovelLanduseBehavior(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for landuse")
+	t.Parallel()
+	cases := []struct {
+		name       string
+		notice     pmnNotice
+		wantBody   bool
+		wantAgenda bool
+		keyword    string
+	}{
+		{
+			name:     "planning commission body",
+			notice:   pmnNotice{PublicBodyName: "Delta Planning Commission", EntityName: "Delta City"},
+			wantBody: true,
+		},
+		{
+			name:     "school board veto",
+			notice:   pmnNotice{PublicBodyName: "Millard Board of Education", EntityName: "Millard School District"},
+			wantBody: false,
+		},
+		{
+			name:       "agenda rezone",
+			notice:     pmnNotice{PublicBodyName: "Parks Committee", MeetingAgenda: "Public hearing for a rezone at 100 Main"},
+			wantAgenda: true,
+			keyword:    "rezone",
+		},
+		{
+			name:   "unrelated body and agenda",
+			notice: pmnNotice{PublicBodyName: "Library Board", MeetingAgenda: "budget work session"},
+		},
+	}
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			if got := bodyLooksLandUse(tc.notice); got != tc.wantBody {
+				t.Errorf("bodyLooksLandUse = %v, want %v", got, tc.wantBody)
+			}
+			gotAgenda, kw := agendaHasLandUse(tc.notice)
+			if gotAgenda != tc.wantAgenda {
+				t.Errorf("agendaHasLandUse = %v (%q), want %v", gotAgenda, kw, tc.wantAgenda)
+			}
+			if tc.wantAgenda && kw != tc.keyword {
+				t.Errorf("keyword = %q, want %q", kw, tc.keyword)
+			}
+		})
+	}
 }

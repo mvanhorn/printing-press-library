@@ -182,11 +182,11 @@ func sweepLocations(ctx context.Context, c *client.Client, locs []string, start,
 	}()
 
 	ordered := make([][]pmnNotice, len(locs))
-	failures := 0
+	var failed []string
 	var firstErr error
 	for r := range results {
 		if r.err != nil {
-			failures++
+			failed = append(failed, locs[r.idx])
 			if firstErr == nil {
 				firstErr = r.err
 			}
@@ -194,9 +194,12 @@ func sweepLocations(ctx context.Context, c *client.Client, locs []string, start,
 		}
 		ordered[r.idx] = r.notices
 	}
-	// Only surface an error if every location failed.
-	if failures == len(locs) && firstErr != nil {
-		return nil, firstErr
+	// Fail closed on any location error so millard/landuse/agenda/watch
+	// do not present incomplete county coverage as a successful sweep, and
+	// since does not record a partial snapshot as the seen-set baseline.
+	if firstErr != nil {
+		sort.Strings(failed)
+		return nil, fmt.Errorf("location sweep incomplete: %d/%d locations failed (%s): %w", len(failed), len(locs), strings.Join(failed, ", "), firstErr)
 	}
 
 	seen := map[int64]bool{}

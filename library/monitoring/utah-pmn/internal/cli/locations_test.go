@@ -45,5 +45,33 @@ func TestNovelLocationsHelpWires(t *testing.T) {
 //	    }
 //	}
 func TestNovelLocationsBehavior(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for locations")
+	t.Parallel()
+	want := map[string]string{
+		"Delta": "84624", "Fillmore": "84631", "Hinckley": "84635",
+		"Oak City": "84649", "Holden": "84636", "Scipio": "84656",
+		"Kanosh": "84637", "Meadow": "84644", "Lynndyl": "84640",
+		"Leamington": "84638",
+	}
+	if len(millardLocations) != len(want) {
+		t.Fatalf("len(millardLocations) = %d, want %d", len(millardLocations), len(want))
+	}
+	gotCities := millardCityNames()
+	if len(gotCities) != len(want) {
+		t.Fatalf("millardCityNames len = %d, want %d", len(gotCities), len(want))
+	}
+	seen := map[string]bool{}
+	for _, loc := range millardLocations {
+		zip, ok := want[loc.City]
+		if !ok {
+			t.Errorf("unexpected city %q", loc.City)
+			continue
+		}
+		if loc.Zip != zip {
+			t.Errorf("%s zip = %q, want %q", loc.City, loc.Zip, zip)
+		}
+		seen[loc.City] = true
+	}
+	if len(seen) != len(want) {
+		t.Fatalf("unique cities = %d, want %d", len(seen), len(want))
+	}
 }

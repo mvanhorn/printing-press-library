@@ -5,7 +5,9 @@ package cli
 
 import (
 	"io"
+	"strings"
 	"testing"
+	"unicode/utf8"
 )
 
 // TestNovelAgendaScanHelpWires smoke-tests that the agenda scan command
@@ -45,5 +47,59 @@ func TestNovelAgendaScanHelpWires(t *testing.T) {
 //	    }
 //	}
 func TestNovelAgendaScanBehavior(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for agenda scan")
+	t.Parallel()
+	cases := []struct {
+		name    string
+		notice  pmnNotice
+		term    string
+		wantHit bool
+		inSnip  string
+	}{
+		{
+			name:    "ascii agenda hit",
+			notice:  pmnNotice{NoticeID: 1, MeetingAgenda: "Consider the Westfield subdivision plat", MeetingTitle: "Planning"},
+			term:    "subdivision",
+			wantHit: true,
+			inSnip:  "subdivision",
+		},
+		{
+			name:    "unicode case-fold length change",
+			notice:  pmnNotice{NoticeID: 2, MeetingAgenda: "İstanbul CUP hearing tonight", MeetingTitle: "Council"},
+			term:    "CUP",
+			wantHit: true,
+			inSnip:  "cup",
+		},
+		{
+			name:    "title-only hit",
+			notice:  pmnNotice{NoticeID: 3, MeetingAgenda: "consent calendar", MeetingTitle: "Rezone 12 North"},
+			term:    "rezone",
+			wantHit: true,
+			inSnip:  "rezone",
+		},
+		{
+			name:    "no match",
+			notice:  pmnNotice{NoticeID: 4, MeetingAgenda: "budget work session", MeetingTitle: "Council"},
+			term:    "subdivision",
+			wantHit: false,
+		},
+	}
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			got, ok := matchAgendaTerm(tc.notice, tc.term)
+			if ok != tc.wantHit {
+				t.Fatalf("hit = %v, want %v (snippet %q)", ok, tc.wantHit, got.Snippet)
+			}
+			if !tc.wantHit {
+				return
+			}
+			if !utf8.ValidString(got.Snippet) {
+				t.Fatalf("snippet is not valid UTF-8: %q", got.Snippet)
+			}
+			if !strings.Contains(got.Snippet, tc.inSnip) {
+				t.Fatalf("snippet %q missing %q", got.Snippet, tc.inSnip)
+			}
+		})
+	}
 }

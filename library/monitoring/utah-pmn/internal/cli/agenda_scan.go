@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/spf13/cobra"
 )
@@ -61,12 +62,10 @@ func newNovelAgendaScanCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			needle := strings.ToLower(term)
 			matches := make([]agendaMatch, 0)
 			for _, n := range notices {
-				hay := n.MeetingAgenda + "\n" + n.MeetingTitle
-				if idx := strings.Index(strings.ToLower(hay), needle); idx >= 0 {
-					matches = append(matches, agendaMatch{pmnNotice: n, Snippet: snippetAround(hay, idx, len(term))})
+				if m, ok := matchAgendaTerm(n, term); ok {
+					matches = append(matches, m)
 				}
 			}
 			b, err := json.Marshal(matches)
@@ -82,16 +81,46 @@ func newNovelAgendaScanCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
-// snippetAround returns ~60 chars of context on each side of a match.
+// matchAgendaTerm reports whether term appears in the notice agenda or title.
+// Search and snippet use the same lowercased string so Unicode case folding
+// that changes UTF-8 length cannot feed a foreign byte offset into slicing.
+func matchAgendaTerm(n pmnNotice, term string) (agendaMatch, bool) {
+	needle := strings.ToLower(term)
+	hayLower := strings.ToLower(n.MeetingAgenda + "\n" + n.MeetingTitle)
+	idx := strings.Index(hayLower, needle)
+	if idx < 0 {
+		return agendaMatch{}, false
+	}
+	return agendaMatch{pmnNotice: n, Snippet: snippetAround(hayLower, idx, len(needle))}, true
+}
+
+// snippetAround returns ~60 bytes of context on each side of a match.
+// idx and matchLen are byte offsets into s (the same string that was searched).
 func snippetAround(s string, idx, matchLen int) string {
 	const pad = 60
+	if idx < 0 {
+		idx = 0
+	}
+	if idx > len(s) {
+		idx = len(s)
+	}
+	matchEnd := idx + matchLen
+	if matchEnd < idx || matchEnd > len(s) {
+		matchEnd = len(s)
+	}
 	lo := idx - pad
 	if lo < 0 {
 		lo = 0
 	}
-	hi := idx + matchLen + pad
+	for lo > 0 && !utf8.RuneStart(s[lo]) {
+		lo--
+	}
+	hi := matchEnd + pad
 	if hi > len(s) {
 		hi = len(s)
+	}
+	for hi < len(s) && !utf8.RuneStart(s[hi]) {
+		hi++
 	}
 	snip := strings.TrimSpace(s[lo:hi])
 	snip = strings.ReplaceAll(snip, "\r", " ")

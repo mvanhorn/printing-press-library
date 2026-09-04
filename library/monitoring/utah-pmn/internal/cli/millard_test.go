@@ -45,5 +45,20 @@ func TestNovelMillardHelpWires(t *testing.T) {
 //	    }
 //	}
 func TestNovelMillardBehavior(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for millard")
+	t.Parallel()
+	notices := []pmnNotice{
+		{NoticeID: 1, PublicBodyName: "Delta City Council", EntityName: "Delta"},
+		{NoticeID: 2, PublicBodyName: "Millard County Planning Commission", EntityName: "Fillmore"},
+		{NoticeID: 3, PublicBodyName: "Millard Board of Education", EntityName: "Fillmore"},
+		{NoticeID: 4, PublicBodyName: "Library Board", EntityName: "Delta"},
+	}
+	var kept []int64
+	for _, n := range notices {
+		if bodyLooksLandUse(n) {
+			kept = append(kept, n.NoticeID)
+		}
+	}
+	if len(kept) != 2 || kept[0] != 1 || kept[1] != 2 {
+		t.Fatalf("land-use bodies = %v, want [1 2]", kept)
+	}
 }

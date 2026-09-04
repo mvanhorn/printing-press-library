@@ -4,8 +4,12 @@
 package cli
 
 import (
+	"context"
 	"io"
+	"path/filepath"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/monitoring/utah-pmn/internal/store"
 )
 
 // TestNovelWatchHelpWires smoke-tests that the watch command
@@ -45,5 +49,42 @@ func TestNovelWatchHelpWires(t *testing.T) {
 //	    }
 //	}
 func TestNovelWatchBehavior(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for watch")
+	t.Parallel()
+	ctx := context.Background()
+	db, err := store.OpenWithContext(ctx, filepath.Join(t.TempDir(), "watch.db"))
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	t.Cleanup(func() { _ = db.Close() })
+	if err := ensurePMNTables(ctx, db.DB()); err != nil {
+		t.Fatalf("tables: %v", err)
+	}
+
+	if err := watchAdd(ctx, db.DB(), "delta city council", "2026-06-01T00:00:00Z"); err != nil {
+		t.Fatalf("watchAdd: %v", err)
+	}
+	if err := watchAdd(ctx, db.DB(), "delta city council", "2026-06-02T00:00:00Z"); err != nil {
+		t.Fatalf("duplicate watchAdd: %v", err)
+	}
+	names, err := watchList(ctx, db.DB())
+	if err != nil {
+		t.Fatalf("watchList: %v", err)
+	}
+	if len(names) != 1 || names[0] != "delta city council" {
+		t.Fatalf("watchList = %v, want [delta city council]", names)
+	}
+	n, err := watchRemove(ctx, db.DB(), "delta city council")
+	if err != nil {
+		t.Fatalf("watchRemove: %v", err)
+	}
+	if n != 1 {
+		t.Fatalf("watchRemove rows = %d, want 1", n)
+	}
+	names, err = watchList(ctx, db.DB())
+	if err != nil {
+		t.Fatalf("watchList after remove: %v", err)
+	}
+	if len(names) != 0 {
+		t.Fatalf("watchList after remove = %v, want empty", names)
+	}
 }
