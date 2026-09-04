@@ -270,6 +270,14 @@ github-pp-cli which "<capability in your own words>"
 
 ## Recipes
 
+### Populate the local mirror for a repository
+
+```bash
+github-pp-cli sync --repo cli/cli
+```
+
+GitHub list endpoints are path-scoped, so `sync` requires `--repo owner/repo`. After this, offline search and the novel aggregation commands can read from the local SQLite store.
+
 ### Triage duplicates before re-labeling
 
 ```bash

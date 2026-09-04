@@ -2045,7 +2045,7 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	path := ep.Path
 	for _, p := range ep.Positional {
 		if v, ok := params[p]; ok {
-			path = strings.ReplaceAll(path, "{"+p+"}", formatMCPParamValue(v))
+			path = codeOrchFillPath(path, p, v)
 			delete(params, p)
 		}
 	}
@@ -2184,4 +2184,19 @@ func codeOrchWireQueryName(queryParams []codeOrchParamBinding, name string) stri
 		}
 	}
 	return name
+}
+
+func codeOrchFillPath(path, name string, value any) string {
+	return strings.ReplaceAll(path, "{"+name+"}", pathEscapePreserveSlashes(formatMCPParamValue(value)))
+}
+
+// pathEscapePreserveSlashes percent-encodes path-reserved characters so
+// ?, #, and % cannot be parsed as query/fragment syntax, while keeping
+// '/' as a path separator (GitHub content paths are slash-delimited).
+func pathEscapePreserveSlashes(s string) string {
+	parts := strings.Split(s, "/")
+	for i, p := range parts {
+		parts[i] = neturl.PathEscape(p)
+	}
+	return strings.Join(parts, "/")
 }

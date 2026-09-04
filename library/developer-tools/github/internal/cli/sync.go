@@ -32,6 +32,25 @@ import (
 // sync still completes for resources that DO have resolvable paths.
 var unresolvedPathKeyRE = regexp.MustCompile(`\{[a-zA-Z_][a-zA-Z0-9_]*\}`)
 
+// syncRepoOwner and syncRepoName are filled from --repo (or --param
+// owner=/repo=) before workers start. GitHub list endpoints are path-scoped
+// and cannot be enumerated without a repository target.
+var syncRepoOwner string
+var syncRepoName string
+
+// fillGitHubSyncRepoPath substitutes {owner} and {repo} from the sync
+// target. Called after syncResourcePath so unresolved-key skip only fires
+// for keys this CLI cannot fill.
+func fillGitHubSyncRepoPath(path string) string {
+	if syncRepoOwner != "" {
+		path = replacePathParam(path, "owner", syncRepoOwner)
+	}
+	if syncRepoName != "" {
+		path = replacePathParam(path, "repo", syncRepoName)
+	}
+	return path
+}
+
 // syncResult holds the outcome of syncing a single resource.
 type syncResult struct {
 	Resource string
@@ -53,6 +72,7 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var paramFlags []string
 	var resourceParamFlags []string
 	var globalParamFlags []string
+	var repoFlag string
 
 	cmd := &cobra.Command{
 		Use:   "sync",
@@ -84,28 +104,44 @@ Resource scoping:
   parent. To run a dependent without re-syncing its parent, list only
   the dependent by name; the parent table must already be populated
   from a prior sync.`,
-		Example: `  # Sync all resources
-  github-pp-cli sync
+		Example: `  # Sync a repository's issues, PRs, commits, labels, and issue comments
+  github-pp-cli sync --repo cli/cli
 
   # Sync specific resources only
-  github-pp-cli sync --resources channels,messages
+  github-pp-cli sync --repo cli/cli --resources issues,pulls
 
   # Full resync (ignore previous checkpoint)
-  github-pp-cli sync --full
+  github-pp-cli sync --repo cli/cli --full
 
   # Incremental sync: only records from the last 7 days
-  github-pp-cli sync --since 7d
+  github-pp-cli sync --repo cli/cli --since 7d
 
   # Parallel sync with 8 workers
-  github-pp-cli sync --concurrency 8
+  github-pp-cli sync --repo cli/cli --concurrency 8
 
   # Latest-only: refresh head of each resource, no historical backfill
-  github-pp-cli sync --latest-only`,
+  github-pp-cli sync --repo cli/cli --latest-only`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			userParams, err := parseSyncUserParams(paramFlags, resourceParamFlags, globalParamFlags)
 			if err != nil {
 				return usageErr(err)
 			}
+
+			owner, repoName, ok := nvRepoFromFlag(repoFlag)
+			if repoFlag != "" && !ok {
+				return usageErr(fmt.Errorf("invalid --repo %q: expected owner/repo", repoFlag))
+			}
+			if !ok {
+				owner = userParams.flatGlobal["owner"]
+				repoName = userParams.flatGlobal["repo"]
+				ok = owner != "" && repoName != ""
+				delete(userParams.flatGlobal, "owner")
+				delete(userParams.flatGlobal, "repo")
+			}
+			if !ok {
+				return usageErr(fmt.Errorf("sync requires --repo owner/repo because GitHub list endpoints are path-scoped"))
+			}
+			syncRepoOwner, syncRepoName = owner, repoName
 
 			c, err := flags.newClient()
 			if err != nil {
@@ -335,6 +371,7 @@ Resource scoping:
 	}
 
 	cmd.Flags().StringSliceVar(&resources, "resources", nil, "Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).")
+	cmd.Flags().StringVar(&repoFlag, "repo", "", "Repository to sync as owner/repo (required; GitHub list endpoints are path-scoped)")
 	cmd.Flags().BoolVar(&full, "full", false, "Full resync (ignore previous checkpoint)")
 	cmd.Flags().StringVar(&since, "since", "", "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)")
 	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Number of parallel sync workers")
@@ -370,6 +407,7 @@ func syncResource(ctx context.Context, c interface {
 	if err != nil {
 		return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
 	}
+	path = fillGitHubSyncRepoPath(path)
 
 	// Skip resources whose path template still contains unresolved `{key}`
 	// placeholders after syncResourcePath() resolution. These paths require
@@ -755,6 +793,8 @@ func determinePaginationDefaults() paginationDefaults {
 
 func resourceSupportsPagination(resource string) bool {
 	switch resource {
+	case "issues", "pulls", "commits", "labels", "issues_comments":
+		return true
 	}
 	return false
 }
@@ -765,12 +805,16 @@ func resourceSupportsPagination(resource string) bool {
 // validation-error 400s on APIs that reject unknown query keys.
 func syncResourceSinceParam(resource string) string {
 	switch resource {
+	case "issues", "commits", "issues_comments":
+		return "since"
 	}
 	return ""
 }
 
 func syncResourceSinceParamFormat(resource string) string {
 	switch resource {
+	case "issues", "commits", "issues_comments":
+		return "date-time"
 	}
 	return ""
 }
@@ -1473,22 +1517,27 @@ func parseSinceDuration(s string) (time.Time, error) {
 }
 
 func defaultSyncResources() []string {
-	return []string{}
+	return []string{"issues", "pulls", "commits", "labels", "issues_comments"}
 }
 
 // knownSyncResourceNames returns every resource name sync will accept —
 // flat resources plus any parent-child dependents. Used by --resource-param
 // validation to reject misspellings before they become silent no-ops.
 func knownSyncResourceNames() []string {
-	names := []string{}
-	return names
+	return defaultSyncResources()
 }
 
 // syncResourcePath maps resource names to their actual API endpoint paths.
-// For REST APIs this is typically "/<resource>". For non-REST APIs (e.g., Steam)
-// this preserves the actual endpoint path like "/ISteamApps/GetAppList/v2".
+// GitHub collaboration resources are repo-scoped; fillGitHubSyncRepoPath
+// substitutes {owner}/{repo} from --repo before the unresolved-key skip.
 func syncResourcePath(resource string) (string, error) {
-	paths := map[string]string{}
+	paths := map[string]string{
+		"issues":          "/repos/{owner}/{repo}/issues",
+		"pulls":           "/repos/{owner}/{repo}/pulls",
+		"commits":         "/repos/{owner}/{repo}/commits",
+		"labels":          "/repos/{owner}/{repo}/labels",
+		"issues_comments": "/repos/{owner}/{repo}/issues/comments",
+	}
 	if p, ok := paths[resource]; ok {
 		return p, nil
 	}
@@ -1504,7 +1553,9 @@ func syncResourcePath(resource string) (string, error) {
 // Includes both flat resources and dependent (parent-child) resources so
 // annotations on a child path-item are honored at runtime, not just on
 // flat paths.
-var resourceIDFieldOverrides = map[string]string{}
+var resourceIDFieldOverrides = map[string]string{
+	"commits": "sha",
+}
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
 // NOT receive a templated IDField. API-specific names belong in spec

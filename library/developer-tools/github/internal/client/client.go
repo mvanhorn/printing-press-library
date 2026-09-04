@@ -370,6 +370,19 @@ func isMutatingVerb(method string) bool {
 	return false
 }
 
+// retryOnServerError reports whether a 5xx response may be retried for this
+// HTTP method. RFC 9110 treats GET/HEAD/PUT/DELETE/OPTIONS/TRACE as
+// idempotent; POST and PATCH are not, so a transient 5xx after GitHub
+// applied the write must not replay the body.
+func retryOnServerError(method string) bool {
+	switch strings.ToUpper(method) {
+	case http.MethodGet, http.MethodHead, http.MethodPut, http.MethodDelete, http.MethodOptions, http.MethodTrace:
+		return true
+	default:
+		return false
+	}
+}
+
 // verifyShortCircuitEnvelope returns the synthetic JSON body that
 // stands in for a real mutating response when do() short-circuits in
 // verify mode. The __pp_verify_synthetic__ sentinel is namespace-
@@ -586,7 +599,8 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			Body:       c.maskCredentialText(truncateBody(respBody), authHeader),
 		}
 
-		// Rate limited - adjust adaptive limiter and retry
+		// Rate limited - GitHub rejected the request before applying it, so
+		// retrying any method is safe. Adjust the adaptive limiter and wait.
 		if resp.StatusCode == 429 && attempt < maxRetries {
 			c.limiter.OnRateLimit()
 			wait := cliutil.RetryAfter(resp)
@@ -598,8 +612,10 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			continue
 		}
 
-		// Server error - retry with backoff
-		if resp.StatusCode >= 500 && attempt < maxRetries {
+		// Server error - retry with backoff only for idempotent methods.
+		// POST/PATCH may have already applied the mutation; replaying the
+		// body can duplicate comments, reviews, or releases.
+		if resp.StatusCode >= 500 && attempt < maxRetries && retryOnServerError(method) {
 			wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
 			fmt.Fprintf(os.Stderr, "server error %d, retrying in %s (attempt %d/%d)\n", resp.StatusCode, wait, attempt+1, maxRetries)
 			if err := sleepContext(ctx, wait); err != nil {

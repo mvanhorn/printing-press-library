@@ -27,6 +27,9 @@ func newIssuesDependenciesIssuesRemoveDependencyBlockedByCmd(flags *rootFlags) *
 			if err != nil {
 				return err
 			}
+			if err := confirmDestructive(cmd, flags); err != nil {
+				return err
+			}
 
 			path := "/repos/{owner}/{repo}/issues/{issue_number}/dependencies/blocked_by/{issue_id}"
 			path = replacePathParam(path, "owner", args[0])

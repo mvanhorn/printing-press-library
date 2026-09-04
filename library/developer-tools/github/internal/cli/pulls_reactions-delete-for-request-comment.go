@@ -26,6 +26,9 @@ func newPullsReactionsDeleteForRequestCommentCmd(flags *rootFlags) *cobra.Comman
 			if err != nil {
 				return err
 			}
+			if err := confirmDestructive(cmd, flags); err != nil {
+				return err
+			}
 
 			path := "/repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions/{reaction_id}"
 			path = replacePathParam(path, "owner", args[0])

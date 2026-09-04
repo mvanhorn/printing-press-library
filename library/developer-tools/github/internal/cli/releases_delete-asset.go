@@ -26,6 +26,9 @@ func newReleasesDeleteAssetCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if err := confirmDestructive(cmd, flags); err != nil {
+				return err
+			}
 
 			path := "/repos/{owner}/{repo}/releases/assets/{asset_id}"
 			path = replacePathParam(path, "owner", args[0])

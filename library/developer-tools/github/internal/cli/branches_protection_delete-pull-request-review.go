@@ -26,6 +26,9 @@ func newBranchesProtectionDeletePullRequestReviewCmd(flags *rootFlags) *cobra.Co
 			if err != nil {
 				return err
 			}
+			if err := confirmDestructive(cmd, flags); err != nil {
+				return err
+			}
 
 			path := "/repos/{owner}/{repo}/branches/{branch}/protection/required_pull_request_reviews"
 			path = replacePathParam(path, "owner", args[0])

@@ -26,6 +26,9 @@ func newBranchesProtectionDeleteCommitSignatureCmd(flags *rootFlags) *cobra.Comm
 			if err != nil {
 				return err
 			}
+			if err := confirmDestructive(cmd, flags); err != nil {
+				return err
+			}
 
 			path := "/repos/{owner}/{repo}/branches/{branch}/protection/required_signatures"
 			path = replacePathParam(path, "owner", args[0])

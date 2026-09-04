@@ -1,6 +1,6 @@
 {
-  "dir": "/Users/barracuda/printing-press/.runstate/unified-workspace-65bad93a/runs/20260617-101859-30092ba9/working/github-pp-cli",
-  "binary": "/Users/barracuda/printing-press/.runstate/unified-workspace-65bad93a/runs/20260617-101859-30092ba9/working/github-pp-cli/github-pp-cli",
+  "dir": "github-pp-cli",
+  "binary": "github-pp-cli",
   "level": "full",
   "verdict": "PASS",
   "matrix_size": 331,

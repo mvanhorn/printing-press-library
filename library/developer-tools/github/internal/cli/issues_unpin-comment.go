@@ -26,6 +26,9 @@ func newIssuesUnpinCommentCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if err := confirmDestructive(cmd, flags); err != nil {
+				return err
+			}
 
 			path := "/repos/{owner}/{repo}/issues/comments/{comment_id}/pin"
 			path = replacePathParam(path, "owner", args[0])

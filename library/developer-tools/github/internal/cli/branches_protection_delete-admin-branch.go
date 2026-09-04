@@ -26,6 +26,9 @@ func newBranchesProtectionDeleteAdminBranchCmd(flags *rootFlags) *cobra.Command 
 			if err != nil {
 				return err
 			}
+			if err := confirmDestructive(cmd, flags); err != nil {
+				return err
+			}
 
 			path := "/repos/{owner}/{repo}/branches/{branch}/protection/enforce_admins"
 			path = replacePathParam(path, "owner", args[0])

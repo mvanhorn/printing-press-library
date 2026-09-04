@@ -27,6 +27,9 @@ func newBranchesProtectionDeleteAccessRestrictionsCmd(flags *rootFlags) *cobra.C
 			if err != nil {
 				return err
 			}
+			if err := confirmDestructive(cmd, flags); err != nil {
+				return err
+			}
 
 			path := "/repos/{owner}/{repo}/branches/{branch}/protection/restrictions"
 			path = replacePathParam(path, "owner", args[0])
