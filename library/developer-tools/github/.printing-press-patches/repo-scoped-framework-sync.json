@@ -4,11 +4,13 @@
   "applied_at": "2026-09-04",
   "base_run_id": "20260617-101859-30092ba9",
   "base_printing_press_version": "4.24.0",
-  "summary": "Framework sync must target a repository via --repo, paginate GitHub's path-scoped list endpoints, key commits on sha, and drop pull requests from the issues list.",
-  "reason": "GitHub collaboration resources live under /repos/{owner}/{repo}/... and cannot be enumerated as a flat catalog. The issues list also returns pull requests (pull_request key) whose issue ids must not land in the issues store. A regen that restores empty defaultSyncResources, disables pagination, or stores PRs as issues would make sync a no-op, truncate pages, or duplicate cross-entity data.",
+  "summary": "Framework sync must target a repository via --repo, paginate GitHub's path-scoped list endpoints, key commits on sha, and drop pull requests from the issues list without using the filtered page length to decide whether another page exists.",
+  "reason": "GitHub collaboration resources live under /repos/{owner}/{repo}/... and cannot be enumerated as a flat catalog. The issues list also returns pull requests (pull_request key) whose issue ids must not land in the issues store. Filtering those PRs before the len(page)<100 check makes a full 100-item page look short and stops pagination early. A regen that restores empty defaultSyncResources, disables pagination, stores PRs as issues, or paginates on the filtered slice would make sync a no-op, truncate pages, or duplicate cross-entity data.",
   "files": [
     "internal/cli/sync.go",
-    "internal/cli/github_sync_repo_test.go"
+    "internal/cli/novel_common.go",
+    "internal/cli/github_sync_repo_test.go",
+    "internal/cli/novel_common_test.go"
   ],
-  "validated_outcome": "defaultSyncResources is non-empty; resourceSupportsPagination is true for those resources; fillGitHubSyncRepoPath substitutes owner/repo; go test ./internal/cli/... passes."
+  "validated_outcome": "defaultSyncResources is non-empty; resourceSupportsPagination is true for those resources; fillGitHubSyncRepoPath substitutes owner/repo; nvPopulate continues after a 100-item issues page that contains PRs; go test ./internal/cli/... passes."
 }

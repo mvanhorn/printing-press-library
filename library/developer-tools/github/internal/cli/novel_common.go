@@ -532,7 +532,8 @@ func nvPopulate(ctx context.Context, c *client.Client, st *store.Store, owner, r
 		if err := json.Unmarshal(data, &items); err != nil {
 			return count, false, fmt.Errorf("parsing %s page %d: %w", resource, page, err)
 		}
-		if len(items) == 0 {
+		pageLen := len(items)
+		if pageLen == 0 {
 			break
 		}
 		items = dropGitHubIssuePullRequests(resource, items)
@@ -545,7 +546,7 @@ func nvPopulate(ctx context.Context, c *client.Client, st *store.Store, owner, r
 				count++
 			}
 		}
-		if len(items) < 100 {
+		if pageLen < 100 {
 			return count, false, nil
 		}
 		if page == maxPages {

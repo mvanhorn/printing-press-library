@@ -287,6 +287,50 @@ func TestNvPopulateReportsPageCapAndMalformedResponses(t *testing.T) {
 		}
 	})
 
+	t.Run("full page with PRs still paginates", func(t *testing.T) {
+		page1 := make([]map[string]any, 100)
+		for i := range page1 {
+			item := map[string]any{"id": i + 1, "title": "issue"}
+			if i%10 == 0 {
+				item["pull_request"] = map[string]any{"url": "https://api.github.com/repos/o/r/pulls/" + strconv.Itoa(i+1)}
+			}
+			page1[i] = item
+		}
+		page2 := []map[string]any{{"id": 101, "title": "later"}}
+		var hits int
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			hits++
+			page := r.URL.Query().Get("page")
+			items := page1
+			if page == "2" {
+				items = page2
+			}
+			if err := json.NewEncoder(w).Encode(items); err != nil {
+				t.Error(err)
+			}
+		}))
+		defer server.Close()
+
+		st, err := store.Open(filepath.Join(t.TempDir(), "paginate.db"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer st.Close()
+		c := client.New(&config.Config{BaseURL: server.URL}, time.Second, 0)
+		c.NoCache = true
+
+		count, truncated, err := nvPopulate(context.Background(), c, st, "o", "r", "issues", 2)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if hits != 2 {
+			t.Fatalf("fetched %d pages, want 2 (raw page length 100 must continue)", hits)
+		}
+		if count != 91 || truncated {
+			t.Fatalf("count=%d truncated=%v, want 91 false", count, truncated)
+		}
+	})
+
 	t.Run("malformed response", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			_, _ = w.Write([]byte(`{"not":"an array"}`))
