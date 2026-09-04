@@ -1,4 +1,7 @@
 // Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
+// Hand-authored helper folded into the balances implementation.
+// Preserved outside generated files.
+// pp:data-source local
 package cli
 
 import (

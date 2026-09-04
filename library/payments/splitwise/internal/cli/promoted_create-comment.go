@@ -13,7 +13,7 @@ import (
 
 func newCreateCommentPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyContent string
-	var bodyExpenseId string
+	var bodyExpenseId int
 
 	cmd := &cobra.Command{
 		Use:         "create-comment",
@@ -33,19 +33,20 @@ func newCreateCommentPromotedCmd(flags *rootFlags) *cobra.Command {
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
-			if bodyContent != "" {
-				body["content"] = bodyContent
+			bodyMap := map[string]any{}
+			var body any = bodyMap
+			if cmd.Flags().Changed("content") || bodyContent != "" {
+				bodyMap["content"] = bodyContent
 			}
-			if bodyExpenseId != "" {
-				body["expense_id"] = bodyExpenseId
+			if cmd.Flags().Changed("expense-id") || bodyExpenseId != 0 {
+				bodyMap["expense_id"] = bodyExpenseId
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 
-			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
+			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			var partialFailure *partialFailureReport
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {
 				partialFailure = detectPartialFailure(data)
@@ -53,6 +54,7 @@ func newCreateCommentPromotedCmd(flags *rootFlags) *cobra.Command {
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
 				writeMutationResponseToStore(cmd.Context(), "create-comment", data, "")
 			}
+			outputData := data
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -60,9 +62,9 @@ func newCreateCommentPromotedCmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				if json.Unmarshal(data, &countItems) != nil {
+				if json.Unmarshal(outputData, &countItems) != nil {
 					// Single object, not an array
-					countItems = []json.RawMessage{data}
+					countItems = []json.RawMessage{outputData}
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
@@ -76,9 +78,13 @@ func newCreateCommentPromotedCmd(flags *rootFlags) *cobra.Command {
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, nil)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+				if wrapErr != nil {
+					return wrapErr
+				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
 				if wrapErr != nil {
 					return wrapErr
 				}
@@ -86,7 +92,7 @@ func newCreateCommentPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -96,11 +102,15 @@ func newCreateCommentPromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
 		},
 	}
 	cmd.Flags().StringVar(&bodyContent, "content", "", "Content")
-	cmd.Flags().StringVar(&bodyExpenseId, "expense-id", "", "Expense id")
+	cmd.Flags().IntVar(&bodyExpenseId, "expense-id", 0, "Expense id")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

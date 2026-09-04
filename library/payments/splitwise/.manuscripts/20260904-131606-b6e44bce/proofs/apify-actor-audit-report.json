@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/splitwise-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260904-131606-b6e44bce",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

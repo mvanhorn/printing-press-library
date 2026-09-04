@@ -1,0 +1,12 @@
+dogfood: using spec /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/spec.yaml (bundled)
+warning: request body for POST "/add_user_to_group" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/create_expense" contains oneOf/anyOf; emitting --body-json fallback
+dogfood: synced .printing-press.json (novel_features) from novel_features_built
+dogfood: left unmodified internal/mcp/tools.go (command_mirror_capabilities); on-disk block differs from research.json
+dogfood: synced README.md (Unique Features) from novel_features_built
+dogfood: synced SKILL.md (Unique Capabilities) from novel_features_built
+dogfood: synced internal/cli/which.go (whichIndex) from novel_features_built
+dogfood: synced README.md (Authentication) from research.json narrative
+dogfood: synced SKILL.md (Auth Setup) from research.json narrative
+dogfood: synced README.md (Troubleshooting) from research.json narrative
+dogfood: synced internal/cli/root.go (Highlights) from novel_features_built

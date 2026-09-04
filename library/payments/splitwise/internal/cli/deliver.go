@@ -5,12 +5,16 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/client"
 )
 
 // DeliverSink describes where command output should be routed when
@@ -56,7 +60,8 @@ func ParseDeliverSink(spec string) (DeliverSink, error) {
 
 // Deliver routes a captured output buffer to the configured sink. stdout
 // is a no-op because the buffer has already been streamed to stdout via
-// the MultiWriter set up in root.go.
+// the MultiWriter set up in root.go. Binary-response commands unwrap the
+// envelope before calling Deliver so ordinary JSON is never decoded here.
 func Deliver(sink DeliverSink, body []byte, compact bool) error {
 	switch sink.Scheme {
 	case "", "stdout":
@@ -70,12 +75,41 @@ func Deliver(sink DeliverSink, body []byte, compact bool) error {
 	}
 }
 
+func unwrapBinaryDeliverBody(body []byte) (raw []byte, contentType string, ok bool) {
+	return client.UnwrapBinaryResponse(body)
+}
+
+func binaryDeliverPayload(body []byte) (raw []byte, contentType string) {
+	if raw, contentType, ok := unwrapBinaryDeliverBody(body); ok {
+		return raw, contentType
+	}
+	return body, ""
+}
+
+type binaryDeliverReceipt struct {
+	Delivered   bool   `json:"delivered"`
+	Sink        string `json:"sink"`
+	Target      string `json:"target"`
+	Bytes       int    `json:"bytes"`
+	ContentType string `json:"content_type,omitempty"`
+}
+
+func writeBinaryDeliverReceipt(w io.Writer, sink DeliverSink, raw []byte, contentType string) error {
+	return json.NewEncoder(w).Encode(binaryDeliverReceipt{
+		Delivered:   true,
+		Sink:        sink.Scheme,
+		Target:      sink.Target,
+		Bytes:       len(raw),
+		ContentType: contentType,
+	})
+}
+
 func deliverFile(path string, body []byte) error {
 	// Atomic write: tmp + rename. Protects agents from seeing a partial
 	// file if the process is interrupted mid-write.
 	dir := filepath.Dir(path)
 	if dir != "" && dir != "." {
-		if err := os.MkdirAll(dir, 0o755); err != nil {
+		if err := os.MkdirAll(dir, 0o700); err != nil {
 			return fmt.Errorf("creating deliver dir: %w", err)
 		}
 	}
@@ -90,19 +124,21 @@ func deliverFile(path string, body []byte) error {
 }
 
 func deliverWebhook(url string, body []byte, compact bool) error {
+	_ = compact
 	contentType := "application/json"
-	if compact {
-		contentType = "application/x-ndjson"
-	}
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("building webhook request: %w", err)
 	}
 	req.Header.Set("Content-Type", contentType)
-	req.Header.Set("User-Agent", "splitwise-pp-cli/deliver")
+	if ua := os.Getenv("SPLITWISE_USER_AGENT"); ua != "" {
+		req.Header.Set("User-Agent", ua)
+	} else {
+		req.Header.Set("User-Agent", "splitwise-pp-cli/deliver")
+	}
 
-	client := &http.Client{Timeout: 30 * time.Second}
-	resp, err := client.Do(req)
+	httpClient := &http.Client{Timeout: 30 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("posting to webhook: %w", err)
 	}

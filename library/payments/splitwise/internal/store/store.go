@@ -9,7 +9,9 @@ package store
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"database/sql"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"hash/fnv"
@@ -22,14 +24,18 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"unicode"
-	"unicode/utf8"
 
 	_ "modernc.org/sqlite"
 )
 
 var uuidPattern = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
-var emailLikeRe = regexp.MustCompile(`^[^@\s]+@[^@\s]+\.[^@\s]+$`)
+var isoDatePattern = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}(?:[T ][0-9:.+-Zz]+)?$`)
+var ftsQueryTokenRE = regexp.MustCompile(`[\pL\pN_]+`)
+
+var sqliteDriverInit struct {
+	mu   sync.Mutex
+	done bool
+}
 
 // validIdentifierRE pins ListField's `field` argument to a safe SQL
 // identifier shape before any Sprintf interpolation. Matches what
@@ -45,8 +51,22 @@ func IsUUID(s string) bool {
 
 // StoreSchemaVersion is the on-disk schema version this binary understands.
 // It is stamped into SQLite's PRAGMA user_version on fresh databases and
-// checked on every open. Non-learn CLIs stay at v2.
-const StoreSchemaVersion = 2
+// checked on every open. Learn-enabled CLIs advance to v9 for the
+// learn_candidates and learn_events tables (CLI-side capture and
+// measurement), on top of the v8 learning_playbooks table for
+// hand-authored choreography keyed by query family and the v6 canonical
+// learn-loop tables ported from prediction-goat (including the v3
+// resources_fts rowid rehash and v4 resources_fts content extraction).
+const StoreSchemaVersion = 9
+
+// resourcesFTSContentSchemaVersion pins the schema bump that rewrote
+// resources_fts content from raw JSON to searchable leaf values. Keep this
+// separate from StoreSchemaVersion — and pinned at 4 regardless of the
+// learn shape — so schema bumps that only add tables (the learn
+// migrations) never trigger an expensive full FTS content rewrite. A
+// store stamped at v4 or later already carries the extracted-leaf FTS
+// content; opening it with a newer binary must stay additive-only.
+const resourcesFTSContentSchemaVersion = 4
 
 const resourcesFTSCreateSQL = `CREATE VIRTUAL TABLE IF NOT EXISTS resources_fts USING fts5(
 	id, resource_type, content, tokenize='porter unicode61'
@@ -89,8 +109,34 @@ func Open(dbPath string) (*Store, error) {
 // PRAGMA journal_mode=WAL on a read-only handle to a DB still in the default
 // delete mode (e.g. a pre-WAL database opened by an old binary before its
 // first read-write open) errors with "attempt to write a readonly database".
+//
+// immutable=1 is the WAL-index control. mmap_size(0) only bounds mmap of the
+// main database file; SQLite still memory-maps the -shm WAL-index for
+// multi-process WAL coordination, and concurrent read-only processes fault
+// inside that mapping. The URI flag tells SQLite this connection will not
+// observe writers, so it skips shared-memory and reads the main file with
+// pread. A WAL writer's last close already checkpoints, so a later
+// immutable reader sees the committed snapshot. Uncheckpointed frames from
+// a still-open writer are invisible; that is the trade for not mapping -shm.
+// nolock=1 and vfs=unix-none cannot open a WAL database; exclusive locking
+// mode serializes clients and fails a mode=ro open.
+//
+// OpenReadOnly uses context.Background(); callers holding a context should use
+// OpenReadOnlyContext so a cancelled command (SIGINT, deadline) interrupts the
+// SQLITE_BUSY retry during driver init instead of waiting out the full timeout.
 func OpenReadOnly(dbPath string) (*Store, error) {
-	db, err := sql.Open("sqlite", "file:"+dbPath+"?mode=ro&_pragma=busy_timeout(5000)&_pragma=foreign_keys(ON)&_pragma=temp_store(MEMORY)&_pragma=mmap_size(268435456)")
+	return OpenReadOnlyContext(context.Background(), dbPath)
+}
+
+// OpenReadOnlyContext is OpenReadOnly with a caller-supplied context honored by
+// the driver-init SQLITE_BUSY retry.
+func OpenReadOnlyContext(ctx context.Context, dbPath string) (*Store, error) {
+	dsn := "file:" + dbPath + "?mode=ro&immutable=1&_pragma=busy_timeout(5000)&_pragma=foreign_keys(ON)&_pragma=temp_store(MEMORY)&_pragma=mmap_size(0)"
+	if err := ensureSQLiteDriverInitialized(ctx, dsn); err != nil {
+		return nil, err
+	}
+
+	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("opening database (read-only): %w", err)
 	}
@@ -103,27 +149,168 @@ func OpenReadOnly(dbPath string) (*Store, error) {
 // retry-on-SQLITE_BUSY loop and propagates ctx.Err() back to the caller
 // instead of waiting out the full migrationLockTimeout.
 func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
-	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(dbPath), 0o700); err != nil {
 		return nil, fmt.Errorf("creating db directory: %w", err)
 	}
+	hardenSQLiteFiles(dbPath)
+	ensureSQLiteJournalPrivate(dbPath)
+	defer hardenSQLiteFiles(dbPath)
+	if err := rejectNewerSchemaBeforeJournalMode(ctx, dbPath); err != nil {
+		return nil, err
+	}
 
-	db, err := sql.Open("sqlite", dbPath+"?_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)&_pragma=busy_timeout(5000)&_pragma=foreign_keys(ON)&_pragma=temp_store(MEMORY)&_pragma=mmap_size(268435456)")
+	// Pragma order is load-bearing: busy_timeout must engage BEFORE the
+	// journal-mode conversion so concurrent first-run opens wait instead of
+	// racing the exclusive conversion. Cache-enabled profiles write local
+	// state during reads, so they use a rollback journal and avoid WAL sidecar
+	// teardown races between short-lived processes. Other store profiles keep
+	// WAL for concurrent analytical reads.
+	dsn := dbPath + "?_txlock=immediate&_pragma=busy_timeout(5000)&_pragma=journal_mode(TRUNCATE)&_pragma=synchronous(NORMAL)&_pragma=foreign_keys(ON)&_pragma=temp_store(MEMORY)&_pragma=mmap_size(0)"
+	if err := ensureSQLiteDriverInitialized(ctx, dsn); err != nil {
+		return nil, err
+	}
+
+	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("opening database: %w", err)
 	}
 
-	// WAL mode + 2 connections allows one read cursor open while a second
-	// query executes (e.g., analytics commands calling helpers during row
-	// iteration). Writes are still serialized by SQLite's WAL lock.
+	// Two connections allow one read cursor to remain open while a second query
+	// executes (e.g., analytics commands calling helpers during row iteration).
 	db.SetMaxOpenConns(2)
 
 	s := &Store{db: db, path: dbPath}
 	if err := s.migrate(ctx); err != nil {
-		db.Close()
+		_ = db.Close()
 		return nil, fmt.Errorf("running migrations: %w", err)
 	}
 
 	return s, nil
+}
+
+// A newer schema must be rejected before a read-write connection can attempt
+// journal-mode conversion. This lightweight read-only probe can read a
+// committed PRAGMA user_version while a peer writer is active; other probe
+// errors remain with the normal open/migration path, which returns the more
+// precise corruption, permission, or lock error.
+func rejectNewerSchemaBeforeJournalMode(ctx context.Context, dbPath string) error {
+	info, err := os.Stat(dbPath)
+	if os.IsNotExist(err) || (err == nil && info.Size() == 0) {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("stating database for schema preflight: %w", err)
+	}
+	probe, err := sql.Open("sqlite", "file:"+filepath.ToSlash(dbPath)+"?mode=ro&immutable=1&_pragma=busy_timeout(1000)&_pragma=mmap_size(0)")
+	if err != nil {
+		return nil
+	}
+	defer probe.Close()
+	probe.SetMaxOpenConns(1)
+
+	var current int
+	if err := probe.QueryRowContext(ctx, `PRAGMA user_version`).Scan(&current); err != nil {
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		return nil
+	}
+	if current > StoreSchemaVersion {
+		return fmt.Errorf("database schema version %d is newer than supported version %d; upgrade the CLI binary or open an older database", current, StoreSchemaVersion)
+	}
+	return nil
+}
+
+// hardenSQLiteFiles is best-effort so stores on filesystems without Unix modes
+// remain usable. The deferred call catches files the SQLite driver creates.
+func hardenSQLiteFiles(dbPath string) {
+	for _, path := range []string{dbPath, dbPath + "-journal", dbPath + "-wal", dbPath + "-shm"} {
+		info, err := os.Lstat(path)
+		if err != nil || !info.Mode().IsRegular() {
+			continue
+		}
+
+		file, err := os.Open(path)
+		if err != nil {
+			continue
+		}
+		openInfo, statErr := file.Stat()
+		pathInfo, lstatErr := os.Lstat(path)
+		if statErr == nil && lstatErr == nil && pathInfo.Mode().IsRegular() && os.SameFile(openInfo, pathInfo) {
+			_ = file.Chmod(0o600)
+		}
+		_ = file.Close()
+	}
+}
+
+// ensureSQLiteJournalPrivate creates the cache-profile rollback journal before
+// SQLite starts a write transaction, so its mode is private for the whole
+// transaction rather than only after the journal has been created.
+func ensureSQLiteJournalPrivate(dbPath string) {
+	journalPath := dbPath + "-journal"
+	file, err := os.OpenFile(journalPath, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
+	if err == nil {
+		_ = file.Close()
+		return
+	}
+	if os.IsExist(err) {
+		hardenSQLiteFiles(dbPath)
+	}
+}
+
+// lockForWrite and unlockAfterWrite keep SQLite sidecars private across the
+// lifetime of every serialized writer. TRUNCATE journaling reuses its journal
+// file and can restore its mode when a later transaction starts, after the
+// one-time OpenWithContext hardening has already run.
+func (s *Store) lockForWrite() {
+	s.writeMu.Lock()
+	ensureSQLiteJournalPrivate(s.path)
+	hardenSQLiteFiles(s.path)
+}
+
+func (s *Store) unlockAfterWrite() {
+	hardenSQLiteFiles(s.path)
+	s.writeMu.Unlock()
+}
+
+func ensureSQLiteDriverInitialized(ctx context.Context, dsn string) error {
+	sqliteDriverInit.mu.Lock()
+	defer sqliteDriverInit.mu.Unlock()
+
+	if sqliteDriverInit.done {
+		return nil
+	}
+
+	db, err := sql.Open("sqlite", dsn)
+	if err != nil {
+		return fmt.Errorf("opening database for driver initialization: %w", err)
+	}
+	defer db.Close()
+
+	// Acquiring the first physical connection runs the DSN _pragma directives,
+	// including the journal-mode conversion for a read-write DSN. On a
+	// fresh DB opened concurrently — e.g. the scorecard live-check probing
+	// sampled commands in parallel — that conversion can return SQLITE_BUSY
+	// before the DSN's busy_timeout engages, so retry the acquisition against a
+	// bounded deadline. SQLITE_BUSY here is always transient.
+	deadline := time.Now().Add(migrationLockTimeout)
+	var conn *sql.Conn
+	if err := retryOnBusy(ctx, deadline, "initializing sqlite driver", func() error {
+		c, err := db.Conn(ctx)
+		if err != nil {
+			return err
+		}
+		conn = c
+		return nil
+	}); err != nil {
+		return err
+	}
+	if err := conn.Close(); err != nil {
+		return fmt.Errorf("closing sqlite initialization connection: %w", err)
+	}
+
+	sqliteDriverInit.done = true
+	return nil
 }
 
 func (s *Store) Close() error {
@@ -178,25 +365,19 @@ func (s *Store) ensureColumn(ctx context.Context, conn *sql.Conn, table, column,
 		return fmt.Errorf("checking table %s: %w", table, err)
 	}
 
-	rows, err := conn.QueryContext(ctx, fmt.Sprintf(`PRAGMA table_info("%s")`, table))
-	if err != nil {
-		return fmt.Errorf("table_info %s: %w", table, err)
+	// table_info omits generated columns (VIRTUAL/STORED). table_xinfo
+	// reports them so a later Open does not re-ADD a column CREATE TABLE
+	// already declared, and so upgrades can see a prior ADD of bare_id.
+	var existing string
+	err = conn.QueryRowContext(ctx,
+		`SELECT name FROM pragma_table_xinfo(?) WHERE name=?`,
+		table, column,
+	).Scan(&existing)
+	if err == nil {
+		return nil
 	}
-	defer rows.Close()
-	for rows.Next() {
-		var cid int
-		var n, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &n, &typ, &notnull, &dflt, &pk); err != nil {
-			return fmt.Errorf("scan table_info %s: %w", table, err)
-		}
-		if n == column {
-			return nil
-		}
-	}
-	if err := rows.Err(); err != nil {
-		return fmt.Errorf("iterating table_info %s: %w", table, err)
+	if err != sql.ErrNoRows {
+		return fmt.Errorf("table_xinfo %s: %w", table, err)
 	}
 
 	if _, err := conn.ExecContext(ctx, fmt.Sprintf(`ALTER TABLE "%s" ADD COLUMN "%s" %s`, table, column, decl)); err != nil {
@@ -229,7 +410,25 @@ func (s *Store) ensureColumn(ctx context.Context, conn *sql.Conn, table, column,
 func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 	for _, c := range []struct{ table, column, decl string }{
 		{table: "create_comment", column: "comment", decl: "TEXT"},
+		{table: "create_friends", column: "custom_picture", decl: "INTEGER"},
+		{table: "create_friends", column: "email", decl: "TEXT"},
+		{table: "create_friends", column: "first_name", decl: "TEXT"},
+		{table: "create_friends", column: "last_name", decl: "TEXT"},
+		{table: "create_friends", column: "registration_status", decl: "TEXT"},
+		{table: "create_friends", column: "updated_at", decl: "DATETIME"},
 		{table: "delete_comment", column: "comment", decl: "TEXT"},
+		{table: "get_friends", column: "custom_picture", decl: "INTEGER"},
+		{table: "get_friends", column: "email", decl: "TEXT"},
+		{table: "get_friends", column: "first_name", decl: "TEXT"},
+		{table: "get_friends", column: "last_name", decl: "TEXT"},
+		{table: "get_friends", column: "registration_status", decl: "TEXT"},
+		{table: "get_friends", column: "updated_at", decl: "DATETIME"},
+		{table: "get_groups", column: "custom_avatar", decl: "INTEGER"},
+		{table: "get_groups", column: "group_type", decl: "TEXT"},
+		{table: "get_groups", column: "invite_link", decl: "TEXT"},
+		{table: "get_groups", column: "name", decl: "TEXT"},
+		{table: "get_groups", column: "simplify_by_default", decl: "INTEGER"},
+		{table: "get_groups", column: "updated_at", decl: "DATETIME"},
 		{table: "update_user", column: "custom_picture", decl: "INTEGER"},
 		{table: "update_user", column: "email", decl: "TEXT"},
 		{table: "update_user", column: "first_name", decl: "TEXT"},
@@ -299,18 +498,204 @@ func (s *Store) migrate(ctx context.Context) error {
 			total_count INTEGER DEFAULT 0
 		)`,
 		resourcesFTSCreateSQL,
+		// CLI Printing Press: learn migrations
+		//
+		// search_learnings: LLM-driven per-query reranking. Populated by
+		// the `teach` command (silent, backgrounded by the LLM after a
+		// successful response) and read by the rerank layer to
+		// boost/hide/alias hits on subsequent queries. See learnings.go
+		// for the full semantics. Per-user table; stays small.
+		//
+		// query_entities: JSON array of case-preserving entity tokens
+		// extracted from query_pattern at teach time. Used by the recall
+		// match validator to reject cross-entity matches that would
+		// otherwise score high on non-entity Jaccard.
+		`CREATE TABLE IF NOT EXISTS search_learnings (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			query_pattern TEXT NOT NULL,
+			query_entities TEXT,
+			venue TEXT,
+			resource_type TEXT,
+			resource_id TEXT NOT NULL,
+			action TEXT NOT NULL,
+			alias_target TEXT,
+			source TEXT NOT NULL,
+			confidence INTEGER DEFAULT 1,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			last_observed_at DATETIME,
+			notes TEXT
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_learn_query ON search_learnings(query_pattern)`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_learn_unique ON search_learnings(query_pattern, resource_id, action)`,
+		// entity_lookups: canonical-to-value reference data for the
+		// pattern substitution engine in internal/learn/patterns. Seeded
+		// at migration time by the consumer (e.g., a CLI may register
+		// country codes, sports team abbreviations, etc.); per-user
+		// additions land via the `teach-lookup` CLI command with
+		// source='taught'. PK is the (kind, canonical, value) triple so
+		// multiple aliases under the same kind coexist without
+		// collision.
+		`CREATE TABLE IF NOT EXISTS entity_lookups (
+			kind TEXT NOT NULL,
+			canonical TEXT NOT NULL,
+			value TEXT NOT NULL,
+			source TEXT NOT NULL DEFAULT 'seeded',
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (kind, canonical, value)
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_entity_lookup_canonical ON entity_lookups(canonical)`,
+		`CREATE INDEX IF NOT EXISTS idx_entity_lookup_kind ON entity_lookups(kind)`,
+		// search_patterns: inferred and taught templates for the
+		// generalization layer in internal/learn/patterns. Each row
+		// encodes a query_template with one {entity[:kind]} slot and a
+		// resource_template that names how the entity substitutes into
+		// the resource ID. Extract() writes "inferred" rows whenever
+		// two or more search_learnings rows share a structural shape;
+		// the teach-pattern CLI command writes "taught" rows directly
+		// for explicit template authorship.
+		//
+		// Idempotency leans on idx_patterns_unique: a re-Extract pass
+		// over the same source learnings re-asserts the same
+		// (query_template, resource_template, strategy) triple, which
+		// bumps confidence and refreshes last_observed_at on the
+		// existing row rather than spawning a duplicate.
+		`CREATE TABLE IF NOT EXISTS search_patterns (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			query_template TEXT NOT NULL,
+			resource_template TEXT NOT NULL,
+			resource_type TEXT NOT NULL,
+			venue TEXT,
+			strategy TEXT NOT NULL,
+			entity_kind TEXT NOT NULL,
+			confidence INTEGER NOT NULL DEFAULT 2,
+			source TEXT NOT NULL,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			last_observed_at DATETIME,
+			example_query TEXT,
+			example_resource TEXT
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_patterns_query_template ON search_patterns(query_template)`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_patterns_unique ON search_patterns(query_template, resource_template, strategy)`,
+		// learning_playbooks (v7): hand-authored playbook primitive
+		// keyed on the structural query family (all entities stripped;
+		// see learn.QueryFamily). One row per family holds the optional
+		// structured playbook (ordered CLI command sequence with entity
+		// slots) and the optional free-text notes (gotchas, workarounds
+		// the CLI surface doesn't expose). Either field may be empty;
+		// non-empty in both is the strongest signal.
+		//
+		// Read at recall time by query_family; surfaces to the agent
+		// alongside the existing per-resource hits so a future inquiry
+		// of the same shape can skip rediscovery of the choreography.
+		//
+		// Distinct concept from search_patterns (which auto-extracts
+		// generalization templates from search_learnings); playbooks
+		// are hand-authored choreography + notes attached by family.
+		`CREATE TABLE IF NOT EXISTS learning_playbooks (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			query_family TEXT NOT NULL UNIQUE,
+			playbook_json TEXT,
+			notes_text TEXT,
+			source TEXT NOT NULL DEFAULT 'taught',
+			confidence INTEGER NOT NULL DEFAULT 2,
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			last_observed_at TIMESTAMP
+		)`,
+		// query_family already carries a column-level UNIQUE constraint
+		// (SQLite auto-creates the backing index), so no separate
+		// CREATE UNIQUE INDEX is needed -- a second named unique index
+		// would just double the write cost on every upsert.
+		`CREATE INDEX IF NOT EXISTS idx_playbooks_source ON learning_playbooks(source)`,
+		`CREATE INDEX IF NOT EXISTS idx_playbooks_last_observed_at ON learning_playbooks(last_observed_at)`,
+		// learn_candidates (v9): CLI-derived improvement candidates
+		// awaiting explicit agent judgment. Rows are written by the
+		// post-run derivation pass (flag corrections, repeated
+		// discovery shapes) and surfaced read-only in the recall
+		// envelope. Candidates are structurally quarantined: they
+		// never become search_learnings rows and sightings never
+		// grant skip authority — only an explicit confirm promotes
+		// the payload. derivation_signature dedupes re-derivations of
+		// the same observation into a sightings bump instead of a
+		// duplicate row.
+		`CREATE TABLE IF NOT EXISTS learn_candidates (
+			id INTEGER PRIMARY KEY,
+			class TEXT NOT NULL CHECK(class IN ('flag_alias','playbook_candidate')),
+			payload TEXT NOT NULL,
+			derivation_signature TEXT NOT NULL UNIQUE,
+			sightings INTEGER NOT NULL DEFAULT 1,
+			status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open','confirmed','rejected','expired')),
+			query_family TEXT,
+			command_path TEXT,
+			created_at TEXT NOT NULL,
+			updated_at TEXT NOT NULL,
+			last_seen_at TEXT NOT NULL
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_learn_candidates_status ON learn_candidates(status)`,
+		`CREATE INDEX IF NOT EXISTS idx_learn_candidates_family ON learn_candidates(query_family)`,
+		// learn_events (v9): capped, best-effort telemetry for the
+		// learn loop's measurement layer. recall logs hit/miss with
+		// the matched row id so teach-to-reuse joins by row id (family
+		// hash as fallback); `learnings stats` aggregates over it.
+		// Inserts are telemetry-class — they never fail the command
+		// and never hold writeMu across a recall match.
+		`CREATE TABLE IF NOT EXISTS learn_events (
+			id INTEGER PRIMARY KEY,
+			ts TEXT NOT NULL,
+			event TEXT NOT NULL CHECK(event IN ('recall_hit','recall_miss','recall_playbook_hit','teach','teach_playbook','amend','forget','candidate_confirmed','candidate_rejected')),
+			query_family_hash TEXT,
+			matched_row_id INTEGER,
+			entity_match INTEGER,
+			surface TEXT CHECK(surface IN ('cli','mcp'))
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_learn_events_event_ts ON learn_events(event, ts)`,
 		`CREATE TABLE IF NOT EXISTS "create_comment" (
 			"id" TEXT PRIMARY KEY,
 			"data" JSON NOT NULL,
 			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
 			"comment" TEXT
 		)`,
+		`CREATE TABLE IF NOT EXISTS "create_friends" (
+			"id" TEXT PRIMARY KEY,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
+			"custom_picture" INTEGER,
+			"email" TEXT,
+			"first_name" TEXT,
+			"last_name" TEXT,
+			"registration_status" TEXT,
+			"updated_at" DATETIME
+		)`,
+		`CREATE INDEX IF NOT EXISTS "idx_create_friends_updated_at" ON "create_friends"("updated_at")`,
 		`CREATE TABLE IF NOT EXISTS "delete_comment" (
 			"id" TEXT PRIMARY KEY,
 			"data" JSON NOT NULL,
 			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
 			"comment" TEXT
 		)`,
+		`CREATE TABLE IF NOT EXISTS "get_friends" (
+			"id" TEXT PRIMARY KEY,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
+			"custom_picture" INTEGER,
+			"email" TEXT,
+			"first_name" TEXT,
+			"last_name" TEXT,
+			"registration_status" TEXT,
+			"updated_at" DATETIME
+		)`,
+		`CREATE INDEX IF NOT EXISTS "idx_get_friends_updated_at" ON "get_friends"("updated_at")`,
+		`CREATE TABLE IF NOT EXISTS "get_groups" (
+			"id" TEXT PRIMARY KEY,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
+			"custom_avatar" INTEGER,
+			"group_type" TEXT,
+			"invite_link" TEXT,
+			"name" TEXT,
+			"simplify_by_default" INTEGER,
+			"updated_at" DATETIME
+		)`,
+		`CREATE INDEX IF NOT EXISTS "idx_get_groups_updated_at" ON "get_groups"("updated_at")`,
 		`CREATE TABLE IF NOT EXISTS "update_user" (
 			"id" TEXT PRIMARY KEY,
 			"data" JSON NOT NULL,
@@ -353,6 +738,11 @@ func (s *Store) migrate(ctx context.Context) error {
 				return fmt.Errorf("migrating resources composite key: %w", err)
 			}
 		}
+		if current == 2 {
+			if err := s.migrateResourcesFTSRowIDs(ctx, conn); err != nil {
+				return fmt.Errorf("migrating resources FTS rowids: %w", err)
+			}
+		}
 
 		if err := s.backfillColumns(ctx, conn); err != nil {
 			return fmt.Errorf("backfilling columns: %w", err)
@@ -364,6 +754,11 @@ func (s *Store) migrate(ctx context.Context) error {
 		}
 		if err := s.migrateExtras(ctx, conn); err != nil {
 			return fmt.Errorf("running extra migrations: %w", err)
+		}
+		if current < resourcesFTSContentSchemaVersion {
+			if err := s.migrateResourcesFTSContent(ctx, conn); err != nil {
+				return fmt.Errorf("migrating resources FTS content: %w", err)
+			}
 		}
 		// Stamp the schema version. On a fresh DB this writes the current
 		// StoreSchemaVersion; on an already-stamped DB this is a no-op
@@ -429,6 +824,48 @@ func (s *Store) migrateResourcesCompositeKey(ctx context.Context, conn *sql.Conn
 	return nil
 }
 
+func (s *Store) migrateResourcesFTSRowIDs(ctx context.Context, conn *sql.Conn) error {
+	exists, err := tableExists(ctx, conn, "resources")
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return nil
+	}
+
+	if _, err := conn.ExecContext(ctx, `DROP TABLE IF EXISTS resources_fts`); err != nil {
+		return fmt.Errorf("dropping resources_fts: %w", err)
+	}
+	if _, err := conn.ExecContext(ctx, resourcesFTSCreateSQL); err != nil {
+		return fmt.Errorf("creating resources_fts: %w", err)
+	}
+	if err := rebuildResourcesFTS(ctx, conn); err != nil {
+		return fmt.Errorf("rebuilding resources_fts: %w", err)
+	}
+	return nil
+}
+
+func (s *Store) migrateResourcesFTSContent(ctx context.Context, conn *sql.Conn) error {
+	exists, err := tableExists(ctx, conn, "resources")
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return nil
+	}
+
+	if _, err := conn.ExecContext(ctx, `DROP TABLE IF EXISTS resources_fts`); err != nil {
+		return fmt.Errorf("dropping resources_fts: %w", err)
+	}
+	if _, err := conn.ExecContext(ctx, resourcesFTSCreateSQL); err != nil {
+		return fmt.Errorf("creating resources_fts: %w", err)
+	}
+	if err := rebuildResourcesFTS(ctx, conn); err != nil {
+		return fmt.Errorf("rebuilding resources_fts: %w", err)
+	}
+	return nil
+}
+
 func tableExists(ctx context.Context, conn *sql.Conn, name string) (bool, error) {
 	var count int
 	if err := conn.QueryRowContext(ctx, `SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = ?`, name).Scan(&count); err != nil {
@@ -476,13 +913,13 @@ func rebuildResourcesFTS(ctx context.Context, conn *sql.Conn) error {
 	for rows.Next() {
 		var r resourceRow
 		if err := rows.Scan(&r.id, &r.resourceType, &r.data); err != nil {
-			rows.Close()
+			_ = rows.Close()
 			return fmt.Errorf("scanning resource: %w", err)
 		}
 		resources = append(resources, r)
 	}
 	if err := rows.Err(); err != nil {
-		rows.Close()
+		_ = rows.Close()
 		return fmt.Errorf("reading resource rows: %w", err)
 	}
 	if err := rows.Close(); err != nil {
@@ -492,7 +929,7 @@ func rebuildResourcesFTS(ctx context.Context, conn *sql.Conn) error {
 	for _, r := range resources {
 		if _, err := conn.ExecContext(ctx,
 			`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (?, ?, ?, ?)`,
-			ftsRowID(r.resourceType, r.id), r.id, r.resourceType, r.data,
+			ftsRowID(r.resourceType, r.id), r.id, r.resourceType, searchableResourceContent(json.RawMessage(r.data)),
 		); err != nil {
 			return fmt.Errorf("indexing resource %s/%s: %w", r.resourceType, r.id, err)
 		}
@@ -607,6 +1044,25 @@ func isSQLiteBusy(err error) bool {
 		strings.Contains(msg, "database table is locked")
 }
 
+// A later list-shaped write must not shrink a richer cached blob. First
+// write is incoming as-is. Callers apply the result to both the generic
+// resources blob and the typed-table projection.
+func (s *Store) mergeIncomingResourceData(tx *sql.Tx, resourceType, id string, incoming json.RawMessage) json.RawMessage {
+	var existing string
+	err := tx.QueryRow(
+		`SELECT data FROM resources WHERE resource_type = ? AND id = ?`,
+		resourceType, id,
+	).Scan(&existing)
+	if err != nil || existing == "" {
+		return incoming
+	}
+	merged, ok := mergeKeepRicherJSON(resourceType, json.RawMessage(existing), incoming)
+	if !ok {
+		return incoming
+	}
+	return merged
+}
+
 func (s *Store) upsertGenericResourceTx(tx *sql.Tx, resourceType, id string, data json.RawMessage) error {
 	_, err := tx.Exec(
 		`INSERT INTO resources (id, resource_type, data, synced_at, updated_at)
@@ -628,7 +1084,7 @@ func (s *Store) upsertGenericResourceTx(tx *sql.Tx, resourceType, id string, dat
 	if _, err = tx.Exec(
 		`INSERT INTO resources_fts (rowid, id, resource_type, content)
 		 VALUES (?, ?, ?, ?)`,
-		ftsRowid, id, resourceType, string(data),
+		ftsRowid, id, resourceType, searchableResourceContent(data),
 	); err != nil {
 		// FTS insert failure is non-fatal
 		fmt.Fprintf(os.Stderr, "warning: FTS index update failed: %v\n", err)
@@ -638,15 +1094,15 @@ func (s *Store) upsertGenericResourceTx(tx *sql.Tx, resourceType, id string, dat
 }
 
 func (s *Store) Upsert(resourceType, id string, data json.RawMessage) error {
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
+	s.lockForWrite()
+	defer s.unlockAfterWrite()
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
 
-	if err := s.upsertGenericResourceTx(tx, resourceType, id, data); err != nil {
+	if err := s.upsertGenericResourceTx(tx, resourceType, id, s.mergeIncomingResourceData(tx, resourceType, id, data)); err != nil {
 		return err
 	}
 
@@ -667,24 +1123,11 @@ func (s *Store) Get(resourceType, id string) (json.RawMessage, error) {
 	return json.RawMessage(data), nil
 }
 
+// List returns resources of the given type. A positive limit caps the result
+// count; zero or negative means no limit.
 func (s *Store) List(resourceType string, limit int) ([]json.RawMessage, error) {
-	// PATCH(analytics-read-cap): a non-positive limit returns every synced row.
-	// Callers pass 0 meaning "all synced data" (see data_source.go and the
-	// analytics loaders in splitwise_data.go). The previous `limit = 200`
-	// default silently truncated those reads to an arbitrary ~200 of N rows,
-	// ordered by sync time, which dropped expenses from spend/debts/ledger/
-	// balances even when the local store was complete. A positive limit still
-	// caps the result for callers that genuinely want a bounded page.
-	emptyRecordExclusion := `TRIM(data, char(32)||char(9)||char(10)||char(13)) NOT IN ('', '[]', '{}', 'null')`
-	query := `SELECT data FROM resources`
-	var args []any
-	if resourceType != "" {
-		query += ` WHERE resource_type = ? AND ` + emptyRecordExclusion
-		args = append(args, resourceType)
-	} else {
-		query += ` WHERE ` + emptyRecordExclusion
-	}
-	query += ` ORDER BY updated_at DESC`
+	query := `SELECT data FROM resources WHERE resource_type = ? ORDER BY updated_at DESC`
+	args := []any{resourceType}
 	if limit > 0 {
 		query += ` LIMIT ?`
 		args = append(args, limit)
@@ -706,224 +1149,423 @@ func (s *Store) List(resourceType string, limit int) ([]json.RawMessage, error) 
 	return results, rows.Err()
 }
 
-func searchableText(data string) string {
-	var payload any
-	if err := json.Unmarshal([]byte(data), &payload); err != nil {
-		return strings.ToLower(data)
-	}
-
-	var values []string
-	var walk func(v any, key string)
-	walk = func(v any, key string) {
-		switch t := v.(type) {
-		case map[string]any:
-			for childKey, child := range t {
-				walk(child, childKey)
-			}
-		case []any:
-			for _, child := range t {
-				walk(child, "")
-			}
-		case string:
-			keyLower := strings.ToLower(strings.TrimSpace(key))
-			if strings.Contains(keyLower, "currency") {
-				return
-			}
-			if isMeaningfulSearchText(t) {
-				values = append(values, strings.ToLower(strings.TrimSpace(t)))
-			}
-		}
-	}
-	walk(payload, "")
-	return strings.Join(values, " ")
-}
-
-func isMeaningfulSearchText(s string) bool {
-	trimmed := strings.TrimSpace(s)
-	if trimmed == "" {
-		return false
-	}
-	lower := strings.ToLower(trimmed)
-	if lower == "true" || lower == "false" || lower == "null" {
-		return false
-	}
-	if strings.HasPrefix(lower, "http://") || strings.HasPrefix(lower, "https://") {
-		return false
-	}
-	if !strings.ContainsAny(trimmed, " \t\r\n") && emailLikeRe.MatchString(trimmed) {
-		return false
-	}
-	if len(trimmed) >= 5 &&
-		trimmed[0] >= '0' && trimmed[0] <= '9' &&
-		trimmed[1] >= '0' && trimmed[1] <= '9' &&
-		trimmed[2] >= '0' && trimmed[2] <= '9' &&
-		trimmed[3] >= '0' && trimmed[3] <= '9' &&
-		trimmed[4] == '-' {
-		return false
-	}
-	hasLetter := false
-	for _, r := range trimmed {
-		if unicode.IsLetter(r) {
-			hasLetter = true
-			break
-		}
-	}
-	return hasLetter
-}
-
-func searchTerms(query string) []string {
-	parts := strings.FieldsFunc(strings.ToLower(query), func(r rune) bool {
-		return !unicode.IsLetter(r) && !unicode.IsNumber(r)
-	})
-	terms := make([]string, 0, len(parts))
-	for _, part := range parts {
-		if part != "" {
-			terms = append(terms, part)
-		}
-	}
-	return terms
-}
-
-func searchLevenshtein(a, b string) int {
-	ar := []rune(a)
-	br := []rune(b)
-	if len(ar) == 0 {
-		return len(br)
-	}
-	if len(br) == 0 {
-		return len(ar)
-	}
-	prev := make([]int, len(br)+1)
-	curr := make([]int, len(br)+1)
-	for j := 0; j <= len(br); j++ {
-		prev[j] = j
-	}
-	for i := 1; i <= len(ar); i++ {
-		curr[0] = i
-		for j := 1; j <= len(br); j++ {
-			cost := 0
-			if ar[i-1] != br[j-1] {
-				cost = 1
-			}
-			del := prev[j] + 1
-			ins := curr[j-1] + 1
-			sub := prev[j-1] + cost
-			curr[j] = min(del, min(ins, sub))
-		}
-		prev, curr = curr, prev
-	}
-	return prev[len(br)]
-}
-
-func fuzzyMaxDistance(term string) int {
-	if utf8.RuneCountInString(term) <= 4 {
-		return 1
-	}
-	return 2
-}
-
-func matchTermsAgainstTokens(terms []string, tokenSet map[string]bool, tokens []string, fuzzy bool) (score int, ok bool) {
-	totalDistance := 0
-	for _, term := range terms {
-		if tokenSet[term] {
-			continue
-		}
-		if !fuzzy {
-			return 0, false
-		}
-
-		maxDistance := fuzzyMaxDistance(term)
-		best := maxDistance + 1
-		for _, token := range tokens {
-			d := searchLevenshtein(term, token)
-			if d <= maxDistance && d < best {
-				best = d
-				if best == 0 {
-					break
-				}
-			}
-		}
-		if best > maxDistance {
-			return 0, false
-		}
-		totalDistance += best
-	}
-	return totalDistance, true
-}
-
-func (s *Store) Search(query, resourceType string, limit int, fuzzy bool) ([]json.RawMessage, error) {
+func (s *Store) Search(query string, limit int, resourceTypes ...string) ([]json.RawMessage, error) {
 	if limit <= 0 {
 		limit = 50
 	}
-	terms := searchTerms(query)
-	if len(terms) == 0 {
-		return []json.RawMessage{}, nil
+	matchQuery := FTSMatchQuery(query)
+	if matchQuery == "" {
+		return nil, nil
 	}
-
-	sqlQuery := `SELECT data FROM resources`
-	var args []any
+	resourceType := ""
+	if len(resourceTypes) > 0 {
+		resourceType = strings.TrimSpace(resourceTypes[0])
+	}
 	if resourceType != "" {
-		sqlQuery += ` WHERE resource_type = ?`
-		args = append(args, resourceType)
-	}
-	sqlQuery += ` ORDER BY updated_at DESC`
+		rows, err := s.db.Query(
+			`SELECT r.data FROM resources r
+			 JOIN resources_fts f ON r.id = f.id AND r.resource_type = f.resource_type
+			 WHERE resources_fts MATCH ?
+			 AND r.resource_type = ?
+			 ORDER BY f.rank
+			 LIMIT ?`,
+			matchQuery, resourceType, limit,
+		)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
 
-	rows, err := s.db.Query(sqlQuery, args...)
+		var results []json.RawMessage
+		for rows.Next() {
+			var data string
+			if err := rows.Scan(&data); err != nil {
+				return nil, err
+			}
+			results = append(results, json.RawMessage(data))
+		}
+		return results, rows.Err()
+	}
+	rows, err := s.db.Query(
+		`SELECT r.data FROM resources r
+		 JOIN resources_fts f ON r.id = f.id AND r.resource_type = f.resource_type
+		 WHERE resources_fts MATCH ?
+		 ORDER BY f.rank
+		 LIMIT ?`,
+		matchQuery, limit,
+	)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	type scoredResult struct {
-		data  json.RawMessage
-		score int
-	}
-	var scored []scoredResult
+	var results []json.RawMessage
 	for rows.Next() {
 		var data string
 		if err := rows.Scan(&data); err != nil {
 			return nil, err
 		}
-		content := searchableText(data)
-		tokens := searchTerms(content)
-		tokenSet := make(map[string]bool, len(tokens))
-		for _, token := range tokens {
-			tokenSet[token] = true
-		}
-
-		totalDistance, matchedAllTerms := matchTermsAgainstTokens(terms, tokenSet, tokens, fuzzy)
-		if matchedAllTerms {
-			scored = append(scored, scoredResult{
-				data:  json.RawMessage(data),
-				score: totalDistance,
-			})
-		}
+		results = append(results, json.RawMessage(data))
 	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	sort.SliceStable(scored, func(i, j int) bool {
-		return scored[i].score < scored[j].score
-	})
-
-	results := make([]json.RawMessage, 0, min(limit, len(scored)))
-	for i := 0; i < len(scored) && i < limit; i++ {
-		results = append(results, scored[i].data)
-	}
-	return results, nil
+	return results, rows.Err()
 }
 
-func extractObjectID(obj map[string]any) string {
-	for _, key := range []string{"id", "Id", "ID", "uuid", "slug", "name"} {
-		if v, ok := obj[key]; ok {
-			return ResourceIDString(v)
+func searchableResourceContent(data json.RawMessage) string {
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.UseNumber()
+	var value any
+	if err := dec.Decode(&value); err != nil {
+		return ""
+	}
+	var parts []string
+	collectSearchableStrings(&parts, "", value)
+	return strings.Join(parts, " ")
+}
+
+func collectSearchableStrings(parts *[]string, key string, value any) {
+	switch v := value.(type) {
+	case map[string]any:
+		for childKey, child := range v {
+			collectSearchableStrings(parts, childKey, child)
 		}
+	case []any:
+		for _, child := range v {
+			collectSearchableStrings(parts, key, child)
+		}
+	case string:
+		if shouldIndexSearchString(key, v) {
+			*parts = append(*parts, strings.TrimSpace(v))
+		}
+	}
+}
+
+func shouldIndexSearchString(key, value string) bool {
+	s := strings.TrimSpace(value)
+	if len(s) < 2 {
+		return false
+	}
+	if isIdentifierKey(key) {
+		return false
+	}
+	lower := strings.ToLower(s)
+	switch {
+	case IsUUID(s):
+		return false
+	case isoDatePattern.MatchString(s):
+		return false
+	case strings.HasPrefix(lower, "http://") || strings.HasPrefix(lower, "https://"):
+		return false
+	}
+	tokens := ftsQueryTokenRE.FindAllString(s, -1)
+	return len(tokens) > 0
+}
+
+func isIdentifierKey(key string) bool {
+	if key == "" {
+		return false
+	}
+	lower := strings.ToLower(key)
+	return lower == "id" ||
+		lower == "uuid" ||
+		strings.HasSuffix(lower, "_id") ||
+		strings.HasSuffix(lower, "-id") ||
+		strings.HasSuffix(key, "Id") ||
+		strings.HasSuffix(key, "ID")
+}
+
+// FTSMatchQuery converts arbitrary text into a safe FTS5 MATCH expression.
+func FTSMatchQuery(query string) string {
+	tokens := ftsQueryTokenRE.FindAllString(query, -1)
+	if len(tokens) == 0 {
+		return ""
+	}
+	quoted := make([]string, 0, len(tokens))
+	for _, token := range tokens {
+		quoted = append(quoted, `"`+token+`"`)
+	}
+	return strings.Join(quoted, " ")
+}
+
+// A record filed under its own identifier often carries no id field inside the
+// object, and would be dropped for want of one. The flattener stamps the JSON
+// object key here and the id resolvers below fall back to it once every real id
+// field has missed. Flattener and resolvers stay in one file because a shape
+// one recognizes and the other cannot key loses rows with no error.
+//
+// The _pp_ prefix is reserved for fields this CLI synthesizes, so the stamp
+// always wins over a same-named member of the payload: the enclosing key is
+// the record's identity, and a payload copy of it is either stale or a name
+// collision inside a namespace no API owns.
+const MapKeyIDField = "_pp_map_key"
+
+// One level covers {"<id>": {...}}, two covers a bucketed
+// {"<bucket>": {"<id>": {...}}}. Descending further would start treating an
+// item's own nested sub-objects as sibling records.
+const mapKeyedMaxDepth = 2
+
+// A map-keyed collection files each record under its identifier instead of
+// listing records in an array, so the discriminator has to separate record
+// identifiers from ordinary field names. Field names are words; record
+// identifiers are not. These patterns admit only key shapes that no API uses
+// as a field name, which keeps an ordinary detail object carrying nested
+// sub-objects ({"user": {...}, "account": {...}}) out of the collection path.
+var (
+	mapKeyNumericRE  = regexp.MustCompile(`^[0-9]+$`)
+	mapKeyUUIDRE     = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
+	mapKeyDateRE     = regexp.MustCompile(`^[0-9]{4}-[0-9]{2}-[0-9]{2}([T ][0-9A-Za-z:.+-]*)?$`)
+	mapKeyOpaqueRE   = regexp.MustCompile(`^[A-Za-z0-9]{20,}$`)
+	mapKeyPrefixedRE = regexp.MustCompile(`^[-_][A-Za-z0-9_-]{15,}$`)
+	mapKeyHasDigitRE = regexp.MustCompile(`[0-9]`)
+)
+
+// A separator-free token must be long and carry a digit before it qualifies as
+// an identifier, because a short alphabetic token is indistinguishable from a
+// field name.
+func looksLikeRecordKey(key string) bool {
+	switch {
+	case key == "":
+		return false
+	case mapKeyNumericRE.MatchString(key):
+		return true
+	case mapKeyUUIDRE.MatchString(key):
+		return true
+	case mapKeyDateRE.MatchString(key):
+		return true
+	case mapKeyOpaqueRE.MatchString(key) && mapKeyHasDigitRE.MatchString(key):
+		return true
+	case mapKeyPrefixedRE.MatchString(key) && mapKeyHasDigitRE.MatchString(key):
+		return true
+	}
+	return false
+}
+
+type mapKeyedEntry struct {
+	key   string
+	value json.RawMessage
+}
+
+// Field-name scalar/array siblings are list metadata only. Treating every
+// non-object field-name member as skippable metadata made a detail object
+// with one numeric-keyed child look like a one-record page, so sync and
+// write-through cached the child and dropped the remaining fields.
+var mapKeyedListMetadataKeys = map[string]bool{
+	"next_cursor": true, "nextCursor": true, "NextCursor": true,
+	"next_token": true, "nextToken": true, "NextToken": true,
+	"next_page_token": true, "nextPageToken": true, "NextPageToken": true,
+	"page_token": true, "pageToken": true, "PageToken": true,
+	"end_cursor": true, "endCursor": true, "EndCursor": true,
+	"start_cursor": true, "startCursor": true, "StartCursor": true,
+	"cursor": true, "Cursor": true, "after": true, "After": true, "before": true, "Before": true,
+	"has_more": true, "hasMore": true, "HasMore": true,
+	"has_next": true, "hasNext": true, "HasNext": true,
+	"next_page": true, "nextPage": true, "NextPage": true,
+	"previous_page": true, "previousPage": true, "PreviousPage": true,
+	"page": true, "Page": true, "page_size": true, "pageSize": true, "PageSize": true,
+	"per_page": true, "perPage": true, "PerPage": true,
+	"total": true, "Total": true, "count": true, "Count": true, "size": true, "Size": true,
+	"total_count": true, "totalCount": true, "TotalCount": true,
+	"success": true, "status": true, "message": true, "error": true, "errors": true,
+	"warnings": true, "Warnings": true, "ok": true, "Ok": true,
+	"next": true, "prev": true, "previous": true, "first": true, "last": true,
+}
+
+// A lone record-shaped child plus only count/JSend fields is still a
+// detail object (status, message, total, count). A one-record page is
+// recognized only when a cursor, has-more flag, or page key is present.
+var mapKeyedPagingSignalKeys = map[string]bool{
+	"next_cursor": true, "nextCursor": true, "NextCursor": true,
+	"next_token": true, "nextToken": true, "NextToken": true,
+	"next_page_token": true, "nextPageToken": true, "NextPageToken": true,
+	"page_token": true, "pageToken": true, "PageToken": true,
+	"end_cursor": true, "endCursor": true, "EndCursor": true,
+	"start_cursor": true, "startCursor": true, "StartCursor": true,
+	"cursor": true, "Cursor": true, "after": true, "After": true, "before": true, "Before": true,
+	"has_more": true, "hasMore": true, "HasMore": true,
+	"has_next": true, "hasNext": true, "HasNext": true,
+	"next_page": true, "nextPage": true, "NextPage": true,
+	"previous_page": true, "previousPage": true, "PreviousPage": true,
+	"page": true, "Page": true, "page_size": true, "pageSize": true, "PageSize": true,
+	"per_page": true, "perPage": true, "PerPage": true,
+}
+
+// A record identifier keying a JSON object is the only member shape a
+// collection may contain; anything else keyed like a record, or any object
+// keyed like a field, means the payload is something other than a collection
+// and is rejected whole. Scalar and array members under field-name keys are
+// kept only when the key is list metadata, so a real collection can still
+// file a cursor or total beside its records. A detail field (id, title, tags)
+// beside a single record-shaped child is not metadata: that payload stays a
+// detail object. One record plus only count/JSend siblings is also a detail
+// object; a one-record page needs a cursor, has-more flag, or page key.
+// Sorting makes repeated syncs of one payload produce one row order.
+func mapKeyedEntries(raw json.RawMessage) ([]mapKeyedEntry, map[string]json.RawMessage, bool) {
+	if !isJSONObjectPayload(raw) {
+		return nil, nil, false
+	}
+	var obj map[string]json.RawMessage
+	if json.Unmarshal(raw, &obj) != nil || len(obj) == 0 {
+		return nil, nil, false
+	}
+	keys := make([]string, 0, len(obj))
+	metadata := map[string]json.RawMessage{}
+	for key, value := range obj {
+		recordKeyed, objectValued := looksLikeRecordKey(key), isJSONObjectPayload(value)
+		switch {
+		case recordKeyed && objectValued:
+			keys = append(keys, key)
+		case !recordKeyed && !objectValued && mapKeyedListMetadataKeys[key]:
+			metadata[key] = value
+		default:
+			return nil, nil, false
+		}
+	}
+	if len(keys) == 0 {
+		return nil, nil, false
+	}
+	if len(keys) == 1 && len(metadata) > 0 && !hasMapKeyedPagingSignal(metadata) {
+		return nil, nil, false
+	}
+	sort.Strings(keys)
+	entries := make([]mapKeyedEntry, 0, len(keys))
+	for _, key := range keys {
+		entries = append(entries, mapKeyedEntry{key: key, value: obj[key]})
+	}
+	return entries, metadata, true
+}
+
+func hasMapKeyedPagingSignal(metadata map[string]json.RawMessage) bool {
+	for key := range metadata {
+		if mapKeyedPagingSignalKeys[key] {
+			return true
+		}
+	}
+	return false
+}
+
+func isJSONObjectPayload(raw json.RawMessage) bool {
+	trimmed := bytes.TrimSpace(raw)
+	return len(trimmed) > 0 && trimmed[0] == '{'
+}
+
+func isEmptyJSONObject(raw json.RawMessage) bool {
+	var obj map[string]json.RawMessage
+	return json.Unmarshal(raw, &obj) == nil && len(obj) == 0
+}
+
+// Recognition and extraction are separate answers: the second return reports
+// only whether raw was a collection at all, so a recognized collection whose
+// members are all empty reads as an empty page rather than as a shape this
+// could not extract.
+func FlattenMapKeyedCollection(raw json.RawMessage) ([]json.RawMessage, bool) {
+	items, _, ok := FlattenMapKeyedCollectionWithMetadata(raw)
+	return items, ok
+}
+
+// The members skipped as metadata come back with the records because a
+// collection nested under a wrapper key or a declared response path can carry
+// its own continuation cursor. Dropping them left the pager reading only the
+// envelope above, which ends a paginated sync after its first page.
+func FlattenMapKeyedCollectionWithMetadata(raw json.RawMessage) ([]json.RawMessage, map[string]json.RawMessage, bool) {
+	return flattenMapKeyedCollection(raw, mapKeyedMaxDepth)
+}
+
+func flattenMapKeyedCollection(raw json.RawMessage, depth int) ([]json.RawMessage, map[string]json.RawMessage, bool) {
+	entries, metadata, ok := mapKeyedEntries(raw)
+	if !ok {
+		return nil, nil, false
+	}
+	items := make([]json.RawMessage, 0, len(entries))
+	for _, entry := range entries {
+		if depth > 1 {
+			if nested, nestedMetadata, ok := flattenMapKeyedCollection(entry.value, depth-1); ok {
+				items = append(items, nested...)
+				// A bucket's own metadata fills gaps only: the level closest to
+				// the caller describes the page it asked for.
+				for key, value := range nestedMetadata {
+					if _, taken := metadata[key]; !taken {
+						metadata[key] = value
+					}
+				}
+				continue
+			}
+		}
+		if isEmptyJSONObject(entry.value) {
+			continue
+		}
+		items = append(items, stampMapKeyID(entry.value, entry.key))
+	}
+	return items, metadata, true
+}
+
+// The enclosing key is the record's identity, so a same-named field already in
+// the payload is overwritten rather than trusted: keeping it would file the row
+// under a value the API never used as its key.
+func stampMapKeyID(value json.RawMessage, key string) json.RawMessage {
+	var obj map[string]json.RawMessage
+	if json.Unmarshal(value, &obj) != nil {
+		return value
+	}
+	encodedKey, err := json.Marshal(key)
+	if err != nil {
+		return value
+	}
+	obj[MapKeyIDField] = encodedKey
+	stamped, err := json.Marshal(obj)
+	if err != nil {
+		return value
+	}
+	return stamped
+}
+
+// Two flattenable members leave the envelope ambiguous, so nothing is
+// extracted rather than guessing which one holds the records. Callers pass
+// their own isMetadataKey because the sync and live paths carry different
+// metadata vocabularies; recognition of the collection itself must not differ
+// between them.
+func FlattenSoleMapKeyedSibling(envelope map[string]json.RawMessage, isMetadataKey func(string) bool) ([]json.RawMessage, map[string]json.RawMessage, bool) {
+	var collection []json.RawMessage
+	var collectionMetadata map[string]json.RawMessage
+	matches := 0
+	for key, raw := range envelope {
+		if isMetadataKey(key) {
+			continue
+		}
+		if items, metadata, ok := FlattenMapKeyedCollectionWithMetadata(raw); ok {
+			collection, collectionMetadata = items, metadata
+			matches++
+		}
+	}
+	if matches == 1 {
+		return collection, collectionMetadata, true
+	}
+	return nil, nil, false
+}
+
+// Callers must try every real id field first: the stamped key is only the right
+// answer when the record carries no identifier of its own.
+func mapKeyIDFallback(obj map[string]any) string {
+	v, ok := obj[MapKeyIDField]
+	if !ok {
+		return ""
+	}
+	if id := ResourceIDString(v); id != "" && id != "<nil>" {
+		return id
 	}
 	return ""
 }
 
+func extractObjectID(obj map[string]any) string {
+	for _, key := range []string{"id", "ID", "_id", "id_", "uuid", "slug", "name"} {
+		if s := canonicalIDFromKey(obj, key); s != "" {
+			return s
+		}
+	}
+	return mapKeyIDFallback(obj)
+}
+
 // ftsRowID derives a deterministic rowid from a string ID for use with FTS5.
+// Any change to this derivation requires a StoreSchemaVersion bump and a
+// resources_fts rebuild migration for already-stamped databases.
 // modernc.org/sqlite's FTS5 implementation may not support DELETE WHERE column=?
 // on virtual tables, so we use explicit rowids and DELETE WHERE rowid=? instead.
 func ftsRowID(scope, id string) int64 {
@@ -934,16 +1576,85 @@ func ftsRowID(scope, id string) int64 {
 	return int64(h.Sum64() & 0x7FFFFFFFFFFFFFFF) // ensure positive
 }
 
-// LookupFieldValue resolves a field value from a JSON object map, trying the
-// snake_case key first, then the camelCase rendering, then the PascalCase
-// rendering. Exported so the sync command's extractID and the upsert path
-// resolve fields the same way — a divergence here produces silent drops on
-// heterogeneous payloads. The PascalCase pass handles .NET-shaped responses
-// (`Id`, `Name`, `OrderId`) without forcing each spec to declare casing.
+// LookupFieldValue resolves a field value from a JSON object map. A dotted
+// key is walked as a path (`entityInfo.entityId`); each segment tries snake,
+// camel, and Pascal spellings, then the Python-style trailing-underscore
+// sibling (`id` → `id_`). Exported so the sync command's extractID and the
+// upsert path resolve fields the same way — a divergence here produces
+// silent drops on heterogeneous payloads. The PascalCase pass handles
+// .NET-shaped responses (`Id`, `Name`, `OrderId`) without forcing each spec
+// to declare casing.
 func LookupFieldValue(obj map[string]any, snakeKey string) any {
-	if v, ok := obj[snakeKey]; ok {
-		return sqliteFieldValue(v)
+	v, ok := lookupRawFieldValue(obj, snakeKey)
+	if !ok {
+		return nil
 	}
+	return sqliteFieldValue(v)
+}
+
+func lookupRawFieldValue(obj map[string]any, key string) (any, bool) {
+	if obj == nil || key == "" {
+		return nil, false
+	}
+	if strings.Contains(key, ".") {
+		return lookupRawDottedFieldValue(obj, key)
+	}
+	return lookupRawFlatFieldValue(obj, key)
+}
+
+func lookupRawDottedFieldValue(obj map[string]any, path string) (any, bool) {
+	if v, ok := lookupRawFlatFieldValue(obj, path); ok {
+		return v, true
+	}
+	segments := strings.Split(path, ".")
+	if len(segments) < 2 {
+		return nil, false
+	}
+	current := obj
+	for i, segment := range segments {
+		if segment == "" {
+			return nil, false
+		}
+		v, ok := lookupRawFlatFieldValue(current, segment)
+		if !ok {
+			return nil, false
+		}
+		if i == len(segments)-1 {
+			return v, true
+		}
+		next, ok := v.(map[string]any)
+		if !ok {
+			return nil, false
+		}
+		current = next
+	}
+	return nil, false
+}
+
+func lookupRawFlatFieldValue(obj map[string]any, snakeKey string) (any, bool) {
+	for _, key := range fieldKeySpellings(snakeKey) {
+		if v, ok := obj[key]; ok {
+			return v, true
+		}
+	}
+	return nil, false
+}
+
+func fieldKeySpellings(snakeKey string) []string {
+	seen := make(map[string]struct{}, 8)
+	out := make([]string, 0, 8)
+	add := func(s string) {
+		if s == "" {
+			return
+		}
+		if _, ok := seen[s]; ok {
+			return
+		}
+		seen[s] = struct{}{}
+		out = append(out, s)
+	}
+
+	add(snakeKey)
 	parts := strings.Split(snakeKey, "_")
 	for i := 1; i < len(parts); i++ {
 		if parts[i] == "" {
@@ -951,17 +1662,17 @@ func LookupFieldValue(obj map[string]any, snakeKey string) any {
 		}
 		parts[i] = strings.ToUpper(parts[i][:1]) + parts[i][1:]
 	}
-	camel := strings.Join(parts, "")
-	if v, ok := obj[camel]; ok {
-		return sqliteFieldValue(v)
-	}
+	add(strings.Join(parts, ""))
 	if parts[0] != "" {
-		pascal := strings.ToUpper(parts[0][:1]) + parts[0][1:] + strings.Join(parts[1:], "")
-		if v, ok := obj[pascal]; ok {
-			return sqliteFieldValue(v)
+		add(strings.ToUpper(parts[0][:1]) + parts[0][1:] + strings.Join(parts[1:], ""))
+	}
+	n := len(out)
+	for i := 0; i < n; i++ {
+		if !strings.HasSuffix(out[i], "_") {
+			add(out[i] + "_")
 		}
 	}
-	return nil
+	return out
 }
 
 func sqliteFieldValue(v any) any {
@@ -999,11 +1710,142 @@ func DecodeJSONObject(data json.RawMessage) (map[string]any, error) {
 	return obj, nil
 }
 
+// CanonicalResourceID is the identity invariant for generated stores: a value
+// becomes resources.id only when it can stably distinguish a row. ResourceIDString
+// will stringify zeros, timestamps, and booleans, and writing those keys
+// silently collapses or duplicates records on the next sync.
+func CanonicalResourceID(v any) string {
+	switch v.(type) {
+	case nil, bool:
+		return ""
+	}
+	s := strings.TrimSpace(ResourceIDString(v))
+	if unusableResourceID(s) {
+		return ""
+	}
+	return s
+}
+
+func unusableResourceID(s string) bool {
+	if s == "" || s == "<nil>" {
+		return true
+	}
+	if isoDatePattern.MatchString(s) {
+		return true
+	}
+	if f, err := strconv.ParseFloat(s, 64); err == nil && f == 0 {
+		return true
+	}
+	return false
+}
+
+func canonicalIDFromKey(obj map[string]any, key string) string {
+	if v, ok := lookupRawFieldValue(obj, key); ok {
+		if s := CanonicalResourceID(v); s != "" {
+			return s
+		}
+	}
+	if obj == nil || strings.HasSuffix(key, "_") {
+		return ""
+	}
+	v, ok := obj[key+"_"]
+	if !ok {
+		return ""
+	}
+	return CanonicalResourceID(v)
+}
+
+func canonicalIDFromOverride(obj map[string]any, override string) string {
+	if s := canonicalIDFromKey(obj, override); s != "" {
+		return s
+	}
+	return canonicalCompositeIDFromOverride(obj, override)
+}
+
+func overrideIdentityPresent(obj map[string]any, override string) bool {
+	if _, found := lookupRawFieldValue(obj, override); found {
+		return true
+	}
+	parts := splitResourceIDFieldOverride(override)
+	if len(parts) < 2 {
+		return false
+	}
+	for _, part := range parts {
+		if _, found := lookupRawFieldValue(obj, part); !found {
+			return false
+		}
+	}
+	return true
+}
+
+func splitResourceIDFieldOverride(override string) []string {
+	override = strings.TrimSpace(override)
+	if override == "" || !strings.Contains(override, "+") {
+		return nil
+	}
+	raw := strings.Split(override, "+")
+	parts := make([]string, 0, len(raw))
+	for _, part := range raw {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			return nil
+		}
+		parts = append(parts, part)
+	}
+	if len(parts) < 2 {
+		return nil
+	}
+	return parts
+}
+
+func canonicalCompositeIDFromOverride(obj map[string]any, override string) string {
+	parts := splitResourceIDFieldOverride(override)
+	if len(parts) < 2 {
+		return ""
+	}
+	values := make([]string, 0, len(parts))
+	for _, key := range parts {
+		v, ok := lookupRawFieldValue(obj, key)
+		if !ok {
+			return ""
+		}
+		s := strings.TrimSpace(ResourceIDString(v))
+		if s == "" || s == "<nil>" {
+			return ""
+		}
+		// Date-shaped parts are allowed inside a composite; CanonicalResourceID
+		// still refuses a solo ISO date after the join.
+		if f, err := strconv.ParseFloat(s, 64); err == nil && f == 0 {
+			return ""
+		}
+		values = append(values, s)
+	}
+	return CanonicalResourceID(joinCompositeResourceID(values))
+}
+
+func encodeCompositeResourceIDPart(s string) string {
+	s = strings.ReplaceAll(s, `\`, `\\`)
+	s = strings.ReplaceAll(s, `+`, `\+`)
+	return s
+}
+
+func joinCompositeResourceID(values []string) string {
+	encoded := make([]string, len(values))
+	for i, v := range values {
+		encoded[i] = encodeCompositeResourceIDPart(v)
+	}
+	return strings.Join(encoded, "+")
+}
+
 // ResourceIDString returns the stable text form used for resources.id.
 func ResourceIDString(v any) string {
 	switch t := v.(type) {
 	case nil:
 		return ""
+	case string:
+		return extendedJSONIDString(t)
+	case map[string]any:
+		return extendedJSONIDMapString(t)
 	case json.Number:
 		return strings.TrimSpace(t.String())
 	case float64:
@@ -1022,6 +1864,30 @@ func ResourceIDString(v any) string {
 		// that sentinel so unresolved IDs do not become stored resource keys.
 		return strings.TrimSpace(fmt.Sprint(t))
 	}
+}
+
+func extendedJSONIDString(value string) string {
+	value = strings.TrimSpace(value)
+	if !strings.HasPrefix(value, "{") {
+		return value
+	}
+	var object map[string]any
+	if err := json.Unmarshal([]byte(value), &object); err != nil {
+		return value
+	}
+	if id := extendedJSONIDMapString(object); id != "" {
+		return id
+	}
+	return value
+}
+
+func extendedJSONIDMapString(object map[string]any) string {
+	for _, key := range []string{"$oid", "$numberLong", "$numberInt"} {
+		if value, ok := object[key]; ok {
+			return ResourceIDString(value)
+		}
+	}
+	return ""
 }
 
 // upsertCreateCommentTx writes the per-resource domain-table portion of a
@@ -1052,23 +1918,91 @@ func (s *Store) UpsertCreateComment(data json.RawMessage) error {
 		return fmt.Errorf("unmarshaling create_comment: %w", err)
 	}
 
-	id := extractObjectID(obj)
+	id := ResolveStorageID("create-comment", obj)
 	if id == "" {
 		return fmt.Errorf("missing id for create_comment")
 	}
+	storageID := resourceStorageID("create-comment", id, obj)
 
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
+	s.lockForWrite()
+	defer s.unlockAfterWrite()
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
 
-	if err := s.upsertGenericResourceTx(tx, "create-comment", id, data); err != nil {
+	data = s.mergeIncomingResourceData(tx, "create-comment", storageID, data)
+	if merged, err := DecodeJSONObject(data); err == nil {
+		obj = merged
+	}
+
+	if err := s.upsertGenericResourceTx(tx, "create-comment", storageID, data); err != nil {
 		return err
 	}
-	if err := s.upsertCreateCommentTx(tx, id, obj, data); err != nil {
+	if err := s.upsertCreateCommentTx(tx, storageID, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+// upsertCreateFriendsTx writes the per-resource domain-table portion of a
+// create_friends upsert inside an existing transaction. The caller is
+// responsible for the generic resources insert (via upsertGenericResourceTx)
+// and for committing the tx. Splitting this out lets UpsertBatch dispatch
+// domain inserts per item without opening a per-item transaction.
+func (s *Store) upsertCreateFriendsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO "create_friends" ("id", "data", "synced_at", "custom_picture", "email", "first_name", "last_name", "registration_status", "updated_at")
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT("id") DO UPDATE SET "data" = excluded."data", "synced_at" = excluded."synced_at", "custom_picture" = excluded."custom_picture", "email" = excluded."email", "first_name" = excluded."first_name", "last_name" = excluded."last_name", "registration_status" = excluded."registration_status", "updated_at" = excluded."updated_at"`,
+		id,
+		string(data),
+		time.Now().UTC().Format(time.RFC3339),
+		lookupFieldValue(obj, "custom_picture"),
+		lookupFieldValue(obj, "email"),
+		lookupFieldValue(obj, "first_name"),
+		lookupFieldValue(obj, "last_name"),
+		lookupFieldValue(obj, "registration_status"),
+		lookupFieldValue(obj, "updated_at"),
+	); err != nil {
+		return fmt.Errorf("insert into create_friends: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertCreateFriends inserts or updates a create_friends record with domain-specific columns.
+func (s *Store) UpsertCreateFriends(data json.RawMessage) error {
+	obj, err := DecodeJSONObject(data)
+	if err != nil {
+		return fmt.Errorf("unmarshaling create_friends: %w", err)
+	}
+
+	id := ResolveStorageID("create-friends", obj)
+	if id == "" {
+		return fmt.Errorf("missing id for create_friends")
+	}
+	storageID := resourceStorageID("create-friends", id, obj)
+
+	s.lockForWrite()
+	defer s.unlockAfterWrite()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	data = s.mergeIncomingResourceData(tx, "create-friends", storageID, data)
+	if merged, err := DecodeJSONObject(data); err == nil {
+		obj = merged
+	}
+
+	if err := s.upsertGenericResourceTx(tx, "create-friends", storageID, data); err != nil {
+		return err
+	}
+	if err := s.upsertCreateFriendsTx(tx, storageID, obj, data); err != nil {
 		return err
 	}
 
@@ -1103,23 +2037,153 @@ func (s *Store) UpsertDeleteComment(data json.RawMessage) error {
 		return fmt.Errorf("unmarshaling delete_comment: %w", err)
 	}
 
-	id := extractObjectID(obj)
+	id := ResolveStorageID("delete-comment", obj)
 	if id == "" {
 		return fmt.Errorf("missing id for delete_comment")
 	}
+	storageID := resourceStorageID("delete-comment", id, obj)
 
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
+	s.lockForWrite()
+	defer s.unlockAfterWrite()
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
 
-	if err := s.upsertGenericResourceTx(tx, "delete-comment", id, data); err != nil {
+	data = s.mergeIncomingResourceData(tx, "delete-comment", storageID, data)
+	if merged, err := DecodeJSONObject(data); err == nil {
+		obj = merged
+	}
+
+	if err := s.upsertGenericResourceTx(tx, "delete-comment", storageID, data); err != nil {
 		return err
 	}
-	if err := s.upsertDeleteCommentTx(tx, id, obj, data); err != nil {
+	if err := s.upsertDeleteCommentTx(tx, storageID, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+// upsertGetFriendsTx writes the per-resource domain-table portion of a
+// get_friends upsert inside an existing transaction. The caller is
+// responsible for the generic resources insert (via upsertGenericResourceTx)
+// and for committing the tx. Splitting this out lets UpsertBatch dispatch
+// domain inserts per item without opening a per-item transaction.
+func (s *Store) upsertGetFriendsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO "get_friends" ("id", "data", "synced_at", "custom_picture", "email", "first_name", "last_name", "registration_status", "updated_at")
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT("id") DO UPDATE SET "data" = excluded."data", "synced_at" = excluded."synced_at", "custom_picture" = excluded."custom_picture", "email" = excluded."email", "first_name" = excluded."first_name", "last_name" = excluded."last_name", "registration_status" = excluded."registration_status", "updated_at" = excluded."updated_at"`,
+		id,
+		string(data),
+		time.Now().UTC().Format(time.RFC3339),
+		lookupFieldValue(obj, "custom_picture"),
+		lookupFieldValue(obj, "email"),
+		lookupFieldValue(obj, "first_name"),
+		lookupFieldValue(obj, "last_name"),
+		lookupFieldValue(obj, "registration_status"),
+		lookupFieldValue(obj, "updated_at"),
+	); err != nil {
+		return fmt.Errorf("insert into get_friends: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertGetFriends inserts or updates a get_friends record with domain-specific columns.
+func (s *Store) UpsertGetFriends(data json.RawMessage) error {
+	obj, err := DecodeJSONObject(data)
+	if err != nil {
+		return fmt.Errorf("unmarshaling get_friends: %w", err)
+	}
+
+	id := ResolveStorageID("get-friends", obj)
+	if id == "" {
+		return fmt.Errorf("missing id for get_friends")
+	}
+	storageID := resourceStorageID("get-friends", id, obj)
+
+	s.lockForWrite()
+	defer s.unlockAfterWrite()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	data = s.mergeIncomingResourceData(tx, "get-friends", storageID, data)
+	if merged, err := DecodeJSONObject(data); err == nil {
+		obj = merged
+	}
+
+	if err := s.upsertGenericResourceTx(tx, "get-friends", storageID, data); err != nil {
+		return err
+	}
+	if err := s.upsertGetFriendsTx(tx, storageID, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+// upsertGetGroupsTx writes the per-resource domain-table portion of a
+// get_groups upsert inside an existing transaction. The caller is
+// responsible for the generic resources insert (via upsertGenericResourceTx)
+// and for committing the tx. Splitting this out lets UpsertBatch dispatch
+// domain inserts per item without opening a per-item transaction.
+func (s *Store) upsertGetGroupsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO "get_groups" ("id", "data", "synced_at", "custom_avatar", "group_type", "invite_link", "name", "simplify_by_default", "updated_at")
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT("id") DO UPDATE SET "data" = excluded."data", "synced_at" = excluded."synced_at", "custom_avatar" = excluded."custom_avatar", "group_type" = excluded."group_type", "invite_link" = excluded."invite_link", "name" = excluded."name", "simplify_by_default" = excluded."simplify_by_default", "updated_at" = excluded."updated_at"`,
+		id,
+		string(data),
+		time.Now().UTC().Format(time.RFC3339),
+		lookupFieldValue(obj, "custom_avatar"),
+		lookupFieldValue(obj, "group_type"),
+		lookupFieldValue(obj, "invite_link"),
+		lookupFieldValue(obj, "name"),
+		lookupFieldValue(obj, "simplify_by_default"),
+		lookupFieldValue(obj, "updated_at"),
+	); err != nil {
+		return fmt.Errorf("insert into get_groups: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertGetGroups inserts or updates a get_groups record with domain-specific columns.
+func (s *Store) UpsertGetGroups(data json.RawMessage) error {
+	obj, err := DecodeJSONObject(data)
+	if err != nil {
+		return fmt.Errorf("unmarshaling get_groups: %w", err)
+	}
+
+	id := ResolveStorageID("get-groups", obj)
+	if id == "" {
+		return fmt.Errorf("missing id for get_groups")
+	}
+	storageID := resourceStorageID("get-groups", id, obj)
+
+	s.lockForWrite()
+	defer s.unlockAfterWrite()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	data = s.mergeIncomingResourceData(tx, "get-groups", storageID, data)
+	if merged, err := DecodeJSONObject(data); err == nil {
+		obj = merged
+	}
+
+	if err := s.upsertGenericResourceTx(tx, "get-groups", storageID, data); err != nil {
+		return err
+	}
+	if err := s.upsertGetGroupsTx(tx, storageID, obj, data); err != nil {
 		return err
 	}
 
@@ -1158,23 +2222,29 @@ func (s *Store) UpsertUpdateUser(data json.RawMessage) error {
 		return fmt.Errorf("unmarshaling update_user: %w", err)
 	}
 
-	id := extractObjectID(obj)
+	id := ResolveStorageID("update-user", obj)
 	if id == "" {
 		return fmt.Errorf("missing id for update_user")
 	}
+	storageID := resourceStorageID("update-user", id, obj)
 
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
+	s.lockForWrite()
+	defer s.unlockAfterWrite()
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
 
-	if err := s.upsertGenericResourceTx(tx, "update-user", id, data); err != nil {
+	data = s.mergeIncomingResourceData(tx, "update-user", storageID, data)
+	if merged, err := DecodeJSONObject(data); err == nil {
+		obj = merged
+	}
+
+	if err := s.upsertGenericResourceTx(tx, "update-user", storageID, data); err != nil {
 		return err
 	}
-	if err := s.upsertUpdateUserTx(tx, id, obj, data); err != nil {
+	if err := s.upsertUpdateUserTx(tx, storageID, obj, data); err != nil {
 		return err
 	}
 
@@ -1191,48 +2261,773 @@ func (s *Store) UpsertUpdateUser(data json.RawMessage) error {
 // child path-item annotated with x-resource-id resolves the same as a flat
 // path-item.
 var resourceIDFieldOverrides = map[string]string{
+	"get-categories":    "id",
+	"get-comments":      "id",
+	"get-expenses":      "id",
+	"get-friends":       "id",
 	"get-groups":        "id",
 	"get-notifications": "id",
 }
 
-// genericIDFieldFallbacks is the runtime safety net for resources that did
-// NOT receive a templated IDField. API-specific names belong in spec
-// annotations (x-resource-id), not this list. Order matters: vendor
-// identifier names (gid, sid, uid, uuid, guid) take precedence over `name`
-// so APIs like Asana (gid) and Twilio (sid) don't fall through to a display
-// field and upsert on names — see #1394.
-var genericIDFieldFallbacks = []string{"id", "ID", "gid", "sid", "uid", "uuid", "guid", "name", "slug", "key", "code"}
+// Only typed resources with no identity field may be stored under a
+// parameter fingerprint. Unlisted resources still increment extractFailures
+// when an item has no usable id.
+var parameterKeyedResources = map[string]bool{
+	"add-user-to-group":      true,
+	"create-comment":         true,
+	"create-friend":          true,
+	"create-group":           true,
+	"delete-comment":         true,
+	"delete-expense":         true,
+	"delete-friend":          true,
+	"delete-group":           true,
+	"get-currencies":         true,
+	"get-current-user":       true,
+	"get-expense":            true,
+	"get-friend":             true,
+	"get-group":              true,
+	"get-user":               true,
+	"remove-user-from-group": true,
+	"undelete-expense":       true,
+}
 
-// ExtractResourceID resolves the primary key UpsertBatch would use for a
-// resource item. Callers that need to gate best-effort writes can use this to
-// avoid passing non-entity envelopes into the batch path.
+// Generic ID fields are split around the resource-specific suffix probe.
+// Stable vendor identifiers win first; then fields derived from the resource
+// name (accountId, workspaceId); descriptive fallbacks are last. Keeping name
+// ahead of the resource-specific probe silently keys rows by display labels.
+// `id_` is the Python-style trailing-underscore sibling of `id`; LookupFieldValue
+// also probes that spelling for every other key in this list.
+var genericIDFieldFallbacks = []string{"id", "ID", "_id", "id_", "gid", "sid", "uid", "uuid", "guid", "api_id"}
+var genericDescriptiveIDFieldFallbacks = []string{"name", "slug", "key", "code"}
+
+// resourceIDBaseOverrides preserves the complete final collection name for
+// composed dependents whose child segment is itself multiword.
+var resourceIDBaseOverrides = map[string]string{}
+
+// resourceParentKeyColumns identifies generated dependent resources whose
+// local mirror rows need the parent context in the storage key. Without this,
+// many-to-many sub-collections collapse every parent association onto the
+// child's bare id and silently keep only the last synced parent.
+var resourceParentKeyColumns = map[string][]string{}
+
+// ExtractResourceID resolves the bare resource id field that UpsertBatch
+// extracts from a resource item. For dependent resource types, UpsertBatch
+// derives the actual storage key by combining this id with the parent value;
+// use resourceStorageID if you need the key as it appears in the database.
+// Callers that need to gate best-effort writes can use this to avoid passing
+// non-entity envelopes into the batch path.
 func ExtractResourceID(resourceType string, obj map[string]any) string {
 	if override, ok := resourceIDFieldOverrides[resourceType]; ok && override != "" {
-		if v := lookupFieldValue(obj, override); v != nil {
-			s := ResourceIDString(v)
-			if s != "" && s != "<nil>" {
-				return s
-			}
+		if s := canonicalIDFromOverride(obj, override); s != "" {
+			return s
 		}
 	}
 	for _, key := range genericIDFieldFallbacks {
-		if v := lookupFieldValue(obj, key); v != nil {
-			s := ResourceIDString(v)
-			if s != "" && s != "<nil>" {
-				return s
+		if s := canonicalIDFromKey(obj, key); s != "" {
+			return s
+		}
+	}
+	if s := suffixIDFieldFallback(resourceType, obj); s != "" {
+		return s
+	}
+	for _, key := range genericDescriptiveIDFieldFallbacks {
+		if s := canonicalIDFromKey(obj, key); s != "" {
+			return s
+		}
+	}
+	return mapKeyIDFallback(obj)
+}
+
+// Writer identity prefers a real resource id. A parameter-shaped payload
+// with no identity-candidate keys is fingerprinted from top-level scalars
+// so the row can be stored without inventing a field. Unwrap and sync
+// extractID must keep using ExtractResourceID so a fingerprint is never
+// mistaken for an entity id.
+//
+// An identity-shaped key whose value was refused (timestamp, zero, empty)
+// still returns "" — fingerprinting those would hide a rejected entity id.
+func ResolveStorageID(resourceType string, obj map[string]any) string {
+	if id := ExtractResourceID(resourceType, obj); id != "" {
+		return id
+	}
+	if !parameterKeyedResources[resourceType] {
+		return ""
+	}
+	if identityKeyPresent(resourceType, obj) {
+		return ""
+	}
+	return parameterSnapshotID(obj)
+}
+
+func identityKeyPresent(resourceType string, obj map[string]any) bool {
+	if obj == nil {
+		return false
+	}
+	if override, ok := resourceIDFieldOverrides[resourceType]; ok && override != "" {
+		if overrideIdentityPresent(obj, override) {
+			return true
+		}
+	}
+	for _, key := range genericIDFieldFallbacks {
+		if _, found := lookupRawFieldValue(obj, key); found {
+			return true
+		}
+	}
+	if suffixIdentityKeyPresent(resourceType, obj) {
+		return true
+	}
+	for _, key := range genericDescriptiveIDFieldFallbacks {
+		if _, found := lookupRawFieldValue(obj, key); found {
+			return true
+		}
+	}
+	if _, found := obj[MapKeyIDField]; found {
+		return true
+	}
+	return false
+}
+
+func suffixIdentityKeyPresent(resourceType string, obj map[string]any) bool {
+	for _, base := range resourceIDBaseNames(resourceType) {
+		for _, suffix := range []string{"_id", "_code", "_key", "_slug"} {
+			if _, found := lookupRawFieldValue(obj, base+suffix); found {
+				return true
+			}
+		}
+		camelBase := lowerCamelResourceIDBase(base)
+		for _, suffix := range []string{"Id", "Code", "Key", "Slug"} {
+			if _, found := lookupRawFieldValue(obj, camelBase+suffix); found {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// Id-less rows key on a hash of top-level scalars (lat/lon, timezone)
+// and omit nested blocks so a later fetch of the same parameters updates
+// the same row. Volatile telemetry keys (*_ms, *_at, timestamp,
+// generationtime*) stay out of the key. No stable scalars means the
+// whole payload is hashed so the row can still be stored.
+func parameterSnapshotID(obj map[string]any) string {
+	if len(obj) == 0 {
+		return ""
+	}
+	fields := parameterFingerprintFields(obj)
+	var payload any
+	if len(fields) > 0 {
+		payload = fields
+	} else {
+		payload = obj
+	}
+	raw, err := json.Marshal(payload)
+	if err != nil || len(raw) == 0 || string(raw) == "null" || string(raw) == "{}" {
+		return ""
+	}
+	sum := sha256.Sum256(raw)
+	return "pp:params:" + hex.EncodeToString(sum[:16])
+}
+
+func parameterFingerprintFields(obj map[string]any) map[string]any {
+	out := make(map[string]any, len(obj))
+	for key, value := range obj {
+		if isVolatileParameterKey(key) {
+			continue
+		}
+		if scalar, ok := fingerprintScalar(value); ok {
+			out[key] = scalar
+		}
+	}
+	return out
+}
+
+func isVolatileParameterKey(key string) bool {
+	k := strings.ToLower(strings.TrimSpace(key))
+	switch {
+	case strings.HasSuffix(k, "_ms"), strings.HasSuffix(k, "_at"):
+		return true
+	case k == "timestamp", k == "generated", k == "generation_time", k == "generationtime":
+		return true
+	default:
+		return strings.HasPrefix(k, "generationtime")
+	}
+}
+
+func fingerprintScalar(value any) (any, bool) {
+	switch t := value.(type) {
+	case nil:
+		return nil, false
+	case string:
+		return t, t != ""
+	case bool:
+		return t, true
+	case json.Number:
+		return t, t.String() != ""
+	case float64, float32, int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		return t, true
+	default:
+		return nil, false
+	}
+}
+
+// A thinner list-shaped payload cannot destroy richer detail already
+// stored for the same id.
+//
+// Policy (do-not-shrink / keep-richer):
+//   - First write (no existing) stores incoming unchanged.
+//   - Object keys present only on existing are kept.
+//   - Objects merge recursively; incoming keys go through the same policy
+//     rather than wholesale replacement.
+//   - A container (object/array) is never replaced by a scalar or null.
+//   - An incoming empty array does not replace a non-empty existing array
+//     (list omitted the collection vs sent a new one).
+//   - Object arrays match by the same identity stack as ExtractResourceID
+//     (configured / dotted override, generic id, resource-scoped suffix)
+//     plus item-local suffix keys (currency_code, accountId) and sku.
+//     Own-identity suffixes (_code/_slug/_key) win over shared foreign
+//     keys so sibling rows that share account_id still pair on
+//     currency_code. A lone accountId remains identity when it is the
+//     only identity-shaped field. Identity map keys include the field
+//     that produced them so id:"USD" and currency_code:"USD" cannot
+//     share a slot. Display name is not an array identity. Result
+//     order and length follow incoming so a reorder or middle delete
+//     cannot join unrelated objects or keep leftover old entries.
+//   - Arrays without identity keys, and scalar arrays, take incoming
+//     wholesale. Index-wise merge would pair unrelated items.
+//   - Incoming scalars replace existing scalars.
+func mergeKeepRicherJSON(resourceType string, existing, incoming json.RawMessage) (json.RawMessage, bool) {
+	if len(existing) == 0 {
+		return incoming, len(incoming) > 0
+	}
+	if len(incoming) == 0 {
+		return existing, true
+	}
+	existingVal, err := decodeJSONValue(existing)
+	if err != nil {
+		return incoming, len(incoming) > 0
+	}
+	incomingVal, err := decodeJSONValue(incoming)
+	if err != nil {
+		return existing, true
+	}
+	merged, err := json.Marshal(mergeKeepRicherValue(resourceType, existingVal, incomingVal))
+	if err != nil {
+		return incoming, len(incoming) > 0
+	}
+	return merged, true
+}
+
+func decodeJSONValue(data json.RawMessage) (any, error) {
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.UseNumber()
+	var value any
+	if err := dec.Decode(&value); err != nil {
+		return nil, err
+	}
+	return value, nil
+}
+
+func mergeKeepRicherValue(resourceType string, existing, incoming any) any {
+	if incoming == nil {
+		if existing != nil {
+			return existing
+		}
+		return incoming
+	}
+	existingObj, existingIsObj := existing.(map[string]any)
+	incomingObj, incomingIsObj := incoming.(map[string]any)
+	if existingIsObj && incomingIsObj {
+		return mergeKeepRicherObject(resourceType, existingObj, incomingObj)
+	}
+	existingArr, existingIsArr := existing.([]any)
+	incomingArr, incomingIsArr := incoming.([]any)
+	if existingIsArr && incomingIsArr {
+		return mergeKeepRicherArray(resourceType, existingArr, incomingArr)
+	}
+	if isJSONContainer(existing) && !isJSONContainer(incoming) {
+		return existing
+	}
+	if isJSONEmpty(incoming) && !isJSONEmpty(existing) {
+		return existing
+	}
+	return incoming
+}
+
+func mergeKeepRicherObject(resourceType string, existing, incoming map[string]any) map[string]any {
+	out := make(map[string]any, len(existing)+len(incoming))
+	for key, value := range existing {
+		out[key] = value
+	}
+	for key, incomingVal := range incoming {
+		if existingVal, ok := out[key]; ok {
+			out[key] = mergeKeepRicherValue(resourceType, existingVal, incomingVal)
+			continue
+		}
+		out[key] = incomingVal
+	}
+	return out
+}
+
+func mergeKeepRicherArray(resourceType string, existing, incoming []any) []any {
+	if len(incoming) == 0 && len(existing) > 0 {
+		return existing
+	}
+	existingByID := indexObjectArrayByIdentity(resourceType, existing)
+	if len(existingByID) == 0 {
+		return incoming
+	}
+	out := make([]any, len(incoming))
+	for i, item := range incoming {
+		incomingObj, ok := item.(map[string]any)
+		if !ok {
+			out[i] = item
+			continue
+		}
+		id := arrayItemIdentity(resourceType, incomingObj)
+		existingObj, ok := existingByID[id]
+		if id == "" || !ok {
+			out[i] = item
+			continue
+		}
+		delete(existingByID, id)
+		out[i] = mergeKeepRicherObject(resourceType, existingObj, incomingObj)
+	}
+	return out
+}
+
+func indexObjectArrayByIdentity(resourceType string, items []any) map[string]map[string]any {
+	out := make(map[string]map[string]any)
+	for _, item := range items {
+		obj, ok := item.(map[string]any)
+		if !ok {
+			continue
+		}
+		id := arrayItemIdentity(resourceType, obj)
+		if id == "" {
+			continue
+		}
+		if _, exists := out[id]; exists {
+			continue
+		}
+		out[id] = obj
+	}
+	return out
+}
+
+func arrayItemIdentity(resourceType string, obj map[string]any) string {
+	if override, ok := resourceIDFieldOverrides[resourceType]; ok && override != "" {
+		if s := canonicalIDFromKey(obj, override); s != "" {
+			return qualifyArrayItemIdentity(override, s)
+		}
+	}
+	for _, key := range genericIDFieldFallbacks {
+		if s := canonicalIDFromKey(obj, key); s != "" {
+			return qualifyArrayItemIdentity(canonicalGenericIDField(key), s)
+		}
+	}
+	// Item-local own identity wins over the parent resource's suffix.
+	// mergeKeepRicherJSON threads the parent type through nested arrays,
+	// so suffixIDFieldFallback("accounts") would treat a copied
+	// account_id as every child's id and collide sibling rates.
+	if field, s := suffixIdentityFromItemKeys(obj); s != "" {
+		return qualifyArrayItemIdentity(field, s)
+	}
+	if field, s := suffixIDFieldAndName(resourceType, obj); s != "" {
+		return qualifyArrayItemIdentity(field, s)
+	}
+	if s := canonicalIDFromKey(obj, "sku"); s != "" {
+		return qualifyArrayItemIdentity("sku", s)
+	}
+	for _, key := range []string{"slug", "key", "code"} {
+		if s := canonicalIDFromKey(obj, key); s != "" {
+			return qualifyArrayItemIdentity(key, s)
+		}
+	}
+	return ""
+}
+
+const arrayItemIdentitySep = "\x1f"
+
+func qualifyArrayItemIdentity(field, value string) string {
+	if field == "" || value == "" {
+		return ""
+	}
+	return field + arrayItemIdentitySep + value
+}
+
+// lookupRawFieldValue("id") finds Id/id_ via fieldKeySpellings but not
+// _id or ID, so those probes would otherwise mint distinct map keys.
+func canonicalGenericIDField(probe string) string {
+	switch strings.TrimSpace(probe) {
+	case "id", "ID", "_id", "id_", "Id":
+		return "id"
+	default:
+		return probe
+	}
+}
+
+func suffixIdentityFromItemKeys(obj map[string]any) (string, string) {
+	if obj == nil {
+		return "", ""
+	}
+	keys := make([]string, 0, len(obj))
+	for key := range obj {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	var ownField, own, localField, localID, sharedField, sharedID string
+	for _, key := range keys {
+		stem := identitySuffixStem(key)
+		if stem == "" || stem == "parent" {
+			continue
+		}
+		s := suffixIDFieldFallback(stem, obj)
+		if s == "" {
+			continue
+		}
+		field := canonicalArrayIdentityField(key)
+		switch itemKeyIdentityKind(key) {
+		case itemIdentOwn:
+			if own == "" {
+				ownField, own = field, s
+			}
+		case itemIdentLocalID:
+			if localID == "" {
+				localField, localID = field, s
+			}
+		case itemIdentSharedID:
+			if sharedID == "" {
+				sharedField, sharedID = field, s
+			}
+		}
+	}
+	if own != "" {
+		return ownField, own
+	}
+	if localID != "" {
+		return localField, localID
+	}
+	return sharedField, sharedID
+}
+
+func canonicalArrayIdentityField(key string) string {
+	k := strings.TrimSpace(key)
+	stem := identitySuffixStem(k)
+	if stem == "" {
+		return k
+	}
+	switch {
+	case strings.HasSuffix(k, "_id") || strings.HasSuffix(k, "Id") || strings.HasSuffix(k, "ID"):
+		return stem + "_id"
+	case strings.HasSuffix(k, "_code") || strings.HasSuffix(k, "Code"):
+		return stem + "_code"
+	case strings.HasSuffix(k, "_key") || strings.HasSuffix(k, "Key"):
+		return stem + "_key"
+	case strings.HasSuffix(k, "_slug") || strings.HasSuffix(k, "Slug"):
+		return stem + "_slug"
+	default:
+		return k
+	}
+}
+
+type itemIdentKind int
+
+const (
+	itemIdentNone itemIdentKind = iota
+	itemIdentOwn
+	itemIdentLocalID
+	itemIdentSharedID
+)
+
+func itemKeyIdentityKind(key string) itemIdentKind {
+	if itemKeyLooksLikeOwnIdentity(key) {
+		return itemIdentOwn
+	}
+	stem := identitySuffixStem(key)
+	if stem == "" {
+		return itemIdentNone
+	}
+	if sharedForeignKeyStem(stem) {
+		return itemIdentSharedID
+	}
+	return itemIdentLocalID
+}
+
+func itemKeyLooksLikeOwnIdentity(key string) bool {
+	k := strings.TrimSpace(key)
+	for _, suffix := range []string{"_code", "_key", "_slug"} {
+		if strings.HasSuffix(k, suffix) && len(k) > len(suffix) {
+			return true
+		}
+	}
+	for _, suffix := range []string{"Code", "Key", "Slug"} {
+		if strings.HasSuffix(k, suffix) && len(k) > len(suffix) {
+			return true
+		}
+	}
+	return false
+}
+
+func sharedForeignKeyStem(stem string) bool {
+	switch strings.ToLower(stem) {
+	case "parent", "account", "owner", "org", "organization", "user",
+		"customer", "workspace", "tenant", "team", "company", "member":
+		return true
+	default:
+		return false
+	}
+}
+
+func identitySuffixStem(key string) string {
+	k := strings.TrimSpace(key)
+	if k == "" {
+		return ""
+	}
+	for _, suffix := range []string{"_id", "_code", "_key", "_slug"} {
+		if strings.HasSuffix(k, suffix) && len(k) > len(suffix) {
+			return strings.TrimSuffix(k, suffix)
+		}
+	}
+	for _, suffix := range []string{"Id", "Code", "Key", "Slug"} {
+		if strings.HasSuffix(k, suffix) && len(k) > len(suffix) {
+			return strings.ToLower(k[:len(k)-len(suffix)])
+		}
+	}
+	return ""
+}
+
+func isJSONContainer(value any) bool {
+	switch value.(type) {
+	case map[string]any, []any:
+		return true
+	default:
+		return false
+	}
+}
+
+func isJSONEmpty(value any) bool {
+	switch t := value.(type) {
+	case nil:
+		return true
+	case string:
+		return t == ""
+	case map[string]any:
+		return len(t) == 0
+	case []any:
+		return len(t) == 0
+	default:
+		return false
+	}
+}
+
+// suffixIDFieldFallback resolves an id-less resource that keys on its own
+// "<name>_code" / "<name>_id" / "<name>_key" / "<name>_slug" field (e.g. the
+// "currencies" resource keying on "currency_code" — see #2327). It is scoped to
+// the resource's OWN name so a foreign key like account_id/parent_id is never
+// promoted to the primary key, and it walks the same key spellings as
+// LookupFieldValue in a fixed suffix order so the chosen id is deterministic.
+func suffixIDFieldFallback(resourceType string, obj map[string]any) string {
+	_, value := suffixIDFieldAndName(resourceType, obj)
+	return value
+}
+
+func suffixIDFieldAndName(resourceType string, obj map[string]any) (string, string) {
+	for _, base := range resourceIDBaseNames(resourceType) {
+		for _, suffix := range []string{"_id", "_code", "_key", "_slug"} {
+			key := base + suffix
+			if s := canonicalScalarIDFromKey(obj, key); s != "" {
+				return canonicalArrayIdentityField(key), s
+			}
+		}
+		camelBase := lowerCamelResourceIDBase(base)
+		for _, suffix := range []string{"Id", "Code", "Key", "Slug"} {
+			key := camelBase + suffix
+			if s := canonicalScalarIDFromKey(obj, key); s != "" {
+				return canonicalArrayIdentityField(key), s
+			}
+		}
+	}
+	return "", ""
+}
+
+func canonicalScalarIDFromKey(obj map[string]any, key string) string {
+	v, ok := lookupRawFieldValue(obj, key)
+	if !ok || scalarIDString(v) == "" {
+		return ""
+	}
+	return CanonicalResourceID(v)
+}
+
+// resourceIDBaseNames returns lowercase candidate singular/plural stems of a
+// resource name to build "<base>_id"-style key probes from (e.g. "currencies"
+// -> ["currencies","currency"]). Composed dependent names also probe their
+// final segment ("containers_workspaces" -> "workspaces","workspace"), which
+// is the child entity's own ID convention. OpenAPI-/path-derived names can
+// carry a leading verb token ("get-currencies"), so the same probes are also
+// attempted on the de-verbed stem.
+func resourceIDBaseNames(resourceType string) []string {
+	r := strings.ToLower(strings.TrimSpace(resourceType))
+	if r == "" {
+		return nil
+	}
+	var stems []string
+	addStem := func(stem string) {
+		if stem == "" {
+			return
+		}
+		for _, existing := range stems {
+			if existing == stem {
+				return
+			}
+		}
+		stems = append(stems, stem)
+	}
+	addStem(resourceIDBaseOverrides[r])
+	addStem(r)
+	if d := stripLeadingResourceVerb(r); d != "" && d != r {
+		addStem(d)
+	}
+	var bases []string
+	seen := map[string]bool{}
+	add := func(s string) {
+		if s != "" && !seen[s] {
+			seen[s] = true
+			bases = append(bases, s)
+		}
+	}
+	for _, stem := range stems {
+		add(stem)
+		add(depluralizeResourceStem(stem))
+		if i := strings.LastIndexAny(stem, "_-"); i >= 0 && i+1 < len(stem) {
+			leaf := stem[i+1:]
+			add(leaf)
+			add(depluralizeResourceStem(leaf))
+		}
+	}
+	return bases
+}
+
+func stripLeadingResourceVerb(r string) string {
+	for _, verb := range []string{"get", "list", "fetch", "find", "retrieve", "read", "show", "all"} {
+		for _, sep := range []string{"-", "_"} {
+			prefix := verb + sep
+			if strings.HasPrefix(r, prefix) && len(r) > len(prefix) {
+				return r[len(prefix):]
 			}
 		}
 	}
 	return ""
 }
 
-// UpsertBatch inserts or replaces multiple records in a single transaction
-// and returns (stored, extractFailures, err). stored counts rows landed in
-// the generic resources table; extractFailures counts items that survived
-// JSON unmarshal but had no extractable primary key (templated IDField AND
-// generic fallback both missed). callers (sync.go.tmpl) compare these
-// against len(items) to emit the per-item primary_key_unresolved warning
-// and the F4b stored_count_zero_after_extraction probe.
+func depluralizeResourceStem(r string) string {
+	switch {
+	case strings.HasSuffix(r, "ies") && len(r) > 3:
+		return strings.TrimSuffix(r, "ies") + "y" // currencies -> currency
+	// Plurals formed by adding "es" to a base ending in s/x/z/ch/sh. The
+	// double-s "sses" guard (not bare "ses") keeps soft-e plurals — where the
+	// singular already ends in a silent "e" (cases, databases, licenses,
+	// purchases) — out of this branch; they fall through to the "-s" case below
+	// (cases -> case, not cas). Trade-off: a genuine "-es" plural of an s-ending
+	// singular (buses, statuses) depluralizes imperfectly, but those are rare as
+	// resource names and this stem only feeds best-effort id-field probing.
+	case strings.HasSuffix(r, "sses") || strings.HasSuffix(r, "xes") ||
+		strings.HasSuffix(r, "zes") || strings.HasSuffix(r, "ches") ||
+		strings.HasSuffix(r, "shes"):
+		return strings.TrimSuffix(r, "es") // classes -> class, boxes -> box, dishes -> dish
+	case strings.HasSuffix(r, "s") && !strings.HasSuffix(r, "ss") && len(r) > 1:
+		return strings.TrimSuffix(r, "s") // languages -> language, cases -> case
+	}
+	return r
+}
+
+func lowerCamelResourceIDBase(base string) string {
+	parts := strings.FieldsFunc(base, func(r rune) bool {
+		return r == '_' || r == '-'
+	})
+	if len(parts) == 0 {
+		return base
+	}
+	for i := range parts {
+		if i == 0 {
+			parts[i] = strings.ToLower(parts[i])
+			continue
+		}
+		parts[i] = strings.ToUpper(parts[i][:1]) + strings.ToLower(parts[i][1:])
+	}
+	return strings.Join(parts, "")
+}
+
+func scalarIDString(value any) string {
+	switch value.(type) {
+	case string, bool, int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64,
+		float32, float64, json.Number, []byte:
+		return ResourceIDString(value)
+	default:
+		return ""
+	}
+}
+
+func resourceStorageID(resourceType, id string, obj map[string]any) string {
+	for _, parentKey := range resourceParentKeyColumns[resourceType] {
+		parentValue := ResourceIDString(lookupFieldValue(obj, parentKey))
+		if parentValue != "" && parentValue != "<nil>" {
+			return id + string([]byte{0}) + parentValue
+		}
+	}
+	return id
+}
+
+// BareResourceID strips the NUL-delimited parent suffix that resourceStorageID
+// appends to dependent resource types, returning the bare entity id. ListIDs
+// returns composite keys for parent-keyed resources, so callers comparing those
+// ids against bare API ids must run them through this first. For non-composite
+// ids it returns the input unchanged, so it is safe to apply to every id.
+//
+// Parent-keyed typed tables also project this value as a generated bare_id
+// column (indexed) so SQL/store queries can filter on the entity id without
+// matching the hidden parent suffix. WHERE id = ? against a bare API id
+// misses those rows; WHERE bare_id = ? finds them.
+func BareResourceID(storageID string) string {
+	if i := strings.IndexByte(storageID, 0); i >= 0 {
+		return storageID[:i]
+	}
+	return storageID
+}
+
+// childScopeColumnSources maps a typed child table's path-placeholder scope
+// column (the FK the dependent sync injects per item, e.g. "projects_id") to
+// the singular parent-reference field the API body carries natively (e.g.
+// "project"). deriveScopeColumns consults this so write-through cache paths —
+// which pass RAW API items to UpsertBatch and never carry the path-injected
+// scope column — still satisfy the typed table's NOT NULL scope column instead
+// of stranding the row in generic resources.
+var childScopeColumnSources = map[string]string{}
+
+// deriveScopeColumns backfills a typed child table's scope column from the
+// item's own parent reference when path injection is absent. A value already
+// present (valid injection) is never overwritten.
+func deriveScopeColumns(obj map[string]any) {
+	for scopeKey, sourceKey := range childScopeColumnSources {
+		if v := lookupFieldValue(obj, scopeKey); v != nil {
+			if s, ok := v.(string); !ok || s != "" {
+				continue // path injection already supplied a usable value
+			}
+		}
+		src := lookupFieldValue(obj, sourceKey)
+		if src == nil {
+			continue
+		}
+		if s, ok := src.(string); ok && s == "" {
+			continue
+		}
+		obj[scopeKey] = src
+	}
+}
+
+// UpsertBatch inserts or replaces multiple records in a single transaction.
+// The detailed variant also reports typed-table projection failures so sync can
+// treat a generic-only write as an incomplete local mirror.
 //
 // For resource types that have a domain-specific typed table, the per-item
 // generic insert is followed by a dispatch to the matching upsert<Pascal>Tx
@@ -1245,14 +3040,18 @@ func ExtractResourceID(resourceType string, obj map[string]any) string {
 // didn't populate the parent path placeholder) rolls back only that typed
 // upsert. The generic resources row inserted just above it survives the
 // rollback, so successful API fetches never strand in memory because one
-// downstream typed table is misconfigured. Failures are surfaced via a
-// trailing stderr warning rather than aborting the batch.
+// downstream typed table is misconfigured.
 func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, int, error) {
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
+	stored, extractFailures, _, err := s.UpsertBatchDetailed(resourceType, items)
+	return stored, extractFailures, err
+}
+
+func (s *Store) UpsertBatchDetailed(resourceType string, items []json.RawMessage) (int, int, int, error) {
+	s.lockForWrite()
+	defer s.unlockAfterWrite()
 	tx, err := s.db.Begin()
 	if err != nil {
-		return 0, 0, fmt.Errorf("starting batch transaction: %w", err)
+		return 0, 0, 0, fmt.Errorf("starting batch transaction: %w", err)
 	}
 	defer tx.Rollback()
 
@@ -1269,52 +3068,81 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 		// spec declares x-resource-id).
 		id := ExtractResourceID(resourceType, obj)
 		if id == "" {
+			if keyObj, rowObj, rowItem, ok := unwrapIDBearingEnvelopeItem(resourceType, item, obj); ok {
+				id = ExtractResourceID(resourceType, keyObj)
+				obj = rowObj
+				item = rowItem
+			}
+		}
+		if id == "" {
+			id = ResolveStorageID(resourceType, obj)
+		}
+		if id == "" {
 			skippedCount++
 			extractFailures++
 			continue
 		}
+		storageID := resourceStorageID(resourceType, id, obj)
+		item = s.mergeIncomingResourceData(tx, resourceType, storageID, item)
+		if merged, err := DecodeJSONObject(item); err == nil {
+			obj = merged
+		}
 
-		if err := s.upsertGenericResourceTx(tx, resourceType, id, item); err != nil {
+		if err := s.upsertGenericResourceTx(tx, resourceType, storageID, item); err != nil {
 			// Return the running stored count rather than zero so callers
 			// inspecting partial progress on failure see what already
 			// landed in earlier loop iterations.
-			return stored, extractFailures, fmt.Errorf("upserting %s/%s: %w", resourceType, id, err)
+			return stored, extractFailures, typedFailures, fmt.Errorf("upserting %s/%s: %w", resourceType, storageID, err)
 		}
 		stored++
 
+		// Backfill the typed child table's NOT NULL scope column from the item's
+		// own parent reference when the dependent-sync path injection is absent
+		// (write-through cache feeds RAW API items here).
+		deriveScopeColumns(obj)
+
 		savepoint := fmt.Sprintf("pp_typed_%d", i)
 		if _, err := tx.Exec("SAVEPOINT " + savepoint); err != nil {
-			return stored, extractFailures, fmt.Errorf("savepoint begin for %s/%s: %w", resourceType, id, err)
+			return stored, extractFailures, typedFailures, fmt.Errorf("savepoint begin for %s/%s: %w", resourceType, storageID, err)
 		}
 
 		var typedErr error
 		switch resourceType {
 		case "create-comment":
-			typedErr = s.upsertCreateCommentTx(tx, id, obj, item)
+			typedErr = s.upsertCreateCommentTx(tx, storageID, obj, item)
+		case "create-friends":
+			typedErr = s.upsertCreateFriendsTx(tx, storageID, obj, item)
 		case "delete-comment":
-			typedErr = s.upsertDeleteCommentTx(tx, id, obj, item)
+			typedErr = s.upsertDeleteCommentTx(tx, storageID, obj, item)
+		case "get-friends":
+			typedErr = s.upsertGetFriendsTx(tx, storageID, obj, item)
+		case "get-groups":
+			typedErr = s.upsertGetGroupsTx(tx, storageID, obj, item)
 		case "update-user":
-			typedErr = s.upsertUpdateUserTx(tx, id, obj, item)
+			typedErr = s.upsertUpdateUserTx(tx, storageID, obj, item)
 		}
 
 		if typedErr != nil {
 			if _, rbErr := tx.Exec("ROLLBACK TO SAVEPOINT " + savepoint); rbErr != nil {
-				return stored, extractFailures, fmt.Errorf("rollback to savepoint for %s/%s (typed err: %v): %w", resourceType, id, typedErr, rbErr)
+				return stored, extractFailures, typedFailures, fmt.Errorf("rollback to savepoint for %s/%s (typed err: %v): %w", resourceType, storageID, typedErr, rbErr)
 			}
 			if _, relErr := tx.Exec("RELEASE SAVEPOINT " + savepoint); relErr != nil {
-				return stored, extractFailures, fmt.Errorf("release savepoint after rollback for %s/%s: %w", resourceType, id, relErr)
+				return stored, extractFailures, typedFailures, fmt.Errorf("release savepoint after rollback for %s/%s: %w", resourceType, storageID, relErr)
 			}
 			typedFailures++
 			continue
 		}
 		if _, err := tx.Exec("RELEASE SAVEPOINT " + savepoint); err != nil {
-			return stored, extractFailures, fmt.Errorf("release savepoint for %s/%s: %w", resourceType, id, err)
+			return stored, extractFailures, typedFailures, fmt.Errorf("release savepoint for %s/%s: %w", resourceType, storageID, err)
 		}
 	}
 
-	// Warn when most items in a batch lack an extractable ID — this likely
-	// means the API uses a primary key field we don't recognize yet.
-	if skippedCount > 0 && len(items) > 0 && skippedCount*2 > len(items) {
+	// Warn when every decoded item in a batch lacks an extractable ID — this
+	// likely means the API uses a primary key field we don't recognize yet.
+	// Partial misses still surface through extractFailures so sync can emit
+	// a structured primary_key_unresolved anomaly without spamming stderr for
+	// write-through cache batches that did persist useful rows.
+	if extractFailures > 0 && stored == 0 && len(items) > 0 {
 		fmt.Fprintf(os.Stderr, "warning: %d/%d %s items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n", skippedCount, len(items), resourceType)
 	}
 	// Surface typed-table failures without aborting the batch. Generic rows
@@ -1324,20 +3152,77 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 	}
 
 	if err := tx.Commit(); err != nil {
-		return 0, extractFailures, err
+		return 0, extractFailures, typedFailures, err
 	}
-	return stored, extractFailures, nil
+	return stored, extractFailures, typedFailures, nil
+}
+
+// Multi-field wrappers keep their outer row because scalar siblings may be
+// resource data; true single-field envelopes unwrap to the inner object.
+func unwrapIDBearingEnvelopeItem(resourceType string, item json.RawMessage, obj map[string]any) (map[string]any, map[string]any, json.RawMessage, bool) {
+	var candidate map[string]any
+	candidateKey := ""
+	candidates := 0
+	for key, value := range obj {
+		inner, ok := value.(map[string]any)
+		if !ok {
+			continue
+		}
+		if ExtractResourceID(resourceType, inner) != "" {
+			candidate = inner
+			candidateKey = key
+			candidates++
+		}
+	}
+	if candidates != 1 || candidate == nil || candidateKey == "" {
+		return nil, nil, nil, false
+	}
+	if len(obj) != 1 {
+		return candidate, obj, item, true
+	}
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(item, &raw); err != nil {
+		return nil, nil, nil, false
+	}
+	data, ok := raw[candidateKey]
+	if !ok {
+		return nil, nil, nil, false
+	}
+	return candidate, candidate, data, true
 }
 
 func (s *Store) SaveSyncState(resourceType, cursor string, count int) error {
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
+	return s.SaveSyncStateAt(resourceType, cursor, count, time.Now().UTC())
+}
+
+// SaveSyncStateAt stores both pagination progress and the incremental
+// watermark represented by at. Callers use this when the watermark belongs to
+// the data just fetched rather than to the instant the checkpoint is written.
+func (s *Store) SaveSyncStateAt(resourceType, cursor string, count int, at time.Time) error {
+	s.lockForWrite()
+	defer s.unlockAfterWrite()
 	_, err := s.db.Exec(
 		`INSERT INTO sync_state (resource_type, last_cursor, last_synced_at, total_count)
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(resource_type) DO UPDATE SET last_cursor = excluded.last_cursor,
 		 last_synced_at = excluded.last_synced_at, total_count = excluded.total_count`,
-		resourceType, cursor, time.Now().UTC().Format(time.RFC3339), count,
+		resourceType, cursor, at.UTC().Format(time.RFC3339), count,
+	)
+	return err
+}
+
+// SaveSyncProgress stores pagination progress without changing the
+// incremental watermark. A new row gets a parseable zero timestamp so
+// GetSyncState can scan it into time.Time without a NULL conversion error.
+func (s *Store) SaveSyncProgress(resourceType, cursor string, count int) error {
+	s.lockForWrite()
+	defer s.unlockAfterWrite()
+	_, err := s.db.Exec(
+		`INSERT INTO sync_state (resource_type, last_cursor, last_synced_at, total_count)
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(resource_type) DO UPDATE SET last_cursor = excluded.last_cursor,
+		 total_count = excluded.total_count`,
+		resourceType, cursor, time.Time{}.UTC().Format(time.RFC3339), count,
 	)
 	return err
 }
@@ -1355,13 +3240,14 @@ func (s *Store) GetSyncState(resourceType string) (cursor string, lastSynced tim
 
 // SaveSyncCursor stores the pagination cursor for a resource type.
 func (s *Store) SaveSyncCursor(resourceType, cursor string) error {
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
+	s.lockForWrite()
+	defer s.unlockAfterWrite()
+	now := time.Now().UTC().Format(time.RFC3339)
 	_, err := s.db.Exec(
 		`INSERT INTO sync_state (resource_type, last_cursor, last_synced_at, total_count)
-		 VALUES (?, ?, CURRENT_TIMESTAMP, 0)
-		 ON CONFLICT(resource_type) DO UPDATE SET last_cursor = ?, last_synced_at = CURRENT_TIMESTAMP`,
-		resourceType, cursor, cursor,
+		 VALUES (?, ?, ?, 0)
+		 ON CONFLICT(resource_type) DO UPDATE SET last_cursor = ?, last_synced_at = ?`,
+		resourceType, cursor, now, cursor, now,
 	)
 	return err
 }
@@ -1378,6 +3264,9 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 
 // ListIDs returns all IDs from a resource's domain table, or from the generic
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
+// For parent-keyed resource types these are composite storage keys; run them
+// through BareResourceID before comparing against bare API ids, or filter the
+// typed table's generated bare_id column from SQL.
 //
 // resourceType is never interpolated into SQL directly. We resolve it to a real
 // table name via a parameterized sqlite_master lookup; only that trusted name is
@@ -1401,6 +3290,74 @@ func (s *Store) ListIDs(resourceType string) ([]string, error) {
 	}
 	defer rows.Close()
 
+	var ids []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			continue
+		}
+		ids = append(ids, id)
+	}
+	return ids, rows.Err()
+}
+
+// ListIDsScoped is ListIDs with an optional tenant filter. scopeValue=="" =>
+// unscoped (identical to ListIDs). When the typed table exists AND has
+// scopeColumn (validated via validIdentifierRE + pragma_table_info), the IDs are
+// filtered by that bound column. When the typed table exists but LACKS the
+// column, it degrades to unscoped ListIDs (never silently returns zero parents).
+// When no typed table exists, it filters the generic resources table via
+// json_extract. scopeColumn is validated; scopeValue is always bound.
+func (s *Store) ListIDsScoped(resourceType, scopeColumn, scopeValue string) ([]string, error) {
+	if scopeValue == "" || scopeColumn == "" {
+		return s.ListIDs(resourceType)
+	}
+	if !validIdentifierRE.MatchString(scopeColumn) {
+		return nil, fmt.Errorf("ListIDsScoped: invalid scope column %q", scopeColumn)
+	}
+	var table string
+	err := s.db.QueryRow(
+		`SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
+		resourceType,
+	).Scan(&table)
+	if err == nil && table != "" {
+		var colName string
+		colErr := s.db.QueryRow(
+			`SELECT name FROM pragma_table_info(?) WHERE name=?`,
+			table, scopeColumn,
+		).Scan(&colName)
+		if colErr != nil || colName == "" {
+			// Typed table exists but lacks the scope column: degrade to unscoped
+			// rather than returning zero parents.
+			return s.ListIDs(resourceType)
+		}
+		qTable := strings.ReplaceAll(table, `"`, `""`)
+		qCol := strings.ReplaceAll(colName, `"`, `""`)
+		rows, qerr := s.db.Query(
+			fmt.Sprintf(`SELECT id FROM "%s" WHERE "%s" = ?`, qTable, qCol), scopeValue)
+		if qerr != nil {
+			return nil, qerr
+		}
+		defer rows.Close()
+		var ids []string
+		for rows.Next() {
+			var id string
+			if err := rows.Scan(&id); err != nil {
+				continue
+			}
+			ids = append(ids, id)
+		}
+		return ids, rows.Err()
+	}
+	// No typed table: filter the generic resources table by body field.
+	rows, qerr := s.db.Query(
+		fmt.Sprintf(`SELECT id FROM resources WHERE resource_type = ? AND (CASE WHEN json_valid(data) THEN json_extract(data, '$.%s') END) = ?`, scopeColumn),
+		resourceType, scopeValue,
+	)
+	if qerr != nil {
+		return nil, qerr
+	}
+	defer rows.Close()
 	var ids []string
 	for rows.Next() {
 		var id string
@@ -1564,8 +3521,8 @@ func (s *Store) GetLastSyncedAt(resourceType string) string {
 
 // ClearSyncCursors resets all sync state for a full resync.
 func (s *Store) ClearSyncCursors() error {
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
+	s.lockForWrite()
+	defer s.unlockAfterWrite()
 	_, err := s.db.Exec("DELETE FROM sync_state")
 	return err
 }
@@ -1606,6 +3563,150 @@ func (s *Store) Status() (map[string]int, error) {
 	return status, rows.Err()
 }
 
+// CascadeJunction names a junction table + the FK column referencing the
+// reconciled resource's primary key, to be cleaned when a row is swept.
+type CascadeJunction struct {
+	Table    string
+	FKColumn string
+}
+
+var (
+	cascadeMu        sync.Mutex
+	cascadeJunctions = map[string][]CascadeJunction{}
+)
+
+// RegisterCascadeJunction records a junction to clean when rows of resourceType
+// are reconciled away. Used for runtime-created junctions (e.g. module_issues)
+// that the generated schema does not declare.
+//
+// Registration is idempotent: re-registering the same (Table, FKColumn) for a
+// resourceType is a no-op. The registry is a process-global with no removal path
+// (registrations happen once at startup in the generated binary); dedupe keeps a
+// repeated init() or a test that re-registers across sub-tests from accumulating
+// duplicate cascades.
+func RegisterCascadeJunction(resourceType string, j CascadeJunction) {
+	cascadeMu.Lock()
+	defer cascadeMu.Unlock()
+	for _, existing := range cascadeJunctions[resourceType] {
+		if existing == j {
+			return
+		}
+	}
+	cascadeJunctions[resourceType] = append(cascadeJunctions[resourceType], j)
+}
+
+// CascadeJunctionsFor returns the registered cascade junctions for resourceType.
+func CascadeJunctionsFor(resourceType string) []CascadeJunction {
+	cascadeMu.Lock()
+	defer cascadeMu.Unlock()
+	out := make([]CascadeJunction, len(cascadeJunctions[resourceType]))
+	copy(out, cascadeJunctions[resourceType])
+	return out
+}
+
+// ReconcilePartition hard-deletes local rows of resourceType in one partition
+// (rows whose data JSON at genericScopeJSONPath equals scopeValue) whose primary
+// key is NOT in seenIDs. It is the mark-and-sweep half of deletion mirroring;
+// the caller must pass the COMPLETE, successfully-enumerated seen-ID set for the
+// partition. Victims are computed from the generic resources table so that
+// legacy rows lacking a typed projection are also cleaned. Cleans, per victim:
+// the typed table row (firing its AFTER DELETE FTS triggers, if any), the
+// generic resources_fts entry (manual, no triggers), the generic resources row,
+// and each cascade junction. Returns the number of generic rows deleted.
+func (s *Store) ReconcilePartition(resourceType, genericScopeJSONPath, scopeValue string, seenIDs []string, typedTable string, cascades []CascadeJunction) (int, error) {
+	if genericScopeJSONPath == "" || scopeValue == "" {
+		return 0, fmt.Errorf("reconcile %s: empty partition scope", resourceType)
+	}
+	return s.reconcileUnseen(resourceType, seenIDs, typedTable, cascades,
+		`SELECT id FROM resources
+		 WHERE resource_type = ?
+		   AND (CASE WHEN json_valid(data) THEN json_extract(data, ?) END) = ?`,
+		resourceType, genericScopeJSONPath, scopeValue)
+}
+
+// Whole-table reconciliation is safe only when the caller supplies the complete
+// seen-ID set from a proven-complete walk.
+func (s *Store) ReconcileAll(resourceType string, seenIDs []string, typedTable string, cascades []CascadeJunction) (int, error) {
+	return s.reconcileUnseen(resourceType, seenIDs, typedTable, cascades,
+		`SELECT id FROM resources WHERE resource_type = ?`, resourceType)
+}
+
+func (s *Store) reconcileUnseen(resourceType string, seenIDs []string, typedTable string, cascades []CascadeJunction, query string, args ...any) (int, error) {
+	s.lockForWrite()
+	defer s.unlockAfterWrite()
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+
+	// Seen-set membership is tested in Go, not SQL. Parent-keyed dependent rows
+	// carry a NUL-composite storage id ("<id>\x00<parent>", built by
+	// resourceStorageID) while seenIDs holds the BARE API ids sync enumerated, so
+	// each stored id must run through BareResourceID before the comparison. A SQL
+	// seen-set is not viable here: SQLite string functions treat the embedded NUL
+	// as a C-string terminator, so an instr/substr or `IN` test over a key
+	// containing "\x00" silently truncates and mis-matches. BareResourceID is a
+	// no-op for plain ids, so flat/non-composite partitions are unaffected.
+	seen := make(map[string]struct{}, len(seenIDs))
+	for _, id := range seenIDs {
+		seen[id] = struct{}{}
+	}
+
+	// CASE guards against a malformed-JSON row aborting the victim scan:
+	// a row we cannot parse is never a victim — it is skipped (never deleted).
+	rows, err := tx.Query(query, args...)
+	if err != nil {
+		return 0, fmt.Errorf("reconcile %s: select victims: %w", resourceType, err)
+	}
+	var victims []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			_ = rows.Close()
+			return 0, err
+		}
+		if _, ok := seen[BareResourceID(id)]; ok {
+			continue // bare id was enumerated this run — keep the row
+		}
+		victims = append(victims, id)
+	}
+	_ = rows.Close()
+	if err := rows.Err(); err != nil {
+		return 0, err
+	}
+
+	// Safety: typedTable and cascade Table/FKColumn are TRUSTED generator/registration
+	// metadata (schema-derived or RegisterCascadeJunction), not user input — Sprintf
+	// interpolation here is intentional and safe.
+	for _, id := range victims {
+		if typedTable != "" {
+			if _, err := tx.Exec(fmt.Sprintf(`DELETE FROM "%s" WHERE id = ?`, typedTable), id); err != nil {
+				return 0, fmt.Errorf("reconcile %s: typed delete: %w", resourceType, err)
+			}
+		}
+		if _, err := tx.Exec(`DELETE FROM resources_fts WHERE rowid = ?`, ftsRowID(resourceType, id)); err != nil {
+			return 0, fmt.Errorf("reconcile %s: fts delete: %w", resourceType, err)
+		}
+		if _, err := tx.Exec(`DELETE FROM resources WHERE resource_type = ? AND id = ?`, resourceType, id); err != nil {
+			return 0, fmt.Errorf("reconcile %s: generic delete: %w", resourceType, err)
+		}
+		// Cascade junction FKs hold the BARE entity id, never the NUL-composite
+		// storage key, so strip the suffix before matching (no-op for plain ids).
+		for _, c := range cascades {
+			if _, err := tx.Exec(fmt.Sprintf(`DELETE FROM "%s" WHERE "%s" = ?`, c.Table, c.FKColumn), BareResourceID(id)); err != nil {
+				return 0, fmt.Errorf("reconcile %s: cascade %s: %w", resourceType, c.Table, err)
+			}
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return 0, err
+	}
+	return len(victims), nil
+}
+
 // ResolveByName resolves a human-readable name to a UUID from synced data.
 // If the input is already a UUID, it is returned as-is.
 // matchFields are JSON field names to search against (e.g., "name", "key", "email").
@@ -1629,7 +3730,7 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 		)
 		rows, err := s.db.Query(query, resourceType, input)
 		if err != nil {
-			continue
+			return "", err
 		}
 		for rows.Next() {
 			var id string
@@ -1647,7 +3748,11 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 				}
 			}
 		}
-		rows.Close()
+		if err := rows.Err(); err != nil {
+			_ = rows.Close()
+			return "", err
+		}
+		_ = rows.Close()
 	}
 
 	switch len(matches) {

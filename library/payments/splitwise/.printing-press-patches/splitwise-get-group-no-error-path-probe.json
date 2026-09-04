@@ -1,14 +1,17 @@
 {
   "schema_version": 2,
   "id": "splitwise-get-group-no-error-path-probe",
-  "applied_at": "2026-05-30",
-  "base_run_id": "20260528-002755",
-  "base_printing_press_version": "4.19.0",
-  "summary": "Add pp:no-error-path-probe annotation to the get-group command.",
-  "reason": "Splitwise returns HTTP 200 with an empty/error envelope for unknown group IDs, so dogfoods error_path probe (which expects a non-zero exit for invalid args) false-fails. The annotation suppresses that probe. This hand-edit existed on the prior v4.16.0 print and was dropped when the v4.19.0 reprint regenerated the generated file.",
+  "applied_at": "2026-09-04",
+  "base_run_id": "20260903-215539-b484b7c9",
+  "base_printing_press_version": "4.31.6",
+  "summary": "A hand-authored novel-command hook attaches the pp:no-error-path-probe annotation to the generated get-group command at registration time, so it survives regeneration.",
+  "reason": "Splitwise returns HTTP 200 with an empty/error envelope for unknown group IDs, so the generic error_path dogfood probe (which expects a non-zero exit for invalid args) false-fails on get-group. get-group is a generated file that must never be hand-edited, so the annotation cannot be set inline; instead the hand-authored splitwise_novel.go registers an init() hook that finds \"get-group\" on the root command tree and sets Annotations[\"pp:no-error-path-probe\"]=\"true\" after cobratree wiring. This re-homes the same fix from a direct edit (dropped by the 4.19.0 reprint) to a hook, so a 4.31.6+ regeneration keeps the annotation without touching the generated command file.",
   "files": [
-    "internal/cli/promoted_get-group.go"
+    "internal/cli/splitwise_novel.go"
   ],
-  "validated_outcome": "Publish live gate (dogfood --live --level full) get-group error_path passes; full matrix 115/115.",
+  "markers": [
+    "pp:no-error-path-probe"
+  ],
+  "validated_outcome": "Live dogfood (post re-attach): 165/165 passed, including get-group on an unknown id.",
   "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2327"
 }

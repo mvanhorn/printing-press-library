@@ -1,0 +1,9 @@
+splitwise-pp-cli
+splitwise-pp-mcp
+*.db
+*.db-*
+build/
+_coding-result.json
+_codex-result.json
+/splitwise-pp-cli
+/splitwise-pp-mcp

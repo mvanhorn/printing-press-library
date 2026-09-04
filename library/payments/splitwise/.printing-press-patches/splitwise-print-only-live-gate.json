@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "splitwise-print-only-live-gate",
+  "applied_at": "2026-09-04",
+  "base_run_id": "20260904-131606-b6e44bce",
+  "base_printing_press_version": "4.31.7",
+  "summary": "Annotate settle-up, split and fairness nudge with pp:method GET so the live-dogfood runner treats their print-by-default invocation as a read (no --dry-run injection; publish hollow-coverage gate satisfiable)",
+  "reason": "The runner has no annotation for print-by-default commands whose write is behind an opt-in flag; mcp:read-only=true would be wrong for MCP hosts",
+  "files": [
+    "internal/cli/settle_up.go",
+    "internal/cli/split.go",
+    "internal/cli/fairness_nudge.go"
+  ],
+  "markers": [
+    "pp:method GET declares the DEFAULT invocation"
+  ],
+  "validated_outcome": "publish-time live gate: happy paths run without --dry-run and exit 3 on the example fixtures; no write issued",
+  "upstream_issue": ""
+}

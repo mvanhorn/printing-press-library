@@ -185,7 +185,7 @@ func TestUpsertBatch_GenericFallbackList(t *testing.T) {
 	}
 	defer s.Close()
 
-	for _, key := range []string{"id", "ID", "gid", "sid", "uid", "uuid", "guid", "name", "slug", "key", "code"} {
+	for _, key := range []string{"id", "ID", "_id", "id_", "gid", "sid", "uid", "uuid", "guid", "api_id", "name", "slug", "key", "code"} {
 		t.Run(key, func(t *testing.T) {
 			rt := "fallback_" + key
 			items := []json.RawMessage{
@@ -224,6 +224,109 @@ func TestUpsertBatch_GenericFallbackList(t *testing.T) {
 				t.Fatalf("extractFailures = %d, want 1 (%q drop must surface as extract failure)", extractFailures, key)
 			}
 		})
+	}
+}
+
+func TestUpsertBatch_SuffixFallbackAcceptsScopedCamelCaseID(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"deploymentId": "dep-1", "status": "running"}`),
+	}
+	stored, extractFailures, err := s.UpsertBatch("deployments", items)
+	if err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+	if stored != 1 || extractFailures != 0 {
+		t.Fatalf("deploymentId fallback stored=%d extractFailures=%d, want stored=1 extractFailures=0", stored, extractFailures)
+	}
+	row, err := s.Get("deployments", "dep-1")
+	if err != nil {
+		t.Fatalf("Get deployment row: %v", err)
+	}
+	if !strings.Contains(string(row), `"deploymentId"`) || !strings.Contains(string(row), `"dep-1"`) {
+		t.Fatalf("cached row should preserve original object, got %s", row)
+	}
+
+	stored, extractFailures, err = s.UpsertBatch("deployments", []json.RawMessage{
+		json.RawMessage(`{"parentId": "parent-1", "status": "foreign-key-only"}`),
+	})
+	if err != nil {
+		t.Fatalf("UpsertBatch parentId: %v", err)
+	}
+	if stored != 0 || extractFailures != 1 {
+		t.Fatalf("parentId must not be promoted for deployments: stored=%d extractFailures=%d", stored, extractFailures)
+	}
+}
+
+func TestUpsertBatch_UnwrapsIDBearingEnvelopeItems(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"result":{"id":"cust-1","name":"Ada"}}`),
+		json.RawMessage(`{"kind":"customer","data":{"id":"cust-2","name":"Grace"}}`),
+		json.RawMessage(`{"customer":{"id":"cust-large","external_id":9007199254740993,"name":"Big"}}`),
+		json.RawMessage(`{"a":1,"metadata":{"uuid":"meta-1"}}`),
+		json.RawMessage(`{"id":"cust-top","name":"Top","metadata":{"uuid":"ignored"}}`),
+		json.RawMessage(`{"kind":"customer","data":{"description":"missing-id"}}`),
+		json.RawMessage(`{"kind":"customer","data":{"id":"cust-3"},"alternate":{"id":"other-1"}}`),
+	}
+	stored, extractFailures, err := s.UpsertBatch("customers", items)
+	if err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+	if stored != 5 || extractFailures != 2 {
+		t.Fatalf("envelope unwrap stored=%d extractFailures=%d, want stored=5 extractFailures=2", stored, extractFailures)
+	}
+
+	row, err := s.Get("customers", "cust-1")
+	if err != nil {
+		t.Fatalf("Get cust-1: %v", err)
+	}
+	if strings.Contains(string(row), `"result"`) || !strings.Contains(string(row), `"name":"Ada"`) {
+		t.Fatalf("single-key envelope should store the flat inner object, got %s", row)
+	}
+
+	row, err = s.Get("customers", "cust-2")
+	if err != nil {
+		t.Fatalf("Get cust-2: %v", err)
+	}
+	if !strings.Contains(string(row), `"kind":"customer"`) || !strings.Contains(string(row), `"data"`) || !strings.Contains(string(row), `"name":"Grace"`) {
+		t.Fatalf("tagged envelope should keep the outer row while deriving the ID from data, got %s", row)
+	}
+
+	row, err = s.Get("customers", "cust-large")
+	if err != nil {
+		t.Fatalf("Get cust-large: %v", err)
+	}
+	if !strings.Contains(string(row), `"external_id":9007199254740993`) || strings.Contains(string(row), `9007199254740992`) {
+		t.Fatalf("envelope unwrap should preserve original large integer bytes, got %s", row)
+	}
+
+	row, err = s.Get("customers", "meta-1")
+	if err != nil {
+		t.Fatalf("Get meta-1: %v", err)
+	}
+	if !strings.Contains(string(row), `"a":1`) || !strings.Contains(string(row), `"metadata"`) || !strings.Contains(string(row), `"uuid":"meta-1"`) {
+		t.Fatalf("nested metadata ID should keep the outer row, got %s", row)
+	}
+
+	row, err = s.Get("customers", "cust-top")
+	if err != nil {
+		t.Fatalf("Get cust-top: %v", err)
+	}
+	if !strings.Contains(string(row), `"id":"cust-top"`) || !strings.Contains(string(row), `"metadata"`) {
+		t.Fatalf("top-level ID item should remain unchanged, got %s", row)
 	}
 }
 
@@ -290,7 +393,8 @@ func TestUpsertBatch_PreservesLargeIntegerResourceIDs(t *testing.T) {
 // PK (templated override AND generic fallback both miss) bump
 // extractFailures. The sync.go.tmpl call site uses this to emit the
 // per-resource primary_key_unresolved sync_anomaly the first time silent
-// drops occur.
+// drops occur. Parameter-shaped resources are opted in separately via
+// parameterKeyedResources and are not covered here.
 func TestUpsertBatch_ExtractFailuresReturnedForPerItemMisses(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 	s, err := Open(dbPath)
@@ -314,6 +418,733 @@ func TestUpsertBatch_ExtractFailuresReturnedForPerItemMisses(t *testing.T) {
 	}
 	if extractFailures != 2 {
 		t.Fatalf("extractFailures = %d, want 2 (two items have no extractable PK)", extractFailures)
+	}
+}
+
+func TestResolveStorageID_KeepsEntityIDsAndRefusesUnusable(t *testing.T) {
+	if got := ResolveStorageID("widgets", map[string]any{"id": "w-1", "name": "kept"}); got != "w-1" {
+		t.Fatalf("entity id = %q, want w-1", got)
+	}
+	if got := ResolveStorageID("restore_points", map[string]any{"id": 0, "label": "zero"}); got != "" {
+		t.Fatalf("refused identity must not fingerprint, got %q", got)
+	}
+	if got := ResolveStorageID("empty", map[string]any{}); got != "" {
+		t.Fatalf("empty object id = %q, want empty", got)
+	}
+	if got := ResolveStorageID("dropped_ticker", map[string]any{"ticker": "AAPL"}); got != "" {
+		t.Fatalf("unflagged id-less payload must not fingerprint, got %q", got)
+	}
+}
+
+func TestUpsert_PreservesRicherCachedDetail(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	detail := json.RawMessage(`{"id":"mut-1","name":"Invoice","rows":[{"vat":21,"amount":100}]}`)
+	if stored, extractFailures, err := s.UpsertBatch("mutations", []json.RawMessage{detail}); err != nil {
+		t.Fatalf("detail upsert: %v", err)
+	} else if stored != 1 || extractFailures != 0 {
+		t.Fatalf("detail stored/extractFailures = %d/%d, want 1/0", stored, extractFailures)
+	}
+
+	list := json.RawMessage(`{"id":"mut-1","name":"Invoice list"}`)
+	if stored, extractFailures, err := s.UpsertBatch("mutations", []json.RawMessage{list}); err != nil {
+		t.Fatalf("list upsert: %v", err)
+	} else if stored != 1 || extractFailures != 0 {
+		t.Fatalf("list stored/extractFailures = %d/%d, want 1/0", stored, extractFailures)
+	}
+
+	got, err := s.Get("mutations", "mut-1")
+	if err != nil {
+		t.Fatalf("get: %v", err)
+	}
+	var obj map[string]any
+	if err := json.Unmarshal(got, &obj); err != nil {
+		t.Fatalf("unmarshal stored: %v", err)
+	}
+	if obj["name"] != "Invoice list" {
+		t.Fatalf("name = %v, want refreshed list value", obj["name"])
+	}
+	rows, ok := obj["rows"].([]any)
+	if !ok || len(rows) != 1 {
+		t.Fatalf("rows not preserved, stored %s", got)
+	}
+	row, _ := rows[0].(map[string]any)
+	if fmt.Sprint(row["vat"]) != "21" {
+		t.Fatalf("rich vat field lost, stored %s", got)
+	}
+
+	if stored, extractFailures, err := s.UpsertBatch("others", []json.RawMessage{
+		json.RawMessage(`{"id":"o-1","name":"Thin"}`),
+	}); err != nil {
+		t.Fatalf("list-only first write: %v", err)
+	} else if stored != 1 || extractFailures != 0 {
+		t.Fatalf("list-only stored/extractFailures = %d/%d, want 1/0", stored, extractFailures)
+	}
+	thin, err := s.Get("others", "o-1")
+	if err != nil {
+		t.Fatalf("get thin: %v", err)
+	}
+	if !strings.Contains(string(thin), `"Thin"`) {
+		t.Fatalf("list-only first write missing payload, got %s", thin)
+	}
+}
+
+func TestMergeKeepRicherJSON(t *testing.T) {
+	merged, ok := mergeKeepRicherJSON(
+		"mutations",
+		json.RawMessage(`{"id":"1","rows":[{"vat":21}],"meta":{"a":1,"b":2}}`),
+		json.RawMessage(`{"id":"1","name":"list","meta":{"a":9}}`),
+	)
+	if !ok {
+		t.Fatal("mergeKeepRicherJSON returned !ok")
+	}
+	var obj map[string]any
+	if err := json.Unmarshal(merged, &obj); err != nil {
+		t.Fatalf("unmarshal merge: %v", err)
+	}
+	if obj["name"] != "list" {
+		t.Fatalf("incoming scalar should win, name=%v", obj["name"])
+	}
+	if _, ok := obj["rows"]; !ok {
+		t.Fatalf("existing rows must be kept, got %s", merged)
+	}
+	meta, _ := obj["meta"].(map[string]any)
+	if fmt.Sprint(meta["a"]) != "9" || fmt.Sprint(meta["b"]) != "2" {
+		t.Fatalf("nested object merge failed, meta=%v", meta)
+	}
+
+	first, ok := mergeKeepRicherJSON("mutations", nil, json.RawMessage(`{"id":"1","name":"only"}`))
+	if !ok || !strings.Contains(string(first), `"only"`) {
+		t.Fatalf("first write should store incoming, ok=%v got %s", ok, first)
+	}
+
+	// Reorder + drop the middle id-bearing object: match by id, keep
+	// richer fields on the surviving pair, follow incoming order/length.
+	reordered, ok := mergeKeepRicherJSON(
+		"mutations",
+		json.RawMessage(`{"id":"1","rows":[{"id":"a","vat":21,"notes":"keep"},{"id":"b","vat":9},{"id":"c","vat":0}]}`),
+		json.RawMessage(`{"id":"1","rows":[{"id":"c","vat":0},{"id":"a","vat":22}]}`),
+	)
+	if !ok {
+		t.Fatal("identity-keyed array merge returned !ok")
+	}
+	var reorderObj map[string]any
+	if err := json.Unmarshal(reordered, &reorderObj); err != nil {
+		t.Fatalf("unmarshal reorder merge: %v", err)
+	}
+	rows, _ := reorderObj["rows"].([]any)
+	if len(rows) != 2 {
+		t.Fatalf("array length must follow incoming, got %d stored %s", len(rows), reordered)
+	}
+	firstRow, _ := rows[0].(map[string]any)
+	secondRow, _ := rows[1].(map[string]any)
+	if fmt.Sprint(firstRow["id"]) != "c" || fmt.Sprint(secondRow["id"]) != "a" {
+		t.Fatalf("array order must follow incoming, stored %s", reordered)
+	}
+	if fmt.Sprint(secondRow["vat"]) != "22" {
+		t.Fatalf("incoming scalar on matched object should win, stored %s", reordered)
+	}
+	if fmt.Sprint(secondRow["notes"]) != "keep" {
+		t.Fatalf("keep-richer must preserve unmatched fields on the id match, stored %s", reordered)
+	}
+	for _, row := range rows {
+		obj, _ := row.(map[string]any)
+		if fmt.Sprint(obj["id"]) == "b" {
+			t.Fatalf("dropped middle entry must not be kept, stored %s", reordered)
+		}
+	}
+
+	// No identity keys: incoming collection is authoritative. Index merge
+	// would attach the first cached extra field onto the first incoming item.
+	idless, ok := mergeKeepRicherJSON(
+		"mutations",
+		json.RawMessage(`{"id":"1","rows":[{"name":"x","extra":1},{"name":"y","extra":2}]}`),
+		json.RawMessage(`{"id":"1","rows":[{"name":"y"},{"name":"x"}]}`),
+	)
+	if !ok {
+		t.Fatal("id-less array merge returned !ok")
+	}
+	var idlessObj map[string]any
+	if err := json.Unmarshal(idless, &idlessObj); err != nil {
+		t.Fatalf("unmarshal id-less merge: %v", err)
+	}
+	idlessRows, _ := idlessObj["rows"].([]any)
+	if len(idlessRows) != 2 {
+		t.Fatalf("id-less array length must follow incoming, stored %s", idless)
+	}
+	firstIDLess, _ := idlessRows[0].(map[string]any)
+	if firstIDLess["name"] != "y" {
+		t.Fatalf("id-less array order must follow incoming, stored %s", idless)
+	}
+	if _, ok := firstIDLess["extra"]; ok {
+		t.Fatalf("id-less arrays must not merge by index, stored %s", idless)
+	}
+
+	assertArrayKeepRicher := func(label, resourceType, existingJSON, incomingJSON, idKey, idA, idB string) {
+		t.Helper()
+		got, ok := mergeKeepRicherJSON(resourceType, json.RawMessage(existingJSON), json.RawMessage(incomingJSON))
+		if !ok {
+			t.Fatalf("%s: merge returned !ok", label)
+		}
+		var obj map[string]any
+		if err := json.Unmarshal(got, &obj); err != nil {
+			t.Fatalf("%s: unmarshal: %v", label, err)
+		}
+		items, _ := obj["rows"].([]any)
+		if len(items) != 2 {
+			t.Fatalf("%s: length must follow incoming, got %d stored %s", label, len(items), got)
+		}
+		firstItem, _ := items[0].(map[string]any)
+		secondItem, _ := items[1].(map[string]any)
+		if fmt.Sprint(firstItem[idKey]) != idB || fmt.Sprint(secondItem[idKey]) != idA {
+			t.Fatalf("%s: order must follow incoming, stored %s", label, got)
+		}
+		if fmt.Sprint(secondItem["notes"]) != "keep" {
+			t.Fatalf("%s: keep-richer lost detail on identity match, stored %s", label, got)
+		}
+	}
+
+	assertArrayKeepRicher(
+		"currency_code",
+		"accounts",
+		`{"id":"1","rows":[{"currency_code":"USD","notes":"keep"},{"currency_code":"EUR"},{"currency_code":"GBP"}]}`,
+		`{"id":"1","rows":[{"currency_code":"EUR"},{"currency_code":"USD"}]}`,
+		"currency_code", "USD", "EUR",
+	)
+	assertArrayKeepRicher(
+		"accountId",
+		"teams",
+		`{"id":"1","rows":[{"accountId":"a1","notes":"keep"},{"accountId":"a2"},{"accountId":"a3"}]}`,
+		`{"id":"1","rows":[{"accountId":"a3"},{"accountId":"a1"}]}`,
+		"accountId", "a1", "a3",
+	)
+	assertArrayKeepRicher(
+		"sku",
+		"orders",
+		`{"id":"1","rows":[{"sku":"sku-a","notes":"keep"},{"sku":"sku-b"},{"sku":"sku-c"}]}`,
+		`{"id":"1","rows":[{"sku":"sku-c"},{"sku":"sku-a"}]}`,
+		"sku", "sku-a", "sku-c",
+	)
+
+	// Shared FK + own identity: alphabetical first-key would pick
+	// account_id for every sibling and merge USD detail into EUR.
+	sharedFK, ok := mergeKeepRicherJSON(
+		"accounts",
+		json.RawMessage(`{"id":"1","rows":[{"account_id":"acct","currency_code":"USD","notes":"usd"},{"account_id":"acct","currency_code":"EUR","notes":"eur"}]}`),
+		json.RawMessage(`{"id":"1","rows":[{"account_id":"acct","currency_code":"EUR"},{"account_id":"acct","currency_code":"USD"}]}`),
+	)
+	if !ok {
+		t.Fatal("shared FK + currency_code merge returned !ok")
+	}
+	var sharedObj map[string]any
+	if err := json.Unmarshal(sharedFK, &sharedObj); err != nil {
+		t.Fatalf("unmarshal shared FK merge: %v", err)
+	}
+	sharedRows, _ := sharedObj["rows"].([]any)
+	if len(sharedRows) != 2 {
+		t.Fatalf("shared FK array length must follow incoming, stored %s", sharedFK)
+	}
+	sharedFirst, _ := sharedRows[0].(map[string]any)
+	sharedSecond, _ := sharedRows[1].(map[string]any)
+	if fmt.Sprint(sharedFirst["currency_code"]) != "EUR" || fmt.Sprint(sharedSecond["currency_code"]) != "USD" {
+		t.Fatalf("shared FK must pair on currency_code, stored %s", sharedFK)
+	}
+	if fmt.Sprint(sharedFirst["notes"]) != "eur" {
+		t.Fatalf("EUR row must keep its own notes, stored %s", sharedFK)
+	}
+	if fmt.Sprint(sharedSecond["notes"]) != "usd" {
+		t.Fatalf("USD row must keep its own notes, stored %s", sharedFK)
+	}
+
+	// Same scalar on different identity fields must not share a map key.
+	crossField, ok := mergeKeepRicherJSON(
+		"mutations",
+		json.RawMessage(`{"id":"1","rows":[{"id":"USD","notes":"from-id"},{"currency_code":"USD","notes":"from-code"}]}`),
+		json.RawMessage(`{"id":"1","rows":[{"currency_code":"USD"},{"id":"USD"}]}`),
+	)
+	if !ok {
+		t.Fatal("cross-field identity merge returned !ok")
+	}
+	var crossObj map[string]any
+	if err := json.Unmarshal(crossField, &crossObj); err != nil {
+		t.Fatalf("unmarshal cross-field merge: %v", err)
+	}
+	crossRows, _ := crossObj["rows"].([]any)
+	if len(crossRows) != 2 {
+		t.Fatalf("cross-field array length must follow incoming, stored %s", crossField)
+	}
+	crossFirst, _ := crossRows[0].(map[string]any)
+	crossSecond, _ := crossRows[1].(map[string]any)
+	if fmt.Sprint(crossFirst["currency_code"]) != "USD" {
+		t.Fatalf("first row must stay the currency_code item, stored %s", crossField)
+	}
+	if _, hasID := crossFirst["id"]; hasID {
+		t.Fatalf("currency_code row must not absorb the id sibling, stored %s", crossField)
+	}
+	if fmt.Sprint(crossFirst["notes"]) != "from-code" {
+		t.Fatalf("currency_code row must keep its own notes, stored %s", crossField)
+	}
+	if fmt.Sprint(crossSecond["id"]) != "USD" {
+		t.Fatalf("second row must stay the id item, stored %s", crossField)
+	}
+	if _, hasCode := crossSecond["currency_code"]; hasCode {
+		t.Fatalf("id row must not absorb the currency_code sibling, stored %s", crossField)
+	}
+	if fmt.Sprint(crossSecond["notes"]) != "from-id" {
+		t.Fatalf("id row must keep its own notes, stored %s", crossField)
+	}
+
+	assertGenericIDAliasKeepRicher := func(label, existingJSON, incomingJSON, incomingIDKey string) {
+		t.Helper()
+		got, ok := mergeKeepRicherJSON("mutations", json.RawMessage(existingJSON), json.RawMessage(incomingJSON))
+		if !ok {
+			t.Fatalf("%s: merge returned !ok", label)
+		}
+		var obj map[string]any
+		if err := json.Unmarshal(got, &obj); err != nil {
+			t.Fatalf("%s: unmarshal: %v", label, err)
+		}
+		items, _ := obj["rows"].([]any)
+		if len(items) != 1 {
+			t.Fatalf("%s: length must follow incoming, got %d stored %s", label, len(items), got)
+		}
+		item, _ := items[0].(map[string]any)
+		if fmt.Sprint(item[incomingIDKey]) != "x" {
+			t.Fatalf("%s: incoming identity must remain, stored %s", label, got)
+		}
+		if fmt.Sprint(item["notes"]) != "keep" {
+			t.Fatalf("%s: id alias must keep-richer-merge, stored %s", label, got)
+		}
+	}
+	assertGenericIDAliasKeepRicher(
+		"id vs _id",
+		`{"id":"1","rows":[{"id":"x","notes":"keep"}]}`,
+		`{"id":"1","rows":[{"_id":"x"}]}`,
+		"_id",
+	)
+	assertGenericIDAliasKeepRicher(
+		"id vs ID",
+		`{"id":"1","rows":[{"id":"x","notes":"keep"}]}`,
+		`{"id":"1","rows":[{"ID":"x"}]}`,
+		"ID",
+	)
+
+	prevOverride, hadOverride := resourceIDFieldOverrides["widgets"]
+	resourceIDFieldOverrides["widgets"] = "entityInfo.entityId"
+	defer func() {
+		if hadOverride {
+			resourceIDFieldOverrides["widgets"] = prevOverride
+		} else {
+			delete(resourceIDFieldOverrides, "widgets")
+		}
+	}()
+	dotted, ok := mergeKeepRicherJSON(
+		"widgets",
+		json.RawMessage(`{"id":"1","rows":[{"entityInfo":{"entityId":"e-a"},"notes":"keep"},{"entityInfo":{"entityId":"e-b"}},{"entityInfo":{"entityId":"e-c"}}]}`),
+		json.RawMessage(`{"id":"1","rows":[{"entityInfo":{"entityId":"e-c"}},{"entityInfo":{"entityId":"e-a"}}]}`),
+	)
+	if !ok {
+		t.Fatal("dotted configured identity merge returned !ok")
+	}
+	var dottedObj map[string]any
+	if err := json.Unmarshal(dotted, &dottedObj); err != nil {
+		t.Fatalf("unmarshal dotted merge: %v", err)
+	}
+	dottedRows, _ := dottedObj["rows"].([]any)
+	if len(dottedRows) != 2 {
+		t.Fatalf("dotted array length must follow incoming, stored %s", dotted)
+	}
+	dottedSecond, _ := dottedRows[1].(map[string]any)
+	if fmt.Sprint(dottedSecond["notes"]) != "keep" {
+		t.Fatalf("dotted identity must keep-richer-merge, stored %s", dotted)
+	}
+}
+
+func TestLookupFieldValue_DottedPathAndTrailingUnderscore(t *testing.T) {
+	nested := map[string]any{
+		"entityInfo": map[string]any{"entityId": "ent-1"},
+	}
+	if v := LookupFieldValue(nested, "entityInfo.entityId"); v != "ent-1" {
+		t.Fatalf("dotted camel path: want ent-1, got %v", v)
+	}
+	snakeNested := map[string]any{
+		"entity_info": map[string]any{"entity_id": "ent-2"},
+	}
+	if v := LookupFieldValue(snakeNested, "entity_info.entity_id"); v != "ent-2" {
+		t.Fatalf("dotted snake path: want ent-2, got %v", v)
+	}
+	if v := LookupFieldValue(map[string]any{"id_": "py-1"}, "id"); v != "py-1" {
+		t.Fatalf("trailing-underscore id_: want py-1, got %v", v)
+	}
+	if v := LookupFieldValue(map[string]any{"Id": "net-1"}, "id"); v != "net-1" {
+		t.Fatalf("PascalCase Id: want net-1, got %v", v)
+	}
+}
+
+func TestExtractResourceID_NestedOverrideAndIDUnderscore(t *testing.T) {
+	prev, hadPrev := resourceIDFieldOverrides["nestedEntities"]
+	resourceIDFieldOverrides["nestedEntities"] = "entityInfo.entityId"
+	defer func() {
+		if hadPrev {
+			resourceIDFieldOverrides["nestedEntities"] = prev
+		} else {
+			delete(resourceIDFieldOverrides, "nestedEntities")
+		}
+	}()
+
+	obj := map[string]any{
+		"name": "display",
+		"entityInfo": map[string]any{
+			"entityId": "ent-nested",
+		},
+	}
+	if got := ExtractResourceID("nestedEntities", obj); got != "ent-nested" {
+		t.Fatalf("dotted override = %q, want ent-nested", got)
+	}
+	if got := ExtractResourceID("devices", map[string]any{"id_": "dev-1", "name": "ignored"}); got != "dev-1" {
+		t.Fatalf("id_ fallback = %q, want dev-1", got)
+	}
+}
+
+func TestExtractResourceID_RefusesUnusableValues(t *testing.T) {
+	if got := ExtractResourceID("devices", map[string]any{"id": 0, "name": "keep-me"}); got != "keep-me" {
+		t.Fatalf("zero id must fall through, got %q", got)
+	}
+	if got := ExtractResourceID("devices", map[string]any{"id": "0", "uuid": "real-uuid"}); got != "real-uuid" {
+		t.Fatalf("string zero id must fall through, got %q", got)
+	}
+	if got := ExtractResourceID("devices", map[string]any{"id": "2026-08-22T15:04:05Z", "slug": "stable"}); got != "stable" {
+		t.Fatalf("timestamp id must fall through, got %q", got)
+	}
+	if got := ExtractResourceID("devices", map[string]any{"id": true}); got != "" {
+		t.Fatalf("boolean id must be refused, got %q", got)
+	}
+	if got := CanonicalResourceID("0"); got != "" {
+		t.Fatalf("CanonicalResourceID(0) = %q, want empty", got)
+	}
+	if got := CanonicalResourceID("2026-08-22"); got != "" {
+		t.Fatalf("CanonicalResourceID(date) = %q, want empty", got)
+	}
+}
+
+func TestExtractResourceID_CompositeDateAndSlug(t *testing.T) {
+	prev, hadPrev := resourceIDFieldOverrides["rankings-daily"]
+	resourceIDFieldOverrides["rankings-daily"] = "date+model_permaslug"
+	defer func() {
+		if hadPrev {
+			resourceIDFieldOverrides["rankings-daily"] = prev
+		} else {
+			delete(resourceIDFieldOverrides, "rankings-daily")
+		}
+	}()
+
+	obj := map[string]any{
+		"date":            "2026-08-22",
+		"model_permaslug": "openrouter/auto",
+		"total_tokens":    json.Number("1530"),
+	}
+	got := ExtractResourceID("rankings-daily", obj)
+	want := "2026-08-22+openrouter/auto"
+	if got != want {
+		t.Fatalf("composite ExtractResourceID = %q, want %q", got, want)
+	}
+	if CanonicalResourceID("2026-08-22") != "" {
+		t.Fatal("solo ISO date must still be unusable as an ID")
+	}
+
+	dateOnly := map[string]any{"date": "2026-08-22"}
+	if got := ExtractResourceID("rankings-daily", dateOnly); got != "" {
+		t.Fatalf("incomplete composite must not extract, got %q", got)
+	}
+
+	resourceIDFieldOverrides["rankings-daily"] = "date"
+	if got := ExtractResourceID("rankings-daily", obj); got != "" {
+		t.Fatalf("date-only override must still be refused, got %q", got)
+	}
+}
+
+func TestExtractResourceID_CompositePartsDoNotCollide(t *testing.T) {
+	prev, hadPrev := resourceIDFieldOverrides["rankings-daily"]
+	resourceIDFieldOverrides["rankings-daily"] = "ts+model"
+	defer func() {
+		if hadPrev {
+			resourceIDFieldOverrides["rankings-daily"] = prev
+		} else {
+			delete(resourceIDFieldOverrides, "rankings-daily")
+		}
+	}()
+
+	offsetTZ := map[string]any{
+		"ts":    "2026-08-22T12:00:00+01:00",
+		"model": "model",
+	}
+	splitPlus := map[string]any{
+		"ts":    "2026-08-22T12:00:00",
+		"model": "01:00+model",
+	}
+	gotOffset := ExtractResourceID("rankings-daily", offsetTZ)
+	gotSplit := ExtractResourceID("rankings-daily", splitPlus)
+	if gotOffset == "" || gotSplit == "" {
+		t.Fatalf("composite extraction returned empty: offset=%q split=%q", gotOffset, gotSplit)
+	}
+	if gotOffset == gotSplit {
+		t.Fatalf("distinct composite tuples collided: both %q", gotOffset)
+	}
+	wantOffset := `2026-08-22T12:00:00\+01:00+model`
+	wantSplit := `2026-08-22T12:00:00+01:00\+model`
+	if gotOffset != wantOffset {
+		t.Fatalf("offset-tz composite = %q, want %q", gotOffset, wantOffset)
+	}
+	if gotSplit != wantSplit {
+		t.Fatalf("split-plus composite = %q, want %q", gotSplit, wantSplit)
+	}
+}
+
+func TestExtractResourceID_CompositeNumericPart(t *testing.T) {
+	prev, hadPrev := resourceIDFieldOverrides["orders"]
+	resourceIDFieldOverrides["orders"] = "delivery_date+order_number"
+	defer func() {
+		if hadPrev {
+			resourceIDFieldOverrides["orders"] = prev
+		} else {
+			delete(resourceIDFieldOverrides, "orders")
+		}
+	}()
+
+	obj := map[string]any{
+		"delivery_date": "2026-08-22",
+		"order_number":  json.Number("42"),
+	}
+	got := ExtractResourceID("orders", obj)
+	want := "2026-08-22+42"
+	if got != want {
+		t.Fatalf("numeric composite ExtractResourceID = %q, want %q", got, want)
+	}
+}
+
+func TestUpsertBatch_CompositeDateIDStoresDistinctRows(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	prev, hadPrev := resourceIDFieldOverrides["rankings-daily"]
+	resourceIDFieldOverrides["rankings-daily"] = "date+model_permaslug"
+	defer func() {
+		if hadPrev {
+			resourceIDFieldOverrides["rankings-daily"] = prev
+		} else {
+			delete(resourceIDFieldOverrides, "rankings-daily")
+		}
+	}()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"date":"2026-08-22","model_permaslug":"openrouter/auto","total_tokens":10}`),
+		json.RawMessage(`{"date":"2026-08-23","model_permaslug":"openrouter/auto","total_tokens":20}`),
+		json.RawMessage(`{"date":"2026-08-22","model_permaslug":"acme/model","total_tokens":30}`),
+		json.RawMessage(`{"date":"2026-08-22","model_permaslug":"openrouter/auto","total_tokens":11}`),
+	}
+	stored, extractFailures, err := s.UpsertBatch("rankings-daily", items)
+	if err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+	if extractFailures != 0 {
+		t.Fatalf("extractFailures = %d, want 0", extractFailures)
+	}
+	if stored != 4 {
+		t.Fatalf("stored = %d, want 4 (3 distinct keys, last row upserts)", stored)
+	}
+	var count int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resources WHERE resource_type = ?`, "rankings-daily").Scan(&count); err != nil {
+		t.Fatalf("count rows: %v", err)
+	}
+	if count != 3 {
+		t.Fatalf("distinct rows = %d, want 3", count)
+	}
+	row, err := s.Get("rankings-daily", "2026-08-22+openrouter/auto")
+	if err != nil {
+		t.Fatalf("Get composite id: %v", err)
+	}
+	if !strings.Contains(string(row), `"total_tokens":11`) && !strings.Contains(string(row), `"total_tokens": 11`) {
+		t.Fatalf("upserted composite row missing updated tokens, got %s", row)
+	}
+}
+
+func TestUpsertBatch_NestedOverrideStoresRows(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	prev, hadPrev := resourceIDFieldOverrides["nestedEntities"]
+	resourceIDFieldOverrides["nestedEntities"] = "entityInfo.entityId"
+	defer func() {
+		if hadPrev {
+			resourceIDFieldOverrides["nestedEntities"] = prev
+		} else {
+			delete(resourceIDFieldOverrides, "nestedEntities")
+		}
+	}()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"name":"alpha","entityInfo":{"entityId":"ent-a"}}`),
+		json.RawMessage(`{"name":"beta","entityInfo":{"entityId":"ent-b"}}`),
+	}
+	stored, extractFailures, err := s.UpsertBatch("nestedEntities", items)
+	if err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+	if stored != 2 || extractFailures != 0 {
+		t.Fatalf("nested override stored=%d extractFailures=%d, want 2/0", stored, extractFailures)
+	}
+	row, err := s.Get("nestedEntities", "ent-a")
+	if err != nil {
+		t.Fatalf("Get ent-a: %v", err)
+	}
+	if !strings.Contains(string(row), `"ent-a"`) {
+		t.Fatalf("stored row missing nested id, got %s", row)
+	}
+}
+
+func TestUpsertBatch_RefusesUnusableIDsInsteadOfWritingThem(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	stored, extractFailures, err := s.UpsertBatch("restore_points", []json.RawMessage{
+		json.RawMessage(`{"id":"2026-08-22T15:04:05Z","label":"snapshot"}`),
+		json.RawMessage(`{"id":0,"label":"zero"}`),
+		json.RawMessage(`{"id_":"rp-1","label":"ok"}`),
+	})
+	if err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+	if stored != 1 || extractFailures != 2 {
+		t.Fatalf("unusable ids stored=%d extractFailures=%d, want 1/2", stored, extractFailures)
+	}
+	if _, err := s.Get("restore_points", "rp-1"); err != nil {
+		t.Fatalf("usable id_ row missing: %v", err)
+	}
+	var writtenZeros int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resources WHERE resource_type = ? AND id IN ('0', '2026-08-22T15:04:05Z')`, "restore_points").Scan(&writtenZeros); err != nil {
+		t.Fatalf("count unusable ids: %v", err)
+	}
+	if writtenZeros != 0 {
+		t.Fatalf("unusable ids were written: count=%d", writtenZeros)
+	}
+}
+
+func TestSearchQuotesFTSQuerySyntax(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"id": "ip", "value": "10.0.0.1"}`),
+		json.RawMessage(`{"id": "cidr", "value": "172.16.192.0/18"}`),
+		json.RawMessage(`{"id": "host", "value": "host.example.com"}`),
+		json.RawMessage(`{"id": "email", "value": "user@example.com"}`),
+		json.RawMessage(`{"id": "mac", "value": "aa:bb:cc:dd:ee:ff"}`),
+		json.RawMessage(`{"id": "hyphen", "value": "some-name"}`),
+		json.RawMessage(`{"id": "multi", "value": "error with extra words before timeout"}`),
+	}
+	if stored, failed, err := s.UpsertBatch("search-regression", items); err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	} else if failed != 0 || stored != len(items) {
+		t.Fatalf("UpsertBatch stored=%d failed=%d, want stored=%d failed=0", stored, failed, len(items))
+	}
+
+	for _, query := range []string{
+		"10.0.0.1",
+		"172.16.192.0/18",
+		"host.example.com",
+		"user@example.com",
+		"aa:bb:cc:dd:ee:ff",
+		"some-name",
+		"error timeout",
+	} {
+		results, err := s.Search(query, 10)
+		if err != nil {
+			t.Fatalf("Search(%q): %v", query, err)
+		}
+		if len(results) == 0 {
+			t.Fatalf("Search(%q) returned no results", query)
+		}
+	}
+}
+
+func TestFTSMatchQuerySanitizesPunctuation(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	tests := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{
+			name:  "comma and parens",
+			input: `Well drilling, Phase 2 (residential)`,
+			want:  `"Well" "drilling" "Phase" "2" "residential"`,
+		},
+		{
+			name:  "embedded quote",
+			input: `Alpha "quoted" beta`,
+			want:  `"Alpha" "quoted" "beta"`,
+		},
+		{
+			name:  "leading hyphen",
+			input: `-Draft- proposal`,
+			want:  `"Draft" "proposal"`,
+		},
+		{
+			name:  "bare operators",
+			input: `AND OR NOT`,
+			want:  `"AND" "OR" "NOT"`,
+		},
+		{
+			name:  "punctuation only",
+			input: `!!! , -- () ""`,
+			want:  "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			matchQuery := FTSMatchQuery(tt.input)
+			if matchQuery != tt.want {
+				t.Fatalf("FTSMatchQuery(%q) = %q, want %q", tt.input, matchQuery, tt.want)
+			}
+			if matchQuery == "" {
+				return
+			}
+			rows, err := s.DB().Query(`SELECT rowid FROM resources_fts WHERE resources_fts MATCH ? LIMIT 1`, matchQuery)
+			if err != nil {
+				t.Fatalf("FTS MATCH rejected sanitized query %q from %q: %v", matchQuery, tt.input, err)
+			}
+			if err := rows.Close(); err != nil {
+				t.Fatalf("close rows: %v", err)
+			}
+		})
 	}
 }
 
@@ -359,6 +1190,48 @@ func TestUpsertBatch_PopulatesCreateCommentTable(t *testing.T) {
 	}
 }
 
+// TestUpsertBatch_PopulatesCreateFriendsTable verifies that UpsertBatch
+// dispatches paginated items into both the generic resources table AND the
+// typed create_friends table. Regression for issue #268: before the fix, paginated
+// syncs only filled the generic resources table, so domain commands that
+// query the typed table saw zero rows.
+func TestUpsertBatch_PopulatesCreateFriendsTable(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"id": "test-001"}`),
+		json.RawMessage(`{"id": "test-002"}`),
+		json.RawMessage(`{"id": "test-003"}`),
+	}
+	if _, _, err := s.UpsertBatch("create-friends", items); err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+
+	db := s.DB()
+
+	var generic int
+	if err := db.QueryRow(`SELECT COUNT(*) FROM resources WHERE resource_type = ?`, "create-friends").Scan(&generic); err != nil {
+		t.Fatalf("count resources: %v", err)
+	}
+	if generic != len(items) {
+		t.Fatalf("resources count = %d, want %d", generic, len(items))
+	}
+
+	var typed int
+	typedQuery := fmt.Sprintf(`SELECT COUNT(*) FROM "%s"`, "create_friends")
+	if err := db.QueryRow(typedQuery).Scan(&typed); err != nil {
+		t.Fatalf("count create_friends: %v", err)
+	}
+	if typed != len(items) {
+		t.Fatalf("create_friends count = %d, want %d (typed table not populated by UpsertBatch)", typed, len(items))
+	}
+}
+
 // TestUpsertBatch_PopulatesDeleteCommentTable verifies that UpsertBatch
 // dispatches paginated items into both the generic resources table AND the
 // typed delete_comment table. Regression for issue #268: before the fix, paginated
@@ -398,6 +1271,90 @@ func TestUpsertBatch_PopulatesDeleteCommentTable(t *testing.T) {
 	}
 	if typed != len(items) {
 		t.Fatalf("delete_comment count = %d, want %d (typed table not populated by UpsertBatch)", typed, len(items))
+	}
+}
+
+// TestUpsertBatch_PopulatesGetFriendsTable verifies that UpsertBatch
+// dispatches paginated items into both the generic resources table AND the
+// typed get_friends table. Regression for issue #268: before the fix, paginated
+// syncs only filled the generic resources table, so domain commands that
+// query the typed table saw zero rows.
+func TestUpsertBatch_PopulatesGetFriendsTable(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"id": "test-001"}`),
+		json.RawMessage(`{"id": "test-002"}`),
+		json.RawMessage(`{"id": "test-003"}`),
+	}
+	if _, _, err := s.UpsertBatch("get-friends", items); err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+
+	db := s.DB()
+
+	var generic int
+	if err := db.QueryRow(`SELECT COUNT(*) FROM resources WHERE resource_type = ?`, "get-friends").Scan(&generic); err != nil {
+		t.Fatalf("count resources: %v", err)
+	}
+	if generic != len(items) {
+		t.Fatalf("resources count = %d, want %d", generic, len(items))
+	}
+
+	var typed int
+	typedQuery := fmt.Sprintf(`SELECT COUNT(*) FROM "%s"`, "get_friends")
+	if err := db.QueryRow(typedQuery).Scan(&typed); err != nil {
+		t.Fatalf("count get_friends: %v", err)
+	}
+	if typed != len(items) {
+		t.Fatalf("get_friends count = %d, want %d (typed table not populated by UpsertBatch)", typed, len(items))
+	}
+}
+
+// TestUpsertBatch_PopulatesGetGroupsTable verifies that UpsertBatch
+// dispatches paginated items into both the generic resources table AND the
+// typed get_groups table. Regression for issue #268: before the fix, paginated
+// syncs only filled the generic resources table, so domain commands that
+// query the typed table saw zero rows.
+func TestUpsertBatch_PopulatesGetGroupsTable(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"id": "test-001"}`),
+		json.RawMessage(`{"id": "test-002"}`),
+		json.RawMessage(`{"id": "test-003"}`),
+	}
+	if _, _, err := s.UpsertBatch("get-groups", items); err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+
+	db := s.DB()
+
+	var generic int
+	if err := db.QueryRow(`SELECT COUNT(*) FROM resources WHERE resource_type = ?`, "get-groups").Scan(&generic); err != nil {
+		t.Fatalf("count resources: %v", err)
+	}
+	if generic != len(items) {
+		t.Fatalf("resources count = %d, want %d", generic, len(items))
+	}
+
+	var typed int
+	typedQuery := fmt.Sprintf(`SELECT COUNT(*) FROM "%s"`, "get_groups")
+	if err := db.QueryRow(typedQuery).Scan(&typed); err != nil {
+		t.Fatalf("count get_groups: %v", err)
+	}
+	if typed != len(items) {
+		t.Fatalf("get_groups count = %d, want %d (typed table not populated by UpsertBatch)", typed, len(items))
 	}
 }
 

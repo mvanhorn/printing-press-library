@@ -1,7 +1,7 @@
 {
   "api_name": "splitwise",
   "base_url": "https://secure.splitwise.com/api/v3.0",
-  "description": "Every Splitwise feature, plus an offline SQLite ledger that powers balance, debt-aging, spend analytics, and full-text search no other Splitwise tool has.",
+  "description": "Every Splitwise feature, plus an offline SQLite ledger that powers balance, debt-aging, spend analytics, fairness, and full-text search no other Splitwise tool has.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {
@@ -51,7 +51,7 @@
     },
     {
       "name": "create-expense_create",
-      "description": "Creates an expense. You may either split an expense equally (only with `group_id` provided), or supply a list of shares. When splitting equally, the authenticated user is assumed to be the payer. When providing a list of shares, each share must include `paid_share` and `owed_share`, and must be identified by one of the following: - `email`, `first_name`, and `last_name` - `user_id` **Note**: 200 OK does not indicate a successful response. The operation was successful only if `errors` is empty. Returns the new CreateExpenseCreateResponse.",
+      "description": "Creates an expense. You may either split an expense equally (only with `group_id` provided), or supply a list of shares. When splitting equally, the authenticated user is assumed to be the payer. When providing a list of shares, each share must include `paid_share` and `owed_share`, and must be identified by one of the following: - `email`, `first_name`, and `last_name` - `user_id` **Note**: 200 OK does not indicate a successful response. The operation was successful only if `errors` is empty. Returns array of Expense.",
       "method": "POST",
       "path": "/create_expense",
       "params": []
@@ -84,7 +84,7 @@
     },
     {
       "name": "create-friends_create",
-      "description": "Add multiple friends at once. For each user, if the other user does not exist, you must supply `users__{index}__first_name`. **Note**: user parameters must be flattened into the format `users__{index}__{property}`, where `property` is `first_name`, `last_name`, or `email`. Returns the new CreateFriendsCreateResponse.",
+      "description": "Add multiple friends at once. For each user, if the other user does not exist, you must supply `users__{index}__first_name`. **Note**: user parameters must be flattened into the format `users__{index}__{property}`, where `property` is `first_name`, `last_name`, or `email`. Returns array of CreateFriendsCreateItem.",
       "method": "POST",
       "path": "/create_friends",
       "params": []
@@ -186,7 +186,7 @@
     },
     {
       "name": "get-comments_list",
-      "description": "Get expense comments. Required: expense_id. Returns the GetCommentsListResponse.",
+      "description": "Get expense comments. Required: expense_id. Returns array of Comment.",
       "method": "GET",
       "path": "/get_comments",
       "params": [
@@ -231,7 +231,7 @@
     },
     {
       "name": "get-expenses_list",
-      "description": "List the current user's expenses. Optional: group_id, friend_id, dated_after (plus 5 more). Returns the GetExpensesListResponse.",
+      "description": "List the current user's expenses. Optional: group_id, friend_id, dated_after (plus 5 more). Returns array of Expense.",
       "method": "GET",
       "path": "/get_expenses",
       "params": [
@@ -302,7 +302,7 @@
     },
     {
       "name": "get-friends_list",
-      "description": "**Note**: `group` objects only include group balances with that friend. Returns the GetFriendsListResponse.",
+      "description": "**Note**: `group` objects only include group balances with that friend. Returns array of GetFriendsListItem.",
       "method": "GET",
       "path": "/get_friends",
       "params": []
@@ -324,14 +324,14 @@
     },
     {
       "name": "get-groups_list",
-      "description": "**Note**: Expenses that are not associated with a group are listed in a group with ID 0. Returns the GetGroupsListResponse.",
+      "description": "**Note**: Expenses that are not associated with a group are listed in a group with ID 0. Returns array of Group.",
       "method": "GET",
       "path": "/get_groups",
       "params": []
     },
     {
       "name": "get-notifications_list",
-      "description": "Return a list of recent activity on the users account with the most recent items first. `content` will be suitable for display in HTML and uses only the ` `, `\u003cstrike\u003e`, ` `, ` ` and `\u003cfont color='#FFEE44'\u003e` tags. The `type` value indicates what the notification is about. Notification types may be added in the future without warning. Below is an incomplete list of notification types. | Type | Meaning | | ---- | ------- | | 0 | Expense added | | 1 | Expense updated | | 2\t | Expense deleted | | 3\t | Comment added | | 4\t | Added to group | | 5\t | Removed from group | | 6\t | Group deleted | | 7\t | Group settings changed | | 8\t | Added as friend | | 9\t | Removed as friend | | 10\t | News (a URL should be included) | | 11\t | Debt simplification | | 12\t | Group undeleted | | 13\t | Expense undeleted | | 14\t | Group currency conversion | | 15\t | Friend currency conversion | **Note**: While all parameters are optional, the server sets arbitrary (but large) limits on the number of notifications returned if you set a very old `updated_after` value or `limit` of `0` for a user with many notifications. Optional: updated_after, limit (default: 0). Returns the GetNotificationsListResponse.",
+      "description": "Return a list of recent activity on the users account with the most recent items first. `content` will be suitable for display in HTML and uses only the ` `, `\u003cstrike\u003e`, ` `, ` ` and `\u003cfont color='#FFEE44'\u003e` tags. The `type` value indicates what the notification is about. Notification types may be added in the future without warning. Below is an incomplete list of notification types. | Type | Meaning | | ---- | ------- | | 0 | Expense added | | 1 | Expense updated | | 2\t | Expense deleted | | 3\t | Comment added | | 4\t | Added to group | | 5\t | Removed from group | | 6\t | Group deleted | | 7\t | Group settings changed | | 8\t | Added as friend | | 9\t | Removed as friend | | 10\t | News (a URL should be included) | | 11\t | Debt simplification | | 12\t | Group undeleted | | 13\t | Expense undeleted | | 14\t | Group currency conversion | | 15\t | Friend currency conversion | **Note**: While all parameters are optional, the server sets arbitrary (but large) limits on the number of notifications returned if you set a very old `updated_after` value or `limit` of `0` for a user with many notifications. Optional: updated_after, limit (default: 0). Returns array of Notification.",
       "method": "GET",
       "path": "/get_notifications",
       "params": [
@@ -403,7 +403,7 @@
     },
     {
       "name": "undelete-group_create",
-      "description": "Restores a deleted group. **Note**: 200 OK does not indicate a successful response. You must check the `success` value of the response. Required: id. Returns the new UndeleteGroupCreateResponse.",
+      "description": "Restores a deleted group. **Note**: 200 OK does not indicate a successful response. You must check the `success` value of the response. Required: id. Returns array of string.",
       "method": "POST",
       "path": "/undelete_group/{id}",
       "params": [
@@ -418,7 +418,7 @@
     },
     {
       "name": "update-expense_create",
-      "description": "Updates an expense. Parameters are the same as in `create_expense`, but you only need to include parameters that are changing from the previous values. If any values is supplied for `users__{index}__{property}`, _all_ shares for the expense will be overwritten with the provided values. **Note**: 200 OK does not indicate a successful response. The operation was successful only if `errors` is empty. Required: id, cost, description, group_id. Optional: category_id, currency_code, date (plus 10 more). Returns the new UpdateExpenseCreateResponse.",
+      "description": "Updates an expense. Parameters are the same as in `create_expense`, but you only need to include parameters that are changing from the previous values. If any values is supplied for `users__{index}__{property}`, _all_ shares for the expense will be overwritten with the provided values. **Note**: 200 OK does not indicate a successful response. The operation was successful only if `errors` is empty. Required: id, cost, description, group_id. Optional: category_id, currency_code, date (plus 10 more). Returns array of Expense.",
       "method": "POST",
       "path": "/update_expense/{id}",
       "params": [
@@ -580,6 +580,98 @@
           "description": "Password"
         }
       ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Net balance overview",
+      "command": "balances",
+      "description": "See everything you owe and are owed across every friend and group in one net-position view."
+    },
+    {
+      "name": "Settle-up plan",
+      "command": "settle-up",
+      "description": "Compute the minimum set of transfers that zeroes out balances in a group, then optionally record the payments (print-only by default; --record writes real payment expenses to your Splitwise account)."
+    },
+    {
+      "name": "Audit before settling",
+      "command": "audit",
+      "description": "Catch duplicate settlement rows and abnormal expense amounts before you trust a settle-up plan."
+    },
+    {
+      "name": "Debt aging",
+      "command": "debts",
+      "description": "List who owes you (and whom you owe) sorted by how long the balance has gone unsettled."
+    },
+    {
+      "name": "Spend analytics rollups",
+      "command": "spend",
+      "description": "Total shared spend broken down by category, group, or month from your synced history."
+    },
+    {
+      "name": "Fairness lenses",
+      "command": "fairness",
+      "description": "See who's carrying more than their share of cost, and how likely a stale balance is to actually get paid."
+    },
+    {
+      "name": "Cross-group netting",
+      "command": "net",
+      "description": "Collapse a person's balance across every group and non-group expense into the minimum set of real-world transfers."
+    },
+    {
+      "name": "Trip/period report",
+      "command": "report",
+      "description": "Turn synced trip or period spend into a shareable summary plus per-person and per-category export."
+    },
+    {
+      "name": "Group ledger with running balance",
+      "command": "ledger",
+      "description": "Every expense in a group, in date order, with a cumulative running balance per member."
+    },
+    {
+      "name": "Split calculator",
+      "command": "split",
+      "description": "Build and preview the exact expense split (equal, exact, percentage, or shares) before recording it."
+    },
+    {
+      "name": "Recurring-expense detector",
+      "command": "recurring",
+      "description": "Surface repeating charges (rent, utilities, subscriptions) from your synced history and flag a cycle missing an expected entry."
+    },
+    {
+      "name": "Fairness nudge",
+      "command": "fairness nudge",
+      "description": "Post a payment reminder as a comment on the actual open expense thread, previewed before it sends (print-only by default; --send posts a real comment your friend will see)."
+    },
+    {
+      "name": "Balances by group",
+      "command": "balances",
+      "description": "See one row per group per currency for every non-zero balance, without the noise of settled groups."
+    },
+    {
+      "name": "Agent brief",
+      "command": "brief",
+      "description": "Get one compact digest of net position, the stalest debts, and what changed since last sync in a single call."
+    },
+    {
+      "name": "Store reconcile",
+      "command": "reconcile",
+      "description": "Verify the local store actually matches Splitwise before you trust a settle-up or report (calls the live Splitwise API; needs SPLITWISE_API_KEY and network)."
+    },
+    {
+      "name": "Activity diff",
+      "command": "activity",
+      "description": "Show what changed since your last sync — new, edited, and deleted expenses to review."
+    },
+    {
+      "name": "Forecast",
+      "command": "forecast",
+      "description": "See what shared bills are expected next, projected from your recurring-expense history."
+    },
+    {
+      "name": "Normalize",
+      "command": "normalize",
+      "description": "Express multi-currency spend in one base currency, using rates you supply, with anything unconverted called out honestly."
     }
   ]
 }

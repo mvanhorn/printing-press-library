@@ -343,6 +343,11 @@ func ptr(s string) *string { return &s }
 func TestReportCSVTruncationWarnsOnStderr(t *testing.T) {
 	home := t.TempDir()
 	t.Setenv("HOME", home)
+	// Clear the XDG overrides too: DataDir/ConfigDir honour XDG_*_HOME before HOME, so an
+	// operator (or CI) sandbox in the environment would otherwise leak a shared store
+	// into this test.
+	t.Setenv("XDG_DATA_HOME", "")
+	t.Setenv("XDG_CONFIG_HOME", "")
 
 	dbPath := defaultDBPath("splitwise-pp-cli")
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
@@ -367,7 +372,7 @@ func TestReportCSVTruncationWarnsOnStderr(t *testing.T) {
 		t.Fatalf("close store: %v", err)
 	}
 
-	cmd := newReportCmd(&rootFlags{})
+	cmd := newNovelReportCmd(&rootFlags{})
 	var out, errBuf bytes.Buffer
 	cmd.SetOut(&out)
 	cmd.SetErr(&errBuf)

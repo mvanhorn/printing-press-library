@@ -12,27 +12,38 @@ import (
 )
 
 func newRemoveUserFromGroupPromotedCmd(flags *rootFlags) *cobra.Command {
-	var bodyGroupId string
-	var bodyUserId string
+	var bodyGroupId int
+	var bodyUserId int
 
 	cmd := &cobra.Command{
 		Use:         "remove-user-from-group",
 		Short:       "Remove a user from a group. Does not succeed if the user has a non-zero balance.",
 		Long:        "Remove a user from a group. Does not succeed if the user has a non-zero balance.",
 		Example:     "  splitwise-pp-cli remove-user-from-group",
-		Annotations: map[string]string{"pp:endpoint": "remove-user-from-group.create", "pp:method": "POST", "pp:path": "/remove_user_from_group"},
+		Annotations: map[string]string{"pp:endpoint": "remove-user-from-group.create", "pp:method": "POST", "pp:path": "/remove_user_from_group", "pp:requires-input": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with a required flag/body prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only reads fall through so a bare call still executes; positional
 			// commands keep their existing usageErr (exit 2 + JSON envelope).
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
-			if !cmd.Flags().Changed("group-id") && !flags.dryRun {
+			if !cmd.Flags().Changed("group-id") && bodyGroupId == 0 && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "group-id")
 			}
-			if !cmd.Flags().Changed("user-id") && !flags.dryRun {
+			if !cmd.Flags().Changed("user-id") && bodyUserId == 0 && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "user-id")
 			}
 			c, err := flags.newClient()
@@ -46,19 +57,20 @@ func newRemoveUserFromGroupPromotedCmd(flags *rootFlags) *cobra.Command {
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
-			if bodyGroupId != "" {
-				body["group_id"] = bodyGroupId
+			bodyMap := map[string]any{}
+			var body any = bodyMap
+			if cmd.Flags().Changed("group-id") || bodyGroupId != 0 {
+				bodyMap["group_id"] = bodyGroupId
 			}
-			if bodyUserId != "" {
-				body["user_id"] = bodyUserId
+			if cmd.Flags().Changed("user-id") || bodyUserId != 0 {
+				bodyMap["user_id"] = bodyUserId
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 
-			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
+			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			var partialFailure *partialFailureReport
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {
 				partialFailure = detectPartialFailure(data)
@@ -66,6 +78,7 @@ func newRemoveUserFromGroupPromotedCmd(flags *rootFlags) *cobra.Command {
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
 				writeMutationResponseToStore(cmd.Context(), "remove-user-from-group", data, "")
 			}
+			outputData := data
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -73,9 +86,9 @@ func newRemoveUserFromGroupPromotedCmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				if json.Unmarshal(data, &countItems) != nil {
+				if json.Unmarshal(outputData, &countItems) != nil {
 					// Single object, not an array
-					countItems = []json.RawMessage{data}
+					countItems = []json.RawMessage{outputData}
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
@@ -89,9 +102,13 @@ func newRemoveUserFromGroupPromotedCmd(flags *rootFlags) *cobra.Command {
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, nil)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+				if wrapErr != nil {
+					return wrapErr
+				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
 				if wrapErr != nil {
 					return wrapErr
 				}
@@ -99,7 +116,7 @@ func newRemoveUserFromGroupPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -109,11 +126,15 @@ func newRemoveUserFromGroupPromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
 		},
 	}
-	cmd.Flags().StringVar(&bodyGroupId, "group-id", "", "Group id")
-	cmd.Flags().StringVar(&bodyUserId, "user-id", "", "User id")
+	cmd.Flags().IntVar(&bodyGroupId, "group-id", 0, "Group id")
+	cmd.Flags().IntVar(&bodyUserId, "user-id", 0, "User id")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 
