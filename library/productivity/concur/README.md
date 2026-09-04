@@ -137,6 +137,10 @@ Concur's documented OAuth2 partner API is gated behind a Partner Enablement Mana
 
 `hotels search` auto-detects that session (tries CDP ports 9222, 9333, 9229 in order, or set `CONCUR_CDP_PORT` for a custom port) and *attaches* to it -- rather than copying its credentials -- before falling back to its own isolated login. Attaching, not copying, is what makes this work: it is the same live browser connection, so there is no separate device fingerprint for Concur's bot-mitigation to reject. Keep that Chrome window running whenever you plan to use `hotels search`; if you see "the dedicated Concur browser ... is no longer logged in", log in there again.
 
+### Browser-automation fallback for report creation
+
+On Concur tenants where custom policies are required, creating a report via pure HTTP can fail with `policyId is required` because the CLI has no way to query or supply policy IDs. To handle this, `reports create` has a transparent browser-automation fallback. When the HTTP API returns that specific validation error, the command will automatically spin up `agent-browser` (using the same Remote Debugging CDP attach or isolated login as described for `hotels search` above), drive the report creation modal, and seamlessly fetch the resulting report details to return to you in the standard CLI format. This fallback is completely automatic and conditional; tenants that do not require policy ID selection will continue to use the fast, dependency-free HTTP API path.
+
 ## Quick Start
 
 ```bash
@@ -160,6 +164,9 @@ concur-pp-cli reports create --name "October Travel" --purpose "Client site visi
 ## Unique Features
 
 These capabilities aren't available in any other tool for this API.
+
+### Conditional browser fallback for report creation
+- **`reports create`** — Automatically and transparently retries report creation via automated browser when the Concur v4 API rejects pure HTTP requests with a `policyId is required` error. This fallback is completely conditional and only triggers for tenants requiring explicit policy assignment.
 
 ### Local state that compounds
 - **`expenses scan-duplicates`** — Find potential double-entered charges across all of your synced expenses.

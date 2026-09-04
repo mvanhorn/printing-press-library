@@ -54,6 +54,9 @@ Do not use this CLI for:
 
 These capabilities aren't available in any other tool for this API.
 
+### Conditional browser fallback for report creation
+- **`reports create`** — Automatically and transparently retries report creation via automated browser when the Concur v4 API rejects pure HTTP requests with a `policyId is required` error. This fallback is completely conditional and only triggers for tenants requiring explicit policy assignment.
+
 ### Local state that compounds
 - **`expenses scan-duplicates`** — Find potential double-entered charges across all of your synced expenses.
 
@@ -139,7 +142,7 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 
 **reports** — Expense report headers and lifecycle
 
-- `concur-pp-cli reports create` — Create a new expense report header
+- `concur-pp-cli reports create` — Create a new expense report header (transparently falls back to browser-driven creation on tenants requiring policy selection)
 - `concur-pp-cli reports get` — Get a report's header, expenses, and web deep link
 - `concur-pp-cli reports list` — List the current user's expense reports
 - `concur-pp-cli reports submit` — Submit a report for approval

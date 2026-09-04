@@ -5,10 +5,16 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
+	"regexp"
+	"strings"
+	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/concur/internal/client"
 	"github.com/spf13/cobra"
 )
 
@@ -93,9 +99,25 @@ func newReportsCreateCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["businessPurpose"] = bodyBusinessPurpose
 				}
 			}
+			// PATCH(amend-2026-09-04: fallback to browser automation on policyId required error)
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				if isPolicyIdRequiredError(err) && !flags.dryRun {
+					nameVal := bodyName
+					purposeVal := bodyBusinessPurpose
+					if bm, ok := body.(map[string]any); ok {
+						if n, ok := bm["name"].(string); ok && n != "" {
+							nameVal = n
+						}
+						if p, ok := bm["businessPurpose"].(string); ok && p != "" {
+							purposeVal = p
+						}
+					}
+					data, statusCode, err = createReportViaBrowserFallback(cmd, c, flags, flagUserId, flagContextType, nameVal, purposeVal)
+				}
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
 			}
 			// Inspect the mutate response body for a partial-failure-shaped
 			// field (e.g. Google Ads `partialFailureError`). Several Google
@@ -251,4 +273,134 @@ func newReportsCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd
+}
+
+func isPolicyIdRequiredError(err error) bool {
+	if err == nil {
+		return false
+	}
+	var apiErr *client.APIError
+	if errors.As(err, &apiErr) && apiErr.StatusCode == 400 {
+		var valResp struct {
+			ValidationErrors []struct {
+				Source  string `json:"source"`
+				Message string `json:"message"`
+				ID      string `json:"id"`
+			} `json:"validationErrors"`
+		}
+		if json.Unmarshal([]byte(apiErr.Body), &valResp) == nil {
+			for _, ve := range valResp.ValidationErrors {
+				if ve.Source == "policyId" && ve.ID == "field.required" {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+func createReportViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags *rootFlags, userId, contextType, name, purpose string) (json.RawMessage, int, error) {
+	const stepTimeout = 10 * time.Second
+
+	baseURL := c.RequestBaseURL()
+	host := "us2.concursolutions.com"
+	if u, err := url.Parse(baseURL); err == nil && u.Host != "" {
+		h := u.Host
+		if strings.HasPrefix(h, "www-") {
+			h = strings.TrimPrefix(h, "www-")
+		}
+		if idx := strings.Index(h, ".api."); idx >= 0 {
+			h = h[:idx] + "." + h[idx+len(".api."):]
+		}
+		if strings.HasSuffix(h, "concursolutions.com") {
+			host = h
+		}
+	}
+	reportNewURL := "https://" + host + "/nui/expense?confNum=new"
+
+	fmt.Fprintf(cmd.ErrOrStderr(), "HTTP API returned policyId is required error. Falling back to browser automation to create report...\n")
+
+	if port := detectDedicatedConcurBrowser(); port != "" {
+		activeCDPPort = port
+		fmt.Fprintf(cmd.ErrOrStderr(), "Using dedicated Concur browser on CDP port %s (no separate login needed)\n", port)
+	}
+
+	if _, err := runAgentBrowser("open", reportNewURL); err != nil {
+		return nil, 0, err
+	}
+	time.Sleep(1500 * time.Millisecond)
+
+	refs, err := agentBrowserSnapshotRefs()
+	if err != nil {
+		return nil, 0, err
+	}
+	if _, ok := findRef(refs, "sign in", ""); ok {
+		if activeCDPPort != "" {
+			return nil, 0, fmt.Errorf("the dedicated Concur browser on CDP port %s is no longer logged in -- log in to concursolutions.com in that window again, then re-run this command", activeCDPPort)
+		}
+		return nil, 0, fmt.Errorf("not logged in to Concur in the automated browser -- log in manually in the opened Chrome window, then re-run this command (or set up a dedicated debug-enabled Chrome profile to skip this every time; see --help)")
+	}
+
+	reportNameRef, err := waitForRef("Report Name", "textbox", stepTimeout)
+	if err != nil {
+		return nil, 0, fmt.Errorf("could not find the Report Name textbox: %w", err)
+	}
+	if _, err := runAgentBrowser("fill", "@"+reportNameRef, name); err != nil {
+		return nil, 0, err
+	}
+
+	if purpose != "" {
+		purposeRef, err := waitForRef("Business Purpose", "textbox", 3*time.Second)
+		if err == nil {
+			if _, err := runAgentBrowser("fill", "@"+purposeRef, purpose); err != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: could not fill Business Purpose field: %v\n", err)
+			}
+		} else {
+			fmt.Fprintf(cmd.ErrOrStderr(), "warning: Business Purpose textbox not found, skipping: %v\n", err)
+		}
+	}
+
+	createButtonRef, err := waitForRef("Create Report", "button", stepTimeout)
+	if err != nil {
+		return nil, 0, fmt.Errorf("could not find the Create Report button: %w", err)
+	}
+	if _, err := runAgentBrowser("click", "@"+createButtonRef); err != nil {
+		return nil, 0, err
+	}
+
+	reportID, err := waitForReportID(30 * time.Second)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	fmt.Fprintf(cmd.ErrOrStderr(), "Report created successfully via browser (ID: %s). Fetching report details...\n", reportID)
+
+	reportPath := "/expensereports/v4/users/{user_id}/context/{context_type}/reports/{report_id}"
+	reportPath = replacePathParam(reportPath, "user_id", formatCLIParamValue(userId))
+	reportPath = replacePathParam(reportPath, "context_type", formatCLIParamValue(contextType))
+	reportPath = replacePathParam(reportPath, "report_id", reportID)
+
+	raw, err := c.Get(cmd.Context(), reportPath, nil)
+	if err != nil {
+		return nil, 0, fmt.Errorf("fetching report details after browser fallback creation: %w", err)
+	}
+
+	return raw, 201, nil
+}
+
+func waitForReportID(timeout time.Duration) (string, error) {
+	deadline := time.Now().Add(timeout)
+	reportURLRE := regexp.MustCompile(`/expense/reports/([a-zA-Z0-9-]{10,48})`)
+	for {
+		url, err := agentBrowserCurrentURL()
+		if err == nil {
+			if m := reportURLRE.FindStringSubmatch(url); m != nil {
+				return m[1], nil
+			}
+		}
+		if time.Now().After(deadline) {
+			return "", fmt.Errorf("browser did not navigate to a report page within %s (last url: %s)", timeout, url)
+		}
+		time.Sleep(1 * time.Second)
+	}
 }

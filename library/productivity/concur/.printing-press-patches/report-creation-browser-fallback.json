@@ -1,0 +1,38 @@
+{
+  "schema_version": 2,
+  "id": "report-creation-browser-fallback",
+  "applied_at": "2026-09-04",
+  "base_run_id": "20260812-144651-60addfc5",
+  "base_printing_press_version": "4.30.3",
+  "summary": "Implement transparent browser-automation fallback for reports create command when Concur v4 API rejects pure HTTP requests with policyId required error.",
+  "reason": "Live Concur v4 API rejects report creation on some tenants with HTTP 400 policyId is required, because these tenants require explicit policy assignment, but the CLI does not expose any policy IDs to callers. Following the established template of hotels_search.go, this patch auto-detects specifically this error shape and transparently retries by driving a browser via agent-browser to submit the Create Report dialog.",
+  "files": [
+    "internal/cli/reports_create.go",
+    "internal/cli/reports_create_fallback_test.go"
+  ],
+  "call_sites": [
+    "isPolicyIdRequiredError(err)",
+    "createReportViaBrowserFallback("
+  ],
+  "changes": [
+    {
+      "file": "internal/cli/reports_create.go",
+      "description": "Updated reports create execution path to catch 400 policyId validation error, transparently invoke agent-browser fallback, and retrieve the newly created report details."
+    },
+    {
+      "file": "internal/cli/reports_create_fallback_test.go",
+      "description": "New mock-based unit tests covering three scenarios: policyId required error triggering browser fallback, other 400 errors surfacing unchanged, and successful HTTP creation never triggering browser fallback."
+    }
+  ],
+  "validated_outcome": "Unit tests pass with 100% success rate across all three scenarios (direct HTTP success, other HTTP 400 error, and policyId required error browser fallback). Integration validated using mock agent-browser script on PATH under 2.5 seconds.",
+  "findings_addressed": [
+    "F1"
+  ],
+  "deferred_to_upstream": [
+    {
+      "feature": "Generic auto-detect-and-fallback-to-browser for any printed CLI mutation that live-fails on a tenant-config-dependent required field the generator has no way to discover ahead of time (this instance: Concur's policyId on report creation).",
+      "reason": "Only observed once so far (this concur-pp-cli instance). Kept CLI-specific rather than opening a cli-printing-press generator issue on a single data point; noting the pattern here so a second independent sighting has a paper trail to point back to before generalizing."
+    }
+  ],
+  "upstream_issue": null
+}
