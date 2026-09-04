@@ -1,0 +1,106 @@
+name: creativefabrica
+description: "Search Creative Fabrica's 20M+ fonts, graphics, crafts, embroidery, and POD designs from your terminal — local catalog database, free/POD/commercial filtering, designer tracking, and freebie watch."
+version: "0.1.0"
+base_url: "https://KO25I12XZ3-dsn.algolia.net"
+http_transport: standard
+health_check_path: "/1/isalive"
+category: commerce
+
+# Creative Fabrica's catalog search is powered by a public, search-only Algolia
+# index. The public app id + search key are auto-discovered from the site's JS
+# at runtime (overridable via env) by the hand-written internal/algolia client;
+# they are intentionally NOT baked into this spec or any generated source. The
+# key is referer-restricted, so the client sends Origin/Referer headers.
+auth:
+  type: none
+
+required_headers:
+  - name: Origin
+    value: "https://www.creativefabrica.com"
+  - name: Referer
+    value: "https://www.creativefabrica.com/"
+
+config:
+  format: toml
+  path: "~/.config/creativefabrica-cli/config.toml"
+
+resources:
+  products:
+    description: "Search and browse the Creative Fabrica catalog (Algolia)"
+    endpoints:
+      search:
+        method: POST
+        path: "/1/indexes/*/queries"
+        description: "Low-level Algolia multi-query passthrough (prefer the top-level search/browse/free/pod commands)"
+        body:
+          properties:
+            requests:
+              type: array
+              items:
+                type: object
+                properties:
+                  indexName:
+                    type: string
+                  query:
+                    type: string
+                  page:
+                    type: int
+                  hitsPerPage:
+                    type: int
+                  filters:
+                    type: string
+        response:
+          type: object
+          item: SearchResponse
+
+types:
+  Product:
+    fields:
+      - name: objectID
+        type: string
+      - name: name_en
+        type: string
+      - name: description_en
+        type: string
+      - name: type
+        type: string
+      - name: category
+        type: string
+      - name: tags
+        type: string
+      - name: url
+        type: string
+      - name: image
+        type: string
+      - name: designerId
+        type: int
+      - name: designerName
+        type: string
+      - name: designerUrl
+        type: string
+      - name: price
+        type: float
+      - name: regularPrice
+        type: string
+      - name: isFree
+        type: bool
+      - name: hasPod
+        type: bool
+      - name: hasPromotions
+        type: bool
+      - name: outsideSubscription
+        type: bool
+      - name: isExclusive
+        type: bool
+      - name: popularity
+        type: int
+      - name: date
+        type: int
+  SearchResponse:
+    fields:
+      - name: nbHits
+        type: int
+      - name: nbPages
+        type: int
+      - name: page
+        type: int

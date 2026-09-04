@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "creativefabrica-pp-mcp",
+  "display_name": "Creative Fabrica",
+  "version": "0.0.0",
+  "description": "Search Creative Fabrica's 20-million-plus fonts, graphics, crafts, and POD designs from your terminal — with a local catalog database, file-format and commercial-license filters the web UI lacks, and designer tracking.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/creativefabrica-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/creativefabrica-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

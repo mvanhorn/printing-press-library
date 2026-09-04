@@ -1,0 +1,37 @@
+{
+  "api_name": "creativefabrica",
+  "base_url": "https://KO25I12XZ3-dsn.algolia.net",
+  "description": "Search Creative Fabrica's 20-million-plus fonts, graphics, crafts, and POD designs from your terminal — with a local catalog database, file-format and commercial-license filters the web UI lacks, and designer tracking.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "Origin",
+      "value": "https://www.creativefabrica.com"
+    },
+    {
+      "name": "Referer",
+      "value": "https://www.creativefabrica.com/"
+    }
+  ],
+  "tools": [
+    {
+      "name": "products_search",
+      "description": "Low-level Algolia multi-query passthrough (prefer the top-level search/browse/free/pod commands). Optional: requests. Returns the new SearchResponse.",
+      "method": "POST",
+      "path": "/1/indexes/*/queries",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "requests",
+          "type": "array",
+          "location": "body",
+          "description": "requests"
+        }
+      ]
+    }
+  ]
+}

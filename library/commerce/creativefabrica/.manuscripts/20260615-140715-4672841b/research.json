@@ -1,0 +1,223 @@
+{
+  "api_name": "creativefabrica",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-15T19:48:25Z",
+  "novel_features": [
+    {
+      "name": "File-format filter",
+      "command": "find",
+      "description": "Narrow craft results to a specific cut/print file format (SVG, DXF, PNG, EPS, PES) that Creative Fabrica has no facet for.",
+      "rationale": "File format is not an Algolia facet; it only exists inside tags and titles, so it requires local full-text filtering over the synced catalog.",
+      "example": "creativefabrica-pp-cli find \"mandala\" --format svg,dxf --agent",
+      "why_it_matters": "Reach for this when a crafter needs a machine-ready format the web UI can't filter on.",
+      "group": "Filters the web UI doesn't have"
+    },
+    {
+      "name": "Real-discount ranking",
+      "command": "deals",
+      "description": "Rank on-sale items by their actual regular-to-sale price drop, not just whether they are flagged on sale.",
+      "rationale": "The API only filters on a promotions flag; ranking by true discount depth requires computing the delta per item locally.",
+      "example": "creativefabrica-pp-cli deals \"font bundle\" --agent",
+      "why_it_matters": "Use this to surface the deepest genuine discounts instead of discount-theater.",
+      "group": "Local synthesis"
+    },
+    {
+      "name": "Designer profile stats",
+      "command": "designer-stats",
+      "description": "Profile a designer's catalog: product-type mix, price band, free count, POD count, and newest release.",
+      "rationale": "Requires aggregating across a designer's full synced catalog, which no single Creative Fabrica API call returns.",
+      "example": "creativefabrica-pp-cli designer-stats \"DigiArt\" --agent",
+      "why_it_matters": "Pick this when you need a one-shot read on a creator instead of scrolling their page.",
+      "group": "Local synthesis"
+    },
+    {
+      "name": "Designer comparison",
+      "command": "designer-compare",
+      "description": "Compare two designers head-to-head: catalog size, type mix, price band, free/POD share, and popularity.",
+      "rationale": "Requires a cross-designer join over two fetched catalogs that has no API or web equivalent.",
+      "example": "creativefabrica-pp-cli designer-compare \"DigiArt\" \"CraftLab\" --agent",
+      "why_it_matters": "Use this for competitor research when sourcing or scouting creators.",
+      "group": "Local synthesis"
+    },
+    {
+      "name": "New-since-snapshot diff",
+      "command": "new-since",
+      "description": "Show only catalog items added since your last sync for a tracked query or designer.",
+      "rationale": "There is no 'what's new' API; it requires diffing object IDs against a prior local snapshot.",
+      "example": "creativefabrica-pp-cli new-since \"watercolor flowers\" --agent",
+      "why_it_matters": "Reach for this to track fresh drops without re-scanning the whole catalog.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Subscription-free filter",
+      "command": "find",
+      "description": "Keep only assets usable outside an active subscription.",
+      "rationale": "The outsideSubscription attribute is returned per item but is not a server-side facet, so filtering on it requires a local post-filter.",
+      "example": "creativefabrica-pp-cli find \"valentine svg\" --no-subscription --agent",
+      "why_it_matters": "Use this when you need standalone-licensable assets, distinct from free or POD.",
+      "group": "Filters the web UI doesn't have"
+    },
+    {
+      "name": "Tag and facet explorer",
+      "command": "tags",
+      "description": "Show the top tags and categories that co-occur with a query, to refine the next search.",
+      "rationale": "Requires rolling up tag and category frequency across the result set in the local store.",
+      "example": "creativefabrica-pp-cli tags \"christmas\" --agent",
+      "why_it_matters": "Use this to discover better refinement terms before a deep search.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "File-format filter",
+      "command": "find",
+      "description": "Narrow craft results to a specific cut/print file format (SVG, DXF, PNG, EPS, PES) that Creative Fabrica has no facet for.",
+      "rationale": "File format is not an Algolia facet; it only exists inside tags and titles, so it requires local full-text filtering over the synced catalog.",
+      "example": "creativefabrica-pp-cli find \"mandala\" --format svg,dxf --agent",
+      "why_it_matters": "Reach for this when a crafter needs a machine-ready format the web UI can't filter on.",
+      "group": "Filters the web UI doesn't have"
+    },
+    {
+      "name": "Real-discount ranking",
+      "command": "deals",
+      "description": "Rank on-sale items by their actual regular-to-sale price drop, not just whether they are flagged on sale.",
+      "rationale": "The API only filters on a promotions flag; ranking by true discount depth requires computing the delta per item locally.",
+      "example": "creativefabrica-pp-cli deals \"font bundle\" --agent",
+      "why_it_matters": "Use this to surface the deepest genuine discounts instead of discount-theater.",
+      "group": "Local synthesis"
+    },
+    {
+      "name": "Designer profile stats",
+      "command": "designer-stats",
+      "description": "Profile a designer's catalog: product-type mix, price band, free count, POD count, and newest release.",
+      "rationale": "Requires aggregating across a designer's full synced catalog, which no single Creative Fabrica API call returns.",
+      "example": "creativefabrica-pp-cli designer-stats \"DigiArt\" --agent",
+      "why_it_matters": "Pick this when you need a one-shot read on a creator instead of scrolling their page.",
+      "group": "Local synthesis"
+    },
+    {
+      "name": "Designer comparison",
+      "command": "designer-compare",
+      "description": "Compare two designers head-to-head: catalog size, type mix, price band, free/POD share, and popularity.",
+      "rationale": "Requires a cross-designer join over two fetched catalogs that has no API or web equivalent.",
+      "example": "creativefabrica-pp-cli designer-compare \"DigiArt\" \"CraftLab\" --agent",
+      "why_it_matters": "Use this for competitor research when sourcing or scouting creators.",
+      "group": "Local synthesis"
+    },
+    {
+      "name": "New-since-snapshot diff",
+      "command": "new-since",
+      "description": "Show only catalog items added since your last sync for a tracked query or designer.",
+      "rationale": "There is no 'what's new' API; it requires diffing object IDs against a prior local snapshot.",
+      "example": "creativefabrica-pp-cli new-since \"watercolor flowers\" --agent",
+      "why_it_matters": "Reach for this to track fresh drops without re-scanning the whole catalog.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Subscription-free filter",
+      "command": "find",
+      "description": "Keep only assets usable outside an active subscription.",
+      "rationale": "The outsideSubscription attribute is returned per item but is not a server-side facet, so filtering on it requires a local post-filter.",
+      "example": "creativefabrica-pp-cli find \"valentine svg\" --no-subscription --agent",
+      "why_it_matters": "Use this when you need standalone-licensable assets, distinct from free or POD.",
+      "group": "Filters the web UI doesn't have"
+    },
+    {
+      "name": "Tag and facet explorer",
+      "command": "tags",
+      "description": "Show the top tags and categories that co-occur with a query, to refine the next search.",
+      "rationale": "Requires rolling up tag and category frequency across the result set in the local store.",
+      "example": "creativefabrica-pp-cli tags \"christmas\" --agent",
+      "why_it_matters": "Use this to discover better refinement terms before a deep search.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Creative Fabrica",
+    "headline": "Search Creative Fabrica's 20M+ font, graphic, craft, and POD catalog from your terminal \u2014 with file-format and commercial-license filters the web UI lacks, plus designer tracking.",
+    "value_prop": "Creative Fabrica's web UI is heavy, upsell-laden, and gives you only the facets it wants to. This CLI talks straight to the same catalog index the site uses, adds the filters crafters and print-on-demand sellers actually need: file format (svg/dxf/png/eps), commercial-license (POD), subscription-free, and real discount depth. It also tracks designers and surfaces what is new since your last run \u2014 all agent-native with --json, --csv, and --select.",
+    "quickstart": [
+      {
+        "command": "creativefabrica-pp-cli doctor --dry-run",
+        "comment": "Confirm the CLI is wired and the catalog index is reachable."
+      },
+      {
+        "command": "creativefabrica-pp-cli find \"watercolor flowers\" --limit 10",
+        "comment": "Search the catalog the way the website does."
+      },
+      {
+        "command": "creativefabrica-pp-cli find \"mandala\" --format svg --pod --agent",
+        "comment": "Find commercial-license SVG cut files \u2014 a filter the web UI can't express."
+      },
+      {
+        "command": "creativefabrica-pp-cli free --type Fonts --limit 20",
+        "comment": "List the newest genuinely-free fonts."
+      },
+      {
+        "command": "creativefabrica-pp-cli designer-stats \"DigiArt\"",
+        "comment": "Profile a designer's whole catalog at a glance."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Search returns zero results for everything",
+        "fix": "Run 'creativefabrica-pp-cli doctor' \u2014 the public search key may have rotated; the CLI re-discovers it automatically, or set CREATIVEFABRICA_ALGOLIA_API_KEY / CREATIVEFABRICA_ALGOLIA_APP_ID to override."
+      },
+      {
+        "symptom": "HTTP 403 from the search backend",
+        "fix": "The catalog key is referer-restricted; the CLI sends the required Origin/Referer headers automatically \u2014 upgrade if you see this on an old build."
+      },
+      {
+        "symptom": "--format returns nothing",
+        "fix": "Format is matched against tags and titles, not a server facet; broaden the query or try a sibling format (png vs svg)."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or script needs to search, filter, or profile the Creative Fabrica design-asset catalog \u2014 finding fonts, graphics, SVG/DXF cut files, embroidery files, or POD-licensable designs by keyword, type, category, format, price, or designer. It is ideal for print-on-demand sourcing, Cricut/Silhouette project hunting, and tracking specific designers' new releases over time via the local mirror.",
+    "anti_triggers": [
+      "Do not use this CLI to download, purchase, or access files in a user's personal Creative Fabrica library or favorites \u2014 v1 is the anonymous public catalog only.",
+      "Do not use this CLI to upload or sell products as a designer.",
+      "Do not use this CLI for Creative Fabrica's AI Studio generation tools.",
+      "Do not use this CLI to redeem the curated 24-hour daily-gifts \u2014 it surfaces the permanent free-item catalog, not the daily timed freebies."
+    ],
+    "recipes": [
+      {
+        "title": "Commercial-license cut files",
+        "command": "creativefabrica-pp-cli find \"floral monogram\" --format svg --pod --limit 25 --csv",
+        "explanation": "POD-safe SVG candidates exported as CSV for a sourcing sheet."
+      },
+      {
+        "title": "Newest free fonts",
+        "command": "creativefabrica-pp-cli free --type Fonts --sort newest --limit 30 --agent",
+        "explanation": "The latest genuinely-free fonts in machine-readable form."
+      },
+      {
+        "title": "Deepest real discounts",
+        "command": "creativefabrica-pp-cli deals \"bundle\" --agent --select name,price,regular_price,discount_pct",
+        "explanation": "On-sale items ranked by actual discount depth, narrowed to the price fields."
+      },
+      {
+        "title": "Track a designer's drops",
+        "command": "creativefabrica-pp-cli new-since --designer 2880714 --agent",
+        "explanation": "Only the items this designer added since your last sync."
+      },
+      {
+        "title": "Refine a broad search",
+        "command": "creativefabrica-pp-cli tags \"christmas\" --select tag,count --agent",
+        "explanation": "Top co-occurring tags to sharpen a vague query before a deep search."
+      }
+    ],
+    "trigger_phrases": [
+      "search creative fabrica for svg",
+      "find POD fonts on creative fabrica",
+      "creative fabrica free graphics",
+      "profile a creative fabrica designer",
+      "what's new on creative fabrica",
+      "use creativefabrica",
+      "run creativefabrica"
+    ]
+  }
+}

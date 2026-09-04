@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "creativefabrica",
+  "run_id": "20260615-140715-4672841b",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 49,
+  "tests_passed": 49,
+  "tests_skipped": 44,
+  "auth_context": {
+    "type": "none"
+  }
+}

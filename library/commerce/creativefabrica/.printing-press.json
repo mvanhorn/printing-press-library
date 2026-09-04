@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-16T04:20:20.968806Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "creativefabrica",
+  "display_name": "Creative Fabrica",
+  "cli_name": "creativefabrica-pp-cli",
+  "creator": {
+    "handle": "vcolombo",
+    "name": "Vincent Colombo"
+  },
+  "owner": "vcolombo",
+  "printer": "vcolombo",
+  "printer_name": "Vincent Colombo",
+  "spec_path": "creativefabrica-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:62604e11b72d4b518b59b59a2b506844494e48e89332dd842e9d3e98b3ccd962",
+  "run_id": "20260615-140715-4672841b",
+  "category": "commerce",
+  "description": "Search Creative Fabrica's 20-million-plus fonts, graphics, crafts, and POD designs from your terminal — with a local catalog database, file-format and commercial-license filters the web UI lacks, and designer tracking.",
+  "mcp_binary": "creativefabrica-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "File-format filter",
+      "command": "find",
+      "description": "Narrow craft results to a specific cut/print file format (SVG, DXF, PNG, EPS, PES) that Creative Fabrica has no facet for."
+    },
+    {
+      "name": "Real-discount ranking",
+      "command": "deals",
+      "description": "Rank on-sale items by their actual regular-to-sale price drop, not just whether they are flagged on sale."
+    },
+    {
+      "name": "Designer profile stats",
+      "command": "designer-stats",
+      "description": "Profile a designer's catalog: product-type mix, price band, free count, POD count, and newest release."
+    },
+    {
+      "name": "Designer comparison",
+      "command": "designer-compare",
+      "description": "Compare two designers head-to-head: catalog size, type mix, price band, free/POD share, and popularity."
+    },
+    {
+      "name": "New-since-snapshot diff",
+      "command": "new-since",
+      "description": "Show only catalog items added since your last sync for a tracked query or designer."
+    },
+    {
+      "name": "Subscription-free filter",
+      "command": "find",
+      "description": "Keep only assets usable outside an active subscription."
+    },
+    {
+      "name": "Tag and facet explorer",
+      "command": "tags",
+      "description": "Show the top tags and categories that co-occur with a query, to refine the next search."
+    }
+  ]
+}
