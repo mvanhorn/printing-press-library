@@ -4,8 +4,8 @@
   "applied_at": "2026-09-04",
   "base_run_id": "20260626-230015-d1a83064",
   "base_printing_press_version": "4.25.0",
-  "summary": "A county sweep that cannot fetch every location must fail instead of returning a partial notice set, and agenda snippets must be sliced from the same lowercased string that was searched.",
-  "reason": "Partial location failures previously returned as success, so since recorded an incomplete seen-set and millard/landuse/agenda/watch silently omitted towns. Unicode ToLower can also change UTF-8 length, so a lowercased Index offset must not be applied to the original haystack.",
+  "summary": "A county sweep that cannot fetch every location must fail instead of returning a partial notice set, and agenda snippets must come from the original text after a Unicode-safe case-insensitive match.",
+  "reason": "Partial location failures previously returned as success, so since recorded an incomplete seen-set and millard/landuse/agenda/watch silently omitted towns. Unicode ToLower can change UTF-8 length, so match offsets must map back onto the original agenda rather than slicing the lowercased copy.",
   "files": [
     "internal/cli/pmn_helpers.go",
     "internal/cli/agenda_scan.go",

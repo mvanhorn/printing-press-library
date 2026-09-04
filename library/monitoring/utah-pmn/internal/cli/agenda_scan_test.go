@@ -67,14 +67,14 @@ func TestNovelAgendaScanBehavior(t *testing.T) {
 			notice:  pmnNotice{NoticeID: 2, MeetingAgenda: "İstanbul CUP hearing tonight", MeetingTitle: "Council"},
 			term:    "CUP",
 			wantHit: true,
-			inSnip:  "cup",
+			inSnip:  "İstanbul CUP",
 		},
 		{
 			name:    "title-only hit",
 			notice:  pmnNotice{NoticeID: 3, MeetingAgenda: "consent calendar", MeetingTitle: "Rezone 12 North"},
 			term:    "rezone",
 			wantHit: true,
-			inSnip:  "rezone",
+			inSnip:  "Rezone",
 		},
 		{
 			name:    "no match",

@@ -82,16 +82,41 @@ func newNovelAgendaScanCmd(flags *rootFlags) *cobra.Command {
 }
 
 // matchAgendaTerm reports whether term appears in the notice agenda or title.
-// Search and snippet use the same lowercased string so Unicode case folding
-// that changes UTF-8 length cannot feed a foreign byte offset into slicing.
+// Matching is case-insensitive; the snippet is taken from the original text.
 func matchAgendaTerm(n pmnNotice, term string) (agendaMatch, bool) {
 	needle := strings.ToLower(term)
-	hayLower := strings.ToLower(n.MeetingAgenda + "\n" + n.MeetingTitle)
-	idx := strings.Index(hayLower, needle)
+	if needle == "" {
+		return agendaMatch{}, false
+	}
+	hay := n.MeetingAgenda + "\n" + n.MeetingTitle
+	lowered, origAt := foldWithOrigMap(hay)
+	idx := strings.Index(lowered, needle)
 	if idx < 0 {
 		return agendaMatch{}, false
 	}
-	return agendaMatch{pmnNotice: n, Snippet: snippetAround(hayLower, idx, len(needle))}, true
+	origIdx := origAt[idx]
+	origEnd := origAt[idx+len(needle)]
+	return agendaMatch{pmnNotice: n, Snippet: snippetAround(hay, origIdx, origEnd-origIdx)}, true
+}
+
+// foldWithOrigMap lowercases s with Unicode special casing and records, for
+// each lowered byte, the original byte offset of the rune that produced it.
+// origAt has length len(lowered)+1; the last entry is len(s).
+func foldWithOrigMap(s string) (string, []int) {
+	var b strings.Builder
+	b.Grow(len(s))
+	origAt := make([]int, 0, len(s)+1)
+	for i := 0; i < len(s); {
+		_, size := utf8.DecodeRuneInString(s[i:])
+		folded := strings.ToLower(s[i : i+size])
+		for j := 0; j < len(folded); j++ {
+			origAt = append(origAt, i)
+		}
+		b.WriteString(folded)
+		i += size
+	}
+	origAt = append(origAt, len(s))
+	return b.String(), origAt
 }
 
 // snippetAround returns ~60 bytes of context on each side of a match.
