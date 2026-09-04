@@ -341,6 +341,31 @@ func createReportViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags 
 		return nil, 0, fmt.Errorf("not logged in to Concur in the automated browser -- log in manually in the opened Chrome window, then re-run this command (or set up a dedicated debug-enabled Chrome profile to skip this every time; see --help)")
 	}
 
+	// PATCH(amend-2026-09-04: dismiss blocking interstitial before Create
+	// Report click) -- a one-time-per-session promotional dialog (observed
+	// live: "We've updated the hotel booking experience.") can render on
+	// top of the Create Report modal on a fresh page load and intercept
+	// the Create Report click, leaving createReportViaBrowserFallback to
+	// time out in waitForReportID with the URL never having navigated.
+	// Mirror hotels_search.go's overlay-clearing step (find a plain
+	// "close" button, click it) first. Confirmed live that click alone is
+	// not always enough -- if a dialog is still present afterward, fall
+	// back to Escape, which was confirmed live to dismiss it. Escape can
+	// also close the Create Report modal underneath as collateral damage;
+	// if that happens, the waitForRef call below fails loudly with a
+	// clear "could not find the Report Name textbox" error rather than
+	// silently proceeding on a broken page state.
+	if ref, ok := findRef(refs, "close", "button"); ok {
+		_, _ = runAgentBrowser("click", "@"+ref)
+		time.Sleep(300 * time.Millisecond)
+		if refs2, err := agentBrowserSnapshotRefs(); err == nil {
+			if _, stillOpen := findRef(refs2, "close", "button"); stillOpen {
+				_, _ = runAgentBrowser("press", "Escape")
+				time.Sleep(300 * time.Millisecond)
+			}
+		}
+	}
+
 	reportNameRef, err := waitForRef("Report Name", "textbox", stepTimeout)
 	if err != nil {
 		return nil, 0, fmt.Errorf("could not find the Report Name textbox: %w", err)
